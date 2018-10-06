@@ -23,4 +23,4 @@ photo gallery with the following features:
    generated automatically
  - gallery structure is stored in a single file of human readable (UTF-8) form
  
-See example at andreasfalco.com
+See example gallery at andreasfalco.com
