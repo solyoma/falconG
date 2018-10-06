@@ -225,6 +225,7 @@ public:
 	void RestoreOther();
 	_CDirStr GalleryRoot() const	{ return _CDirStr(dsGallery) + _CDirStr(dsGRoot); }
 	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
+	_CDirStr ThumbnailDirectory() const { return GalleryRoot() + dsThumbDir; }
 	_CDirStr AlbumDirectory() const { return GalleryRoot() + dsAlbumDir; }
 
 	_ChangedFlag changed;		// any of config is changed		THIS MUST BE THE FIRST MEMBER OF CONFIG! (why?)
@@ -242,6 +243,7 @@ public:
 	_CDirStr dsCssDir;
 	_CDirStr dsFontDir;
 	_CDirStr dsImageDir;		// images on server AND or destination
+	_CDirStr dsThumbDir;		// thumbnail directory on server AND or destination
 
 	
 	_CBool bAddTitlesToAll;		// into gallery.struct
@@ -306,6 +308,8 @@ public:
 	_CElem images;				// color for images and folders
 	_CInt imageWidth;
 	_CInt imageHeight;
+	_CInt thumbWidth;
+	_CInt thumbHeight;
 	_CInt imageSizesLinked;
 	_CBool doNotEnlarge;		// default: true
 				// image decoration

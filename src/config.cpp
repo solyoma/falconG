@@ -112,6 +112,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->dsCssDir.changed = false;
 		_parent->dsFontDir.changed = false;
 		_parent->dsImageDir.changed = false;
+		_parent->dsThumbDir.changed = false;
 
 		_parent->sUplink.changed = false;
 		_parent->sMainPage.changed = false;
@@ -165,6 +166,8 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->images.ClearChanged();
 		_parent->imageWidth.changed = false;
 		_parent->imageHeight.changed = false;
+		_parent->thumbWidth.changed = false;
+		_parent->thumbHeight.changed = false;
 		_parent->imageSizesLinked.changed = false;
 
 		_parent->iconToTopOn.changed = false;
@@ -525,6 +528,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	dsCssDir = cfg.dsCssDir;
 	dsFontDir = cfg.dsFontDir;
 	dsImageDir = cfg.dsImageDir;
+	dsThumbDir = cfg.dsThumbDir;
 
 	sUplink = cfg.sUplink;				// if given uplink in gallery root goes here
 	sMainPage = cfg.sMainPage;
@@ -601,6 +605,8 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	images = cfg.images;
 	imageWidth = cfg.imageWidth;
 	imageHeight = cfg.imageHeight;
+	thumbWidth = cfg.thumbWidth;
+	thumbHeight = cfg.thumbHeight;
 	imageSizesLinked = cfg.imageSizesLinked;
 	// image decoration
 	iconToTopOn = cfg.iconToTopOn;
@@ -838,6 +844,8 @@ CONFIG::CONFIG()
 	waterMark.nameStr = "waterMark";
 	imageWidth.nameStr = "imageWidth";
 	imageHeight.nameStr = "imageHeight";
+	thumbWidth.nameStr = "thumbWidth";
+	thumbHeight.nameStr = "thumbHeight";
 	imageSizesLinked.nameStr = "imageSizesLinked";
 	doNotEnlarge.nameStr = "doNotEnlarge";
 	
@@ -867,6 +875,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	// no default for dsGRoot !     dsGRoot.defStr     = "falconG/";
 	dsAlbumDir.defStr  = "albums/";
 	dsImageDir.defStr  = "img/";
+	dsThumbDir.defStr  = "thumb/";
 	sUplink.defStr     =  "";		// inside dsGRoot base1hu.html, etc
 	dsCssDir.defStr    =  "css/";
 	dsFontDir.defStr   =  "fonts/";
@@ -1019,6 +1028,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 		// images
 	__ConfigReadInt(s, imageWidth, 1920);
 	__ConfigReadInt(s, imageHeight, 1080);
+	__ConfigReadInt(s, thumbWidth, 600);
+	__ConfigReadInt(s, thumbHeight, 400);
 	__ConfigReadInt(s, imageSizesLinked, true);
 	__ConfigReadBool(s, doNotEnlarge, true);
 		// image decoration

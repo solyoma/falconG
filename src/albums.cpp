@@ -43,6 +43,7 @@ _CDirStr	__DestDir,		// generate gallery into _RootDir inside this
 			__AlbumDir,		// all albums
 			__CssDir,		// colors.css, stylefg.css
 			__ImageDir,		// all images. image name with date (?)
+			__ThumbDir,		// all images. image name with date (?)
 			__FontDir,		// some of used fonts
 			__ResourceDir;
 
@@ -59,7 +60,8 @@ static void __SetBaseDirs()
 	__RootDir = config.dsGallery + config.dsGRoot;	// .htaccess, constants.php, index.php
 	__AlbumDir = __RootDir + config.dsAlbumDir;		// all albums
 	__CssDir = __RootDir + config.dsCssDir;	  		// colors.css, stylefg.css
-	__ImageDir = __RootDir + config.dsImageDir;		// all images. image name with date (?)
+	__ImageDir = __RootDir + config.dsImageDir;		// contains all images
+	__ThumbDir = __RootDir + config.dsThumbDir;		// contains all thumbnails
 	__FontDir = __RootDir + config.dsFontDir;		// some of used fonts
 }
 
@@ -1547,6 +1549,9 @@ bool AlbumGenerator::_CreateDirectories()
 	ask |= QDir::isAbsolutePath(config.dsImageDir.ToString());
 	if (!__CreateDir(__RootDir + config.dsImageDir, ask))
 		return false;
+	ask |= QDir::isAbsolutePath(config.dsThumbDir.ToString());
+	if (!__CreateDir(__RootDir + config.dsThumbDir, ask))
+		return false;
 	ask |= QDir::isAbsolutePath(config.dsFontDir.ToString());
 	if (!__CreateDir(__RootDir + config.dsFontDir, ask))
 		return false;
@@ -2961,7 +2966,7 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 {
 	const IdList &idList = (itIsAnAlbum ? album.albums : album.images);
 	const ID_t id = idList[i];  
-	QString title, desc, sImageDir, sImagePath;
+	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
 	if ((album.ID & ID_MASK) == 1)
@@ -2976,6 +2981,7 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 	}
 
 	sImageDir = (QDir::isAbsolutePath(config.dsImageDir.ToString()) ? "" : sOneDirUp) + config.dsImageDir.ToString();
+	sThumbnailDir = (QDir::isAbsolutePath(config.dsThumbDir.ToString()) ? "" : sOneDirUp) + config.dsThumbDir.ToString();
 
 	Image *pImage = nullptr;
 	ID_t thumb = 0;
@@ -2987,7 +2993,10 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 			if (_imageMap.contains(thumb))
 				pImage = &_imageMap[thumb];
 			else
+			{
 				sImagePath = sImageDir + QString("%1.jpg").arg(thumb);
+				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb);
+			}
 		}
 		else
 			pImage = &_imageMap[0];
@@ -3004,8 +3013,11 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		title = _textMap[_albumMap[id].titleID][_actLanguage];
 		desc = _textMap[_albumMap[id].descID][_actLanguage];
 		
-		if(sImagePath.isEmpty())		// otherwise name for image already set
-			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") +  (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
+		{
+			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+			sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		}
 		_ofs <<  sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false);	// non root albums are in the same sub directory
 	}
 	else
@@ -3013,11 +3025,12 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		title = DecodeLF(_textMap[pImage->titleID][_actLanguage], true);
 		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
 		sImagePath = sImageDir + ( (album.images.size() > 0 ? pImage->LinkName() : QString()) );
-		_ofs << sImagePath;		// image in the image directory
+		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
+		_ofs << sThumbnailPath;		// image in the image directory
 	}
 
 
-	_ofs << "\"><img src=\"" + sImagePath + "\" alt=\"\"></a>\n"
+	_ofs << "\"><img src=\"" + sThumbnailPath + "\" alt=\"\"></a>\n"
 			"     </div>\n"											   // end of div thumb
 			"     <div class=\"links\">\n"
 			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\"></a>\n"
@@ -3056,9 +3069,11 @@ int AlbumGenerator::_ProcessImages()
 	emit SignalToSetProgressParams(0, _imageMap.size(), 0, 1); // phase = 1
 	int cnt = 0;	// count of images copied
 
-	bool doProcess = true;	// only process image if this flag is set
+	bool doProcess = true,		// only process image if this flag is set
+		doProcessThumb = true;	// same for thumb
 
-	ImageConverter converter(config.imageWidth, config.imageHeight, config.doNotEnlarge);
+	ImageConverter converter(config.imageWidth, config.imageHeight, config.doNotEnlarge),
+		           thumbConverter(config.thumbWidth, config.thumbHeight, true);		// do not enlarge thumbnail image
 
 	emit SignalToEnableEditTab(false);
 
@@ -3083,6 +3098,7 @@ int AlbumGenerator::_ProcessImages()
 			continue;
 
 		doProcess = true;		// suppose image changed
+		doProcessThumb = true;		// suppose image changed
 		if (cnt > 10)
 		{
 			_remDsp.Update(cnt);
@@ -3091,12 +3107,14 @@ int AlbumGenerator::_ProcessImages()
 
 		// resize and copy and  watermark
 		QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-				dst = config.ImageDirectory().ToString() + im.LinkName();
+				dst = config.ImageDirectory().ToString() + im.LinkName(),
+				thumb = config.ThumbnailDirectory().ToString() + im.LinkName();
 
 		QFileInfo fi(src);						// test for source image
 		bool srcExists = fi.exists();
 
-		bool dstExists = QFile::exists(dst);
+		bool dstExists = QFile::exists(dst),
+			 thumbExists = QFile::exists(thumb);
 
 		if (!srcExists)
 		{
@@ -3105,7 +3123,7 @@ int AlbumGenerator::_ProcessImages()
 			continue;
 		}
 
-		QImageReader imgReader(src);
+		ImageReader imgReader(src);
 
 		if (dstExists)		// then test if this image was modified (width = 0: only added by name)
 		{
@@ -3116,7 +3134,16 @@ int AlbumGenerator::_ProcessImages()
 			if (im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize)   // not newer and  same size  (TODO: checksum)
 				doProcess = false;			// then do not process
 		}
-		if (doProcess)
+		if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
+		{
+			if (!im.width)	// read JAlbum, and no parameters jet
+				thumbConverter.GetSizes(imgReader);
+
+			QDate dt = fi.birthTime().date();
+			if (im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize)   // not newer and  same size  (TODO: checksum)
+				doProcessThumb = false;			// then do not process
+		}
+		if (doProcess || doProcessThumb)
 		{
 			//		int btn;
 					//if (!QFile::exists(dst) && !config.bOvrImages)
@@ -3128,12 +3155,17 @@ int AlbumGenerator::_ProcessImages()
 			WaterMark *pwm = nullptr;
 			if (config.waterMark.used)
 				pwm = &config.waterMark.wm;
-			im.aspect = converter.Process(imgReader, dst, config.bOvrImages,pwm);
-			im.owidth = converter.owidth;
-			im.oheight = converter.oheight;
-			im.width = converter.width;
-			im.height = converter.height;
-			_imageMap[im.ID] = im;			
+			if (doProcess)
+			{
+				im.aspect = converter.Process(imgReader, dst, config.bOvrImages, pwm);
+				im.owidth = converter.owidth;
+				im.oheight = converter.oheight;
+				im.width = converter.width;
+				im.height = converter.height;
+				_imageMap[im.ID] = im;
+			}
+			if (doProcessThumb)
+				thumbConverter.Process(imgReader, thumb, config.bOvrImages, pwm);
 
 //			emit SignalImageMapChanged();	// modify list of images
 			QApplication::processEvents();

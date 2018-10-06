@@ -482,7 +482,7 @@ ImageConverter::ImageConverter(int maxwidth, int maxheight, bool doNotEnlarge) :
 
 }
 
-double ImageConverter::GetSizes(QImageReader &imgReader)
+double ImageConverter::GetSizes(ImageReader &imgReader)
 {
 	if (!imgReader.canRead())
 		return 0;
@@ -526,7 +526,7 @@ double ImageConverter::GetSizes(QImageReader &imgReader)
 * GLOBALS: 
 * REMARKS:	path of source image must be set into imgReader before calling
 *--------------------------------------------------------------------------*/
-double ImageConverter::Process(QImageReader &imgReader, QString dest, bool ovr, WaterMark *pwm)
+double ImageConverter::Process(ImageReader &imgReader, QString dest, bool ovr, WaterMark *pwm)
 {
 	if (!ovr)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
 		return -1.0;
@@ -534,17 +534,17 @@ double ImageConverter::Process(QImageReader &imgReader, QString dest, bool ovr, 
 	if ((aspect = GetSizes(imgReader)) == 0)
 		return 0;
 
-	static QImage img;
-	imgReader.read(&img);
+	if(!imgReader.isReady)		// was it read already?
+		imgReader.read();
 
-	_pImg = &img;
+	_pImg = &imgReader.img;		  // used in _AddWatermark
 	if (pwm)
 		_AddWatermark(*pwm);
 
 	QImageWriter imageWriter(dest);
 	imageWriter.setQuality(imgReader.quality());
 	imageWriter.setFormat(imgReader.format());
-	if (!imageWriter.write(img))
+	if (!imageWriter.write(imgReader.img))
 	{
 		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),
 			imageWriter.errorString() + "\n'" + dest + "'", QMessageBox::Ok).exec();

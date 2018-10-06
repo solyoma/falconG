@@ -475,8 +475,8 @@ void FalconG::_PopulateFromConfig()
 	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
 	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
 
-	ui.edtImageWidth->setText(QString().setNum(config.imageWidth));
-	ui.edtImageHeight->setText(QString().setNum(config.imageHeight));
+	ui.sbImageWidth->setValue(config.imageWidth);
+	ui.sbImageHeight->setValue(config.imageHeight);
 	ui.btnLink->setChecked(config.imageSizesLinked);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 
@@ -893,28 +893,25 @@ void FalconG::on_edtWmVertMargin_textChanged()
 
 /*============================================================================
   * TASK:
-  * EXPECTS:
+  * EXPECTS: h - new value (old is in config)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_edtImageHeight_textChanged()
+void FalconG::on_sbImageHeight_valueChanged(int h)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int h = ui.edtImageHeight->text().toInt(),	// new value (old is in config)
-		w = config.imageWidth;
+	int w = config.imageWidth;
 
 	if (ui.btnLink->isChecked())
 	{
 		w = h * _aspect;
-		ui.slWidth->setValue(w);
-		ui.edtImageWidth->setText(QString().setNum(w));
+		ui.sbImageWidth->setValue(w);
 		config.imageWidth = w;
 		config.imageWidth.changed = true;
 		h = 0; // no change in aspect ratio when linked!
 	}
-	ui.slHeight->setValue(h);
 	config.imageHeight = h;
 	config.imageHeight.changed = true;
 	if(h)
@@ -925,31 +922,83 @@ void FalconG::on_edtImageHeight_textChanged()
 
 /*============================================================================
   * TASK:
-  * EXPECTS:
+  * EXPECTS: w - new value (old is in config)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_edtImageWidth_textChanged()
+void FalconG::on_sbImageWidth_valueChanged(int w)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int w = ui.edtImageWidth->text().toInt(),		// new value
-		h = config.imageHeight;
+	int h = config.imageHeight;
 
 	if (ui.btnLink->isChecked())
 	{
 		h = w / _aspect;
-		ui.slHeight->setValue(h);
-		ui.edtImageHeight->setText(QString().setNum(h));
+		ui.sbImageHeight->setValue(h);
+		h = 0; // no change in aspect ratio when linked!
+	}
+	config.imageWidth = w;
+	config.imageWidth.changed = true;
+	if(h)	// else no change
+		_aspect = (double)w / (double)h;
+	--_busy;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS: h - new value (old is in config)
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailHeight_valueChanged(int h)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int w = config.imageWidth;
+
+	if (ui.btnLink->isChecked())
+	{
+		w = h * _aspect;
+		ui.sbThumbnailWidth->setValue(w);
+		config.thumbWidth = w;
+		config.thumbWidth.changed = true;
+		h = 0; // no change in aspect ratio when linked!
+	}
+	config.thumbHeight = h;
+	config.thumbHeight.changed = true;
+	if (h)
+		_aspect = (double)w / (double)h;
+
+	--_busy;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS: h - new value (old is in config)
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailWidth_valueChanged(int w)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int h = config.imageHeight;
+
+	if (ui.btnLink->isChecked())
+	{
+		h = w / _aspect;
+		ui.sbThumbnailHeight->setValue(h);
 		//config.imageWidth = w;
 		//config.imageWidth.changed = true;
 		h = 0; // no change in aspect ratio when linked!
 	}
-	ui.slWidth->setValue(w);
-	config.imageWidth = w;
-	config.imageWidth.changed = true;
-	if(h)	// else no change
+	config.thumbWidth = w;
+	config.thumbWidth.changed = true;
+	if (h)	// else no change
 		_aspect = (double)w / (double)h;
 	--_busy;
 }
@@ -1617,29 +1666,6 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 	config.waterMark.wm.opacity = val;
 	config.changed = config.waterMark.changed = true;
 
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_slWidth_valueChanged(int val)
-{
-	ui.edtImageWidth->setText(QString().setNum(val));	// it sets height too if linked and stores in config
-	// and calls this function back, but with the busy flag set
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_slHeight_valueChanged(int val)
-{
-	ui.edtImageHeight->setText(QString().setNum(val));
 }
 
 /*============================================================================

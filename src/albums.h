@@ -145,7 +145,16 @@ struct Image : public IABase
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image &i);
 
-	QString LinkName() const { int pos = name.lastIndexOf('.'); return QString().setNum(ID) + name.mid(pos);  }	// e.g. 12345.jpg
+	QString LinkName() const 
+	{ 
+		if (ID)
+		{
+			int pos = name.lastIndexOf('.');
+			return QString().setNum(ID) + name.mid(pos);	// e.g. 12345.jpg
+		}
+		else
+			return name;
+	}	
 	QTextStream & WriteInfo(QTextStream &ofs) const;
 };
 

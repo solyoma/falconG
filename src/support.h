@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QImage>
 #include <QPixmap>
+#include <QImageReader>
 #include <QPainter>
 //#include <QSet>
 #include <time.h>
@@ -123,6 +124,17 @@ struct WaterMark
 	}
 };
 
+//*****************************************																			
+struct ImageReader : public QImageReader
+{
+	QImage img;			// read into this
+	bool isReady = false;
+	bool read() { return isReady = QImageReader::read(&img); }
+	ImageReader(QIODevice *device, const QByteArray &format = QByteArray()) : QImageReader(device, format) {}
+	ImageReader(const QString &fileName, const QByteArray &format = QByteArray()) : QImageReader(fileName, format) {}
+};
+
+//---------------------
 //*****************************************																			//---------------------
 struct ImageConverter
 {
@@ -135,8 +147,8 @@ struct ImageConverter
 
 	ImageConverter(int maxwidth, int maxheight, bool doNotEnlarge = true);
 
-	double GetSizes(QImageReader &reader);	
-	double Process(QImageReader &reader, QString dest, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+	double GetSizes(ImageReader &reader);	
+	double Process(ImageReader &reader, QString dest, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
 private:
 	QImage * _pImg = nullptr;

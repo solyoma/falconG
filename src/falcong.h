@@ -148,7 +148,6 @@ private slots:
 	void on_edtGradMiddleColor_textChanged();			// gradient color #2 for many WEB element
 	void on_edtGradStopColor_textChanged();			// gradient color #3 for many WEB element
 	void on_edtEmailTo_textChanged();
-	void on_edtImageHeight_textChanged();			// image height
 	void on_edtImg_textChanged();
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
@@ -158,7 +157,10 @@ private slots:
 	void on_edtUplink_textChanged();
 	void on_edtMainPage_textChanged();
 	void on_edtWatermark_textChanged();
-	void on_edtImageWidth_textChanged();				// image width
+	void on_sbImageHeight_valueChanged(int h);			// image height
+	void on_sbImageWidth_valueChanged(int w);				// image width
+	void on_sbThumbnailHeight_valueChanged(int h);			// image height
+	void on_sbThumbnailWidth_valueChanged(int w);				// image width
 	void on_edtWmColor_textChanged();
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
@@ -211,11 +213,6 @@ private slots:
 	void on_sbTextOpacity_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbWmOpacity_valueChanged(int val);
-
-	void on_slWidth_valueChanged(int val);
-	void on_slHeight_valueChanged(int val);
-
-//	void on_btnLink_clicked();
 
 	void on_btnGalleryTitle_clicked();
 	void on_btnGalleryDesc_clicked();
