@@ -26,7 +26,6 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QSplitter>
@@ -110,13 +109,13 @@ public:
     QCheckBox *chkSetLatest;
     QGroupBox *gbGoogleAnalytics;
     QGridLayout *gridLayout_2;
-    QLineEdit *edtTrackingCode;
     QCheckBox *chkUseGoogleAnalytics;
     QLabel *label_9;
+    QLineEdit *edtTrackingCode;
     QGroupBox *gbAdvanced;
     QFormLayout *formLayout_2;
     QLabel *label_23;
-    QLineEdit *edtImg;
+    QLineEdit *edtThumb;
     QLabel *label_22;
     QLineEdit *edtAlbumDir;
     QLabel *label_44;
@@ -125,6 +124,8 @@ public:
     QLineEdit *edtDefaultFonts;
     QLabel *label_45;
     QLineEdit *edtBaseName;
+    QLabel *label_56;
+    QLineEdit *edtImg;
     QGridLayout *gridLayout_16;
     QCheckBox *chkDisregardStruct;
     QCheckBox *chkAddTitlesToAll;
@@ -244,16 +245,17 @@ public:
     QVBoxLayout *verticalLayout_2;
     QGroupBox *groupBox;
     QGridLayout *gridLayout;
-    QLabel *label_2;
-    QLineEdit *edtImageHeight;
-    QSlider *slWidth;
     QLabel *label_3;
+    QLabel *label_2;
     QLabel *label;
-    QLineEdit *edtImageWidth;
-    QToolButton *btnLink;
     QCheckBox *chkDoNotEnlarge;
-    QSlider *slHeight;
+    QSpinBox *sbThumbnailWidth;
+    QSpinBox *sbThumbnailHeight;
+    QLabel *label_7;
     QSpacerItem *horizontalSpacer_9;
+    QToolButton *btnLink;
+    QSpinBox *sbImageWidth;
+    QSpinBox *sbImageHeight;
     QWidget *widget;
     QVBoxLayout *verticalLayout_3;
     QGroupBox *gbWatermark;
@@ -728,12 +730,6 @@ public:
         gridLayout_2->setSpacing(6);
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        edtTrackingCode = new QLineEdit(gbGoogleAnalytics);
-        edtTrackingCode->setObjectName(QStringLiteral("edtTrackingCode"));
-        edtTrackingCode->setFont(font);
-
-        gridLayout_2->addWidget(edtTrackingCode, 1, 1, 1, 1);
-
         chkUseGoogleAnalytics = new QCheckBox(gbGoogleAnalytics);
         chkUseGoogleAnalytics->setObjectName(QStringLiteral("chkUseGoogleAnalytics"));
         chkUseGoogleAnalytics->setFont(font);
@@ -744,7 +740,13 @@ public:
         label_9->setObjectName(QStringLiteral("label_9"));
         label_9->setFont(font);
 
-        gridLayout_2->addWidget(label_9, 1, 0, 1, 1);
+        gridLayout_2->addWidget(label_9, 0, 1, 1, 1);
+
+        edtTrackingCode = new QLineEdit(gbGoogleAnalytics);
+        edtTrackingCode->setObjectName(QStringLiteral("edtTrackingCode"));
+        edtTrackingCode->setFont(font);
+
+        gridLayout_2->addWidget(edtTrackingCode, 0, 2, 1, 1);
 
 
         verticalLayout_15->addWidget(gbGoogleAnalytics);
@@ -763,61 +765,74 @@ public:
         label_23->setMinimumSize(QSize(93, 0));
         label_23->setFont(font);
 
-        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_23);
+        formLayout_2->setWidget(1, QFormLayout::LabelRole, label_23);
+
+        edtThumb = new QLineEdit(gbAdvanced);
+        edtThumb->setObjectName(QStringLiteral("edtThumb"));
+        edtThumb->setFont(font);
+
+        formLayout_2->setWidget(1, QFormLayout::FieldRole, edtThumb);
+
+        label_22 = new QLabel(gbAdvanced);
+        label_22->setObjectName(QStringLiteral("label_22"));
+        label_22->setFont(font);
+
+        formLayout_2->setWidget(2, QFormLayout::LabelRole, label_22);
+
+        edtAlbumDir = new QLineEdit(gbAdvanced);
+        edtAlbumDir->setObjectName(QStringLiteral("edtAlbumDir"));
+        edtAlbumDir->setFont(font);
+
+        formLayout_2->setWidget(2, QFormLayout::FieldRole, edtAlbumDir);
+
+        label_44 = new QLabel(gbAdvanced);
+        label_44->setObjectName(QStringLiteral("label_44"));
+        label_44->setFont(font);
+
+        formLayout_2->setWidget(3, QFormLayout::LabelRole, label_44);
+
+        edtFontDir = new QLineEdit(gbAdvanced);
+        edtFontDir->setObjectName(QStringLiteral("edtFontDir"));
+        edtFontDir->setFont(font);
+
+        formLayout_2->setWidget(3, QFormLayout::FieldRole, edtFontDir);
+
+        label_46 = new QLabel(gbAdvanced);
+        label_46->setObjectName(QStringLiteral("label_46"));
+        label_46->setFont(font);
+
+        formLayout_2->setWidget(4, QFormLayout::LabelRole, label_46);
+
+        edtDefaultFonts = new QLineEdit(gbAdvanced);
+        edtDefaultFonts->setObjectName(QStringLiteral("edtDefaultFonts"));
+        edtDefaultFonts->setFont(font);
+
+        formLayout_2->setWidget(4, QFormLayout::FieldRole, edtDefaultFonts);
+
+        label_45 = new QLabel(gbAdvanced);
+        label_45->setObjectName(QStringLiteral("label_45"));
+        label_45->setFont(font);
+
+        formLayout_2->setWidget(5, QFormLayout::LabelRole, label_45);
+
+        edtBaseName = new QLineEdit(gbAdvanced);
+        edtBaseName->setObjectName(QStringLiteral("edtBaseName"));
+        edtBaseName->setFont(font);
+
+        formLayout_2->setWidget(5, QFormLayout::FieldRole, edtBaseName);
+
+        label_56 = new QLabel(gbAdvanced);
+        label_56->setObjectName(QStringLiteral("label_56"));
+        label_56->setMinimumSize(QSize(93, 0));
+        label_56->setFont(font);
+
+        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_56);
 
         edtImg = new QLineEdit(gbAdvanced);
         edtImg->setObjectName(QStringLiteral("edtImg"));
         edtImg->setFont(font);
 
         formLayout_2->setWidget(0, QFormLayout::FieldRole, edtImg);
-
-        label_22 = new QLabel(gbAdvanced);
-        label_22->setObjectName(QStringLiteral("label_22"));
-        label_22->setFont(font);
-
-        formLayout_2->setWidget(1, QFormLayout::LabelRole, label_22);
-
-        edtAlbumDir = new QLineEdit(gbAdvanced);
-        edtAlbumDir->setObjectName(QStringLiteral("edtAlbumDir"));
-        edtAlbumDir->setFont(font);
-
-        formLayout_2->setWidget(1, QFormLayout::FieldRole, edtAlbumDir);
-
-        label_44 = new QLabel(gbAdvanced);
-        label_44->setObjectName(QStringLiteral("label_44"));
-        label_44->setFont(font);
-
-        formLayout_2->setWidget(2, QFormLayout::LabelRole, label_44);
-
-        edtFontDir = new QLineEdit(gbAdvanced);
-        edtFontDir->setObjectName(QStringLiteral("edtFontDir"));
-        edtFontDir->setFont(font);
-
-        formLayout_2->setWidget(2, QFormLayout::FieldRole, edtFontDir);
-
-        label_46 = new QLabel(gbAdvanced);
-        label_46->setObjectName(QStringLiteral("label_46"));
-        label_46->setFont(font);
-
-        formLayout_2->setWidget(3, QFormLayout::LabelRole, label_46);
-
-        edtDefaultFonts = new QLineEdit(gbAdvanced);
-        edtDefaultFonts->setObjectName(QStringLiteral("edtDefaultFonts"));
-        edtDefaultFonts->setFont(font);
-
-        formLayout_2->setWidget(3, QFormLayout::FieldRole, edtDefaultFonts);
-
-        label_45 = new QLabel(gbAdvanced);
-        label_45->setObjectName(QStringLiteral("label_45"));
-        label_45->setFont(font);
-
-        formLayout_2->setWidget(4, QFormLayout::LabelRole, label_45);
-
-        edtBaseName = new QLineEdit(gbAdvanced);
-        edtBaseName->setObjectName(QStringLiteral("edtBaseName"));
-        edtBaseName->setFont(font);
-
-        formLayout_2->setWidget(4, QFormLayout::FieldRole, edtBaseName);
 
 
         verticalLayout_15->addWidget(gbAdvanced);
@@ -1753,54 +1768,17 @@ public:
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        label_3 = new QLabel(groupBox);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setFont(font);
+
+        gridLayout->addWidget(label_3, 0, 4, 1, 1);
+
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setFont(font);
 
         gridLayout->addWidget(label_2, 0, 1, 1, 1);
-
-        edtImageHeight = new QLineEdit(groupBox);
-        edtImageHeight->setObjectName(QStringLiteral("edtImageHeight"));
-        QSizePolicy sizePolicy4(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(edtImageHeight->sizePolicy().hasHeightForWidth());
-        edtImageHeight->setSizePolicy(sizePolicy4);
-        edtImageHeight->setFont(font);
-
-        gridLayout->addWidget(edtImageHeight, 1, 3, 1, 1);
-
-        slWidth = new QSlider(groupBox);
-        slWidth->setObjectName(QStringLiteral("slWidth"));
-        slWidth->setFont(font);
-        slWidth->setStyleSheet(QLatin1String("QSlider::groove:horizontal {\n"
-"    border: 1px solid #999999;\n"
-"    height: 4px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */\n"
-"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);\n"
-"    margin: 1px 0;\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal {\n"
-"    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);\n"
-"    border: 1px solid #5c5c5c;\n"
-"    width: 9px;\n"
-"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
-"    border-radius: 3px;\n"
-"}"));
-        slWidth->setMinimum(0);
-        slWidth->setMaximum(9999);
-        slWidth->setSingleStep(10);
-        slWidth->setPageStep(108);
-        slWidth->setValue(1920);
-        slWidth->setOrientation(Qt::Horizontal);
-
-        gridLayout->addWidget(slWidth, 2, 1, 1, 1);
-
-        label_3 = new QLabel(groupBox);
-        label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setFont(font);
-
-        gridLayout->addWidget(label_3, 0, 3, 1, 1);
 
         label = new QLabel(groupBox);
         label->setObjectName(QStringLiteral("label"));
@@ -1808,13 +1786,42 @@ public:
 
         gridLayout->addWidget(label, 1, 0, 1, 1);
 
-        edtImageWidth = new QLineEdit(groupBox);
-        edtImageWidth->setObjectName(QStringLiteral("edtImageWidth"));
-        sizePolicy4.setHeightForWidth(edtImageWidth->sizePolicy().hasHeightForWidth());
-        edtImageWidth->setSizePolicy(sizePolicy4);
-        edtImageWidth->setFont(font);
+        chkDoNotEnlarge = new QCheckBox(groupBox);
+        chkDoNotEnlarge->setObjectName(QStringLiteral("chkDoNotEnlarge"));
+        chkDoNotEnlarge->setFont(font);
+        chkDoNotEnlarge->setChecked(true);
 
-        gridLayout->addWidget(edtImageWidth, 1, 1, 1, 1);
+        gridLayout->addWidget(chkDoNotEnlarge, 1, 5, 1, 1);
+
+        sbThumbnailWidth = new QSpinBox(groupBox);
+        sbThumbnailWidth->setObjectName(QStringLiteral("sbThumbnailWidth"));
+        sbThumbnailWidth->setFont(font);
+        sbThumbnailWidth->setMinimum(50);
+        sbThumbnailWidth->setMaximum(8192);
+        sbThumbnailWidth->setSingleStep(10);
+        sbThumbnailWidth->setValue(600);
+
+        gridLayout->addWidget(sbThumbnailWidth, 2, 1, 1, 1);
+
+        sbThumbnailHeight = new QSpinBox(groupBox);
+        sbThumbnailHeight->setObjectName(QStringLiteral("sbThumbnailHeight"));
+        sbThumbnailHeight->setFont(font);
+        sbThumbnailHeight->setMinimum(50);
+        sbThumbnailHeight->setMaximum(8192);
+        sbThumbnailHeight->setSingleStep(10);
+        sbThumbnailHeight->setValue(400);
+
+        gridLayout->addWidget(sbThumbnailHeight, 2, 4, 1, 1);
+
+        label_7 = new QLabel(groupBox);
+        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setFont(font);
+
+        gridLayout->addWidget(label_7, 2, 0, 1, 1);
+
+        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        gridLayout->addItem(horizontalSpacer_9, 1, 6, 1, 1);
 
         btnLink = new QToolButton(groupBox);
         btnLink->setObjectName(QStringLiteral("btnLink"));
@@ -1824,44 +1831,27 @@ public:
         btnLink->setIcon(icon3);
         btnLink->setCheckable(true);
 
-        gridLayout->addWidget(btnLink, 0, 2, 3, 1);
+        gridLayout->addWidget(btnLink, 1, 2, 2, 1);
 
-        chkDoNotEnlarge = new QCheckBox(groupBox);
-        chkDoNotEnlarge->setObjectName(QStringLiteral("chkDoNotEnlarge"));
-        chkDoNotEnlarge->setFont(font);
-        chkDoNotEnlarge->setChecked(true);
+        sbImageWidth = new QSpinBox(groupBox);
+        sbImageWidth->setObjectName(QStringLiteral("sbImageWidth"));
+        sbImageWidth->setFont(font);
+        sbImageWidth->setMinimum(50);
+        sbImageWidth->setMaximum(8192);
+        sbImageWidth->setSingleStep(10);
+        sbImageWidth->setValue(1920);
 
-        gridLayout->addWidget(chkDoNotEnlarge, 3, 1, 1, 3);
+        gridLayout->addWidget(sbImageWidth, 1, 1, 1, 1);
 
-        slHeight = new QSlider(groupBox);
-        slHeight->setObjectName(QStringLiteral("slHeight"));
-        slHeight->setFont(font);
-        slHeight->setStyleSheet(QLatin1String("QSlider::groove:horizontal {\n"
-"    border: 1px solid #999999;\n"
-"    height: 4px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */\n"
-"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);\n"
-"    margin: 1px 0;\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal {\n"
-"    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);\n"
-"    border: 1px solid #5c5c5c;\n"
-"    width: 9px;\n"
-"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
-"    border-radius: 3px;\n"
-"}"));
-        slHeight->setMinimum(0);
-        slHeight->setMaximum(9999);
-        slHeight->setSingleStep(10);
-        slHeight->setPageStep(108);
-        slHeight->setValue(1280);
-        slHeight->setOrientation(Qt::Horizontal);
+        sbImageHeight = new QSpinBox(groupBox);
+        sbImageHeight->setObjectName(QStringLiteral("sbImageHeight"));
+        sbImageHeight->setFont(font);
+        sbImageHeight->setMinimum(50);
+        sbImageHeight->setMaximum(8192);
+        sbImageHeight->setSingleStep(10);
+        sbImageHeight->setValue(1280);
 
-        gridLayout->addWidget(slHeight, 2, 3, 1, 1);
-
-        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout->addItem(horizontalSpacer_9, 1, 4, 1, 1);
+        gridLayout->addWidget(sbImageHeight, 1, 4, 1, 1);
 
 
         verticalLayout_2->addWidget(groupBox);
@@ -2106,6 +2096,9 @@ public:
         gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
         edtWmColor = new QLineEdit(groupBox_8);
         edtWmColor->setObjectName(QStringLiteral("edtWmColor"));
+        QSizePolicy sizePolicy4(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
         sizePolicy4.setHeightForWidth(edtWmColor->sizePolicy().hasHeightForWidth());
         edtWmColor->setSizePolicy(sizePolicy4);
         edtWmColor->setFont(font);
@@ -2425,11 +2418,12 @@ public:
         label_42->setBuddy(edtEmailTo);
         label_30->setBuddy(sbNewDays);
         label_9->setBuddy(edtTrackingCode);
-        label_23->setBuddy(edtImg);
+        label_23->setBuddy(edtThumb);
         label_22->setBuddy(edtAlbumDir);
         label_44->setBuddy(edtFontDir);
         label_46->setBuddy(edtDefaultFonts);
         label_45->setBuddy(edtBaseName);
+        label_56->setBuddy(edtThumb);
         label_26->setBuddy(edtTextColor);
         label_34->setBuddy(chkTextOpacity);
         label_33->setBuddy(edtBackgroundColor);
@@ -2440,8 +2434,6 @@ public:
         label_27->setBuddy(edtFontFamily);
         label_28->setBuddy(cbPointSize);
         label_14->setBuddy(sbBorderWidth);
-        label_2->setBuddy(edtImageWidth);
-        label_3->setBuddy(edtImageHeight);
         label_12->setBuddy(sbWmOpacity);
         label_13->setBuddy(edtWatermark);
         label_6->setBuddy(edtWmVertMargin);
@@ -2476,9 +2468,8 @@ public:
         QWidget::setTabOrder(sbNewDays, sbLatestCount);
         QWidget::setTabOrder(sbLatestCount, chkSetLatest);
         QWidget::setTabOrder(chkSetLatest, chkUseGoogleAnalytics);
-        QWidget::setTabOrder(chkUseGoogleAnalytics, edtTrackingCode);
-        QWidget::setTabOrder(edtTrackingCode, edtImg);
-        QWidget::setTabOrder(edtImg, edtAlbumDir);
+        QWidget::setTabOrder(chkUseGoogleAnalytics, edtThumb);
+        QWidget::setTabOrder(edtThumb, edtAlbumDir);
         QWidget::setTabOrder(edtAlbumDir, edtFontDir);
         QWidget::setTabOrder(edtFontDir, edtDefaultFonts);
         QWidget::setTabOrder(edtDefaultFonts, edtBaseName);
@@ -2490,13 +2481,7 @@ public:
         QWidget::setTabOrder(btnGenerate, btnPreview);
         QWidget::setTabOrder(btnPreview, btnSaveConfig);
         QWidget::setTabOrder(btnSaveConfig, btnExit);
-        QWidget::setTabOrder(btnExit, edtImageWidth);
-        QWidget::setTabOrder(edtImageWidth, btnLink);
-        QWidget::setTabOrder(btnLink, edtImageHeight);
-        QWidget::setTabOrder(edtImageHeight, slWidth);
-        QWidget::setTabOrder(slWidth, slHeight);
-        QWidget::setTabOrder(slHeight, chkDoNotEnlarge);
-        QWidget::setTabOrder(chkDoNotEnlarge, chkUseWM);
+        QWidget::setTabOrder(btnExit, chkUseWM);
         QWidget::setTabOrder(chkUseWM, sbWmOpacity);
         QWidget::setTabOrder(sbWmOpacity, edtWatermark);
         QWidget::setTabOrder(edtWatermark, cbWmVPosition);
@@ -2629,12 +2614,12 @@ public:
         chkUseGoogleAnalytics->setText(QApplication::translate("falconGClass", "Use", nullptr));
         label_9->setText(QApplication::translate("falconGClass", "Trac&king Code", nullptr));
         gbAdvanced->setTitle(QApplication::translate("falconGClass", "Advanced (you may leave theese alone)", nullptr));
-        label_23->setText(QApplication::translate("falconGClass", "Image directory", nullptr));
+        label_23->setText(QApplication::translate("falconGClass", "Thumbnails into", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtImg->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
+        edtThumb->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
 "Iinside gallery root if no absolute or relative path is given.", nullptr));
 #endif // QT_NO_TOOLTIP
-        edtImg->setPlaceholderText(QApplication::translate("falconGClass", "img", nullptr));
+        edtThumb->setPlaceholderText(QApplication::translate("falconGClass", "thumb", nullptr));
         label_22->setText(QApplication::translate("falconGClass", "Album directory ", nullptr));
         edtAlbumDir->setPlaceholderText(QApplication::translate("falconGClass", "albums", nullptr));
         label_44->setText(QApplication::translate("falconGClass", "Fonts directory", nullptr));
@@ -2658,6 +2643,12 @@ public:
         edtBaseName->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>All albums are referred as &lt;base link name&gt;&lt;index number&gt;</p><p>not by their albuml name, which may contain any UTF-8 characters.</p><p>Example: the album <span style=\" font-style:italic;\">'\305\220rs\303\251g&quot;</span> may be referred as<span style=\" font-style:italic;\"> album123456.</span></p><p><br/></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtBaseName->setPlaceholderText(QApplication::translate("falconGClass", "album", nullptr));
+        label_56->setText(QApplication::translate("falconGClass", "Image directory", nullptr));
+#ifndef QT_NO_TOOLTIP
+        edtImg->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
+"Iinside gallery root if no absolute or relative path is given.", nullptr));
+#endif // QT_NO_TOOLTIP
+        edtImg->setPlaceholderText(QApplication::translate("falconGClass", "img", nullptr));
 #ifndef QT_NO_TOOLTIP
         chkDisregardStruct->setToolTip(QApplication::translate("falconGClass", "By checking this option you loose all  changes you made to image and album titles and descriptions!.", nullptr));
 #endif // QT_NO_TOOLTIP
@@ -2768,13 +2759,12 @@ public:
         btnLang->setText(QApplication::translate("falconGClass", "Italiano", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabDesign), QApplication::translate("falconGClass", "Design", nullptr));
         groupBox->setTitle(QApplication::translate("falconGClass", "Resizing", nullptr));
-        label_2->setText(QApplication::translate("falconGClass", "Width", nullptr));
-        edtImageHeight->setText(QApplication::translate("falconGClass", "1280", nullptr));
         label_3->setText(QApplication::translate("falconGClass", "Height", nullptr));
-        label->setText(QApplication::translate("falconGClass", "Si&ze", nullptr));
-        edtImageWidth->setText(QApplication::translate("falconGClass", "1920", nullptr));
-        btnLink->setText(QString());
+        label_2->setText(QApplication::translate("falconGClass", "Width", nullptr));
+        label->setText(QApplication::translate("falconGClass", "Image", nullptr));
         chkDoNotEnlarge->setText(QApplication::translate("falconGClass", "Do not enlarge images", nullptr));
+        label_7->setText(QApplication::translate("falconGClass", "Thumbnail", nullptr));
+        btnLink->setText(QString());
         gbWatermark->setTitle(QApplication::translate("falconGClass", "Watermark", nullptr));
         label_32->setText(QApplication::translate("falconGClass", " %", nullptr));
         label_12->setText(QApplication::translate("falconGClass", "Opacity   ", nullptr));
