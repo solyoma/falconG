@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="/icon">
+    <file>Resources/Lazise_02596-Edit.png</file>
+    <file>Resources/content-icon.png</file>
+    <file>Resources/nav-icon.png</file>
+    <file>Resources/up-icon.png</file>
+    <file>Resources/broken-link.png</file>
+    <file>Resources/link.png</file>
+  </qresource>
+</RCC>
