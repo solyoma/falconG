@@ -893,16 +893,46 @@ void FalconG::on_edtWmVertMargin_textChanged()
 
 /*============================================================================
   * TASK:
-  * EXPECTS: h - new value (old is in config)
+  * EXPECTS:
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_sbImageHeight_valueChanged(int h)
+void FalconG::on_sbImageWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int w = config.imageWidth;
+	int w = ui.sbImageHeight->value(),		// new value
+		h = config.imageHeight;
+
+	if (ui.btnLink->isChecked())
+	{
+		h = w / _aspect;
+		ui.sbImageHeight->setValue(h);
+		//config.imageWidth = w;
+		//config.imageWidth.changed = true;
+		h = 0; // no change in aspect ratio when linked!
+	}
+	config.imageWidth = w;
+	config.imageWidth.changed = true;
+	if(h)	// else no change
+		_aspect = (double)w / (double)h;
+	--_busy;
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbImageHeight_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int h = ui.sbImageHeight->value(),	// new value (old is in config)
+		w = config.imageWidth;
 
 	if (ui.btnLink->isChecked())
 	{
@@ -914,92 +944,9 @@ void FalconG::on_sbImageHeight_valueChanged(int h)
 	}
 	config.imageHeight = h;
 	config.imageHeight.changed = true;
-	if(h)
-		_aspect = (double)w / (double)h;
-
-	--_busy;
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS: w - new value (old is in config)
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_sbImageWidth_valueChanged(int w)
-{
-	if (_busy)
-		return;
-	++_busy;
-	int h = config.imageHeight;
-
-	if (ui.btnLink->isChecked())
-	{
-		h = w / _aspect;
-		ui.sbImageHeight->setValue(h);
-		h = 0; // no change in aspect ratio when linked!
-	}
-	config.imageWidth = w;
-	config.imageWidth.changed = true;
-	if(h)	// else no change
-		_aspect = (double)w / (double)h;
-	--_busy;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS: h - new value (old is in config)
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbThumbnailHeight_valueChanged(int h)
-{
-	if (_busy)
-		return;
-	++_busy;
-	int w = config.imageWidth;
-
-	if (ui.btnLink->isChecked())
-	{
-		w = h * _aspect;
-		ui.sbThumbnailWidth->setValue(w);
-		config.thumbWidth = w;
-		config.thumbWidth.changed = true;
-		h = 0; // no change in aspect ratio when linked!
-	}
-	config.thumbHeight = h;
-	config.thumbHeight.changed = true;
 	if (h)
 		_aspect = (double)w / (double)h;
 
-	--_busy;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS: h - new value (old is in config)
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbThumbnailWidth_valueChanged(int w)
-{
-	if (_busy)
-		return;
-	++_busy;
-	int h = config.imageHeight;
-
-	if (ui.btnLink->isChecked())
-	{
-		h = w / _aspect;
-		ui.sbThumbnailHeight->setValue(h);
-		//config.imageWidth = w;
-		//config.imageWidth.changed = true;
-		h = 0; // no change in aspect ratio when linked!
-	}
-	config.thumbWidth = w;
-	config.thumbWidth.changed = true;
-	if (h)	// else no change
-		_aspect = (double)w / (double)h;
 	--_busy;
 }
 
@@ -1201,7 +1148,7 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 	QString ss;
 	handler.Set(ui.btnBorderColor->styleSheet());
 	ss = handler.GetItem("QToolButton", "background-color");	// background
-	ss = (on ? QString("border%1px").arg(ui.sbBorderWidth->value()): QString()) + "solid " + ss;
+	ss = (on ? QString("border%1px").arg(config.imageBorder.width): QString()) + "solid " + ss;
 	ui.btnImage->setStyleSheet(handler.StyleSheet());
 	config.changed = config.designChanged = true;
 	_EnableButtons();
@@ -1627,10 +1574,14 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	if (!ui.chkImageBorder->isChecked())
 		return;
 	config.imageBorder.changed = config.designChanged = true;
-	StyleHandler shButton(ui.btnBorderColor->styleSheet()),
-		         shImage(ui.btnImage->styleSheet());
-	shImage.SetItem("QToolButton", "border", QString("%1px solid ").arg(ui.sbBorderWidth->value()) + shButton.GetItem("QToolButton", "background-color"));
-	ui.btnImage->setStyleSheet(shImage.StyleSheet());
+	config.imageBorder.width = val;
+	if (ui.chkImageBorder->isChecked())
+	{
+		StyleHandler shButton(ui.btnBorderColor->styleSheet()),
+			shImage(ui.btnImage->styleSheet());
+		shImage.SetItem("QToolButton", "border", QString("%1px solid ").arg(val) + shButton.GetItem("QToolButton", "background-color"));
+		ui.btnImage->setStyleSheet(shImage.StyleSheet());
+	}
 }
 
 /*============================================================================

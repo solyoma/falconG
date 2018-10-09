@@ -3026,7 +3026,7 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
 		sImagePath = sImageDir + ( (album.images.size() > 0 ? pImage->LinkName() : QString()) );
 		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
-		_ofs << sThumbnailPath;		// image in the image directory
+		_ofs << sImagePath;		// image in the image directory
 	}
 
 
