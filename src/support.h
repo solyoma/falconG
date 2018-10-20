@@ -130,6 +130,7 @@ struct ImageReader : public QImageReader
 	QImage img;			// read into this
 	bool isReady = false;
 	bool read() { return isReady = QImageReader::read(&img); }
+	bool canRead() { return (isReady ? true : (isReady = QImageReader::read(&img))); }
 	ImageReader(QIODevice *device, const QByteArray &format = QByteArray()) : QImageReader(device, format) {}
 	ImageReader(const QString &fileName, const QByteArray &format = QByteArray()) : QImageReader(fileName, format) {}
 };

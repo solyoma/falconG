@@ -950,6 +950,65 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 	--_busy;
 }
 
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailWidth_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int w = ui.sbThumbnailHeight->value(),		// new value
+		h = config.thumbHeight;
+
+	if (ui.btnLink->isChecked())
+	{
+		h = w / _aspect;
+		ui.sbThumbnailHeight->setValue(h);
+		//config.thumbWidth = w;
+		//config.thumbWidth.changed = true;
+		h = 0; // no change in aspect ratio when linked!
+	}
+	config.thumbWidth = w;
+	config.thumbWidth.changed = true;
+	if (h)	// else no change
+		_aspect = (double)w / (double)h;
+	--_busy;
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailHeight_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int h = ui.sbThumbnailHeight->value(),	// new value (old is in config)
+		w = config.thumbWidth;
+
+	if (ui.btnLink->isChecked())
+	{
+		w = h * _aspect;
+		ui.sbThumbnailWidth->setValue(w);
+		config.thumbWidth = w;
+		config.thumbWidth.changed = true;
+		h = 0; // no change in aspect ratio when linked!
+	}
+	config.thumbHeight = h;
+	config.thumbHeight.changed = true;
+	if (h)
+		_aspect = (double)w / (double)h;
+
+	--_busy;
+}
+
 /*=============================================================
  * TASK:
  * EXPECTS:

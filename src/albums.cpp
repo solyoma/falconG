@@ -2356,7 +2356,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString(".falconG", config.SmallGalleryTitle, wColor) +
 		".about{\n"
 		"	color:#ddd;\n"
-		"	margin:aito;\n"
+		"	margin:auto;\n"
 		"	}\n"
 		+
 		_ElemColorCssToString("h2.album-title", config.GalleryTitle, wColor) +
@@ -2426,10 +2426,14 @@ QString AlbumGenerator::_CssToString()
 		//				src: local('Riesling Regular'), local('Riesling'), url('fonts/riesling.ttf') format('truetype');
 		//		}
 		// usage example: h1 {font-family: 'RieslingRegular', Arial, sans-serif;}
+		// universal selector to include padding and border in box size
+		"*, *::before, *::after {\n"
+		"  box-sizing:border-box;\n"
+		"  padding:0;\n"
+		"  margin:0\n;"
+		"}\n\n"
 		"html,\n"
 		"body{\n"
-		"	margin: 0;\n"
-		"	padding: 0;\n"
 		"	height: 100% ;\n"
 		"	width: 100% ;\n"
 		"}\n"
@@ -2441,7 +2445,7 @@ QString AlbumGenerator::_CssToString()
 		"}\n"
 		"\n"
 // h2
-		"h2{\n" // only for gallery title else have overriding class
+		"h2.album-title{\n" // only for gallery title else have overriding class
 		+ _FontToCss(config.GalleryTitle) +
 		"	text-align: center;\n"
 		"}\n"
@@ -2449,8 +2453,8 @@ QString AlbumGenerator::_CssToString()
 // about
 		".about{\n"
 		"	margin:auto;\n"
-		"   width:400px;\n"
-		"	}\n"
+		"	width:400px;\n"
+		"}\n"
 
 // a.title
 		"a.title{\n"
@@ -2460,13 +2464,6 @@ QString AlbumGenerator::_CssToString()
 		// a, a:visited
 		"a, a:visited{\n"
 		"	text-decoration: none;\n"
-		"	/*padding: 0 4px 2px 4px;*/\n"
-		"}\n"
-		"\n"
-// a.jump_link
-		"a.jump_link{\n"
-		"	text-decoration: none;\n"
-		"	padding: 0 4px 2px 4px;\n"
 		"}\n"
 		"\n"
 		"a.doboz {\n"
@@ -2512,13 +2509,12 @@ QString AlbumGenerator::_CssToString()
 		"	-moz-border-radius: 5px;\n"
 		"	border-radius: 5px;\n"
 		"	background-color: #033aa9;\n"
-		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"	background: -moz-linear-gradient(top, #033aa9 0%, #022a8f 44%, #00266d 100%);\n"
 		"	background: -webkit-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -o-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -ms-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
-		"	background: linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#033aa9), color-stop(44%,#022a8f), color-stop(100%,#00266d));\n"
+		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"}\n"
 		"\n"
 // <header>
@@ -2570,7 +2566,7 @@ QString AlbumGenerator::_CssToString()
 		".img-container, .gallery-container{\n"
 		"	display:flex;\n"
 		"	flex-direction: column;\n"
-		"	justify-content: stretch;\n"
+		"   padding:0 10px;\n"
 		"}\n"
 		"\n"
 // .desc
@@ -2596,15 +2592,19 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"section div.thumb{\n"
 		"	max-width:100% ;\n"
-		"	display:flex; justify-content: center;\n"
+		"	display:-webkit-flex;\n"
+		"	display:-ms-flexbox;\n"
+		"	display:flex; \n"
+		"	justify-content: center;\n"
 		"	flex-wrap: wrap;\n"
 		"	flex-direction: row;\n"
 		"	padding: 2px;\n"
+		"   margin: 0 2;\n"
 		"}\n";
-		if (config.imageBorder.used)
-			s += "div.thumb a img{\n"
-			" border :" + QString("%1px solid %2").arg(config.imageBorder.width).arg(config.imageBorder.color.name, 0, 16)
-			+ "}\n";
+		//if (config.imageBorder.used)
+		//	s += "div.thumb a img{\n"
+		//	" border :" + QString("%1px solid %2").arg(config.imageBorder.width).arg(config.imageBorder.color.name, 0, 16) + ";\n"
+		//	+ "}\n";
 		s += "\n"
 		".img-container img, .gallery-container img{\n"
 		"	margin:auto;\n"
@@ -2616,7 +2616,7 @@ QString AlbumGenerator::_CssToString()
 		"	width:100% ;\n"
 		"	justify-content:space-between;\n"
 		"	margin-bottom: 10px;\n"
-		"	padding-bottom: 10px;\n"
+		"	padding-bottom: 40px;\n"
 //		"	border-bottom: 1px solid black;\n"
 		"}\n"
 		"div.links a, .showhide{\n"
@@ -2637,9 +2637,9 @@ QString AlbumGenerator::_CssToString()
 		"@media only screen and (min-width:700px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
-		"		max-width:250px;\n"
-		"		justify-content: flex-end;\n"
-		"		padding:0 3px 0 3px;\n"
+		"		max-width:300px;\n"
+//		"		justify-content: flex-end;\n"
+		"       padding:0 10px;\n"
 		"	}\n"
 		"	img{ max-width: 100% ; max-height:267px; }\n"
 		"		p{ font-size: 12pt }\n"
@@ -2656,9 +2656,9 @@ QString AlbumGenerator::_CssToString()
 		"	.img-container, .gallery-container\n"
 		"	{\n"
 		"		max-width:400px;\n"
-		"		justify-content: flex-end;\n"
+//		"		justify-content: flex-end;\n"
 		"		flex-direction: column;\n"
-		"		padding:0 3px 0 3px;\n"
+		"		padding:0 10px;\n"
 		"	}\n"
 		"	img{ max-width: 100% ; max-height:267px; }\n"
 		"		p{ font-size: 12pt }\n"
@@ -3031,8 +3031,17 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 
 
 	_ofs << "\"><img src=\"" + sThumbnailPath + "\" alt=\"\"></a>\n"
-			"     </div>\n"											   // end of div thumb
-			"     <div class=\"links\">\n"
+			"     </div>\n";									   // end of div thumb
+	
+    //  -------------------------- description
+	_ofs << "     <div class=\"desc\">\n"
+		"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
+		<< (desc.isEmpty() ? "&nbsp;" : desc) << "</p>\n"
+		"     </div>\n";
+	//  -------------------------- end of description
+
+	//  -------------------------- links with  album/image title
+	_ofs << "     <div class=\"links\">\n"		
 			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\"></a>\n"
 			"        <a class=\"album-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
@@ -3042,12 +3051,9 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 	_ofs << (title.isEmpty() ? "---" : title)
 		<< "</a>\n"
 		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\"></div>\n"
-			"     </div>\n"											  // end of div links
-		    "     <div class=\"desc\">\n"
-		    "       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
-		<< (desc.isEmpty() ? "&nbsp;" : desc) << "</p>\n"
-		    "     </div>\n"
-		   "   </section>\n";
+			"     </div>\n";											 
+	// -----------------------------end of div links
+	_ofs << "   </section>\n";
 
 	return 0;
 }
