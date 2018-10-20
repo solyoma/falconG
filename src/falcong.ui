@@ -2404,50 +2404,6 @@ background-color:#a03020;
                 <enum>QFrame::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_14">
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="btnAlbumTitle">
-                  <property name="font">
-                   <font>
-                    <family>Monotype Corsiva</family>
-                    <pointsize>16</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff;
-font-family:&quot;Monotype Corsiva&quot;;
-font-size:16pt;
-font-weight:bold;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Album Title</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="btnAlbumDesc">
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores
-distinctio, aperiam quam deserunt accusantium
-possimus minima?</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
                 <item row="4" column="1">
                  <widget class="QPushButton" name="btnSection">
                   <property name="font">
@@ -2474,8 +2430,8 @@ font-weight:bold;
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="1">
-                 <widget class="QPushButton" name="btnImageDesc">
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="btnAlbumDesc">
                   <property name="styleSheet">
                    <string notr="true">QPushButton {
 color:#fff
@@ -2484,8 +2440,34 @@ color:#fff
                   <property name="text">
                    <string>Lorem ipsum dolor sit amet consectetur adipisicing
 elit. Placeat delectus facilis dolorum dolores
-distinctio,  aperiam quam deserunt accusantium
+distinctio, aperiam quam deserunt accusantium
 possimus minima?</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="btnAlbumTitle">
+                  <property name="font">
+                   <font>
+                    <family>Monotype Corsiva</family>
+                    <pointsize>16</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff;
+font-family:&quot;Monotype Corsiva&quot;;
+font-size:16pt;
+font-weight:bold;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Album Title</string>
                   </property>
                   <property name="flat">
                    <bool>true</bool>
@@ -2531,71 +2513,6 @@ possimus minima?</string>
                    </size>
                   </property>
                  </widget>
-                </item>
-                <item row="6" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_15">
-                  <item>
-                   <widget class="QPushButton" name="btnIconToTop">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="falcong.qrc">
-                      <normaloff>:/icon/Resources/up-icon.png</normaloff>:/icon/Resources/up-icon.png</iconset>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnImageTitle">
-                    <property name="font">
-                     <font>
-                      <family>Rage Italic</family>
-                      <pointsize>14</pointsize>
-                      <weight>75</weight>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-color:#ddd;
-text-shadow: 0px 0px 20px #aaa;
-font-family: &quot;Rage Italic&quot;;
-font-size:14pt;
-font-weight: bold;
-}</string>
-                    </property>
-                    <property name="text">
-                     <string>IMAGE TiTLE</string>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnDescription">
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="falcong.qrc">
-                      <normaloff>:/icon/Resources/content-icon.png</normaloff>:/icon/Resources/content-icon.png</iconset>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>32</width>
-                      <height>32</height>
-                     </size>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                 <item row="1" column="0" colspan="3">
                  <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,1,1,9999">
@@ -2788,12 +2705,95 @@ background-color:#a03020;
                   </item>
                  </layout>
                 </item>
+                <item row="7" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_15">
+                  <item>
+                   <widget class="QPushButton" name="btnIconToTop">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="falcong.qrc">
+                      <normaloff>:/icon/Resources/up-icon.png</normaloff>:/icon/Resources/up-icon.png</iconset>
+                    </property>
+                    <property name="flat">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnImageTitle">
+                    <property name="font">
+                     <font>
+                      <family>Rage Italic</family>
+                      <pointsize>14</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton {
+color:#ddd;
+text-shadow: 0px 0px 20px #aaa;
+font-family: &quot;Rage Italic&quot;;
+font-size:14pt;
+font-weight: bold;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>IMAGE TiTLE</string>
+                    </property>
+                    <property name="flat">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnDescription">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="falcong.qrc">
+                      <normaloff>:/icon/Resources/content-icon.png</normaloff>:/icon/Resources/content-icon.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>32</width>
+                      <height>32</height>
+                     </size>
+                    </property>
+                    <property name="flat">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QPushButton" name="btnImageDesc">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
+elit. Placeat delectus facilis dolorum dolores
+distinctio,  aperiam quam deserunt accusantium
+possimus minima?</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
                </layout>
                <zorder>btnImage</zorder>
                <zorder>btnAlbumDesc</zorder>
-               <zorder>btnImageDesc</zorder>
                <zorder>btnSection</zorder>
                <zorder>btnAlbumTitle</zorder>
+               <zorder>btnImageDesc</zorder>
               </widget>
              </item>
             </layout>
