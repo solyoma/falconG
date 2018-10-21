@@ -263,7 +263,7 @@ void FalconG::on_btnGenerate_clicked()
 	else
 	{
 		CONFIGS_USED::Write();
-		albumgen.RecreateWebPages(ui.chkGenerateAll->isChecked() || config.changed);
+		albumgen.RecreateWebPages(config.bGenerateAll || config.changed);
 
 		++_running;
 		_edited = false;
@@ -307,7 +307,7 @@ void FalconG::on_btnGenerate_clicked()
 		--_running;
 		ui.tabFalconG->setCurrentIndex(3);	// show 'Edit' page
 
-		albumgen.RecreateWebPages(ui.chkGenerateAll->isChecked());	// not until relevant changes
+		albumgen.RecreateWebPages(config.bGenerateAll);	// not until relevant changes
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);
@@ -447,7 +447,7 @@ void FalconG::_PopulateFromConfig()
 
 	ui.edtImg->setText(config.dsImageDir.ToString());
 
-	ui.chkFacebook->setChecked(config.bfacebookLink);
+	ui.chkFacebook->setChecked(config.bFacebookLink);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
@@ -456,6 +456,7 @@ void FalconG::_PopulateFromConfig()
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
 	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
 	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
+	ui.chkGenerateAll->setChecked(config.bGenerateAll);
 
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
 
@@ -1415,6 +1416,36 @@ void FalconG::on_chkGradient_toggled(bool on)
 }
 
 /*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkShadowOn_toggled(bool on)
+{
+	if (_busy)
+		return;
+	_CElem *elem = nullptr;
+	switch (_aeActiveElement)
+	{
+		case aeWebPage: elem = &config.Web; break;
+		case aeGalleryTitle: elem = &config.GalleryTitle; break;
+		case aeGalleryDesc: elem = &config.GalleryDesc; break;
+		case aeLangButton:  elem = &config.Lang; break;
+		case aeMenuButtons: elem = &config.Menu; break;
+		case aeSmallGalleryTitle: elem = &config.SmallGalleryTitle; break;
+		case aeAlbumTitle: elem = &config.AlbumTitle; break;
+		case aeAlbumDesc: elem = &config.AlbumDesc; break;
+		case aeSection: elem = &config.Section; break;
+		case aeImageTitle: elem = &config.ImageTitle; break;
+		case aeImageDesc: elem = &config.ImageDesc; break;
+	}
+	elem->shadow.changed = true;
+	_SetChangedConfig();
+}
+
+/*============================================================================
 * TASK:
 * EXPECTS:
 * GLOBALS:
@@ -1715,7 +1746,7 @@ void FalconG::_SetCommonControlsFromWebButton(StyleHandler &shElem, QWidget * pb
 	ui.btnBackground->setStyleSheet(shBackground.StyleSheet()); 
 	
 	if(elem.shadow.useEver &&elem.shadow.use)
-		shShadow.SetItem("QToolButton", "background-color", '#' + elem.shadow.color);
+		shShadow.SetItem("QToolButton", "background-color", elem.shadow.color);
 
 	ui.edtTextColor->setText(elem.color); 
 	ui.edtBackgroundColor->setText(elem.background); 
@@ -2654,7 +2685,8 @@ void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
 }
 
 /*============================================================================
-* TASK:	set	 color into config and the web element and sets config.designChanged
+* TASK:	set	 color into config and the active web element
+*		 and sets config.designChanged
 * EXPECTS: 
 * GLOBALS: 'config'
 * REMARKS: called when global controls changed
@@ -2780,6 +2812,18 @@ void FalconG::_SetColorToConfig(StyleHandler &handler, _CElem &elem)
 	QString qsClass;
 	qsClass = elem.nameStr == "Web" ? "QFrame" : "QPushButton";
 
+	if (elem.shadow.changed)
+	{
+		StyleHandler hshadow(ui.btnShadowColor->styleSheet());
+		QString shadowColor =  hshadow.GetItem("QToolButton", "background-color");
+		elem.shadow.Set(ui.sbShadowHoriz->value(), ui.sbShadowVert->value(), ui.sbShadowBlur->value(), shadowColor, ui.chkShadowOn->isChecked());
+		QString s = QString().setNum(elem.shadow.Horiz()) + "px " + QString().setNum(elem.shadow.Vert()) + "px";
+		if (elem.shadow.Blur())
+			s += " " + QString().setNum(elem.shadow.Blur());
+		s += " " + elem.shadow.color;
+
+		handler.SetItem(qsClass, "text-shadow",s);
+	}
 
 	if (elem.color != ui.edtTextColor->text() || elem.color.opacity != pmc1 * ui.sbTextOpacity->value()) 
 	{	
@@ -2845,8 +2889,8 @@ void FalconG::_SetColorToConfig(StyleHandler &handler, _CElem &elem)
 
 /*============================================================================
   * TASK: sets colors and opacities from the common controls into config and 
-  *			the web element on the UI
-  * EXPECTS: 
+  *			the active web element on the UI
+  * EXPECTS: _aeActiveElement is set 
   * GLOBALS:	 config
   * REMARKS: sets both color and background and if gradient is specified also
   *				sets background as a gradient

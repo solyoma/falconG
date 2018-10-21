@@ -149,18 +149,20 @@ public:
     QVBoxLayout *verticalLayout_13;
     QGroupBox *groupBox_4;
     QGridLayout *gridLayout_4;
+    QCheckBox *chkBackgroundOpacity;
+    QSpinBox *sbBackgroundOpacity;
+    QLineEdit *edtBackgroundColor;
+    QCheckBox *chkTextOpacity;
+    QSpinBox *sbTextOpacity;
+    QLabel *label_33;
+    QToolButton *btnColor;
+    QToolButton *btnBackground;
+    QLabel *label_35;
+    QLabel *label_34;
     QLabel *label_26;
     QLineEdit *edtTextColor;
-    QToolButton *btnColor;
-    QSpinBox *sbTextOpacity;
-    QLabel *label_34;
-    QCheckBox *chkTextOpacity;
-    QLabel *label_33;
-    QLineEdit *edtBackgroundColor;
-    QToolButton *btnBackground;
-    QSpinBox *sbBackgroundOpacity;
-    QLabel *label_35;
-    QCheckBox *chkBackgroundOpacity;
+    QLabel *label_16;
+    QLabel *label_57;
     QGroupBox *gbTextShadow;
     QHBoxLayout *horizontalLayout;
     QLabel *label_37;
@@ -173,20 +175,23 @@ public:
     QCheckBox *chkShadowOn;
     QGroupBox *gbMenu;
     QGridLayout *gridLayout_12;
+    QLabel *label_24;
     QLabel *label_4;
     QToolButton *btnGradStartColor;
     QSpinBox *sbGradStartPos;
     QLineEdit *edtGradMiddleColor;
     QLineEdit *edtGradStartColor;
-    QLabel *label_24;
-    QSpinBox *sbGradMiddlePos;
-    QToolButton *btnGradStopColor;
-    QLineEdit *edtGradStopColor;
-    QToolButton *btnGradMiddleColor;
-    QCheckBox *chkButtonBorder;
     QCheckBox *chkGradient;
-    QSpinBox *sbGradStopPos;
+    QToolButton *btnGradMiddleColor;
+    QToolButton *btnGradStopColor;
     QToolButton *btnGradBorder;
+    QSpinBox *sbGradStopPos;
+    QCheckBox *chkButtonBorder;
+    QSpinBox *sbGradMiddlePos;
+    QLineEdit *edtGradStopColor;
+    QLabel *label_58;
+    QLabel *label_59;
+    QLabel *label_60;
     QGroupBox *groupBox_5;
     QGridLayout *gridLayout_13;
     QLabel *label_27;
@@ -220,15 +225,10 @@ public:
     QPushButton *btnGalleryDesc;
     QFrame *frmWeb;
     QGridLayout *gridLayout_14;
-    QPushButton *btnAlbumTitle;
-    QPushButton *btnAlbumDesc;
     QPushButton *btnSection;
-    QPushButton *btnImageDesc;
+    QPushButton *btnAlbumDesc;
+    QPushButton *btnAlbumTitle;
     QToolButton *btnImage;
-    QHBoxLayout *horizontalLayout_15;
-    QPushButton *btnIconToTop;
-    QPushButton *btnImageTitle;
-    QPushButton *btnDescription;
     QHBoxLayout *horizontalLayout_13;
     QPushButton *btnUplink;
     QPushButton *btnMenu;
@@ -238,6 +238,11 @@ public:
     QPushButton *btnSmallGalleryTitle;
     QPushButton *btnLang;
     QSpacerItem *horizontalSpacer_11;
+    QHBoxLayout *horizontalLayout_15;
+    QPushButton *btnIconToTop;
+    QPushButton *btnImageTitle;
+    QPushButton *btnDescription;
+    QPushButton *btnImageDesc;
     QSpacerItem *verticalSpacer_5;
     QWidget *tabImages;
     QVBoxLayout *verticalLayout_1;
@@ -964,75 +969,11 @@ public:
         gridLayout_4->setSpacing(6);
         gridLayout_4->setContentsMargins(11, 11, 11, 11);
         gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
-        label_26 = new QLabel(groupBox_4);
-        label_26->setObjectName(QStringLiteral("label_26"));
-        label_26->setFont(font);
+        chkBackgroundOpacity = new QCheckBox(groupBox_4);
+        chkBackgroundOpacity->setObjectName(QStringLiteral("chkBackgroundOpacity"));
+        chkBackgroundOpacity->setFont(font);
 
-        gridLayout_4->addWidget(label_26, 0, 0, 1, 1);
-
-        edtTextColor = new QLineEdit(groupBox_4);
-        edtTextColor->setObjectName(QStringLiteral("edtTextColor"));
-        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(edtTextColor->sizePolicy().hasHeightForWidth());
-        edtTextColor->setSizePolicy(sizePolicy3);
-        edtTextColor->setFont(font);
-
-        gridLayout_4->addWidget(edtTextColor, 0, 1, 1, 1);
-
-        btnColor = new QToolButton(groupBox_4);
-        btnColor->setObjectName(QStringLiteral("btnColor"));
-        sizePolicy3.setHeightForWidth(btnColor->sizePolicy().hasHeightForWidth());
-        btnColor->setSizePolicy(sizePolicy3);
-        btnColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#ddd;}"));
-
-        gridLayout_4->addWidget(btnColor, 0, 2, 1, 1);
-
-        sbTextOpacity = new QSpinBox(groupBox_4);
-        sbTextOpacity->setObjectName(QStringLiteral("sbTextOpacity"));
-        sbTextOpacity->setEnabled(false);
-        sbTextOpacity->setFont(font);
-        sbTextOpacity->setMinimum(0);
-        sbTextOpacity->setMaximum(100);
-        sbTextOpacity->setSingleStep(10);
-        sbTextOpacity->setValue(100);
-
-        gridLayout_4->addWidget(sbTextOpacity, 0, 3, 1, 1);
-
-        label_34 = new QLabel(groupBox_4);
-        label_34->setObjectName(QStringLiteral("label_34"));
-        label_34->setFont(font);
-
-        gridLayout_4->addWidget(label_34, 0, 4, 1, 1);
-
-        chkTextOpacity = new QCheckBox(groupBox_4);
-        chkTextOpacity->setObjectName(QStringLiteral("chkTextOpacity"));
-        chkTextOpacity->setFont(font);
-
-        gridLayout_4->addWidget(chkTextOpacity, 0, 5, 1, 1);
-
-        label_33 = new QLabel(groupBox_4);
-        label_33->setObjectName(QStringLiteral("label_33"));
-        label_33->setFont(font);
-
-        gridLayout_4->addWidget(label_33, 1, 0, 1, 1);
-
-        edtBackgroundColor = new QLineEdit(groupBox_4);
-        edtBackgroundColor->setObjectName(QStringLiteral("edtBackgroundColor"));
-        sizePolicy3.setHeightForWidth(edtBackgroundColor->sizePolicy().hasHeightForWidth());
-        edtBackgroundColor->setSizePolicy(sizePolicy3);
-        edtBackgroundColor->setFont(font);
-
-        gridLayout_4->addWidget(edtBackgroundColor, 1, 1, 1, 1);
-
-        btnBackground = new QToolButton(groupBox_4);
-        btnBackground->setObjectName(QStringLiteral("btnBackground"));
-        sizePolicy3.setHeightForWidth(btnBackground->sizePolicy().hasHeightForWidth());
-        btnBackground->setSizePolicy(sizePolicy3);
-        btnBackground->setStyleSheet(QStringLiteral("QToolButton {background-color:#a03020;}"));
-
-        gridLayout_4->addWidget(btnBackground, 1, 2, 1, 1);
+        gridLayout_4->addWidget(chkBackgroundOpacity, 1, 6, 1, 1);
 
         sbBackgroundOpacity = new QSpinBox(groupBox_4);
         sbBackgroundOpacity->setObjectName(QStringLiteral("sbBackgroundOpacity"));
@@ -1043,19 +984,95 @@ public:
         sbBackgroundOpacity->setSingleStep(10);
         sbBackgroundOpacity->setValue(100);
 
-        gridLayout_4->addWidget(sbBackgroundOpacity, 1, 3, 1, 1);
+        gridLayout_4->addWidget(sbBackgroundOpacity, 1, 4, 1, 1);
+
+        edtBackgroundColor = new QLineEdit(groupBox_4);
+        edtBackgroundColor->setObjectName(QStringLiteral("edtBackgroundColor"));
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(edtBackgroundColor->sizePolicy().hasHeightForWidth());
+        edtBackgroundColor->setSizePolicy(sizePolicy3);
+        edtBackgroundColor->setFont(font);
+
+        gridLayout_4->addWidget(edtBackgroundColor, 1, 2, 1, 1);
+
+        chkTextOpacity = new QCheckBox(groupBox_4);
+        chkTextOpacity->setObjectName(QStringLiteral("chkTextOpacity"));
+        chkTextOpacity->setFont(font);
+
+        gridLayout_4->addWidget(chkTextOpacity, 0, 6, 1, 1);
+
+        sbTextOpacity = new QSpinBox(groupBox_4);
+        sbTextOpacity->setObjectName(QStringLiteral("sbTextOpacity"));
+        sbTextOpacity->setEnabled(false);
+        sbTextOpacity->setFont(font);
+        sbTextOpacity->setMinimum(0);
+        sbTextOpacity->setMaximum(100);
+        sbTextOpacity->setSingleStep(10);
+        sbTextOpacity->setValue(100);
+
+        gridLayout_4->addWidget(sbTextOpacity, 0, 4, 1, 1);
+
+        label_33 = new QLabel(groupBox_4);
+        label_33->setObjectName(QStringLiteral("label_33"));
+        label_33->setFont(font);
+
+        gridLayout_4->addWidget(label_33, 1, 0, 1, 1);
+
+        btnColor = new QToolButton(groupBox_4);
+        btnColor->setObjectName(QStringLiteral("btnColor"));
+        sizePolicy3.setHeightForWidth(btnColor->sizePolicy().hasHeightForWidth());
+        btnColor->setSizePolicy(sizePolicy3);
+        btnColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#ddd;}"));
+
+        gridLayout_4->addWidget(btnColor, 0, 3, 1, 1);
+
+        btnBackground = new QToolButton(groupBox_4);
+        btnBackground->setObjectName(QStringLiteral("btnBackground"));
+        sizePolicy3.setHeightForWidth(btnBackground->sizePolicy().hasHeightForWidth());
+        btnBackground->setSizePolicy(sizePolicy3);
+        btnBackground->setStyleSheet(QStringLiteral("QToolButton {background-color:#a03020;}"));
+
+        gridLayout_4->addWidget(btnBackground, 1, 3, 1, 1);
 
         label_35 = new QLabel(groupBox_4);
         label_35->setObjectName(QStringLiteral("label_35"));
         label_35->setFont(font);
 
-        gridLayout_4->addWidget(label_35, 1, 4, 1, 1);
+        gridLayout_4->addWidget(label_35, 1, 5, 1, 1);
 
-        chkBackgroundOpacity = new QCheckBox(groupBox_4);
-        chkBackgroundOpacity->setObjectName(QStringLiteral("chkBackgroundOpacity"));
-        chkBackgroundOpacity->setFont(font);
+        label_34 = new QLabel(groupBox_4);
+        label_34->setObjectName(QStringLiteral("label_34"));
+        label_34->setFont(font);
 
-        gridLayout_4->addWidget(chkBackgroundOpacity, 1, 5, 1, 1);
+        gridLayout_4->addWidget(label_34, 0, 5, 1, 1);
+
+        label_26 = new QLabel(groupBox_4);
+        label_26->setObjectName(QStringLiteral("label_26"));
+        label_26->setFont(font);
+
+        gridLayout_4->addWidget(label_26, 0, 0, 1, 1);
+
+        edtTextColor = new QLineEdit(groupBox_4);
+        edtTextColor->setObjectName(QStringLiteral("edtTextColor"));
+        sizePolicy3.setHeightForWidth(edtTextColor->sizePolicy().hasHeightForWidth());
+        edtTextColor->setSizePolicy(sizePolicy3);
+        edtTextColor->setFont(font);
+
+        gridLayout_4->addWidget(edtTextColor, 0, 2, 1, 1);
+
+        label_16 = new QLabel(groupBox_4);
+        label_16->setObjectName(QStringLiteral("label_16"));
+        label_16->setFont(font);
+
+        gridLayout_4->addWidget(label_16, 0, 1, 1, 1);
+
+        label_57 = new QLabel(groupBox_4);
+        label_57->setObjectName(QStringLiteral("label_57"));
+        label_57->setFont(font);
+
+        gridLayout_4->addWidget(label_57, 1, 1, 1, 1);
 
 
         verticalLayout_13->addWidget(groupBox_4);
@@ -1136,10 +1153,15 @@ public:
         gridLayout_12->setContentsMargins(11, 11, 11, 11);
         gridLayout_12->setObjectName(QStringLiteral("gridLayout_12"));
         gridLayout_12->setContentsMargins(3, 3, 3, 3);
+        label_24 = new QLabel(gbMenu);
+        label_24->setObjectName(QStringLiteral("label_24"));
+
+        gridLayout_12->addWidget(label_24, 0, 3, 1, 1);
+
         label_4 = new QLabel(gbMenu);
         label_4->setObjectName(QStringLiteral("label_4"));
 
-        gridLayout_12->addWidget(label_4, 0, 0, 1, 1);
+        gridLayout_12->addWidget(label_4, 0, 1, 1, 1);
 
         btnGradStartColor = new QToolButton(gbMenu);
         btnGradStartColor->setObjectName(QStringLiteral("btnGradStartColor"));
@@ -1147,13 +1169,13 @@ public:
         btnGradStartColor->setSizePolicy(sizePolicy3);
         btnGradStartColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#A90329;}"));
 
-        gridLayout_12->addWidget(btnGradStartColor, 1, 1, 1, 1);
+        gridLayout_12->addWidget(btnGradStartColor, 1, 2, 1, 1);
 
         sbGradStartPos = new QSpinBox(gbMenu);
         sbGradStartPos->setObjectName(QStringLiteral("sbGradStartPos"));
         sbGradStartPos->setFont(font);
 
-        gridLayout_12->addWidget(sbGradStartPos, 1, 2, 1, 1);
+        gridLayout_12->addWidget(sbGradStartPos, 1, 3, 1, 1);
 
         edtGradMiddleColor = new QLineEdit(gbMenu);
         edtGradMiddleColor->setObjectName(QStringLiteral("edtGradMiddleColor"));
@@ -1161,7 +1183,7 @@ public:
         edtGradMiddleColor->setSizePolicy(sizePolicy3);
         edtGradMiddleColor->setFont(font);
 
-        gridLayout_12->addWidget(edtGradMiddleColor, 2, 0, 1, 1);
+        gridLayout_12->addWidget(edtGradMiddleColor, 2, 1, 1, 1);
 
         edtGradStartColor = new QLineEdit(gbMenu);
         edtGradStartColor->setObjectName(QStringLiteral("edtGradStartColor"));
@@ -1169,36 +1191,14 @@ public:
         edtGradStartColor->setSizePolicy(sizePolicy3);
         edtGradStartColor->setFont(font);
 
-        gridLayout_12->addWidget(edtGradStartColor, 1, 0, 1, 1);
+        gridLayout_12->addWidget(edtGradStartColor, 1, 1, 1, 1);
 
-        label_24 = new QLabel(gbMenu);
-        label_24->setObjectName(QStringLiteral("label_24"));
+        chkGradient = new QCheckBox(gbMenu);
+        chkGradient->setObjectName(QStringLiteral("chkGradient"));
+        chkGradient->setFont(font);
+        chkGradient->setChecked(true);
 
-        gridLayout_12->addWidget(label_24, 0, 2, 1, 1);
-
-        sbGradMiddlePos = new QSpinBox(gbMenu);
-        sbGradMiddlePos->setObjectName(QStringLiteral("sbGradMiddlePos"));
-        sbGradMiddlePos->setFont(font);
-        sbGradMiddlePos->setMaximum(100);
-        sbGradMiddlePos->setValue(40);
-
-        gridLayout_12->addWidget(sbGradMiddlePos, 2, 2, 1, 1);
-
-        btnGradStopColor = new QToolButton(gbMenu);
-        btnGradStopColor->setObjectName(QStringLiteral("btnGradStopColor"));
-        sizePolicy3.setHeightForWidth(btnGradStopColor->sizePolicy().hasHeightForWidth());
-        btnGradStopColor->setSizePolicy(sizePolicy3);
-        btnGradStopColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#6d0019;}"));
-
-        gridLayout_12->addWidget(btnGradStopColor, 3, 1, 1, 1);
-
-        edtGradStopColor = new QLineEdit(gbMenu);
-        edtGradStopColor->setObjectName(QStringLiteral("edtGradStopColor"));
-        sizePolicy3.setHeightForWidth(edtGradStopColor->sizePolicy().hasHeightForWidth());
-        edtGradStopColor->setSizePolicy(sizePolicy3);
-        edtGradStopColor->setFont(font);
-
-        gridLayout_12->addWidget(edtGradStopColor, 3, 0, 1, 1);
+        gridLayout_12->addWidget(chkGradient, 3, 4, 1, 1);
 
         btnGradMiddleColor = new QToolButton(gbMenu);
         btnGradMiddleColor->setObjectName(QStringLiteral("btnGradMiddleColor"));
@@ -1206,29 +1206,15 @@ public:
         btnGradMiddleColor->setSizePolicy(sizePolicy3);
         btnGradMiddleColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#890222;}"));
 
-        gridLayout_12->addWidget(btnGradMiddleColor, 2, 1, 1, 1);
+        gridLayout_12->addWidget(btnGradMiddleColor, 2, 2, 1, 1);
 
-        chkButtonBorder = new QCheckBox(gbMenu);
-        chkButtonBorder->setObjectName(QStringLiteral("chkButtonBorder"));
-        chkButtonBorder->setFont(font);
-        chkButtonBorder->setChecked(true);
+        btnGradStopColor = new QToolButton(gbMenu);
+        btnGradStopColor->setObjectName(QStringLiteral("btnGradStopColor"));
+        sizePolicy3.setHeightForWidth(btnGradStopColor->sizePolicy().hasHeightForWidth());
+        btnGradStopColor->setSizePolicy(sizePolicy3);
+        btnGradStopColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#6d0019;}"));
 
-        gridLayout_12->addWidget(chkButtonBorder, 1, 3, 1, 1);
-
-        chkGradient = new QCheckBox(gbMenu);
-        chkGradient->setObjectName(QStringLiteral("chkGradient"));
-        chkGradient->setFont(font);
-        chkGradient->setChecked(true);
-
-        gridLayout_12->addWidget(chkGradient, 3, 3, 1, 1);
-
-        sbGradStopPos = new QSpinBox(gbMenu);
-        sbGradStopPos->setObjectName(QStringLiteral("sbGradStopPos"));
-        sbGradStopPos->setFont(font);
-        sbGradStopPos->setMaximum(100);
-        sbGradStopPos->setValue(100);
-
-        gridLayout_12->addWidget(sbGradStopPos, 3, 2, 1, 1);
+        gridLayout_12->addWidget(btnGradStopColor, 3, 2, 1, 1);
 
         btnGradBorder = new QToolButton(gbMenu);
         btnGradBorder->setObjectName(QStringLiteral("btnGradBorder"));
@@ -1237,8 +1223,61 @@ public:
         btnGradBorder->setFont(font1);
         btnGradBorder->setStyleSheet(QStringLiteral("QToolButton {background-color:#890222;color:#76fccc;}"));
 
-        gridLayout_12->addWidget(btnGradBorder, 2, 3, 1, 1);
+        gridLayout_12->addWidget(btnGradBorder, 2, 4, 1, 1);
 
+        sbGradStopPos = new QSpinBox(gbMenu);
+        sbGradStopPos->setObjectName(QStringLiteral("sbGradStopPos"));
+        sbGradStopPos->setFont(font);
+        sbGradStopPos->setMaximum(100);
+        sbGradStopPos->setValue(100);
+
+        gridLayout_12->addWidget(sbGradStopPos, 3, 3, 1, 1);
+
+        chkButtonBorder = new QCheckBox(gbMenu);
+        chkButtonBorder->setObjectName(QStringLiteral("chkButtonBorder"));
+        chkButtonBorder->setFont(font);
+        chkButtonBorder->setChecked(true);
+
+        gridLayout_12->addWidget(chkButtonBorder, 1, 4, 1, 1);
+
+        sbGradMiddlePos = new QSpinBox(gbMenu);
+        sbGradMiddlePos->setObjectName(QStringLiteral("sbGradMiddlePos"));
+        sbGradMiddlePos->setFont(font);
+        sbGradMiddlePos->setMaximum(100);
+        sbGradMiddlePos->setValue(40);
+
+        gridLayout_12->addWidget(sbGradMiddlePos, 2, 3, 1, 1);
+
+        edtGradStopColor = new QLineEdit(gbMenu);
+        edtGradStopColor->setObjectName(QStringLiteral("edtGradStopColor"));
+        sizePolicy3.setHeightForWidth(edtGradStopColor->sizePolicy().hasHeightForWidth());
+        edtGradStopColor->setSizePolicy(sizePolicy3);
+        edtGradStopColor->setFont(font);
+
+        gridLayout_12->addWidget(edtGradStopColor, 3, 1, 1, 1);
+
+        label_58 = new QLabel(gbMenu);
+        label_58->setObjectName(QStringLiteral("label_58"));
+        label_58->setFont(font);
+
+        gridLayout_12->addWidget(label_58, 1, 0, 1, 1);
+
+        label_59 = new QLabel(gbMenu);
+        label_59->setObjectName(QStringLiteral("label_59"));
+        label_59->setFont(font);
+
+        gridLayout_12->addWidget(label_59, 2, 0, 1, 1);
+
+        label_60 = new QLabel(gbMenu);
+        label_60->setObjectName(QStringLiteral("label_60"));
+        label_60->setFont(font);
+
+        gridLayout_12->addWidget(label_60, 3, 0, 1, 1);
+
+        gridLayout_12->setColumnStretch(1, 1);
+        gridLayout_12->setColumnStretch(2, 1);
+        gridLayout_12->setColumnStretch(3, 1);
+        gridLayout_12->setColumnStretch(4, 1);
 
         verticalLayout_13->addWidget(gbMenu);
 
@@ -1473,28 +1512,6 @@ public:
         gridLayout_14->setSpacing(6);
         gridLayout_14->setContentsMargins(11, 11, 11, 11);
         gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
-        btnAlbumTitle = new QPushButton(frmWeb);
-        btnAlbumTitle->setObjectName(QStringLiteral("btnAlbumTitle"));
-        btnAlbumTitle->setFont(font3);
-        btnAlbumTitle->setStyleSheet(QLatin1String("QPushButton {\n"
-"color:#fff;\n"
-"font-family:\"Monotype Corsiva\";\n"
-"font-size:16pt;\n"
-"font-weight:bold;\n"
-"}"));
-        btnAlbumTitle->setFlat(true);
-
-        gridLayout_14->addWidget(btnAlbumTitle, 2, 1, 1, 1);
-
-        btnAlbumDesc = new QPushButton(frmWeb);
-        btnAlbumDesc->setObjectName(QStringLiteral("btnAlbumDesc"));
-        btnAlbumDesc->setStyleSheet(QLatin1String("QPushButton {\n"
-"color:#fff\n"
-"}"));
-        btnAlbumDesc->setFlat(true);
-
-        gridLayout_14->addWidget(btnAlbumDesc, 3, 1, 1, 1);
-
         btnSection = new QPushButton(frmWeb);
         btnSection->setObjectName(QStringLiteral("btnSection"));
         QFont font4;
@@ -1513,14 +1530,27 @@ public:
 
         gridLayout_14->addWidget(btnSection, 4, 1, 1, 1);
 
-        btnImageDesc = new QPushButton(frmWeb);
-        btnImageDesc->setObjectName(QStringLiteral("btnImageDesc"));
-        btnImageDesc->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnAlbumDesc = new QPushButton(frmWeb);
+        btnAlbumDesc->setObjectName(QStringLiteral("btnAlbumDesc"));
+        btnAlbumDesc->setStyleSheet(QLatin1String("QPushButton {\n"
 "color:#fff\n"
 "}"));
-        btnImageDesc->setFlat(true);
+        btnAlbumDesc->setFlat(true);
 
-        gridLayout_14->addWidget(btnImageDesc, 7, 1, 1, 1);
+        gridLayout_14->addWidget(btnAlbumDesc, 3, 1, 1, 1);
+
+        btnAlbumTitle = new QPushButton(frmWeb);
+        btnAlbumTitle->setObjectName(QStringLiteral("btnAlbumTitle"));
+        btnAlbumTitle->setFont(font3);
+        btnAlbumTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+"color:#fff;\n"
+"font-family:\"Monotype Corsiva\";\n"
+"font-size:16pt;\n"
+"font-weight:bold;\n"
+"}"));
+        btnAlbumTitle->setFlat(true);
+
+        gridLayout_14->addWidget(btnAlbumTitle, 2, 1, 1, 1);
 
         btnImage = new QToolButton(frmWeb);
         btnImage->setObjectName(QStringLiteral("btnImage"));
@@ -1537,50 +1567,6 @@ public:
         btnImage->setIconSize(QSize(270, 180));
 
         gridLayout_14->addWidget(btnImage, 5, 1, 1, 1);
-
-        horizontalLayout_15 = new QHBoxLayout();
-        horizontalLayout_15->setSpacing(6);
-        horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
-        btnIconToTop = new QPushButton(frmWeb);
-        btnIconToTop->setObjectName(QStringLiteral("btnIconToTop"));
-        QIcon icon1;
-        icon1.addFile(QStringLiteral(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnIconToTop->setIcon(icon1);
-        btnIconToTop->setFlat(true);
-
-        horizontalLayout_15->addWidget(btnIconToTop);
-
-        btnImageTitle = new QPushButton(frmWeb);
-        btnImageTitle->setObjectName(QStringLiteral("btnImageTitle"));
-        QFont font5;
-        font5.setFamily(QStringLiteral("Rage Italic"));
-        font5.setPointSize(14);
-        font5.setBold(true);
-        font5.setWeight(75);
-        btnImageTitle->setFont(font5);
-        btnImageTitle->setStyleSheet(QLatin1String("QPushButton {\n"
-"color:#ddd;\n"
-"text-shadow: 0px 0px 20px #aaa;\n"
-"font-family: \"Rage Italic\";\n"
-"font-size:14pt;\n"
-"font-weight: bold;\n"
-"}"));
-        btnImageTitle->setFlat(true);
-
-        horizontalLayout_15->addWidget(btnImageTitle);
-
-        btnDescription = new QPushButton(frmWeb);
-        btnDescription->setObjectName(QStringLiteral("btnDescription"));
-        QIcon icon2;
-        icon2.addFile(QStringLiteral(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnDescription->setIcon(icon2);
-        btnDescription->setIconSize(QSize(32, 32));
-        btnDescription->setFlat(true);
-
-        horizontalLayout_15->addWidget(btnDescription);
-
-
-        gridLayout_14->addLayout(horizontalLayout_15, 6, 1, 1, 1);
 
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
@@ -1613,6 +1599,8 @@ public:
 "border-radius: 5px;\n"
 "}\n"
 ""));
+        QIcon icon1;
+        icon1.addFile(QStringLiteral(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         btnUplink->setIcon(icon1);
         btnUplink->setFlat(false);
 
@@ -1725,11 +1713,62 @@ public:
 
         gridLayout_14->addLayout(horizontalLayout_12, 0, 0, 1, 3);
 
+        horizontalLayout_15 = new QHBoxLayout();
+        horizontalLayout_15->setSpacing(6);
+        horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
+        btnIconToTop = new QPushButton(frmWeb);
+        btnIconToTop->setObjectName(QStringLiteral("btnIconToTop"));
+        btnIconToTop->setIcon(icon1);
+        btnIconToTop->setFlat(true);
+
+        horizontalLayout_15->addWidget(btnIconToTop);
+
+        btnImageTitle = new QPushButton(frmWeb);
+        btnImageTitle->setObjectName(QStringLiteral("btnImageTitle"));
+        QFont font5;
+        font5.setFamily(QStringLiteral("Rage Italic"));
+        font5.setPointSize(14);
+        font5.setBold(true);
+        font5.setWeight(75);
+        btnImageTitle->setFont(font5);
+        btnImageTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+"color:#ddd;\n"
+"text-shadow: 0px 0px 20px #aaa;\n"
+"font-family: \"Rage Italic\";\n"
+"font-size:14pt;\n"
+"font-weight: bold;\n"
+"}"));
+        btnImageTitle->setFlat(true);
+
+        horizontalLayout_15->addWidget(btnImageTitle);
+
+        btnDescription = new QPushButton(frmWeb);
+        btnDescription->setObjectName(QStringLiteral("btnDescription"));
+        QIcon icon2;
+        icon2.addFile(QStringLiteral(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnDescription->setIcon(icon2);
+        btnDescription->setIconSize(QSize(32, 32));
+        btnDescription->setFlat(true);
+
+        horizontalLayout_15->addWidget(btnDescription);
+
+
+        gridLayout_14->addLayout(horizontalLayout_15, 7, 1, 1, 1);
+
+        btnImageDesc = new QPushButton(frmWeb);
+        btnImageDesc->setObjectName(QStringLiteral("btnImageDesc"));
+        btnImageDesc->setStyleSheet(QLatin1String("QPushButton {\n"
+"color:#fff\n"
+"}"));
+        btnImageDesc->setFlat(true);
+
+        gridLayout_14->addWidget(btnImageDesc, 6, 1, 1, 1);
+
         btnImage->raise();
         btnAlbumDesc->raise();
-        btnImageDesc->raise();
         btnSection->raise();
         btnAlbumTitle->raise();
+        btnImageDesc->raise();
 
         verticalLayout_14->addWidget(frmWeb);
 
@@ -2424,10 +2463,10 @@ public:
         label_46->setBuddy(edtDefaultFonts);
         label_45->setBuddy(edtBaseName);
         label_56->setBuddy(edtThumb);
-        label_26->setBuddy(edtTextColor);
-        label_34->setBuddy(chkTextOpacity);
         label_33->setBuddy(edtBackgroundColor);
         label_35->setBuddy(chkBackgroundOpacity);
+        label_34->setBuddy(chkTextOpacity);
+        label_26->setBuddy(edtTextColor);
         label_37->setBuddy(sbShadowHoriz);
         label_38->setBuddy(sbShadowVert);
         label_39->setBuddy(sbShadowBlur);
@@ -2582,7 +2621,7 @@ public:
         label_36->setText(QApplication::translate("falconGClass", "About page", nullptr));
         label_47->setText(QApplication::translate("falconGClass", "Title", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtGalleryTitle->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Series of language definition records, separated by commas.</p><p>Records are 3 comma separated fields. <br/>Field #1 -  2 lower case letter abbreviation (e.g. <span style=\" font-style:italic;\">en</span>)<br/>Field #2 -  Name to put to language selection menu (e.g. <span style=\" font-style:italic;\">in English</span>)<br/>Field #3 -  name of icon file for graphical image, may be lefgt blank.</p><p>All texts in one language must be put into the file named<br/><span style=\" font-style:italic;\">&lt;abbreviation&gt;.text, </span>example:<span style=\" font-style:italic;\"> en.text.</span></p><p><span style=\" font-style:italic;\">See the User Guide for details of language files</span></p></body></html>", nullptr));
+        edtGalleryTitle->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Series of language definition records, separated by commas.</p><p>Records are 3 comma separated fields. <br/>Field #1 -  2 lower case letter abbreviation (e.g. <span style=\" font-style:italic;\">en</span>)<br/>Field #2 -  Name to put to language selection menu (e.g. <span style=\" font-style:italic;\">in English</span>)<br/>Field #3 -  name of icon file for graphical image, may be left blank.</p><p>All texts in one language must be put into the file named<br/><span style=\" font-style:italic;\">&lt;abbreviation&gt;.text, </span>example:<span style=\" font-style:italic;\"> en.text.</span></p><p><span style=\" font-style:italic;\">See the User Guide for details of language files</span></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtGalleryTitle->setPlaceholderText(QApplication::translate("falconGClass", "Andreas Falco Photography", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -2666,22 +2705,24 @@ public:
         lblImagesPerSec->setText(QApplication::translate("falconGClass", "999", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabGallery), QApplication::translate("falconGClass", "Gallery", nullptr));
         groupBox_4->setTitle(QApplication::translate("falconGClass", "Colors", nullptr));
-        label_26->setText(QApplication::translate("falconGClass", "Te&xt", nullptr));
-        edtTextColor->setText(QApplication::translate("falconGClass", "ddd", nullptr));
-        btnColor->setText(QString());
-        label_34->setText(QApplication::translate("falconGClass", "%", nullptr));
+#ifndef QT_NO_TOOLTIP
+        chkBackgroundOpacity->setToolTip(QApplication::translate("falconGClass", "Turn opacit on or off", nullptr));
+#endif // QT_NO_TOOLTIP
+        chkBackgroundOpacity->setText(QString());
+        edtBackgroundColor->setText(QApplication::translate("falconGClass", "a03020", nullptr));
 #ifndef QT_NO_TOOLTIP
         chkTextOpacity->setToolTip(QApplication::translate("falconGClass", "Turn opacit on or off", nullptr));
 #endif // QT_NO_TOOLTIP
         chkTextOpacity->setText(QString());
         label_33->setText(QApplication::translate("falconGClass", "Bac&kground", nullptr));
-        edtBackgroundColor->setText(QApplication::translate("falconGClass", "a03020", nullptr));
+        btnColor->setText(QString());
         btnBackground->setText(QString());
         label_35->setText(QApplication::translate("falconGClass", "%", nullptr));
-#ifndef QT_NO_TOOLTIP
-        chkBackgroundOpacity->setToolTip(QApplication::translate("falconGClass", "Turn opacit on or off", nullptr));
-#endif // QT_NO_TOOLTIP
-        chkBackgroundOpacity->setText(QString());
+        label_34->setText(QApplication::translate("falconGClass", "%", nullptr));
+        label_26->setText(QApplication::translate("falconGClass", "Te&xt", nullptr));
+        edtTextColor->setText(QApplication::translate("falconGClass", "ddd", nullptr));
+        label_16->setText(QApplication::translate("falconGClass", "#", nullptr));
+        label_57->setText(QApplication::translate("falconGClass", "#", nullptr));
         gbTextShadow->setTitle(QApplication::translate("falconGClass", "Text Shadow", nullptr));
         label_37->setText(QApplication::translate("falconGClass", "H:", nullptr));
         label_38->setText(QApplication::translate("falconGClass", "&V:", nullptr));
@@ -2689,17 +2730,20 @@ public:
         btnShadowColor->setText(QString());
         chkShadowOn->setText(QApplication::translate("falconGClass", "On", nullptr));
         gbMenu->setTitle(QApplication::translate("falconGClass", "Menu", nullptr));
+        label_24->setText(QApplication::translate("falconGClass", "Stop(%)", nullptr));
         label_4->setText(QApplication::translate("falconGClass", "Color", nullptr));
         btnGradStartColor->setText(QString());
         edtGradMiddleColor->setText(QApplication::translate("falconGClass", "890222", nullptr));
         edtGradStartColor->setText(QApplication::translate("falconGClass", "a90329", nullptr));
-        label_24->setText(QApplication::translate("falconGClass", "Stop(%)", nullptr));
-        btnGradStopColor->setText(QString());
-        edtGradStopColor->setText(QApplication::translate("falconGClass", "6D0019", nullptr));
-        btnGradMiddleColor->setText(QString());
-        chkButtonBorder->setText(QApplication::translate("falconGClass", "Border:", nullptr));
         chkGradient->setText(QApplication::translate("falconGClass", "Gradient", nullptr));
+        btnGradMiddleColor->setText(QString());
+        btnGradStopColor->setText(QString());
         btnGradBorder->setText(QApplication::translate("falconGClass", "B", nullptr));
+        chkButtonBorder->setText(QApplication::translate("falconGClass", "Border:", nullptr));
+        edtGradStopColor->setText(QApplication::translate("falconGClass", "6D0019", nullptr));
+        label_58->setText(QApplication::translate("falconGClass", "#", nullptr));
+        label_59->setText(QApplication::translate("falconGClass", "#", nullptr));
+        label_60->setText(QApplication::translate("falconGClass", "#", nullptr));
         groupBox_5->setTitle(QApplication::translate("falconGClass", "Font", nullptr));
         label_27->setText(QApplication::translate("falconGClass", "Family", nullptr));
         label_28->setText(QApplication::translate("falconGClass", "Point si&ze:", nullptr));
@@ -2738,25 +2782,25 @@ public:
         btnGalleryDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
 "elit. Placeat delectusfacilis dolorum dolores\n"
 "distinctio...", nullptr));
-        btnAlbumTitle->setText(QApplication::translate("falconGClass", "Album Title", nullptr));
+        btnSection->setText(QApplication::translate("falconGClass", "Images", nullptr));
         btnAlbumDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
 "elit. Placeat delectus facilis dolorum dolores\n"
 "distinctio, aperiam quam deserunt accusantium\n"
 "possimus minima?", nullptr));
-        btnSection->setText(QApplication::translate("falconGClass", "Images", nullptr));
-        btnImageDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
-"elit. Placeat delectus facilis dolorum dolores\n"
-"distinctio,  aperiam quam deserunt accusantium\n"
-"possimus minima?", nullptr));
+        btnAlbumTitle->setText(QApplication::translate("falconGClass", "Album Title", nullptr));
         btnImage->setText(QString());
-        btnIconToTop->setText(QString());
-        btnImageTitle->setText(QApplication::translate("falconGClass", "IMAGE TiTLE", nullptr));
-        btnDescription->setText(QString());
         btnUplink->setText(QString());
         btnMenu->setText(QApplication::translate("falconGClass", "Home", nullptr));
         btnCaption->setText(QApplication::translate("falconGClass", "Captions", nullptr));
         btnSmallGalleryTitle->setText(QApplication::translate("falconGClass", "falconG Gallery Maker", nullptr));
         btnLang->setText(QApplication::translate("falconGClass", "Italiano", nullptr));
+        btnIconToTop->setText(QString());
+        btnImageTitle->setText(QApplication::translate("falconGClass", "IMAGE TiTLE", nullptr));
+        btnDescription->setText(QString());
+        btnImageDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
+"elit. Placeat delectus facilis dolorum dolores\n"
+"distinctio,  aperiam quam deserunt accusantium\n"
+"possimus minima?", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabDesign), QApplication::translate("falconGClass", "Design", nullptr));
         groupBox->setTitle(QApplication::translate("falconGClass", "Resizing", nullptr));
         label_3->setText(QApplication::translate("falconGClass", "Height", nullptr));

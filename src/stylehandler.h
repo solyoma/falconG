@@ -22,7 +22,7 @@ class StyleHandler
 			return _ss[_pos++];
 		return QChar();
 	}
-	QString _GetItement(QString &value, bool &finished);	// get _element from -ss, starting after an '{' for group
+	QString _getElement(QString &value, bool &finished);	// get _element from -ss, starting after an '{' for group
 							// but it can occur outside of groups too
 	QString _GetGroup();	// one group from _ss, starts with QString followed by '{'
 						// then elements, then '}'  // no embedded groups

@@ -181,6 +181,7 @@ private slots:
 	void on_chkTextOpacity_toggled(bool on);
 	void on_chkBackgroundOpacity_toggled(bool on);
 	void on_chkGradient_toggled(bool on);
+	void on_chkShadowOn_toggled(bool on);
 	void on_chkButtonBorder_toggled(bool on);
 	void on_chkImageBorder_toggled(bool);		// image border
 	void on_chkIconText_toggled(bool);

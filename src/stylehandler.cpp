@@ -10,7 +10,7 @@
  *			- _pos is left after the ';' if it is found, else at next character
  *			
 *---------------------------------------------------------------------------*/
-QString StyleHandler::_GetItement(QString &qv, bool &finished)
+QString StyleHandler::_getElement(QString &qv, bool &finished)
 {
 	QString qe;
 	QChar ch;
@@ -60,7 +60,7 @@ QString StyleHandler::_GetGroup()
 	bool b = ch.isNull();
 	while (!b)	//true-> finished with this elem
 	{
-		se = _GetItement(sv,b ); // until _ss end or ';' or '}'
+		se = _getElement(sv,b ); // until _ss end or ';' or '}'
 		if(!se.isEmpty())
 			_elements[se] = sv;
 	}

@@ -58,14 +58,13 @@ struct LanguageTexts				// both Album and Image uses this
 {
 	ID_t ID = 0;		// same for all translations of this in all languages (0: invalid)
 	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << ID_COLLISION_FACTOR)
-//	int lang=-1;		// lang is index of ID text  in 'texts' (set for longest text) <0 : ID not calculated yet
 	QList<int>	lenghts;	// set to have as many elements as there are languages, lang ID is index in text
 	QString textsForAllLanguages;
 	UsageCount usageCount; // how many times this same text is added to list
 
 	LanguageTexts(int languageCount = 0) { Clear(languageCount); }
 	LanguageTexts(const QStringList &texts);
-	LanguageTexts(const LanguageTexts &t) : ID(t.ID),  /*lang(t.lang),*/ collision(t.collision), textsForAllLanguages(t.textsForAllLanguages), usageCount(t.usageCount) {}
+	LanguageTexts(const LanguageTexts &t) : ID(t.ID), collision(t.collision), lenghts(t.lenghts), textsForAllLanguages(t.textsForAllLanguages), usageCount(t.usageCount) {}
 
 	LanguageTexts &operator=(const LanguageTexts &t);
 	LanguageTexts &operator=(const QStringList &txts);
@@ -226,7 +225,7 @@ public:
 
 struct IdsFromStruct
 {
-	enum { nothing, title, description, thumbnail } what = nothing;
+	enum IDS { nothing, title, description, thumbnail } what = nothing;
 
 	ID_t titleID = 0, descID = 0, thumbnailID = 0;
 	void Clear() { titleID = descID = thumbnailID = 0; what = nothing; }

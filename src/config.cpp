@@ -125,7 +125,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->bMenuToAbout.changed = false;
 		_parent->bMenuToDescriptions.changed = false;
 		_parent->bMenuToToggleCaptions.changed = false;
-		_parent->bfacebookLink.changed = false;
+		_parent->bFacebookLink.changed = false;
 		_parent->doNotEnlarge.changed = false;
 		_parent->imageBorder.changed = false;
 
@@ -562,8 +562,6 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	googleAnalTrackingCode = cfg.googleAnalTrackingCode;
 
 	sGalleryTitle = cfg.sGalleryTitle;
-
-	sGalleryTitle = cfg.sGalleryTitle;
 	bOvrImages = cfg.bOvrImages;
 }
 
@@ -600,7 +598,7 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	ImageTitle = cfg.ImageTitle;		// not the image itself, just the texts!
 	ImageDesc = cfg.ImageDesc;			// 
 	waterMark = cfg.waterMark;
-	bfacebookLink = cfg.bfacebookLink;
+	bFacebookLink = cfg.bFacebookLink;
 	// images
 	images = cfg.images;
 	imageWidth = cfg.imageWidth;
@@ -826,7 +824,7 @@ CONFIG::CONFIG()
 
 	sGalleryDesc.nameStr = "sGalleryDesc";
 	sGalleryTitle.nameStr = "sGalleryTitle";
-	bfacebookLink.nameStr = "facebook";
+	bFacebookLink.nameStr = "facebook";
 	// Design page
 
 	Web.nameStr = "Web";
@@ -1019,7 +1017,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadBool(s, bRightClickProtected, false);
 	__ConfigReadBool(s, bCanDownload, false);		// images download allowed
 	__ConfigReadBool(s, bForceSSL, true);			// permanent transfer to SSL
-	__ConfigReadBool(s, bfacebookLink, true);
+	__ConfigReadBool(s, bFacebookLink, true);
 
 	__ConfigReadStr(s, dsImageDir, "");		// img
 	__ConfigReadStr(s, dsCssDir , "");		// css
@@ -1284,7 +1282,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteBool(s, bForceSSL);			// permanent transfer to SSL
 	__ConfigWriteBool(s, bOvrImages);  // overwrite images or ask?
 	__ConfigWriteBool(s, bSourceRelativePerSign);
-	__ConfigWriteBool(s, bfacebookLink);
+	__ConfigWriteBool(s, bFacebookLink);
 
 	__ConfigWriteStr(s, dsImageDir);	// img
 	__ConfigWriteStr(s, dsCssDir);		// css

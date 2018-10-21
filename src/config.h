@@ -288,7 +288,7 @@ public:
 	_CString sGalleryTitle;
 	_CString sGalleryDesc;
 
-	_CBool bfacebookLink;
+	_CBool bFacebookLink;
 
 // Design page
 
