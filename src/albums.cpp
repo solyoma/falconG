@@ -1454,7 +1454,7 @@ bool AlbumGenerator::Read()
 		{
 			result = _ReadStruct(s);
 		}
-		catch (BadStruct b)
+		catch (.../*BadStruct b*/)
 		{
 			_imageMap.clear();
 			_textMap.clear();
@@ -2637,44 +2637,57 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"	/* -- media queries ***/\n"
 		"@media only screen and (orientation: landscape) {\n"
-		"	img{ max-height: 95vh; }\n"
+		"	img{ max-height: 90vh; }\n"
 		"}\n"
 		"@media only screen and (min-width:700px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
-		"		max-width:300px;\n"
-//		"		justify-content: flex-end;\n"
-		"       padding:0 10px;\n"
+		"		max-width:100vw;\n"
+		"		padding:0 10px;\n"
 		"	}\n"
-		"	img{ max-width: 100% ; max-height:267px; }\n"
-		"		p{ font-size: 12pt }\n"
-		"		main{ display:flex; flex-direction: column; }\n"
+		"	img{\n"
+		"		max-width: 100%;\n" 
+			//max-height:267px; 
+		"	}\n"
+		"	p{\n"
+		"		font-size:12pt\n"
+		"	}\n"
+		//"	main{\n" 
+		//"		display:flex;\n"
+		//"		flex-direction: column;\n"
+		//"   }\n"
 		// about
 		"   .about{\n"
-		"   	margin:auto;\n"
-		"      width:600px;\n"
-		"   	}\n"
-		"   }\n"
-		"   \n"
+		"		margin:auto;\n"
+		"		width:600px;\n"
+		"  	}\n"
+		"}\n"
+		"\n"
 		"	/* large screens */\n"
 		"@media only screen and (min-width:1200px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
 		"		max-width:400px;\n"
-//		"		justify-content: flex-end;\n"
-		"		flex-direction: column;\n"
+		"		flex-direction:column;\n"
 		"		padding:0 10px;\n"
 		"	}\n"
-		"	img{ max-width: 100% ; max-height:267px; }\n"
-		"		p{ font-size: 12pt }\n"
-		"	main{ display:flex; flex-direction: column; }\n"
+		"	img{\n"
+		"		max-width: 100%;\n" 
+		"		max-height:267px;\n"
+		"	}\n"
+		"	p{\n"
+		"		font-size: 12pt;\n"
+		"	}\n"
+		//"	main{\n"
+		//"		display:flex;\n"
+		//"		flex-direction: column;\n" 
+		//"  }\n"
 		// about
 		"   .about{\n"
-		"   	margin:auto;\n"
-		"      width:800px;\n"
-		"   	}\n"
-		"}\n"
-		"\n";
+		"		margin:auto;\n"
+		"		width:800px;\n"
+		"	}\n"
+		"}\n";
 	return s;
 }
 
@@ -3124,8 +3137,8 @@ int AlbumGenerator::_ProcessImages()
 		QFileInfo fi(src);						// test for source image
 		bool srcExists = fi.exists();
 
-		bool dstExists = QFile::exists(dst),
-			 thumbExists = QFile::exists(thumb);
+		bool dstExists = QFile::exists(dst) && !config.bGenerateAll,
+			 thumbExists = QFile::exists(thumb) && !config.bGenerateAll;
 
 		if (!srcExists)
 		{
