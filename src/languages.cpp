@@ -7,8 +7,11 @@
 LangConstList Languages::abbrev;		// abbreviations: "hu", "en", etc
 LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
 LangConstList Languages::icons;			// icons to use instead of names
-LangConstList Languages::toImages;	// image section in HTML files
-LangConstList Languages::toAlbums;// album section in HTML files
+LangConstList Languages::Images;		// image section in HTML files
+LangConstList Languages::Albums;		// album section in HTML files
+LangConstList Languages::toAlbums;		// jump to album section
+LangConstList Languages::toTop;			// top of page
+LangConstList Languages::upOneLevel;	// jump to parent
 LangConstList Languages::toHomePage;		// 'Kezdõlapra'
 LangConstList Languages::toAboutPage;		// 'Rólam'
 LangConstList Languages::toContact;		// á'Kapcsolat'
@@ -59,7 +62,8 @@ int Languages::_Read(QString name)
 	abbrev.push_back(s);
 	names.push_back(s);
 	icons.push_back(s);
-	toImages.push_back(s);
+	Images.push_back(s);
+	Albums.push_back(s);
 	toAlbums.push_back(s);
 	toHomePage.push_back(s);
 	toAboutPage.push_back(s);
@@ -88,8 +92,14 @@ int Languages::_Read(QString name)
 		else if (sn == "icon")
 			icons[next] = s;
 		else if (sn == "images")
-			toImages[next] = s;
+			Images[next] = s;
 		else if (sn == "albums")
+			Albums[next] = s;
+		else if (sn == "toalbums")
+			toAlbums[next] = s;
+		else if (sn == "totop")
+			toAlbums[next] = s;
+		else if (sn == "upOneLevel")
 			toAlbums[next] = s;
 		else if (sn == "homepage")
 			toHomePage[next] = s;
@@ -171,6 +181,8 @@ int Languages::Read()
 							 "  name		=<language name to put on language switch menu> e.g.  'to English'\n"
 							 "  icon		=<name of icon (.png) file for language> may be left empty\n"
 							 "  images		=<text header for the images section of the actual album>\n"
+							 "  totop       <text for up arrow: jump to top of page>"
+							 "  upOneLevel  <text for up arrow: jump to parent dir>"
 							 "  albums		=<text header for the album section of the  actual album>>\n"
 							 "  homePage	=<text for menu to home page>\n"
 							 "  about		=<text for the 'About' button>\n"
@@ -187,9 +199,12 @@ int Languages::Read()
 		abbrev.push_back("en");
 		names.push_back("English");
 		icons.push_back("");
-		toImages.push_back("images");
-		toAlbums.push_back("Albums");
+		Images.push_back("images");
+		Albums.push_back("Albums");
+		toAlbums.push_back("to Albums");
 		toHomePage.push_back("Home");
+		toTop.push_back("Jump to top of page");
+		upOneLevel.push_back("Up one level");
 		toAboutPage.push_back("About");
 		toContact.push_back("Contact");
 		showCaptions.push_back("Captions");
@@ -221,8 +236,11 @@ void Languages::Clear(int newsize)
 	abbrev.Prepare(newsize);
 	names.Prepare(newsize);
 	icons.Prepare(newsize);
-	toImages.Prepare(newsize);
+	Images.Prepare(newsize);
+	Albums.Prepare(newsize);
 	toAlbums.Prepare(newsize);
+	toTop.Prepare(newsize);
+	upOneLevel.Prepare(newsize);
 	toHomePage.Prepare(newsize);
 	toAboutPage.Prepare(newsize);
 	toContact.Prepare(newsize);

@@ -1591,9 +1591,15 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
 			else if (s == "images")
-				Languages::toImages[i] = sl[1];
+				Languages::Images[i] = sl[1];
 			else if (s == "albums")
+				Languages::Albums[i] = sl[1];
+			else if (s == "toalbums")
 				Languages::toAlbums[i] = sl[1];
+			else if (s == "totop")
+				Languages::toTop[i] = sl[1];
+			else if (s == "uponelevel")
+				Languages::upOneLevel[i] = sl[1];
 			else if (s == "homepage")
 				Languages::toHomePage[i] = sl[1];
 			else if (s == "about")
@@ -2424,7 +2430,7 @@ QString AlbumGenerator::_CssToString()
 	QString s =
 		"@import url(\"https://fonts.googleapis.com/css?family=Raleway\"); /*--- Nav Font --*/\n"
 		"@import url(\"https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway\"); /*--- Heading Font --*/\n"
-		// TODO: scan fobt directory and embed fonts from it into here
+		// TODO: scan font directory and embed fonts from it into here
 		// e.g. @font-face {
 		//				font-family: 'RieslingRegular';
 		//				src: url('fonts/riesling.eot');
@@ -2544,7 +2550,7 @@ QString AlbumGenerator::_CssToString()
 		".album-desc{\n"
 		+ _FontToCss(config.AlbumDesc) +
 		"	margin:auto;\n"
-		"	width:90% ;\n"
+		"	width:600px;\n"
 		"   text-align:center;\n"
 		"}\n"
 		"\n"
@@ -2606,10 +2612,7 @@ QString AlbumGenerator::_CssToString()
 		"	padding: 2px;\n"
 		"   margin: 0 2;\n"
 		"}\n";
-		//if (config.imageBorder.used)
-		//	s += "div.thumb a img{\n"
-		//	" border :" + QString("%1px solid %2").arg(config.imageBorder.width).arg(config.imageBorder.color.name, 0, 16) + ";\n"
-		//	+ "}\n";
+		// image border is set in _ColorCSSToString()
 		s += "\n"
 		".img-container img, .gallery-container img{\n"
 		"	margin:auto;\n"
@@ -2622,7 +2625,6 @@ QString AlbumGenerator::_CssToString()
 		"	justify-content:space-between;\n"
 		"	margin-bottom: 10px;\n"
 		"	padding-bottom: 40px;\n"
-//		"	border-bottom: 1px solid black;\n"
 		"}\n"
 		"div.links a, .showhide{\n"
 		"	text-decoration:none;\n"
@@ -2929,7 +2931,9 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 	// menu buttons
 	_ofs << "<p class=\"menu-line\">\n";
 	 if (!updir.isEmpty() && !uplink.isEmpty())
-		 _ofs << "<a href=\"" << uplink << "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\"></a>\n";			  // UP link
+		 _ofs << "<a href=\"" << uplink 
+			  << "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::toTop[_actLanguage] + "\" alt=\"" 
+		         + Languages::toTop[_actLanguage] +"\"></a>\n";			  // UP link
 	_ofs << "<a href=\"" 
 					<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
 			 << "</a>\n";																											  // Home page
@@ -2939,7 +2943,7 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
 	if(config.bMenuToToggleCaptions)
 		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
-	if(album.SubAlbumCount())
+	if(album.SubAlbumCount() && album.ImageCount())			// when no images no need to jump to albums
 		   _ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
 	if (config.generateLatestUploads)
 		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
@@ -3060,7 +3064,8 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\"></a>\n"
+			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
+																					"\" alt=\"" + Languages::upOneLevel[_actLanguage]  + "\"></a>\n"
 			"        <a class=\"album-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
@@ -3068,7 +3073,8 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
 	_ofs << (title.isEmpty() ? "---" : title)
 		<< "</a>\n"
-		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\"></div>\n"
+		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
+								"\" alt=\"" + Languages::showCaptions[_actLanguage] + "\"></a></div>\n"
 			"     </div>\n";											 
 	// -----------------------------end of div links
 	_ofs << "   </section>\n";
@@ -3279,7 +3285,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "<a name=\"images\">" << Languages::toImages[_actLanguage] << "</a>\n""<section id=\"images\">\n";
+			<< "<a name=\"images\">" << Languages::Images[_actLanguage] << "</a>\n""<section id=\"images\">\n";
 		// first the images
 		for (int i = 0; _running && i < album.images.size(); ++i)
 //			if (album.excluded.indexOf(album.images[i]) < 0)
@@ -3289,7 +3295,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if (album.SubAlbumCount())
 	{
 		_ofs << "\n<!--start section albums -->\n"
-			<< "<a name = \"galleries\">" << Languages::toAlbums[_actLanguage] << "</a>\n"
+			<< "<a name = \"galleries\">" << Languages::Albums[_actLanguage] << "</a>\n"
 			"<section id = \"folders\">\n";
 
 		for (int i = 0; _running && i < album.albums.size(); ++i)
@@ -3589,8 +3595,9 @@ void AlbumStructWriterThread::run()
 			<< "  abbrev=" << Languages::abbrev[i] << "\n"
 			<< "  name=" << Languages::names[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
-			<< "  images=" << Languages::toImages[i] << "\n"
-			<< "  albums=" << Languages::toAlbums[i] << "\n"
+			<< "  images=" << Languages::Images[i] << "\n"
+			<< "  albums=" << Languages::Albums[i] << "\n"
+			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
 			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  about=" << Languages::toAboutPage[i] << "\n"
 			<< "  contact=" << Languages::toContact[i] << "\n"
@@ -3655,8 +3662,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 					s = s.mid(len);
 				_ofs << s << "\n";	
 											   // field #9
-				WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 				WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
+				WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 			}
 		}
 	for (ID_t id : album.albums)

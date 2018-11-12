@@ -22,13 +22,16 @@ public:
 //*****************************************
 
 struct Languages	// each language has a text file named <text from 'languages'>.php
-{					
+{					// or the languages are set in a .struct file
 	static LangConstList abbrev;			// abbreviations: "hu", "en", etc
 	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
 	static LangConstList icons;			// icons to use instead of names
 		// these are read from language definition files '<xxx>.lang in program directory
-	static LangConstList toImages;		// image section in HTML files 'Képek'
-	static LangConstList toAlbums;		// album section in HTML files 'Albumok'
+	static LangConstList Images;		// image section in HTML files 'Képek'
+	static LangConstList Albums;		// album section in HTML files 'Albumok'
+	static LangConstList toAlbums;		// Jump to album section
+	static LangConstList toTop;			// jump to top of page
+	static LangConstList upOneLevel;	// jump to parent
 	static LangConstList toHomePage;		// 'Kezdõlapra'
 	static LangConstList toAboutPage;	// 'Rólam'
 	static LangConstList toContact;		// 'Kapcsolat'
