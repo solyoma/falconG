@@ -253,6 +253,7 @@ class AlbumGenerator : public QObject
 	bool _running = false;
 
 	QString _upLink;		// to parent page if there's one
+	QString _lastUsedImagePath;	// so that we can add an image by simply its name: relative to this path
 	TextMap _textMap;		// all texts for all albums and inmages
 	AlbumMap _albumMap;		// all source albums
 	ImageMap _imageMap;		// all images for all albums
@@ -273,7 +274,9 @@ class AlbumGenerator : public QObject
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
+	bool _MustRecreateImage(Image &img, bool thumb = false);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
+	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
 	void _TitleFromPath(QString path, LangConstList &ltl);
 	QString _ShadowToString(QString s, _CElem &elem);

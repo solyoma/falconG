@@ -59,6 +59,48 @@ FileReader::FileReader(const QString s, QFlags<FrfFlags> flags) : _flags(flags)
 }
 
 /*============================================================================
+  * TASK:	left trim _line
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS: no right trim in Qt 5
+ *--------------------------------------------------------------------------*/
+void FileReader::_TrimLeft()
+{
+	int pos;
+	for (pos = 0; pos < _line.length() && _line[pos].isSpace(); ++pos)
+		;
+	_line = _line.mid(pos);
+}
+
+/*============================================================================
+  * TASK:	right trim _line
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS: no right trim in Qt 5
+ *--------------------------------------------------------------------------*/
+void FileReader::_TrimRight()
+{
+	int pos;
+	for (pos = _line.length()-1; pos >= 0 && _line[pos].isSpace(); --pos)
+		;
+	_line = _line.left(pos+1);
+}
+
+/*============================================================================
+  * TASK:	trim _line
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FileReader::_Trim()
+{
+	_line = _line.trimmed();
+}
+
+/*============================================================================
 * TASK:	reads next non empty non comment line int _line until EOF on the stream
 *       and converts it to UTF8 if unless it is UTF8 already
 * EXPECTS: nothing
@@ -182,28 +224,16 @@ void FileReader::_readLine()
 
 		pos = 0;						   // trim line from this
 		pos1 = _line.length() - 1;		   // till this
-		if (_flags & (frfNoWhiteSpaceLines | frfLtrim | frfTrim))
+		if (_flags & (frfNoWhiteSpaceLines | frfTrim))
+			_Trim();
+		else
 		{
-			for (    ;  pos < _line.length() && _line[pos].isSpace(); ++pos)
-				;
+			if (_flags & frfLtrim)
+				_TrimLeft();
+			if (_flags & frfRtrim)
+				_TrimRight();
 		}
-		if (_flags & (frfNoWhiteSpaceLines | frfRtrim | frfTrim))
-		{
-			for (   ; pos1 >= 0 && _line[pos1].isSpace(); --pos1)
-				;
-		}
-		if (_flags & frfNoWhiteSpaceLines  && pos > pos1)									// line with white spaces only
-			_line.clear();
-
-		if ((_flags & frfLtrim) == 0)
-			pos = 0;
-		if ((_flags & frfRtrim) == 0)
-			pos1 = _line.length() - 1;
-
-		if ( pos > 0 || pos1 < _line.length() - 1)
-			_line = _line.mid(pos, pos1 - pos + 1);
-
-		if ((_flags & frfEmptyLines))					// then _line is alwaysOK
+		if ((_flags & frfEmptyLines))					// then _line is always OK
 			break;
 	} while (_line.isEmpty() && _ok);
 }
@@ -254,12 +284,15 @@ QStringList FileReader::ReadAndSplitLine(QChar sep)
 * TASK:		Read line even when it is empty
 * EXPECTS:
 * GLOBALS:
-* REMARKS: lines containing whitespace(s) only	will be cleared of it
+* REMARKS: 	- lines ae always right trimmed
+*			- lines containing whitespace(s) only	will be cleared of it
 *--------------------------------------------------------------------------*/
 QString FileReader::NextLine()
 {
 	_flags |= frfNoWhiteSpaceLines;
 	_readBinaryLine();
+	_TrimRight();
+	
 	if (!_line.isEmpty() && _line.trimmed().isEmpty())
 		_line.clear();
 	return _line;
@@ -476,40 +509,46 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-ImageConverter::ImageConverter(int maxwidth, int maxheight, bool doNotEnlarge) :
-	maxwidth(maxwidth), maxheight(maxheight), dontEnlarge(doNotEnlarge)
+ImageConverter::ImageConverter(QSize maxSize, bool doNotEnlarge) :
+						maxSize(maxSize), dontEnlarge(doNotEnlarge)
 {
 
 }
 
+/*============================================================================
+  * TASK:	If the image reader can read the image sets original and new sizes
+  * EXPECTS:	allowed sizes set in constructor
+  *				imgReader - reader for file name
+  * RETURNS:	aspect ratio or 1.0 if any size is 0
+  * GLOBALS:
+  * REMARKS: - sets the scaled dimensions into the reader
+  *			 - thumbnail scaling happens in writer
+ *--------------------------------------------------------------------------*/
 double ImageConverter::GetSizes(ImageReader &imgReader)
 {
 	if (!imgReader.canRead())
 		return 0;
 
-	QSize osize = imgReader.size();
+	newSize = oSize = imgReader.size();
 
-	width = owidth = osize.width();
-	height = oheight = osize.height();
-	if (!owidth || !oheight)
+	if (!oSize.width() || !oSize.height())
 		return 1.0;
 
-	aspect = (double)owidth / (double)oheight;
+	aspect = (double)oSize.width() / (double)oSize.height();
 
-	if ((owidth > maxwidth) || (!dontEnlarge && aspect >= 1))
+	if ((newSize.width() > maxSize.width()) || (!dontEnlarge && aspect >= 1))
 	{
-		width = maxwidth;
-		height = width / aspect;
+		newSize.setWidth(maxSize.width());
+		newSize.setHeight(maxSize.width() / aspect);
 	}
-	if ((height > maxheight) || (!dontEnlarge && aspect <= 1))
+	if ((newSize.height() > maxSize.height()) || (!dontEnlarge && aspect <= 1))
 	{
-		height = maxheight;
-		width = aspect * height;
+		newSize.setHeight(maxSize.height());
+		newSize.setWidth(aspect * maxSize.height());
 	}
-	if (width != owidth)	// if either width or height needed changing both changed
+	if (oSize != newSize)	// if either width or height needed changing both changed
 	{
-		osize = QSize(width, height);
-		imgReader.setScaledSize(osize);
+		imgReader.setScaledSize(newSize);
 	}
 	return aspect;
 }
@@ -518,15 +557,18 @@ double ImageConverter::GetSizes(ImageReader &imgReader)
 * TASK:		resize and watermark images 
 * EXPECTS:	 
 *			 dest - path of destination image
+*			thumb - process a thumbnail?
 *			 ovr - overwrite image if it exists
 *			 pwm - pointer to watermark structure
 *			parameters maxwidth, maxheight,dontEnlarge are set
 * RETURNS: aspect ratio or 0 for load errors and -1.0 if destination exists and 
 *			it is not allowed to overwrite it
 * GLOBALS: 
-* REMARKS:	path of source image must be set into imgReader before calling
+* REMARKS:	- path of source image must be set into imgReader before calling
+*			- for thumbnails if the image was already loaded into imgReader
+*				then scale image during save, else save the image as it is
 *--------------------------------------------------------------------------*/
-double ImageConverter::Process(ImageReader &imgReader, QString dest, bool ovr, WaterMark *pwm)
+double ImageConverter::Process(ImageReader &imgReader, QString dest, bool thumb, bool ovr, WaterMark *pwm)
 {
 	if (!ovr)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
 		return -1.0;
@@ -534,16 +576,22 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, bool ovr, W
 	if ((aspect = GetSizes(imgReader)) == 0)
 		return 0;
 
-	if(!imgReader.isReady)		// was it read already?
-		imgReader.read();
+	if (!imgReader.isReady)
+	{								// not read yet
+		imgReader.setAutoTransform(true);	// to rotate portrait images
+		imgReader.read();			// scaled image
 
-	_pImg = &imgReader.img;		  // used in _AddWatermark
-	if (pwm)
-		_AddWatermark(*pwm);
-
+		_pImg = &imgReader.img;		// used in _AddWatermark
+		if (pwm)
+			_AddWatermark(*pwm);
+		thumb = false;				// already scaled, no need to scale on write
+	}
 	QImageWriter imageWriter(dest);
 	imageWriter.setQuality(imgReader.quality());
 	imageWriter.setFormat(imgReader.format());
+	if (thumb)			  // re-scale image
+		imgReader.img = imgReader.img.scaled(newSize,Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	
 	if (!imageWriter.write(imgReader.img))
 	{
 		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),

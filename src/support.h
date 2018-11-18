@@ -45,6 +45,9 @@ private:
 	int _bsize = 0,			// size of binary data read (at most _BUFFER_SIZE;)
 		_bpos = 0;			// buffer position
 
+	void _TrimLeft();
+	void _TrimRight();
+	void _Trim();
 	void _readBinaryLine(); // and convert it to UTF8
 	void _readLine();		// reads next line using _flags until EOF on the stream
 public:
@@ -127,10 +130,10 @@ struct WaterMark
 //*****************************************																			
 struct ImageReader : public QImageReader
 {
-	QImage img;			// read into this
+	QImage img;			// read scaled image into this
 	bool isReady = false;
 	bool read() { return isReady = QImageReader::read(&img); }
-	bool canRead() { return (isReady ? true : (isReady = QImageReader::read(&img))); }
+	bool canRead() { return (isReady ? true : QImageReader::canRead()); }
 	ImageReader(QIODevice *device, const QByteArray &format = QByteArray()) : QImageReader(device, format) {}
 	ImageReader(const QString &fileName, const QByteArray &format = QByteArray()) : QImageReader(fileName, format) {}
 };
@@ -140,16 +143,16 @@ struct ImageReader : public QImageReader
 struct ImageConverter
 {
 	QString name;
-	int owidth, oheight;			// original width and height
-	int width, height;				// converted image size
-	int maxwidth, maxheight;		// maximum allowed converted size
+	QSize oSize,					// original width and height for image
+		newSize, 					// calculated new dimensions
+		maxSize;					// maximum allowed converted dimensions for image
 	bool dontEnlarge = true;
-	double aspect = 0;				// width/height
-
-	ImageConverter(int maxwidth, int maxheight, bool doNotEnlarge = true);
+	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
+									// 0: not calculated
+	ImageConverter(QSize maxSize, bool doNotEnlarge = true);		// create converter
 
 	double GetSizes(ImageReader &reader);	
-	double Process(ImageReader &reader, QString dest, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+	double Process(ImageReader &reader, QString dest, bool thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
 private:
 	QImage * _pImg = nullptr;

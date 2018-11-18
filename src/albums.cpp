@@ -941,10 +941,8 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
 }
 
 /*============================================================================
-  * TASK:	 add a new image from structure
-  * EXPECTS:  ab - album to add the image to either as an image or a thumbnail
-  *			  imagePath: path name relative to source directory
-  *			  thumbnail: this is the album thumbnail
+  * TASK:	 add a new image from structure to image map
+  * EXPECTS:  imagePath: path name relative to source directory
   *			  
   * RETURNS:  image added/found. It will not have any title or description as those
   *				will be added after this image is processed
@@ -960,7 +958,7 @@ ID_t AlbumGenerator::_AddImageFromPathInStruct(QString imagePath)
 	bool added;
 	++_structChanged;
 	_bImageDataIsReady = false;
-	if (!QDir::isAbsolutePath(imagePath)) // Add() requires absolute path
+	if (!QDir::isAbsolutePath(_GetSetImagePath(imagePath))) // Add() requires absolute path
 		imagePath = config.dsSrc.ToString() + imagePath;
 
 	return _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
@@ -971,12 +969,7 @@ ID_t AlbumGenerator::_AddImageFromPathInStruct(QString imagePath)
 *			from directory unless they are excluded
 * EXPECTS:	ab - album to add images and sub albums to
 *			fi - info of a file and album
-*			fromDisk: - used when elem to be added comes from the disk
-*				in this case just new data is added, but the 'exists'
-*				flag is set for old data too
-* RETURNS:	fromDisk = false (default) id of data
-*			fromDisk = true -> 0 for hidden files, or if excluded
-*				for this subdirectory otherwise id
+* RETURNS:	id of data
 * REMARKS:  - 'exists' member of not excluded old oe new images and sub-albums 
 *				are set to true when 'fromDisk' is true
 *			- adds new images and id's to the corresponding id list of 'ab'
@@ -1098,6 +1091,44 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 	return true;
 }
 
+/*============================================================================
+  * TASK: test the image sizes against config and see if it must be recreated
+  * EXPECTS:
+  * RETURNS: true or false
+  * GLOBALS:
+  * REMARKS: -re-create when 
+  *				current size of image is larger than allowed size
+  *				current size of image is smaller than allowed size but
+  *				original size of image is larger than allowed size
+ *--------------------------------------------------------------------------*/
+bool AlbumGenerator::_MustRecreateImage(Image & img, bool thumb)
+{
+	bool result;
+	if(thumb)
+		result= 
+		(
+			(img.width > config.thumbWidth || img.height > config.thumbHeight)
+			||
+			(
+			  (img.width < config.thumbWidth && img.height < config.thumbHeight)
+				&& 
+			  ( img.owidth > config.thumbWidth || img.oheight > config.thumbHeight)
+			)
+		);
+	else
+		result =  
+		(
+			(img.width > config.imageWidth || img.height > config.imageHeight)
+			||
+			(
+			  (img.width < config.imageWidth && img.height < config.imageHeight)
+				&& 
+			  ( img.owidth > config.imageWidth || img.oheight > config.imageHeight)
+			)
+		);
+	return result;
+}
+
 /*==========================================================================
 * TASK:	sepatae lines containing text delimited by '@@' ot "{)" delimiters
 *		into a string list
@@ -1150,6 +1181,23 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 		}
 	}
 	return list;
+}
+
+/*============================================================================
+  * TASK:	sets a relativ path to the image if it has no path
+  *			or stores the path as the last used path if it had one
+  * EXPECTS: imagerPath - absolute or relative image path or just file name
+  * RETURNS: imagerPath
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString& AlbumGenerator::_GetSetImagePath(QString & imagePath)
+{
+	if (imagePath.indexOf('/') < 0)		// no path at all
+		imagePath = _lastUsedImagePath + imagePath;
+	else
+		_lastUsedImagePath = imagePath.left(imagePath.lastIndexOf('/') + 1); // including last '/'
+	return imagePath;
 }
 
 /*==========================================================================
@@ -1840,9 +1888,9 @@ QStringList __imageMapstructLineToList(QString s)
 
 	QRegExp rexp(",|x");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #1..#7 ID, width, height, owidth, oheight, length, date
-	if (sl.size() != 8 || s[pos + 1] != '/')
+	if (sl.size() != 8 || pos == s.length() )    // was s[pos + 1] != '/')
 		return sl;
-	sl.push_back(s.mid(pos + 2));		// index #8 - original path
+	sl.push_back(s.mid(pos + 1));		// index #8 - original path (was pos + 2
 	return sl;
 }
 
@@ -1872,11 +1920,11 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		// image name, id, width, height, original width, original height, date, size, path
 
 	ID_t id;
-	if (n != 9)		   // maybe new image added and not yet processed
+	if (n != 9 && n != 8)		   // maybe new image added and not yet processed
 	{
 		_bImageDataIsReady = false;				// must process later on
-		if (n != 1)	// and it should be: <config.dsSrc relative full path name>
-			throw BadStruct(reader.ReadCount());
+		if (n != 1)	// and it should be either <config.dsSrc relative full path name>
+			throw BadStruct(reader.ReadCount()); // or just the image name (from the same folder as the previous one)
 
 		// expects: original/image/directory/inside/source/name.ext
 		id = _AddImageFromPathInStruct(sl[0]);	 // structure is changed
@@ -1890,7 +1938,7 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		}
 		img = _imageMap[id];
 	}
-	else
+	else	// n == 8 or n == 9
 	{
 		img.name = sl[0];
 		img.ID = id = sl[1].toULongLong();
@@ -1898,6 +1946,9 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		img.height = sl[3].toInt();
 		img.owidth = sl[4].toInt();
 		img.oheight = sl[5].toInt();
+		if(_MustRecreateImage(img))
+			_bImageDataIsReady = false;	// must recreate at least some images
+
 		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
 		img.uploadDate = DateFromString(sl[6]);
 		if (img.uploadDate > _latestDateLimit)
@@ -1907,7 +1958,11 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 			return 0;
 
 		img.fileSize = sl[7].toULongLong();
-		img.path = config.dsSrc.ToString() + sl[8];
+		if (n == 9)
+			_lastUsedImagePath = sl[8];
+
+		img.path = config.dsSrc.ToString() + _lastUsedImagePath;
+
 		img.exists = (img.fileSize != 0);	// non existing images have 0 size
 	}
 	IdsFromStruct ids;
@@ -1960,7 +2015,8 @@ QStringList __albumMapStructLineToList(QString s)
 		return sl;
 
 	sl.push_back(s.mid(pos0, pos - pos0));	// ID
-	sl.push_back(s.mid(pos + 2));			// path
+	if (pos + 1 < s.length())
+		sl.push_back(s.mid(pos + 1));			// path
 	return sl;
 }
 
@@ -1987,7 +2043,7 @@ ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level
 
 	QStringList sl = __albumMapStructLineToList(reader.l().mid(level));
 	int n = sl.size();		// should be 3: album name, id and path
-	if (n != 3 && n != 1)
+	if (n != 3 && n != 2 && n != 1)
 			throw BadStruct(reader.ReadCount());
 
 	ID_t id;
@@ -2006,10 +2062,20 @@ ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level
 		album = _albumMap[id];
 		++_structChanged;		// and also album is changed
 	}
-	else
+	else   // n == 3 || n == 2
 	{
 		id = sl[1].toULongLong() + ALBUM_ID_FLAG;
-		album.path = (config.dsSrc + sl[2]).ToString();
+		if (n == 2)	// no path
+		{
+			if (level < 2)
+				_lastUsedImagePath.clear();
+			album.path = (config.dsSrc + _lastUsedImagePath).ToString();
+		}
+		else
+		{
+			_lastUsedImagePath = sl[2];
+			album.path = (config.dsSrc + _lastUsedImagePath).ToString();
+		}
 		album.ID = id;
 		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullName());
 	}
@@ -3102,8 +3168,10 @@ int AlbumGenerator::_ProcessImages()
 	bool doProcess = true,		// only process image if this flag is set
 		doProcessThumb = true;	// same for thumb
 
-	ImageConverter converter(config.imageWidth, config.imageHeight, config.doNotEnlarge),
-		           thumbConverter(config.thumbWidth, config.thumbHeight, true);		// do not enlarge thumbnail image
+	QSize maxSize(config.imageWidth, config.imageHeight),
+		  maxThumbSize(config.thumbWidth, config.thumbHeight);
+	ImageConverter converter(maxSize, config.doNotEnlarge),
+		           thumbConverter(maxThumbSize, true);		// do not enlarge thumbnail image
 
 	emit SignalToEnableEditTab(false);
 
@@ -3153,24 +3221,26 @@ int AlbumGenerator::_ProcessImages()
 			continue;
 		}
 
-		ImageReader imgReader(src);
+		ImageReader imgReader(src);			   // reads the scaled image
 
 		if (dstExists)		// then test if this image was modified (width = 0: only added by name)
 		{
-			if (!im.width)	// read JAlbum, and no parameters jet
+			if (!im.width)	// read from JAlbum, and no sizes set yet
 				converter.GetSizes(imgReader);
 
 			QDate dt = fi.birthTime().date();
-			if (im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize)   // not newer and  same size  (TODO: checksum)
+			if(!_MustRecreateImage(im) && 
+				(im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize) )   // not newer and  same size  (TODO: checksum)
 				doProcess = false;			// then do not process
 		}
 		if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
 		{
-			if (!im.width)	// read JAlbum, and no parameters jet
+			if (!im.width)	// read JAlbum, and no parameters yet
 				thumbConverter.GetSizes(imgReader);
 
 			QDate dt = fi.birthTime().date();
-			if (im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize)   // not newer and  same size  (TODO: checksum)
+			if(!_MustRecreateImage(im, true) &&
+				(im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize))   // not newer and  same size  (TODO: checksum)
 				doProcessThumb = false;			// then do not process
 		}
 		if (doProcess || doProcessThumb)
@@ -3182,16 +3252,18 @@ int AlbumGenerator::_ProcessImages()
 					//			emit SignalToEnableEditTab(true);
 					//			return false;
 					//  }
+			_structChanged = true;			// when image changes structure must be re-saved
+
 			WaterMark *pwm = nullptr;
 			if (config.waterMark.used)
 				pwm = &config.waterMark.wm;
 			if (doProcess)
 			{
 				im.aspect = converter.Process(imgReader, dst, config.bOvrImages, pwm);
-				im.owidth = converter.owidth;
-				im.oheight = converter.oheight;
-				im.width = converter.width;
-				im.height = converter.height;
+				im.owidth = converter.oSize.width();
+				im.oheight = converter.oSize.height();
+				im.width = converter.newSize.width();
+				im.height = converter.newSize.height();
 				_imageMap[im.ID] = im;
 			}
 			if (doProcessThumb)
@@ -3656,7 +3728,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 					<< pImg->owidth << "x" << pImg->oheight << ","				   // field #5 - #6
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
-					<< pImg->fileSize	<< ")/";								   // field #8
+					<< pImg->fileSize	<< ")";									   // field #8
 				s = pImg->path;
 				if (s.left(len) == config.dsSrc.ToString())
 					s = s.mid(len);
@@ -3685,12 +3757,12 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	QString s = album.path;	// album.FullName()  +'/';
 	int len = config.dsSrc.Length();
 	if (s.left(len) == config.dsSrc.ToString())	// drop sorce path ending '/'
-		s = s.mid(len);				// so root album will have a path of '/'
+		s = s.mid(len);				// so root album will have no path 
 
 	ID_t thumbnail = album.thumbnail = _ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << "(A:" << (album.ID & ~ALBUM_ID_FLAG) << ")/" << s << "\n";
+		<< album.name << "(A:" << (album.ID & ~ALBUM_ID_FLAG) << ")" << s << "\n";
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 
