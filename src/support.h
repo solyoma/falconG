@@ -19,9 +19,10 @@ const QString versionStr = "# falconG Gallery Structure file ";
 
 // versions: 1.0 - text ID not saved, collision saved using an '*' followed by the collision number
 //           1.1 - full text ID is saved after and '*' Calculated if missing
+//           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
 
 const int majorStructVersion = 1,
-		  minorStructVersion = 1;
+		  minorStructVersion = 2;
 
 
 //******************** text file reader ************
@@ -50,6 +51,8 @@ private:
 	void _Trim();
 	void _readBinaryLine(); // and convert it to UTF8
 	void _readLine();		// reads next line using _flags until EOF on the stream
+	void _DiscardComment();	// part of line starting at a '#' character 
+							// and the white spaces before that are discarded
 public:
 	explicit FileReader(const QString s, QFlags<FrfFlags> flags);
 	FileReader(const QString s, int flags = frfTrim) : FileReader(s, QFlags<FileReader::FrfFlags>(flags)) {}
@@ -58,7 +61,7 @@ public:
 	bool Ok() const { return _ok; }
 	QString ReadLine(int flags = frfNormal);	// normal: use internal flags, other use this
 	QStringList ReadAndSplitLine(QChar sep);
-	QString NextLine();	// reads and returns even empty or comment lines!
+	QString NextLine(bool doNotDiscardComment=false);	// reads and returns even empty or comment lines!
 	inline QString l() const { return _line; }	 // last read line
 	int ReadCount() const { return _readLineCount; }
 };
@@ -132,10 +135,26 @@ struct ImageReader : public QImageReader
 {
 	QImage img;			// read scaled image into this
 	bool isReady = false;
-	bool read() { return isReady = QImageReader::read(&img); }
+	bool read() 
+	{ 
+		return isReady = QImageReader::read(&img); 
+	}
 	bool canRead() { return (isReady ? true : QImageReader::canRead()); }
-	ImageReader(QIODevice *device, const QByteArray &format = QByteArray()) : QImageReader(device, format) {}
-	ImageReader(const QString &fileName, const QByteArray &format = QByteArray()) : QImageReader(fileName, format) {}
+	ImageReader(QIODevice *device, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(device, format) 
+	{
+		setAutoTransform(true);  // auto rotate
+	}
+/*  ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(fileName, format)
+	{
+		setAutoTransform(true);  // auto rotate
+	}
+*/
+	ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader()
+	{
+		setAutoTransform(true);  // auto rotate
+		setFileName(fileName);
+		setFormat(format);
+	}
 };
 
 //---------------------
@@ -147,9 +166,10 @@ struct ImageConverter
 		newSize, 					// calculated new dimensions
 		maxSize;					// maximum allowed converted dimensions for image
 	bool dontEnlarge = true;
+	bool dontResize = false;	
 	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
 									// 0: not calculated
-	ImageConverter(QSize maxSize, bool doNotEnlarge = true);		// create converter
+	ImageConverter(QSize maxSize, bool doNotEnlarge = true, bool dontResize = false);		// create converter
 
 	double GetSizes(ImageReader &reader);	
 	double Process(ImageReader &reader, QString dest, bool thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)

@@ -213,7 +213,7 @@ class CONFIG
 public:
 	CONFIG();
 
-	int majorStructVersion = 1, minorStructVersion = 1;		// 1.1
+	int majorStructVersion = 1, minorStructVersion = 2;		// 1.2
 
 	void Read(const QString *dir = nullptr);
 	void Write();
@@ -248,8 +248,11 @@ public:
 	
 	_CBool bAddTitlesToAll;		// into gallery.struct
 	_CBool bAddDescriptionsToAll; // into gallery.struct
-	_CBool bDisregardStruct;	// do not process gallery.struct
+	_CBool bReadJAlbum;			// do not process gallery.struct, read from JAlbum structure
+	_CBool bReadFromGallery;	// read back from HTML files in gallery (you loose original names and paths!
+		// next two bools will not be read from or saved into the configuration file
 	_CBool bGenerateAll;		// must regenerate all pages regardless of status?
+	_CBool bButImages;			// used with 'generate All'
 
 	_CString sUplink;			// path name of index.html file on server this gallery is embedded into.
 								// this page if set should have links into dsGRoot for all languages

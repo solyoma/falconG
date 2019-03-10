@@ -147,6 +147,11 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 
+	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+
+	restoreGeometry (s.value("wgeometry").toByteArray());
+	restoreState(s.value("wstate").toByteArray());
+
 	CONFIGS_USED::Read();
 									  // if there was a last used directory read from it
 	if ((CONFIGS_USED::indexOfLastUsed >= 0) && (CONFIGS_USED::lastConfigs.size() > CONFIGS_USED::indexOfLastUsed))
@@ -159,6 +164,8 @@ FalconG::FalconG(QWidget *parent)
 
 	ui.frmWeb->installEventFilter(this);
 
+	int h = ui.tabEdit->height();
+	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
 	_WebBackgroundClicked();	// default selection to config parameters
 }
 
@@ -216,6 +223,10 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 	else
 		CONFIGS_USED::Write();						// save data in program directory
+
+	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+	s.setValue("wgeometry", saveGeometry());
+	s.setValue("wstate", saveState());
 }
 
 /*============================================================================
@@ -226,26 +237,47 @@ void FalconG::closeEvent(QCloseEvent * event)
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnSourceHistory_clicked()
 {
-	SourceHistory hist(CONFIGS_USED::lastConfigs, this);
+	SourceHistory hist(CONFIGS_USED::lastConfigs, ui.edtSourceGallery->text(), this);
 	hist.exec();
-	if (SourceHistory::Selected() >= 0 && SourceHistory::Selected() != CONFIGS_USED::indexOfLastUsed)
+	if (SourceHistory::Changed() || (SourceHistory::Selected() >= 0 &&
+		SourceHistory::Selected() != CONFIGS_USED::indexOfLastUsed) )
 	{
-		CONFIGS_USED::indexOfLastUsed = SourceHistory::Selected();
-		config.Read(&CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
-
-		_PopulateFromConfig();	// edit values from config
-
-		QString s = ui.edtSourceGallery->text();
-		if (ui.edtSourceGallery->text().isEmpty())
+		if (SourceHistory::Selected() >= 0)
 		{
-			++_busy;
-			ui.edtSourceGallery->setText(CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
-			--_busy;
-		}
+			CONFIGS_USED::indexOfLastUsed = SourceHistory::Selected();
+			config.Read(&CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
 
-		_WebBackgroundClicked();	// default selection to config parameters
+			_PopulateFromConfig();	// edit values from config
+
+			QString s = ui.edtSourceGallery->text();
+			if (ui.edtSourceGallery->text().isEmpty())
+			{
+				++_busy;
+				ui.edtSourceGallery->setText(CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
+				--_busy;
+			}
+
+
+			_WebBackgroundClicked();	// default selection to config parameters
+		}
+		if (SourceHistory::Changed())
+			CONFIGS_USED::Write();
 	}
 }
+
+
+/*============================================================================
+  * TASK:	set the shortcut key sequence
+  * EXPECTS: pw : button qs shoertcut as a string e.g. "F9" or "Ctrl+O"
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS: required as setText with a & in it changes the shortcut for the button
+ *--------------------------------------------------------------------------*/
+void __SetShortcut(QPushButton *pw, QString qs)
+{
+	pw->setShortcut(QKeySequence(qs));
+}
+// /DEBUG
 
 /*============================================================================
 * TASK:
@@ -277,26 +309,29 @@ void FalconG::on_btnGenerate_clicked()
 		ui.btnPreview->setEnabled(false);
 
 		ui.centralWidget->setCursor(Qt::WaitCursor);
-		ui.btnGenerate->setText(tr("Cancel"));
+
+		ui.btnGenerate->setText(tr("Cancel (F9}"));
+		__SetShortcut(ui.btnGenerate, "F9");
 		ui.pnlProgress->setVisible(true);
 
 		ui.tabFalconG->setCurrentIndex(0);	// show front page
 			   // when interrupted in phase1 (_phase == 0) total generation is used
 		_phase = 0;
 		if (!albumgen.Read())		// any error
-			--_running;
+			--_running, _phase = -1;
 
 		_TrvCountChanged();			// show in lblTotalCount (page: Edit)
 
 		if (_running)
 			ui.btnPreview->setEnabled(albumgen.Write() == 0);
-				
 
 		ui.progressBar->setValue(0);
 
 		ui.pnlProgress->setVisible(false);
 		ui.centralWidget->setCursor(Qt::ArrowCursor);
-		ui.btnGenerate->setText(tr("Generate"));
+		ui.btnGenerate->setText(tr("Generate (F9}"));
+		__SetShortcut(ui.btnGenerate, "F9");
+//		__SetShortcut(ui.btnPreview, "F12");
 		ui.btnSaveStyleSheet->setEnabled(true);
 
 		ui.btnSaveConfig->setEnabled  (config.changed);
@@ -305,7 +340,8 @@ void FalconG::on_btnGenerate_clicked()
 		ui.actionExit->setEnabled(true);
 
 		--_running;
-		ui.tabFalconG->setCurrentIndex(3);	// show 'Edit' page
+		if(_phase != -1)
+			ui.tabFalconG->setCurrentIndex(3);	// show 'Edit' page
 
 		albumgen.RecreateWebPages(config.bGenerateAll);	// not until relevant changes
 	}
@@ -451,7 +487,7 @@ void FalconG::_PopulateFromConfig()
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
-	ui.chkDisregardStruct->setChecked(config.bDisregardStruct);
+//	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);
 	ui.chkMenuToContact->setChecked(config.bMenuToContact);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
 	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
@@ -568,9 +604,10 @@ void FalconG::on_edtSourceGallery_textChanged()
 	if (_busy)
 		return;
 
-	if (!config.dsSrc.str.isEmpty() && config.dsSrc.str != ui.edtSourceGallery->text())
+	QString scr = QDir::cleanPath(ui.edtSourceGallery->text()) + "/";
+	if (!config.dsSrc.str.isEmpty() && config.dsSrc.str != scr)
 	{
-		config.dsSrc = ui.edtSourceGallery->text();
+		config.dsSrc = scr;
 		config.dsSrc.changed = true;
 		for(int i = 0; i < CONFIGS_USED::lastConfigs.size(); ++i )
 			if (config.dsSrc.str == CONFIGS_USED::lastConfigs[i])
@@ -604,6 +641,7 @@ void FalconG::on_edtAlbumDir_textChanged()
 
 	config.dsAlbumDir = ui.edtAlbumDir->text();
 	config.dsAlbumDir.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -619,6 +657,7 @@ void FalconG::on_edtAbout_textChanged()
 
 	config.sAbout = ui.edtAbout->text();
 	config.sAbout.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -634,6 +673,7 @@ void FalconG::on_edtGalleryRoot_textChanged()
 
 	config.dsGRoot = ui. edtGalleryRoot->text();
 	config.dsGRoot.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -649,6 +689,7 @@ void FalconG::on_edtImg_textChanged()
 
 	config.dsImageDir = ui. edtImg->text();
 	config.dsImageDir.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -680,6 +721,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
 
 	config.sGalleryTitle = ui.edtGalleryTitle->text();
 	config.sGalleryTitle.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -695,6 +737,7 @@ void FalconG::on_edtUplink_textChanged()
 
 	config.sUplink = ui. edtUplink->text();
 	config.sUplink.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -710,6 +753,7 @@ void FalconG::on_edtMainPage_textChanged()
 
 	config.sMainPage = ui.edtMainPage->text();
 	config.sMainPage.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -725,6 +769,7 @@ void FalconG::on_edtEmailTo_textChanged()
 
 	config.sMailTo = ui.edtEmailTo->text();
 	config.sMailTo.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -749,6 +794,7 @@ void FalconG::on_edtTextColor_textChanged()
 	config.Web.color.changed = true;
 
 	--_busy;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -772,6 +818,7 @@ void FalconG::on_edtBackgroundColor_textChanged()
 
 	_SetWebColor();
 	--_busy;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================
@@ -893,119 +940,127 @@ void FalconG::on_edtWmVertMargin_textChanged()
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
+  * TASK:	change the image width in config to new width and
+  *			for linked image sizes change the value in the height box
+  * EXPECTS: val: new image width
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: - when linked the scpoect ratio will not change
+  *			 - when not linked, the height will not change
+  *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/
 void FalconG::on_sbImageWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int w = ui.sbImageHeight->value(),		// new value
-		h = config.imageHeight;
+	int h = config.imageHeight;
 
 	if (ui.btnLink->isChecked())
 	{
-		h = w / _aspect;
+		h = val / _aspect;
 		ui.sbImageHeight->setValue(h);
-		//config.imageWidth = w;
-		//config.imageWidth.changed = true;
+		config.imageHeight = h;
+		config.imageHeight.changed = true;
 		h = 0; // no change in aspect ratio when linked!
 	}
-	config.imageWidth = w;
+	config.imageWidth = val;
 	config.imageWidth.changed = true;
 	if(h)	// else no change
-		_aspect = (double)w / (double)h;
+		_aspect = (double)val / (double)h;
 	--_busy;
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
+  * TASK:	change the image height in config to new height and
+  *			for linked image sizes change the value in the width box
+  * EXPECTS: val - new image height
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: - when linked the scpoect ratio will not change
+  *			 - when not linked, the width will not change
+  *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/
 void FalconG::on_sbImageHeight_valueChanged(int val)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int h = ui.sbImageHeight->value(),	// new value (old is in config)
-		w = config.imageWidth;
+	int w = config.imageWidth;
 
 	if (ui.btnLink->isChecked())
 	{
-		w = h * _aspect;
+		w = val * _aspect;		// new width
 		ui.sbImageWidth->setValue(w);
 		config.imageWidth = w;
 		config.imageWidth.changed = true;
-		h = 0; // no change in aspect ratio when linked!
+		w = 0; // no change in aspect ratio when linked!
 	}
-	config.imageHeight = h;
+	config.imageHeight = val;
 	config.imageHeight.changed = true;
-	if (h)
-		_aspect = (double)w / (double)h;
+	if (w && val)
+		_aspect = (double)w / (double)val;
 
 	--_busy;
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
+  * TASK:	change the thumbnail width in config to new width and
+  *			for linked thumbnail sizes change the value in the height box
+  * EXPECTS: val: new  thumbnail width
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: - when linked the scpoect ratio will not change
+  *			 - when not linked, the height will not change
+  *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/
 void FalconG::on_sbThumbnailWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int w = ui.sbThumbnailHeight->value(),		// new value
-		h = config.thumbHeight;
+	int h = config.thumbHeight;
 
 	if (ui.btnLink->isChecked())
 	{
-		h = w / _aspect;
+		h = val / _aspect;
 		ui.sbThumbnailHeight->setValue(h);
-		//config.thumbWidth = w;
-		//config.thumbWidth.changed = true;
+		config.thumbHeight = h;
+		config.thumbHeight.changed = true;
 		h = 0; // no change in aspect ratio when linked!
 	}
-	config.thumbWidth = w;
+	config.thumbWidth = val;
 	config.thumbWidth.changed = true;
 	if (h)	// else no change
-		_aspect = (double)w / (double)h;
+		_aspect = (double)val / (double)h;
 	--_busy;
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
+  * TASK:	change the thumbnail height in config to new height and
+  *			for linked thumbnail sizes change the value in the width box
+  * EXPECTS: val - new thumbnail height
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: - when linked the scpoect ratio will not change
+  *			 - when not linked, the width will not change
+  *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/
 void FalconG::on_sbThumbnailHeight_valueChanged(int val)
 {
 	if (_busy)
 		return;
 	++_busy;
-	int h = ui.sbThumbnailHeight->value(),	// new value (old is in config)
-		w = config.thumbWidth;
+	int w = config.thumbWidth;
 
 	if (ui.btnLink->isChecked())
 	{
-		w = h * _aspect;
+		w = val * _aspect;		// new width
 		ui.sbThumbnailWidth->setValue(w);
 		config.thumbWidth = w;
 		config.thumbWidth.changed = true;
-		h = 0; // no change in aspect ratio when linked!
+		w = 0; // no change in aspect ratio when linked!
 	}
-	config.thumbHeight = h;
+	config.thumbHeight = val;
 	config.thumbHeight.changed = true;
-	if (h)
-		_aspect = (double)w / (double)h;
+	if (w && val)
+		_aspect = (double)w / (double)val;
 
 	--_busy;
 }
@@ -1025,6 +1080,24 @@ void FalconG::on_chkGenerateAll_toggled(bool on)
 	{
 		config.bGenerateAll = on;
 		config.bGenerateAll.changed = true;
+	}
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkButImages_toggled(bool on)
+{
+	if (_busy)
+		return;
+	if (config.bButImages != on)
+	{
+		config.bButImages = on;
+		config.bButImages.changed = true;
 	}
 }
 
@@ -1058,17 +1131,33 @@ void FalconG::on_chkAddDescToAll_toggled(bool on)
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:	toggle state of structure disregard gallery struct box
+* EXPECTS:	on - new state
 * GLOBALS:
-* REMARKS:
+* REMARKS:	this bool is not saved into the configuration
 *--------------------------------------------------------------------------*/
-void FalconG::on_chkDisregardStruct_toggled(bool on)
+void FalconG::on_chkReadJAlbum_toggled(bool on)
 {
 	if (_busy)
 		return;
-	config.bDisregardStruct = on;
-	config.bDisregardStruct.changed = true;
+	config.bReadJAlbum = on;
+	config.bReadJAlbum.changed = false;	// do not save it!
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkReadFromGallery_toggled(bool on )
+{
+	if (_busy)
+		return;
+	config.bReadFromGallery = on;
+	config.bReadFromGallery.changed = false;	// do not save it!
 	_EnableButtons();
 }
 

@@ -58,7 +58,12 @@ void CONFIGS_USED::Read()
 	{
 		str = s.value(QString().setNum(i), "").toString();
 		if (!str.trimmed().isEmpty())
+		{
+#ifdef _MSC_VER
+			str = str.toLower();	// Windows: lC UC letters are the same in paths!
+#endif
 			lastConfigs.push_back(str);
+		}
 	}
 	s.endGroup();
 }
@@ -76,7 +81,7 @@ void CONFIGS_USED::Write()
 			if (CONFIGS_USED::lastConfigs.size() == CONFIGS_USED::maxSavedConfigs)
 				CONFIGS_USED::lastConfigs.removeLast();
 
-			CONFIGS_USED::lastConfigs.insert(0, sLast);
+			CONFIGS_USED::lastConfigs.insert(0, sLast);					  
 			CONFIGS_USED::indexOfLastUsed = 0;
 		}
 		else
@@ -118,9 +123,10 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->sMainPage.changed = false;
 		
 		_parent->bGenerateAll.changed = false;
+		_parent->bButImages.changed = false;
 		_parent->bAddTitlesToAll.changed = false;
 		_parent->bAddDescriptionsToAll.changed = false;
-		_parent->bDisregardStruct.changed = false;
+		_parent->bReadJAlbum.changed = false;
 		_parent->bMenuToContact.changed = false;
 		_parent->bMenuToAbout.changed = false;
 		_parent->bMenuToDescriptions.changed = false;
@@ -534,9 +540,11 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	sMainPage = cfg.sMainPage;
 
 	bGenerateAll = cfg.bGenerateAll;
+	bButImages = cfg.bButImages;
 	bAddTitlesToAll = cfg.bAddTitlesToAll;
 	bAddDescriptionsToAll = cfg.bAddDescriptionsToAll;
-	bDisregardStruct = cfg.bDisregardStruct;
+	bReadJAlbum = cfg.bReadJAlbum;
+	bReadFromGallery = cfg.bReadFromGallery;
 	bMenuToContact = cfg.bMenuToContact;
 	bMenuToAbout = cfg.bMenuToAbout;
 	bMenuToDescriptions = cfg.bMenuToDescriptions;
@@ -794,9 +802,11 @@ CONFIG::CONFIG()
 	sMainPage.nameStr = "sMainPage";
 
 	bGenerateAll.nameStr = "bGenerateAll";
+	bButImages.nameStr = "bButImages";
 	bAddTitlesToAll.nameStr = "bbAddTitlesToAll";
 	bAddDescriptionsToAll.nameStr = "bAddDescriptionsToAll";
-	bDisregardStruct.nameStr  =  "bDisregardStruct";
+	bReadJAlbum.nameStr  =  "bReadJAlbum";
+	bReadFromGallery.nameStr = "bReadFromGallery";
 	bSourceRelativePerSign.nameStr = "bSourceRelativePerSign";
 	bMenuToAbout.nameStr = "bMenuToAbout";
 	bMenuToContact.nameStr = "bMenuToContact";
@@ -885,14 +895,17 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	QString sIniName, p, n; 
 	if (path)		
 	{
-		SeparateFileNamePath(*path, p, n);	// cuts '/' from name
+		QString s = *path;
+		SeparateFileNamePath(s, p, n);	// cuts '/' from name
+		if (s[s.length() - 1] != '/')
+			s += "/";
 		if (n.isEmpty())
 			sIniName = falconG_ini;
 		else
-			sIniName = *path + n + ".ini";
+			sIniName = s + n + ".ini";
 		if (!QFile::exists(sIniName))
 		{
-			sIniName = *path + falconG_ini;
+			sIniName = s + falconG_ini;
 			if (!QFile::exists(sIniName))
 				sIniName = falconG_ini;
 		}
@@ -1005,9 +1018,10 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 
 		// sepcial data
 	__ConfigReadBool(s, bGenerateAll, false);	// unconditional save web pages
+	__ConfigReadBool(s, bButImages, false);	// unconditional save web pages
 	__ConfigReadBool(s, bAddTitlesToAll, false);		// only process changed/deleted/new images
 	__ConfigReadBool(s, bAddDescriptionsToAll, false);		// only process changed/deleted/new images
-	__ConfigReadBool(s, bDisregardStruct, true);
+//	__ConfigReadBool(s, bReadJAlbum, true);
 	__ConfigReadBool(s, bMenuToContact, true);
 	__ConfigReadBool(s, bMenuToAbout, true);
 	__ConfigReadBool(s, bMenuToDescriptions, true);
@@ -1269,9 +1283,10 @@ void CONFIG::_WriteIni(QString sIniName)
 
 											// sepcial data
 	__ConfigWriteBool(s, bGenerateAll);		// images download allowed
+	__ConfigWriteBool(s, bButImages);		// images download allowed
 	__ConfigWriteBool(s, bAddTitlesToAll);		// images download allowed
 	__ConfigWriteBool(s, bAddDescriptionsToAll);		// images download allowed
-	__ConfigWriteBool(s, bDisregardStruct);
+//	__ConfigWriteBool(s, bReadJAlbum);
 	__ConfigWriteBool(s, bMenuToContact);
 	__ConfigWriteBool(s, bMenuToAbout);
 	__ConfigWriteBool(s, bMenuToDescriptions);

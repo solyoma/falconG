@@ -100,7 +100,7 @@ struct IABase
 	ID_t titleID = 0;	// text ID of image title
 	ID_t descID = 0;	// text ID of image description
 	QString name;		// without path but with extension and no ending '/' even for albums
-	QString path;		// empty or ends with '/'
+	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
 
 	bool Valid() const { return ID > 0; }
 	QString FullName() const { return path + name; }				// does not end with '/'
@@ -120,6 +120,9 @@ struct IABase
 struct Image : public IABase
 {
 	QString checksum = 0;	// of content not used YET
+	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
+								// either in the original path (this/image/!!notResized.jpg) or 
+								// in the precessed line (!!notresized(...)this/image/)
 	QDate uploadDate;
 	int64_t fileSize=0;		// set together with 'exists' (if file does not exist fileSize is 0)
 	int width =0, height=0,		// of resized image
@@ -155,6 +158,15 @@ struct Image : public IABase
 			return name;
 	}	
 	QTextStream & WriteInfo(QTextStream &ofs) const;
+	void SetResizeType()
+	{
+		if (name.length() > 2 && name[0] == '!' && name[1] == '!')
+		{
+			name = name.mid(2);
+			dontResize = true;
+		}
+
+	}
 };
 
 //------------------------------------------
@@ -206,6 +218,9 @@ class ImageMap : public QMap<ID_t, Image>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Image invalid;
+	static QString lastUsedImagePath;	// config.dsSrc relative path to image so that we can add 
+										// an image by its name (relative to this path) only
+
 	Image& Find(ID_t id, bool useBase = true);
 	Image& Find(QString FullName);
 	ID_t Add(QString image, bool &added);	// returns ID and if added
@@ -217,9 +232,10 @@ class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
 public:
+	static QString lastAlbumPath;	//relative to confg.dsSrc
 	Album &Find(ID_t id);
 	Album &Find(QString albumPath);
-	ID_t Add(QString albumPath, bool &added);			// returns ID and if it was added
+	ID_t Add(QString relativeAlbumPath, bool &added);			// returns ID and if it was added
 	Album &Item(int index);
 };
 
@@ -253,14 +269,14 @@ class AlbumGenerator : public QObject
 	bool _running = false;
 
 	QString _upLink;		// to parent page if there's one
-	QString _lastUsedImagePath;	// so that we can add an image by simply its name: relative to this path
 	TextMap _textMap;		// all texts for all albums and inmages
 	AlbumMap _albumMap;		// all source albums
 	ImageMap _imageMap;		// all images for all albums
 	Album _root;			// top level album (first in '_albumMap', ID = 1)
 	QDate _latestDateLimit; // depends on config.
-	bool _bImageDataIsReady = false;
-	UsageCount _structChanged;	// increase after a jalbum style read and after an album struct change
+// no need: read is fast enough 	bool _structAlreadyInMemory = false;
+	UsageCount _structChanged;	// signals wheather a new 'struct' file must be written
+							// increase after a jalbum style read and after an album struct change
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
@@ -274,7 +290,8 @@ class AlbumGenerator : public QObject
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
-	bool _MustRecreateImage(Image &img, bool thumb = false);
+	bool _MustRecreateImageBasedOnSize(Image &img);
+	bool _MustRecreateThumbBasedOnSize(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
@@ -311,6 +328,7 @@ class AlbumGenerator : public QObject
 	int _WriteFooterSection(const Album &album);
 	int _WriteGalleryContainer(const Album &album, bool albums, int i);
 	int _ProcessImages(); // into image directory
+	int __CreatePageInner(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateHomePage();
 
@@ -323,12 +341,13 @@ class AlbumGenerator : public QObject
 				// read 'gallery.struct
 	bool _LanguageFromStruct(FileReader &reader);
 	ID_t _ImageFromStruct(FileReader &reader, int level, Album &album, bool thumbnail);
-	ID_t _AlbumFromStruct(FileReader &reader, ID_t parent, int level);
-	void _GetTextIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
+	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level);
+	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
 			// read 'Jalbum' file structure
 	bool _ReadJalbum();	//or if it does not exist loads them from supposedly jalbum directory dsSrc
+	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString );		// slot !
 public:

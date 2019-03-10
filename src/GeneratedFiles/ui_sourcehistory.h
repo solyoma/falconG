@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'sourcehistory.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.12.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,11 +10,8 @@
 #define UI_SOURCEHISTORY_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
@@ -30,6 +27,7 @@ public:
     QHBoxLayout *horizontalLayout;
     QListView *lvHistory;
     QVBoxLayout *verticalLayout_2;
+    QPushButton *btnAddDirectory;
     QSpacerItem *verticalSpacer_2;
     QPushButton *btnUndelete;
     QPushButton *btnDelete;
@@ -40,35 +38,41 @@ public:
     void setupUi(QWidget *SourceHistoryClass)
     {
         if (SourceHistoryClass->objectName().isEmpty())
-            SourceHistoryClass->setObjectName(QStringLiteral("SourceHistoryClass"));
+            SourceHistoryClass->setObjectName(QString::fromUtf8("SourceHistoryClass"));
         SourceHistoryClass->resize(556, 413);
         horizontalLayout_2 = new QHBoxLayout(SourceHistoryClass);
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         lvHistory = new QListView(SourceHistoryClass);
-        lvHistory->setObjectName(QStringLiteral("lvHistory"));
+        lvHistory->setObjectName(QString::fromUtf8("lvHistory"));
 
         horizontalLayout->addWidget(lvHistory);
 
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        btnAddDirectory = new QPushButton(SourceHistoryClass);
+        btnAddDirectory->setObjectName(QString::fromUtf8("btnAddDirectory"));
+        btnAddDirectory->setFlat(false);
+
+        verticalLayout_2->addWidget(btnAddDirectory);
+
         verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_2->addItem(verticalSpacer_2);
 
         btnUndelete = new QPushButton(SourceHistoryClass);
-        btnUndelete->setObjectName(QStringLiteral("btnUndelete"));
+        btnUndelete->setObjectName(QString::fromUtf8("btnUndelete"));
         btnUndelete->setEnabled(false);
 
         verticalLayout_2->addWidget(btnUndelete);
 
         btnDelete = new QPushButton(SourceHistoryClass);
-        btnDelete->setObjectName(QStringLiteral("btnDelete"));
+        btnDelete->setObjectName(QString::fromUtf8("btnDelete"));
         btnDelete->setEnabled(false);
 
         verticalLayout_2->addWidget(btnDelete);
@@ -78,12 +82,12 @@ public:
         verticalLayout_2->addItem(verticalSpacer);
 
         btnSelect = new QPushButton(SourceHistoryClass);
-        btnSelect->setObjectName(QStringLiteral("btnSelect"));
+        btnSelect->setObjectName(QString::fromUtf8("btnSelect"));
 
         verticalLayout_2->addWidget(btnSelect);
 
         btnCancel = new QPushButton(SourceHistoryClass);
-        btnCancel->setObjectName(QStringLiteral("btnCancel"));
+        btnCancel->setObjectName(QString::fromUtf8("btnCancel"));
         btnCancel->setAutoDefault(true);
 
         verticalLayout_2->addWidget(btnCancel);
@@ -106,9 +110,10 @@ public:
     void retranslateUi(QWidget *SourceHistoryClass)
     {
         SourceHistoryClass->setWindowTitle(QApplication::translate("SourceHistoryClass", "falconG - Gallery Source Selection", nullptr));
+        btnAddDirectory->setText(QApplication::translate("SourceHistoryClass", "&Add", nullptr));
         btnUndelete->setText(QApplication::translate("SourceHistoryClass", "&Undelete", nullptr));
         btnDelete->setText(QApplication::translate("SourceHistoryClass", "&Delete", nullptr));
-        btnSelect->setText(QApplication::translate("SourceHistoryClass", "&Select", nullptr));
+        btnSelect->setText(QApplication::translate("SourceHistoryClass", "&Ok", nullptr));
         btnCancel->setText(QApplication::translate("SourceHistoryClass", "&Cancel", nullptr));
     } // retranslateUi
 

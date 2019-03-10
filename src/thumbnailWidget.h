@@ -31,6 +31,82 @@ using ID_t = uint64_t;			// Cf. albums.h
 using IdList = DeletableItemList<ID_t>;
 using IntList = QVector<int>;
 
+/*=============================================================
+ * info stored for items in view
+ *------------------------------------------------------------*/
+struct ThumbnailRecord
+{
+	QString imageName;	// set using user type FileNameRole
+	int row;			// original position of this item
+};
+
+/*=============================================================
+ * my Mime Type for Drag & Drop
+ *------------------------------------------------------------*/
+class ThumbMimeData : public QMimeData
+{
+	Q_OBJECT
+public:
+	QList<ThumbnailRecord> thumbList;  // all selected items
+	ThumbMimeData() {
+		QMimeData::setData("application/x-thumb", "thumb"); // my type
+	}
+};
+
+#if 0
+/*=============================================================
+ * my thumb model
+ *------------------------------------------------------------*/
+class ThumbnailWidgetModel : public QStandardItemModel
+{
+	int _dummyPosition = -1;	// used during drag to signal possible drop position
+								// -1: not used
+	QStandardItem _dummyItem;
+public:
+	ThumbnailWidgetModel(QWidget *pw) : QStandardItemModel(pw) 
+	{
+		//QPixmap pix;
+		//QPixmap(128, 112);
+		//pix.fill(Qt::transparent);
+		_dummyItem.setData(NULL, Qt::UserRole+1);		// FileNameRole
+	}
+	virtual ~ThumbnailWidgetModel() {}
+	int SetDummyPos(int newPos) 
+	{ 
+		int old = _dummyPosition; 
+		beginResetModel();
+		_dummyPosition = newPos; 
+		endResetModel();
+		return old; 
+	}
+	int rowCount() { return QStandardItemModel::rowCount() + _dummyPosition >= 0 ? 1 : 0; }
+
+	QStandardItem *	item(int row, int column = 0) const 
+	{
+		if (_dummyPosition >= 0)
+		{
+			if (row > _dummyPosition)
+				return QStandardItemModel::item(row - 1,0);
+			if (row == _dummyPosition)
+				return const_cast<QStandardItem*>(&_dummyItem);
+		}
+		return QStandardItemModel::item(row,0);
+	}
+
+	QStandardItem *itemFromIndex(const QModelIndex &index) const
+	{
+		return item(index.row(), 0);
+	}
+	int DummyPosition() const { return _dummyPosition;  }
+	
+};
+#else
+using ThumbnailWidgetModel = QStandardItemModel;
+#endif
+ /*=============================================================
+ * my list view that shows icons
+ *------------------------------------------------------------*/
+
 class ThumbnailWidget : public QListView {
 Q_OBJECT
 
@@ -73,12 +149,35 @@ public:
 	QString statusStr;		// get status messages from here
 	QString title;			// use for window title
 
-    QStringList *fileFilters;
-    QStandardItemModel *ThumbnailWidgetModel;
-    QDir::SortFlags thumbsSortFlags;
-    int thumbSize;
-    QString filterString;
-    bool isBusy;
+private:
+    QStringList *_fileFilters;
+    ThumbnailWidgetModel *_thumbnailWidgetModel;
+	QModelIndex _dragStartIndex;				// started drag from here
+    QDir::SortFlags _thumbsSortFlags;
+    int _thumbSize;
+    QString _filterString;
+    bool _isBusy;
+	bool _dragFromHereInProgress = false;		// drag started from here
+
+//    QFileInfo thumbFileInfo;
+    QImage _emptyImg;		// put all thumbnails into this
+    int _currentRow;
+    QModelIndex _currentIndex;
+    bool _isAbortThumbsLoading;
+    bool _isNeedToScroll;
+    bool _scrolledForward;
+    int _thumbsRangeFirst;
+    int _thumbsRangeLast;
+// SA
+	IdList *_pImages = nullptr;
+
+private:
+    void _initThumbs();
+    int _getFirstVisibleThumb();
+    int _getLastVisibleThumb();
+    void _updateThumbsCount();
+	bool _IsAllowedToDrop(const QMimeData *event);
+
 signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
@@ -86,42 +185,23 @@ signals:
 	void SingleSelection(QString path);			// name of selected thumbnail
 	void SignalNewThumbnail();					// last selected 
 protected:
-    void startDrag(Qt::DropActions);
+    void startDrag(Qt::DropActions);			// called by QListView() 
+// exper: comments
+	void dragEnterEvent(QDragEnterEvent *event);	// when a drag enters this widget
+	void dragLeaveEvent(QDragLeaveEvent *event);
+	void dragMoveEvent(QDragMoveEvent *event);	
+	void dropEvent(QDropEvent *event);			// when item is dropped
 
     void wheelEvent(QWheelEvent *event);
-
     void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
 
 	void contextMenuEvent(QContextMenuEvent *pevent);
 
-private:
-    void initThumbs();
-
-    int getFirstVisibleThumb();
-
-    int getLastVisibleThumb();
-
-    void updateThumbsCount();
-
-//    QFileInfo thumbFileInfo;
-    QImage emptyImg;		// put all thumbnails into this
-    int currentRow;
-    QModelIndex currentIndex;
-    bool isAbortThumbsLoading;
-    bool isNeedToScroll;
-    bool scrolledForward;
-    int thumbsRangeFirst;
-    int thumbsRangeLast;
-// SA
-	IdList *_pImages = nullptr;
 public slots:
-
     void loadVisibleThumbs(int scrollBarValue = 0);
-
     void onSelectionChanged(const QItemSelection &selection);
-
     void invertSelection();
-
 	void DeleteSelected();
 	void UndoDelete();
 	void AddImages();
@@ -130,7 +210,6 @@ public slots:
 	void SetAsAlbumThhumbnail();
 
 private slots:
-
     void loadThumbsRange();
 };
 

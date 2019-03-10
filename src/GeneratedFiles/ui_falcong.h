@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'falcong.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.1
+** Created by: Qt User Interface Compiler version 5.12.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,9 +10,9 @@
 #define UI_FALCONG_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
@@ -51,6 +51,7 @@ public:
     QHBoxLayout *horizontalLayout_1;
     QPushButton *btnGenerate;
     QCheckBox *chkGenerateAll;
+    QCheckBox *chkButImages;
     QPushButton *btnPreview;
     QSpacerItem *horizontalSpacer_4;
     QPushButton *btnSaveStyleSheet;
@@ -127,21 +128,22 @@ public:
     QLabel *label_56;
     QLineEdit *edtImg;
     QGridLayout *gridLayout_16;
-    QCheckBox *chkDisregardStruct;
-    QCheckBox *chkAddTitlesToAll;
+    QCheckBox *chkReadFromGallery;
     QCheckBox *chkOvrImages;
     QCheckBox *chkAddDescToAll;
+    QCheckBox *chkAddTitlesToAll;
+    QCheckBox *chkreadJalbum;
     QWidget *pnlProgress;
     QGridLayout *gridLayout_18;
     QLabel *lblProgressTitle;
     QLabel *lblProgressDesc;
-    QProgressBar *progressBar;
-    QLabel *lblProgress;
     QLabel *lblRemainingTimeTitle;
     QLabel *lblRemainingTime;
     QSpacerItem *horizontalSpacer_2;
     QLabel *label_43;
     QLabel *lblImagesPerSec;
+    QProgressBar *progressBar;
+    QLabel *lblProgress;
     QSpacerItem *verticalSpacer;
     QWidget *tabDesign;
     QVBoxLayout *verticalLayout_16;
@@ -309,8 +311,25 @@ public:
     QSpacerItem *horizontalSpacer_5;
     QSpacerItem *verticalSpacer_4;
     QWidget *tabEdit;
-    QGridLayout *gridLayout_20;
-    QGridLayout *gridLayout_21;
+    QVBoxLayout *verticalLayout_20;
+    QSplitter *editSplitter;
+    QWidget *widget_3;
+    QVBoxLayout *verticalLayout_19;
+    QSplitter *splitter;
+    QWidget *widget_4;
+    QVBoxLayout *verticalLayout_9;
+    QVBoxLayout *verticalLayout_10;
+    QLabel *label_51;
+    QTreeView *trvAlbums;
+    QLabel *lblTotalCount;
+    QWidget *widget_6;
+    QVBoxLayout *verticalLayout_11;
+    QVBoxLayout *verticalLayout_12;
+    QLabel *label_53;
+    ThumbnailWidget *tnvImages;
+    QLabel *lblImageCount;
+    QWidget *widget_7;
+    QVBoxLayout *verticalLayout_18;
     QHBoxLayout *horizontalLayout_6;
     QVBoxLayout *verticalLayout_5;
     QComboBox *cmbBaseLanguage;
@@ -335,43 +354,30 @@ public:
     QPushButton *btnSaveChangedDescription;
     QCheckBox *chkChangeDescriptionEverywhere;
     QTextEdit *edtDescriptionText;
-    QSplitter *splitter;
-    QWidget *widget_4;
-    QVBoxLayout *verticalLayout_9;
-    QVBoxLayout *verticalLayout_10;
-    QLabel *label_51;
-    QTreeView *trvAlbums;
-    QLabel *lblTotalCount;
-    QWidget *widget_6;
-    QVBoxLayout *verticalLayout_11;
-    QVBoxLayout *verticalLayout_12;
-    QLabel *label_53;
-    ThumbnailWidget *tnvImages;
-    QLabel *lblImageCount;
     QToolBar *mainToolBar;
 
     void setupUi(QMainWindow *falconGClass)
     {
         if (falconGClass->objectName().isEmpty())
-            falconGClass->setObjectName(QStringLiteral("falconGClass"));
+            falconGClass->setObjectName(QString::fromUtf8("falconGClass"));
         falconGClass->setEnabled(true);
-        falconGClass->resize(753, 814);
+        falconGClass->resize(753, 805);
         falconGClass->setMinimumSize(QSize(753, 0));
         falconGClass->setMaximumSize(QSize(16777215, 16777215));
-        falconGClass->setStyleSheet(QStringLiteral(""));
+        falconGClass->setStyleSheet(QString::fromUtf8(""));
         actionOpen = new QAction(falconGClass);
-        actionOpen->setObjectName(QStringLiteral("actionOpen"));
+        actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         actionExit = new QAction(falconGClass);
-        actionExit->setObjectName(QStringLiteral("actionExit"));
+        actionExit->setObjectName(QString::fromUtf8("actionExit"));
         centralWidget = new QWidget(falconGClass);
-        centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout_11 = new QGridLayout(centralWidget);
         gridLayout_11->setSpacing(6);
         gridLayout_11->setContentsMargins(11, 11, 11, 11);
-        gridLayout_11->setObjectName(QStringLiteral("gridLayout_11"));
+        gridLayout_11->setObjectName(QString::fromUtf8("gridLayout_11"));
         gridLayout_11->setContentsMargins(2, 2, 2, 2);
         widget_10 = new QWidget(centralWidget);
-        widget_10->setObjectName(QStringLiteral("widget_10"));
+        widget_10->setObjectName(QString::fromUtf8("widget_10"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -381,20 +387,25 @@ public:
         horizontalLayout_1 = new QHBoxLayout(widget_10);
         horizontalLayout_1->setSpacing(6);
         horizontalLayout_1->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_1->setObjectName(QStringLiteral("horizontalLayout_1"));
+        horizontalLayout_1->setObjectName(QString::fromUtf8("horizontalLayout_1"));
         btnGenerate = new QPushButton(widget_10);
-        btnGenerate->setObjectName(QStringLiteral("btnGenerate"));
+        btnGenerate->setObjectName(QString::fromUtf8("btnGenerate"));
         btnGenerate->setEnabled(false);
 
         horizontalLayout_1->addWidget(btnGenerate);
 
         chkGenerateAll = new QCheckBox(widget_10);
-        chkGenerateAll->setObjectName(QStringLiteral("chkGenerateAll"));
+        chkGenerateAll->setObjectName(QString::fromUtf8("chkGenerateAll"));
 
         horizontalLayout_1->addWidget(chkGenerateAll);
 
+        chkButImages = new QCheckBox(widget_10);
+        chkButImages->setObjectName(QString::fromUtf8("chkButImages"));
+
+        horizontalLayout_1->addWidget(chkButImages);
+
         btnPreview = new QPushButton(widget_10);
-        btnPreview->setObjectName(QStringLiteral("btnPreview"));
+        btnPreview->setObjectName(QString::fromUtf8("btnPreview"));
         btnPreview->setEnabled(false);
 
         horizontalLayout_1->addWidget(btnPreview);
@@ -404,19 +415,19 @@ public:
         horizontalLayout_1->addItem(horizontalSpacer_4);
 
         btnSaveStyleSheet = new QPushButton(widget_10);
-        btnSaveStyleSheet->setObjectName(QStringLiteral("btnSaveStyleSheet"));
+        btnSaveStyleSheet->setObjectName(QString::fromUtf8("btnSaveStyleSheet"));
         btnSaveStyleSheet->setEnabled(false);
 
         horizontalLayout_1->addWidget(btnSaveStyleSheet);
 
         btnSaveConfig = new QPushButton(widget_10);
-        btnSaveConfig->setObjectName(QStringLiteral("btnSaveConfig"));
+        btnSaveConfig->setObjectName(QString::fromUtf8("btnSaveConfig"));
         btnSaveConfig->setEnabled(false);
 
         horizontalLayout_1->addWidget(btnSaveConfig);
 
         btnExit = new QPushButton(widget_10);
-        btnExit->setObjectName(QStringLiteral("btnExit"));
+        btnExit->setObjectName(QString::fromUtf8("btnExit"));
 
         horizontalLayout_1->addWidget(btnExit);
 
@@ -424,19 +435,19 @@ public:
         gridLayout_11->addWidget(widget_10, 1, 0, 1, 1);
 
         tabFalconG = new QTabWidget(centralWidget);
-        tabFalconG->setObjectName(QStringLiteral("tabFalconG"));
+        tabFalconG->setObjectName(QString::fromUtf8("tabFalconG"));
         QFont font;
         font.setBold(false);
         font.setWeight(50);
         tabFalconG->setFont(font);
         tabGallery = new QWidget();
-        tabGallery->setObjectName(QStringLiteral("tabGallery"));
+        tabGallery->setObjectName(QString::fromUtf8("tabGallery"));
         verticalLayout_17 = new QVBoxLayout(tabGallery);
         verticalLayout_17->setSpacing(2);
         verticalLayout_17->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
+        verticalLayout_17->setObjectName(QString::fromUtf8("verticalLayout_17"));
         gbLocalMachine = new QGroupBox(tabGallery);
-        gbLocalMachine->setObjectName(QStringLiteral("gbLocalMachine"));
+        gbLocalMachine->setObjectName(QString::fromUtf8("gbLocalMachine"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
@@ -449,9 +460,9 @@ public:
         gridLayout_5 = new QGridLayout(gbLocalMachine);
         gridLayout_5->setSpacing(6);
         gridLayout_5->setContentsMargins(11, 11, 11, 11);
-        gridLayout_5->setObjectName(QStringLiteral("gridLayout_5"));
+        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
         chkSourceRelativePerSign = new QCheckBox(gbLocalMachine);
-        chkSourceRelativePerSign->setObjectName(QStringLiteral("chkSourceRelativePerSign"));
+        chkSourceRelativePerSign->setObjectName(QString::fromUtf8("chkSourceRelativePerSign"));
         chkSourceRelativePerSign->setFont(font);
         chkSourceRelativePerSign->setCheckable(true);
         chkSourceRelativePerSign->setChecked(true);
@@ -459,37 +470,37 @@ public:
         gridLayout_5->addWidget(chkSourceRelativePerSign, 1, 0, 1, 3);
 
         edtDestGallery = new QLineEdit(gbLocalMachine);
-        edtDestGallery->setObjectName(QStringLiteral("edtDestGallery"));
+        edtDestGallery->setObjectName(QString::fromUtf8("edtDestGallery"));
         edtDestGallery->setFont(font);
 
         gridLayout_5->addWidget(edtDestGallery, 2, 2, 1, 1);
 
         edtSourceGallery = new QLineEdit(gbLocalMachine);
-        edtSourceGallery->setObjectName(QStringLiteral("edtSourceGallery"));
+        edtSourceGallery->setObjectName(QString::fromUtf8("edtSourceGallery"));
         edtSourceGallery->setFont(font);
 
         gridLayout_5->addWidget(edtSourceGallery, 0, 2, 1, 1);
 
         btnBrowseSource = new QToolButton(gbLocalMachine);
-        btnBrowseSource->setObjectName(QStringLiteral("btnBrowseSource"));
+        btnBrowseSource->setObjectName(QString::fromUtf8("btnBrowseSource"));
         btnBrowseSource->setFont(font);
 
         gridLayout_5->addWidget(btnBrowseSource, 0, 3, 1, 1);
 
         label_17 = new QLabel(gbLocalMachine);
-        label_17->setObjectName(QStringLiteral("label_17"));
+        label_17->setObjectName(QString::fromUtf8("label_17"));
         label_17->setFont(font);
 
         gridLayout_5->addWidget(label_17, 2, 0, 1, 1);
 
         btnBrowseDestination = new QToolButton(gbLocalMachine);
-        btnBrowseDestination->setObjectName(QStringLiteral("btnBrowseDestination"));
+        btnBrowseDestination->setObjectName(QString::fromUtf8("btnBrowseDestination"));
         btnBrowseDestination->setFont(font);
 
         gridLayout_5->addWidget(btnBrowseDestination, 2, 3, 1, 1);
 
         btnSourceHistory = new QPushButton(gbLocalMachine);
-        btnSourceHistory->setObjectName(QStringLiteral("btnSourceHistory"));
+        btnSourceHistory->setObjectName(QString::fromUtf8("btnSourceHistory"));
         btnSourceHistory->setFont(font);
         btnSourceHistory->setFlat(false);
 
@@ -499,58 +510,58 @@ public:
         verticalLayout_17->addWidget(gbLocalMachine);
 
         gbServer = new QGroupBox(tabGallery);
-        gbServer->setObjectName(QStringLiteral("gbServer"));
+        gbServer->setObjectName(QString::fromUtf8("gbServer"));
         sizePolicy1.setHeightForWidth(gbServer->sizePolicy().hasHeightForWidth());
         gbServer->setSizePolicy(sizePolicy1);
         gbServer->setFont(font1);
         formLayout = new QFormLayout(gbServer);
         formLayout->setSpacing(6);
         formLayout->setContentsMargins(11, 11, 11, 11);
-        formLayout->setObjectName(QStringLiteral("formLayout"));
+        formLayout->setObjectName(QString::fromUtf8("formLayout"));
         label_19 = new QLabel(gbServer);
-        label_19->setObjectName(QStringLiteral("label_19"));
+        label_19->setObjectName(QString::fromUtf8("label_19"));
         label_19->setFont(font);
 
         formLayout->setWidget(0, QFormLayout::LabelRole, label_19);
 
         edtServerAddress = new QLineEdit(gbServer);
-        edtServerAddress->setObjectName(QStringLiteral("edtServerAddress"));
+        edtServerAddress->setObjectName(QString::fromUtf8("edtServerAddress"));
         edtServerAddress->setFont(font);
 
         formLayout->setWidget(0, QFormLayout::FieldRole, edtServerAddress);
 
         label_20 = new QLabel(gbServer);
-        label_20->setObjectName(QStringLiteral("label_20"));
+        label_20->setObjectName(QString::fromUtf8("label_20"));
         label_20->setFont(font);
 
         formLayout->setWidget(1, QFormLayout::LabelRole, label_20);
 
         edtGalleryRoot = new QLineEdit(gbServer);
-        edtGalleryRoot->setObjectName(QStringLiteral("edtGalleryRoot"));
+        edtGalleryRoot->setObjectName(QString::fromUtf8("edtGalleryRoot"));
         edtGalleryRoot->setFont(font);
 
         formLayout->setWidget(1, QFormLayout::FieldRole, edtGalleryRoot);
 
         label_5 = new QLabel(gbServer);
-        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setFont(font);
 
         formLayout->setWidget(2, QFormLayout::LabelRole, label_5);
 
         edtUplink = new QLineEdit(gbServer);
-        edtUplink->setObjectName(QStringLiteral("edtUplink"));
+        edtUplink->setObjectName(QString::fromUtf8("edtUplink"));
         edtUplink->setFont(font);
 
         formLayout->setWidget(2, QFormLayout::FieldRole, edtUplink);
 
         label_21 = new QLabel(gbServer);
-        label_21->setObjectName(QStringLiteral("label_21"));
+        label_21->setObjectName(QString::fromUtf8("label_21"));
         label_21->setFont(font);
 
         formLayout->setWidget(3, QFormLayout::LabelRole, label_21);
 
         edtMainPage = new QLineEdit(gbServer);
-        edtMainPage->setObjectName(QStringLiteral("edtMainPage"));
+        edtMainPage->setObjectName(QString::fromUtf8("edtMainPage"));
         edtMainPage->setFont(font);
 
         formLayout->setWidget(3, QFormLayout::FieldRole, edtMainPage);
@@ -560,106 +571,106 @@ public:
 
         horizontalLayout_16 = new QHBoxLayout();
         horizontalLayout_16->setSpacing(6);
-        horizontalLayout_16->setObjectName(QStringLiteral("horizontalLayout_16"));
+        horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         gbGallery = new QGroupBox(tabGallery);
-        gbGallery->setObjectName(QStringLiteral("gbGallery"));
+        gbGallery->setObjectName(QString::fromUtf8("gbGallery"));
         gbGallery->setFont(font1);
         gridLayout_17 = new QGridLayout(gbGallery);
         gridLayout_17->setSpacing(6);
         gridLayout_17->setContentsMargins(11, 11, 11, 11);
-        gridLayout_17->setObjectName(QStringLiteral("gridLayout_17"));
+        gridLayout_17->setObjectName(QString::fromUtf8("gridLayout_17"));
         label_36 = new QLabel(gbGallery);
-        label_36->setObjectName(QStringLiteral("label_36"));
+        label_36->setObjectName(QString::fromUtf8("label_36"));
         label_36->setFont(font);
 
         gridLayout_17->addWidget(label_36, 3, 0, 1, 1);
 
         label_47 = new QLabel(gbGallery);
-        label_47->setObjectName(QStringLiteral("label_47"));
+        label_47->setObjectName(QString::fromUtf8("label_47"));
         label_47->setFont(font);
 
         gridLayout_17->addWidget(label_47, 0, 0, 1, 1);
 
         edtGalleryTitle = new QLineEdit(gbGallery);
-        edtGalleryTitle->setObjectName(QStringLiteral("edtGalleryTitle"));
+        edtGalleryTitle->setObjectName(QString::fromUtf8("edtGalleryTitle"));
         edtGalleryTitle->setFont(font);
 
         gridLayout_17->addWidget(edtGalleryTitle, 0, 1, 1, 2);
 
         edtAbout = new QLineEdit(gbGallery);
-        edtAbout->setObjectName(QStringLiteral("edtAbout"));
+        edtAbout->setObjectName(QString::fromUtf8("edtAbout"));
         edtAbout->setFont(font);
 
         gridLayout_17->addWidget(edtAbout, 3, 1, 1, 2);
 
         chkMenuToContact = new QCheckBox(gbGallery);
-        chkMenuToContact->setObjectName(QStringLiteral("chkMenuToContact"));
+        chkMenuToContact->setObjectName(QString::fromUtf8("chkMenuToContact"));
         chkMenuToContact->setFont(font);
 
         gridLayout_17->addWidget(chkMenuToContact, 7, 2, 1, 1);
 
         chkMenuToDescriptions = new QCheckBox(gbGallery);
-        chkMenuToDescriptions->setObjectName(QStringLiteral("chkMenuToDescriptions"));
+        chkMenuToDescriptions->setObjectName(QString::fromUtf8("chkMenuToDescriptions"));
         chkMenuToDescriptions->setFont(font);
 
         gridLayout_17->addWidget(chkMenuToDescriptions, 9, 2, 1, 1);
 
         chkRightClickProtected = new QCheckBox(gbGallery);
-        chkRightClickProtected->setObjectName(QStringLiteral("chkRightClickProtected"));
+        chkRightClickProtected->setObjectName(QString::fromUtf8("chkRightClickProtected"));
         chkRightClickProtected->setFont(font);
 
         gridLayout_17->addWidget(chkRightClickProtected, 10, 0, 1, 1);
 
         chkMenuToToggleCaptions = new QCheckBox(gbGallery);
-        chkMenuToToggleCaptions->setObjectName(QStringLiteral("chkMenuToToggleCaptions"));
+        chkMenuToToggleCaptions->setObjectName(QString::fromUtf8("chkMenuToToggleCaptions"));
         chkMenuToToggleCaptions->setFont(font);
 
         gridLayout_17->addWidget(chkMenuToToggleCaptions, 10, 2, 1, 1);
 
         label_50 = new QLabel(gbGallery);
-        label_50->setObjectName(QStringLiteral("label_50"));
+        label_50->setObjectName(QString::fromUtf8("label_50"));
         label_50->setFont(font);
 
         gridLayout_17->addWidget(label_50, 4, 0, 1, 1);
 
         chkAllowLinkToImages = new QCheckBox(gbGallery);
-        chkAllowLinkToImages->setObjectName(QStringLiteral("chkAllowLinkToImages"));
+        chkAllowLinkToImages->setObjectName(QString::fromUtf8("chkAllowLinkToImages"));
         chkAllowLinkToImages->setFont(font);
 
         gridLayout_17->addWidget(chkAllowLinkToImages, 8, 0, 1, 2);
 
         label_42 = new QLabel(gbGallery);
-        label_42->setObjectName(QStringLiteral("label_42"));
+        label_42->setObjectName(QString::fromUtf8("label_42"));
         label_42->setFont(font);
 
         gridLayout_17->addWidget(label_42, 2, 0, 1, 1);
 
         chkMenuToAbout = new QCheckBox(gbGallery);
-        chkMenuToAbout->setObjectName(QStringLiteral("chkMenuToAbout"));
+        chkMenuToAbout->setObjectName(QString::fromUtf8("chkMenuToAbout"));
         chkMenuToAbout->setFont(font);
 
         gridLayout_17->addWidget(chkMenuToAbout, 8, 2, 1, 1);
 
         chkCanDownload = new QCheckBox(gbGallery);
-        chkCanDownload->setObjectName(QStringLiteral("chkCanDownload"));
+        chkCanDownload->setObjectName(QString::fromUtf8("chkCanDownload"));
         chkCanDownload->setFont(font);
 
         gridLayout_17->addWidget(chkCanDownload, 9, 0, 1, 2);
 
         edtEmailTo = new QLineEdit(gbGallery);
-        edtEmailTo->setObjectName(QStringLiteral("edtEmailTo"));
+        edtEmailTo->setObjectName(QString::fromUtf8("edtEmailTo"));
         edtEmailTo->setFont(font);
 
         gridLayout_17->addWidget(edtEmailTo, 2, 1, 1, 2);
 
         edtBackImage = new QLineEdit(gbGallery);
-        edtBackImage->setObjectName(QStringLiteral("edtBackImage"));
+        edtBackImage->setObjectName(QString::fromUtf8("edtBackImage"));
         edtBackImage->setFont(font);
 
         gridLayout_17->addWidget(edtBackImage, 4, 1, 1, 2);
 
         chkForceSSL = new QCheckBox(gbGallery);
-        chkForceSSL->setObjectName(QStringLiteral("chkForceSSL"));
+        chkForceSSL->setObjectName(QString::fromUtf8("chkForceSSL"));
         chkForceSSL->setEnabled(true);
         chkForceSSL->setFont(font);
         chkForceSSL->setChecked(true);
@@ -667,7 +678,7 @@ public:
         gridLayout_17->addWidget(chkForceSSL, 7, 0, 1, 2);
 
         chkFacebook = new QCheckBox(gbGallery);
-        chkFacebook->setObjectName(QStringLiteral("chkFacebook"));
+        chkFacebook->setObjectName(QString::fromUtf8("chkFacebook"));
         chkFacebook->setFont(font);
 
         gridLayout_17->addWidget(chkFacebook, 11, 0, 1, 1);
@@ -677,40 +688,40 @@ public:
 
         verticalLayout_15 = new QVBoxLayout();
         verticalLayout_15->setSpacing(6);
-        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
+        verticalLayout_15->setObjectName(QString::fromUtf8("verticalLayout_15"));
         gbLatest = new QGroupBox(tabGallery);
-        gbLatest->setObjectName(QStringLiteral("gbLatest"));
+        gbLatest->setObjectName(QString::fromUtf8("gbLatest"));
         gbLatest->setFont(font1);
         gridLayout_6 = new QGridLayout(gbLatest);
         gridLayout_6->setSpacing(6);
         gridLayout_6->setContentsMargins(11, 11, 11, 11);
-        gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
+        gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
         sbNewDays = new QSpinBox(gbLatest);
-        sbNewDays->setObjectName(QStringLiteral("sbNewDays"));
+        sbNewDays->setObjectName(QString::fromUtf8("sbNewDays"));
         sbNewDays->setFont(font);
 
         gridLayout_6->addWidget(sbNewDays, 0, 1, 1, 1);
 
         label_31 = new QLabel(gbLatest);
-        label_31->setObjectName(QStringLiteral("label_31"));
+        label_31->setObjectName(QString::fromUtf8("label_31"));
         label_31->setFont(font);
 
         gridLayout_6->addWidget(label_31, 0, 2, 1, 1);
 
         label_30 = new QLabel(gbLatest);
-        label_30->setObjectName(QStringLiteral("label_30"));
+        label_30->setObjectName(QString::fromUtf8("label_30"));
         label_30->setFont(font);
 
         gridLayout_6->addWidget(label_30, 0, 0, 1, 1);
 
         label_18 = new QLabel(gbLatest);
-        label_18->setObjectName(QStringLiteral("label_18"));
+        label_18->setObjectName(QString::fromUtf8("label_18"));
         label_18->setFont(font);
 
         gridLayout_6->addWidget(label_18, 0, 3, 1, 1);
 
         sbLatestCount = new QSpinBox(gbLatest);
-        sbLatestCount->setObjectName(QStringLiteral("sbLatestCount"));
+        sbLatestCount->setObjectName(QString::fromUtf8("sbLatestCount"));
         sbLatestCount->setFont(font);
         sbLatestCount->setMinimum(1);
         sbLatestCount->setValue(10);
@@ -718,7 +729,7 @@ public:
         gridLayout_6->addWidget(sbLatestCount, 0, 4, 1, 1);
 
         chkSetLatest = new QCheckBox(gbLatest);
-        chkSetLatest->setObjectName(QStringLiteral("chkSetLatest"));
+        chkSetLatest->setObjectName(QString::fromUtf8("chkSetLatest"));
         chkSetLatest->setFont(font);
 
         gridLayout_6->addWidget(chkSetLatest, 3, 0, 1, 2);
@@ -727,28 +738,28 @@ public:
         verticalLayout_15->addWidget(gbLatest);
 
         gbGoogleAnalytics = new QGroupBox(tabGallery);
-        gbGoogleAnalytics->setObjectName(QStringLiteral("gbGoogleAnalytics"));
+        gbGoogleAnalytics->setObjectName(QString::fromUtf8("gbGoogleAnalytics"));
         sizePolicy.setHeightForWidth(gbGoogleAnalytics->sizePolicy().hasHeightForWidth());
         gbGoogleAnalytics->setSizePolicy(sizePolicy);
         gbGoogleAnalytics->setFont(font1);
         gridLayout_2 = new QGridLayout(gbGoogleAnalytics);
         gridLayout_2->setSpacing(6);
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
-        gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         chkUseGoogleAnalytics = new QCheckBox(gbGoogleAnalytics);
-        chkUseGoogleAnalytics->setObjectName(QStringLiteral("chkUseGoogleAnalytics"));
+        chkUseGoogleAnalytics->setObjectName(QString::fromUtf8("chkUseGoogleAnalytics"));
         chkUseGoogleAnalytics->setFont(font);
 
         gridLayout_2->addWidget(chkUseGoogleAnalytics, 0, 0, 1, 1);
 
         label_9 = new QLabel(gbGoogleAnalytics);
-        label_9->setObjectName(QStringLiteral("label_9"));
+        label_9->setObjectName(QString::fromUtf8("label_9"));
         label_9->setFont(font);
 
         gridLayout_2->addWidget(label_9, 0, 1, 1, 1);
 
         edtTrackingCode = new QLineEdit(gbGoogleAnalytics);
-        edtTrackingCode->setObjectName(QStringLiteral("edtTrackingCode"));
+        edtTrackingCode->setObjectName(QString::fromUtf8("edtTrackingCode"));
         edtTrackingCode->setFont(font);
 
         gridLayout_2->addWidget(edtTrackingCode, 0, 2, 1, 1);
@@ -757,84 +768,84 @@ public:
         verticalLayout_15->addWidget(gbGoogleAnalytics);
 
         gbAdvanced = new QGroupBox(tabGallery);
-        gbAdvanced->setObjectName(QStringLiteral("gbAdvanced"));
+        gbAdvanced->setObjectName(QString::fromUtf8("gbAdvanced"));
         sizePolicy.setHeightForWidth(gbAdvanced->sizePolicy().hasHeightForWidth());
         gbAdvanced->setSizePolicy(sizePolicy);
         gbAdvanced->setFont(font1);
         formLayout_2 = new QFormLayout(gbAdvanced);
         formLayout_2->setSpacing(6);
         formLayout_2->setContentsMargins(11, 11, 11, 11);
-        formLayout_2->setObjectName(QStringLiteral("formLayout_2"));
+        formLayout_2->setObjectName(QString::fromUtf8("formLayout_2"));
         label_23 = new QLabel(gbAdvanced);
-        label_23->setObjectName(QStringLiteral("label_23"));
+        label_23->setObjectName(QString::fromUtf8("label_23"));
         label_23->setMinimumSize(QSize(93, 0));
         label_23->setFont(font);
 
         formLayout_2->setWidget(1, QFormLayout::LabelRole, label_23);
 
         edtThumb = new QLineEdit(gbAdvanced);
-        edtThumb->setObjectName(QStringLiteral("edtThumb"));
+        edtThumb->setObjectName(QString::fromUtf8("edtThumb"));
         edtThumb->setFont(font);
 
         formLayout_2->setWidget(1, QFormLayout::FieldRole, edtThumb);
 
         label_22 = new QLabel(gbAdvanced);
-        label_22->setObjectName(QStringLiteral("label_22"));
+        label_22->setObjectName(QString::fromUtf8("label_22"));
         label_22->setFont(font);
 
         formLayout_2->setWidget(2, QFormLayout::LabelRole, label_22);
 
         edtAlbumDir = new QLineEdit(gbAdvanced);
-        edtAlbumDir->setObjectName(QStringLiteral("edtAlbumDir"));
+        edtAlbumDir->setObjectName(QString::fromUtf8("edtAlbumDir"));
         edtAlbumDir->setFont(font);
 
         formLayout_2->setWidget(2, QFormLayout::FieldRole, edtAlbumDir);
 
         label_44 = new QLabel(gbAdvanced);
-        label_44->setObjectName(QStringLiteral("label_44"));
+        label_44->setObjectName(QString::fromUtf8("label_44"));
         label_44->setFont(font);
 
         formLayout_2->setWidget(3, QFormLayout::LabelRole, label_44);
 
         edtFontDir = new QLineEdit(gbAdvanced);
-        edtFontDir->setObjectName(QStringLiteral("edtFontDir"));
+        edtFontDir->setObjectName(QString::fromUtf8("edtFontDir"));
         edtFontDir->setFont(font);
 
         formLayout_2->setWidget(3, QFormLayout::FieldRole, edtFontDir);
 
         label_46 = new QLabel(gbAdvanced);
-        label_46->setObjectName(QStringLiteral("label_46"));
+        label_46->setObjectName(QString::fromUtf8("label_46"));
         label_46->setFont(font);
 
         formLayout_2->setWidget(4, QFormLayout::LabelRole, label_46);
 
         edtDefaultFonts = new QLineEdit(gbAdvanced);
-        edtDefaultFonts->setObjectName(QStringLiteral("edtDefaultFonts"));
+        edtDefaultFonts->setObjectName(QString::fromUtf8("edtDefaultFonts"));
         edtDefaultFonts->setFont(font);
 
         formLayout_2->setWidget(4, QFormLayout::FieldRole, edtDefaultFonts);
 
         label_45 = new QLabel(gbAdvanced);
-        label_45->setObjectName(QStringLiteral("label_45"));
+        label_45->setObjectName(QString::fromUtf8("label_45"));
         label_45->setFont(font);
 
         formLayout_2->setWidget(5, QFormLayout::LabelRole, label_45);
 
         edtBaseName = new QLineEdit(gbAdvanced);
-        edtBaseName->setObjectName(QStringLiteral("edtBaseName"));
+        edtBaseName->setObjectName(QString::fromUtf8("edtBaseName"));
         edtBaseName->setFont(font);
 
         formLayout_2->setWidget(5, QFormLayout::FieldRole, edtBaseName);
 
         label_56 = new QLabel(gbAdvanced);
-        label_56->setObjectName(QStringLiteral("label_56"));
+        label_56->setObjectName(QString::fromUtf8("label_56"));
         label_56->setMinimumSize(QSize(93, 0));
         label_56->setFont(font);
 
         formLayout_2->setWidget(0, QFormLayout::LabelRole, label_56);
 
         edtImg = new QLineEdit(gbAdvanced);
-        edtImg->setObjectName(QStringLiteral("edtImg"));
+        edtImg->setObjectName(QString::fromUtf8("edtImg"));
         edtImg->setFont(font);
 
         formLayout_2->setWidget(0, QFormLayout::FieldRole, edtImg);
@@ -850,54 +861,85 @@ public:
 
         gridLayout_16 = new QGridLayout();
         gridLayout_16->setSpacing(6);
-        gridLayout_16->setObjectName(QStringLiteral("gridLayout_16"));
+        gridLayout_16->setObjectName(QString::fromUtf8("gridLayout_16"));
         gridLayout_16->setContentsMargins(9, 4, 9, 4);
-        chkDisregardStruct = new QCheckBox(tabGallery);
-        chkDisregardStruct->setObjectName(QStringLiteral("chkDisregardStruct"));
+        chkReadFromGallery = new QCheckBox(tabGallery);
+        chkReadFromGallery->setObjectName(QString::fromUtf8("chkReadFromGallery"));
 
-        gridLayout_16->addWidget(chkDisregardStruct, 0, 0, 1, 1);
-
-        chkAddTitlesToAll = new QCheckBox(tabGallery);
-        chkAddTitlesToAll->setObjectName(QStringLiteral("chkAddTitlesToAll"));
-        chkAddTitlesToAll->setChecked(false);
-
-        gridLayout_16->addWidget(chkAddTitlesToAll, 0, 1, 1, 1);
+        gridLayout_16->addWidget(chkReadFromGallery, 0, 0, 1, 1);
 
         chkOvrImages = new QCheckBox(tabGallery);
-        chkOvrImages->setObjectName(QStringLiteral("chkOvrImages"));
+        chkOvrImages->setObjectName(QString::fromUtf8("chkOvrImages"));
         chkOvrImages->setFont(font);
         chkOvrImages->setChecked(true);
 
         gridLayout_16->addWidget(chkOvrImages, 1, 0, 1, 1);
 
         chkAddDescToAll = new QCheckBox(tabGallery);
-        chkAddDescToAll->setObjectName(QStringLiteral("chkAddDescToAll"));
+        chkAddDescToAll->setObjectName(QString::fromUtf8("chkAddDescToAll"));
         chkAddDescToAll->setChecked(false);
 
-        gridLayout_16->addWidget(chkAddDescToAll, 1, 1, 1, 1);
+        gridLayout_16->addWidget(chkAddDescToAll, 1, 2, 1, 1);
 
+        chkAddTitlesToAll = new QCheckBox(tabGallery);
+        chkAddTitlesToAll->setObjectName(QString::fromUtf8("chkAddTitlesToAll"));
+        chkAddTitlesToAll->setChecked(false);
+
+        gridLayout_16->addWidget(chkAddTitlesToAll, 0, 2, 1, 1);
+
+        chkreadJalbum = new QCheckBox(tabGallery);
+        chkreadJalbum->setObjectName(QString::fromUtf8("chkreadJalbum"));
+
+        gridLayout_16->addWidget(chkreadJalbum, 0, 1, 1, 1);
+
+        gridLayout_16->setColumnStretch(0, 1);
+        gridLayout_16->setColumnStretch(2, 1);
 
         verticalLayout_17->addLayout(gridLayout_16);
 
         pnlProgress = new QWidget(tabGallery);
-        pnlProgress->setObjectName(QStringLiteral("pnlProgress"));
+        pnlProgress->setObjectName(QString::fromUtf8("pnlProgress"));
         pnlProgress->setMaximumSize(QSize(16777215, 16777215));
         gridLayout_18 = new QGridLayout(pnlProgress);
         gridLayout_18->setSpacing(6);
         gridLayout_18->setContentsMargins(11, 11, 11, 11);
-        gridLayout_18->setObjectName(QStringLiteral("gridLayout_18"));
+        gridLayout_18->setObjectName(QString::fromUtf8("gridLayout_18"));
         lblProgressTitle = new QLabel(pnlProgress);
-        lblProgressTitle->setObjectName(QStringLiteral("lblProgressTitle"));
+        lblProgressTitle->setObjectName(QString::fromUtf8("lblProgressTitle"));
 
         gridLayout_18->addWidget(lblProgressTitle, 0, 0, 1, 2);
 
         lblProgressDesc = new QLabel(pnlProgress);
-        lblProgressDesc->setObjectName(QStringLiteral("lblProgressDesc"));
+        lblProgressDesc->setObjectName(QString::fromUtf8("lblProgressDesc"));
 
         gridLayout_18->addWidget(lblProgressDesc, 0, 3, 1, 2);
 
+        lblRemainingTimeTitle = new QLabel(pnlProgress);
+        lblRemainingTimeTitle->setObjectName(QString::fromUtf8("lblRemainingTimeTitle"));
+
+        gridLayout_18->addWidget(lblRemainingTimeTitle, 2, 0, 1, 1);
+
+        lblRemainingTime = new QLabel(pnlProgress);
+        lblRemainingTime->setObjectName(QString::fromUtf8("lblRemainingTime"));
+
+        gridLayout_18->addWidget(lblRemainingTime, 2, 1, 1, 1);
+
+        horizontalSpacer_2 = new QSpacerItem(379, 13, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        gridLayout_18->addItem(horizontalSpacer_2, 2, 2, 1, 1);
+
+        label_43 = new QLabel(pnlProgress);
+        label_43->setObjectName(QString::fromUtf8("label_43"));
+
+        gridLayout_18->addWidget(label_43, 2, 3, 1, 1);
+
+        lblImagesPerSec = new QLabel(pnlProgress);
+        lblImagesPerSec->setObjectName(QString::fromUtf8("lblImagesPerSec"));
+
+        gridLayout_18->addWidget(lblImagesPerSec, 2, 4, 1, 1);
+
         progressBar = new QProgressBar(pnlProgress);
-        progressBar->setObjectName(QStringLiteral("progressBar"));
+        progressBar->setObjectName(QString::fromUtf8("progressBar"));
         QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
@@ -907,40 +949,16 @@ public:
         progressBar->setValue(0);
         progressBar->setTextVisible(false);
 
-        gridLayout_18->addWidget(progressBar, 1, 0, 1, 4);
+        gridLayout_18->addWidget(progressBar, 1, 0, 1, 3);
 
         lblProgress = new QLabel(pnlProgress);
-        lblProgress->setObjectName(QStringLiteral("lblProgress"));
+        lblProgress->setObjectName(QString::fromUtf8("lblProgress"));
         lblProgress->setMinimumSize(QSize(60, 0));
         QFont font2;
         font2.setPointSize(10);
         lblProgress->setFont(font2);
 
-        gridLayout_18->addWidget(lblProgress, 1, 4, 1, 1);
-
-        lblRemainingTimeTitle = new QLabel(pnlProgress);
-        lblRemainingTimeTitle->setObjectName(QStringLiteral("lblRemainingTimeTitle"));
-
-        gridLayout_18->addWidget(lblRemainingTimeTitle, 2, 0, 1, 1);
-
-        lblRemainingTime = new QLabel(pnlProgress);
-        lblRemainingTime->setObjectName(QStringLiteral("lblRemainingTime"));
-
-        gridLayout_18->addWidget(lblRemainingTime, 2, 1, 1, 1);
-
-        horizontalSpacer_2 = new QSpacerItem(379, 13, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        gridLayout_18->addItem(horizontalSpacer_2, 2, 2, 1, 1);
-
-        label_43 = new QLabel(pnlProgress);
-        label_43->setObjectName(QStringLiteral("label_43"));
-
-        gridLayout_18->addWidget(label_43, 2, 3, 1, 1);
-
-        lblImagesPerSec = new QLabel(pnlProgress);
-        lblImagesPerSec->setObjectName(QStringLiteral("lblImagesPerSec"));
-
-        gridLayout_18->addWidget(lblImagesPerSec, 2, 4, 1, 1);
+        gridLayout_18->addWidget(lblProgress, 1, 3, 1, 1);
 
 
         verticalLayout_17->addWidget(pnlProgress);
@@ -951,32 +969,32 @@ public:
 
         tabFalconG->addTab(tabGallery, QString());
         tabDesign = new QWidget();
-        tabDesign->setObjectName(QStringLiteral("tabDesign"));
+        tabDesign->setObjectName(QString::fromUtf8("tabDesign"));
         verticalLayout_16 = new QVBoxLayout(tabDesign);
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
+        verticalLayout_16->setObjectName(QString::fromUtf8("verticalLayout_16"));
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setSpacing(6);
-        horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
         verticalLayout_13 = new QVBoxLayout();
         verticalLayout_13->setSpacing(6);
-        verticalLayout_13->setObjectName(QStringLiteral("verticalLayout_13"));
+        verticalLayout_13->setObjectName(QString::fromUtf8("verticalLayout_13"));
         groupBox_4 = new QGroupBox(tabDesign);
-        groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
+        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
         groupBox_4->setFont(font1);
         gridLayout_4 = new QGridLayout(groupBox_4);
         gridLayout_4->setSpacing(6);
         gridLayout_4->setContentsMargins(11, 11, 11, 11);
-        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
+        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         chkBackgroundOpacity = new QCheckBox(groupBox_4);
-        chkBackgroundOpacity->setObjectName(QStringLiteral("chkBackgroundOpacity"));
+        chkBackgroundOpacity->setObjectName(QString::fromUtf8("chkBackgroundOpacity"));
         chkBackgroundOpacity->setFont(font);
 
         gridLayout_4->addWidget(chkBackgroundOpacity, 1, 6, 1, 1);
 
         sbBackgroundOpacity = new QSpinBox(groupBox_4);
-        sbBackgroundOpacity->setObjectName(QStringLiteral("sbBackgroundOpacity"));
+        sbBackgroundOpacity->setObjectName(QString::fromUtf8("sbBackgroundOpacity"));
         sbBackgroundOpacity->setEnabled(false);
         sbBackgroundOpacity->setFont(font);
         sbBackgroundOpacity->setMinimum(0);
@@ -987,7 +1005,7 @@ public:
         gridLayout_4->addWidget(sbBackgroundOpacity, 1, 4, 1, 1);
 
         edtBackgroundColor = new QLineEdit(groupBox_4);
-        edtBackgroundColor->setObjectName(QStringLiteral("edtBackgroundColor"));
+        edtBackgroundColor->setObjectName(QString::fromUtf8("edtBackgroundColor"));
         QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
@@ -998,13 +1016,13 @@ public:
         gridLayout_4->addWidget(edtBackgroundColor, 1, 2, 1, 1);
 
         chkTextOpacity = new QCheckBox(groupBox_4);
-        chkTextOpacity->setObjectName(QStringLiteral("chkTextOpacity"));
+        chkTextOpacity->setObjectName(QString::fromUtf8("chkTextOpacity"));
         chkTextOpacity->setFont(font);
 
         gridLayout_4->addWidget(chkTextOpacity, 0, 6, 1, 1);
 
         sbTextOpacity = new QSpinBox(groupBox_4);
-        sbTextOpacity->setObjectName(QStringLiteral("sbTextOpacity"));
+        sbTextOpacity->setObjectName(QString::fromUtf8("sbTextOpacity"));
         sbTextOpacity->setEnabled(false);
         sbTextOpacity->setFont(font);
         sbTextOpacity->setMinimum(0);
@@ -1015,47 +1033,47 @@ public:
         gridLayout_4->addWidget(sbTextOpacity, 0, 4, 1, 1);
 
         label_33 = new QLabel(groupBox_4);
-        label_33->setObjectName(QStringLiteral("label_33"));
+        label_33->setObjectName(QString::fromUtf8("label_33"));
         label_33->setFont(font);
 
         gridLayout_4->addWidget(label_33, 1, 0, 1, 1);
 
         btnColor = new QToolButton(groupBox_4);
-        btnColor->setObjectName(QStringLiteral("btnColor"));
+        btnColor->setObjectName(QString::fromUtf8("btnColor"));
         sizePolicy3.setHeightForWidth(btnColor->sizePolicy().hasHeightForWidth());
         btnColor->setSizePolicy(sizePolicy3);
-        btnColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#ddd;}"));
+        btnColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#ddd;}"));
 
         gridLayout_4->addWidget(btnColor, 0, 3, 1, 1);
 
         btnBackground = new QToolButton(groupBox_4);
-        btnBackground->setObjectName(QStringLiteral("btnBackground"));
+        btnBackground->setObjectName(QString::fromUtf8("btnBackground"));
         sizePolicy3.setHeightForWidth(btnBackground->sizePolicy().hasHeightForWidth());
         btnBackground->setSizePolicy(sizePolicy3);
-        btnBackground->setStyleSheet(QStringLiteral("QToolButton {background-color:#a03020;}"));
+        btnBackground->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#a03020;}"));
 
         gridLayout_4->addWidget(btnBackground, 1, 3, 1, 1);
 
         label_35 = new QLabel(groupBox_4);
-        label_35->setObjectName(QStringLiteral("label_35"));
+        label_35->setObjectName(QString::fromUtf8("label_35"));
         label_35->setFont(font);
 
         gridLayout_4->addWidget(label_35, 1, 5, 1, 1);
 
         label_34 = new QLabel(groupBox_4);
-        label_34->setObjectName(QStringLiteral("label_34"));
+        label_34->setObjectName(QString::fromUtf8("label_34"));
         label_34->setFont(font);
 
         gridLayout_4->addWidget(label_34, 0, 5, 1, 1);
 
         label_26 = new QLabel(groupBox_4);
-        label_26->setObjectName(QStringLiteral("label_26"));
+        label_26->setObjectName(QString::fromUtf8("label_26"));
         label_26->setFont(font);
 
         gridLayout_4->addWidget(label_26, 0, 0, 1, 1);
 
         edtTextColor = new QLineEdit(groupBox_4);
-        edtTextColor->setObjectName(QStringLiteral("edtTextColor"));
+        edtTextColor->setObjectName(QString::fromUtf8("edtTextColor"));
         sizePolicy3.setHeightForWidth(edtTextColor->sizePolicy().hasHeightForWidth());
         edtTextColor->setSizePolicy(sizePolicy3);
         edtTextColor->setFont(font);
@@ -1063,13 +1081,13 @@ public:
         gridLayout_4->addWidget(edtTextColor, 0, 2, 1, 1);
 
         label_16 = new QLabel(groupBox_4);
-        label_16->setObjectName(QStringLiteral("label_16"));
+        label_16->setObjectName(QString::fromUtf8("label_16"));
         label_16->setFont(font);
 
         gridLayout_4->addWidget(label_16, 0, 1, 1, 1);
 
         label_57 = new QLabel(groupBox_4);
-        label_57->setObjectName(QStringLiteral("label_57"));
+        label_57->setObjectName(QString::fromUtf8("label_57"));
         label_57->setFont(font);
 
         gridLayout_4->addWidget(label_57, 1, 1, 1, 1);
@@ -1078,18 +1096,18 @@ public:
         verticalLayout_13->addWidget(groupBox_4);
 
         gbTextShadow = new QGroupBox(tabDesign);
-        gbTextShadow->setObjectName(QStringLiteral("gbTextShadow"));
+        gbTextShadow->setObjectName(QString::fromUtf8("gbTextShadow"));
         horizontalLayout = new QHBoxLayout(gbTextShadow);
         horizontalLayout->setSpacing(6);
         horizontalLayout->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         label_37 = new QLabel(gbTextShadow);
-        label_37->setObjectName(QStringLiteral("label_37"));
+        label_37->setObjectName(QString::fromUtf8("label_37"));
 
         horizontalLayout->addWidget(label_37);
 
         sbShadowHoriz = new QSpinBox(gbTextShadow);
-        sbShadowHoriz->setObjectName(QStringLiteral("sbShadowHoriz"));
+        sbShadowHoriz->setObjectName(QString::fromUtf8("sbShadowHoriz"));
         sizePolicy3.setHeightForWidth(sbShadowHoriz->sizePolicy().hasHeightForWidth());
         sbShadowHoriz->setSizePolicy(sizePolicy3);
         sbShadowHoriz->setFont(font);
@@ -1097,12 +1115,12 @@ public:
         horizontalLayout->addWidget(sbShadowHoriz);
 
         label_38 = new QLabel(gbTextShadow);
-        label_38->setObjectName(QStringLiteral("label_38"));
+        label_38->setObjectName(QString::fromUtf8("label_38"));
 
         horizontalLayout->addWidget(label_38);
 
         sbShadowVert = new QSpinBox(gbTextShadow);
-        sbShadowVert->setObjectName(QStringLiteral("sbShadowVert"));
+        sbShadowVert->setObjectName(QString::fromUtf8("sbShadowVert"));
         sizePolicy3.setHeightForWidth(sbShadowVert->sizePolicy().hasHeightForWidth());
         sbShadowVert->setSizePolicy(sizePolicy3);
         sbShadowVert->setFont(font);
@@ -1110,12 +1128,12 @@ public:
         horizontalLayout->addWidget(sbShadowVert);
 
         label_39 = new QLabel(gbTextShadow);
-        label_39->setObjectName(QStringLiteral("label_39"));
+        label_39->setObjectName(QString::fromUtf8("label_39"));
 
         horizontalLayout->addWidget(label_39);
 
         sbShadowBlur = new QSpinBox(gbTextShadow);
-        sbShadowBlur->setObjectName(QStringLiteral("sbShadowBlur"));
+        sbShadowBlur->setObjectName(QString::fromUtf8("sbShadowBlur"));
         sizePolicy3.setHeightForWidth(sbShadowBlur->sizePolicy().hasHeightForWidth());
         sbShadowBlur->setSizePolicy(sizePolicy3);
         sbShadowBlur->setFont(font);
@@ -1123,13 +1141,13 @@ public:
         horizontalLayout->addWidget(sbShadowBlur);
 
         btnShadowColor = new QToolButton(gbTextShadow);
-        btnShadowColor->setObjectName(QStringLiteral("btnShadowColor"));
-        btnShadowColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#ddd;}"));
+        btnShadowColor->setObjectName(QString::fromUtf8("btnShadowColor"));
+        btnShadowColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#ddd;}"));
 
         horizontalLayout->addWidget(btnShadowColor);
 
         chkShadowOn = new QCheckBox(gbTextShadow);
-        chkShadowOn->setObjectName(QStringLiteral("chkShadowOn"));
+        chkShadowOn->setObjectName(QString::fromUtf8("chkShadowOn"));
 
         horizontalLayout->addWidget(chkShadowOn);
 
@@ -1145,40 +1163,40 @@ public:
         verticalLayout_13->addWidget(gbTextShadow);
 
         gbMenu = new QGroupBox(tabDesign);
-        gbMenu->setObjectName(QStringLiteral("gbMenu"));
+        gbMenu->setObjectName(QString::fromUtf8("gbMenu"));
         gbMenu->setMinimumSize(QSize(270, 120));
         gbMenu->setFont(font1);
         gridLayout_12 = new QGridLayout(gbMenu);
         gridLayout_12->setSpacing(3);
         gridLayout_12->setContentsMargins(11, 11, 11, 11);
-        gridLayout_12->setObjectName(QStringLiteral("gridLayout_12"));
+        gridLayout_12->setObjectName(QString::fromUtf8("gridLayout_12"));
         gridLayout_12->setContentsMargins(3, 3, 3, 3);
         label_24 = new QLabel(gbMenu);
-        label_24->setObjectName(QStringLiteral("label_24"));
+        label_24->setObjectName(QString::fromUtf8("label_24"));
 
         gridLayout_12->addWidget(label_24, 0, 3, 1, 1);
 
         label_4 = new QLabel(gbMenu);
-        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setObjectName(QString::fromUtf8("label_4"));
 
         gridLayout_12->addWidget(label_4, 0, 1, 1, 1);
 
         btnGradStartColor = new QToolButton(gbMenu);
-        btnGradStartColor->setObjectName(QStringLiteral("btnGradStartColor"));
+        btnGradStartColor->setObjectName(QString::fromUtf8("btnGradStartColor"));
         sizePolicy3.setHeightForWidth(btnGradStartColor->sizePolicy().hasHeightForWidth());
         btnGradStartColor->setSizePolicy(sizePolicy3);
-        btnGradStartColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#A90329;}"));
+        btnGradStartColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#A90329;}"));
 
         gridLayout_12->addWidget(btnGradStartColor, 1, 2, 1, 1);
 
         sbGradStartPos = new QSpinBox(gbMenu);
-        sbGradStartPos->setObjectName(QStringLiteral("sbGradStartPos"));
+        sbGradStartPos->setObjectName(QString::fromUtf8("sbGradStartPos"));
         sbGradStartPos->setFont(font);
 
         gridLayout_12->addWidget(sbGradStartPos, 1, 3, 1, 1);
 
         edtGradMiddleColor = new QLineEdit(gbMenu);
-        edtGradMiddleColor->setObjectName(QStringLiteral("edtGradMiddleColor"));
+        edtGradMiddleColor->setObjectName(QString::fromUtf8("edtGradMiddleColor"));
         sizePolicy3.setHeightForWidth(edtGradMiddleColor->sizePolicy().hasHeightForWidth());
         edtGradMiddleColor->setSizePolicy(sizePolicy3);
         edtGradMiddleColor->setFont(font);
@@ -1186,7 +1204,7 @@ public:
         gridLayout_12->addWidget(edtGradMiddleColor, 2, 1, 1, 1);
 
         edtGradStartColor = new QLineEdit(gbMenu);
-        edtGradStartColor->setObjectName(QStringLiteral("edtGradStartColor"));
+        edtGradStartColor->setObjectName(QString::fromUtf8("edtGradStartColor"));
         sizePolicy3.setHeightForWidth(edtGradStartColor->sizePolicy().hasHeightForWidth());
         edtGradStartColor->setSizePolicy(sizePolicy3);
         edtGradStartColor->setFont(font);
@@ -1194,39 +1212,39 @@ public:
         gridLayout_12->addWidget(edtGradStartColor, 1, 1, 1, 1);
 
         chkGradient = new QCheckBox(gbMenu);
-        chkGradient->setObjectName(QStringLiteral("chkGradient"));
+        chkGradient->setObjectName(QString::fromUtf8("chkGradient"));
         chkGradient->setFont(font);
         chkGradient->setChecked(true);
 
         gridLayout_12->addWidget(chkGradient, 3, 4, 1, 1);
 
         btnGradMiddleColor = new QToolButton(gbMenu);
-        btnGradMiddleColor->setObjectName(QStringLiteral("btnGradMiddleColor"));
+        btnGradMiddleColor->setObjectName(QString::fromUtf8("btnGradMiddleColor"));
         sizePolicy3.setHeightForWidth(btnGradMiddleColor->sizePolicy().hasHeightForWidth());
         btnGradMiddleColor->setSizePolicy(sizePolicy3);
-        btnGradMiddleColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#890222;}"));
+        btnGradMiddleColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#890222;}"));
 
         gridLayout_12->addWidget(btnGradMiddleColor, 2, 2, 1, 1);
 
         btnGradStopColor = new QToolButton(gbMenu);
-        btnGradStopColor->setObjectName(QStringLiteral("btnGradStopColor"));
+        btnGradStopColor->setObjectName(QString::fromUtf8("btnGradStopColor"));
         sizePolicy3.setHeightForWidth(btnGradStopColor->sizePolicy().hasHeightForWidth());
         btnGradStopColor->setSizePolicy(sizePolicy3);
-        btnGradStopColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#6d0019;}"));
+        btnGradStopColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#6d0019;}"));
 
         gridLayout_12->addWidget(btnGradStopColor, 3, 2, 1, 1);
 
         btnGradBorder = new QToolButton(gbMenu);
-        btnGradBorder->setObjectName(QStringLiteral("btnGradBorder"));
+        btnGradBorder->setObjectName(QString::fromUtf8("btnGradBorder"));
         sizePolicy3.setHeightForWidth(btnGradBorder->sizePolicy().hasHeightForWidth());
         btnGradBorder->setSizePolicy(sizePolicy3);
         btnGradBorder->setFont(font1);
-        btnGradBorder->setStyleSheet(QStringLiteral("QToolButton {background-color:#890222;color:#76fccc;}"));
+        btnGradBorder->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#890222;color:#76fccc;}"));
 
         gridLayout_12->addWidget(btnGradBorder, 2, 4, 1, 1);
 
         sbGradStopPos = new QSpinBox(gbMenu);
-        sbGradStopPos->setObjectName(QStringLiteral("sbGradStopPos"));
+        sbGradStopPos->setObjectName(QString::fromUtf8("sbGradStopPos"));
         sbGradStopPos->setFont(font);
         sbGradStopPos->setMaximum(100);
         sbGradStopPos->setValue(100);
@@ -1234,14 +1252,14 @@ public:
         gridLayout_12->addWidget(sbGradStopPos, 3, 3, 1, 1);
 
         chkButtonBorder = new QCheckBox(gbMenu);
-        chkButtonBorder->setObjectName(QStringLiteral("chkButtonBorder"));
+        chkButtonBorder->setObjectName(QString::fromUtf8("chkButtonBorder"));
         chkButtonBorder->setFont(font);
         chkButtonBorder->setChecked(true);
 
         gridLayout_12->addWidget(chkButtonBorder, 1, 4, 1, 1);
 
         sbGradMiddlePos = new QSpinBox(gbMenu);
-        sbGradMiddlePos->setObjectName(QStringLiteral("sbGradMiddlePos"));
+        sbGradMiddlePos->setObjectName(QString::fromUtf8("sbGradMiddlePos"));
         sbGradMiddlePos->setFont(font);
         sbGradMiddlePos->setMaximum(100);
         sbGradMiddlePos->setValue(40);
@@ -1249,7 +1267,7 @@ public:
         gridLayout_12->addWidget(sbGradMiddlePos, 2, 3, 1, 1);
 
         edtGradStopColor = new QLineEdit(gbMenu);
-        edtGradStopColor->setObjectName(QStringLiteral("edtGradStopColor"));
+        edtGradStopColor->setObjectName(QString::fromUtf8("edtGradStopColor"));
         sizePolicy3.setHeightForWidth(edtGradStopColor->sizePolicy().hasHeightForWidth());
         edtGradStopColor->setSizePolicy(sizePolicy3);
         edtGradStopColor->setFont(font);
@@ -1257,19 +1275,19 @@ public:
         gridLayout_12->addWidget(edtGradStopColor, 3, 1, 1, 1);
 
         label_58 = new QLabel(gbMenu);
-        label_58->setObjectName(QStringLiteral("label_58"));
+        label_58->setObjectName(QString::fromUtf8("label_58"));
         label_58->setFont(font);
 
         gridLayout_12->addWidget(label_58, 1, 0, 1, 1);
 
         label_59 = new QLabel(gbMenu);
-        label_59->setObjectName(QStringLiteral("label_59"));
+        label_59->setObjectName(QString::fromUtf8("label_59"));
         label_59->setFont(font);
 
         gridLayout_12->addWidget(label_59, 2, 0, 1, 1);
 
         label_60 = new QLabel(gbMenu);
-        label_60->setObjectName(QStringLiteral("label_60"));
+        label_60->setObjectName(QString::fromUtf8("label_60"));
         label_60->setFont(font);
 
         gridLayout_12->addWidget(label_60, 3, 0, 1, 1);
@@ -1282,28 +1300,28 @@ public:
         verticalLayout_13->addWidget(gbMenu);
 
         groupBox_5 = new QGroupBox(tabDesign);
-        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
         groupBox_5->setMinimumSize(QSize(270, 100));
         groupBox_5->setFont(font1);
         gridLayout_13 = new QGridLayout(groupBox_5);
         gridLayout_13->setSpacing(3);
         gridLayout_13->setContentsMargins(11, 11, 11, 11);
-        gridLayout_13->setObjectName(QStringLiteral("gridLayout_13"));
+        gridLayout_13->setObjectName(QString::fromUtf8("gridLayout_13"));
         gridLayout_13->setContentsMargins(3, 3, 3, 3);
         label_27 = new QLabel(groupBox_5);
-        label_27->setObjectName(QStringLiteral("label_27"));
+        label_27->setObjectName(QString::fromUtf8("label_27"));
         label_27->setFont(font);
 
         gridLayout_13->addWidget(label_27, 0, 0, 1, 1);
 
         edtFontFamily = new QLineEdit(groupBox_5);
-        edtFontFamily->setObjectName(QStringLiteral("edtFontFamily"));
+        edtFontFamily->setObjectName(QString::fromUtf8("edtFontFamily"));
         edtFontFamily->setFont(font);
 
         gridLayout_13->addWidget(edtFontFamily, 0, 1, 1, 2);
 
         label_28 = new QLabel(groupBox_5);
-        label_28->setObjectName(QStringLiteral("label_28"));
+        label_28->setObjectName(QString::fromUtf8("label_28"));
         label_28->setFont(font);
 
         gridLayout_13->addWidget(label_28, 1, 0, 1, 1);
@@ -1325,7 +1343,7 @@ public:
         cbPointSize->addItem(QString());
         cbPointSize->addItem(QString());
         cbPointSize->addItem(QString());
-        cbPointSize->setObjectName(QStringLiteral("cbPointSize"));
+        cbPointSize->setObjectName(QString::fromUtf8("cbPointSize"));
         cbPointSize->setFont(font);
         cbPointSize->setEditable(true);
         cbPointSize->setInsertPolicy(QComboBox::NoInsert);
@@ -1333,25 +1351,25 @@ public:
         gridLayout_13->addWidget(cbPointSize, 1, 1, 1, 2);
 
         chkBold = new QCheckBox(groupBox_5);
-        chkBold->setObjectName(QStringLiteral("chkBold"));
+        chkBold->setObjectName(QString::fromUtf8("chkBold"));
         chkBold->setFont(font);
 
         gridLayout_13->addWidget(chkBold, 2, 0, 1, 1);
 
         chkItalic = new QCheckBox(groupBox_5);
-        chkItalic->setObjectName(QStringLiteral("chkItalic"));
+        chkItalic->setObjectName(QString::fromUtf8("chkItalic"));
         chkItalic->setFont(font);
 
         gridLayout_13->addWidget(chkItalic, 2, 2, 1, 1);
 
         chkUnderline = new QCheckBox(groupBox_5);
-        chkUnderline->setObjectName(QStringLiteral("chkUnderline"));
+        chkUnderline->setObjectName(QString::fromUtf8("chkUnderline"));
         chkUnderline->setFont(font);
 
         gridLayout_13->addWidget(chkUnderline, 3, 0, 1, 2);
 
         chkStrikethrough = new QCheckBox(groupBox_5);
-        chkStrikethrough->setObjectName(QStringLiteral("chkStrikethrough"));
+        chkStrikethrough->setObjectName(QString::fromUtf8("chkStrikethrough"));
         chkStrikethrough->setFont(font);
 
         gridLayout_13->addWidget(chkStrikethrough, 3, 2, 1, 1);
@@ -1360,52 +1378,52 @@ public:
         verticalLayout_13->addWidget(groupBox_5);
 
         gbDecoration = new QGroupBox(tabDesign);
-        gbDecoration->setObjectName(QStringLiteral("gbDecoration"));
+        gbDecoration->setObjectName(QString::fromUtf8("gbDecoration"));
         gbDecoration->setMinimumSize(QSize(270, 0));
         gbDecoration->setFont(font1);
         gridLayout_10 = new QGridLayout(gbDecoration);
         gridLayout_10->setSpacing(3);
         gridLayout_10->setContentsMargins(11, 11, 11, 11);
-        gridLayout_10->setObjectName(QStringLiteral("gridLayout_10"));
+        gridLayout_10->setObjectName(QString::fromUtf8("gridLayout_10"));
         gridLayout_10->setContentsMargins(3, 3, 3, 3);
         chkIconTop = new QCheckBox(gbDecoration);
-        chkIconTop->setObjectName(QStringLiteral("chkIconTop"));
+        chkIconTop->setObjectName(QString::fromUtf8("chkIconTop"));
         chkIconTop->setFont(font);
         chkIconTop->setChecked(true);
 
         gridLayout_10->addWidget(chkIconTop, 5, 0, 1, 3);
 
         chkIconText = new QCheckBox(gbDecoration);
-        chkIconText->setObjectName(QStringLiteral("chkIconText"));
+        chkIconText->setObjectName(QString::fromUtf8("chkIconText"));
         chkIconText->setFont(font);
         chkIconText->setChecked(true);
 
         gridLayout_10->addWidget(chkIconText, 6, 0, 1, 1);
 
         chkImageBorder = new QCheckBox(gbDecoration);
-        chkImageBorder->setObjectName(QStringLiteral("chkImageBorder"));
+        chkImageBorder->setObjectName(QString::fromUtf8("chkImageBorder"));
         chkImageBorder->setFont(font);
         chkImageBorder->setChecked(true);
 
         gridLayout_10->addWidget(chkImageBorder, 0, 0, 1, 1);
 
         btnBorderColor = new QToolButton(gbDecoration);
-        btnBorderColor->setObjectName(QStringLiteral("btnBorderColor"));
+        btnBorderColor->setObjectName(QString::fromUtf8("btnBorderColor"));
         btnBorderColor->setFont(font);
-        btnBorderColor->setStyleSheet(QLatin1String("QToolButton {\n"
+        btnBorderColor->setStyleSheet(QString::fromUtf8("QToolButton {\n"
 "background-color:#ffff00;\n"
 "}"));
 
         gridLayout_10->addWidget(btnBorderColor, 0, 1, 1, 1);
 
         label_14 = new QLabel(gbDecoration);
-        label_14->setObjectName(QStringLiteral("label_14"));
+        label_14->setObjectName(QString::fromUtf8("label_14"));
         label_14->setFont(font);
 
         gridLayout_10->addWidget(label_14, 0, 2, 1, 1);
 
         sbBorderWidth = new QSpinBox(gbDecoration);
-        sbBorderWidth->setObjectName(QStringLiteral("sbBorderWidth"));
+        sbBorderWidth->setObjectName(QString::fromUtf8("sbBorderWidth"));
         sbBorderWidth->setMinimumSize(QSize(0, 30));
         sbBorderWidth->setFont(font);
         sbBorderWidth->setMinimum(1);
@@ -1413,7 +1431,7 @@ public:
         gridLayout_10->addWidget(sbBorderWidth, 0, 3, 1, 1);
 
         label_15 = new QLabel(gbDecoration);
-        label_15->setObjectName(QStringLiteral("label_15"));
+        label_15->setObjectName(QString::fromUtf8("label_15"));
         label_15->setFont(font);
 
         gridLayout_10->addWidget(label_15, 0, 4, 1, 1);
@@ -1422,15 +1440,15 @@ public:
         verticalLayout_13->addWidget(gbDecoration);
 
         widget_5 = new QWidget(tabDesign);
-        widget_5->setObjectName(QStringLiteral("widget_5"));
+        widget_5->setObjectName(QString::fromUtf8("widget_5"));
         widget_5->setMinimumSize(QSize(0, 50));
         widget_5->setMaximumSize(QSize(16777215, 40));
         horizontalLayout_11 = new QHBoxLayout(widget_5);
         horizontalLayout_11->setSpacing(6);
         horizontalLayout_11->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
+        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         btnDisplayHint = new QToolButton(widget_5);
-        btnDisplayHint->setObjectName(QStringLiteral("btnDisplayHint"));
+        btnDisplayHint->setObjectName(QString::fromUtf8("btnDisplayHint"));
 
         horizontalLayout_11->addWidget(btnDisplayHint);
 
@@ -1439,7 +1457,7 @@ public:
         horizontalLayout_11->addItem(horizontalSpacer_7);
 
         btnResetDesign = new QPushButton(widget_5);
-        btnResetDesign->setObjectName(QStringLiteral("btnResetDesign"));
+        btnResetDesign->setObjectName(QString::fromUtf8("btnResetDesign"));
 
         horizontalLayout_11->addWidget(btnResetDesign);
 
@@ -1454,29 +1472,29 @@ public:
         horizontalLayout_10->addLayout(verticalLayout_13);
 
         groupBox_6 = new QGroupBox(tabDesign);
-        groupBox_6->setObjectName(QStringLiteral("groupBox_6"));
+        groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
         groupBox_6->setMinimumSize(QSize(0, 689));
         groupBox_6->setFont(font1);
         verticalLayout_14 = new QVBoxLayout(groupBox_6);
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
+        verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
         pnlGallery = new QWidget(groupBox_6);
-        pnlGallery->setObjectName(QStringLiteral("pnlGallery"));
-        pnlGallery->setStyleSheet(QStringLiteral(""));
+        pnlGallery->setObjectName(QString::fromUtf8("pnlGallery"));
+        pnlGallery->setStyleSheet(QString::fromUtf8(""));
         verticalLayout = new QVBoxLayout(pnlGallery);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         btnGalleryTitle = new QPushButton(pnlGallery);
-        btnGalleryTitle->setObjectName(QStringLiteral("btnGalleryTitle"));
+        btnGalleryTitle->setObjectName(QString::fromUtf8("btnGalleryTitle"));
         QFont font3;
-        font3.setFamily(QStringLiteral("Monotype Corsiva"));
+        font3.setFamily(QString::fromUtf8("Monotype Corsiva"));
         font3.setPointSize(16);
         font3.setBold(true);
         font3.setWeight(75);
         btnGalleryTitle->setFont(font3);
-        btnGalleryTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnGalleryTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff;\n"
 "font-family:\"Monotype Corsiva\";\n"
 "font-size:16pt;\n"
@@ -1487,8 +1505,8 @@ public:
         verticalLayout->addWidget(btnGalleryTitle);
 
         btnGalleryDesc = new QPushButton(pnlGallery);
-        btnGalleryDesc->setObjectName(QStringLiteral("btnGalleryDesc"));
-        btnGalleryDesc->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnGalleryDesc->setObjectName(QString::fromUtf8("btnGalleryDesc"));
+        btnGalleryDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff\n"
 "}"));
         btnGalleryDesc->setFlat(true);
@@ -1499,11 +1517,11 @@ public:
         verticalLayout_14->addWidget(pnlGallery);
 
         frmWeb = new QFrame(groupBox_6);
-        frmWeb->setObjectName(QStringLiteral("frmWeb"));
+        frmWeb->setObjectName(QString::fromUtf8("frmWeb"));
         sizePolicy.setHeightForWidth(frmWeb->sizePolicy().hasHeightForWidth());
         frmWeb->setSizePolicy(sizePolicy);
         frmWeb->setMinimumSize(QSize(0, 549));
-        frmWeb->setStyleSheet(QLatin1String("QFrame {\n"
+        frmWeb->setStyleSheet(QString::fromUtf8("QFrame {\n"
 "background-color:#a03020;\n"
 "}"));
         frmWeb->setFrameShape(QFrame::StyledPanel);
@@ -1511,16 +1529,16 @@ public:
         gridLayout_14 = new QGridLayout(frmWeb);
         gridLayout_14->setSpacing(6);
         gridLayout_14->setContentsMargins(11, 11, 11, 11);
-        gridLayout_14->setObjectName(QStringLiteral("gridLayout_14"));
+        gridLayout_14->setObjectName(QString::fromUtf8("gridLayout_14"));
         btnSection = new QPushButton(frmWeb);
-        btnSection->setObjectName(QStringLiteral("btnSection"));
+        btnSection->setObjectName(QString::fromUtf8("btnSection"));
         QFont font4;
-        font4.setFamily(QStringLiteral("Papyrus"));
+        font4.setFamily(QString::fromUtf8("Papyrus"));
         font4.setPointSize(22);
         font4.setBold(true);
         font4.setWeight(75);
         btnSection->setFont(font4);
-        btnSection->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnSection->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff;\n"
 "font-family:Papyrus;\n"
 "font-size:22pt;\n"
@@ -1531,8 +1549,8 @@ public:
         gridLayout_14->addWidget(btnSection, 4, 1, 1, 1);
 
         btnAlbumDesc = new QPushButton(frmWeb);
-        btnAlbumDesc->setObjectName(QStringLiteral("btnAlbumDesc"));
-        btnAlbumDesc->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnAlbumDesc->setObjectName(QString::fromUtf8("btnAlbumDesc"));
+        btnAlbumDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff\n"
 "}"));
         btnAlbumDesc->setFlat(true);
@@ -1540,9 +1558,9 @@ public:
         gridLayout_14->addWidget(btnAlbumDesc, 3, 1, 1, 1);
 
         btnAlbumTitle = new QPushButton(frmWeb);
-        btnAlbumTitle->setObjectName(QStringLiteral("btnAlbumTitle"));
+        btnAlbumTitle->setObjectName(QString::fromUtf8("btnAlbumTitle"));
         btnAlbumTitle->setFont(font3);
-        btnAlbumTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnAlbumTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff;\n"
 "font-family:\"Monotype Corsiva\";\n"
 "font-size:16pt;\n"
@@ -1553,16 +1571,16 @@ public:
         gridLayout_14->addWidget(btnAlbumTitle, 2, 1, 1, 1);
 
         btnImage = new QToolButton(frmWeb);
-        btnImage->setObjectName(QStringLiteral("btnImage"));
+        btnImage->setObjectName(QString::fromUtf8("btnImage"));
         sizePolicy3.setHeightForWidth(btnImage->sizePolicy().hasHeightForWidth());
         btnImage->setSizePolicy(sizePolicy3);
         btnImage->setMinimumSize(QSize(275, 185));
         btnImage->setMaximumSize(QSize(275, 185));
-        btnImage->setStyleSheet(QLatin1String("QToolButton {\n"
+        btnImage->setStyleSheet(QString::fromUtf8("QToolButton {\n"
 " border: 1px solid #ffff00;\n"
 "}"));
         QIcon icon;
-        icon.addFile(QStringLiteral(":/icon/Resources/Lazise_02596-Edit.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/icons/Resources/Lazise_02596-Edit.png"), QSize(), QIcon::Normal, QIcon::Off);
         btnImage->setIcon(icon);
         btnImage->setIconSize(QSize(270, 180));
 
@@ -1570,11 +1588,11 @@ public:
 
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
-        horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
+        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         btnUplink = new QPushButton(frmWeb);
-        btnUplink->setObjectName(QStringLiteral("btnUplink"));
+        btnUplink->setObjectName(QString::fromUtf8("btnUplink"));
         btnUplink->setEnabled(true);
-        btnUplink->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnUplink->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
 "color:#fff; \n"
 "border: 1px solid #6d0019;\n"
@@ -1600,16 +1618,16 @@ public:
 "}\n"
 ""));
         QIcon icon1;
-        icon1.addFile(QStringLiteral(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/icons/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         btnUplink->setIcon(icon1);
         btnUplink->setFlat(false);
 
         horizontalLayout_13->addWidget(btnUplink);
 
         btnMenu = new QPushButton(frmWeb);
-        btnMenu->setObjectName(QStringLiteral("btnMenu"));
+        btnMenu->setObjectName(QString::fromUtf8("btnMenu"));
         btnMenu->setEnabled(true);
-        btnMenu->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnMenu->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
 "color:#fff; \n"
 "border: 1px solid #6d0019;\n"
@@ -1638,9 +1656,9 @@ public:
         horizontalLayout_13->addWidget(btnMenu);
 
         btnCaption = new QPushButton(frmWeb);
-        btnCaption->setObjectName(QStringLiteral("btnCaption"));
+        btnCaption->setObjectName(QString::fromUtf8("btnCaption"));
         btnCaption->setEnabled(true);
-        btnCaption->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnCaption->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
 "color:#fff; \n"
 "border: 1px solid #6d0019;\n"
@@ -1680,10 +1698,10 @@ public:
 
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setSpacing(6);
-        horizontalLayout_12->setObjectName(QStringLiteral("horizontalLayout_12"));
+        horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
         btnSmallGalleryTitle = new QPushButton(frmWeb);
-        btnSmallGalleryTitle->setObjectName(QStringLiteral("btnSmallGalleryTitle"));
-        btnSmallGalleryTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnSmallGalleryTitle->setObjectName(QString::fromUtf8("btnSmallGalleryTitle"));
+        btnSmallGalleryTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "	color:#fff; \n"
 "	font-family:Constantia, Palatino, \"Palatino Linotype\", \"Palatino LT STD\", Georgia, serif;\n"
 "	font-weight:400;\n"
@@ -1695,9 +1713,9 @@ public:
         horizontalLayout_12->addWidget(btnSmallGalleryTitle);
 
         btnLang = new QPushButton(frmWeb);
-        btnLang->setObjectName(QStringLiteral("btnLang"));
+        btnLang->setObjectName(QString::fromUtf8("btnLang"));
         btnLang->setEnabled(true);
-        btnLang->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnLang->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "   color:#FFFF00;\n"
 "background-color:#a03020;\n"
 "   font-size: 8pt;\n"
@@ -1715,23 +1733,25 @@ public:
 
         horizontalLayout_15 = new QHBoxLayout();
         horizontalLayout_15->setSpacing(6);
-        horizontalLayout_15->setObjectName(QStringLiteral("horizontalLayout_15"));
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
         btnIconToTop = new QPushButton(frmWeb);
-        btnIconToTop->setObjectName(QStringLiteral("btnIconToTop"));
-        btnIconToTop->setIcon(icon1);
+        btnIconToTop->setObjectName(QString::fromUtf8("btnIconToTop"));
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnIconToTop->setIcon(icon2);
         btnIconToTop->setFlat(true);
 
         horizontalLayout_15->addWidget(btnIconToTop);
 
         btnImageTitle = new QPushButton(frmWeb);
-        btnImageTitle->setObjectName(QStringLiteral("btnImageTitle"));
+        btnImageTitle->setObjectName(QString::fromUtf8("btnImageTitle"));
         QFont font5;
-        font5.setFamily(QStringLiteral("Rage Italic"));
+        font5.setFamily(QString::fromUtf8("Rage Italic"));
         font5.setPointSize(14);
         font5.setBold(true);
         font5.setWeight(75);
         btnImageTitle->setFont(font5);
-        btnImageTitle->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnImageTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#ddd;\n"
 "text-shadow: 0px 0px 20px #aaa;\n"
 "font-family: \"Rage Italic\";\n"
@@ -1743,10 +1763,10 @@ public:
         horizontalLayout_15->addWidget(btnImageTitle);
 
         btnDescription = new QPushButton(frmWeb);
-        btnDescription->setObjectName(QStringLiteral("btnDescription"));
-        QIcon icon2;
-        icon2.addFile(QStringLiteral(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnDescription->setIcon(icon2);
+        btnDescription->setObjectName(QString::fromUtf8("btnDescription"));
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnDescription->setIcon(icon3);
         btnDescription->setIconSize(QSize(32, 32));
         btnDescription->setFlat(true);
 
@@ -1756,8 +1776,8 @@ public:
         gridLayout_14->addLayout(horizontalLayout_15, 7, 1, 1, 1);
 
         btnImageDesc = new QPushButton(frmWeb);
-        btnImageDesc->setObjectName(QStringLiteral("btnImageDesc"));
-        btnImageDesc->setStyleSheet(QLatin1String("QPushButton {\n"
+        btnImageDesc->setObjectName(QString::fromUtf8("btnImageDesc"));
+        btnImageDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff\n"
 "}"));
         btnImageDesc->setFlat(true);
@@ -1786,54 +1806,54 @@ public:
 
         tabFalconG->addTab(tabDesign, QString());
         tabImages = new QWidget();
-        tabImages->setObjectName(QStringLiteral("tabImages"));
+        tabImages->setObjectName(QString::fromUtf8("tabImages"));
         verticalLayout_1 = new QVBoxLayout(tabImages);
         verticalLayout_1->setSpacing(6);
         verticalLayout_1->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_1->setObjectName(QStringLiteral("verticalLayout_1"));
+        verticalLayout_1->setObjectName(QString::fromUtf8("verticalLayout_1"));
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(-1, 6, -1, 6);
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         groupBox = new QGroupBox(tabImages);
-        groupBox->setObjectName(QStringLiteral("groupBox"));
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
         sizePolicy.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
         groupBox->setSizePolicy(sizePolicy);
         groupBox->setFont(font1);
         gridLayout = new QGridLayout(groupBox);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
-        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         label_3 = new QLabel(groupBox);
-        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setFont(font);
 
         gridLayout->addWidget(label_3, 0, 4, 1, 1);
 
         label_2 = new QLabel(groupBox);
-        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setFont(font);
 
         gridLayout->addWidget(label_2, 0, 1, 1, 1);
 
         label = new QLabel(groupBox);
-        label->setObjectName(QStringLiteral("label"));
+        label->setObjectName(QString::fromUtf8("label"));
         label->setFont(font);
 
         gridLayout->addWidget(label, 1, 0, 1, 1);
 
         chkDoNotEnlarge = new QCheckBox(groupBox);
-        chkDoNotEnlarge->setObjectName(QStringLiteral("chkDoNotEnlarge"));
+        chkDoNotEnlarge->setObjectName(QString::fromUtf8("chkDoNotEnlarge"));
         chkDoNotEnlarge->setFont(font);
         chkDoNotEnlarge->setChecked(true);
 
         gridLayout->addWidget(chkDoNotEnlarge, 1, 5, 1, 1);
 
         sbThumbnailWidth = new QSpinBox(groupBox);
-        sbThumbnailWidth->setObjectName(QStringLiteral("sbThumbnailWidth"));
+        sbThumbnailWidth->setObjectName(QString::fromUtf8("sbThumbnailWidth"));
         sbThumbnailWidth->setFont(font);
         sbThumbnailWidth->setMinimum(50);
         sbThumbnailWidth->setMaximum(8192);
@@ -1843,7 +1863,7 @@ public:
         gridLayout->addWidget(sbThumbnailWidth, 2, 1, 1, 1);
 
         sbThumbnailHeight = new QSpinBox(groupBox);
-        sbThumbnailHeight->setObjectName(QStringLiteral("sbThumbnailHeight"));
+        sbThumbnailHeight->setObjectName(QString::fromUtf8("sbThumbnailHeight"));
         sbThumbnailHeight->setFont(font);
         sbThumbnailHeight->setMinimum(50);
         sbThumbnailHeight->setMaximum(8192);
@@ -1853,7 +1873,7 @@ public:
         gridLayout->addWidget(sbThumbnailHeight, 2, 4, 1, 1);
 
         label_7 = new QLabel(groupBox);
-        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setObjectName(QString::fromUtf8("label_7"));
         label_7->setFont(font);
 
         gridLayout->addWidget(label_7, 2, 0, 1, 1);
@@ -1863,17 +1883,17 @@ public:
         gridLayout->addItem(horizontalSpacer_9, 1, 6, 1, 1);
 
         btnLink = new QToolButton(groupBox);
-        btnLink->setObjectName(QStringLiteral("btnLink"));
+        btnLink->setObjectName(QString::fromUtf8("btnLink"));
         btnLink->setFont(font);
-        QIcon icon3;
-        icon3.addFile(QStringLiteral(":/icon/Resources/link.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnLink->setIcon(icon3);
+        QIcon icon4;
+        icon4.addFile(QString::fromUtf8(":/icon/Resources/link.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnLink->setIcon(icon4);
         btnLink->setCheckable(true);
 
         gridLayout->addWidget(btnLink, 1, 2, 2, 1);
 
         sbImageWidth = new QSpinBox(groupBox);
-        sbImageWidth->setObjectName(QStringLiteral("sbImageWidth"));
+        sbImageWidth->setObjectName(QString::fromUtf8("sbImageWidth"));
         sbImageWidth->setFont(font);
         sbImageWidth->setMinimum(50);
         sbImageWidth->setMaximum(8192);
@@ -1883,7 +1903,7 @@ public:
         gridLayout->addWidget(sbImageWidth, 1, 1, 1, 1);
 
         sbImageHeight = new QSpinBox(groupBox);
-        sbImageHeight->setObjectName(QStringLiteral("sbImageHeight"));
+        sbImageHeight->setObjectName(QString::fromUtf8("sbImageHeight"));
         sbImageHeight->setFont(font);
         sbImageHeight->setMinimum(50);
         sbImageHeight->setMaximum(8192);
@@ -1902,7 +1922,7 @@ public:
         verticalLayout_1->addLayout(horizontalLayout_2);
 
         widget = new QWidget(tabImages);
-        widget->setObjectName(QStringLiteral("widget"));
+        widget->setObjectName(QString::fromUtf8("widget"));
         sizePolicy.setHeightForWidth(widget->sizePolicy().hasHeightForWidth());
         widget->setSizePolicy(sizePolicy);
 
@@ -1910,33 +1930,33 @@ public:
 
         verticalLayout_3 = new QVBoxLayout();
         verticalLayout_3->setSpacing(6);
-        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         gbWatermark = new QGroupBox(tabImages);
-        gbWatermark->setObjectName(QStringLiteral("gbWatermark"));
+        gbWatermark->setObjectName(QString::fromUtf8("gbWatermark"));
         sizePolicy.setHeightForWidth(gbWatermark->sizePolicy().hasHeightForWidth());
         gbWatermark->setSizePolicy(sizePolicy);
         gbWatermark->setFont(font1);
         horizontalLayout_3 = new QHBoxLayout(gbWatermark);
         horizontalLayout_3->setSpacing(0);
         horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
-        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         gridLayout_8 = new QGridLayout();
         gridLayout_8->setSpacing(6);
-        gridLayout_8->setObjectName(QStringLiteral("gridLayout_8"));
+        gridLayout_8->setObjectName(QString::fromUtf8("gridLayout_8"));
         gridLayout_8->setVerticalSpacing(9);
         gridLayout_8->setContentsMargins(4, 4, 4, 9);
         sbWmOpacity = new QSpinBox(gbWatermark);
-        sbWmOpacity->setObjectName(QStringLiteral("sbWmOpacity"));
+        sbWmOpacity->setObjectName(QString::fromUtf8("sbWmOpacity"));
         sbWmOpacity->setFont(font);
 
         gridLayout_8->addWidget(sbWmOpacity, 0, 2, 1, 1);
 
         label_32 = new QLabel(gbWatermark);
-        label_32->setObjectName(QStringLiteral("label_32"));
+        label_32->setObjectName(QString::fromUtf8("label_32"));
 
         gridLayout_8->addWidget(label_32, 0, 3, 1, 1);
 
@@ -1945,25 +1965,25 @@ public:
         gridLayout_8->addItem(horizontalSpacer_6, 0, 4, 1, 1);
 
         label_12 = new QLabel(gbWatermark);
-        label_12->setObjectName(QStringLiteral("label_12"));
+        label_12->setObjectName(QString::fromUtf8("label_12"));
         label_12->setFont(font);
 
         gridLayout_8->addWidget(label_12, 0, 1, 1, 1);
 
         chkUseWM = new QCheckBox(gbWatermark);
-        chkUseWM->setObjectName(QStringLiteral("chkUseWM"));
+        chkUseWM->setObjectName(QString::fromUtf8("chkUseWM"));
         chkUseWM->setFont(font);
 
         gridLayout_8->addWidget(chkUseWM, 0, 0, 1, 1);
 
         label_13 = new QLabel(gbWatermark);
-        label_13->setObjectName(QStringLiteral("label_13"));
+        label_13->setObjectName(QString::fromUtf8("label_13"));
         label_13->setFont(font);
 
         gridLayout_8->addWidget(label_13, 1, 0, 1, 1);
 
         edtWatermark = new QLineEdit(gbWatermark);
-        edtWatermark->setObjectName(QStringLiteral("edtWatermark"));
+        edtWatermark->setObjectName(QString::fromUtf8("edtWatermark"));
         edtWatermark->setFont(font);
 
         gridLayout_8->addWidget(edtWatermark, 1, 1, 1, 4);
@@ -1973,22 +1993,22 @@ public:
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(6);
-        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         groupBox_7 = new QGroupBox(gbWatermark);
-        groupBox_7->setObjectName(QStringLiteral("groupBox_7"));
+        groupBox_7->setObjectName(QString::fromUtf8("groupBox_7"));
         groupBox_7->setFont(font1);
         gridLayout_3 = new QGridLayout(groupBox_7);
         gridLayout_3->setSpacing(6);
         gridLayout_3->setContentsMargins(11, 11, 11, 11);
-        gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         edtWmVertMargin = new QLineEdit(groupBox_7);
-        edtWmVertMargin->setObjectName(QStringLiteral("edtWmVertMargin"));
+        edtWmVertMargin->setObjectName(QString::fromUtf8("edtWmVertMargin"));
         edtWmVertMargin->setFont(font);
 
         gridLayout_3->addWidget(edtWmVertMargin, 2, 1, 1, 1);
 
         label_8 = new QLabel(groupBox_7);
-        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setObjectName(QString::fromUtf8("label_8"));
         label_8->setFont(font);
 
         gridLayout_3->addWidget(label_8, 2, 2, 1, 1);
@@ -1997,13 +2017,13 @@ public:
         cbWmVPosition->addItem(QString());
         cbWmVPosition->addItem(QString());
         cbWmVPosition->addItem(QString());
-        cbWmVPosition->setObjectName(QStringLiteral("cbWmVPosition"));
+        cbWmVPosition->setObjectName(QString::fromUtf8("cbWmVPosition"));
         cbWmVPosition->setFont(font);
 
         gridLayout_3->addWidget(cbWmVPosition, 0, 0, 1, 2);
 
         label_6 = new QLabel(groupBox_7);
-        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setFont(font);
 
         gridLayout_3->addWidget(label_6, 2, 0, 1, 1);
@@ -2012,14 +2032,14 @@ public:
         horizontalLayout_4->addWidget(groupBox_7);
 
         groupBox_9 = new QGroupBox(gbWatermark);
-        groupBox_9->setObjectName(QStringLiteral("groupBox_9"));
+        groupBox_9->setObjectName(QString::fromUtf8("groupBox_9"));
         groupBox_9->setFont(font1);
         gridLayout_9 = new QGridLayout(groupBox_9);
         gridLayout_9->setSpacing(6);
         gridLayout_9->setContentsMargins(11, 11, 11, 11);
-        gridLayout_9->setObjectName(QStringLiteral("gridLayout_9"));
+        gridLayout_9->setObjectName(QString::fromUtf8("gridLayout_9"));
         label_48 = new QLabel(groupBox_9);
-        label_48->setObjectName(QStringLiteral("label_48"));
+        label_48->setObjectName(QString::fromUtf8("label_48"));
         label_48->setFont(font);
 
         gridLayout_9->addWidget(label_48, 2, 3, 1, 1);
@@ -2028,19 +2048,19 @@ public:
         cbWmHPosition->addItem(QString());
         cbWmHPosition->addItem(QString());
         cbWmHPosition->addItem(QString());
-        cbWmHPosition->setObjectName(QStringLiteral("cbWmHPosition"));
+        cbWmHPosition->setObjectName(QString::fromUtf8("cbWmHPosition"));
         cbWmHPosition->setFont(font);
 
         gridLayout_9->addWidget(cbWmHPosition, 0, 0, 1, 3);
 
         label_49 = new QLabel(groupBox_9);
-        label_49->setObjectName(QStringLiteral("label_49"));
+        label_49->setObjectName(QString::fromUtf8("label_49"));
         label_49->setFont(font);
 
         gridLayout_9->addWidget(label_49, 2, 0, 1, 2);
 
         edtWmHorizMargin = new QLineEdit(groupBox_9);
-        edtWmHorizMargin->setObjectName(QStringLiteral("edtWmHorizMargin"));
+        edtWmHorizMargin->setObjectName(QString::fromUtf8("edtWmHorizMargin"));
         edtWmHorizMargin->setFont(font);
 
         gridLayout_9->addWidget(edtWmHorizMargin, 2, 2, 1, 1);
@@ -2052,20 +2072,20 @@ public:
         verticalLayout_4->addLayout(horizontalLayout_4);
 
         widget_2 = new QWidget(gbWatermark);
-        widget_2->setObjectName(QStringLiteral("widget_2"));
+        widget_2->setObjectName(QString::fromUtf8("widget_2"));
         sizePolicy3.setHeightForWidth(widget_2->sizePolicy().hasHeightForWidth());
         widget_2->setSizePolicy(sizePolicy3);
         horizontalLayout_5 = new QHBoxLayout(widget_2);
         horizontalLayout_5->setSpacing(6);
         horizontalLayout_5->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_5->setObjectName(QStringLiteral("horizontalLayout_5"));
+        horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         label_25 = new QLabel(widget_2);
-        label_25->setObjectName(QStringLiteral("label_25"));
+        label_25->setObjectName(QString::fromUtf8("label_25"));
 
         horizontalLayout_5->addWidget(label_25);
 
         sbWmShadowHoriz = new QSpinBox(widget_2);
-        sbWmShadowHoriz->setObjectName(QStringLiteral("sbWmShadowHoriz"));
+        sbWmShadowHoriz->setObjectName(QString::fromUtf8("sbWmShadowHoriz"));
         sizePolicy3.setHeightForWidth(sbWmShadowHoriz->sizePolicy().hasHeightForWidth());
         sbWmShadowHoriz->setSizePolicy(sizePolicy3);
         sbWmShadowHoriz->setFont(font);
@@ -2073,12 +2093,12 @@ public:
         horizontalLayout_5->addWidget(sbWmShadowHoriz);
 
         label_40 = new QLabel(widget_2);
-        label_40->setObjectName(QStringLiteral("label_40"));
+        label_40->setObjectName(QString::fromUtf8("label_40"));
 
         horizontalLayout_5->addWidget(label_40);
 
         sbWmShadowVert = new QSpinBox(widget_2);
-        sbWmShadowVert->setObjectName(QStringLiteral("sbWmShadowVert"));
+        sbWmShadowVert->setObjectName(QString::fromUtf8("sbWmShadowVert"));
         sizePolicy3.setHeightForWidth(sbWmShadowVert->sizePolicy().hasHeightForWidth());
         sbWmShadowVert->setSizePolicy(sizePolicy3);
         sbWmShadowVert->setFont(font);
@@ -2086,12 +2106,12 @@ public:
         horizontalLayout_5->addWidget(sbWmShadowVert);
 
         label_41 = new QLabel(widget_2);
-        label_41->setObjectName(QStringLiteral("label_41"));
+        label_41->setObjectName(QString::fromUtf8("label_41"));
 
         horizontalLayout_5->addWidget(label_41);
 
         sbWmShadowBlur = new QSpinBox(widget_2);
-        sbWmShadowBlur->setObjectName(QStringLiteral("sbWmShadowBlur"));
+        sbWmShadowBlur->setObjectName(QString::fromUtf8("sbWmShadowBlur"));
         sizePolicy3.setHeightForWidth(sbWmShadowBlur->sizePolicy().hasHeightForWidth());
         sbWmShadowBlur->setSizePolicy(sizePolicy3);
         sbWmShadowBlur->setFont(font);
@@ -2099,14 +2119,14 @@ public:
         horizontalLayout_5->addWidget(sbWmShadowBlur);
 
         label_52 = new QLabel(widget_2);
-        label_52->setObjectName(QStringLiteral("label_52"));
+        label_52->setObjectName(QString::fromUtf8("label_52"));
         label_52->setFont(font);
 
         horizontalLayout_5->addWidget(label_52);
 
         btnWmShadowColor = new QToolButton(widget_2);
-        btnWmShadowColor->setObjectName(QStringLiteral("btnWmShadowColor"));
-        btnWmShadowColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#ddd}"));
+        btnWmShadowColor->setObjectName(QString::fromUtf8("btnWmShadowColor"));
+        btnWmShadowColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#ddd}"));
 
         horizontalLayout_5->addWidget(btnWmShadowColor);
 
@@ -2127,14 +2147,14 @@ public:
         verticalLayout_1->addLayout(verticalLayout_3);
 
         groupBox_8 = new QGroupBox(tabImages);
-        groupBox_8->setObjectName(QStringLiteral("groupBox_8"));
+        groupBox_8->setObjectName(QString::fromUtf8("groupBox_8"));
         groupBox_8->setFont(font1);
         gridLayout_7 = new QGridLayout(groupBox_8);
         gridLayout_7->setSpacing(6);
         gridLayout_7->setContentsMargins(11, 11, 11, 11);
-        gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
+        gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
         edtWmColor = new QLineEdit(groupBox_8);
-        edtWmColor->setObjectName(QStringLiteral("edtWmColor"));
+        edtWmColor->setObjectName(QString::fromUtf8("edtWmColor"));
         QSizePolicy sizePolicy4(QSizePolicy::Minimum, QSizePolicy::Fixed);
         sizePolicy4.setHorizontalStretch(0);
         sizePolicy4.setVerticalStretch(0);
@@ -2145,24 +2165,24 @@ public:
         gridLayout_7->addWidget(edtWmColor, 0, 6, 1, 1);
 
         btnWmColor = new QToolButton(groupBox_8);
-        btnWmColor->setObjectName(QStringLiteral("btnWmColor"));
-        btnWmColor->setStyleSheet(QStringLiteral("QToolButton {background-color:#fff}"));
+        btnWmColor->setObjectName(QString::fromUtf8("btnWmColor"));
+        btnWmColor->setStyleSheet(QString::fromUtf8("QToolButton {background-color:#fff}"));
 
         gridLayout_7->addWidget(btnWmColor, 0, 7, 1, 1);
 
         btnSelectWmFont = new QToolButton(groupBox_8);
-        btnSelectWmFont->setObjectName(QStringLiteral("btnSelectWmFont"));
+        btnSelectWmFont->setObjectName(QString::fromUtf8("btnSelectWmFont"));
 
         gridLayout_7->addWidget(btnSelectWmFont, 0, 0, 1, 1);
 
         label_29 = new QLabel(groupBox_8);
-        label_29->setObjectName(QStringLiteral("label_29"));
+        label_29->setObjectName(QString::fromUtf8("label_29"));
         label_29->setFont(font);
 
         gridLayout_7->addWidget(label_29, 0, 5, 1, 1);
 
         lblWaterMarkFont = new QLabel(groupBox_8);
-        lblWaterMarkFont->setObjectName(QStringLiteral("lblWaterMarkFont"));
+        lblWaterMarkFont->setObjectName(QString::fromUtf8("lblWaterMarkFont"));
         sizePolicy1.setHeightForWidth(lblWaterMarkFont->sizePolicy().hasHeightForWidth());
         lblWaterMarkFont->setSizePolicy(sizePolicy1);
         lblWaterMarkFont->setFont(font);
@@ -2170,7 +2190,7 @@ public:
         gridLayout_7->addWidget(lblWaterMarkFont, 0, 2, 1, 3);
 
         lblWmSample = new QLabel(groupBox_8);
-        lblWmSample->setObjectName(QStringLiteral("lblWmSample"));
+        lblWmSample->setObjectName(QString::fromUtf8("lblWmSample"));
         sizePolicy1.setHeightForWidth(lblWmSample->sizePolicy().hasHeightForWidth());
         lblWmSample->setSizePolicy(sizePolicy1);
         lblWmSample->setFont(font);
@@ -2190,172 +2210,37 @@ public:
 
         tabFalconG->addTab(tabImages, QString());
         tabEdit = new QWidget();
-        tabEdit->setObjectName(QStringLiteral("tabEdit"));
+        tabEdit->setObjectName(QString::fromUtf8("tabEdit"));
         sizePolicy1.setHeightForWidth(tabEdit->sizePolicy().hasHeightForWidth());
         tabEdit->setSizePolicy(sizePolicy1);
-        gridLayout_20 = new QGridLayout(tabEdit);
-        gridLayout_20->setSpacing(6);
-        gridLayout_20->setContentsMargins(11, 11, 11, 11);
-        gridLayout_20->setObjectName(QStringLiteral("gridLayout_20"));
-        gridLayout_21 = new QGridLayout();
-        gridLayout_21->setSpacing(6);
-        gridLayout_21->setObjectName(QStringLiteral("gridLayout_21"));
-        horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setSpacing(6);
-        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
-        verticalLayout_5 = new QVBoxLayout();
-        verticalLayout_5->setSpacing(6);
-        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
-        cmbBaseLanguage = new QComboBox(tabEdit);
-        cmbBaseLanguage->setObjectName(QStringLiteral("cmbBaseLanguage"));
-        sizePolicy2.setHeightForWidth(cmbBaseLanguage->sizePolicy().hasHeightForWidth());
-        cmbBaseLanguage->setSizePolicy(sizePolicy2);
-
-        verticalLayout_5->addWidget(cmbBaseLanguage);
-
-        label_54 = new QLabel(tabEdit);
-        label_54->setObjectName(QStringLiteral("label_54"));
-        label_54->setFont(font1);
-
-        verticalLayout_5->addWidget(label_54);
-
-        edtBaseTitle = new QTextEdit(tabEdit);
-        edtBaseTitle->setObjectName(QStringLiteral("edtBaseTitle"));
-        edtBaseTitle->setEnabled(true);
-        edtBaseTitle->setStyleSheet(QStringLiteral("QtextEdit { color: gray; background-color:light-grey}"));
-        edtBaseTitle->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-
-        verticalLayout_5->addWidget(edtBaseTitle);
-
-        verticalLayout_5->setStretch(0, 100);
-        verticalLayout_5->setStretch(1, 120);
-        verticalLayout_5->setStretch(2, 100);
-
-        horizontalLayout_6->addLayout(verticalLayout_5);
-
-        verticalLayout_6 = new QVBoxLayout();
-        verticalLayout_6->setSpacing(6);
-        verticalLayout_6->setObjectName(QStringLiteral("verticalLayout_6"));
-        cmbLanguage = new QComboBox(tabEdit);
-        cmbLanguage->setObjectName(QStringLiteral("cmbLanguage"));
-        QSizePolicy sizePolicy5(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        verticalLayout_20 = new QVBoxLayout(tabEdit);
+        verticalLayout_20->setSpacing(0);
+        verticalLayout_20->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_20->setObjectName(QString::fromUtf8("verticalLayout_20"));
+        verticalLayout_20->setContentsMargins(0, 0, 0, 0);
+        editSplitter = new QSplitter(tabEdit);
+        editSplitter->setObjectName(QString::fromUtf8("editSplitter"));
+        QSizePolicy sizePolicy5(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(cmbLanguage->sizePolicy().hasHeightForWidth());
-        cmbLanguage->setSizePolicy(sizePolicy5);
-
-        verticalLayout_6->addWidget(cmbLanguage);
-
-        horizontalLayout_7 = new QHBoxLayout();
-        horizontalLayout_7->setSpacing(6);
-        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
-        label_10 = new QLabel(tabEdit);
-        label_10->setObjectName(QStringLiteral("label_10"));
-        label_10->setFont(font1);
-
-        horizontalLayout_7->addWidget(label_10);
-
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_7->addItem(horizontalSpacer_3);
-
-        btnSaveChangedTitle = new QPushButton(tabEdit);
-        btnSaveChangedTitle->setObjectName(QStringLiteral("btnSaveChangedTitle"));
-        btnSaveChangedTitle->setEnabled(false);
-
-        horizontalLayout_7->addWidget(btnSaveChangedTitle);
-
-        chkChangeTitleEverywhere = new QCheckBox(tabEdit);
-        chkChangeTitleEverywhere->setObjectName(QStringLiteral("chkChangeTitleEverywhere"));
-
-        horizontalLayout_7->addWidget(chkChangeTitleEverywhere);
-
-
-        verticalLayout_6->addLayout(horizontalLayout_7);
-
-        edtTitleText = new QTextEdit(tabEdit);
-        edtTitleText->setObjectName(QStringLiteral("edtTitleText"));
-
-        verticalLayout_6->addWidget(edtTitleText);
-
-
-        horizontalLayout_6->addLayout(verticalLayout_6);
-
-
-        gridLayout_21->addLayout(horizontalLayout_6, 4, 0, 1, 2);
-
-        horizontalLayout_8 = new QHBoxLayout();
-        horizontalLayout_8->setSpacing(6);
-        horizontalLayout_8->setObjectName(QStringLiteral("horizontalLayout_8"));
-        verticalLayout_7 = new QVBoxLayout();
-        verticalLayout_7->setSpacing(6);
-        verticalLayout_7->setObjectName(QStringLiteral("verticalLayout_7"));
-        label_11 = new QLabel(tabEdit);
-        label_11->setObjectName(QStringLiteral("label_11"));
-        label_11->setFont(font1);
-
-        verticalLayout_7->addWidget(label_11);
-
-        edtBaseDescription = new QTextEdit(tabEdit);
-        edtBaseDescription->setObjectName(QStringLiteral("edtBaseDescription"));
-        edtBaseDescription->setEnabled(true);
-        edtBaseDescription->setStyleSheet(QStringLiteral("QtextEdit { color: gray; background-color:light-grey}"));
-        edtBaseDescription->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-
-        verticalLayout_7->addWidget(edtBaseDescription);
-
-        verticalLayout_7->setStretch(0, 14);
-        verticalLayout_7->setStretch(1, 100);
-
-        horizontalLayout_8->addLayout(verticalLayout_7);
-
-        verticalLayout_8 = new QVBoxLayout();
-        verticalLayout_8->setSpacing(6);
-        verticalLayout_8->setObjectName(QStringLiteral("verticalLayout_8"));
-        horizontalLayout_9 = new QHBoxLayout();
-        horizontalLayout_9->setSpacing(6);
-        horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
-        label_55 = new QLabel(tabEdit);
-        label_55->setObjectName(QStringLiteral("label_55"));
-        label_55->setFont(font1);
-
-        horizontalLayout_9->addWidget(label_55);
-
-        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_9->addItem(horizontalSpacer_8);
-
-        btnSaveChangedDescription = new QPushButton(tabEdit);
-        btnSaveChangedDescription->setObjectName(QStringLiteral("btnSaveChangedDescription"));
-        btnSaveChangedDescription->setEnabled(false);
-
-        horizontalLayout_9->addWidget(btnSaveChangedDescription);
-
-        chkChangeDescriptionEverywhere = new QCheckBox(tabEdit);
-        chkChangeDescriptionEverywhere->setObjectName(QStringLiteral("chkChangeDescriptionEverywhere"));
-
-        horizontalLayout_9->addWidget(chkChangeDescriptionEverywhere);
-
-
-        verticalLayout_8->addLayout(horizontalLayout_9);
-
-        edtDescriptionText = new QTextEdit(tabEdit);
-        edtDescriptionText->setObjectName(QStringLiteral("edtDescriptionText"));
-
-        verticalLayout_8->addWidget(edtDescriptionText);
-
-
-        horizontalLayout_8->addLayout(verticalLayout_8);
-
-
-        gridLayout_21->addLayout(horizontalLayout_8, 5, 0, 1, 2);
-
-        splitter = new QSplitter(tabEdit);
-        splitter->setObjectName(QStringLiteral("splitter"));
+        sizePolicy5.setHeightForWidth(editSplitter->sizePolicy().hasHeightForWidth());
+        editSplitter->setSizePolicy(sizePolicy5);
+        editSplitter->setOrientation(Qt::Vertical);
+        editSplitter->setHandleWidth(10);
+        widget_3 = new QWidget(editSplitter);
+        widget_3->setObjectName(QString::fromUtf8("widget_3"));
+        sizePolicy5.setHeightForWidth(widget_3->sizePolicy().hasHeightForWidth());
+        widget_3->setSizePolicy(sizePolicy5);
+        verticalLayout_19 = new QVBoxLayout(widget_3);
+        verticalLayout_19->setSpacing(6);
+        verticalLayout_19->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_19->setObjectName(QString::fromUtf8("verticalLayout_19"));
+        verticalLayout_19->setContentsMargins(9, 0, 9, 0);
+        splitter = new QSplitter(widget_3);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
-        splitter->setChildrenCollapsible(false);
         widget_4 = new QWidget(splitter);
-        widget_4->setObjectName(QStringLiteral("widget_4"));
+        widget_4->setObjectName(QString::fromUtf8("widget_4"));
         QSizePolicy sizePolicy6(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy6.setHorizontalStretch(0);
         sizePolicy6.setVerticalStretch(0);
@@ -2364,13 +2249,13 @@ public:
         verticalLayout_9 = new QVBoxLayout(widget_4);
         verticalLayout_9->setSpacing(6);
         verticalLayout_9->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
+        verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
         verticalLayout_9->setContentsMargins(1, 1, 1, 1);
         verticalLayout_10 = new QVBoxLayout();
         verticalLayout_10->setSpacing(6);
-        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
+        verticalLayout_10->setObjectName(QString::fromUtf8("verticalLayout_10"));
         label_51 = new QLabel(widget_4);
-        label_51->setObjectName(QStringLiteral("label_51"));
+        label_51->setObjectName(QString::fromUtf8("label_51"));
         sizePolicy1.setHeightForWidth(label_51->sizePolicy().hasHeightForWidth());
         label_51->setSizePolicy(sizePolicy1);
         label_51->setFont(font1);
@@ -2378,12 +2263,12 @@ public:
         verticalLayout_10->addWidget(label_51);
 
         trvAlbums = new QTreeView(widget_4);
-        trvAlbums->setObjectName(QStringLiteral("trvAlbums"));
+        trvAlbums->setObjectName(QString::fromUtf8("trvAlbums"));
 
         verticalLayout_10->addWidget(trvAlbums);
 
         lblTotalCount = new QLabel(widget_4);
-        lblTotalCount->setObjectName(QStringLiteral("lblTotalCount"));
+        lblTotalCount->setObjectName(QString::fromUtf8("lblTotalCount"));
 
         verticalLayout_10->addWidget(lblTotalCount);
 
@@ -2392,7 +2277,7 @@ public:
 
         splitter->addWidget(widget_4);
         widget_6 = new QWidget(splitter);
-        widget_6->setObjectName(QStringLiteral("widget_6"));
+        widget_6->setObjectName(QString::fromUtf8("widget_6"));
         QSizePolicy sizePolicy7(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy7.setHorizontalStretch(1);
         sizePolicy7.setVerticalStretch(0);
@@ -2401,13 +2286,13 @@ public:
         verticalLayout_11 = new QVBoxLayout(widget_6);
         verticalLayout_11->setSpacing(6);
         verticalLayout_11->setContentsMargins(11, 11, 11, 11);
-        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
+        verticalLayout_11->setObjectName(QString::fromUtf8("verticalLayout_11"));
         verticalLayout_11->setContentsMargins(1, 1, 1, 1);
         verticalLayout_12 = new QVBoxLayout();
         verticalLayout_12->setSpacing(6);
-        verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
+        verticalLayout_12->setObjectName(QString::fromUtf8("verticalLayout_12"));
         label_53 = new QLabel(widget_6);
-        label_53->setObjectName(QStringLiteral("label_53"));
+        label_53->setObjectName(QString::fromUtf8("label_53"));
         sizePolicy1.setHeightForWidth(label_53->sizePolicy().hasHeightForWidth());
         label_53->setSizePolicy(sizePolicy1);
         label_53->setFont(font1);
@@ -2415,13 +2300,13 @@ public:
         verticalLayout_12->addWidget(label_53);
 
         tnvImages = new ThumbnailWidget(widget_6);
-        tnvImages->setObjectName(QStringLiteral("tnvImages"));
+        tnvImages->setObjectName(QString::fromUtf8("tnvImages"));
         tnvImages->setViewMode(QListView::IconMode);
 
         verticalLayout_12->addWidget(tnvImages);
 
         lblImageCount = new QLabel(widget_6);
-        lblImageCount->setObjectName(QStringLiteral("lblImageCount"));
+        lblImageCount->setObjectName(QString::fromUtf8("lblImageCount"));
         lblImageCount->setAlignment(Qt::AlignCenter);
 
         verticalLayout_12->addWidget(lblImageCount);
@@ -2431,15 +2316,171 @@ public:
 
         splitter->addWidget(widget_6);
 
-        gridLayout_21->addWidget(splitter, 1, 0, 2, 2);
+        verticalLayout_19->addWidget(splitter);
 
-        gridLayout_21->setRowStretch(2, 7);
-        gridLayout_21->setRowStretch(4, 1);
-        gridLayout_21->setRowStretch(5, 3);
-        gridLayout_21->setColumnStretch(0, 1);
-        gridLayout_21->setColumnStretch(1, 2);
+        editSplitter->addWidget(widget_3);
+        widget_7 = new QWidget(editSplitter);
+        widget_7->setObjectName(QString::fromUtf8("widget_7"));
+        sizePolicy5.setHeightForWidth(widget_7->sizePolicy().hasHeightForWidth());
+        widget_7->setSizePolicy(sizePolicy5);
+        verticalLayout_18 = new QVBoxLayout(widget_7);
+        verticalLayout_18->setSpacing(6);
+        verticalLayout_18->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_18->setObjectName(QString::fromUtf8("verticalLayout_18"));
+        verticalLayout_18->setContentsMargins(9, 0, 9, 0);
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(6);
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setSpacing(6);
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        cmbBaseLanguage = new QComboBox(widget_7);
+        cmbBaseLanguage->setObjectName(QString::fromUtf8("cmbBaseLanguage"));
+        sizePolicy2.setHeightForWidth(cmbBaseLanguage->sizePolicy().hasHeightForWidth());
+        cmbBaseLanguage->setSizePolicy(sizePolicy2);
 
-        gridLayout_20->addLayout(gridLayout_21, 0, 0, 1, 1);
+        verticalLayout_5->addWidget(cmbBaseLanguage);
+
+        label_54 = new QLabel(widget_7);
+        label_54->setObjectName(QString::fromUtf8("label_54"));
+        sizePolicy.setHeightForWidth(label_54->sizePolicy().hasHeightForWidth());
+        label_54->setSizePolicy(sizePolicy);
+        label_54->setFont(font1);
+
+        verticalLayout_5->addWidget(label_54);
+
+        edtBaseTitle = new QTextEdit(widget_7);
+        edtBaseTitle->setObjectName(QString::fromUtf8("edtBaseTitle"));
+        edtBaseTitle->setEnabled(true);
+        edtBaseTitle->setStyleSheet(QString::fromUtf8("QtextEdit { color: gray; background-color:light-grey}"));
+        edtBaseTitle->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+        verticalLayout_5->addWidget(edtBaseTitle);
+
+
+        horizontalLayout_6->addLayout(verticalLayout_5);
+
+        verticalLayout_6 = new QVBoxLayout();
+        verticalLayout_6->setSpacing(1);
+        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        cmbLanguage = new QComboBox(widget_7);
+        cmbLanguage->setObjectName(QString::fromUtf8("cmbLanguage"));
+        sizePolicy2.setHeightForWidth(cmbLanguage->sizePolicy().hasHeightForWidth());
+        cmbLanguage->setSizePolicy(sizePolicy2);
+
+        verticalLayout_6->addWidget(cmbLanguage);
+
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setSpacing(6);
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        label_10 = new QLabel(widget_7);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+        label_10->setFont(font1);
+
+        horizontalLayout_7->addWidget(label_10);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_7->addItem(horizontalSpacer_3);
+
+        btnSaveChangedTitle = new QPushButton(widget_7);
+        btnSaveChangedTitle->setObjectName(QString::fromUtf8("btnSaveChangedTitle"));
+        btnSaveChangedTitle->setEnabled(false);
+
+        horizontalLayout_7->addWidget(btnSaveChangedTitle);
+
+        chkChangeTitleEverywhere = new QCheckBox(widget_7);
+        chkChangeTitleEverywhere->setObjectName(QString::fromUtf8("chkChangeTitleEverywhere"));
+
+        horizontalLayout_7->addWidget(chkChangeTitleEverywhere);
+
+
+        verticalLayout_6->addLayout(horizontalLayout_7);
+
+        edtTitleText = new QTextEdit(widget_7);
+        edtTitleText->setObjectName(QString::fromUtf8("edtTitleText"));
+
+        verticalLayout_6->addWidget(edtTitleText);
+
+
+        horizontalLayout_6->addLayout(verticalLayout_6);
+
+
+        verticalLayout_18->addLayout(horizontalLayout_6);
+
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setSpacing(6);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        verticalLayout_7 = new QVBoxLayout();
+        verticalLayout_7->setSpacing(6);
+        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
+        verticalLayout_7->setSizeConstraint(QLayout::SetDefaultConstraint);
+        verticalLayout_7->setContentsMargins(-1, 6, -1, -1);
+        label_11 = new QLabel(widget_7);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+        sizePolicy.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy);
+        label_11->setFont(font1);
+
+        verticalLayout_7->addWidget(label_11);
+
+        edtBaseDescription = new QTextEdit(widget_7);
+        edtBaseDescription->setObjectName(QString::fromUtf8("edtBaseDescription"));
+        edtBaseDescription->setEnabled(true);
+        edtBaseDescription->setStyleSheet(QString::fromUtf8("QtextEdit { color: gray; background-color:light-grey}"));
+        edtBaseDescription->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+        verticalLayout_7->addWidget(edtBaseDescription);
+
+
+        horizontalLayout_8->addLayout(verticalLayout_7);
+
+        verticalLayout_8 = new QVBoxLayout();
+        verticalLayout_8->setSpacing(1);
+        verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setSpacing(6);
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        label_55 = new QLabel(widget_7);
+        label_55->setObjectName(QString::fromUtf8("label_55"));
+        sizePolicy.setHeightForWidth(label_55->sizePolicy().hasHeightForWidth());
+        label_55->setSizePolicy(sizePolicy);
+        label_55->setFont(font1);
+
+        horizontalLayout_9->addWidget(label_55);
+
+        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_9->addItem(horizontalSpacer_8);
+
+        btnSaveChangedDescription = new QPushButton(widget_7);
+        btnSaveChangedDescription->setObjectName(QString::fromUtf8("btnSaveChangedDescription"));
+        btnSaveChangedDescription->setEnabled(false);
+
+        horizontalLayout_9->addWidget(btnSaveChangedDescription);
+
+        chkChangeDescriptionEverywhere = new QCheckBox(widget_7);
+        chkChangeDescriptionEverywhere->setObjectName(QString::fromUtf8("chkChangeDescriptionEverywhere"));
+
+        horizontalLayout_9->addWidget(chkChangeDescriptionEverywhere);
+
+
+        verticalLayout_8->addLayout(horizontalLayout_9);
+
+        edtDescriptionText = new QTextEdit(widget_7);
+        edtDescriptionText->setObjectName(QString::fromUtf8("edtDescriptionText"));
+
+        verticalLayout_8->addWidget(edtDescriptionText);
+
+
+        horizontalLayout_8->addLayout(verticalLayout_8);
+
+
+        verticalLayout_18->addLayout(horizontalLayout_8);
+
+        editSplitter->addWidget(widget_7);
+
+        verticalLayout_20->addWidget(editSplitter);
 
         tabFalconG->addTab(tabEdit, QString());
 
@@ -2447,7 +2488,7 @@ public:
 
         falconGClass->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(falconGClass);
-        mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
+        mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
         falconGClass->addToolBar(Qt::TopToolBarArea, mainToolBar);
 #ifndef QT_NO_SHORTCUT
         label_17->setBuddy(edtDestGallery);
@@ -2512,8 +2553,8 @@ public:
         QWidget::setTabOrder(edtAlbumDir, edtFontDir);
         QWidget::setTabOrder(edtFontDir, edtDefaultFonts);
         QWidget::setTabOrder(edtDefaultFonts, edtBaseName);
-        QWidget::setTabOrder(edtBaseName, chkDisregardStruct);
-        QWidget::setTabOrder(chkDisregardStruct, chkAddTitlesToAll);
+        QWidget::setTabOrder(edtBaseName, chkReadFromGallery);
+        QWidget::setTabOrder(chkReadFromGallery, chkAddTitlesToAll);
         QWidget::setTabOrder(chkAddTitlesToAll, chkOvrImages);
         QWidget::setTabOrder(chkOvrImages, chkAddDescToAll);
         QWidget::setTabOrder(chkAddDescToAll, btnGenerate);
@@ -2534,19 +2575,7 @@ public:
         QWidget::setTabOrder(btnWmShadowColor, btnSelectWmFont);
         QWidget::setTabOrder(btnSelectWmFont, edtWmColor);
         QWidget::setTabOrder(edtWmColor, btnWmColor);
-        QWidget::setTabOrder(btnWmColor, trvAlbums);
-        QWidget::setTabOrder(trvAlbums, tnvImages);
-        QWidget::setTabOrder(tnvImages, cmbBaseLanguage);
-        QWidget::setTabOrder(cmbBaseLanguage, cmbLanguage);
-        QWidget::setTabOrder(cmbLanguage, edtBaseTitle);
-        QWidget::setTabOrder(edtBaseTitle, edtTitleText);
-        QWidget::setTabOrder(edtTitleText, btnSaveChangedTitle);
-        QWidget::setTabOrder(btnSaveChangedTitle, chkChangeTitleEverywhere);
-        QWidget::setTabOrder(chkChangeTitleEverywhere, edtBaseDescription);
-        QWidget::setTabOrder(edtBaseDescription, edtDescriptionText);
-        QWidget::setTabOrder(edtDescriptionText, btnSaveChangedDescription);
-        QWidget::setTabOrder(btnSaveChangedDescription, chkChangeDescriptionEverywhere);
-        QWidget::setTabOrder(chkChangeDescriptionEverywhere, tabFalconG);
+        QWidget::setTabOrder(btnWmColor, tabFalconG);
 
         retranslateUi(falconGClass);
         QObject::connect(actionExit, SIGNAL(triggered()), falconGClass, SLOT(close()));
@@ -2568,21 +2597,26 @@ public:
 #ifndef QT_NO_SHORTCUT
         actionExit->setShortcut(QApplication::translate("falconGClass", "Alt+X", nullptr));
 #endif // QT_NO_SHORTCUT
-        btnGenerate->setText(QApplication::translate("falconGClass", "&Generate", nullptr));
+        btnGenerate->setText(QApplication::translate("falconGClass", "Generate (F9)", nullptr));
 #ifndef QT_NO_SHORTCUT
         btnGenerate->setShortcut(QApplication::translate("falconGClass", "F9", nullptr));
 #endif // QT_NO_SHORTCUT
+#ifndef QT_NO_TOOLTIP
+        chkGenerateAll->setToolTip(QApplication::translate("falconGClass", "Re-generate all images and albums\n"
+"regardless if they were already OK.", nullptr));
+#endif // QT_NO_TOOLTIP
         chkGenerateAll->setText(QApplication::translate("falconGClass", "&all", nullptr));
-        btnPreview->setText(QApplication::translate("falconGClass", "&Preview", nullptr));
+        chkButImages->setText(QApplication::translate("falconGClass", "but images", nullptr));
+        btnPreview->setText(QApplication::translate("falconGClass", "Preview (F2)", nullptr));
 #ifndef QT_NO_SHORTCUT
-        btnPreview->setShortcut(QApplication::translate("falconGClass", "F12", nullptr));
+        btnPreview->setShortcut(QApplication::translate("falconGClass", "F2", nullptr));
 #endif // QT_NO_SHORTCUT
         btnSaveStyleSheet->setText(QApplication::translate("falconGClass", "Save CSS", nullptr));
         btnSaveConfig->setText(QApplication::translate("falconGClass", "Save con&fig.", nullptr));
 #ifndef QT_NO_SHORTCUT
         btnSaveConfig->setShortcut(QApplication::translate("falconGClass", "Ctrl+S", nullptr));
 #endif // QT_NO_SHORTCUT
-        btnExit->setText(QApplication::translate("falconGClass", "Exit", nullptr));
+        btnExit->setText(QApplication::translate("falconGClass", "E&xit (Alt+X)", nullptr));
 #ifndef QT_NO_SHORTCUT
         btnExit->setShortcut(QApplication::translate("falconGClass", "Alt+X", nullptr));
 #endif // QT_NO_SHORTCUT
@@ -2607,13 +2641,13 @@ public:
         edtGalleryRoot->setPlaceholderText(QApplication::translate("falconGClass", "( path of gallery root  on your site,. default: empty)", nullptr));
         label_5->setText(QApplication::translate("falconGClass", "Embed into page:", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtUplink->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>All sub-galleries of the main gallery has an uplink button (<span style=\" font-weight:600;\">up arrow</span>) and a <span style=\" font-weight:600;\">Home</span> button. The <span style=\" font-weight:600;\">Home</span> button takes the user to the home page on the site. This field either contains the link to the home page or it is left empty. </p><p>If left empty then the top level <span style=\" font-style:italic;\">Main gallery page </span> is used. That defaults to <span style=\" font-weight:600;\">index.html</span>. (see the hint for that field for details.)</p><p>If you want to embed your gallery into an other WEB page then set this as the address of that page.</p><p><br/></p></body></html>", nullptr));
+        edtUplink->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>All sub-galleries of the main gallery has an uplink button (<span style=\" font-weight:600;\">up arrow</span>) and a <span style=\" font-weight:600;\">Home</span> button. The <span style=\" font-weight:600;\">Home</span> button takes the user to the home page on the site. This field either contains the link to the home page or it is left empty. </p><p>If left empty then the top level <span style=\" font-style:italic;\">Main gallery page </span>is used. That defaults to <span style=\" font-weight:600;\">index.html</span>. (see the hint for that field for details.)</p><p>If you want to embed your gallery into another WEB page then set this as the address of that page.</p><p><br/></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtUplink->setPlaceholderText(QApplication::translate("falconGClass", "(Empty (default) or the page to use when the Home menu is clicked.)", nullptr));
         label_21->setText(QApplication::translate("falconGClass", "Main gallery page      ", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtMainPage->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>This field sets the base name and extension of the home page and of the top level gallery page(s). Unless the field <span style=\" font-style:italic;\">Embed into page</span> is set the target for the <span style=\" font-weight:600;\">Home</span> button will be the page the name of which is set here. </p><p>As many top level gallery pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &lt;base name&gt;_&lt;language abbrev&gt;.&lt;extension&gt;. Example (default name,two languages: English and Hungarian with no embedding page): the two top level pages will be: <span style=\" font-style:italic;\">https://your.site.com/index_en.html</span> and <span style=\" font-style:italic;\">https://your.site.com/index_hu.html</span>. </p><p>If this field is left empty the name <span style=\" font-weight:600; font-style:italic;\">index.html</span>' is used. </p><p>For multiple language sites additionaly a very basic home page"
-                        " with this name is also generates. However when a file with the same name as of the embedding page the name of the generated home page will be preceeded by an underscore. </p><p>Example #1: no name is set here and the name of the embedding page is set to <span style=\" font-style:italic;\">index.html</span>. The generated home page will be <span style=\" font-style:italic;\">_index.html.<br/></span>#2: no name is set here and the name of the embedding page is empty.The generated home page will be <span style=\" font-style:italic;\">index.html.</span></p></body></html>", nullptr));
+        edtMainPage->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>This field sets the base name and extension of the home page and of the top level gallery page(s). Unless the field <span style=\" font-style:italic;\">Embed into page</span> is set the target for the <span style=\" font-weight:600;\">Home</span> button will be the page the name of which is set here. </p><p>As many top level gallery pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as <span style=\" font-style:italic;\">&lt;base name&gt;_&lt;language abbrev&gt;.&lt;extension&gt;</span>. Example (default name,two languages: English and Hungarian with no embedding page): the two top level pages will be: <span style=\" font-style:italic;\">https://your.site.com/index_en.html</span> and <span style=\" font-style:italic;\">https://your.site.com/index_hu.html</span>. </p><p>For multiple language sites additionaly a very basic home page with this name is also generated. However when a file with the same name as of th"
+                        "e embedding page the name of the generated home page will be preceeded by an underscore. </p><p>If this field is left empty the name <span style=\" font-weight:600; font-style:italic;\">index.html</span>'  is used, unless an embedding page with the same name exists, in which case thiis name is preceeded by and underscore. </p><p>Example #1: no name is set here and the name of the embedding page is set to <span style=\" font-style:italic;\">index.html</span>. The generated home page will be <span style=\" font-style:italic;\">_index.html.<br/>Example </span>#2: no name is set here and the name of the embedding page is empty.The name of the generated home page will be <span style=\" font-style:italic;\">index.html.</span></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtMainPage->setText(QString());
         edtMainPage->setPlaceholderText(QApplication::translate("falconGClass", "index.html         ( may set a root path or may add the extension too here. See tool tip for details)", nullptr));
@@ -2689,20 +2723,26 @@ public:
 #endif // QT_NO_TOOLTIP
         edtImg->setPlaceholderText(QApplication::translate("falconGClass", "img", nullptr));
 #ifndef QT_NO_TOOLTIP
-        chkDisregardStruct->setToolTip(QApplication::translate("falconGClass", "By checking this option you loose all  changes you made to image and album titles and descriptions!.", nullptr));
+        chkReadFromGallery->setToolTip(QApplication::translate("falconGClass", "By checking this option and pressing 'Generate' \n"
+"you loose all  changes you made to image and album \n"
+"titles and descriptions!\n"
+"\n"
+"This setting will not be saved in the configuration.\n"
+"", nullptr));
 #endif // QT_NO_TOOLTIP
-        chkDisregardStruct->setText(QApplication::translate("falconGClass", "Disregard 'gallery.struct'", nullptr));
-        chkAddTitlesToAll->setText(QApplication::translate("falconGClass", "Add title fields for all images in 'gallery struct'", nullptr));
+        chkReadFromGallery->setText(QApplication::translate("falconGClass", "Read From Gallery", nullptr));
         chkOvrImages->setText(QApplication::translate("falconGClass", "Overwrite existing images", nullptr));
         chkAddDescToAll->setText(QApplication::translate("falconGClass", "Add description fields for all images in 'gallery struct'", nullptr));
+        chkAddTitlesToAll->setText(QApplication::translate("falconGClass", "Add title fields for all images in 'gallery struct'", nullptr));
+        chkreadJalbum->setText(QApplication::translate("falconGClass", "Read JAlbum", nullptr));
         lblProgressTitle->setText(QApplication::translate("falconGClass", "Reading albums and images", nullptr));
         lblProgressDesc->setText(QApplication::translate("falconGClass", "images/albums", nullptr));
-        progressBar->setFormat(QApplication::translate("falconGClass", "%p%", nullptr));
-        lblProgress->setText(QApplication::translate("falconGClass", "0/0", nullptr));
         lblRemainingTimeTitle->setText(QApplication::translate("falconGClass", "Elapsed / remaining time:", nullptr));
         lblRemainingTime->setText(QApplication::translate("falconGClass", "99:99 / 99:99", nullptr));
         label_43->setText(QApplication::translate("falconGClass", "Images/sec:", nullptr));
         lblImagesPerSec->setText(QApplication::translate("falconGClass", "999", nullptr));
+        progressBar->setFormat(QApplication::translate("falconGClass", "%p%", nullptr));
+        lblProgress->setText(QApplication::translate("falconGClass", "0/0", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabGallery), QApplication::translate("falconGClass", "Gallery", nullptr));
         groupBox_4->setTitle(QApplication::translate("falconGClass", "Colors", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -2798,9 +2838,7 @@ public:
         btnImageTitle->setText(QApplication::translate("falconGClass", "IMAGE TiTLE", nullptr));
         btnDescription->setText(QString());
         btnImageDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
-"elit. Placeat delectus facilis dolorum dolores\n"
-"distinctio,  aperiam quam deserunt accusantium\n"
-"possimus minima?", nullptr));
+"elit. Placeat delectus facilis dolorum dolores", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabDesign), QApplication::translate("falconGClass", "Design", nullptr));
         groupBox->setTitle(QApplication::translate("falconGClass", "Resizing", nullptr));
         label_3->setText(QApplication::translate("falconGClass", "Height", nullptr));
@@ -2841,24 +2879,24 @@ public:
         lblWaterMarkFont->setText(QString());
         lblWmSample->setText(QApplication::translate("falconGClass", "Watermark text sample", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabImages), QApplication::translate("falconGClass", "Images", nullptr));
-        label_54->setText(QApplication::translate("falconGClass", "Tiltle Language #1", nullptr));
-        label_10->setText(QApplication::translate("falconGClass", "Tiltle Language #2", nullptr));
+        label_51->setText(QApplication::translate("falconGClass", "Albums", nullptr));
+        lblTotalCount->setText(QApplication::translate("falconGClass", "...", nullptr));
+        label_53->setText(QApplication::translate("falconGClass", "Images", nullptr));
+        lblImageCount->setText(QApplication::translate("falconGClass", "...", nullptr));
+        label_54->setText(QApplication::translate("falconGClass", "Tiltle (Language #1)", nullptr));
+        label_10->setText(QApplication::translate("falconGClass", "Tiltle (Language #2)", nullptr));
 #ifndef QT_NO_TOOLTIP
         btnSaveChangedTitle->setToolTip(QApplication::translate("falconGClass", "Save changed title and description", nullptr));
 #endif // QT_NO_TOOLTIP
         btnSaveChangedTitle->setText(QApplication::translate("falconGClass", "Replace", nullptr));
         chkChangeTitleEverywhere->setText(QApplication::translate("falconGClass", "Everywhere", nullptr));
-        label_11->setText(QApplication::translate("falconGClass", "Description Language #1", nullptr));
-        label_55->setText(QApplication::translate("falconGClass", "Description Language #2", nullptr));
+        label_11->setText(QApplication::translate("falconGClass", "Description (Language #1)", nullptr));
+        label_55->setText(QApplication::translate("falconGClass", "Description (Language #2)", nullptr));
 #ifndef QT_NO_TOOLTIP
         btnSaveChangedDescription->setToolTip(QApplication::translate("falconGClass", "Save changed title and description", nullptr));
 #endif // QT_NO_TOOLTIP
         btnSaveChangedDescription->setText(QApplication::translate("falconGClass", "Replace", nullptr));
         chkChangeDescriptionEverywhere->setText(QApplication::translate("falconGClass", "Everywhere", nullptr));
-        label_51->setText(QApplication::translate("falconGClass", "Albums", nullptr));
-        lblTotalCount->setText(QApplication::translate("falconGClass", "...", nullptr));
-        label_53->setText(QApplication::translate("falconGClass", "Images", nullptr));
-        lblImageCount->setText(QApplication::translate("falconGClass", "...", nullptr));
         tabFalconG->setTabText(tabFalconG->indexOf(tabEdit), QApplication::translate("falconGClass", "Edit", nullptr));
     } // retranslateUi
 

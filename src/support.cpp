@@ -36,7 +36,29 @@ QString DecodeLF(QString s, bool toHtml)
 		s = s.left(pos) + LF + s.mid(pos + 2);
 	return s;
 }
-
+#if 0
+/*============================================================================
+  * TASK:	Returns a string in which all '\n' sequences arereplaced with "<br>
+  * EXPECTS:	txt: string
+  * RETURNS: possibly modified string
+  * GLOBALS: none
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString __TextWithBR(QString &txt)
+{
+	if (txt.isEmpty())
+		return txt;
+	QString txtBR;
+	int pos, posp = 0;
+	while ((pos = txt.indexOf("\\n", posp)) >= 0)
+	{
+		txt += txt.mid(posp, (pos - posp)) + "<br>";
+		posp = pos + 2;
+	}
+	txt += txt.mid(posp, -1);
+	return txt;
+}
+#endif
 
 
 /*============================================================================
@@ -101,30 +123,42 @@ void FileReader::_Trim()
 }
 
 /*============================================================================
-* TASK:	reads next non empty non comment line int _line until EOF on the stream
+* TASK:	reads and concatenates an LF *or CR/LF) delimited line int o_line
+*		until EOF on the stream
 *       and converts it to UTF8 if unless it is UTF8 already
-* EXPECTS: nothing
-* GLOBALS:
-* REMARKS:	- result in _line is always Utf8
+* EXPECTS:  last read line may be overwritten
+* GLOBALS:  _bpos - position in buffer to start of next line
+*           _bsize - size of data in buffer
+*			_bytesRead - from file
+* RETURNS: nothing (_line and _ok are set)
+* REMARKS:	- concatenates input lines ending in a backslash character
+*			  with the next line
+*			- result in _line is always Utf8
 *			- at end of file or on read error _ok is set to false
-*			- the purpose of '_lastCharRead' is that with 
-*				windows text files using CR-LF pairs as line delimiter
-*			    sometimes buffer ends with CR and LF is overflowed to the next buffer
+*			- static '_lastCharRead' contains the last character read into 
+*				buffer. If this character is an LF then the buffer ends with EOL 
+*				otherwise the line continues in the next bufferfull of characters
+*			- the character combination backslash + EOL character is discarded
 *--------------------------------------------------------------------------*/
-void FileReader::_readBinaryLine()		// 
+void FileReader::_readBinaryLine()
 {
 	_line.clear();
 	if (!_ok)
 		return;
 
-	QByteArray ba;
+	static char __lastCharRead = 0;  // can be BS or CR or everything else
+	static bool __backslashAtEnd = false;  // can be BS or CR or everything else
 
-	static char _lastCharRead = 0;
+	const char CR = '\r', LF = '\n', BS = '\\';
+	bool EOL = false;	
+
+	QByteArray ba;		// holds characters to be converted to string
+						// never contains line continuation string BS+LF or BS+CR+LF
 	char ch;
 	do
 	{
-		if (!_bsize)		// nothing in memory
-		{
+		if (!_bsize)		// must read new data into buffer
+		{					
 			_bsize = _BUFFER_SIZE;
 			if (_bytesRead + _bsize > _fileSize)
 				_bsize = _fileSize - _bytesRead;
@@ -137,47 +171,150 @@ void FileReader::_readBinaryLine()		//
 			_bsize = _f.read(_bytes, _bsize);
 			if (_bsize > 0)
 				_bytesRead += _bsize;
-					// skip if first character is a continuation of the 
-					// windows line ending sequence
-			_bpos = _lastCharRead == 13 && _bytes[0] == 10 ?  1 :0;
-			_lastCharRead = _bytes[_bsize - 1];	// store last char
-		}
-		int epos = _bpos;	// search for line end position
-		while (epos < _bsize - 1 && _bytes[epos] != '\r' && _bytes[epos] != '\n')
-			++epos;
 
-		ch = _bytes[epos];
-		if (ch != '\n' && ch != '\r')		// then end of buffer, but not end of line
-		{
-			++epos;				// to overflow bytes
-			ch = _bytes[epos];
-		}
-		_bytes[epos] = 0;		// set EOS
+			// possible last characters in prev. buffer:
+			// .  . CR				-  line will end with an LF	here  (EOL == false)
+			// . CR LF	or .  . LF	-  line already ended (EOL == true)
 
-		if( (!_bpos && !epos) || (epos != _bpos))	// when a previous buffer ended just before a CR LF pair
-		{							// both _bpos and epos will be 0, but the line is not empty
-			ba += (_bytes + _bpos);
-			if ( (ch == '\n' || ch == '\r')	||		// then at end of line and not end of buffer
-				 (_bytesRead == _fileSize) )		// at end of file a missing CR or LF is not a problem
+			// EOL == false and the buffer ended with
+			// . \  CR |			   (__backslashAtEnd == false)
+			// . \  LF +-------------  line will continue here (__backslashAtEnd == falsee)
+			// \ CR LF | 			   (__backslashAtEnd == false)
+			// .  .  \ |			   (__backslashAtEnd == true)
+			// .  .  . |			   (__backslashAtEnd == false)
+
+			_bpos = 0;
+
+			if (__backslashAtEnd)	// check for continuation characters
 			{
-				if (!ValidUtf8String(ba, ba.length()))
-					_line = QString::fromLocal8Bit(ba, ba.length());
+				if (_bytes[0] == LF)
+					_bpos = 1;
+				else if (_bytes[0] == CR)
+					_bpos = 2;			  // MUST be LF (old Macs < OS X does not work)
 				else
-					_line = ba;			// add to data
+					ba += BS;			// other characters: keep the \'
+				EOL = false;
 			}
-		}
-		// skip line end character(s)
-		if ((ch == '\n' && _bytes[epos + 1] == '\r') || (ch == '\r' && _bytes[epos + 1] == '\n'))
-			epos += 2;  // CR LF or LF CR pair for line end, must skip both
-		else
-			++epos;		// LF or CR only: skip it
-		_bpos = epos;		// possible start of next line, unless
-		if (_bpos >= _bsize)	// we are at end of the buffer
-			_bsize = 0;
-	} while (ch != '\n' && ch != '\r');
+			else if (__lastCharRead == CR && _bytes[0] == LF) // line ends here
+			{
+				_bpos = 1;	// in this case  current line starts at position 1
+				EOL = true;
+			}
 
-	if (_ok || !_line.isEmpty())
-		++_readLineCount;
+			__lastCharRead = _bytes[_bsize - 1];	// store last character read
+			__backslashAtEnd = false;
+
+			if (EOL)
+				break;
+		}
+
+		// not EOL
+		int epos = _bpos;
+
+		// search for line end position up to the last byte
+		// for continuation line checks (BS+CR+LF or BS+LF inside - no problem)
+		while (!EOL && _bpos < _bsize)
+		{					// get end of line or one line section
+			while (epos < _bsize && _bytes[epos] != CR && _bytes[epos] != LF)
+				++epos;
+			// if CR or LF found we must check 2 or 3 characters starting from 
+			//			'epos'  
+			//	'.' means  any character except BS,CR.LF
+
+			// when epos < _bsize -1, then CR or LF at epos
+			// ('v' character denotes epos)
+			//	      v			EOL   string ends at     _bpos after
+			//----------------------------------------------------------
+			//   .   CR  LF		yes	   epos					epos+2
+			//   .   LF  .		yes	   epos					epos+1
+			//   BS  CR  LF     no	   epos-1				epos+2
+			//   BS  LF  .		no	   epos-1				epos+1
+
+			// when at buffer end ('|' character denotes end of buffer)
+			//	#	buffer | next buffer
+			//	1		  .| .			=>concatenate with next buffer
+			//	2	   . LF| .           => EOL found
+			//	3	  BS LF| .           =>concatenate with next buffer
+			//	4	     CR|LF			=>EOL found, skip firstc character in next buffer
+			//	5	  BS CR|LF			=>concatenate with next buffer and skip first character there
+			//  6        BS|.			=>concatenate with next buffer 
+
+			//  #						    1	         2          3		   4          5           6
+			// end of string segment at  _bsize-1	 _bsize-1	 _bsize-2	_bsize-1   _bsize-2	   _bsize-1
+			// epos at this point        _bsize-1	 _bsize-1	 _bsize-1	_bsize-1   _bsize-1    _bsize-1
+			// epos after handling        _bsize	  _bsize	  _bsize	 _bsize		_bsize     _bsize
+			// EOL -"-				        no      	yes			no		   yes		  no        no
+
+			ch = _bytes[epos];
+			if (epos < _bsize - 1)	// inside the buffer  => epos <= _bsize-2 and CR or LF found at _bytes[epos]
+			{
+				if (epos > 0 && _bytes[epos - 1] == BS) // BS+LF or BS+CR+LF
+					_bytes[epos - 1] = 0;		// end of string
+				else // no backslash before CR or LF: EOL 
+				{
+					_bytes[epos] = 0;
+					EOL = true;
+				}
+				++epos;	// either after LF or to LF after CR
+				if (ch == CR)
+					++epos;			// after the LF
+				ba += (_bytes + _bpos);		// concatenate with buffer 
+				_bpos = epos;
+			}
+			else		  // end of buffer (epos == _bsize-1) -> to last character (__lastCharRead)
+			{			  //  special handling
+				if (__lastCharRead == BS)
+				{		  // all bytes from buffer are read and next buffer must be concatenated with this
+					__backslashAtEnd = true;	// anything may come in next buffer
+					_bytes[epos] = 0;
+				}
+				else if (__lastCharRead == CR || __lastCharRead == LF) // then line end might have been found
+				{
+					if (epos > 0 && _bytes[epos - 1] == BS)		 // no it isn't: in this case no EOL
+					{
+						_bytes[epos - 1] = 0;
+						if (__lastCharRead == CR)
+							__backslashAtEnd = true;
+					}
+					else // depends on the last character
+					{
+						_bytes[epos] = 0;
+						if(__lastCharRead == LF)	// else LF is in the next bufferfull of data
+							EOL = true;
+					}
+				}
+				else	// no CR or LF at end of buffer
+					_bytes[_bsize] = 0;		// overflow area :)
+
+				ba += (_bytes + _bpos);		// concatenate with buffer 
+				_bpos = _bsize;	
+			}
+		}	// end of loop for concataneted lines, partial or complete line already in 'ba'
+
+			// _bpos points to start of line section to be processed next
+			// epos  points to 
+			//					_bsize-1-th position when no CR or LF found
+			//                  after the LF (max value is '_bsize' - outside the buffer
+			//					when CR was found in the loop but it can be _bsize-1 when LF
+			//                  was found in the loop
+			// EOL - when LF or CR+LF is found without a preceeding BS
+
+		if (_bpos == _bsize)		// read buffer again
+			_bpos = _bsize = 0;		
+	// line section is already in 'ba'
+	} while (_ok && !EOL);
+	
+	if (_ok)			   // EOL: line in ba is OK, move it into _line
+	{
+		if (!ValidUtf8String(ba, ba.length()))
+			_line = QString::fromLocal8Bit(ba, ba.length());
+		else
+			_line = ba;			// add to data
+
+
+		if (_ok || ( (flags & frfEmptyLines) == 0 && !_line.isEmpty()) )
+			++_readLineCount;
+	}
 }
 
 
@@ -216,11 +353,7 @@ void FileReader::_readLine()
 			break;
 
 		if (_flags ^ frfCommentLines)		// if comments not allowed
-		{
-			pos = _line.indexOf('#');		
-			if (pos >= 0)					// and there is one
-				_line = _line.left(pos);	// delete it
-		}
+			_DiscardComment();
 
 		pos = 0;						   // trim line from this
 		pos1 = _line.length() - 1;		   // till this
@@ -236,6 +369,33 @@ void FileReader::_readLine()
 		if ((_flags & frfEmptyLines))					// then _line is always OK
 			break;
 	} while (_line.isEmpty() && _ok);
+}
+
+/*=============================================================
+ * TASK:   part of line starting at a '#' character
+ *			and the white spaces before that are discarded
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FileReader::_DiscardComment()
+{
+	int pos = _line.indexOf('#');
+	while (pos >= 0)					// and there is one
+	{
+		if (pos > 0 && (_line[pos - 1] == '\\' || _line[pos - 1] == '&'))		// \#  or &# is NOT start of a comment
+		{
+			pos = _line.indexOf('#', pos+1);
+			continue;
+		}
+		while (pos >= 0 && _line[pos].isSpace())
+			--pos;
+		_line = _line.left(pos);	// delete includinga and after the '#'
+		pos = -1;
+	}
+
+
 }
 
 /*============================================================================
@@ -284,17 +444,20 @@ QStringList FileReader::ReadAndSplitLine(QChar sep)
 * TASK:		Read line even when it is empty
 * EXPECTS:
 * GLOBALS:
-* REMARKS: 	- lines ae always right trimmed
-*			- lines containing whitespace(s) only	will be cleared of it
+* REMARKS: 	- comments are discarded from line
+*			- lines are always right trimmed
+*			- lines containing whitespace(s) only will be cleared of it
 *--------------------------------------------------------------------------*/
-QString FileReader::NextLine()
+QString FileReader::NextLine(bool doNotDiscardComment)
 {
-	_flags |= frfNoWhiteSpaceLines;
+	_flags |= frfNoWhiteSpaceLines | frfCommentLines;
 	_readBinaryLine();
+	if(!doNotDiscardComment)
+		_DiscardComment();
 	_TrimRight();
 	
-	if (!_line.isEmpty() && _line.trimmed().isEmpty())
-		_line.clear();
+//	if (!_line.isEmpty()  && _line.trimmed().isEmpty() )
+//		_line.clear();
 	return _line;
 }
 
@@ -509,8 +672,8 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-ImageConverter::ImageConverter(QSize maxSize, bool doNotEnlarge) :
-						maxSize(maxSize), dontEnlarge(doNotEnlarge)
+ImageConverter::ImageConverter(QSize maxSize, bool doNotEnlarge, bool dontResize) :
+						maxSize(maxSize), dontEnlarge(doNotEnlarge), dontResize(dontResize)
 {
 
 }
@@ -521,7 +684,9 @@ ImageConverter::ImageConverter(QSize maxSize, bool doNotEnlarge) :
   *				imgReader - reader for file name
   * RETURNS:	aspect ratio or 1.0 if any size is 0
   * GLOBALS:
-  * REMARKS: - sets the scaled dimensions into the reader
+  * REMARKS: - sizes reflect the orientation: e.g. when EXIF rotation is used
+  *			   image height and width swapped 
+  *			 - sets the scaled dimensions into the reader
   *			 - thumbnail scaling happens in writer
  *--------------------------------------------------------------------------*/
 double ImageConverter::GetSizes(ImageReader &imgReader)
@@ -531,25 +696,33 @@ double ImageConverter::GetSizes(ImageReader &imgReader)
 
 	newSize = oSize = imgReader.size();
 
+	QImageIOHandler::Transformations tr = imgReader.transformation();
+	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+		oSize.transpose();
+
 	if (!oSize.width() || !oSize.height())
 		return 1.0;
 
-	aspect = (double)oSize.width() / (double)oSize.height();
 
-	if ((newSize.width() > maxSize.width()) || (!dontEnlarge && aspect >= 1))
+	aspect = (double)oSize.width() / (double)oSize.height();
+	if (dontResize)
 	{
-		newSize.setWidth(maxSize.width());
-		newSize.setHeight(maxSize.width() / aspect);
+		newSize = oSize;
 	}
-	if ((newSize.height() > maxSize.height()) || (!dontEnlarge && aspect <= 1))
+	else
 	{
-		newSize.setHeight(maxSize.height());
-		newSize.setWidth(aspect * maxSize.height());
+		if ((newSize.width() > maxSize.width()) || (!dontEnlarge && aspect >= 1))
+		{
+			newSize.setWidth(maxSize.width());
+			newSize.setHeight(maxSize.width() / aspect);
+		}
+		if ((newSize.height() > maxSize.height()) || (!dontEnlarge && aspect <= 1))
+		{
+			newSize.setHeight(maxSize.height());
+			newSize.setWidth(aspect * maxSize.height());
+		}
 	}
-	if (oSize != newSize)	// if either width or height needed changing both changed
-	{
-		imgReader.setScaledSize(newSize);
-	}
+	imgReader.setScaledSize(newSize);
 	return aspect;
 }
 
@@ -578,7 +751,7 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, bool thumb,
 
 	if (!imgReader.isReady)
 	{								// not read yet
-		imgReader.setAutoTransform(true);	// to rotate portrait images
+// moved into constructor		imgReader.setAutoTransform(true);	// to rotate portrait images
 		imgReader.read();			// scaled image
 
 		_pImg = &imgReader.img;		// used in _AddWatermark

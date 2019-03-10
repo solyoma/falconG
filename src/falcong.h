@@ -169,9 +169,11 @@ private slots:
 	void on_edtFontFamily_textChanged();
 
 	void on_chkGenerateAll_toggled(bool);
+	void on_chkButImages_toggled(bool);
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkAddDescToAll_toggled(bool);
-	void on_chkDisregardStruct_toggled(bool);
+	void on_chkReadJAlbum_toggled(bool);
+	void on_chkReadFromGallery_toggled(bool);
 
 	void on_chkRightClickProtected_toggled(bool);
 	void on_chkCanDownload_toggled(bool);

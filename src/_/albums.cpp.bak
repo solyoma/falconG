@@ -10,8 +10,10 @@
 #include "falcong.h"
 
 #if QT_VERSION < 0x051000
-    #define birthTime created
+    #define created created
 #endif
+
+QString Image::lastUsedImagePath;
 
 //******************************************************
 AlbumGenerator albumgen;		// global
@@ -19,8 +21,9 @@ AlbumGenerator albumgen;		// global
 /////////////////////////
 struct BadStruct 
 { 
+	QString msg;
 	int cnt;  
-	BadStruct(int n) : cnt(n) {}
+	BadStruct(int lineNo, QString msg) : msg(msg),cnt(lineNo) {}
 };		// simple exception class
 ////////////////////////////
 
@@ -43,6 +46,7 @@ _CDirStr	__DestDir,		// generate gallery into _RootDir inside this
 			__AlbumDir,		// all albums
 			__CssDir,		// colors.css, stylefg.css
 			__ImageDir,		// all images. image name with date (?)
+			__ThumbDir,		// all images. image name with date (?)
 			__FontDir,		// some of used fonts
 			__ResourceDir;
 
@@ -59,7 +63,8 @@ static void __SetBaseDirs()
 	__RootDir = config.dsGallery + config.dsGRoot;	// .htaccess, constants.php, index.php
 	__AlbumDir = __RootDir + config.dsAlbumDir;		// all albums
 	__CssDir = __RootDir + config.dsCssDir;	  		// colors.css, stylefg.css
-	__ImageDir = __RootDir + config.dsImageDir;		// all images. image name with date (?)
+	__ImageDir = __RootDir + config.dsImageDir;		// contains all images
+	__ThumbDir = __RootDir + config.dsThumbDir;		// contains all thumbnails
 	__FontDir = __RootDir + config.dsFontDir;		// some of used fonts
 }
 
@@ -211,11 +216,14 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 {
 	if (lang < 0 || lang > Languages::Count())
 		return;
-	int len = str.length();
+QString stmp = EncodeLF(str.trimmed());
+	int len = stmp.length();
+	if (lenghts.isEmpty())
+		Clear(Languages::Count());
 	QString s;
 	for (int i = 0; i < Languages::Count(); ++i)
 		if (i == lang)
-			s += str;
+			s += stmp;
 		else
 			s += operator[](i);
 	textsForAllLanguages = s;
@@ -339,11 +347,14 @@ LanguageTexts &LanguageTexts::operator=(const QStringList &txts)
 {
 	lenghts.clear();
 	textsForAllLanguages.clear();
+	QString s;
 	for (int i = 0; i < txts.size(); ++i)
 	{
-		lenghts.push_back(txts[i].length());
+		s = EncodeLF(txts[i]);
+		lenghts.push_back(s.length());
 		textsForAllLanguages += txts[i];
 	}
+	
 	ID = CalcBaseID(); // just base ID  (no collision test)
 
 	return *this;
@@ -461,7 +472,7 @@ int TextMap::Collision(LanguageTexts &text, int &usageCount) const
 		if (text == textInMap)	// then all language texts matched i.e.
 		{						// this text is already in data base
 			usageCount = textInMap.usageCount + 1;
-			return text.collision;
+			return collision;
 		}
 		++collision;
 		id += ID_INCREMENT;		// try next ID
@@ -557,10 +568,12 @@ bool Image::operator==(const Image &i)
 }
 
 /*============================================================================
-* TASK:  writes image info as <image name = ID.jpg> (size, WxH, OWxOH, date) => <path. rel. to src>
+* TASK:  writes image info as 
+*			<image name = ID.jpg> (size, WxH, OWxOH, date)<path. rel. to src>
 * EXPECTS:
 * GLOBALS:
-* REMARKS:
+* REMARKS: If image does not exist writes the image path into the file 
+*			without any additional data
 *--------------------------------------------------------------------------*/
 QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 {
@@ -570,14 +583,16 @@ QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 		fullName = fullName.mid(len);
 	if (exists)
 	{
-		_ofs << LinkName() << " (" 
-			<< fileSize <<","
-			<< width << "x" << height << "," 
-			<< owidth << "x" << oheight << "," 
+		_ofs << LinkName() << " ("
+			<< fileSize << ","
+			<< width << "x" << height << ","
+			<< owidth << "x" << oheight << ","
 			// ISO 8601 extended format: either yyyy-MM-dd for dates or 
 			<< uploadDate.toString(Qt::ISODate)
 			<< ") => " << fullName << "\n";
 	}
+	else
+		_ofs << name << "# not found\n";
 	return _ofs;
 }
 
@@ -600,8 +615,8 @@ Image &ImageMap::Find(ID_t id, bool useBase)
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		searches for image by its path name.
+* EXPECTS: FullName - absolute or source relative path of image
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -620,7 +635,7 @@ Image &ImageMap::Find(QString FullName)
 
 /*============================================================================
 * TASK: Add an image to the list of all images
-* EXPECTS:  path - full path name of the image
+* EXPECTS:  path - full or relative path name of the image
 *			added- output parameter: was this a new image?
 * GLOBALS:
 * REMARKS: - calculates the CRC32 of the file contents
@@ -635,6 +650,11 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	Image img;
 
 	SeparateFileNamePath(path, img.path, img.name);
+	if (img.path.isEmpty())
+		img.path = Image::lastUsedImagePath;
+
+	if (!QDir::isAbsolutePath(path))                // do not store common part of path
+		path = config.dsSrc.ToString() + img.path + img.name;
 
 	added = false;
 	ID_t id = CalcCrc(img.name, false);	// just by name. CRC can but id can never be 0 
@@ -651,7 +671,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 			if (found->name == img.name)	// if name is the same too then same image	
 			{								// even when they are in different directories!
 				if (found->exists)
-					if( !img.exists || (img.exists && (found->uploadDate >= fi.birthTime().date()  || found->fileSize >= fi.size())) )
+					if( !img.exists || (img.exists && (found->uploadDate >= fi.lastModified().date()  || found->fileSize >= fi.size())) )
 						return found->ID;	  // do not change path as image already existed
 
 				id = found->ID;		// else found image did not exist,
@@ -667,7 +687,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	if (img.exists)
 	{
 		img.fileSize = fi.size();
-		img.uploadDate = fi.birthTime().date();
+		img.uploadDate = fi.lastModified().date();
 	}
 
 	added = true;
@@ -933,10 +953,8 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
 }
 
 /*============================================================================
-  * TASK:	 add a new image from structure
-  * EXPECTS:  ab - album to add the image to either as an image or a thumbnail
-  *			  imagePath: path name relative to source directory
-  *			  thumbnail: this is the album thumbnail
+  * TASK:	 add a new image from structure to image map
+  * EXPECTS:  imagePath: path name relative to source directory
   *			  
   * RETURNS:  image added/found. It will not have any title or description as those
   *				will be added after this image is processed
@@ -950,10 +968,9 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
 ID_t AlbumGenerator::_AddImageFromPathInStruct(QString imagePath)
 {
 	bool added;
-	_structChanged = true;
-	_bImageDataIsReady = false;
-	if (!QDir::isAbsolutePath(imagePath)) // Add() requires absolute path
-		imagePath = config.dsSrc.ToString() + imagePath;
+	++_structChanged;
+//	if (!QDir::isAbsolutePath(_GetSetImagePath(imagePath))) // Add() requires absolute path
+//		imagePath = config.dsSrc.ToString() + imagePath;
 
 	return _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
 }
@@ -963,12 +980,7 @@ ID_t AlbumGenerator::_AddImageFromPathInStruct(QString imagePath)
 *			from directory unless they are excluded
 * EXPECTS:	ab - album to add images and sub albums to
 *			fi - info of a file and album
-*			fromDisk: - used when elem to be added comes from the disk
-*				in this case just new data is added, but the 'exists'
-*				flag is set for old data too
-* RETURNS:	fromDisk = false (default) id of data
-*			fromDisk = true -> 0 for hidden files, or if excluded
-*				for this subdirectory otherwise id
+* RETURNS:	id of data
 * REMARKS:  - 'exists' member of not excluded old oe new images and sub-albums 
 *				are set to true when 'fromDisk' is true
 *			- adds new images and id's to the corresponding id list of 'ab'
@@ -1015,9 +1027,10 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 bool AlbumGenerator::_IsExcluded(const Album &ab, QString name)
 {
 	ID_t id;
+	const IdList &exList = ab.excluded;
 	for (int i = 0; i < ab.excluded.size(); ++i)
 	{
-		id = ab.excluded[i];
+		id =  (const_cast<IdList &>(exList)[i]);
 		if (id & ALBUM_ID_FLAG)
 		{
 			if (_albumMap[id].name == name)
@@ -1089,6 +1102,63 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 	return true;
 }
 
+/*============================================================================
+  * TASK: test the image sizes against config and see if it must be recreated
+  * EXPECTS:
+  * RETURNS: true or false
+  * GLOBALS:
+  * REMARKS: - re-create when all must be re-generated OR
+  *				no image sizes were determined yet OR
+  *				destination image is too large OR
+  *				destination image is toosmall and it could be larger
+  *			 - check this first as when either of the above is true even
+  *				newer destinaton images must be overwritten
+ *--------------------------------------------------------------------------*/
+bool AlbumGenerator::_MustRecreateImageBasedOnSize(Image & img)
+{
+	return  
+			config.bGenerateAll
+		||
+			!img.width 
+		||
+			(img.width > config.imageWidth || img.height > config.imageHeight)
+		||
+			(
+			  (img.width < config.imageWidth && img.height < config.imageHeight)
+				&& 
+			  ( img.owidth > config.imageWidth || img.oheight > config.imageHeight)
+			)
+		;
+}
+
+/*============================================================================
+  * TASK: test the thumbnail sizes against config and see if it must be recreated
+  * EXPECTS:
+  * RETURNS: true or false
+  * GLOBALS:
+  * REMARKS: -re-create when
+  *				current size of thumb is larger than allowed size
+  *				current size of thumb is smaller than allowed size but
+  *				original size of image is larger than allowed size
+ *--------------------------------------------------------------------------*/
+bool AlbumGenerator::_MustRecreateThumbBasedOnSize(QString thumbPath, Image & img)
+{
+	QImageReader reader(thumbPath);
+	return 
+		config.bGenerateAll
+		||
+		!reader.size().width()
+		||
+		(reader.size().width() > config.thumbWidth || reader.size().height() > config.thumbHeight)
+			||
+		(
+			(reader.size().width() < config.thumbWidth && reader.size().height() < config.thumbHeight)
+				&&
+			(img.owidth > config.thumbWidth || img.oheight > config.thumbHeight)
+		)
+	;
+}
+
 /*==========================================================================
 * TASK:	sepatae lines containing text delimited by '@@' ot "{)" delimiters
 *		into a string list
@@ -1141,6 +1211,23 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 		}
 	}
 	return list;
+}
+
+/*============================================================================
+  * TASK:	sets a relativ path to the image if it has no path
+  *			or stores the path as the last used path if it had one
+  * EXPECTS: imagerPath - absolute or relative image path or just file name
+  * RETURNS: imagerPath
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString& AlbumGenerator::_GetSetImagePath(QString & imagePath)
+{
+	if (imagePath.indexOf('/') < 0)		// no path at all
+		imagePath = Image::lastUsedImagePath + imagePath;
+	else
+		Image::lastUsedImagePath = imagePath.left(imagePath.lastIndexOf('/') + 1); // including last '/'
+	return imagePath;
 }
 
 /*==========================================================================
@@ -1218,7 +1305,6 @@ bool AlbumGenerator::_ReadMetaFile(Album &ab)
 		ianame;
 	QStringList sl;
 	int pos;
-	ID_t id;
 	bool added;
 	while (!(line = fr.ReadLine()).isEmpty())
 	{
@@ -1234,7 +1320,7 @@ bool AlbumGenerator::_ReadMetaFile(Album &ab)
 			continue;					// don't care
 		else if (ianame[0] == 'f')		// folder icon
 		{
-			id = _AddImageOrAlbum(ab, path + line, true);	// add image or folder
+			(void) _AddImageOrAlbum(ab, path + line, true);	// add image or folder
 			continue;														// as folder thumbnail too
 		}
 		else if (ianame[0] != 'd')			// safety
@@ -1415,6 +1501,9 @@ bool AlbumGenerator::Read()
 {
 	_running = true;
 
+	if (_structAlreadyInMemory && !config.bReReadStruct)	// already read: no need to read again
+		return true;
+
 	bool result = false;
 
 	bool _justChanges = ((albumgen.AlbumCount() == 0 || albumgen.ImageCount() == 0)); // else full creation
@@ -1438,7 +1527,7 @@ bool AlbumGenerator::Read()
 	if (! QFileInfo::exists(s))
 		s = config.dsGallery.ToString() + QString("gallery.struct");
 
-	_structChanged = false;
+	_structChanged = 0;
 
 	if(!config.bDisregardStruct && QFileInfo::exists(s))
 	{
@@ -1446,20 +1535,18 @@ bool AlbumGenerator::Read()
 		{
 			result = _ReadStruct(s);
 		}
-		catch (BadStruct b)
+		catch (.../*BadStruct b*/)
 		{
-			_imageMap.clear();
+			_imageMap.clear();		  // reading aborted
 			_textMap.clear();
 			_albumMap.clear();
-
-			if (b.cnt == QMessageBox::No)		// reading aborted
-				return false;
-			result = _ReadJalbum();
 		}
 	}
 	else
 		result = _ReadJalbum();
 	emit SignalAlbumStructChanged();	// show list of albums in GUI
+	if (result)
+		_structAlreadyInMemory = true;
 	return result;
 }
 //*****      END OF READ PART, START OF WRITE PART  *****
@@ -1541,6 +1628,9 @@ bool AlbumGenerator::_CreateDirectories()
 	ask |= QDir::isAbsolutePath(config.dsImageDir.ToString());
 	if (!__CreateDir(__RootDir + config.dsImageDir, ask))
 		return false;
+	ask |= QDir::isAbsolutePath(config.dsThumbDir.ToString());
+	if (!__CreateDir(__RootDir + config.dsThumbDir, ask))
+		return false;
 	ask |= QDir::isAbsolutePath(config.dsFontDir.ToString());
 	if (!__CreateDir(__RootDir + config.dsFontDir, ask))
 		return false;
@@ -1560,7 +1650,7 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 {
 	QString line = reader.ReadLine(); // [Language count: X: 
 	if (line.left(16) != "[Language count:")
-		throw BadStruct(reader.ReadCount());
+		throw BadStruct(reader.ReadCount(), "Language Count");
 
 	QString sFalcong = ToUTF8((QString)sFalcongEnglishCopyright), s;
 
@@ -1580,9 +1670,15 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
 			else if (s == "images")
-				Languages::toImages[i] = sl[1];
+				Languages::Images[i] = sl[1];
 			else if (s == "albums")
+				Languages::Albums[i] = sl[1];
+			else if (s == "toalbums")
 				Languages::toAlbums[i] = sl[1];
+			else if (s == "totop")
+				Languages::toTop[i] = sl[1];
+			else if (s == "uponelevel")
+				Languages::upOneLevel[i] = sl[1];
 			else if (s == "homepage")
 				Languages::toHomePage[i] = sl[1];
 			else if (s == "about")
@@ -1621,7 +1717,7 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 	}
 //	reader.ReadLine();		// drop next language index or closing ']'
 	if(reader.l()[0] != ']')
-		throw BadStruct(reader.ReadCount());
+		throw BadStruct(reader.ReadCount(), "missing']'");
 
 	return true;
 }
@@ -1648,14 +1744,29 @@ static bool __SameLevel(int level, QString line)
 
 /*==========================================================================
 * TASK:		reads text, description and thumbnail IDs from structure file
-* EXPECTS: reader - open file reader with the last read line in it
-*					whic after 'level' number of spaces starts with a '[' 
+* EXPECTS: reader - open file reader with the last line read in it
+*					which after 'level' number of spaces starts with a '[' 
 *					and ends with a ']'
-*					i.e. it is a title, description or thumbnail line
+*					
+*	
 *			ids   - output parameter, filled with  title, description and thumbnail ID
 *			level - number of spaces before the '['
 * RETURNS: nothing
-* REMARKS: - reads lines until the first line without a starting '[' is read
+* REMARKS:  - when called the last line read contains a title, description or thumbnail
+*			  inside square brackets []
+*		    - the kind of the line is determined by the first string of characters after
+*			  the opening '[' brace: TITLE_TAG, DESCRCRIPTION_TAG or THUMBNAIL_TAG
+*           - except for the THUMBNAIL_TAG there must be as many such lines as are 
+*			  languages, each starting with the text of the tag followed by a dash ('-') 
+*			  and the language abbreviation. (e.g for TITLE_TAG  [Title-en:<text>])
+*			- the first line for either tag may end with a '*' followed by the text ID. 
+*			  If it is not present the text ID will be calculated.
+*			- The THUMBNAIL_TAG may contain the ID of the thumbnail image or the path name
+*			  of the thumbnail image. In the latter case the path name will be replaced
+*			  with the image ID
+*			- the order of the tags are arbitrary, but all language texts for the same tag 
+*			  must immediately follow each other: mixing tah lines are not allowed
+*           - reads lines until the first line without a starting '[' is read
 *				then returns
 *			- before returning it puts the last language texts into _textMap
 *			- version 1.0 - texts in [] may be followed by a '*' and a collision number
@@ -1667,118 +1778,110 @@ void AlbumGenerator::_GetTextIDsFromStruct(FileReader &reader, IdsFromStruct & i
 {
 	LanguageTexts texts(Languages::Count());
 
-	// order: title lines then description then thumbnail
+	// order of tags are arbitrary
 	// any and all of these may be missing
-	// ALL TAGS MUST BE OF THE SAME LENGTH!
+	// ALL TAG TEXT MUST BE OF THE SAME LENGTH!
 	// and all tags must start with a different letter
-	ID_t textID = 0;
-	do
+
+	ID_t textID = 0;		// ID of last processed text
+	IdsFromStruct::IDS newTag = IdsFromStruct::nothing;
+
+	ids.what = IdsFromStruct::nothing;
+
+	do		 // for each line with text in []);
 	{
 		int lang = (reader.l()[level + 1] == THUMBNAIL_TAG[0] ? -1 : Languages::abbrev.indexOf(reader.l().mid(level + TITLE_TAG.length()+1, 2)));
 
-		if (reader.l()[level + 1] == THUMBNAIL_TAG[0])	// this is the last line for an album definition inside []
-		{												// it can be an ID or an image path relative to 'config.dsSrc'
-				// if there were title OR description lines save them first
-			if (ids.what != IdsFromStruct::nothing && ids.what != IdsFromStruct::thumbnail  && !texts.IsEmpty())	
-			{
-				if (!textID)
-					textID = texts.CalcID(_textMap);
-				_textMap[textID] = texts;
-				if (ids.what == IdsFromStruct::title)
-					ids.titleID = textID;
-				else
-					ids.descID = textID;
-			}
+		if (reader.l()[level + 1] == THUMBNAIL_TAG[0])
+			newTag = IdsFromStruct::thumbnail;
+		else if (reader.l()[level + 1] == TITLE_TAG[0])
+			newTag = IdsFromStruct::title;
+		else
+			newTag = IdsFromStruct::description;
+
+						// when tag changes store texts collected for previous tag
+						// except for thumbnails
+		if (newTag != ids.what && ids.what != IdsFromStruct::thumbnail && !texts.IsEmpty())	// there are text(s) or ID read in 
+		{
+			if (textID && _textMap.contains(textID))	  // need this for texts with ID read from struct file
+				texts.usageCount = ++_textMap[textID].usageCount;
+			else if (!textID)						// when no id in file
+				textID = texts.CalcID(_textMap);	// sets new unique id and usage count as well
+
+			if (!texts.usageCount)					// then not yet added
+				texts.usageCount = 1;
+
+			_textMap[textID] = texts;				// add new record or modify old record with the new usage count
+
+			if (ids.what == IdsFromStruct::title)
+				ids.titleID = textID;
+			else
+				ids.descID = textID;
+
+			texts.Clear();
+			textID = 0;								// processed
+		}
+				
+		if(newTag == IdsFromStruct::thumbnail)
+		{
 			int len = (reader.l().length() - 1) - level - THUMBNAIL_TAG.length() - 2; // cut ending ']'
 			if (!len)		   // empty thumbnail text?
-				continue;	
+				continue;
 			// see if this is a processed line or an image path string
 			// image path strings starting with a character other than a decimal digit may follow after a space or a colon
-			// but image names in the source directory that starts with a decimal digit must be written after a space!
-			bool b= reader.l()[level + THUMBNAIL_TAG.length() + 1] == ':';  
+			// but image names in the source directory that starts with a decimal digit must be written after an '='!
+			bool b = reader.l()[level + THUMBNAIL_TAG.length() + 1] == ':';
 			QString s = reader.l().mid(level + THUMBNAIL_TAG.length() + 2, len);  // ID or path name
 			if (b && s[0].isDigit())
 				ids.thumbnailID = s.toULongLong();
 			else
 				ids.thumbnailID = _AddImageFromPathInStruct(s);
 
-			texts.Clear();
 			ids.what = IdsFromStruct::thumbnail;
-			textID = 0;
 		}
-		else		// not thumbnail - title OR description (order: title, description, thumbnail)
-		{
-			if (reader.l()[level + 1] == DESCRIPTION_TAG[0])	// description line comes after the title lines
-			{													// i.e. no thumbnail can come before this!
-				if (ids.what != IdsFromStruct::description && !texts.IsEmpty())	// there were title lines
-				{
-					if (textID && _textMap.contains(textID))	  // need this for texts with ID read from struct file
-					{
-						texts.usageCount = ++_textMap[textID].usageCount;
-					}
-					else if (!textID)						// when no id in file
-						textID = texts.CalcID(_textMap);	// sets new unique id and usage count as well
-
-					if (!texts.usageCount)					// then not yet added
-					{
-						texts.usageCount = 1;  
-						_textMap[textID] = texts;
-					}
-					ids.titleID = textID;
-					texts.Clear();
-					textID = 0;
-				}
-				ids.what = IdsFromStruct::description;
-			}
-			else if (reader.l()[level + 1] == TITLE_TAG[0])	// title lines come first: ids.what must be 'nothing'
-			{
-				ids.what = IdsFromStruct::title;
-			}
-				// common part for title and description
-			int len = reader.l().length();
-			while (len && reader.l()[--len] != ']')	// find last ']'
-				;			
+		else		// common part for title and description
+		{			// because textID is always calculated using all texts for all languages
+					// we can only calculate it after all lines are read in
+			QString s = reader.l();
+			int len = s.length();
+			while (len && s[--len] != ']')	// find last ']'
+				;
 			++len;		// include closing ']' but not the possible ID/collision
-			texts.SetTextForLanguageNoID(reader.l().mid(level + 10, len - level - 11), lang);
+			texts.SetTextForLanguageNoID(s.mid(level + 10, len - level - 11), lang);
 			if (config.majorStructVersion == 1)
 			{				// none = there is no asterix followed by a number
-				bool none = (textID==0) && (reader.l().length() == len);	
-				if (config.minorStructVersion == 0)		// then can be an overflow number after a '*'
-				{										// old version
-					texts.collision = none ? 0 : reader.l().mid(len + 1).toInt(); // len+1: length including '*'
-				}
-				else if (config.minorStructVersion == 1)		
+				if (textID == 0)			   // then this is the first line for the text
 				{
-					if (!textID)    // ID is saved at first language text only, so if 0 this is the first text line
+					if (s.length() == len)
+						++_structChanged;		// because textID will be calculated
+					else
 					{
-						if (none)	// no ID set in line yet get ID for text
-						{
-							textID = texts.CalcID(_textMap);
-							_structChanged = true;
-						}
-						else
-						{
-							textID = texts.ID = reader.l().mid(len + 1).toULongLong(); // len+1: length including '*'
+						textID = texts.ID = s.mid(len + 1).toULongLong(); // len+1: length including '*'
 							texts.collision = (textID & ID_MASK) == 0 ? 0 : ((textID & ~ID_MASK) >> ID_COLLISION_FACTOR);
-						}
 					}
 				}
 			}
 		}
-		// reads next line aand repeat loop
+		ids.what = newTag;
+				// reads next line aand repeat loop
 	} while (!reader.NextLine().isEmpty() && reader.l()[level] == '[');
 
 	if ( !texts.IsEmpty())
 	{
-		if (!textID)
-			textID = texts.CalcID(_textMap);
-		_textMap[textID] = texts;
+		if (textID && _textMap.contains(textID))	  // need this for texts with ID read from struct file
+			texts.usageCount = ++_textMap[textID].usageCount;
+		else if (!textID)						// when no id in file
+			textID = texts.CalcID(_textMap);	// sets new unique id and usage count as well
+
+		if (!texts.usageCount)					// then not yet added
+			texts.usageCount = 1;
+
+		_textMap[textID] = texts;				// add new record or modify old record with the new usage count
+
 		if (ids.what == IdsFromStruct::title)
-			ids.titleID = texts.ID;
-		else if (ids.what == IdsFromStruct::description)
-			ids.descID = texts.ID;
+			ids.titleID = textID;
 		else
-			ids.thumbnailID = texts.ID;	   // it must never come here!
+			ids.descID = textID;
 	}
 }
 
@@ -1816,9 +1919,9 @@ QStringList __imageMapstructLineToList(QString s)
 
 	QRegExp rexp(",|x");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #1..#7 ID, width, height, owidth, oheight, length, date
-	if (sl.size() != 8 || s[pos + 1] != '/')
+	if (sl.size() != 8 || pos == s.length() )    // was s[pos + 1] != '/')
 		return sl;
-	sl.push_back(s.mid(pos + 2));		// index #8 - original path
+	sl.push_back(s.mid(pos + 1));		// index #8 - original path (was pos + 2
 	return sl;
 }
 
@@ -1848,23 +1951,24 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		// image name, id, width, height, original width, original height, date, size, path
 
 	ID_t id;
-	if (n != 9)		   // maybe new image added and not yet processed
+	if (n != 9 && n != 8)		   // maybe new image added and not yet processed
 	{
-		_bImageDataIsReady = false;				// must process later on
-		if (n != 1)	// and it should be: <config.dsSrc relative full path name>
-			throw BadStruct(reader.ReadCount());
+		if (n != 1)	// and it should be either <config.dsSrc relative full path name>
+			throw BadStruct(reader.ReadCount(), QString("Wrong image parameter count:%1").arg(n)); // or just the image name (from the same folder as the previous one)
+
 		// expects: original/image/directory/inside/source/name.ext
-		id = _AddImageFromPathInStruct(sl[0]);
+		id = _AddImageFromPathInStruct(sl[0]);	 // structure is changed
 		if (id)	
 		{
 			if (thumbnail)
 				album.thumbnail = id;
-			else
-				album.images.push_back(id);	// add to ordered image ID list for this album
+			//else // ????     if(!_structChanged)
+			//	album.images.push_back(id);	// add to ordered image ID list for this album
+			album.changed = true;	// set it as changed always
 		}
 		img = _imageMap[id];
 	}
-	else
+	else	// n == 8 or n == 9
 	{
 		img.name = sl[0];
 		img.ID = id = sl[1].toULongLong();
@@ -1872,6 +1976,7 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		img.height = sl[3].toInt();
 		img.owidth = sl[4].toInt();
 		img.oheight = sl[5].toInt();
+
 		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
 		img.uploadDate = DateFromString(sl[6]);
 		if (img.uploadDate > _latestDateLimit)
@@ -1881,13 +1986,21 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 			return 0;
 
 		img.fileSize = sl[7].toULongLong();
-		img.path = config.dsSrc.ToString() + sl[8];
+		if (n == 9)
+			Image::lastUsedImagePath = sl[8];
+
+		img.path = Image::lastUsedImagePath;
+
 		img.exists = (img.fileSize != 0);	// non existing images have 0 size
 	}
 	IdsFromStruct ids;
 	reader.NextLine();
-	if(reader.l()[level] == '[')
+	if (!reader.l().isEmpty() && reader.l()[level] == '[')
+	{
+		int nChanges = _structChanged;				  // original value
 		_GetTextIDsFromStruct(reader, ids, level);
+		album.changed |= nChanges != _structChanged;				  // then image came from path in struct
+	}
 	img.titleID = ids.titleID;
 	img.descID = ids.descID;
 
@@ -1930,7 +2043,8 @@ QStringList __albumMapStructLineToList(QString s)
 		return sl;
 
 	sl.push_back(s.mid(pos0, pos - pos0));	// ID
-	sl.push_back(s.mid(pos + 2));			// path
+	if (pos + 1 < s.length())
+		sl.push_back(s.mid(pos + 1));			// path
 	return sl;
 }
 
@@ -1951,18 +2065,21 @@ QStringList __albumMapStructLineToList(QString s)
 *			- the album created here must be added to _albumMap in caller
 *				therefore it will be addwd later than its sub albums
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level)
+ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level)
 {
 	Album album;	// temporary album to add to map
 
 	QStringList sl = __albumMapStructLineToList(reader.l().mid(level));
 	int n = sl.size();		// should be 3: album name, id and path
-	if (n != 3 && n != 1)
-			throw BadStruct(reader.ReadCount());
+	if (n != 3 && n != 2 && n != 1)
+			throw BadStruct(reader.ReadCount(),"Wrong album parameter count");
 
 	ID_t id;
 	album.name = sl[0];
 	album.parent = parent;
+
+	int	changeCountBefore = _structChanged;		// save to determine if album changed
+
 	if (n == 1)	// then no ID is determined yet
 	{
 		Album &aparent = _albumMap[parent];
@@ -1971,12 +2088,22 @@ ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level
 		bool added;
 		id = _albumMap.Add(sl[0], added);	// add new album to global album list
 		album = _albumMap[id];
-		_structChanged = true;
+		++_structChanged;		// and also album is changed
 	}
-	else
+	else   // n == 3 || n == 2
 	{
 		id = sl[1].toULongLong() + ALBUM_ID_FLAG;
-		album.path = (config.dsSrc + sl[2]).ToString();
+		if (n == 2)	// no path
+		{
+			if (level < 2)
+				Image::lastUsedImagePath.clear();
+			album.path = (config.dsSrc + Image::lastUsedImagePath).ToString();
+		}
+		else
+		{
+			Image::lastUsedImagePath = sl[2];
+			album.path = (config.dsSrc + Image::lastUsedImagePath).ToString();
+		}
 		album.ID = id;
 		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullName());
 	}
@@ -1999,10 +2126,11 @@ ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level
 					album.thumbnail = ids.thumbnailID;
 				ids.Clear();
 			}
-			reader.NextLine();					// next album definition line
+			while(reader.Ok() && reader.l().isEmpty())	// drop all consecutive empty lines
+				reader.NextLine();					// next album definition line
 			while (reader.Ok() && reader.l()[level] == ' ')		// new sub album
 			{													// process it 
-				ID_t aid = _AlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
+				ID_t aid = _ReadAlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
 				album.albums.push_back(aid);
 			}
 			_albumMap[id] = album;
@@ -2013,10 +2141,13 @@ ID_t AlbumGenerator::_AlbumFromStruct(FileReader &reader, ID_t parent, int level
 			if (reader.l()[level] == '[') // then title, description or thumbnail line
 			{		
 				_GetTextIDsFromStruct(reader, ids, level);
+				if (changeCountBefore != _structChanged)
+					album.changed = true;
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ImageFromStruct(reader, level+1, album, false);		   // false:not thumbnail
+				album.images.push_back(iid);
 			}
 		}
 	} 
@@ -2047,26 +2178,23 @@ bool AlbumGenerator::_ReadStruct(QString from)
 {
 	bool error = false;
 
-	_bImageDataIsReady = true;		// even dimensions were set in 'gallery.struct'
-									// set to false if an image not yet processed
-									// is found in 'gallery.struct'
 	try
 	{
 		FileReader reader(from);	// with ReadLine() discard empty lines, and trim lines
 		if (!reader.Ok())
-			throw BadStruct(reader.ReadCount());
+			throw BadStruct(reader.ReadCount(), "Read error");
 
 		QStringList sl;
-		QString line = reader.NextLine();	// version line (comment format)
+		QString line = reader.NextLine(true);	// version line (comment format)
 
 		if (line.left(versionStr.length()) != versionStr)
-			throw BadStruct(reader.ReadCount());
+			throw BadStruct(reader.ReadCount(),"Bad version string");
 		else
 		{
 			line = line.mid(versionStr.length());
 			int pos = line.indexOf('.');
 			if(pos < 0)
-				throw BadStruct(reader.ReadCount());
+				throw BadStruct(reader.ReadCount(),"Missing '.' from version");
 
 			config.majorStructVersion = line.left(pos).toInt();
 			config.minorStructVersion = line.mid(pos+1).toInt();
@@ -2081,23 +2209,25 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			// from now on we need the empty lines as well
 			reader.NextLine();		// empty line above album definition
 			if (!reader.l().isEmpty())
-				throw BadStruct(reader.ReadCount());
+				throw BadStruct(reader.ReadCount(),"Invalid empty line");
 			reader.NextLine();		// album definition line
 					// recursive album read. there is only one top level album
 					// with id == 1 + ALBUM_ID_FLAG (id == ALBUM_ID_FLAG is not used)
-			_AlbumFromStruct(reader, 0, 0); 
+			_ReadAlbumFromStruct(reader, 0, 0); 
 			if (error)
-				throw BadStruct(reader.ReadCount());
+				throw BadStruct(reader.ReadCount(),"Error");
 		}
 		return true;
 	}
 	catch (BadStruct b)
 	{
-		b.cnt = QMessageBox(QMessageBox::Critical, QMainWindow::tr("falconG - Error"), 
-						QMainWindow::tr("Damaged structure file! %1 lines read so far. Reading aborted.\n"
-										"Continue with trying to read directory (jalbum) structure?\n\n"
-										"It will destroy your old gallery.struct file!").arg(b.cnt), 
-							QMessageBox::Yes|QMessageBox::No, frmMain).exec();
+		QMessageBox(QMessageBox::Critical, QMainWindow::tr("falconG - Error"), 
+						QMainWindow::tr("Damaged structure file! Message:\n     ") +  
+						b.msg + 
+						QMainWindow::tr("\n\n%1 lines read so far. Reading aborted,\n"
+										"because continuing would destroy your old gallery.struct file!").arg(b.cnt), 
+							QMessageBox::Abort, frmMain).exec();
+		b.cnt = 1;
 		throw(b);
 		return false;
 	}
@@ -2128,7 +2258,10 @@ bool AlbumGenerator::_ReadJalbum()
 		{
 			s = dirIter.fileName();
 			if (s[0] != '.' && s != "res" && s != "cache" && s != "thumbs")	// not a hidden or resource directory?
-				emit SignalProgressPos(directoryCount, ++directoryCount);
+			{
+				++directoryCount;
+				emit SignalProgressPos(directoryCount, directoryCount);
+			}
 		}
 	}
 
@@ -2154,9 +2287,7 @@ bool AlbumGenerator::_ReadJalbum()
 		return false;
 
 	_root = _albumMap[1 + ALBUM_ID_FLAG];	// get values stored in hierarchy back to _root
-	_bImageDataIsReady = false;				//  image dimwnesions are overwritten  even when 
-											//_image was set up before 
-	_structChanged = true;					// i.e. must write 'gallery.struct'
+	++_structChanged;					// i.e. must write 'gallery.struct'
 	return true;
 }
 
@@ -2327,7 +2458,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString(".falconG", config.SmallGalleryTitle, wColor) +
 		".about{\n"
 		"	color:#ddd;\n"
-		"	margin:aito;\n"
+		"	margin:auto;\n"
 		"	}\n"
 		+
 		_ElemColorCssToString("h2.album-title", config.GalleryTitle, wColor) +
@@ -2390,17 +2521,21 @@ QString AlbumGenerator::_CssToString()
 	QString s =
 		"@import url(\"https://fonts.googleapis.com/css?family=Raleway\"); /*--- Nav Font --*/\n"
 		"@import url(\"https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway\"); /*--- Heading Font --*/\n"
-		// TODO: scan fobt directory and embed fonts from it into here
+		// TODO: scan font directory and embed fonts from it into here
 		// e.g. @font-face {
 		//				font-family: 'RieslingRegular';
 		//				src: url('fonts/riesling.eot');
 		//				src: local('Riesling Regular'), local('Riesling'), url('fonts/riesling.ttf') format('truetype');
 		//		}
 		// usage example: h1 {font-family: 'RieslingRegular', Arial, sans-serif;}
+		// universal selector to include padding and border in box size
+		"*, *::before, *::after {\n"
+		"  box-sizing:border-box;\n"
+		"  padding:0;\n"
+		"  margin:0\n;"
+		"}\n\n"
 		"html,\n"
 		"body{\n"
-		"	margin: 0;\n"
-		"	padding: 0;\n"
 		"	height: 100% ;\n"
 		"	width: 100% ;\n"
 		"}\n"
@@ -2412,7 +2547,7 @@ QString AlbumGenerator::_CssToString()
 		"}\n"
 		"\n"
 // h2
-		"h2{\n" // only for gallery title else have overriding class
+		"h2.album-title{\n" // only for gallery title else have overriding class
 		+ _FontToCss(config.GalleryTitle) +
 		"	text-align: center;\n"
 		"}\n"
@@ -2420,8 +2555,8 @@ QString AlbumGenerator::_CssToString()
 // about
 		".about{\n"
 		"	margin:auto;\n"
-		"   width:400px;\n"
-		"	}\n"
+		"	width:400px;\n"
+		"}\n"
 
 // a.title
 		"a.title{\n"
@@ -2431,13 +2566,6 @@ QString AlbumGenerator::_CssToString()
 		// a, a:visited
 		"a, a:visited{\n"
 		"	text-decoration: none;\n"
-		"	/*padding: 0 4px 2px 4px;*/\n"
-		"}\n"
-		"\n"
-// a.jump_link
-		"a.jump_link{\n"
-		"	text-decoration: none;\n"
-		"	padding: 0 4px 2px 4px;\n"
 		"}\n"
 		"\n"
 		"a.doboz {\n"
@@ -2483,13 +2611,12 @@ QString AlbumGenerator::_CssToString()
 		"	-moz-border-radius: 5px;\n"
 		"	border-radius: 5px;\n"
 		"	background-color: #033aa9;\n"
-		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"	background: -moz-linear-gradient(top, #033aa9 0%, #022a8f 44%, #00266d 100%);\n"
 		"	background: -webkit-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -o-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -ms-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
-		"	background: linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
 		"	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#033aa9), color-stop(44%,#022a8f), color-stop(100%,#00266d));\n"
+		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"}\n"
 		"\n"
 // <header>
@@ -2514,7 +2641,7 @@ QString AlbumGenerator::_CssToString()
 		".album-desc{\n"
 		+ _FontToCss(config.AlbumDesc) +
 		"	margin:auto;\n"
-		"	width:90% ;\n"
+		"	width:600px;\n"
 		"   text-align:center;\n"
 		"}\n"
 		"\n"
@@ -2541,7 +2668,7 @@ QString AlbumGenerator::_CssToString()
 		".img-container, .gallery-container{\n"
 		"	display:flex;\n"
 		"	flex-direction: column;\n"
-		"	justify-content: stretch;\n"
+		"   padding:0 10px;\n"
 		"}\n"
 		"\n"
 // .desc
@@ -2551,6 +2678,7 @@ QString AlbumGenerator::_CssToString()
 		"	-moz-hyphens: auto;\n"
 		"	-webkit-hyphens: auto;\n"
 		"	-ms-hyphens: auto;\n"
+		"   max-width:600px\n"
 		"}\n"
 		"\n"
 // p.album-title
@@ -2567,15 +2695,16 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"section div.thumb{\n"
 		"	max-width:100% ;\n"
-		"	display:flex; justify-content: center;\n"
+		"	display:-webkit-flex;\n"
+		"	display:-ms-flexbox;\n"
+		"	display:flex; \n"
+		"	justify-content: center;\n"
 		"	flex-wrap: wrap;\n"
 		"	flex-direction: row;\n"
 		"	padding: 2px;\n"
+		"   margin: 0 2;\n"
 		"}\n";
-		if (config.imageBorder.used)
-			s += "div.thumb a img{\n"
-			" border :" + QString("%1px solid %2").arg(config.imageBorder.width).arg(config.imageBorder.color.name, 0, 16)
-			+ "}\n";
+		// image border is set in _ColorCSSToString()
 		s += "\n"
 		".img-container img, .gallery-container img{\n"
 		"	margin:auto;\n"
@@ -2587,8 +2716,7 @@ QString AlbumGenerator::_CssToString()
 		"	width:100% ;\n"
 		"	justify-content:space-between;\n"
 		"	margin-bottom: 10px;\n"
-		"	padding-bottom: 10px;\n"
-//		"	border-bottom: 1px solid black;\n"
+		"	padding-bottom: 40px;\n"
 		"}\n"
 		"div.links a, .showhide{\n"
 		"	text-decoration:none;\n"
@@ -2603,44 +2731,57 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"	/* -- media queries ***/\n"
 		"@media only screen and (orientation: landscape) {\n"
-		"	img{ max-height: 95vh; }\n"
+		"	img{ max-height: 90vh; }\n"
 		"}\n"
 		"@media only screen and (min-width:700px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
-		"		max-width:250px;\n"
-		"		justify-content: flex-end;\n"
-		"		padding:0 3px 0 3px;\n"
+		"		max-width:100vw;\n"
+		"		padding:0 10px;\n"
 		"	}\n"
-		"	img{ max-width: 100% ; max-height:267px; }\n"
-		"		p{ font-size: 12pt }\n"
-		"		main{ display:flex; flex-direction: column; }\n"
+		"	img{\n"
+		"		max-width: 100%;\n" 
+			//max-height:267px; 
+		"	}\n"
+		"	p{\n"
+		"		font-size:12pt\n"
+		"	}\n"
+		//"	main{\n" 
+		//"		display:flex;\n"
+		//"		flex-direction: column;\n"
+		//"   }\n"
 		// about
 		"   .about{\n"
-		"   	margin:auto;\n"
-		"      width:600px;\n"
-		"   	}\n"
-		"   }\n"
-		"   \n"
+		"		margin:auto;\n"
+		"		width:600px;\n"
+		"  	}\n"
+		"}\n"
+		"\n"
 		"	/* large screens */\n"
 		"@media only screen and (min-width:1200px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
 		"		max-width:400px;\n"
-		"		justify-content: flex-end;\n"
-		"		flex-direction: column;\n"
-		"		padding:0 3px 0 3px;\n"
+		"		flex-direction:column;\n"
+		"		padding:0 10px;\n"
 		"	}\n"
-		"	img{ max-width: 100% ; max-height:267px; }\n"
-		"		p{ font-size: 12pt }\n"
-		"	main{ display:flex; flex-direction: column; }\n"
+		"	img{\n"
+		"		max-width: 100%;\n" 
+		"		max-height:267px;\n"
+		"	}\n"
+		"	p{\n"
+		"		font-size: 12pt;\n"
+		"	}\n"
+		//"	main{\n"
+		//"		display:flex;\n"
+		//"		flex-direction: column;\n" 
+		//"  }\n"
 		// about
 		"   .about{\n"
-		"   	margin:auto;\n"
-		"      width:800px;\n"
-		"   	}\n"
-		"}\n"
-		"\n";
+		"		margin:auto;\n"
+		"		width:800px;\n"
+		"	}\n"
+		"}\n";
 	return s;
 }
 
@@ -2821,7 +2962,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
  *--------------------------------------------------------------------------*/
 void AlbumGenerator::_OutputFacebookLink(QString linkName, ID_t ID)
 {
-	if (!config.bfacebookLink)
+	if (!config.bFacebookLink)
 		return;
 		// facebook link
 	QString updir = (ID & ID_MASK) == 1 ? "" : "../";
@@ -2882,7 +3023,9 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 	// menu buttons
 	_ofs << "<p class=\"menu-line\">\n";
 	 if (!updir.isEmpty() && !uplink.isEmpty())
-		 _ofs << "<a href=\"" << uplink << "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\"></a>\n";			  // UP link
+		 _ofs << "<a href=\"" << uplink 
+			  << "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::toTop[_actLanguage] + "\" alt=\"" 
+		         + Languages::toTop[_actLanguage] +"\"></a>\n";			  // UP link
 	_ofs << "<a href=\"" 
 					<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
 			 << "</a>\n";																											  // Home page
@@ -2892,7 +3035,7 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
 	if(config.bMenuToToggleCaptions)
 		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
-	if(album.SubAlbumCount())
+	if(album.SubAlbumCount() && album.ImageCount())			// when no images no need to jump to albums
 		   _ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
 	if (config.generateLatestUploads)
 		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
@@ -2901,6 +3044,7 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
 	_ofs << "<br>\n";
+	if(album.titleID)
 	if(album.titleID)
 		_ofs << "<h2 class=\"album-title\">" << _textMap[album.titleID][_actLanguage] << "</h2>\n";
 	if (album.descID)
@@ -2936,8 +3080,8 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum, int i)
 {
 	const IdList &idList = (itIsAnAlbum ? album.albums : album.images);
-	ID_t id = idList[i];  
-	QString title, desc, sImageDir, sImagePath;
+	const ID_t id = idList[i];  
+	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
 	if ((album.ID & ID_MASK) == 1)
@@ -2952,6 +3096,7 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 	}
 
 	sImageDir = (QDir::isAbsolutePath(config.dsImageDir.ToString()) ? "" : sOneDirUp) + config.dsImageDir.ToString();
+	sThumbnailDir = (QDir::isAbsolutePath(config.dsThumbDir.ToString()) ? "" : sOneDirUp) + config.dsThumbDir.ToString();
 
 	Image *pImage = nullptr;
 	ID_t thumb = 0;
@@ -2963,7 +3108,10 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 			if (_imageMap.contains(thumb))
 				pImage = &_imageMap[thumb];
 			else
+			{
 				sImagePath = sImageDir + QString("%1.jpg").arg(thumb);
+				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb);
+			}
 		}
 		else
 			pImage = &_imageMap[0];
@@ -2980,23 +3128,37 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		title = _textMap[_albumMap[id].titleID][_actLanguage];
 		desc = _textMap[_albumMap[id].descID][_actLanguage];
 		
-		if(sImagePath.isEmpty())		// otherwise name for image already set
-			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") +  (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
+		{
+			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+			sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		}
 		_ofs <<  sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false);	// non root albums are in the same sub directory
 	}
 	else
 	{
-		title = _textMap[pImage->titleID][_actLanguage];
-		desc = _textMap[(pImage->descID)][_actLanguage];
+		title = DecodeLF(_textMap[pImage->titleID][_actLanguage], true);
+		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
 		sImagePath = sImageDir + ( (album.images.size() > 0 ? pImage->LinkName() : QString()) );
+		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
 		_ofs << sImagePath;		// image in the image directory
 	}
 
 
-	_ofs << "\"><img src=\"" + sImagePath + "\" alt=\"\"></a>\n"
-			"     </div>\n"											   // end of div thumb
-			"     <div class=\"links\">\n"
-			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\"></a>\n"
+	_ofs << "\"><img src=\"" + sThumbnailPath + "\" alt=\"\"></a>\n"
+			"     </div>\n";									   // end of div thumb
+	
+    //  -------------------------- description
+	_ofs << "     <div class=\"desc\">\n"
+		"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
+		<< (desc.isEmpty() ? "&nbsp;" : desc) << "</p>\n"
+		"     </div>\n";
+	//  -------------------------- end of description
+
+	//  -------------------------- links with  album/image title
+	_ofs << "     <div class=\"links\">\n"		
+			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
+																					"\" alt=\"" + Languages::upOneLevel[_actLanguage]  + "\"></a>\n"
 			"        <a class=\"album-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
@@ -3004,66 +3166,13 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
 	_ofs << (title.isEmpty() ? "---" : title)
 		<< "</a>\n"
-		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\"></div>\n"
-			"     </div>\n"											  // end of div links
-		    "     <div class=\"desc\">\n"
-		    "       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
-		<< (desc.isEmpty() ? "&nbsp;" : desc) << "</p>\n"
-		    "     </div>\n"
-		   "   </section>\n";
+		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
+								"\" alt=\"" + Languages::showCaptions[_actLanguage] + "\"></a></div>\n"
+			"     </div>\n";											 
+	// -----------------------------end of div links
+	_ofs << "   </section>\n";
 
 	return 0;
-}
-
-/*============================================================================
-* TASK:		read one image definition from the images.desc file
-* EXPECTS:	reader - file open in 'reader'
-*			img - output: image data
-* GLOBALS:
-* REMARKS:format of image definition lines:
-*	<image name> (<image size>,<width>x<height>,<owidth>x<oheight>,<ipload date>) = > <original file name>
-*--------------------------------------------------------------------------*/
-void AlbumGenerator::_ImageFromImageDescFile(FileReader &reader, Image & img)
-{
-	int pos, pos1;
-
-	pos = pos1 = reader.l().indexOf(' '); // after name	 (ID.extension)
-	while (pos >= 0 && reader.l()[--pos] != '.')	 // get end of ID
-		;
-	img.ID = reader.l().mid(0, pos).toULongLong();		  // ID
-
-	pos = pos1 + 2;	// after '('
-	pos1 = reader.l().indexOf(',', pos);		// to file size
-	img.fileSize = reader.l().mid(pos, pos1 - pos).toULongLong();
-	pos = pos1 + 1;	// skip ','
-
-	pos1 = reader.l().indexOf('x', pos);
-	img.width = reader.l().mid(pos, pos1 - pos).toInt();  // width
-
-	pos = ++pos1;    // to height
-	pos1 = reader.l().indexOf(',', pos);
-	img.height = reader.l().mid(pos, pos1 - pos).toInt(); // height
-
-	pos = ++pos1;		// after the ',' to original width
-
-	pos1 = reader.l().indexOf('x', pos);
-	img.owidth = reader.l().mid(pos, pos1 - pos).toInt();  // original width
-
-	pos = ++pos1;    // to original height
-	pos1 = reader.l().indexOf(',', pos);
-	img.oheight = reader.l().mid(pos, pos1 - pos).toInt(); // original height
-
-	img.aspect = img.oheight ? (double)img.owidth / (double)img.oheight : 1.0;
-
-	pos = ++pos1;	// to upload date
-	pos1 = reader.l().indexOf(')', pos);
-	img.uploadDate = DateFromString(reader.l().mid(pos, pos1 - pos));
-
-	pos = pos1 + 5;		// skip ") => "						   // rel. path
-
-	SeparateFileNamePath(reader.l().mid(pos), img.path, img.name);
-	img.path = config.dsSrc.ToString() + img.path;
-
 }
 
 /*============================================================================
@@ -3083,17 +3192,15 @@ int AlbumGenerator::_ProcessImages()
 	emit SignalToSetProgressParams(0, _imageMap.size(), 0, 1); // phase = 1
 	int cnt = 0;	// count of images copied
 
-	bool doProcess = true;	// only process image if this flag is set
+	bool doProcess = true,		// only process image if this flag is set
+		doProcessThumb = true;	// same for thumb
 
-	ImageConverter converter(config.imageWidth, config.imageHeight, config.doNotEnlarge);
+	QSize maxSize(config.imageWidth, config.imageHeight),
+		  maxThumbSize(config.thumbWidth, config.thumbHeight);
+	ImageConverter converter(maxSize, config.doNotEnlarge),
+		           thumbConverter(maxThumbSize, true);		// do not enlarge thumbnail image
 
 	emit SignalToEnableEditTab(false);
-
-	if (_bImageDataIsReady)	// then all image data including size, dimensions
-	{
-		emit SignalToEnableEditTab(true);
-		return 0;			// and upload date are already determined 		
-	}
 
 	_remDsp.Init(_imageMap.size());
 	if (config.waterMark.used)
@@ -3110,6 +3217,7 @@ int AlbumGenerator::_ProcessImages()
 			continue;
 
 		doProcess = true;		// suppose image changed
+		doProcessThumb = true;		// suppose image changed
 		if (cnt > 10)
 		{
 			_remDsp.Update(cnt);
@@ -3118,32 +3226,63 @@ int AlbumGenerator::_ProcessImages()
 
 		// resize and copy and  watermark
 		QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-				dst = config.ImageDirectory().ToString() + im.LinkName();
+				dst = config.ImageDirectory().ToString() + im.LinkName(),
+				thumb = config.ThumbnailDirectory().ToString() + im.LinkName();
 
-		QFileInfo fi(src);						// test for source image
-		bool srcExists = fi.exists();
-
-		bool dstExists = QFile::exists(dst);
+		QFileInfo fiSrc(src), fiThumb(thumb), fiDest(dst);						// test for source image
+		bool srcExists = fiSrc.exists(),
+			 dstExists = fiDest.exists(dst),
+			 thumbExists = fiThumb.exists();
 
 		if (!srcExists)
 		{
 			if (dstExists)						// source file was deleted
+			{
 				QFile::remove(dst);				// delete
+				if (thumbExists)
+					QFile::remove(thumb);
+			}
 			continue;
 		}
 
-		QImageReader imgReader(src);
+		ImageReader imgReader(src);			   // reads scaled image
 
-		if (dstExists)		// then test if this image was modified (width = 0: only added by name)
-		{
-			if (!im.width)	// read JAlbum, and no parameters jet
-				converter.GetSizes(imgReader);
-
-			QDate dt = fi.birthTime().date();
-			if (im.width && dt <= im.uploadDate &&	fi.size() == im.fileSize)   // not newer and  same size  (TODO: checksum)
-				doProcess = false;			// then do not process
+		QDateTime dtSrc = fiSrc.lastModified();		// date of creation of source image...
+// DEBUG
+//		QString gsDate = dtSrc.toString();
+// /DEBUG
+		if (dstExists)		// then test if the source image was modified (width = 0: only added by name)
+		{					// and if not then do not process it
+			QDateTime dtDestCreated = fiDest.lastModified();	   // created() => birthTime() since Qt 5.10
+// DEBUG
+//			gsDate = dtDestCreated.toString();
+// /DEBUG
+			bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
+			int64_t	fiSize = fiSrc.size();
+				// order of these checks is important!
+			if (!_MustRecreateImageBasedOnSize(im) && fiSize == im.fileSize && destIsNewer)
+					doProcess = false;			// then do not process
+			if(destIsNewer)
+				im.uploadDate = dtDestCreated.date();
+			
+			if (im.fileSize != fiSize)			// image size changed: set new size in structure
+				im.fileSize = fiSize;
 		}
-		if (doProcess)
+		if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
+		{
+			if (!im.width)	// read JAlbum, and no parameters yet
+				thumbConverter.GetSizes(imgReader);
+
+			QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
+			bool thumbIsNewer = dtThumb > dtSrc;
+			// order of these checks is important!
+			if(!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer)
+				doProcessThumb = false;			// then do not process
+		}
+// debug
+//		doProcess = doProcessThumb = false;
+// /debug
+		if (doProcess || doProcessThumb)
 		{
 			//		int btn;
 					//if (!QFile::exists(dst) && !config.bOvrImages)
@@ -3152,15 +3291,22 @@ int AlbumGenerator::_ProcessImages()
 					//			emit SignalToEnableEditTab(true);
 					//			return false;
 					//  }
+			_structChanged = true;			// when image changes structure must be re-saved
+
 			WaterMark *pwm = nullptr;
 			if (config.waterMark.used)
 				pwm = &config.waterMark.wm;
-			im.aspect = converter.Process(imgReader, dst, config.bOvrImages,pwm);
-			im.owidth = converter.owidth;
-			im.oheight = converter.oheight;
-			im.width = converter.width;
-			im.height = converter.height;
-			_imageMap[im.ID] = im;			
+			if (doProcess)
+			{
+				im.aspect = converter.Process(imgReader, dst, false, config.bOvrImages, pwm);
+				im.owidth = converter.oSize.width();
+				im.oheight = converter.oSize.height();
+				im.width = converter.newSize.width();
+				im.height = converter.newSize.height();
+				_imageMap[im.ID] = im;
+			}
+			if (doProcessThumb)
+				thumbConverter.Process(imgReader, thumb, true, config.bOvrImages, pwm);
 
 //			emit SignalImageMapChanged();	// modify list of images
 			QApplication::processEvents();
@@ -3170,7 +3316,6 @@ int AlbumGenerator::_ProcessImages()
 							// progress bar
 		emit SignalProgressPos(++cnt, _imageMap.size());
 	}
-	_bImageDataIsReady = true;
 	emit SignalToEnableEditTab(true);
 	return 0;
 }
@@ -3201,6 +3346,14 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language); // all non root albums are in the same directory
 
 	QFile f(s);
+	if (!_mustRecreateAllAlbums && f.exists() && !album.changed && !_structChanged)
+	{
+		_remDsp.Update(processedCount);
+		emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
+		emit SignalProgressPos(++processedCount, _albumMap.size() * Languages::Count());
+		return 0;
+	}
+
 	if (!f.open(QIODevice::WriteOnly))
 		return 16;
 
@@ -3218,7 +3371,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	else
 		_ofs << "<body>\n";
 
-	if (config.bfacebookLink)
+	if (config.bFacebookLink)
 		_ofs << _IncludeFacebookLibrary(); /* 
 										QString("<!--get facebooks js code-->\n"
 										"<div id = \"fb-root\"></div>\n"
@@ -3242,7 +3395,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "<a name=\"images\">" << Languages::toImages[_actLanguage] << "</a>\n""<section id=\"images\">\n";
+			<< "<a name=\"images\">" << Languages::Images[_actLanguage] << "</a>\n""<section id=\"images\">\n";
 		// first the images
 		for (int i = 0; _running && i < album.images.size(); ++i)
 //			if (album.excluded.indexOf(album.images[i]) < 0)
@@ -3252,7 +3405,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if (album.SubAlbumCount())
 	{
 		_ofs << "\n<!--start section albums -->\n"
-			<< "<a name = \"galleries\">" << Languages::toAlbums[_actLanguage] << "</a>\n"
+			<< "<a name = \"galleries\">" << Languages::Albums[_actLanguage] << "</a>\n"
 			"<section id = \"folders\">\n";
 
 		for (int i = 0; _running && i < album.albums.size(); ++i)
@@ -3463,10 +3616,7 @@ int AlbumGenerator::Write()
 	_ProcessImages();	// copy from from source into image directory
 						// determine image dimensions and latest upload date
 	if (_structChanged)		// do not save after read of structure
-	{
 		WriteDirStruct();   // all album and image data is read in
-		_structChanged = false;
-	}
 
 	int i;					// returns:
 	i = _DoCopyRes();			// 0 | 1
@@ -3477,6 +3627,7 @@ int AlbumGenerator::Write()
 	i |= _DoLatest();			// 0 | 32
 
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
+	_structChanged = 0;
 	_running = false;
 
 	return i;
@@ -3554,8 +3705,9 @@ void AlbumStructWriterThread::run()
 			<< "  abbrev=" << Languages::abbrev[i] << "\n"
 			<< "  name=" << Languages::names[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
-			<< "  images=" << Languages::toImages[i] << "\n"
-			<< "  albums=" << Languages::toAlbums[i] << "\n"
+			<< "  images=" << Languages::Images[i] << "\n"
+			<< "  albums=" << Languages::Albums[i] << "\n"
+			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
 			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  about=" << Languages::toAboutPage[i] << "\n"
 			<< "  contact=" << Languages::toContact[i] << "\n"
@@ -3614,15 +3766,17 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 					<< pImg->owidth << "x" << pImg->oheight << ","				   // field #5 - #6
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
-					<< pImg->fileSize	<< ")/";								   // field #8
+					<< pImg->fileSize << ")";									   // field #8
 				s = pImg->path;
 				if (s.left(len) == config.dsSrc.ToString())
 					s = s.mid(len);
-				_ofs << s << "\n";	
-											   // field #9
-				WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
-				WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
+				_ofs << s << "\n";
+				// field #9
 			}
+			else
+				_ofs << indent << pImg->name << " # is missing\n";
+			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
+			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 		}
 	for (ID_t id : album.albums)
 		if (id && album.excluded.indexOf(id) < 0)		// not excluded
@@ -3643,12 +3797,12 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	QString s = album.path;	// album.FullName()  +'/';
 	int len = config.dsSrc.Length();
 	if (s.left(len) == config.dsSrc.ToString())	// drop sorce path ending '/'
-		s = s.mid(len);				// so root album will have a path of '/'
+		s = s.mid(len);				// so root album will have no path 
 
 	ID_t thumbnail = album.thumbnail = _ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << "(A:" << (album.ID & ~ALBUM_ID_FLAG) << ")/" << s << "\n";
+		<< album.name << "(A:" << (album.ID & ~ALBUM_ID_FLAG) << ")" << s << "\n";
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 

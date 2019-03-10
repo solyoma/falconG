@@ -57,7 +57,7 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 }
 
 /*============================================================================
-* TASK:
+* TASK:		this tree model has only one column
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
@@ -68,10 +68,11 @@ int AlbumTreeModel::columnCount(const QModelIndex & parent) const
 }
 
 /*============================================================================
-* TASK:
+* TASK:		returns album name for given index, using the internal pointer 
+*			of the index as an album ID
 * EXPECTS:
 * GLOBALS:
-* REMARKS:
+* REMARKS: only returns valid data for DisplayRole
 *--------------------------------------------------------------------------*/
 QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 {
@@ -98,7 +99,14 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 *			- there is only one topmost album
 *			- the row of the topmost album is 0
 *			- The row of the parent is the index of the parent in the
-*				album list of *its* parent
+*				album list of *its* parent. 
+*				Example:  tree						row  row of parent
+*					album0							 0		-
+*						album1                       0		0
+*						album2						 1		0
+*							album3					 0		1
+*							album4					 1		1
+*					album5							 1		0
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 {
@@ -113,7 +121,7 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 
 	Album &abp = map[aParent];				  // parent album
 	ID_t bParent = abp.parent;				  // parent's parent
-	if(bParent == 0)						  // parent is the topmost elemnt
+	if(bParent == 0)						  // parent is the topmost element
 		return createIndex(0, ind.column(), quintptr(1+ALBUM_ID_FLAG)); 
 
 	IdList albums = map[bParent].albums;	// parent's parent
@@ -127,7 +135,7 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 }
 
 /*============================================================================
-* TASK:
+* TASK:	   redraw tree
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
@@ -139,7 +147,7 @@ void AlbumTreeModel::ModelChanged()
 }
 
 /*============================================================================
-  * TASK:
+  * TASK:	return property flags for index
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
@@ -164,7 +172,7 @@ Qt::ItemFlags AlbumTreeModel::flags(const QModelIndex & index) const
 }
 
 /*============================================================================
-  * TASK:
+  * TASK:	  add a data to the tree 
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
@@ -176,11 +184,11 @@ bool AlbumTreeModel::setData(const QModelIndex & index, const QVariant & value, 
 }
 
 /*============================================================================
-  * TASK:
+  * TASK:	 change header data
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: no heder data shown
  *--------------------------------------------------------------------------*/
 bool AlbumTreeModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant & value, int role)
 {
@@ -192,7 +200,7 @@ bool AlbumTreeModel::setHeaderData(int section, Qt::Orientation orientation, con
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
-  * REMARKS:
+  * REMARKS: not used
  *--------------------------------------------------------------------------*/
 bool AlbumTreeModel::insertColumns(int position, int columns, const QModelIndex & parent)
 {
@@ -212,21 +220,25 @@ bool AlbumTreeModel::removeColumns(int position, int columns, const QModelIndex 
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
+  * TASK:	insert rows into a parent
+  * EXPECTS: row: insert before this row of the parent (0: before, rowCount(): after)
+  *			 count: insert this many rows
+  *			 parent: item these new rows will be children of
+  * RETURNS: if inserted (default: false)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-bool AlbumTreeModel::insertRows(int position, int rows, const QModelIndex & parent)
+bool AlbumTreeModel::insertRows(int row, int count, const QModelIndex & parent)
 {
 	return false;
 }
 
 /*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
+  * TASK:	remove count rows from a parent
+  * EXPECTS: row: remove starting with this row of the parent
+  *			 count: remove this many rows
+  *			 parent: item these new rows are children of
+  * RETURNS: if removeed (default: false)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
