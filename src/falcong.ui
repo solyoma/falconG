@@ -97,10 +97,10 @@ regardless if they were already OK.</string>
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Preview (F2)</string>
+          <string>Preview (F12)</string>
          </property>
          <property name="shortcut">
-          <string>F2</string>
+          <string>F12</string>
          </property>
         </widget>
        </item>

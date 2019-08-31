@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'falcong.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.0
+** Created by: Qt User Interface Compiler version 5.12.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -2607,9 +2607,9 @@ public:
 #endif // QT_NO_TOOLTIP
         chkGenerateAll->setText(QApplication::translate("falconGClass", "&all", nullptr));
         chkButImages->setText(QApplication::translate("falconGClass", "but images", nullptr));
-        btnPreview->setText(QApplication::translate("falconGClass", "Preview (F2)", nullptr));
+        btnPreview->setText(QApplication::translate("falconGClass", "Preview (F12)", nullptr));
 #ifndef QT_NO_SHORTCUT
-        btnPreview->setShortcut(QApplication::translate("falconGClass", "F2", nullptr));
+        btnPreview->setShortcut(QApplication::translate("falconGClass", "F12", nullptr));
 #endif // QT_NO_SHORTCUT
         btnSaveStyleSheet->setText(QApplication::translate("falconGClass", "Save CSS", nullptr));
         btnSaveConfig->setText(QApplication::translate("falconGClass", "Save con&fig.", nullptr));
