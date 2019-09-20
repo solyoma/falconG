@@ -794,7 +794,8 @@ int Album::SubAlbumCount()
 /*============================================================================
 * TASK: Create full link name of album
 * EXPECTS: language -  index of language
-*			http - true: http or https prefix plus adda albumdir to the front wgen needed, false: just name
+*			http - true: http or https prefix plus add albumdir to the 
+*			front wgen needed, false: just name
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -858,6 +859,23 @@ QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
 QString Album::NameFromID(int language)
 {
 	return NameFromID(ID, language, false);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString Album::SiteLink(int language)
+{
+	QString s;
+	if (config.sServerAddress.ToString().toLower().left(4) == "http")
+		s = config.sServerAddress + "/";
+	else
+		s = (config.bForceSSL ? "https://" : "http://") + config.sServerAddress + "/";
+	return s;
 }
 
 /**************************** AlbumMap *****************************/
@@ -1134,7 +1152,7 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
  *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_MustRecreateImageBasedOnSize(Image & img)
 {
-	return  
+	return  config.bButImages ? false : 
 			(config.bGenerateAll && !config.bButImages)
 		||
 			!img.width 
@@ -1166,7 +1184,7 @@ bool AlbumGenerator::_MustRecreateThumbBasedOnSize(QString thumbPath, Image & im
 	ImageReader reader(thumbPath);
 	QSize size = reader.size();
 
-	return 
+	return  config.bButImages ? false :
 		(config.bGenerateAll && !config.bButImages)
 			||
 		!size.width()
@@ -2521,9 +2539,10 @@ QString AlbumGenerator::_MenuColorCSSToString()
 	s = "div.menu-line {\n"
 		"	position: -webkit-sticky;\n"	 /* Safari */
 		"   position: sticky;\n"
-		"   top : 0;\n"
-		"   display:inline-block\n";
-		"}"
+		"   top : 10px;\n"
+		"   display:inline-block;\n"
+		"   margin-bottom:1rem;\n"
+		"}\n"
 		"div.menu-line a {\n";
 	if (config.Menu.gradient.used)
 		s += " background:" + _GradientCssToString(config.Menu);
@@ -2576,7 +2595,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString("a, a:visited", config.Menu, wColor) +
 		_ElemColorCssToString("a.doboz", config.Lang, wColor) +
 		_ElemColorCssToString("a[name=\"images\"],a[name=\"galleries\"]", config.Section, wColor) +
-		_ElemColorCssToString("#folders p", config.AlbumDesc, wColor) +
+		_ElemColorCssToString(".folders p", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
 		_ElemColorCssToString("footer", config.ImageDesc, wColor) + 
 
@@ -2584,7 +2603,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_MenuColorCSSToString() + 
 		// end of menu button
 
-		_ElemColorCssToString("#images, #folders", config.images, wColor);
+		_ElemColorCssToString("#images, .folders", config.images, wColor);
 	if (config.imageBorder.used)
 		s += "section div.thumb img{\n 	border:" + QString().setNum(config.imageBorder.width) + "px solid " + config.imageBorder.color.name + ";\n}\n";
 // DEBUG
@@ -2692,14 +2711,14 @@ QString AlbumGenerator::_CssToString()
 		"	font-size: 13px;\n"
 		"}\n"
 		"\n"
-// p.menu-line a
-		"p.menu-line a{\n"
+// div.menu-line a
+		"div.menu-line a{\n"
 		+ _FontToCss(config.Menu) +
 		"	line-height: 18px;\n"
 		"	border-radius: 5px;\n"
 		"	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n"
 		"	display: inline-block;\n"
-		"	margin: 2px 3px 2px 10px;\n"
+		"	margin: 2px 3px 2px 2px;\n"
 		"	padding: 4px 10px 3px;\n"
 		"}\n"
 		"\n"
@@ -2765,7 +2784,7 @@ QString AlbumGenerator::_CssToString()
 		"	/* --- end main section --*/\n"
 		"\n"
 // #images, #folders
-		"#images, #folders{\n"
+		"#images, .folders{\n"
 		"	display: flex;\n"
 		"	flex-flow: row wrap;\n"
 		"	justify-content: center;\n"
@@ -2823,7 +2842,7 @@ QString AlbumGenerator::_CssToString()
 		"div.links{\n"
 		"	display:flex;\n"
 		"	width:100% ;\n"
-		"	justify-content:space-between;\n"
+		"	justify-content:center;\n"
 		"	margin-bottom: 10px;\n"
 		"	padding-bottom: 40px;\n"
 		"}\n"
@@ -3131,7 +3150,7 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 	_ofs << "<div class=\"menu-line\">\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
 		_ofs << "<a href=\"" << uplink
-		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::toTop[_actLanguage] + "\" alt=\""
+		<< "\"><img src=\"" + updir + "res/left-icon.png\" style=\"height:14px;\" title=\"" + Languages::toTop[_actLanguage] + "\" alt=\""
 		+ Languages::toTop[_actLanguage] + "\"></a>\n";			  // UP link
 	_ofs << "<a href=\""
 		<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
@@ -3166,14 +3185,17 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 int AlbumGenerator::_OuputHeaderSection(Album &album)
 {
 
-	_ofs << "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
+	_ofs << "<header>\n"
+		    "<a href=\""<< album.SiteLink(_actLanguage) << "\">"
+				"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
+			"</a>&nbsp; &nbsp;";
 	// _actLanguage switch texts
 	for (int i = 0; i < Languages::Count(); ++i)
 		if (i != _actLanguage)
-			_ofs << "<a class=\"doboz\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp;\n";
+			_ofs << "<a class=\"doboz\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp\n";
 	// facebook link
 	_OutputFacebookLink(album.LinkName(_actLanguage, true), album.ID);
-
+	_ofs << "<br><br><br>\n";
 	if(album.titleID)
 		_ofs << "<h2 class=\"album-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
 	if (album.descID)
@@ -3321,6 +3343,9 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_ProcessImages()
 {
+	if (config.bButImages)
+		return 0;
+
 	// progress bar
 	emit SignalToSetProgressParams(0, _imageMap.size(), 0, 1); // phase = 1
 	int cnt = 0;	// count of images copied
@@ -3394,7 +3419,7 @@ int AlbumGenerator::_ProcessImages()
 			bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
 			int64_t	fiSize = fiSrc.size();
 				// order of these checks is important!
-			if (!_MustRecreateImageBasedOnSize(im) && fiSize == im.fileSize && destIsNewer)
+			if ( config.bButImages || (!_MustRecreateImageBasedOnSize(im) && fiSize == im.fileSize && destIsNewer) )
 					doProcess = false;			// then do not process
 			if(destIsNewer)
 				im.uploadDate = dtDestCreated.date();
@@ -3410,7 +3435,7 @@ int AlbumGenerator::_ProcessImages()
 			QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 			bool thumbIsNewer = dtThumb > dtSrc;
 			// order of these checks is important!
-			if(!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer)
+			if(config.bButImages || (!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer) )
 				doProcessThumb = false;			// then do not process
 		}
 // debug
@@ -3514,8 +3539,8 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 	if (album.SubAlbumCount())
 	{
 		_ofs << "\n<!--start section albums -->\n"
-			<< "<a name = \"galleries\">" << Languages::Albums[_actLanguage] << "</a>\n"
-			"<section id = \"folders\">\n";
+			<< "<a name = \"galleries\"  id = \"folders\">" << Languages::Albums[_actLanguage] << "</a>\n"
+			"<section class=\"folders\">\n";
 
 		for (int i = 0; _running && i < album.albums.size(); ++i)
 			//			if (album.excluded.indexOf(album.albums[i]) < 0)

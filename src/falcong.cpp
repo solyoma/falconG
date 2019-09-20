@@ -497,6 +497,7 @@ void FalconG::_PopulateFromConfig()
 	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
 	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
 	ui.chkGenerateAll->setChecked(config.bGenerateAll);
+	ui.chkButImages->setChecked(config.bButImages);
 
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
 

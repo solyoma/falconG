@@ -79,6 +79,10 @@ public:
     QLineEdit *edtUplink;
     QLabel *label_21;
     QLineEdit *edtMainPage;
+    QLabel *label_36;
+    QLineEdit *edtDescription;
+    QLabel *label_61;
+    QLineEdit *edtKeywords;
     QHBoxLayout *horizontalLayout_16;
     QGroupBox *gbGallery;
     QGridLayout *gridLayout_17;
@@ -222,28 +226,27 @@ public:
     QVBoxLayout *verticalLayout_14;
     QWidget *pnlGallery;
     QVBoxLayout *verticalLayout;
+    QWidget *menuWidget;
+    QPushButton *btnCaption;
+    QPushButton *btnLang;
+    QPushButton *btnMenu;
+    QPushButton *btnUplink;
     QPushButton *btnGalleryTitle;
     QPushButton *btnGalleryDesc;
     QFrame *frmWeb;
     QGridLayout *gridLayout_14;
-    QPushButton *btnSection;
-    QPushButton *btnAlbumDesc;
+    QPushButton *btnImageDesc;
     QPushButton *btnAlbumTitle;
-    QToolButton *btnImage;
-    QHBoxLayout *horizontalLayout_13;
-    QPushButton *btnUplink;
-    QPushButton *btnMenu;
-    QPushButton *btnCaption;
-    QSpacerItem *horizontalSpacer_10;
-    QHBoxLayout *horizontalLayout_12;
-    QPushButton *btnSmallGalleryTitle;
-    QPushButton *btnLang;
-    QSpacerItem *horizontalSpacer_11;
     QHBoxLayout *horizontalLayout_15;
     QPushButton *btnIconToTop;
     QPushButton *btnImageTitle;
     QPushButton *btnDescription;
-    QPushButton *btnImageDesc;
+    QPushButton *btnAlbumDesc;
+    QHBoxLayout *horizontalLayout_12;
+    QPushButton *btnSmallGalleryTitle;
+    QSpacerItem *horizontalSpacer_11;
+    QPushButton *btnSection;
+    QToolButton *btnImage;
     QSpacerItem *verticalSpacer_5;
     QWidget *tabImages;
     QVBoxLayout *verticalLayout_1;
@@ -360,7 +363,7 @@ public:
         if (falconGClass->objectName().isEmpty())
             falconGClass->setObjectName(QString::fromUtf8("falconGClass"));
         falconGClass->setEnabled(true);
-        falconGClass->resize(753, 805);
+        falconGClass->resize(753, 864);
         falconGClass->setMinimumSize(QSize(753, 0));
         falconGClass->setMaximumSize(QSize(16777215, 16777215));
         falconGClass->setStyleSheet(QString::fromUtf8(""));
@@ -564,6 +567,30 @@ public:
         edtMainPage->setFont(font);
 
         formLayout->setWidget(3, QFormLayout::FieldRole, edtMainPage);
+
+        label_36 = new QLabel(gbServer);
+        label_36->setObjectName(QString::fromUtf8("label_36"));
+        label_36->setFont(font);
+
+        formLayout->setWidget(4, QFormLayout::LabelRole, label_36);
+
+        edtDescription = new QLineEdit(gbServer);
+        edtDescription->setObjectName(QString::fromUtf8("edtDescription"));
+        edtDescription->setFont(font);
+
+        formLayout->setWidget(4, QFormLayout::FieldRole, edtDescription);
+
+        label_61 = new QLabel(gbServer);
+        label_61->setObjectName(QString::fromUtf8("label_61"));
+        label_61->setFont(font);
+
+        formLayout->setWidget(5, QFormLayout::LabelRole, label_61);
+
+        edtKeywords = new QLineEdit(gbServer);
+        edtKeywords->setObjectName(QString::fromUtf8("edtKeywords"));
+        edtKeywords->setFont(font);
+
+        formLayout->setWidget(5, QFormLayout::FieldRole, edtKeywords);
 
 
         verticalLayout_17->addWidget(gbServer);
@@ -1381,15 +1408,17 @@ public:
         gridLayout_10->setContentsMargins(3, 3, 3, 3);
         chkIconTop = new QCheckBox(gbDecoration);
         chkIconTop->setObjectName(QString::fromUtf8("chkIconTop"));
+        chkIconTop->setEnabled(false);
         chkIconTop->setFont(font);
-        chkIconTop->setChecked(true);
+        chkIconTop->setChecked(false);
 
         gridLayout_10->addWidget(chkIconTop, 5, 0, 1, 3);
 
         chkIconText = new QCheckBox(gbDecoration);
         chkIconText->setObjectName(QString::fromUtf8("chkIconText"));
+        chkIconText->setEnabled(false);
         chkIconText->setFont(font);
-        chkIconText->setChecked(true);
+        chkIconText->setChecked(false);
 
         gridLayout_10->addWidget(chkIconText, 6, 0, 1, 1);
 
@@ -1474,11 +1503,119 @@ public:
         verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
         pnlGallery = new QWidget(groupBox_6);
         pnlGallery->setObjectName(QString::fromUtf8("pnlGallery"));
-        pnlGallery->setStyleSheet(QString::fromUtf8(""));
+        pnlGallery->setStyleSheet(QString::fromUtf8("background-color:#580508;"));
         verticalLayout = new QVBoxLayout(pnlGallery);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        menuWidget = new QWidget(pnlGallery);
+        menuWidget->setObjectName(QString::fromUtf8("menuWidget"));
+        menuWidget->setMinimumSize(QSize(0, 35));
+        menuWidget->setStyleSheet(QString::fromUtf8(""));
+        btnCaption = new QPushButton(menuWidget);
+        btnCaption->setObjectName(QString::fromUtf8("btnCaption"));
+        btnCaption->setEnabled(true);
+        btnCaption->setGeometry(QRect(129, 0, 84, 29));
+        btnCaption->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+""));
+        btnLang = new QPushButton(menuWidget);
+        btnLang->setObjectName(QString::fromUtf8("btnLang"));
+        btnLang->setEnabled(true);
+        btnLang->setGeometry(QRect(219, 3, 75, 23));
+        btnLang->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"   color:#FFFF00;\n"
+"background-color:#a03020;\n"
+"   font-size: 8pt;\n"
+" }"));
+        btnLang->setFlat(true);
+        btnMenu = new QPushButton(menuWidget);
+        btnMenu->setObjectName(QString::fromUtf8("btnMenu"));
+        btnMenu->setEnabled(true);
+        btnMenu->setGeometry(QRect(59, 0, 64, 29));
+        btnMenu->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+""));
+        btnUplink = new QPushButton(menuWidget);
+        btnUplink->setObjectName(QString::fromUtf8("btnUplink"));
+        btnUplink->setEnabled(true);
+        btnUplink->setGeometry(QRect(5, 0, 48, 29));
+        btnUplink->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
+"color:#fff; \n"
+"border: 1px solid #6d0019;\n"
+"padding: 4px 10px 3px;\n"
+"font-size: 13px;\n"
+"line-height: 18px;\n"
+"margin: 2px 3px;\n"
+"font-weight: 800;\n"
+"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
+"border-radius: 5px;\n"
+"}\n"
+""));
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/icons/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnUplink->setIcon(icon);
+        btnUplink->setFlat(false);
+
+        verticalLayout->addWidget(menuWidget);
+
         btnGalleryTitle = new QPushButton(pnlGallery);
         btnGalleryTitle->setObjectName(QString::fromUtf8("btnGalleryTitle"));
         QFont font3;
@@ -1515,7 +1652,7 @@ public:
         frmWeb->setSizePolicy(sizePolicy);
         frmWeb->setMinimumSize(QSize(0, 549));
         frmWeb->setStyleSheet(QString::fromUtf8("QFrame {\n"
-"background-color:#a03020;\n"
+"background-color:#580508;\n"
 "}"));
         frmWeb->setFrameShape(QFrame::StyledPanel);
         frmWeb->setFrameShadow(QFrame::Raised);
@@ -1523,32 +1660,14 @@ public:
         gridLayout_14->setSpacing(6);
         gridLayout_14->setContentsMargins(11, 11, 11, 11);
         gridLayout_14->setObjectName(QString::fromUtf8("gridLayout_14"));
-        btnSection = new QPushButton(frmWeb);
-        btnSection->setObjectName(QString::fromUtf8("btnSection"));
-        QFont font4;
-        font4.setFamily(QString::fromUtf8("Papyrus"));
-        font4.setPointSize(22);
-        font4.setBold(true);
-        font4.setWeight(75);
-        btnSection->setFont(font4);
-        btnSection->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"color:#fff;\n"
-"font-family:Papyrus;\n"
-"font-size:22pt;\n"
-"font-weight:bold;\n"
-"}"));
-        btnSection->setFlat(true);
-
-        gridLayout_14->addWidget(btnSection, 4, 1, 1, 1);
-
-        btnAlbumDesc = new QPushButton(frmWeb);
-        btnAlbumDesc->setObjectName(QString::fromUtf8("btnAlbumDesc"));
-        btnAlbumDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+        btnImageDesc = new QPushButton(frmWeb);
+        btnImageDesc->setObjectName(QString::fromUtf8("btnImageDesc"));
+        btnImageDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff\n"
 "}"));
-        btnAlbumDesc->setFlat(true);
+        btnImageDesc->setFlat(true);
 
-        gridLayout_14->addWidget(btnAlbumDesc, 3, 1, 1, 1);
+        gridLayout_14->addWidget(btnImageDesc, 5, 1, 1, 1);
 
         btnAlbumTitle = new QPushButton(frmWeb);
         btnAlbumTitle->setObjectName(QString::fromUtf8("btnAlbumTitle"));
@@ -1561,133 +1680,60 @@ public:
 "}"));
         btnAlbumTitle->setFlat(true);
 
-        gridLayout_14->addWidget(btnAlbumTitle, 2, 1, 1, 1);
+        gridLayout_14->addWidget(btnAlbumTitle, 1, 1, 1, 1);
 
-        btnImage = new QToolButton(frmWeb);
-        btnImage->setObjectName(QString::fromUtf8("btnImage"));
-        sizePolicy3.setHeightForWidth(btnImage->sizePolicy().hasHeightForWidth());
-        btnImage->setSizePolicy(sizePolicy3);
-        btnImage->setMinimumSize(QSize(275, 185));
-        btnImage->setMaximumSize(QSize(275, 185));
-        btnImage->setStyleSheet(QString::fromUtf8("QToolButton {\n"
-" border: 1px solid #ffff00;\n"
-"}"));
-        QIcon icon;
-        icon.addFile(QString::fromUtf8(":/icons/Resources/Lazise_02596-Edit.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnImage->setIcon(icon);
-        btnImage->setIconSize(QSize(270, 180));
-
-        gridLayout_14->addWidget(btnImage, 5, 1, 1, 1);
-
-        horizontalLayout_13 = new QHBoxLayout();
-        horizontalLayout_13->setSpacing(6);
-        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
-        btnUplink = new QPushButton(frmWeb);
-        btnUplink->setObjectName(QString::fromUtf8("btnUplink"));
-        btnUplink->setEnabled(true);
-        btnUplink->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-"QPushButton:pressed {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-""));
+        horizontalLayout_15 = new QHBoxLayout();
+        horizontalLayout_15->setSpacing(6);
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
+        btnIconToTop = new QPushButton(frmWeb);
+        btnIconToTop->setObjectName(QString::fromUtf8("btnIconToTop"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/icons/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnUplink->setIcon(icon1);
-        btnUplink->setFlat(false);
+        icon1.addFile(QString::fromUtf8(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnIconToTop->setIcon(icon1);
+        btnIconToTop->setFlat(true);
 
-        horizontalLayout_13->addWidget(btnUplink);
+        horizontalLayout_15->addWidget(btnIconToTop);
 
-        btnMenu = new QPushButton(frmWeb);
-        btnMenu->setObjectName(QString::fromUtf8("btnMenu"));
-        btnMenu->setEnabled(true);
-        btnMenu->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-"QPushButton:pressed {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-""));
+        btnImageTitle = new QPushButton(frmWeb);
+        btnImageTitle->setObjectName(QString::fromUtf8("btnImageTitle"));
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Rage Italic"));
+        font4.setPointSize(14);
+        font4.setBold(true);
+        font4.setWeight(75);
+        btnImageTitle->setFont(font4);
+        btnImageTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"color:#ddd;\n"
+"text-shadow: 0px 0px 20px #aaa;\n"
+"font-family: \"Rage Italic\";\n"
+"font-size:14pt;\n"
+"font-weight: bold;\n"
+"}"));
+        btnImageTitle->setFlat(true);
 
-        horizontalLayout_13->addWidget(btnMenu);
+        horizontalLayout_15->addWidget(btnImageTitle);
 
-        btnCaption = new QPushButton(frmWeb);
-        btnCaption->setObjectName(QString::fromUtf8("btnCaption"));
-        btnCaption->setEnabled(true);
-        btnCaption->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-"QPushButton:pressed {\n"
-"background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);\n"
-"color:#fff; \n"
-"border: 1px solid #6d0019;\n"
-"padding: 4px 10px 3px;\n"
-"font-size: 13px;\n"
-"line-height: 18px;\n"
-"margin: 2px 3px;\n"
-"font-weight: 800;\n"
-"box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-"border-radius: 5px;\n"
-"}\n"
-""));
+        btnDescription = new QPushButton(frmWeb);
+        btnDescription->setObjectName(QString::fromUtf8("btnDescription"));
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnDescription->setIcon(icon2);
+        btnDescription->setIconSize(QSize(32, 32));
+        btnDescription->setFlat(true);
 
-        horizontalLayout_13->addWidget(btnCaption);
+        horizontalLayout_15->addWidget(btnDescription);
 
-        horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_13->addItem(horizontalSpacer_10);
+        gridLayout_14->addLayout(horizontalLayout_15, 6, 1, 1, 1);
 
-        horizontalLayout_13->setStretch(1, 1);
-        horizontalLayout_13->setStretch(2, 1);
-        horizontalLayout_13->setStretch(3, 9999);
+        btnAlbumDesc = new QPushButton(frmWeb);
+        btnAlbumDesc->setObjectName(QString::fromUtf8("btnAlbumDesc"));
+        btnAlbumDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"color:#fff\n"
+"}"));
+        btnAlbumDesc->setFlat(true);
 
-        gridLayout_14->addLayout(horizontalLayout_13, 1, 0, 1, 3);
+        gridLayout_14->addWidget(btnAlbumDesc, 2, 1, 1, 1);
 
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setSpacing(6);
@@ -1705,18 +1751,6 @@ public:
 
         horizontalLayout_12->addWidget(btnSmallGalleryTitle);
 
-        btnLang = new QPushButton(frmWeb);
-        btnLang->setObjectName(QString::fromUtf8("btnLang"));
-        btnLang->setEnabled(true);
-        btnLang->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"   color:#FFFF00;\n"
-"background-color:#a03020;\n"
-"   font-size: 8pt;\n"
-" }"));
-        btnLang->setFlat(true);
-
-        horizontalLayout_12->addWidget(btnLang);
-
         horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_12->addItem(horizontalSpacer_11);
@@ -1724,58 +1758,39 @@ public:
 
         gridLayout_14->addLayout(horizontalLayout_12, 0, 0, 1, 3);
 
-        horizontalLayout_15 = new QHBoxLayout();
-        horizontalLayout_15->setSpacing(6);
-        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
-        btnIconToTop = new QPushButton(frmWeb);
-        btnIconToTop->setObjectName(QString::fromUtf8("btnIconToTop"));
-        QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/icon/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnIconToTop->setIcon(icon2);
-        btnIconToTop->setFlat(true);
-
-        horizontalLayout_15->addWidget(btnIconToTop);
-
-        btnImageTitle = new QPushButton(frmWeb);
-        btnImageTitle->setObjectName(QString::fromUtf8("btnImageTitle"));
+        btnSection = new QPushButton(frmWeb);
+        btnSection->setObjectName(QString::fromUtf8("btnSection"));
         QFont font5;
-        font5.setFamily(QString::fromUtf8("Rage Italic"));
-        font5.setPointSize(14);
+        font5.setFamily(QString::fromUtf8("Papyrus"));
+        font5.setPointSize(22);
         font5.setBold(true);
         font5.setWeight(75);
-        btnImageTitle->setFont(font5);
-        btnImageTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"color:#ddd;\n"
-"text-shadow: 0px 0px 20px #aaa;\n"
-"font-family: \"Rage Italic\";\n"
-"font-size:14pt;\n"
-"font-weight: bold;\n"
+        btnSection->setFont(font5);
+        btnSection->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"color:#fff;\n"
+"font-family:Papyrus;\n"
+"font-size:22pt;\n"
+"font-weight:bold;\n"
 "}"));
-        btnImageTitle->setFlat(true);
+        btnSection->setFlat(true);
 
-        horizontalLayout_15->addWidget(btnImageTitle);
+        gridLayout_14->addWidget(btnSection, 3, 1, 1, 1);
 
-        btnDescription = new QPushButton(frmWeb);
-        btnDescription->setObjectName(QString::fromUtf8("btnDescription"));
+        btnImage = new QToolButton(frmWeb);
+        btnImage->setObjectName(QString::fromUtf8("btnImage"));
+        sizePolicy3.setHeightForWidth(btnImage->sizePolicy().hasHeightForWidth());
+        btnImage->setSizePolicy(sizePolicy3);
+        btnImage->setMinimumSize(QSize(275, 185));
+        btnImage->setMaximumSize(QSize(275, 185));
+        btnImage->setStyleSheet(QString::fromUtf8("QToolButton {\n"
+" border: 1px solid #ffff00;\n"
+"}"));
         QIcon icon3;
-        icon3.addFile(QString::fromUtf8(":/icon/Resources/content-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        btnDescription->setIcon(icon3);
-        btnDescription->setIconSize(QSize(32, 32));
-        btnDescription->setFlat(true);
+        icon3.addFile(QString::fromUtf8(":/icons/Resources/Lazise_02596-Edit.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btnImage->setIcon(icon3);
+        btnImage->setIconSize(QSize(270, 180));
 
-        horizontalLayout_15->addWidget(btnDescription);
-
-
-        gridLayout_14->addLayout(horizontalLayout_15, 7, 1, 1, 1);
-
-        btnImageDesc = new QPushButton(frmWeb);
-        btnImageDesc->setObjectName(QString::fromUtf8("btnImageDesc"));
-        btnImageDesc->setStyleSheet(QString::fromUtf8("QPushButton {\n"
-"color:#fff\n"
-"}"));
-        btnImageDesc->setFlat(true);
-
-        gridLayout_14->addWidget(btnImageDesc, 6, 1, 1, 1);
+        gridLayout_14->addWidget(btnImage, 4, 1, 1, 1);
 
         btnImage->raise();
         btnAlbumDesc->raise();
@@ -2641,6 +2656,10 @@ public:
 #endif // QT_NO_TOOLTIP
         edtMainPage->setText(QString());
         edtMainPage->setPlaceholderText(QApplication::translate("falconGClass", "index.html         ( may set a root path or may add the extension too here. See tool tip for details)", nullptr));
+        label_36->setText(QApplication::translate("falconGClass", "Site Description", nullptr));
+        edtDescription->setPlaceholderText(QApplication::translate("falconGClass", "This will appear in search results as the description of your site. May be left empty. Maximum length is 275 characters", nullptr));
+        label_61->setText(QApplication::translate("falconGClass", "Keywords", nullptr));
+        edtKeywords->setPlaceholderText(QApplication::translate("falconGClass", "A list of keywords/expressions separated by commas. May be left empty.", nullptr));
         gbGallery->setTitle(QApplication::translate("falconGClass", "Gallery", nullptr));
         chkMenuToDescriptions->setText(QApplication::translate("falconGClass", "Menu to toggle descriptionss", nullptr));
 #ifndef QT_NO_TOOLTIP
@@ -2802,27 +2821,27 @@ public:
         btnDisplayHint->setText(QApplication::translate("falconGClass", "?", nullptr));
         btnResetDesign->setText(QApplication::translate("falconGClass", "Reset", nullptr));
         groupBox_6->setTitle(QApplication::translate("falconGClass", "Sample", nullptr));
+        btnCaption->setText(QApplication::translate("falconGClass", "Captions", nullptr));
+        btnLang->setText(QApplication::translate("falconGClass", "Italiano", nullptr));
+        btnMenu->setText(QApplication::translate("falconGClass", "Home", nullptr));
+        btnUplink->setText(QString());
         btnGalleryTitle->setText(QApplication::translate("falconGClass", "Gallery title", nullptr));
         btnGalleryDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
 "elit. Placeat delectusfacilis dolorum dolores\n"
 "distinctio...", nullptr));
-        btnSection->setText(QApplication::translate("falconGClass", "Images", nullptr));
+        btnImageDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
+"elit. Placeat delectus facilis dolorum dolores", nullptr));
+        btnAlbumTitle->setText(QApplication::translate("falconGClass", "Album Title", nullptr));
+        btnIconToTop->setText(QString());
+        btnImageTitle->setText(QApplication::translate("falconGClass", "IMAGE TiTLE", nullptr));
+        btnDescription->setText(QString());
         btnAlbumDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
 "elit. Placeat delectus facilis dolorum dolores\n"
 "distinctio, aperiam quam deserunt accusantium\n"
 "possimus minima?", nullptr));
-        btnAlbumTitle->setText(QApplication::translate("falconGClass", "Album Title", nullptr));
-        btnImage->setText(QString());
-        btnUplink->setText(QString());
-        btnMenu->setText(QApplication::translate("falconGClass", "Home", nullptr));
-        btnCaption->setText(QApplication::translate("falconGClass", "Captions", nullptr));
         btnSmallGalleryTitle->setText(QApplication::translate("falconGClass", "falconG Gallery Maker", nullptr));
-        btnLang->setText(QApplication::translate("falconGClass", "Italiano", nullptr));
-        btnIconToTop->setText(QString());
-        btnImageTitle->setText(QApplication::translate("falconGClass", "IMAGE TiTLE", nullptr));
-        btnDescription->setText(QString());
-        btnImageDesc->setText(QApplication::translate("falconGClass", "Lorem ipsum dolor sit amet consectetur adipisicing\n"
-"elit. Placeat delectus facilis dolorum dolores", nullptr));
+        btnSection->setText(QApplication::translate("falconGClass", "Images", nullptr));
+        btnImage->setText(QString());
         tabFalconG->setTabText(tabFalconG->indexOf(tabDesign), QApplication::translate("falconGClass", "Design", nullptr));
         groupBox->setTitle(QApplication::translate("falconGClass", "Resizing", nullptr));
         label_3->setText(QApplication::translate("falconGClass", "Height", nullptr));

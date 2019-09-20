@@ -193,6 +193,7 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	int SubAlbumCount();	// only non excluded albums (removes excluded albums) = count of children
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
+	QString SiteLink(int language );
 	QString LinkName(int language, bool addHttpOrsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
 };

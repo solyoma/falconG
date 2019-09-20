@@ -162,7 +162,7 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
@@ -2255,6 +2255,9 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                </property>
                <item row="5" column="0" colspan="3">
                 <widget class="QCheckBox" name="chkIconTop">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="font">
                   <font>
                    <weight>50</weight>
@@ -2265,12 +2268,15 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                   <string>Icon to top of page</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item row="6" column="0">
                 <widget class="QCheckBox" name="chkIconText">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="font">
                   <font>
                    <weight>50</weight>
@@ -2281,7 +2287,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                   <string>Icon to toggle info</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -2451,7 +2457,7 @@ background-color:#ffff00;
              <item>
               <widget class="QWidget" name="pnlGallery" native="true">
                <property name="styleSheet">
-                <string notr="true">background-color:#a03020;</string>
+                <string notr="true">background-color:#580508;</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
@@ -2463,7 +2469,7 @@ background-color:#ffff00;
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background-color:#a03020;</string>
+                   <string notr="true"/>
                   </property>
                   <widget class="QPushButton" name="btnCaption">
                    <property name="enabled">
@@ -2691,7 +2697,7 @@ distinctio...</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QFrame {
-background-color:#a03020;
+background-color:#580508;
 }</string>
                </property>
                <property name="frameShape">

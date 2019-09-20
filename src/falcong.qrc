@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>Resources/left-icon.png</file>
     <file>res/empty_image.png</file>
     <file>Resources/Lazise_02596-Edit.png</file>
     <file>Resources/content-icon.png</file>
