@@ -82,23 +82,22 @@ public:
     QHBoxLayout *horizontalLayout_16;
     QGroupBox *gbGallery;
     QGridLayout *gridLayout_17;
-    QLabel *label_36;
-    QLabel *label_47;
-    QLineEdit *edtGalleryTitle;
-    QLineEdit *edtAbout;
-    QCheckBox *chkMenuToContact;
     QCheckBox *chkMenuToDescriptions;
-    QCheckBox *chkRightClickProtected;
-    QCheckBox *chkMenuToToggleCaptions;
+    QLineEdit *edtAbout;
     QLabel *label_50;
-    QCheckBox *chkAllowLinkToImages;
-    QLabel *label_42;
-    QCheckBox *chkMenuToAbout;
-    QCheckBox *chkCanDownload;
-    QLineEdit *edtEmailTo;
+    QCheckBox *chkRightClickProtected;
+    QLineEdit *edtGalleryTitle;
+    QLabel *label_47;
     QLineEdit *edtBackImage;
     QCheckBox *chkForceSSL;
+    QLineEdit *edtEmailTo;
+    QCheckBox *chkAllowLinkToImages;
+    QLabel *label_42;
+    QCheckBox *chkMenuToContact;
+    QCheckBox *chkCanDownload;
+    QCheckBox *chkMenuToToggleCaptions;
     QCheckBox *chkFacebook;
+    QCheckBox *chkMenuToAbout;
     QVBoxLayout *verticalLayout_15;
     QGroupBox *gbLatest;
     QGridLayout *gridLayout_6;
@@ -115,6 +114,8 @@ public:
     QLineEdit *edtTrackingCode;
     QGroupBox *gbAdvanced;
     QFormLayout *formLayout_2;
+    QLabel *label_56;
+    QLineEdit *edtImg;
     QLabel *label_23;
     QLineEdit *edtThumb;
     QLabel *label_22;
@@ -125,8 +126,6 @@ public:
     QLineEdit *edtDefaultFonts;
     QLabel *label_45;
     QLineEdit *edtBaseName;
-    QLabel *label_56;
-    QLineEdit *edtImg;
     QGridLayout *gridLayout_16;
     QCheckBox *chkReadFromGallery;
     QCheckBox *chkOvrImages;
@@ -579,95 +578,47 @@ public:
         gridLayout_17->setSpacing(6);
         gridLayout_17->setContentsMargins(11, 11, 11, 11);
         gridLayout_17->setObjectName(QString::fromUtf8("gridLayout_17"));
-        label_36 = new QLabel(gbGallery);
-        label_36->setObjectName(QString::fromUtf8("label_36"));
-        label_36->setFont(font);
+        chkMenuToDescriptions = new QCheckBox(gbGallery);
+        chkMenuToDescriptions->setObjectName(QString::fromUtf8("chkMenuToDescriptions"));
+        chkMenuToDescriptions->setFont(font);
 
-        gridLayout_17->addWidget(label_36, 3, 0, 1, 1);
-
-        label_47 = new QLabel(gbGallery);
-        label_47->setObjectName(QString::fromUtf8("label_47"));
-        label_47->setFont(font);
-
-        gridLayout_17->addWidget(label_47, 0, 0, 1, 1);
-
-        edtGalleryTitle = new QLineEdit(gbGallery);
-        edtGalleryTitle->setObjectName(QString::fromUtf8("edtGalleryTitle"));
-        edtGalleryTitle->setFont(font);
-
-        gridLayout_17->addWidget(edtGalleryTitle, 0, 1, 1, 2);
+        gridLayout_17->addWidget(chkMenuToDescriptions, 11, 3, 1, 1);
 
         edtAbout = new QLineEdit(gbGallery);
         edtAbout->setObjectName(QString::fromUtf8("edtAbout"));
         edtAbout->setFont(font);
 
-        gridLayout_17->addWidget(edtAbout, 3, 1, 1, 2);
-
-        chkMenuToContact = new QCheckBox(gbGallery);
-        chkMenuToContact->setObjectName(QString::fromUtf8("chkMenuToContact"));
-        chkMenuToContact->setFont(font);
-
-        gridLayout_17->addWidget(chkMenuToContact, 7, 2, 1, 1);
-
-        chkMenuToDescriptions = new QCheckBox(gbGallery);
-        chkMenuToDescriptions->setObjectName(QString::fromUtf8("chkMenuToDescriptions"));
-        chkMenuToDescriptions->setFont(font);
-
-        gridLayout_17->addWidget(chkMenuToDescriptions, 9, 2, 1, 1);
-
-        chkRightClickProtected = new QCheckBox(gbGallery);
-        chkRightClickProtected->setObjectName(QString::fromUtf8("chkRightClickProtected"));
-        chkRightClickProtected->setFont(font);
-
-        gridLayout_17->addWidget(chkRightClickProtected, 10, 0, 1, 1);
-
-        chkMenuToToggleCaptions = new QCheckBox(gbGallery);
-        chkMenuToToggleCaptions->setObjectName(QString::fromUtf8("chkMenuToToggleCaptions"));
-        chkMenuToToggleCaptions->setFont(font);
-
-        gridLayout_17->addWidget(chkMenuToToggleCaptions, 10, 2, 1, 1);
+        gridLayout_17->addWidget(edtAbout, 3, 2, 1, 2);
 
         label_50 = new QLabel(gbGallery);
         label_50->setObjectName(QString::fromUtf8("label_50"));
         label_50->setFont(font);
 
-        gridLayout_17->addWidget(label_50, 4, 0, 1, 1);
+        gridLayout_17->addWidget(label_50, 6, 1, 1, 1);
 
-        chkAllowLinkToImages = new QCheckBox(gbGallery);
-        chkAllowLinkToImages->setObjectName(QString::fromUtf8("chkAllowLinkToImages"));
-        chkAllowLinkToImages->setFont(font);
+        chkRightClickProtected = new QCheckBox(gbGallery);
+        chkRightClickProtected->setObjectName(QString::fromUtf8("chkRightClickProtected"));
+        chkRightClickProtected->setFont(font);
 
-        gridLayout_17->addWidget(chkAllowLinkToImages, 8, 0, 1, 2);
+        gridLayout_17->addWidget(chkRightClickProtected, 12, 1, 1, 1);
 
-        label_42 = new QLabel(gbGallery);
-        label_42->setObjectName(QString::fromUtf8("label_42"));
-        label_42->setFont(font);
+        edtGalleryTitle = new QLineEdit(gbGallery);
+        edtGalleryTitle->setObjectName(QString::fromUtf8("edtGalleryTitle"));
+        edtGalleryTitle->setFont(font);
 
-        gridLayout_17->addWidget(label_42, 2, 0, 1, 1);
+        gridLayout_17->addWidget(edtGalleryTitle, 0, 2, 1, 2);
 
-        chkMenuToAbout = new QCheckBox(gbGallery);
-        chkMenuToAbout->setObjectName(QString::fromUtf8("chkMenuToAbout"));
-        chkMenuToAbout->setFont(font);
+        label_47 = new QLabel(gbGallery);
+        label_47->setObjectName(QString::fromUtf8("label_47"));
+        label_47->setFont(font);
 
-        gridLayout_17->addWidget(chkMenuToAbout, 8, 2, 1, 1);
-
-        chkCanDownload = new QCheckBox(gbGallery);
-        chkCanDownload->setObjectName(QString::fromUtf8("chkCanDownload"));
-        chkCanDownload->setFont(font);
-
-        gridLayout_17->addWidget(chkCanDownload, 9, 0, 1, 2);
-
-        edtEmailTo = new QLineEdit(gbGallery);
-        edtEmailTo->setObjectName(QString::fromUtf8("edtEmailTo"));
-        edtEmailTo->setFont(font);
-
-        gridLayout_17->addWidget(edtEmailTo, 2, 1, 1, 2);
+        gridLayout_17->addWidget(label_47, 0, 1, 1, 1);
 
         edtBackImage = new QLineEdit(gbGallery);
         edtBackImage->setObjectName(QString::fromUtf8("edtBackImage"));
         edtBackImage->setFont(font);
 
-        gridLayout_17->addWidget(edtBackImage, 4, 1, 1, 2);
+        gridLayout_17->addWidget(edtBackImage, 6, 2, 1, 2);
 
         chkForceSSL = new QCheckBox(gbGallery);
         chkForceSSL->setObjectName(QString::fromUtf8("chkForceSSL"));
@@ -675,13 +626,55 @@ public:
         chkForceSSL->setFont(font);
         chkForceSSL->setChecked(true);
 
-        gridLayout_17->addWidget(chkForceSSL, 7, 0, 1, 2);
+        gridLayout_17->addWidget(chkForceSSL, 9, 1, 1, 2);
+
+        edtEmailTo = new QLineEdit(gbGallery);
+        edtEmailTo->setObjectName(QString::fromUtf8("edtEmailTo"));
+        edtEmailTo->setFont(font);
+
+        gridLayout_17->addWidget(edtEmailTo, 2, 2, 1, 2);
+
+        chkAllowLinkToImages = new QCheckBox(gbGallery);
+        chkAllowLinkToImages->setObjectName(QString::fromUtf8("chkAllowLinkToImages"));
+        chkAllowLinkToImages->setFont(font);
+
+        gridLayout_17->addWidget(chkAllowLinkToImages, 10, 1, 1, 2);
+
+        label_42 = new QLabel(gbGallery);
+        label_42->setObjectName(QString::fromUtf8("label_42"));
+        label_42->setFont(font);
+
+        gridLayout_17->addWidget(label_42, 2, 1, 1, 1);
+
+        chkMenuToContact = new QCheckBox(gbGallery);
+        chkMenuToContact->setObjectName(QString::fromUtf8("chkMenuToContact"));
+        chkMenuToContact->setFont(font);
+
+        gridLayout_17->addWidget(chkMenuToContact, 9, 3, 1, 1);
+
+        chkCanDownload = new QCheckBox(gbGallery);
+        chkCanDownload->setObjectName(QString::fromUtf8("chkCanDownload"));
+        chkCanDownload->setFont(font);
+
+        gridLayout_17->addWidget(chkCanDownload, 11, 1, 1, 2);
+
+        chkMenuToToggleCaptions = new QCheckBox(gbGallery);
+        chkMenuToToggleCaptions->setObjectName(QString::fromUtf8("chkMenuToToggleCaptions"));
+        chkMenuToToggleCaptions->setFont(font);
+
+        gridLayout_17->addWidget(chkMenuToToggleCaptions, 10, 3, 1, 1);
 
         chkFacebook = new QCheckBox(gbGallery);
         chkFacebook->setObjectName(QString::fromUtf8("chkFacebook"));
         chkFacebook->setFont(font);
 
-        gridLayout_17->addWidget(chkFacebook, 11, 0, 1, 1);
+        gridLayout_17->addWidget(chkFacebook, 12, 3, 1, 1);
+
+        chkMenuToAbout = new QCheckBox(gbGallery);
+        chkMenuToAbout->setObjectName(QString::fromUtf8("chkMenuToAbout"));
+        chkMenuToAbout->setFont(font);
+
+        gridLayout_17->addWidget(chkMenuToAbout, 3, 1, 1, 1);
 
 
         horizontalLayout_16->addWidget(gbGallery);
@@ -776,6 +769,19 @@ public:
         formLayout_2->setSpacing(6);
         formLayout_2->setContentsMargins(11, 11, 11, 11);
         formLayout_2->setObjectName(QString::fromUtf8("formLayout_2"));
+        label_56 = new QLabel(gbAdvanced);
+        label_56->setObjectName(QString::fromUtf8("label_56"));
+        label_56->setMinimumSize(QSize(93, 0));
+        label_56->setFont(font);
+
+        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_56);
+
+        edtImg = new QLineEdit(gbAdvanced);
+        edtImg->setObjectName(QString::fromUtf8("edtImg"));
+        edtImg->setFont(font);
+
+        formLayout_2->setWidget(0, QFormLayout::FieldRole, edtImg);
+
         label_23 = new QLabel(gbAdvanced);
         label_23->setObjectName(QString::fromUtf8("label_23"));
         label_23->setMinimumSize(QSize(93, 0));
@@ -836,19 +842,6 @@ public:
         edtBaseName->setFont(font);
 
         formLayout_2->setWidget(5, QFormLayout::FieldRole, edtBaseName);
-
-        label_56 = new QLabel(gbAdvanced);
-        label_56->setObjectName(QString::fromUtf8("label_56"));
-        label_56->setMinimumSize(QSize(93, 0));
-        label_56->setFont(font);
-
-        formLayout_2->setWidget(0, QFormLayout::LabelRole, label_56);
-
-        edtImg = new QLineEdit(gbAdvanced);
-        edtImg->setObjectName(QString::fromUtf8("edtImg"));
-        edtImg->setFont(font);
-
-        formLayout_2->setWidget(0, QFormLayout::FieldRole, edtImg);
 
 
         verticalLayout_15->addWidget(gbAdvanced);
@@ -2498,12 +2491,12 @@ public:
         label_42->setBuddy(edtEmailTo);
         label_30->setBuddy(sbNewDays);
         label_9->setBuddy(edtTrackingCode);
+        label_56->setBuddy(edtThumb);
         label_23->setBuddy(edtThumb);
         label_22->setBuddy(edtAlbumDir);
         label_44->setBuddy(edtFontDir);
         label_46->setBuddy(edtDefaultFonts);
         label_45->setBuddy(edtBaseName);
-        label_56->setBuddy(edtThumb);
         label_33->setBuddy(edtBackgroundColor);
         label_35->setBuddy(chkBackgroundOpacity);
         label_34->setBuddy(chkTextOpacity);
@@ -2538,13 +2531,10 @@ public:
         QWidget::setTabOrder(edtBackImage, chkForceSSL);
         QWidget::setTabOrder(chkForceSSL, chkMenuToContact);
         QWidget::setTabOrder(chkMenuToContact, chkAllowLinkToImages);
-        QWidget::setTabOrder(chkAllowLinkToImages, chkMenuToAbout);
-        QWidget::setTabOrder(chkMenuToAbout, chkCanDownload);
+        QWidget::setTabOrder(chkAllowLinkToImages, chkCanDownload);
         QWidget::setTabOrder(chkCanDownload, chkMenuToDescriptions);
         QWidget::setTabOrder(chkMenuToDescriptions, chkRightClickProtected);
-        QWidget::setTabOrder(chkRightClickProtected, chkMenuToToggleCaptions);
-        QWidget::setTabOrder(chkMenuToToggleCaptions, chkFacebook);
-        QWidget::setTabOrder(chkFacebook, sbNewDays);
+        QWidget::setTabOrder(chkRightClickProtected, sbNewDays);
         QWidget::setTabOrder(sbNewDays, sbLatestCount);
         QWidget::setTabOrder(sbLatestCount, chkSetLatest);
         QWidget::setTabOrder(chkSetLatest, chkUseGoogleAnalytics);
@@ -2652,32 +2642,31 @@ public:
         edtMainPage->setText(QString());
         edtMainPage->setPlaceholderText(QApplication::translate("falconGClass", "index.html         ( may set a root path or may add the extension too here. See tool tip for details)", nullptr));
         gbGallery->setTitle(QApplication::translate("falconGClass", "Gallery", nullptr));
-        label_36->setText(QApplication::translate("falconGClass", "About page", nullptr));
-        label_47->setText(QApplication::translate("falconGClass", "Title", nullptr));
+        chkMenuToDescriptions->setText(QApplication::translate("falconGClass", "Menu to toggle descriptionss", nullptr));
+#ifndef QT_NO_TOOLTIP
+        edtAbout->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Name of the <span style=\" font-weight:600;\">About</span> page. As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &lt;base name&gt;_&lt;language abbrev&gt;.&lt;extension&gt;.</p><p>About menu is only generated when the checkbox is checked.</p><p>Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be <span style=\" font-style:italic;\">abut_en.html</span> and <span style=\" font-style:italic;\">about_hu.html.</span></p></body></html>", nullptr));
+#endif // QT_NO_TOOLTIP
+        edtAbout->setPlaceholderText(QApplication::translate("falconGClass", "about.html", nullptr));
+        label_50->setText(QApplication::translate("falconGClass", "Home page background", nullptr));
+        chkRightClickProtected->setText(QApplication::translate("falconGClass", "Right click protection", nullptr));
 #ifndef QT_NO_TOOLTIP
         edtGalleryTitle->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Series of language definition records, separated by commas.</p><p>Records are 3 comma separated fields. <br/>Field #1 -  2 lower case letter abbreviation (e.g. <span style=\" font-style:italic;\">en</span>)<br/>Field #2 -  Name to put to language selection menu (e.g. <span style=\" font-style:italic;\">in English</span>)<br/>Field #3 -  name of icon file for graphical image, may be left blank.</p><p>All texts in one language must be put into the file named<br/><span style=\" font-style:italic;\">&lt;abbreviation&gt;.text, </span>example:<span style=\" font-style:italic;\"> en.text.</span></p><p><span style=\" font-style:italic;\">See the User Guide for details of language files</span></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtGalleryTitle->setPlaceholderText(QApplication::translate("falconGClass", "Andreas Falco Photography", nullptr));
-#ifndef QT_NO_TOOLTIP
-        edtAbout->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Name of the <span style=\" font-weight:600;\">About</span> page. As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &lt;base name&gt;_&lt;language abbrev&gt;.&lt;extension&gt;.</p><p>Example: default name 'about' is used Example with two languages: English (en) and Hungarian (hu).File names will be <span style=\" font-style:italic;\">abut_en.html</span> and <span style=\" font-style:italic;\">about_hu.html.</span></p></body></html>", nullptr));
-#endif // QT_NO_TOOLTIP
-        edtAbout->setPlaceholderText(QApplication::translate("falconGClass", "about.html", nullptr));
-        chkMenuToContact->setText(QApplication::translate("falconGClass", "Menu to 'Contact' page", nullptr));
-        chkMenuToDescriptions->setText(QApplication::translate("falconGClass", "Menu to toggle descriptionss", nullptr));
-        chkRightClickProtected->setText(QApplication::translate("falconGClass", "Right click protection", nullptr));
-        chkMenuToToggleCaptions->setText(QApplication::translate("falconGClass", "Captions", nullptr));
-        label_50->setText(QApplication::translate("falconGClass", "Home page background", nullptr));
-        chkAllowLinkToImages->setText(QApplication::translate("falconGClass", "Allow  links to full size images", nullptr));
-        label_42->setText(QApplication::translate("falconGClass", "Send user emails to", nullptr));
-        chkMenuToAbout->setText(QApplication::translate("falconGClass", "Menu to 'About' page", nullptr));
-        chkCanDownload->setText(QApplication::translate("falconGClass", "Allow the download of images", nullptr));
-        edtEmailTo->setPlaceholderText(QApplication::translate("falconGClass", "Your Name <and@email.address>", nullptr));
+        label_47->setText(QApplication::translate("falconGClass", "Title", nullptr));
 #ifndef QT_NO_TOOLTIP
         edtBackImage->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Path name of  an image file, which will be set as the background image for the auto generated home page</p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtBackImage->setPlaceholderText(QApplication::translate("falconGClass", "path to image file", nullptr));
         chkForceSSL->setText(QApplication::translate("falconGClass", "Force secure (HTTPS) access", nullptr));
+        edtEmailTo->setPlaceholderText(QApplication::translate("falconGClass", "Your Name <and@email.address>", nullptr));
+        chkAllowLinkToImages->setText(QApplication::translate("falconGClass", "Allow  links to full size images", nullptr));
+        label_42->setText(QApplication::translate("falconGClass", "Send user emails to", nullptr));
+        chkMenuToContact->setText(QApplication::translate("falconGClass", "Menu to 'Contact' page", nullptr));
+        chkCanDownload->setText(QApplication::translate("falconGClass", "Allow the download of images", nullptr));
+        chkMenuToToggleCaptions->setText(QApplication::translate("falconGClass", "Captions", nullptr));
         chkFacebook->setText(QApplication::translate("falconGClass", "Like on Facebook link", nullptr));
+        chkMenuToAbout->setText(QApplication::translate("falconGClass", "About page", nullptr));
         gbLatest->setTitle(QApplication::translate("falconGClass", "Latest uploads", nullptr));
         label_31->setText(QApplication::translate("falconGClass", "days", nullptr));
         label_30->setText(QApplication::translate("falconGClass", "Time period", nullptr));
@@ -2687,6 +2676,12 @@ public:
         chkUseGoogleAnalytics->setText(QApplication::translate("falconGClass", "Use", nullptr));
         label_9->setText(QApplication::translate("falconGClass", "Trac&king Code", nullptr));
         gbAdvanced->setTitle(QApplication::translate("falconGClass", "Advanced (you may leave theese alone)", nullptr));
+        label_56->setText(QApplication::translate("falconGClass", "Image directory", nullptr));
+#ifndef QT_NO_TOOLTIP
+        edtImg->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
+"Iinside gallery root if no absolute or relative path is given.", nullptr));
+#endif // QT_NO_TOOLTIP
+        edtImg->setPlaceholderText(QApplication::translate("falconGClass", "img", nullptr));
         label_23->setText(QApplication::translate("falconGClass", "Thumbnails into", nullptr));
 #ifndef QT_NO_TOOLTIP
         edtThumb->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
@@ -2716,19 +2711,8 @@ public:
         edtBaseName->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>All albums are referred as &lt;base link name&gt;&lt;index number&gt;</p><p>not by their albuml name, which may contain any UTF-8 characters.</p><p>Example: the album <span style=\" font-style:italic;\">'\305\220rs\303\251g&quot;</span> may be referred as<span style=\" font-style:italic;\"> album123456.</span></p><p><br/></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         edtBaseName->setPlaceholderText(QApplication::translate("falconGClass", "album", nullptr));
-        label_56->setText(QApplication::translate("falconGClass", "Image directory", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtImg->setToolTip(QApplication::translate("falconGClass", "Directory for all images. \n"
-"Iinside gallery root if no absolute or relative path is given.", nullptr));
-#endif // QT_NO_TOOLTIP
-        edtImg->setPlaceholderText(QApplication::translate("falconGClass", "img", nullptr));
-#ifndef QT_NO_TOOLTIP
-        chkReadFromGallery->setToolTip(QApplication::translate("falconGClass", "By checking this option and pressing 'Generate' \n"
-"you loose all  changes you made to image and album \n"
-"titles and descriptions!\n"
-"\n"
-"This setting will not be saved in the configuration.\n"
-"", nullptr));
+        chkReadFromGallery->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>By checking this option and pressing 'Generate' </p><p>you loose all the  changes you made to image and album </p><p>titles and descriptions!</p><p><br/></p><p>This setting will not be saved in the configuration.</p><p><br/></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         chkReadFromGallery->setText(QApplication::translate("falconGClass", "Read From Gallery", nullptr));
         chkOvrImages->setText(QApplication::translate("falconGClass", "Overwrite existing images", nullptr));

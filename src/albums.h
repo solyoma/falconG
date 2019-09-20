@@ -324,7 +324,8 @@ class AlbumGenerator : public QObject
 					// write gallery files
 	void _OutputFacebookLink(QString linkName, ID_t ID);
 	QString _IncludeFacebookLibrary();
-	int _OuputHeaderSection(Album &album, QString uplink);
+	void _OutputMenuLine(Album &album, QString uplink);
+	int _OuputHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
 	int _WriteGalleryContainer(const Album &album, bool albums, int i);
 	int _ProcessImages(); // into image directory

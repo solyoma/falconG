@@ -261,6 +261,8 @@ public:
 								// (default index.html or index1en.html, index1hu.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
 								// The Home menu will link here (Example: index.html - home link: /<dsGRoot>/index.html)
+	_CString sDescription;		// page description: appears in we bsearch results
+	_CString sKeywords;			// comma separated list of keywords
 
 	_CBool bCanDownload;		// images from the server (.htaccess)
 	_CBool bForceSSL;			// using .htaccess

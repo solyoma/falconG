@@ -152,6 +152,8 @@ private slots:
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtSourceGallery_textChanged();
+	void on_edtDescription_textChanged();
+	void on_edtKeywords_textChanged();
 	void on_edtTextColor_textChanged();				// for many WEB element
 	void on_edtTrackingCode_textChanged();
 	void on_edtUplink_textChanged();

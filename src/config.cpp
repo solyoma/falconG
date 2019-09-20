@@ -6,6 +6,8 @@ int CONFIGS_USED::indexOfLastUsed;		// this was the last one used
 CONFIG *CONFIGS_USED::parent = nullptr;
 
 
+static bool __bClearChangedFlag = false;	// set to true to clear the changed flag after writing the configuration
+
 					// global variables for configuration 
 CONFIG config,		// must be here because _Changed uses it
 	   configSave;
@@ -60,7 +62,7 @@ void CONFIGS_USED::Read()
 		if (!str.trimmed().isEmpty())
 		{
 #ifdef _MSC_VER
-			str = str.toLower();	// Windows: lC UC letters are the same in paths!
+//			str = str.toLower();	// Windows: lC UC letters are the same in paths!
 #endif
 			lastConfigs.push_back(str);
 		}
@@ -76,7 +78,7 @@ void CONFIGS_USED::Write()
 	else
 	{
 		int n;
-		if ((n = CONFIGS_USED::lastConfigs.indexOf(sLast)) < 0)
+		if ((n = CONFIGS_USED::lastConfigs.indexOf(sLast, 0)) < 0)
 		{
 			if (CONFIGS_USED::lastConfigs.size() == CONFIGS_USED::maxSavedConfigs)
 				CONFIGS_USED::lastConfigs.removeLast();
@@ -121,6 +123,8 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 
 		_parent->sUplink.changed = false;
 		_parent->sMainPage.changed = false;
+		_parent->sDescription.changed = false;
+		_parent->sKeywords.changed = false;
 		
 		_parent->bGenerateAll.changed = false;
 		_parent->bButImages.changed = false;
@@ -275,7 +279,7 @@ bool &_CBool::operator=(const bool s)
 	if (set != s) 
 	{ 
 		set = s; 
-//		changed = true; 
+		changed = true;		// ? why was it commented out
 	} 
 	return set; 
 }
@@ -292,7 +296,7 @@ int &_CInt::operator=(const int s)
 	if (val != s)
 	{
 		val = s;
-//		changed = true;
+		changed = true;		// ? why was it commented out
 	} return val;
 }
 
@@ -323,7 +327,7 @@ QString _CColor::operator=(QString s)
 	if (name.toLower() != s.toLower())
 	{
 		name = s;
-//		changed = true;
+		changed = true;		// ? why was it commented out
 	}
 	return name;
 }
@@ -538,6 +542,8 @@ void CONFIG::FromOther(const CONFIG &cfg)
 
 	sUplink = cfg.sUplink;				// if given uplink in gallery root goes here
 	sMainPage = cfg.sMainPage;
+	sDescription = cfg.sDescription;
+	sKeywords = cfg.sKeywords;
 
 	bGenerateAll = cfg.bGenerateAll;
 	bButImages = cfg.bButImages;
@@ -800,6 +806,8 @@ CONFIG::CONFIG()
 	dsImageDir.nameStr = "dsImageDir";		
 	sUplink.nameStr = "sUplink";			
 	sMainPage.nameStr = "sMainPage";
+	sDescription.nameStr = "sDescription";
+	sKeywords.nameStr = "sKeywords";
 
 	bGenerateAll.nameStr = "bGenerateAll";
 	bButImages.nameStr = "bButImages";
@@ -890,6 +898,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	sDefFonts.defStr   =  "Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif";
 	sBaseName.defStr   =  "album";
 	sMainPage.defStr   = "index.html";
+	sDescription.defStr= "";
+	sKeywords.defStr   = "";
 	sAbout.defStr      =  "about.html";
 
 	QString sIniName, p, n; 
@@ -1011,6 +1021,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadStr(s, sGalleryTitle, "Andreas Falco Photography");
 	__ConfigReadStr(s, sUplink, "");		// no defaults
 	__ConfigReadStr(s, sMainPage, "");		// no defaults
+	__ConfigReadStr(s, sDescription, "");	// no defaults
+	__ConfigReadStr(s, sKeywords, "");		// no defaults
 	__ConfigReadStr(s, sServerAddress, ""); // no default
 	__ConfigReadStr(s, sMailTo, "");		// send user emails here
 	__ConfigReadStr(s, sAbout, "");			// about page
@@ -1152,21 +1164,32 @@ static void __ConfigWriteBorder(QSettings &s, _CBorder &border)
 	}
 }
 
-
 static inline void __ConfigWriteInt(QSettings &s, _CInt name) 
 {
-	if (name.changed) 
-		s.setValue(name.nameStr, name.val); 
+	if (name.changed)
+	{
+		s.setValue(name.nameStr, name.val);
+		if (__bClearChangedFlag)
+			name.changed = false;
+	}
 }
-static inline void __ConfigWriteStr(QSettings &s, _CString name) 
-{ 
-	if (name.changed) 
-		s.setValue(name.nameStr, name.str); 
+static inline void __ConfigWriteStr(QSettings &s, _CString name)
+{
+	if (name.changed)
+	{
+		s.setValue(name.nameStr, name.str);
+		if (__bClearChangedFlag)
+			name.changed = false;
+	}
 }
 static inline void __ConfigWriteBool(QSettings &s, _CBool name)
 {
 	if (name.changed)
+	{
 		s.setValue(name.nameStr, name.set);
+		if (__bClearChangedFlag)
+			name.changed = false;
+	}
 }
 
 static void __ConfigWriteElem(QSettings &s, _CElem &elem)
@@ -1250,7 +1273,10 @@ void CONFIG::Write()			// synchronize with Read!
 	_WriteIni(falconG_ini);			// last used data into there as well
 	QString p, n;
 	SeparateFileNamePath(dsSrc.str, p, n);
+
+	__bClearChangedFlag = true;				// mark all changes as saved
 	_WriteIni(dsSrc.str + n + ".ini");
+	__bClearChangedFlag = false;
 
 	changed = false;   // sets changed of all variables false too
 }
@@ -1280,6 +1306,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteStr(s, sGalleryTitle);
 	__ConfigWriteStr(s, sUplink);
 	__ConfigWriteStr(s, sMainPage);
+	__ConfigWriteStr(s, sDescription);
+	__ConfigWriteStr(s, sKeywords);
 
 											// sepcial data
 	__ConfigWriteBool(s, bGenerateAll);		// images download allowed

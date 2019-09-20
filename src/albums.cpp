@@ -2518,7 +2518,13 @@ QString AlbumGenerator::_MenuColorCSSToString()
 {
 	QString s;
 	// state: UP
-	s = "p.menu-line a {\n";
+	s = "div.menu-line {\n"
+		"	position: -webkit-sticky;\n"	 /* Safari */
+		"   position: sticky;\n"
+		"   top : 0;\n"
+		"   display:inline-block\n";
+		"}"
+		"div.menu-line a {\n";
 	if (config.Menu.gradient.used)
 		s += " background:" + _GradientCssToString(config.Menu);
 	else
@@ -2531,7 +2537,7 @@ QString AlbumGenerator::_MenuColorCSSToString()
 	s += "\n}\n"
 		// state: Down
 		// menu button pressed: change color order
-		"p.menu-line a:hover {\n";
+		"div.menu-line a:hover {\n";
 	if (config.Menu.gradient.used)
 		s += " background:" + _GradientCssToString(config.Menu, true);
 	else
@@ -2639,7 +2645,8 @@ QString AlbumGenerator::_CssToString()
 		"html,\n"
 		"body{\n"
 		"	height: 100% ;\n"
-		"	width: 100% ;\n"
+		"	width: 100%;\n"
+		"   overflow: auto;\n"
 		"}\n"
 		"\n"
 // .falconG
@@ -3011,11 +3018,14 @@ QString AlbumGenerator::_PageHeaderToString(ID_t id)
 	s += QString("<meta charset=\"UTF-8\">\n"
 		"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
 		"<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">"
-		"<title>" + config.sGalleryTitle + "</title>\n" +
-		sCssLink + "colors.css\">\n" +
+		"<title>" + config.sGalleryTitle + "</title>\n");
+	if (!config.sDescription.IsEmpty())
+		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "/>\n");
+	if (!config.sKeywords.IsEmpty())
+		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "/>\n");
+	s += QString(sCssLink + "colors.css\">\n" +
 		sCssLink + "falconG.css\">\n" + 
-		"<script type=\"text/javascript\"  src=\"" + supdir + "res/falconG.js\"></script>"
-	);
+		"<script type=\"text/javascript\"  src=\"" + supdir + "res/falconG.js\"></script>"	);
 
 	s += QString("</head>\n");
 
@@ -3105,6 +3115,44 @@ QString AlbumGenerator::_IncludeFacebookLibrary()
 		"</script>\n");
 }
 
+
+/*========================================================
+ * TASK:	emit the sticky menu line at the top of the window
+ * EXPECTS: album - album to be created  
+ *			uplink - page link ifany
+ * GLOBALS:	Languages, 'config'
+ * RETURNS: nothing
+ * REMARKS: -if and no uplink is given in config no UP button is generated
+ *-------------------------------------------------------*/
+void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
+{
+	QString updir = ((album.ID & ID_MASK) == 1) ? "" : "../";
+	// menu buttons
+	_ofs << "<div class=\"menu-line\">\n";
+	if (!updir.isEmpty() && !uplink.isEmpty())
+		_ofs << "<a href=\"" << uplink
+		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::toTop[_actLanguage] + "\" alt=\""
+		+ Languages::toTop[_actLanguage] + "\"></a>\n";			  // UP link
+	_ofs << "<a href=\""
+		<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
+		<< "</a>\n";																											  // Home page
+	if (config.bMenuToAbout)
+		_ofs << "<a href=\"" << updir << Languages::FileNameForLanguage(config.sAbout, _actLanguage) << "\">" << Languages::toAboutPage[_actLanguage] << "</a>\n";
+	if (config.bMenuToContact)
+		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
+	if (config.bMenuToToggleCaptions)
+		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
+	if (album.SubAlbumCount() && album.ImageCount())			// when no images no need to jump to albums
+		_ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
+	if (config.generateLatestUploads)
+		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
+
+	_ofs << "</div>\n";
+	//// debug
+	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
+	_ofs << "<br>\n";
+}
+
 /*============================================================================
 * TASK: emits header section of a web page for a given album in a given language
 * EXPECTS:	album - album to be created  
@@ -3112,13 +3160,11 @@ QString AlbumGenerator::_IncludeFacebookLibrary()
 * GLOBALS:	Languages, 'config'
 * RETURNS: 0: OK, 8: error writing file
 * REMARKS: - special handling for root album(s) (ID is 1) 
-*				if and no uplink is given in config no UP button is generated
 *				no '../' prefix for css, res, etb
 *				albums/ prepended to album links
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
+int AlbumGenerator::_OuputHeaderSection(Album &album)
 {
-	QString updir = ((album.ID & ID_MASK) == 1) ? "" : "../";
 
 	_ofs << "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
 	// _actLanguage switch texts
@@ -3128,30 +3174,6 @@ int AlbumGenerator::_OuputHeaderSection(Album &album, QString uplink)
 	// facebook link
 	_OutputFacebookLink(album.LinkName(_actLanguage, true), album.ID);
 
-	// menu buttons
-	_ofs << "<p class=\"menu-line\">\n";
-	 if (!updir.isEmpty() && !uplink.isEmpty())
-		 _ofs << "<a href=\"" << uplink 
-			  << "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::toTop[_actLanguage] + "\" alt=\"" 
-		         + Languages::toTop[_actLanguage] +"\"></a>\n";			  // UP link
-	_ofs << "<a href=\"" 
-					<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
-			 << "</a>\n";																											  // Home page
-	if(config.bMenuToAbout)
-		_ofs << "<a href=\"" << updir << Languages::FileNameForLanguage(config.sAbout, _actLanguage) << "\">" << Languages::toAboutPage[_actLanguage] << "</a>\n";
-	if(config.bMenuToContact)
-		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
-	if(config.bMenuToToggleCaptions)
-		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
-	if(album.SubAlbumCount() && album.ImageCount())			// when no images no need to jump to albums
-		   _ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
-	if (config.generateLatestUploads)
-		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
-
-	_ofs << "</p>\n";
-	//// debug
-	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
-	_ofs << "<br>\n";
 	if(album.titleID)
 		_ofs << "<h2 class=\"album-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
 	if (album.descID)
@@ -3256,26 +3278,30 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 			"     </div>\n";									   // end of div thumb
 	
     //  -------------------------- description
-	_ofs << "     <div class=\"desc\">\n"
+	if(!desc.isEmpty() )
+		_ofs << "     <div class=\"desc\">\n"
 		"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
-		<< (desc.isEmpty() ? "&nbsp;" : desc) << "</p>\n"
+			 << desc << "</p>\n"
 		"     </div>\n";
 	//  -------------------------- end of description
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-			"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
+		/*	"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
 																					"\" alt=\"" + Languages::upOneLevel[_actLanguage]  + "\"></a>\n"
-			"        <a class=\"album-title\" href=\"" + sAlbumDir;
+		 */
+				"        <a class=\"album-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
 	else
 		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "</a>\n"
+		<< "</a>\n";
+	/*
 		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
 								"\" alt=\"" + Languages::showCaptions[_actLanguage] + "\"></a></div>\n"
 			"     </div>\n";											 
+    */
 	// -----------------------------end of div links
 	_ofs << "   </section>\n";
 
@@ -3465,21 +3491,11 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 		_ofs << "<body>\n";
 
 	if (config.bFacebookLink)
-		_ofs << _IncludeFacebookLibrary(); /*
-										QString("<!--get facebooks js code-->\n"
-										"<div id = \"fb-root\"></div>\n"
-										"<script>(function(d, s, id) {\n"
-										"var js, fjs = d.getElementsByTagName(s)[0];\n"
-										"if (d.getElementById(id)) return;\n"
-										"js = d.createElement(s); js.id = id;\n"
-										"js.src = 'https://connect.facebook.net/hu_HU/sdk.js#xfbml=1&version=v3.1';\n"
-										"fjs.parentNode.insertBefore(js, fjs);\n"
-										"}(document, 'script', 'facebook-jssdk'));\n"
-										"</script>\n");
-										*/
+		_ofs << _IncludeFacebookLibrary(); 
 
+	_OutputMenuLine(album, uplink);	/* sticky menu line*/
 	_ofs << "<!--Header section-->\n";
-	_OuputHeaderSection(album, uplink);
+	_OuputHeaderSection(album);
 
 	_ofs << "<!-- Main section -->\n"
 		"<main id=\"main\">\n";

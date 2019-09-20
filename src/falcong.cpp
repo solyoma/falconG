@@ -1,4 +1,5 @@
 #include <QCloseEvent>
+#include <QCloseEvent>
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QColorDialog>
@@ -476,6 +477,9 @@ void FalconG::_PopulateFromConfig()
 	ui.edtGalleryRoot->setText(config.dsGRoot.str);
 	ui.edtUplink->setText(config.sUplink);
 
+	ui.edtDescription->setText(config.sDescription);
+	ui.edtKeywords->setText(config.sKeywords);
+
 	ui.edtGalleryTitle->setText(config.sGalleryTitle);
 	ui.edtAlbumDir->setText(config.dsAlbumDir.str);
 	ui.edtEmailTo->setText(config.sMailTo);
@@ -626,6 +630,40 @@ void FalconG::on_edtSourceGallery_textChanged()
 			_EnableButtons();
 		}
 	}
+}
+
+
+/*========================================================
+ * TASK:
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_edtDescription_textChanged()
+{
+	if (_busy)
+		return;
+	config.sDescription = ui.edtDescription->text();
+	config.sDescription.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
+}
+
+
+/*========================================================
+ * TASK:
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_edtKeywords_textChanged()
+{
+	if (_busy)
+		return;
+	config.sKeywords = ui.edtKeywords->text();
+	config.sKeywords.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 /*============================================================================

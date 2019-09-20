@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>753</width>
-    <height>805</height>
+    <height>864</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -162,7 +162,7 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
@@ -442,6 +442,58 @@ regardless if they were already OK.</string>
              </property>
             </widget>
            </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_36">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Site Description</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="edtDescription">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="placeholderText">
+              <string>This will appear in search results as the description of your site. May be left empty. Maximum length is 275 characters</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_61">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Keywords</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="edtKeywords">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="placeholderText">
+              <string>A list of keywords/expressions separated by commas. May be left empty.</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -459,8 +511,8 @@ regardless if they were already OK.</string>
              <string>Gallery</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_17">
-             <item row="3" column="0">
-              <widget class="QLabel" name="label_36">
+             <item row="11" column="3">
+              <widget class="QCheckBox" name="chkMenuToDescriptions">
                <property name="font">
                 <font>
                  <weight>50</weight>
@@ -468,12 +520,28 @@ regardless if they were already OK.</string>
                 </font>
                </property>
                <property name="text">
-                <string>About page</string>
+                <string>Menu to toggle descriptionss</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_47">
+             <item row="3" column="2" colspan="2">
+              <widget class="QLineEdit" name="edtAbout">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page. As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;About menu is only generated when the checkbox is checked.&lt;/p&gt;&lt;p&gt;Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;abut_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="placeholderText">
+                <string>about.html</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="label_50">
                <property name="font">
                 <font>
                  <weight>50</weight>
@@ -481,11 +549,24 @@ regardless if they were already OK.</string>
                 </font>
                </property>
                <property name="text">
-                <string>Title</string>
+                <string>Home page background</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="1" colspan="2">
+             <item row="12" column="1">
+              <widget class="QCheckBox" name="chkRightClickProtected">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Right click protection</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" colspan="2">
               <widget class="QLineEdit" name="edtGalleryTitle">
                <property name="font">
                 <font>
@@ -501,24 +582,8 @@ regardless if they were already OK.</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1" colspan="2">
-              <widget class="QLineEdit" name="edtAbout">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page. As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;Example: default name 'about' is used Example with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;abut_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="placeholderText">
-                <string>about.html</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2">
-              <widget class="QCheckBox" name="chkMenuToContact">
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_47">
                <property name="font">
                 <font>
                  <weight>50</weight>
@@ -526,131 +591,11 @@ regardless if they were already OK.</string>
                 </font>
                </property>
                <property name="text">
-                <string>Menu to 'Contact' page</string>
+                <string>Title</string>
                </property>
               </widget>
              </item>
-             <item row="9" column="2">
-              <widget class="QCheckBox" name="chkMenuToDescriptions">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Menu to toggle descriptionss</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0">
-              <widget class="QCheckBox" name="chkRightClickProtected">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Right click protection</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="2">
-              <widget class="QCheckBox" name="chkMenuToToggleCaptions">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Captions</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="label_50">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Home page background</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0" colspan="2">
-              <widget class="QCheckBox" name="chkAllowLinkToImages">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Allow  links to full size images</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_42">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Send user emails to</string>
-               </property>
-               <property name="buddy">
-                <cstring>edtEmailTo</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="2">
-              <widget class="QCheckBox" name="chkMenuToAbout">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Menu to 'About' page</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0" colspan="2">
-              <widget class="QCheckBox" name="chkCanDownload">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Allow the download of images</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1" colspan="2">
-              <widget class="QLineEdit" name="edtEmailTo">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="placeholderText">
-                <string>Your Name &lt;and@email.address&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1" colspan="2">
+             <item row="6" column="2" colspan="2">
               <widget class="QLineEdit" name="edtBackImage">
                <property name="font">
                 <font>
@@ -666,7 +611,7 @@ regardless if they were already OK.</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0" colspan="2">
+             <item row="9" column="1" colspan="2">
               <widget class="QCheckBox" name="chkForceSSL">
                <property name="enabled">
                 <bool>true</bool>
@@ -685,7 +630,88 @@ regardless if they were already OK.</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="0">
+             <item row="2" column="2" colspan="2">
+              <widget class="QLineEdit" name="edtEmailTo">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="placeholderText">
+                <string>Your Name &lt;and@email.address&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1" colspan="2">
+              <widget class="QCheckBox" name="chkAllowLinkToImages">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Allow  links to full size images</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_42">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Send user emails to</string>
+               </property>
+               <property name="buddy">
+                <cstring>edtEmailTo</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="3">
+              <widget class="QCheckBox" name="chkMenuToContact">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Menu to 'Contact' page</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1" colspan="2">
+              <widget class="QCheckBox" name="chkCanDownload">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Allow the download of images</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="3">
+              <widget class="QCheckBox" name="chkMenuToToggleCaptions">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Captions</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="3">
               <widget class="QCheckBox" name="chkFacebook">
                <property name="font">
                 <font>
@@ -695,6 +721,19 @@ regardless if they were already OK.</string>
                </property>
                <property name="text">
                 <string>Like on Facebook link</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QCheckBox" name="chkMenuToAbout">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>About page</string>
                </property>
               </widget>
              </item>
@@ -877,6 +916,45 @@ regardless if they were already OK.</string>
                <string>Advanced (you may leave theese alone)</string>
               </property>
               <layout class="QFormLayout" name="formLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_56">
+                 <property name="minimumSize">
+                  <size>
+                   <width>93</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Image directory</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtThumb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="edtImg">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Directory for all images. 
+Iinside gallery root if no absolute or relative path is given.</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>img</string>
+                 </property>
+                </widget>
+               </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="label_23">
                  <property name="minimumSize">
@@ -1047,45 +1125,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_56">
-                 <property name="minimumSize">
-                  <size>
-                   <width>93</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Image directory</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtThumb</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="edtImg">
-                 <property name="font">
-                  <font>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>Directory for all images. 
-Iinside gallery root if no absolute or relative path is given.</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>img</string>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
             </item>
@@ -1110,12 +1149,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
           <item row="0" column="0">
            <widget class="QCheckBox" name="chkReadFromGallery">
             <property name="toolTip">
-             <string>By checking this option and pressing 'Generate' 
-you loose all  changes you made to image and album 
-titles and descriptions!
-
-This setting will not be saved in the configuration.
-</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By checking this option and pressing 'Generate' &lt;/p&gt;&lt;p&gt;you loose all the  changes you made to image and album &lt;/p&gt;&lt;p&gt;titles and descriptions!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This setting will not be saved in the configuration.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Read From Gallery</string>
@@ -2417,9 +2451,184 @@ background-color:#ffff00;
              <item>
               <widget class="QWidget" name="pnlGallery" native="true">
                <property name="styleSheet">
-                <string notr="true"/>
+                <string notr="true">background-color:#a03020;</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QWidget" name="menuWidget" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color:#a03020;</string>
+                  </property>
+                  <widget class="QPushButton" name="btnCaption">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>129</x>
+                     <y>0</y>
+                     <width>84</width>
+                     <height>29</height>
+                    </rect>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QPushButton {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+QPushButton:pressed {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+</string>
+                   </property>
+                   <property name="text">
+                    <string>Captions</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="btnLang">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>219</x>
+                     <y>3</y>
+                     <width>75</width>
+                     <height>23</height>
+                    </rect>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QPushButton {
+   color:#FFFF00;
+background-color:#a03020;
+   font-size: 8pt;
+ }</string>
+                   </property>
+                   <property name="text">
+                    <string>Italiano</string>
+                   </property>
+                   <property name="flat">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="btnMenu">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>59</x>
+                     <y>0</y>
+                     <width>64</width>
+                     <height>29</height>
+                    </rect>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QPushButton {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+QPushButton:pressed {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+</string>
+                   </property>
+                   <property name="text">
+                    <string>Home</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="btnUplink">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>5</x>
+                     <y>0</y>
+                     <width>48</width>
+                     <height>29</height>
+                    </rect>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QPushButton {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+QPushButton:pressed {
+background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
+color:#fff; 
+border: 1px solid #6d0019;
+padding: 4px 10px 3px;
+font-size: 13px;
+line-height: 18px;
+margin: 2px 3px;
+font-weight: 800;
+box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+border-radius: 5px;
+}
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="falcong.qrc">
+                     <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
+                   </property>
+                   <property name="flat">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QPushButton" name="btnGalleryTitle">
                   <property name="font">
@@ -2492,34 +2701,8 @@ background-color:#a03020;
                 <enum>QFrame::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_14">
-                <item row="4" column="1">
-                 <widget class="QPushButton" name="btnSection">
-                  <property name="font">
-                   <font>
-                    <family>Papyrus</family>
-                    <pointsize>22</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff;
-font-family:Papyrus;
-font-size:22pt;
-font-weight:bold;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Images</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="btnAlbumDesc">
+                <item row="5" column="1">
+                 <widget class="QPushButton" name="btnImageDesc">
                   <property name="styleSheet">
                    <string notr="true">QPushButton {
 color:#fff
@@ -2527,16 +2710,14 @@ color:#fff
                   </property>
                   <property name="text">
                    <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores
-distinctio, aperiam quam deserunt accusantium
-possimus minima?</string>
+elit. Placeat delectus facilis dolorum dolores</string>
                   </property>
                   <property name="flat">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="1" column="1">
                  <widget class="QPushButton" name="btnAlbumTitle">
                   <property name="font">
                    <font>
@@ -2562,238 +2743,7 @@ font-weight:bold;
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
-                 <widget class="QToolButton" name="btnImage">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>275</width>
-                    <height>185</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>275</width>
-                    <height>185</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QToolButton {
- border: 1px solid #ffff00;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="falcong.qrc">
-                    <normaloff>:/icons/Resources/Lazise_02596-Edit.png</normaloff>:/icons/Resources/Lazise_02596-Edit.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>270</width>
-                    <height>180</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="3">
-                 <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,1,1,9999">
-                  <item>
-                   <widget class="QPushButton" name="btnUplink">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-QPushButton:pressed {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="falcong.qrc">
-                      <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
-                    </property>
-                    <property name="flat">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnMenu">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-QPushButton:pressed {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-</string>
-                    </property>
-                    <property name="text">
-                     <string>Home</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnCaption">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a90329, stop: 0.4  #8f0222, stop:1 #6d0019);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-QPushButton:pressed {
-background:qlineargradient(x1:0, y1:0, x2:0, y2:1,  stop:0 #a6d019, stop: 0.4  #8f0222, stop:1 #a90329);
-color:#fff; 
-border: 1px solid #6d0019;
-padding: 4px 10px 3px;
-font-size: 13px;
-line-height: 18px;
-margin: 2px 3px;
-font-weight: 800;
-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-border-radius: 5px;
-}
-</string>
-                    </property>
-                    <property name="text">
-                     <string>Captions</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_10">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
-                  <item>
-                   <widget class="QPushButton" name="btnSmallGalleryTitle">
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-	color:#fff; 
-	font-family:Constantia, Palatino, &quot;Palatino Linotype&quot;, &quot;Palatino LT STD&quot;, Georgia, serif;
-	font-weight:400;
-	font-size:10pt;
-	text-align:left;
-}</string>
-                    </property>
-                    <property name="text">
-                     <string>falconG Gallery Maker</string>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="btnLang">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-   color:#FFFF00;
-background-color:#a03020;
-   font-size: 8pt;
- }</string>
-                    </property>
-                    <property name="text">
-                     <string>Italiano</string>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_11">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item row="7" column="1">
+                <item row="6" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
                    <widget class="QPushButton" name="btnIconToTop">
@@ -2858,8 +2808,8 @@ font-weight: bold;
                   </item>
                  </layout>
                 </item>
-                <item row="6" column="1">
-                 <widget class="QPushButton" name="btnImageDesc">
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="btnAlbumDesc">
                   <property name="styleSheet">
                    <string notr="true">QPushButton {
 color:#fff
@@ -2867,10 +2817,114 @@ color:#fff
                   </property>
                   <property name="text">
                    <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores</string>
+elit. Placeat delectus facilis dolorum dolores
+distinctio, aperiam quam deserunt accusantium
+possimus minima?</string>
                   </property>
                   <property name="flat">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <item>
+                   <widget class="QPushButton" name="btnSmallGalleryTitle">
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton {
+	color:#fff; 
+	font-family:Constantia, Palatino, &quot;Palatino Linotype&quot;, &quot;Palatino LT STD&quot;, Georgia, serif;
+	font-weight:400;
+	font-size:10pt;
+	text-align:left;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>falconG Gallery Maker</string>
+                    </property>
+                    <property name="flat">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_11">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="btnSection">
+                  <property name="font">
+                   <font>
+                    <family>Papyrus</family>
+                    <pointsize>22</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff;
+font-family:Papyrus;
+font-size:22pt;
+font-weight:bold;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Images</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QToolButton" name="btnImage">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>275</width>
+                    <height>185</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>275</width>
+                    <height>185</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QToolButton {
+ border: 1px solid #ffff00;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="falcong.qrc">
+                    <normaloff>:/icons/Resources/Lazise_02596-Edit.png</normaloff>:/icons/Resources/Lazise_02596-Edit.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>270</width>
+                    <height>180</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -4215,12 +4269,9 @@ elit. Placeat delectus facilis dolorum dolores</string>
   <tabstop>chkForceSSL</tabstop>
   <tabstop>chkMenuToContact</tabstop>
   <tabstop>chkAllowLinkToImages</tabstop>
-  <tabstop>chkMenuToAbout</tabstop>
   <tabstop>chkCanDownload</tabstop>
   <tabstop>chkMenuToDescriptions</tabstop>
   <tabstop>chkRightClickProtected</tabstop>
-  <tabstop>chkMenuToToggleCaptions</tabstop>
-  <tabstop>chkFacebook</tabstop>
   <tabstop>sbNewDays</tabstop>
   <tabstop>sbLatestCount</tabstop>
   <tabstop>chkSetLatest</tabstop>
