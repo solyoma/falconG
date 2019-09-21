@@ -410,6 +410,7 @@ void FalconG::_ConfigToSample()
 	QString ss = "";
 				  // style for menu buttons
 	ss = "\n color:" + ColorToStr(config.Menu.color) +
+		";\n background-color:"+ ColorToStr(config.Menu.background) +
 		";\n padding: 4px 10px 3px" +
 		";\n margin: 2px 3px" +
 		";\n line-height: 18px" +
@@ -2093,9 +2094,11 @@ void FalconG::on_btnGradBorder_clicked()
 	if (!ui.chkButtonBorder->isChecked())
 		return;
 
+	QString s = "1px solid " + config.Menu.border.color.name;
 	StyleHandler handler(ui.btnMenu->styleSheet());
-	handler.SetItem("QPushButton", "border", "1px solid " + config.Menu.border.color.name);
-	handler.SetItem("QPushButton:pressed", "border", "1px solid " + config.Menu.border.color.name);
+	handler.SetItem("QPushButton", "border", s);
+	handler.SetItem("QPushButton:pressed", "border", s);
+
 	ui.btnMenu->setStyleSheet(handler.StyleSheet());
 	ui.btnCaption->setStyleSheet(handler.StyleSheet());
 	ui.btnUplink->setStyleSheet(handler.StyleSheet());
