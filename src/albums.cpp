@@ -2416,7 +2416,8 @@ bool AlbumGenerator::_ReadFromGallery()
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing file
-* REMARKS:
+* REMARKS: the file up-link.png is not copied, but will be created from 
+*			icon image in falconG.cpp
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyRes()
 {
@@ -2425,7 +2426,11 @@ int AlbumGenerator::_DoCopyRes()
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
 	for (QFileInfo &fi : list)
-		QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
+	{
+		if(fi.fileName() != QString("left-icon.png"))
+			QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
+	}
+	emit SignalToCreateUplinkIcon(dest + "left-icon.png");
 	return 0;	
 }
 
@@ -3791,7 +3796,7 @@ int AlbumGenerator::Write()
 		WriteDirStruct();   // all album and image data is read in
 
 	int i;					// returns:
-	i = _DoCopyRes();			// 0 | 1
+	i = _DoCopyRes();			// 0 | 1	does not copy 'up-link.png' !
 	i |= _DoHtAccess();			// 0 | 2
 	i |= _DoColorsCss();		// 0 | 4
 	i |= _DoStyleFG();			// 0 | 8

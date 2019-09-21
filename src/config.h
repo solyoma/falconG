@@ -292,6 +292,10 @@ public:
 
 	_CString sGalleryTitle;
 	_CString sGalleryDesc;
+	_CString sGalleryLanguages;	// empty or a series of language abbreviations. Example: hu,en. 
+								// Order important, either files '<abbrev>.txt' must exist 
+								// (in either the program directory or in the source gallery directory)
+								// or in the '.struct' file
 
 	_CBool bFacebookLink;
 

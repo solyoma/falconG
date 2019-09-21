@@ -360,7 +360,7 @@ public:
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
 	void SaveStyleSheets();
-	void RecreateWebPages(bool Yes) { _mustRecreateAllAlbums = Yes; };
+	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	
@@ -380,6 +380,7 @@ signals:
 //	void SignalImageMapChanged();
 	void SignalAlbumStructChanged();
 	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
+	void SignalToCreateUplinkIcon(QString destPathName);
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _running = false; }

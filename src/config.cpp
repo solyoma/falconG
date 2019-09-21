@@ -114,6 +114,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->dsApplication.changed = false;
 		_parent->dsSrc.changed = false;
 		_parent->dsGallery.changed = false;
+		_parent->sGalleryLanguages = false;
 		_parent->dsGRoot.changed = false;
 		_parent->dsAlbumDir.changed = false;
 		_parent->dsCssDir.changed = false;
@@ -159,6 +160,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->googleAnalTrackingCode.changed = false;
 
 		_parent->sGalleryTitle.changed = false;
+		_parent->sGalleryLanguages.changed = false;
 		_parent->GalleryTitle.ClearChanged();
 		_parent->GalleryDesc.ClearChanged();
 
@@ -576,6 +578,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	googleAnalTrackingCode = cfg.googleAnalTrackingCode;
 
 	sGalleryTitle = cfg.sGalleryTitle;
+	sGalleryLanguages = cfg.sGalleryLanguages;
 	bOvrImages = cfg.bOvrImages;
 }
 
@@ -842,6 +845,7 @@ CONFIG::CONFIG()
 
 	sGalleryDesc.nameStr = "sGalleryDesc";
 	sGalleryTitle.nameStr = "sGalleryTitle";
+	sGalleryLanguages.nameStr = "sGalleryLanguages";
 	bFacebookLink.nameStr = "facebook";
 	// Design page
 
@@ -1019,6 +1023,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadBool(s, bOvrImages, true);  // overwrite images or ask?
 
 	__ConfigReadStr(s, sGalleryTitle, "Andreas Falco Photography");
+	__ConfigReadStr(s, sGalleryLanguages, "");
 	__ConfigReadStr(s, sUplink, "");		// no defaults
 	__ConfigReadStr(s, sMainPage, "");		// no defaults
 	__ConfigReadStr(s, sDescription, "");	// no defaults
@@ -1304,6 +1309,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteStr(s, sMailTo);			// send user emails here
 	__ConfigWriteStr(s, sAbout);			// about page
 	__ConfigWriteStr(s, sGalleryTitle);
+	__ConfigWriteStr(s, sGalleryLanguages);	// hu,en
 	__ConfigWriteStr(s, sUplink);
 	__ConfigWriteStr(s, sMainPage);
 	__ConfigWriteStr(s, sDescription);

@@ -162,7 +162,7 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
@@ -575,7 +575,7 @@ regardless if they were already OK.</string>
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Series of language definition records, separated by commas.&lt;/p&gt;&lt;p&gt;Records are 3 comma separated fields. &lt;br/&gt;Field #1 -  2 lower case letter abbreviation (e.g. &lt;span style=&quot; font-style:italic;&quot;&gt;en&lt;/span&gt;)&lt;br/&gt;Field #2 -  Name to put to language selection menu (e.g. &lt;span style=&quot; font-style:italic;&quot;&gt;in English&lt;/span&gt;)&lt;br/&gt;Field #3 -  name of icon file for graphical image, may be left blank.&lt;/p&gt;&lt;p&gt;All texts in one language must be put into the file named&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;abbreviation&amp;gt;.text, &lt;/span&gt;example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;See the User Guide for details of language files&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>Text for the link to the server</string>
                </property>
                <property name="placeholderText">
                 <string>Andreas Falco Photography</string>
@@ -734,6 +734,35 @@ regardless if they were already OK.</string>
                </property>
                <property name="text">
                 <string>About page</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_62">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Languages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" colspan="2">
+              <widget class="QLineEdit" name="edtGalleryLanguages">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Series of 2 lower case letter language abbreviations separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files  in the program directory or in the&lt;br/&gt;actual gallery source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;2 letter abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language texts it finds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="placeholderText">
+                <string>hu,Magyarul,;en,English,;</string>
                </property>
               </widget>
              </item>
@@ -2080,6 +2109,9 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  <property name="editable">
                   <bool>true</bool>
                  </property>
+                 <property name="currentIndex">
+                  <number>6</number>
+                 </property>
                  <property name="insertPolicy">
                   <enum>QComboBox::NoInsert</enum>
                  </property>
@@ -2455,7 +2487,7 @@ background-color:#ffff00;
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_14" stretch="0,1">
              <item>
-              <widget class="QWidget" name="pnlGallery" native="true">
+              <widget class="QFrame" name="pnlGallery">
                <property name="styleSheet">
                 <string notr="true">background-color:#580508;</string>
                </property>
@@ -2627,7 +2659,7 @@ border-radius: 5px;
                    </property>
                    <property name="icon">
                     <iconset resource="falcong.qrc">
-                     <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
+                     <normaloff>:/icons/Resources/left-icon.png</normaloff>:/icons/Resources/left-icon.png</iconset>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -2834,8 +2866,19 @@ possimus minima?</string>
                 </item>
                 <item row="0" column="0" colspan="3">
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetNoConstraint</enum>
+                  </property>
                   <item>
                    <widget class="QPushButton" name="btnSmallGalleryTitle">
+                    <property name="font">
+                     <font>
+                      <family>Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif</family>
+                      <pointsize>10</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">QPushButton {
 	color:#fff; 
@@ -2847,6 +2890,12 @@ possimus minima?</string>
                     </property>
                     <property name="text">
                      <string>falconG Gallery Maker</string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>16</width>
+                      <height>36</height>
+                     </size>
                     </property>
                     <property name="flat">
                      <bool>true</bool>

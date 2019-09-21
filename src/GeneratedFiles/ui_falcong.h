@@ -102,6 +102,8 @@ public:
     QCheckBox *chkMenuToToggleCaptions;
     QCheckBox *chkFacebook;
     QCheckBox *chkMenuToAbout;
+    QLabel *label_62;
+    QLineEdit *edtGalleryLanguages;
     QVBoxLayout *verticalLayout_15;
     QGroupBox *gbLatest;
     QGridLayout *gridLayout_6;
@@ -224,7 +226,7 @@ public:
     QSpacerItem *verticalSpacer_2;
     QGroupBox *groupBox_6;
     QVBoxLayout *verticalLayout_14;
-    QWidget *pnlGallery;
+    QFrame *pnlGallery;
     QVBoxLayout *verticalLayout;
     QWidget *menuWidget;
     QPushButton *btnCaption;
@@ -702,6 +704,18 @@ public:
         chkMenuToAbout->setFont(font);
 
         gridLayout_17->addWidget(chkMenuToAbout, 3, 1, 1, 1);
+
+        label_62 = new QLabel(gbGallery);
+        label_62->setObjectName(QString::fromUtf8("label_62"));
+        label_62->setFont(font);
+
+        gridLayout_17->addWidget(label_62, 1, 1, 1, 1);
+
+        edtGalleryLanguages = new QLineEdit(gbGallery);
+        edtGalleryLanguages->setObjectName(QString::fromUtf8("edtGalleryLanguages"));
+        edtGalleryLanguages->setFont(font);
+
+        gridLayout_17->addWidget(edtGalleryLanguages, 1, 2, 1, 2);
 
 
         horizontalLayout_16->addWidget(gbGallery);
@@ -1501,7 +1515,7 @@ public:
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setContentsMargins(11, 11, 11, 11);
         verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
-        pnlGallery = new QWidget(groupBox_6);
+        pnlGallery = new QFrame(groupBox_6);
         pnlGallery->setObjectName(QString::fromUtf8("pnlGallery"));
         pnlGallery->setStyleSheet(QString::fromUtf8("background-color:#580508;"));
         verticalLayout = new QVBoxLayout(pnlGallery);
@@ -1610,7 +1624,7 @@ public:
 "}\n"
 ""));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/icons/Resources/up-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/icons/Resources/left-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         btnUplink->setIcon(icon);
         btnUplink->setFlat(false);
 
@@ -1738,8 +1752,15 @@ public:
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setSpacing(6);
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
+        horizontalLayout_12->setSizeConstraint(QLayout::SetNoConstraint);
         btnSmallGalleryTitle = new QPushButton(frmWeb);
         btnSmallGalleryTitle->setObjectName(QString::fromUtf8("btnSmallGalleryTitle"));
+        QFont font5;
+        font5.setFamily(QString::fromUtf8("Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif"));
+        font5.setPointSize(10);
+        font5.setBold(false);
+        font5.setWeight(50);
+        btnSmallGalleryTitle->setFont(font5);
         btnSmallGalleryTitle->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "	color:#fff; \n"
 "	font-family:Constantia, Palatino, \"Palatino Linotype\", \"Palatino LT STD\", Georgia, serif;\n"
@@ -1747,6 +1768,7 @@ public:
 "	font-size:10pt;\n"
 "	text-align:left;\n"
 "}"));
+        btnSmallGalleryTitle->setIconSize(QSize(16, 36));
         btnSmallGalleryTitle->setFlat(true);
 
         horizontalLayout_12->addWidget(btnSmallGalleryTitle);
@@ -1760,12 +1782,12 @@ public:
 
         btnSection = new QPushButton(frmWeb);
         btnSection->setObjectName(QString::fromUtf8("btnSection"));
-        QFont font5;
-        font5.setFamily(QString::fromUtf8("Papyrus"));
-        font5.setPointSize(22);
-        font5.setBold(true);
-        font5.setWeight(75);
-        btnSection->setFont(font5);
+        QFont font6;
+        font6.setFamily(QString::fromUtf8("Papyrus"));
+        font6.setPointSize(22);
+        font6.setBold(true);
+        font6.setWeight(75);
+        btnSection->setFont(font6);
         btnSection->setStyleSheet(QString::fromUtf8("QPushButton {\n"
 "color:#fff;\n"
 "font-family:Papyrus;\n"
@@ -2586,7 +2608,8 @@ public:
         QObject::connect(actionExit, SIGNAL(triggered()), falconGClass, SLOT(close()));
         QObject::connect(btnExit, SIGNAL(clicked()), falconGClass, SLOT(close()));
 
-        tabFalconG->setCurrentIndex(0);
+        tabFalconG->setCurrentIndex(1);
+        cbPointSize->setCurrentIndex(6);
         cbWmVPosition->setCurrentIndex(0);
         cbWmHPosition->setCurrentIndex(0);
 
@@ -2669,7 +2692,7 @@ public:
         label_50->setText(QApplication::translate("falconGClass", "Home page background", nullptr));
         chkRightClickProtected->setText(QApplication::translate("falconGClass", "Right click protection", nullptr));
 #ifndef QT_NO_TOOLTIP
-        edtGalleryTitle->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Series of language definition records, separated by commas.</p><p>Records are 3 comma separated fields. <br/>Field #1 -  2 lower case letter abbreviation (e.g. <span style=\" font-style:italic;\">en</span>)<br/>Field #2 -  Name to put to language selection menu (e.g. <span style=\" font-style:italic;\">in English</span>)<br/>Field #3 -  name of icon file for graphical image, may be left blank.</p><p>All texts in one language must be put into the file named<br/><span style=\" font-style:italic;\">&lt;abbreviation&gt;.text, </span>example:<span style=\" font-style:italic;\"> en.text.</span></p><p><span style=\" font-style:italic;\">See the User Guide for details of language files</span></p></body></html>", nullptr));
+        edtGalleryTitle->setToolTip(QApplication::translate("falconGClass", "Text for the link to the server", nullptr));
 #endif // QT_NO_TOOLTIP
         edtGalleryTitle->setPlaceholderText(QApplication::translate("falconGClass", "Andreas Falco Photography", nullptr));
         label_47->setText(QApplication::translate("falconGClass", "Title", nullptr));
@@ -2686,6 +2709,11 @@ public:
         chkMenuToToggleCaptions->setText(QApplication::translate("falconGClass", "Captions", nullptr));
         chkFacebook->setText(QApplication::translate("falconGClass", "Like on Facebook link", nullptr));
         chkMenuToAbout->setText(QApplication::translate("falconGClass", "About page", nullptr));
+        label_62->setText(QApplication::translate("falconGClass", "Languages", nullptr));
+#ifndef QT_NO_TOOLTIP
+        edtGalleryLanguages->setToolTip(QApplication::translate("falconGClass", "<html><head/><body><p>Series of 2 lower case letter language abbreviations separated by comma (,)</p><p>Texts for languages must either be in the .struct file or <br/>in files  in the program directory or in the<br/>actual gallery source directory. Files must be named as</p><p><span style=\" font-style:italic;\">&lt;2 letter abbreviation&gt;.text, </span></p><p>Example:<span style=\" font-style:italic;\"> en.text.</span></p><p>If left empty it uses all language texts it finds.</p></body></html>", nullptr));
+#endif // QT_NO_TOOLTIP
+        edtGalleryLanguages->setPlaceholderText(QApplication::translate("falconGClass", "hu,Magyarul,;en,English,;", nullptr));
         gbLatest->setTitle(QApplication::translate("falconGClass", "Latest uploads", nullptr));
         label_31->setText(QApplication::translate("falconGClass", "days", nullptr));
         label_30->setText(QApplication::translate("falconGClass", "Time period", nullptr));

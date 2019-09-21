@@ -83,6 +83,7 @@ private:
 	FalconGEditTabSelection _selection;	// selection in tree view
 	bool _edited = false;		// when image/album text etc modified in program
 								// asks for save at exit
+	QColor _lastUsedMenuForegroundColor = Qt::white;
 
 	QTextStream ifs, ofs;
 
@@ -103,6 +104,7 @@ private:
 	void _SetWebColor();		// set WEB button colors
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
+	void _SetIconColor(QPushButton &btn, _CElem &elem);
 
 	enum whoChangedTheText {wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4};
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
@@ -118,6 +120,7 @@ private slots:
 //	void _ImageMapChanged();
 	void _AlbumMapChanged();
 	void _ShowRemainingTime(time_t actual, time_t total, int count, bool speed);
+	void _CreateUplinkIcon(QString destName);
 	void _SetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
 	void _ThumbNailViewerIsLoading(bool yes);
 	void _TrvCountChanged();
@@ -151,6 +154,7 @@ private slots:
 	void on_edtImg_textChanged();
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
+	void on_edtGalleryLanguages_textChanged();
 	void on_edtSourceGallery_textChanged();
 	void on_edtDescription_textChanged();
 	void on_edtKeywords_textChanged();

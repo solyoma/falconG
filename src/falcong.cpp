@@ -140,6 +140,7 @@ FalconG::FalconG(QWidget *parent)
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,	this, &FalconG::_CreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SetDirectoryCountTo);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailWidget::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
@@ -296,7 +297,7 @@ void FalconG::on_btnGenerate_clicked()
 	else
 	{
 		CONFIGS_USED::Write();
-		albumgen.RecreateWebPages(config.bGenerateAll || config.changed);
+		albumgen.SetRecrateAlbumFlag(config.bGenerateAll || config.changed);
 
 		++_running;
 		_edited = false;
@@ -344,7 +345,7 @@ void FalconG::on_btnGenerate_clicked()
 		if(_phase != -1)
 			ui.tabFalconG->setCurrentIndex(3);	// show 'Edit' page
 
-		albumgen.RecreateWebPages(config.bGenerateAll);	// not until relevant changes
+		albumgen.SetRecrateAlbumFlag(config.bGenerateAll);	// not until relevant changes
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);
@@ -425,6 +426,7 @@ void FalconG::_ConfigToSample()
 
 	ui.btnMenu->setStyleSheet(ss);
 	ui.btnUplink->setStyleSheet(ss);
+	_SetIconColor(*ui.btnUplink, config.Menu);
 	ui.btnCaption->setStyleSheet(ss);
 
 					// style for other elements
@@ -434,7 +436,7 @@ void FalconG::_ConfigToSample()
 		// special for gallery title: not a button, but a panel
 	ss = "QFrame {" + __ColorStyle(config.Web) + "\n}\n";
 	ui.frmWeb->setStyleSheet(ss);
-	ss = "QWidget" + ss.mid(6);
+	//ss = "QWidget" + ss.mid(6);
 	//ss = "QWidget {\nbackground-color: " + ColorToStr(config.Web.background)\
 	//	+ ";\n color: " + ColorToStr(config.Web.color) + ";\n}";
 	ui.pnlGallery->setStyleSheet(ss);
@@ -760,6 +762,20 @@ void FalconG::on_edtGalleryTitle_textChanged()
 
 	config.sGalleryTitle = ui.edtGalleryTitle->text();
 	config.sGalleryTitle.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtGalleryLanguages_textChanged()
+{
+	config.sGalleryLanguages = ui.edtGalleryLanguages->text();
+	config.sGalleryLanguages.changed = true;
 	ui.btnSaveConfig->setEnabled(true);
 }
 
@@ -3033,7 +3049,7 @@ void FalconG::_SetWebColor()
 			_SetColorToConfig(handler, config.Web);		// and into 'handler'
 			ss = handler.StyleSheet();
 			ui.frmWeb->setStyleSheet(ss); 
-			ss = "QWidget {" + ss.mid(11);
+			//ss = "QWidget {" + ss.mid(11);
 			ui.pnlGallery->setStyleSheet(ss);
 // DEBUG
 //ShowStyleOf(ui.pnlGallery); 	
@@ -3063,6 +3079,7 @@ void FalconG::_SetWebColor()
 // ShowStyleOf(ui.btnMenu); 	
 //			ui.btnLang->setStyleSheet(ss);
 			ui.btnUplink->setStyleSheet(ss);
+			_SetIconColor(*ui.btnUplink, config.Menu);	// color white icon to config.Menu,color
 			ui.btnCaption->setStyleSheet(ss);
 			break;
 		case aeAlbumTitle:	   handler.Set(ui.btnAlbumTitle->styleSheet());
@@ -3273,6 +3290,28 @@ void FalconG::_SaveChangedTexts()
 }
 
 /*============================================================================
+  * TASK:		changes the color of the icon of teh given button to the
+  *				one set in 'elem'
+  * EXPECTS: btn - QtPushButton with icon
+  *			 elem - _CElem with the color set
+  * RETURNS: nothing
+  * GLOBALS:
+  * REMARKS: uses the original color of the icon of the button
+ *--------------------------------------------------------------------------*/
+void FalconG::_SetIconColor(QPushButton &btn, _CElem & elem)
+{
+	QIcon icon = btn.icon();
+	QPixmap pm;
+	pm = icon.pixmap(64, 64);
+	QBitmap mask = pm.createMaskFromColor(_lastUsedMenuForegroundColor, Qt::MaskOutColor);
+	// save previous menu button color
+	_lastUsedMenuForegroundColor = elem.color.name;
+	pm.fill(_lastUsedMenuForegroundColor);
+	pm.setMask(mask);
+	btn.setIcon(pm);
+}
+
+/*============================================================================
   * TASK:
   * EXPECTS:
   * GLOBALS:
@@ -3463,6 +3502,21 @@ void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool sp
 	if(speed)
 		ui.lblImagesPerSec->setText(QString("%1").arg((double)count / (double)actual, 0,'f',1));
 }
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:  re-create icon from uplink button 
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::_CreateUplinkIcon(QString destName)
+{
+	QPixmap pm = ui.btnUplink->icon().pixmap(64,64);
+	QFile::remove(destName);
+	pm.save(destName);
+}
+
 
 /*=============================================================
  * TASK:
