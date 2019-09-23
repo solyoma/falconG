@@ -162,7 +162,7 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
@@ -1566,7 +1566,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                   </font>
                  </property>
                  <property name="text">
-                  <string>Te&amp;xt</string>
+                  <string>&amp;Text</string>
                  </property>
                  <property name="buddy">
                   <cstring>edtTextColor</cstring>
@@ -2409,6 +2409,95 @@ background-color:#ffff00;
              </widget>
             </item>
             <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>120</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Background image</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_15">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_63">
+                 <property name="text">
+                  <string>Path:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" colspan="2">
+                <widget class="QLineEdit" name="edtBckImageName"/>
+               </item>
+               <item row="3" column="0">
+                <widget class="QRadioButton" name="rbTileBckImage">
+                 <property name="text">
+                  <string>&amp;Tile</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QToolButton" name="btnBrowseForBackgroundImage">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>:/icons/Resources/open-folder-with-document.png</normaloff>:/icons/Resources/open-folder-with-document.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QRadioButton" name="rbScalerBckImage">
+                 <property name="text">
+                  <string>Scale</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QRadioButton" name="rbCoverBckImage">
+                 <property name="text">
+                  <string>Cover</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2" rowspan="2">
+                <widget class="QLabel" name="lblbckImage">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>80</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background:white;
+/* :url(&quot;s:/photo/falconG/src/Resources/Lazise_02596-Edit&quot;) white */</string>
+                 </property>
+                 <property name="text">
+                  <string>background image</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QWidget" name="widget_5" native="true">
               <property name="minimumSize">
                <size>
@@ -2728,9 +2817,8 @@ distinctio...</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">QFrame {
-background-color:#580508;
-}</string>
+                <string notr="true">background-color: #580508;
+</string>
                </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
@@ -2739,6 +2827,50 @@ background-color:#580508;
                 <enum>QFrame::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_14">
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="btnAlbumDesc">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
+elit. Placeat delectus facilis dolorum dolores
+distinctio, aperiam quam deserunt accusantium
+possimus minima?</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="btnSection">
+                  <property name="font">
+                   <font>
+                    <family>Papyrus</family>
+                    <pointsize>22</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff;
+font-family:Papyrus;
+font-size:22pt;
+font-weight:bold;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Images</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
                 <item row="5" column="1">
                  <widget class="QPushButton" name="btnImageDesc">
                   <property name="styleSheet">
@@ -2780,6 +2912,59 @@ font-weight:bold;
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetNoConstraint</enum>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="btnSmallGalleryTitle">
+                    <property name="font">
+                     <font>
+                      <family>Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif</family>
+                      <pointsize>10</pointsize>
+                      <weight>50</weight>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QPushButton {
+	color:#aaa; 
+	font-family:Constantia, Palatino, &quot;Palatino Linotype&quot;, &quot;Palatino LT STD&quot;, Georgia, serif;
+	font-weight:400;
+	font-size:10pt;
+	text-align:left;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>falconG Gallery Maker</string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>16</width>
+                      <height>36</height>
+                     </size>
+                    </property>
+                    <property name="flat">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_11">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
                 </item>
                 <item row="6" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -2845,103 +3030,6 @@ font-weight: bold;
                    </widget>
                   </item>
                  </layout>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="btnAlbumDesc">
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores
-distinctio, aperiam quam deserunt accusantium
-possimus minima?</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
-                  <property name="sizeConstraint">
-                   <enum>QLayout::SetNoConstraint</enum>
-                  </property>
-                  <item>
-                   <widget class="QPushButton" name="btnSmallGalleryTitle">
-                    <property name="font">
-                     <font>
-                      <family>Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif</family>
-                      <pointsize>10</pointsize>
-                      <weight>50</weight>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">QPushButton {
-	color:#fff; 
-	font-family:Constantia, Palatino, &quot;Palatino Linotype&quot;, &quot;Palatino LT STD&quot;, Georgia, serif;
-	font-weight:400;
-	font-size:10pt;
-	text-align:left;
-}</string>
-                    </property>
-                    <property name="text">
-                     <string>falconG Gallery Maker</string>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>16</width>
-                      <height>36</height>
-                     </size>
-                    </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_11">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="btnSection">
-                  <property name="font">
-                   <font>
-                    <family>Papyrus</family>
-                    <pointsize>22</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff;
-font-family:Papyrus;
-font-size:22pt;
-font-weight:bold;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Images</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
                 </item>
                 <item row="4" column="1">
                  <widget class="QToolButton" name="btnImage">
@@ -3372,7 +3460,7 @@ font-weight:bold;
                     </font>
                    </property>
                    <property name="text">
-                    <string>Te&amp;xt</string>
+                    <string>&amp;Text</string>
                    </property>
                    <property name="buddy">
                     <cstring>edtWatermark</cstring>

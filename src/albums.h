@@ -395,8 +395,8 @@ class AlbumStructWriterThread : public QThread
 	QMutex _albumMapStructIsBeingWritten;
 
 	TextMap &_textMap;		// all texts for all albums and inmages
-	AlbumMap &_albumMap;		// all source albums
-	ImageMap &_imageMap;		// all images for all albums
+	AlbumMap &_albumMap;	// all source albums
+	ImageMap &_imageMap;	// all images for all albums
 	Album _root;			// top level album (first in '_albumMap', ID = 1)
 	QTextStream _ofs;
 
@@ -408,7 +408,6 @@ class AlbumStructWriterThread : public QThread
 signals:
 	void resultReady(QString s);
 public:
-	// DEBUG 1 line
 	void run() override;  // the actual writing
 	AlbumStructWriterThread(AlbumGenerator&generator, QObject *parent = Q_NULLPTR);
 };

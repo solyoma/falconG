@@ -458,6 +458,8 @@ void FalconG::_ConfigToSample()
 	SET_STYLE_W_FONT_TO(Section)
 	SET_STYLE_W_FONT_TO(ImageTitle)
 	SET_STYLE_W_FONT_TO(ImageDesc)
+	SET_STYLE_W_FONT_TO(ImageTitle)
+	SET_STYLE_W_FONT_TO(SmallGalleryTitle)
 
 	on_chkImageBorder_toggled(config.imageBorder.used);
 	--_busy;
@@ -1884,7 +1886,7 @@ void FalconG::_SetCommonControlsFromWebButton(StyleHandler &shElem, QWidget * pb
 
 	shElem.Set(pb->styleSheet());
 	
-	shColor.SetItem("QToolButton", "background-color", elem.color.name); 
+	shColor.SetItem("QToolButton", "background-color", elem.color.name);	// button background color is elem color!
 	ui.btnColor->setStyleSheet(shColor.StyleSheet()); 
 	
 	shBackground.SetItem("QToolButton", "background-color", elem.background.name);
@@ -2277,6 +2279,25 @@ void FalconG::on_btnBackground_clicked()
 	{
 		ui.edtBackgroundColor->setText(qc.name().mid(1));
 	}
+}
+
+
+/*========================================================
+ * TASK: browse for background image
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - should svae last directory into config
+ *-------------------------------------------------------*/
+void FalconG::on_btnBrowseForBackgroundImage()
+{
+	static QString _qsLastBackgroundImagePath = "./";
+	QString filename = QFileDialog::getOpenFileName(this,
+													tr("falconG - Open background image"), 
+													_qsLastBackgroundImagePath,
+													"Image Files (*.png *.jpg)");
+	if (!filename.isEmpty())
+		ui.edtBckImageName->setText(filename);
 }
 
 /*============================================================================

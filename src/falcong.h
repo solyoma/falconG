@@ -244,6 +244,7 @@ private slots:
 	// color buttons
 	void on_btnColor_clicked();	
 	void on_btnBackground_clicked();
+	void on_btnBrowseForBackgroundImage();
 	void on_btnGradStartColor_clicked();
 	void on_btnGradMiddleColor_clicked();
 	void on_btnGradStopColor_clicked();

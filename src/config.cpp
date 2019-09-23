@@ -100,6 +100,34 @@ void CONFIGS_USED::Write()
 	s.endGroup();
 }
 
+QString CONFIGS_USED::NameForConfig(QString sExt, const QString *path)
+{
+	QString sDefault;
+	if (sExt == ".ini")
+		sDefault = falconG_ini;
+	else
+		sDefault = "gallery.struct";
+
+	QString sIniName, p, n, s;
+	s = path ? *path : (indexOfLastUsed >= 0 && indexOfLastUsed < lastConfigs.size() ? lastConfigs[indexOfLastUsed] : sDefault);
+	SeparateFileNamePath(s, p, n);	// cuts '/' from name
+	if (s[s.length() - 1] != '/')
+		s += "/";
+	if (n.isEmpty())
+		sIniName = sDefault;
+	else
+		sIniName = s + n + sExt;
+
+	if (!QFile::exists(sIniName))
+	{
+		sIniName = s + sDefault;
+		if (!QFile::exists(sIniName))
+			sIniName = sDefault;
+	}
+
+	return sIniName;
+}
+
 
 
 // ! If you add any new field to CONFIG you need to add the name, 
@@ -906,26 +934,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	sKeywords.defStr   = "";
 	sAbout.defStr      =  "about.html";
 
-	QString sIniName, p, n; 
-	if (path)		
-	{
-		QString s = *path;
-		SeparateFileNamePath(s, p, n);	// cuts '/' from name
-		if (s[s.length() - 1] != '/')
-			s += "/";
-		if (n.isEmpty())
-			sIniName = falconG_ini;
-		else
-			sIniName = s + n + ".ini";
-		if (!QFile::exists(sIniName))
-		{
-			sIniName = s + falconG_ini;
-			if (!QFile::exists(sIniName))
-				sIniName = falconG_ini;
-		}
-	}
-	else
-		sIniName = falconG_ini;
+
+	QString sIniName = CONFIGS_USED::NameForConfig(".ini", path);
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
@@ -1274,10 +1284,12 @@ static inline void __WriteWaterMark(QSettings &s, _CWaterMark &elem)
  *---------------------------------------------------------------------------*/
 void CONFIG::Write()			// synchronize with Read!
 {
-	CONFIGS_USED::Write();			// save data in program directory
-	_WriteIni(falconG_ini);			// last used data into there as well
+	CONFIGS_USED::Write();		// save data in program directory
+	_WriteIni(falconG_ini);		// last used data into there as well
+
 	QString p, n;
 	SeparateFileNamePath(dsSrc.str, p, n);
+//	QString s = NameForConfig()
 
 	__bClearChangedFlag = true;				// mark all changes as saved
 	_WriteIni(dsSrc.str + n + ".ini");

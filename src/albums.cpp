@@ -17,6 +17,10 @@ QString ImageMap::lastUsedImagePath;
 
 //******************************************************
 AlbumGenerator albumgen;		// global
+static QString  sStructPath,	// path of .struct file
+				sStructTmp;		// these are accessed from 
+								// two threads, but no conflict exists
+
 //******************************************************
 /////////////////////////
 struct BadStruct 
@@ -1562,10 +1566,12 @@ bool AlbumGenerator::Read()
 	im.width = im.height = im.owidth = im.oheight = 800;
 	_imageMap[0] = im;
 
-	QString s = config.dsSrc.ToString() + QString("gallery.struct");
-	if (! QFileInfo::exists(s))
-		s = config.dsGallery.ToString() + QString("gallery.struct");
-
+	QString s = CONFIGS_USED::NameForConfig(".struct");
+	/*
+		QString s = config.dsSrc.ToString() + QString("gallery.struct");
+		if (! QFileInfo::exists(s))
+			s = config.dsGallery.ToString() + QString("gallery.struct");
+	 */
 	_structChanged = 0;
 
 	if(!config.bReadJAlbum && QFileInfo::exists(s))
@@ -3837,10 +3843,14 @@ void AlbumGenerator::_WriteStructReady(QString s)
 		return;
 	}
 	_structWritten = true;
+/*
 	QString stmp = QString(config.dsSrc.ToString());
 	s = stmp + +"gallery.struct";
 	stmp += "gallery.tmp";
+
 	BackupAndRename(s, stmp, frmMain, _keepPreviousBackup);
+*/
+	BackupAndRename(sStructPath, sStructTmp, frmMain, _keepPreviousBackup);
 }
 
 
@@ -3861,9 +3871,16 @@ void AlbumStructWriterThread::run()
 	QString result;
 	_albumMapStructIsBeingWritten.lock();
 
-	QString s = QString(config.dsSrc.ToString()) + "gallery.struct",
+	QString p, n;
+	SeparateFileNamePath(config.dsSrc.str, p, n);
+
+/*
+    QString s = QString(config.dsSrc.ToString()) + "gallery.struct",
 		stmp = QString(config.dsSrc.ToString()) + "gallery.tmp";
-	QFile f(stmp);
+ */
+	sStructPath		= config.dsSrc.str + n + QString(".struct"),
+	sStructTmp	= config.dsSrc.str + n + QString(".tmp");
+	QFile f(sStructTmp);
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		// error

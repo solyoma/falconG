@@ -194,6 +194,8 @@ struct CONFIGS_USED
 	static QStringList lastConfigs; // these are the (source) directories
 	static void Read();	// the last directories used
 	static void Write();
+
+	static QString NameForConfig(QString sExt, const QString *path = nullptr);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
 //-------------------------
@@ -209,6 +211,7 @@ class CONFIG
 	};
 
 	void _WriteIni(QString name);
+
 
 public:
 	CONFIG();
