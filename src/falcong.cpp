@@ -133,7 +133,7 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.tnvImages, &ThumbnailWidget::SingleSelection, this, &FalconG::_TnvSelectionChanged);
 	// connect with albumgen's 
 	connect(this,	   &FalconG::CancelRun,						&albumgen, &AlbumGenerator::Cancelled);
-	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,		this, &FalconG::_SetProgressBar);
+	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SetProgressBar);
 	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SetProgressBarPos);
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
 	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_EnableEditTab);
@@ -291,8 +291,7 @@ void FalconG::on_btnGenerate_clicked()
 {
 	if (_running)
 	{
-		if (!--_running)
-			emit CancelRun();
+		emit CancelRun();
 	}
 	else
 	{

@@ -35,7 +35,7 @@ const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
 const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
 
-extern QString BackupAndRename(QString name, QString tmpName, bool keepBackup);	// in support.cpp
+extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
 
 //------------------------------------------
 class TextMap;			// used in text for ID calculation
@@ -275,7 +275,7 @@ class AlbumGenerator : public QObject
 		time_t t0 = 0,tprev= 0;
 	} _remDsp;
 
-	bool _running = false;
+	bool _processing = false;
 
 	QString _upLink;		// to parent page if there's one
 	TextMap _textMap;		// all texts for all albums and inmages
@@ -392,7 +392,7 @@ signals:
 	void SignalToCreateUplinkIcon(QString destPathName);
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
-	void Cancelled() { _running = false; }
+	void Cancelled() { _processing = false; }
 	void ShowError(QString qs) 
 	{
 		QMessageBox(QMessageBox::Warning, 

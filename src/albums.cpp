@@ -17,8 +17,8 @@
 QString ImageMap::lastUsedImagePath;
 
 //******************************************************
-AlbumGenerator albumgen;		// global
-static QString  sStructPath,	// path of .struct file
+AlbumGenerator	albumgen;		// global
+static QString	sStructPath,	// path of .struct file
 				sStructTmp;		// these are accessed from 
 								// two threads, but no conflict exists
 
@@ -1525,9 +1525,9 @@ void AlbumGenerator::_ReadOneLevel(Album &ab)
 				if(_albumMap[id].exists)				
 					_ReadOneLevel(_albumMap[id]);
 			}
-		if (!_running)
-			return;
 		emit SignalProgressPos(_albumMap.size(), _imageMap.size());
+		if (!_processing)
+			return;
 	}
 	_ReadCommentFile(ab);	// descriptions for files and folders in ab
 	_ReadInfo(ab);			// titles for album and images inside
@@ -1544,7 +1544,7 @@ void AlbumGenerator::_ReadOneLevel(Album &ab)
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::Read()
 {
-	_running = true;
+	_processing = true;
 
 //	_structAlreadyInMemory = false;		// reset so if an error catched we will not think the struct is OK
 
@@ -2375,7 +2375,7 @@ bool AlbumGenerator::_ReadJalbum()
 
 	_remDsp.Init(directoryCount);
 	_ReadOneLevel(_albumMap[1 + ALBUM_ID_FLAG] );
-	if (!_running)
+	if (!_processing)
 		return false;
 
 	_root = _albumMap[1 + ALBUM_ID_FLAG];	// get values stored in hierarchy back to _root
@@ -3464,7 +3464,7 @@ int AlbumGenerator::_ProcessImages()
 
 	for (auto im : _imageMap)
 	{
-		if (!_running)		// stopped?
+		if (!_processing)		// stopped?
 		{
 			emit SignalToEnableEditTab(true);
 			return 8;
@@ -3534,7 +3534,7 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 		_ofs << "<!--the images in this sub gallery-->\n"
 			<< "<a name=\"images\">" << Languages::Images[_actLanguage] << "</a>\n""<section id=\"images\">\n";
 		// first the images
-		for (int i = 0; _running && i < album.images.size(); ++i)
+		for (int i = 0; _processing && i < album.images.size(); ++i)
 			//			if (album.excluded.indexOf(album.images[i]) < 0)
 			_WriteGalleryContainer(album, false, i);
 		_ofs << "</section>\n<!-- end section Images -->\n";
@@ -3545,12 +3545,12 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 			<< "<a name = \"galleries\"  id = \"folders\">" << Languages::Albums[_actLanguage] << "</a>\n"
 			"<section class=\"folders\">\n";
 
-		for (int i = 0; _running && i < album.albums.size(); ++i)
+		for (int i = 0; _processing && i < album.albums.size(); ++i)
 			//			if (album.excluded.indexOf(album.albums[i]) < 0)
 			_WriteGalleryContainer(album, true, i);
 		_ofs << "</section>\n<!-- end section Albums -->\n";
 	}
-	if (_running)		// else leave tha page unfinished
+	if (_processing)		// else leave tha page unfinished
 	{
 		// main section is finished
 		_ofs << "\n</main> <!-- end of main section -->\n";
@@ -3601,7 +3601,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	else
 		__CreatePageInner(f, album, language, uplink, processedCount);
 
-	if (_running) 		// create sub albums
+	if (_processing) 		// create sub albums
 
 	{
 		if (album.SubAlbumCount())
@@ -3610,7 +3610,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 			if ((album.ID & ID_MASK) == 1)
 				uplink = QString("../") + uplink;;
 
-			for (int i = 0; _running && i < album.albums.size(); ++i)
+			for (int i = 0; _processing && i < album.albums.size(); ++i)
 			{
 				if (album.excluded.indexOf(album.albums[i]) < 0)
 					_CreatePage(_albumMap[album.albums[i]], language, uplink, processedCount);
@@ -3698,7 +3698,7 @@ int AlbumGenerator::_CreateHomePage()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoPages()
 {
-	if (!_running)
+	if (!_processing)
 		return 0;
 
 	emit SignalToSetProgressParams(0, _albumMap.size() * Languages::Count(), 0, 3); // phase = 3
@@ -3718,7 +3718,7 @@ int AlbumGenerator::_DoPages()
 
 	int cnt = 0;
 
-	for (int lang = 0; _running && lang < Languages::Count(); ++lang)
+	for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
 	{
 										// home of gallery root	 like 'index' or 'index.html'
 		config.homeLink = uplink.isEmpty() ? config.sMainPage.ToString() : config.sUplink.ToString();
@@ -3790,20 +3790,27 @@ int AlbumGenerator::Write()
 
 	_ProcessImages();	// copy from from source into image directory
 						// determine image dimensions and latest upload date
-	if (_structChanged)		// do not save after read of structure
-		WriteDirStruct();   // all album and image data is read in
+	if(_processing)
+		if (_structChanged)		// do not save after read of structure
+			WriteDirStruct();   // all album and image data is read in
 
 	int i;					// returns:
-	i = _DoCopyRes();			// 0 | 1	does not copy 'up-link.png' !
-	i |= _DoHtAccess();			// 0 | 2
-	i |= _DoColorsCss();		// 0 | 4
-	i |= _DoStyleFG();			// 0 | 8
-	i |= _DoPages();			// 0 | 16
-	i |= _DoLatest();			// 0 | 32
+	if (_processing)
+		i = _DoCopyRes();			// 0 | 1	does not copy 'up-link.png' !
+	if (_processing)
+		i |= _DoHtAccess();			// 0 | 2
+	if (_processing)
+		i |= _DoColorsCss();		// 0 | 4
+	if (_processing)
+		i |= _DoStyleFG();			// 0 | 8
+	if (_processing)
+		i |= _DoPages();			// 0 | 16
+	if (_processing)
+		i |= _DoLatest();			// 0 | 32
 
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
 	_structChanged = 0;
-	_running = false;
+	_processing = false;
 
 	return i;
 }
@@ -3843,12 +3850,12 @@ void AlbumGenerator::_WriteStructReady(QString s)
 
 //***************************** class AlbumStructWriterThread ****************
 AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator & generator, QObject * parent)	:
-	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images())
+	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), QThread(parent)
 {
 }
 
 /*============================================================================
-* TASK:
+* TASK:		start writing the .struct file in a separate thread
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
@@ -3856,7 +3863,8 @@ AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator & generator, QOb
 void AlbumStructWriterThread::run()
 {
 	QString result;
-	_albumMapStructIsBeingWritten.lock();
+	QMutexLocker locker( &_albumMapStructIsBeingWritten); 
+			// mutex is locked and will bw unlocked when function returns
 
 	QString p, n;
 	SeparateFileNamePath(config.dsSrc.str, p, n);
@@ -3872,8 +3880,8 @@ void AlbumStructWriterThread::run()
 	{
 		// error
 		result = "Can't write file";
-		_albumMapStructIsBeingWritten.unlock();
 		emit resultReady(result);
+		return;
 	}
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
@@ -3906,12 +3914,11 @@ void AlbumStructWriterThread::run()
 	}
 	_ofs << "]\n\n# Album structure:\n";
 
-	QString indent;			// for directory structure file: indent line
+	QString indent;	// for directory structure file: indent line with spaces to indicate hierarchy
 	_WriteStructAlbums(_albumMap[1 + ALBUM_ID_FLAG], indent);
 	_ofs.flush();
 	f.close();
 
-	_albumMapStructIsBeingWritten.unlock();
 	emit resultReady(result);
 }
 
@@ -3919,7 +3926,7 @@ void AlbumStructWriterThread::run()
 * TASK:		writes out the new album structure.
 * EXPECTS:
 * GLOBALS:
-* REMARKS: for every album first there come the images, then the sub albums:
+* REMARKS: - for every album first there come the images, then the sub albums:
 *             album
 *                image 1  in album
 *					...
@@ -3928,6 +3935,7 @@ void AlbumStructWriterThread::run()
 *						...
 *					a;bum 2 in album 1
 *					***
+*			- this is a co routin with '_WriteStructAlbum'
 *--------------------------------------------------------------------------*/
 void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QString indent)
 {
@@ -3968,10 +3976,14 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		write the text for a sub album into the '.struct' file
+*			First the images, then the sub albums will be written
+* EXPECTS: album  - to write
+*		   indent - level of this album in the hierarchy
 * GLOBALS:
-* REMARKS:
+* REMARKS: co-routine with '_WriteStructImagesThenSubAlbums'
+*			if the sub album has sub albums then this function is called 
+*			again from '_WriteStructImagesThenSubAlbums'
 *--------------------------------------------------------------------------*/
 void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 {
