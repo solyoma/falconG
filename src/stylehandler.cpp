@@ -1,16 +1,18 @@
+#include <QFile>
+#include <QTextStream>
 #include "stylehandler.h"
 //#include <QKeyValueIterator>
 /*============================================================================
  * TASK:	get QString pair in form: name:value;[}]
  * EXPECTS: 'value' : put value here
  *			'finished'	: output, set to false when '} is reached
- * GLOBALS:	_ss,_pos,_elements
+ * GLOBALS:	_ssr,_pos,_rules
  * RETURNS:	name of element and value of element in 'value'
- * REMARKS: - clear t_elements when first enters a group
+ * REMARKS: - clear t_rules when first enters a group
  *			- _pos is left after the ';' if it is found, else at next character
  *			
 *---------------------------------------------------------------------------*/
-QString StyleHandler::_getElement(QString &qv, bool &finished)
+QString StyleHandler::_getRule(QString &qv, bool &finished)
 {
 	QString qe;
 	QChar ch;
@@ -29,7 +31,7 @@ QString StyleHandler::_getElement(QString &qv, bool &finished)
 }
 /*============================================================================
 * TASK:	   get one group of QT style 'selector:value' pairs
-* EXPECTS: global parameters: _elements is cleared before first use
+* EXPECTS: global parameters: _rules is cleared before first use
 * RETURNS: string for name of group or empty QString if no group found
 * REMARKS: 	-group name may contain ':'s !
 *			-elements may be filled even when no group is found
@@ -42,7 +44,7 @@ QString StyleHandler::_GetGroup()
 	int lookBack = _pos;
 
 // DEBUG
-//	if (_ss.indexOf("qlinear") > 0)
+//	if (_ssr.indexOf("qlinear") > 0)
 //		ch = '@';
 
 	// find if this is a group
@@ -50,9 +52,9 @@ QString StyleHandler::_GetGroup()
 		;
 	if (ch == '{')
 	{
-		sg = _ss.mid(lookBack, _pos - lookBack-2).trimmed();
+		sg = _ssr.mid(lookBack, _pos - lookBack-2).trimmed();
 		// _pos points after the '{'
-		_elements.clear();
+		_rules.clear();
 	}
 	else					// no group just elements
 		_pos = lookBack;
@@ -60,9 +62,9 @@ QString StyleHandler::_GetGroup()
 	bool b = ch.isNull();
 	while (!b)	//true-> finished with this elem
 	{
-		se = _getElement(sv,b ); // until _ss end or ';' or '}'
+		se = _getRule(sv,b ); // until _ssr end or ';' or '}'
 		if(!se.isEmpty())
-			_elements[se] = sv;
+			_rules[se] = sv;
 	}
 	return sg;
 }
@@ -71,7 +73,7 @@ QString StyleHandler::_GetGroup()
  * TASK:constructor
  * EXPECTS: style sheet QString (may be empty)
  * REMARKS: style sheet group: a name followed by a '{' followed by
- *				a list of StyleGroupElements and closed by a closing brace
+ *				a list of StyleRules and closed by a closing brace
  *			style element is a name followed by a colon then a value QString
  *				ending with semicolon.; 
  *---------------------------------------------------------------------------*/
@@ -80,11 +82,117 @@ StyleHandler::StyleHandler(const QString & ss)
 	Set(ss);
 }
 
+/*========================================================
+ * TASK: write a qt stylesheet into a file
+ * EXPECTS: fileName - name of file with or without extension
+ * GLOBALS:
+ * RETURNS: true or false
+ * REMARKS: - with no extension given it sets the extension
+ *				to ',qcss'
+ *-------------------------------------------------------*/
+bool StyleHandler::SaveAs(QString fileName)
+{
+	if (fileName.lastIndexOf('.') < 0)
+		fileName += ".qcss";
+	QFile file(fileName);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		return false;
+
+	QTextStream ofs(&file);
+	ofs.setCodec("UTF-8");
+	ofs << StyleSheet();
+	return true;
+}
+
+
+/*========================================================
+ * TASK: reads a qt stylesheet from a file
+ * EXPECTS: fileName - name of file with or without extension
+ * GLOBALS:
+ * RETURNS: true or false
+ * REMARKS: - with no extension given it sets the extension 
+ *				to ',qcss'
+ *-------------------------------------------------------*/
+bool StyleHandler::Read(QString fileName)
+{
+	if (fileName.lastIndexOf('.') < 0)
+		fileName += ".qcss";
+	QFile file(fileName);
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return false;
+
+	QTextStream ifs(&file);
+	ifs.setCodec("UTF-8");
+	QString s;
+	ifs >> s;
+	_ssr = s;
+	return true;
+}
+
+
+/*========================================================
+ * TASK:	writes the style sheet in open settings
+ * EXPECTS: all rules are in a group no free rules
+ * GLOBALS:
+ * RETURNS: nohing
+ * REMARKS: - free rules are lost
+ *			- rules are saved inside a group named 'CSS'
+ *				format: <GUI type>/<object Name>=<value>
+*-------------------------------------------------------*/
+void StyleHandler::WriteToSettings(QSettings & s)
+{
+	QString selector, name, value;
+	s.beginGroup("CSS");
+	for (auto it = _groups.begin(); it != _groups.end(); ++it)
+	{
+		selector = it.key();
+		s.beginGroup(selector);
+		for (auto nit = it.value().begin(); nit != it.value().end(); ++nit)
+		{
+			s.setValue(nit.key(), nit.value());
+		}
+		s.endGroup();
+	}
+	s.endGroup();
+}
+
+
+/*========================================================
+ * TASK:	reads back all CSS elements from settings
+ * EXPECTS: s - open setings
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - all CSS values are under settings group [CSS]
+ *				format: <GUI type>/<object Name>=<value>
+ *-------------------------------------------------------*/
+void StyleHandler::ReadFromSettings(QSettings & settings)
+{
+	QString ssr;
+
+	settings.beginGroup("CSS");
+	QStringList selectors = settings.childGroups(),
+				keys;
+	for (auto s : selectors)
+	{
+		ssr += s + "{\n";
+		settings.beginGroup(s);
+		keys = settings.childKeys();
+		for (auto k : keys)
+		{
+			ssr += settings.value(k, "").toString();
+		}
+		settings.endGroup();
+	}
+	settings.endGroup();
+	if (!ssr.isEmpty())
+		Set(ssr);
+}
+
 /*============================================================================
 * TASK:set up style sheet handler from style sheet QString
 * EXPECTS: style sheet QString (may be empty)
 * REMARKS: style sheet group: a name followed by a '{' followed by
-*				a list of StyleGroupElements and closed by a closing brace
+*				a list of StyleRules and closed by a closing brace
 *			style element is a name followed by a colon then a value QString
 *				ending with semicolon.;
 *---------------------------------------------------------------------------*/
@@ -93,13 +201,13 @@ void StyleHandler::Set(const QString & ss)
 	QString qs;
 
 	_groups.clear();
-	_elements.clear();
+	_rules.clear();
 
-	_ss = ss;
+	_ssr = ss;
 
 	_pos = 0;
 	while ((qs = _GetGroup()).isEmpty() == false)
-		_groups[qs] = _elements;
+		_groups[qs] = _rules;
 }
 
 QString StyleHandler::StyleSheet() const
@@ -121,7 +229,7 @@ QString StyleHandler::StyleSheet() const
 	}
 	else	 // no group just elements
 	{
-		for (auto ite = _elements.constBegin(); ite != _elements.constEnd(); ++ite)
+		for (auto ite = _rules.constBegin(); ite != _rules.constEnd(); ++ite)
 		{
 			ss += "  " + ite.key() + ":" + ite.value() + ";\n";
 		}
@@ -129,6 +237,14 @@ QString StyleHandler::StyleSheet() const
 	return ss;
 }
 
+
+/*========================================================
+ * TASK:	Checks for existence of group and rule
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
 bool StyleHandler::Exists(QString group, const QString key) const
 {
 	if (!group.isEmpty())
@@ -137,10 +253,15 @@ bool StyleHandler::Exists(QString group, const QString key) const
 	}
 	else
 	{
-		return _elements.count(key);
+		return _rules.count(key);
 	}
 		
 	return false;
+}
+
+bool StyleHandler::Exists(const QString baseSelector, const QString objectName, const QString nameOfRule) const
+{
+	return Exists(baseSelector + "#" + objectName,nameOfRule);
 }
 
 QString StyleHandler::GetItem(QString group, const QString key) const
@@ -155,10 +276,15 @@ QString StyleHandler::GetItem(QString group, const QString key) const
 	}
 	else
 	{
-		if (_elements.count(key))
-			return _elements[key];
+		if (_rules.count(key))
+			return _rules[key];
 	}
 	return QString();
+}
+
+QString StyleHandler::GetItem(const QString baseSelector, const QString objectName, const QString nameOfRule)
+{
+	return GetItem(baseSelector+"#"+objectName, nameOfRule);
 }
 
 void StyleHandler::SetItem(const QString group, const QString key, QString newValue)
@@ -172,7 +298,12 @@ void StyleHandler::SetItem(const QString group, const QString key, QString newVa
 		_groups[group][key] = newValue;
 	}
 	else
-		_elements[key] = newValue;
+		_rules[key] = newValue;
+}
+
+void StyleHandler::SetItem(const QString baseSelector, const QString objectName, const QString nameOfRule, QString newValue)
+{
+	SetItem(baseSelector + "#" + objectName, nameOfRule, newValue);
 }
 
 void StyleHandler::SetItem(const QString group, const QString key, int newValue)
@@ -182,12 +313,22 @@ void StyleHandler::SetItem(const QString group, const QString key, int newValue)
 
 }
 
+void StyleHandler::SetItem(const QString baseSelector, const QString objectName, const QString nameOfRule, int newValue)
+{
+	SetItem(baseSelector + "#" + objectName, nameOfRule, newValue);
+}
+
 void StyleHandler::RemoveItem(const QString group, const QString key)
 {
 	if (!group.isEmpty())
 		_groups[group].remove(key);
-	_elements.remove(key);
+	_rules.remove(key);
 
+}
+
+void StyleHandler::RemoveItem(const QString baseSelector, const QString objectName, const QString nameOfRule)
+{
+	RemoveItem(baseSelector + "#" + objectName, nameOfRule);
 }
 
 void StyleHandler::RemoveGroup(const QString group)
@@ -196,4 +337,9 @@ void StyleHandler::RemoveGroup(const QString group)
 		return;
 	if (_groups.contains(group))
 		_groups.remove(group);
+}
+
+void StyleHandler::RemoveGroup(const QString baseSelector, const QString objectName)
+{
+	RemoveGroup(baseSelector + "#" + objectName);
 }

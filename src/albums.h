@@ -12,6 +12,10 @@
 #include <QThread>
 #include <QMutex>
 
+// DEBUG
+#ifdef DEBUG_ME
+	#include <QtDebug>
+#endif
 
 #include "support.h"
 #include "deletableitems.h"
@@ -31,7 +35,7 @@ const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
 const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
 
-extern bool BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
+extern QString BackupAndRename(QString name, QString tmpName, bool keepBackup);	// in support.cpp
 
 //------------------------------------------
 class TextMap;			// used in text for ID calculation
@@ -251,9 +255,13 @@ struct IdsFromStruct
 
 //------------------------------------------
 class AlbumStructWriterThread;		// forward
+class ProcessImageThread;
 
+//------------------------------------------
 class AlbumGenerator : public QObject
 {
+	friend class ProcessImageThread;
+
 	Q_OBJECT
 
 	enum {ok, ready, rerr, nosuch} _status=ok; // can read further, no sub directories, read error or empty, no such file/dir
@@ -328,7 +336,8 @@ class AlbumGenerator : public QObject
 	void _OutputMenuLine(Album &album, QString uplink);
 	int _OuputHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
-	int _WriteGalleryContainer(const Album &album, bool albums, int i);
+	int _WriteGalleryContainer(Album &album, bool albums, int i);
+	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into image directory
 	int __CreatePageInner(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
@@ -384,6 +393,13 @@ signals:
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _running = false; }
+	void ShowError(QString qs) 
+	{
+		QMessageBox(QMessageBox::Warning, 
+					QMainWindow::tr("falconG - Warning"),
+					qs, 
+					QMessageBox::Ok).exec();
+	}
 };
 
 //------------------------------------------
@@ -411,6 +427,6 @@ public:
 	void run() override;  // the actual writing
 	AlbumStructWriterThread(AlbumGenerator&generator, QObject *parent = Q_NULLPTR);
 };
-
-//---------------------------------------------
+//------------------------------------------
 extern AlbumGenerator albumgen;
+//------------------------------------------

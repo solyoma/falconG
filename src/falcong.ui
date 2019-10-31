@@ -980,7 +980,7 @@ regardless if they were already OK.</string>
 Iinside gallery root if no absolute or relative path is given.</string>
                  </property>
                  <property name="placeholderText">
-                  <string>img</string>
+                  <string>imgs</string>
                  </property>
                 </widget>
                </item>
@@ -1019,7 +1019,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
 Iinside gallery root if no absolute or relative path is given.</string>
                  </property>
                  <property name="placeholderText">
-                  <string>thumb</string>
+                  <string>thumbs</string>
                  </property>
                 </widget>
                </item>
@@ -2449,7 +2449,7 @@ background-color:#ffff00;
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset>
+                  <iconset resource="falcong.qrc">
                    <normaloff>:/icons/Resources/open-folder-with-document.png</normaloff>:/icons/Resources/open-folder-with-document.png</iconset>
                  </property>
                 </widget>

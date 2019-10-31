@@ -1,9 +1,10 @@
 #include <QApplication>
+#include <QtCore>
 #include <QString>
 #include <QTextCodec>
 #include <time.h>
-// DEBUG
-#include <QtDebug>
+#include <atomic>
+#include <chrono>
 
 #include "languages.h"
 #include "albums.h"
@@ -1150,7 +1151,7 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
   * REMARKS: - re-create when all must be re-generated OR
   *				no image sizes were determined yet OR
   *				destination image is too large OR
-  *				destination image is toosmall and it could be larger
+  *				destination image is too small but it could be larger
   *			 - check this first as when either of the above is true even
   *				newer destinaton images must be overwritten
  *--------------------------------------------------------------------------*/
@@ -1559,6 +1560,7 @@ bool AlbumGenerator::Read()
 	}
 
 	// add default image when no image is found This is the only one with id == 0
+	// the file 'NoImage.jpg' must be put into the 'res' directory
 	Image im;
 	im.exists = true;
 	im.name = "NoImage.jpg";
@@ -1567,11 +1569,6 @@ bool AlbumGenerator::Read()
 	_imageMap[0] = im;
 
 	QString s = CONFIGS_USED::NameForConfig(".struct");
-	/*
-		QString s = config.dsSrc.ToString() + QString("gallery.struct");
-		if (! QFileInfo::exists(s))
-			s = config.dsGallery.ToString() + QString("gallery.struct");
-	 */
 	_structChanged = 0;
 
 	if(!config.bReadJAlbum && QFileInfo::exists(s))
@@ -1988,12 +1985,7 @@ QStringList __imageMapstructLineToList(QString s)
 ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &album, bool thumbnail)
 {
 	Image img;
-/*
-	QRegExp regexp("(\\()|,|(\\))|(\\)/)");
-	QStringList sl = reader.l().mid(level).split(regexp);	// separate img definition
-	Does not work, because file name and path both may contain braces and other
-	inconvenient letters
-*/
+
 	QStringList sl = __imageMapstructLineToList(reader.l().mid(level));
 	int n = sl.size();		// when all fields are present this should be 9 :
 		// image name, id, width, height, original width, original height, date, size, path
@@ -2307,14 +2299,10 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			_LanguageFromStruct(reader);  // throws when error
 			emit SignalSetLanguagesToUI();
 
-			// drop these as source or dest direcories are set from INI or modified by user
-//			reader.ReadLine(); // Source=....
-//			reader.ReadLine(); // destination=....
 			// from now on we need the empty lines as well
 			reader.ReadLine();		// discard empty and comment
 			if (reader.l().left(2) != "(A")
 				throw BadStruct(reader.ReadCount(),"Invalid empty line");
-//			reader.NextLine();		// album definition line
 					// recursive album read. there is only one top level album
 					// with id == 1 + ALBUM_ID_FLAG (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, 0, 0); 
@@ -2483,9 +2471,10 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 	connect(pWriteStructThread, &AlbumStructWriterThread::resultReady, this, &AlbumGenerator::_WriteStructReady);
 	connect(pWriteStructThread, &AlbumStructWriterThread::finished, pWriteStructThread, &QObject::deleteLater);
 	_keepPreviousBackup = keep;
-//	pWriteStructThread->start();
+
+	pWriteStructThread->start();
 // DEBUG:
-	pWriteStructThread->run();
+//	pWriteStructThread->run();
 	return 0;
 }
 
@@ -2885,10 +2874,6 @@ QString AlbumGenerator::_CssToString()
 		"	p{\n"
 		"		font-size:12pt\n"
 		"	}\n"
-		//"	main{\n" 
-		//"		display:flex;\n"
-		//"		flex-direction: column;\n"
-		//"   }\n"
 		// about
 		"   .about{\n"
 		"		margin:auto;\n"
@@ -2914,10 +2899,6 @@ QString AlbumGenerator::_CssToString()
 		"	p{\n"
 		"		font-size: 12pt;\n"
 		"	}\n"
-		//"	main{\n"
-		//"		display:flex;\n"
-		//"		flex-direction: column;\n" 
-		//"  }\n"
 		// about
 		"   .about{\n"
 		"		margin:auto;\n"
@@ -3000,7 +2981,7 @@ int AlbumGenerator::_DoColorsCss()
 	_ofs << _ColorCSSToString();
 	fcssC.close();
 
-	BackupAndRename(QString(__CssDir.ToString()) + "colors.css", QString(__CssDir.ToString()) + "tmpcolor.css", frmMain);
+	BackupAndRename(QString(__CssDir.ToString()) + "colors.css", QString(__CssDir.ToString()) + "tmpcolor.css");
 	return 0;
 }
 
@@ -3022,7 +3003,7 @@ int AlbumGenerator::_DoStyleFG()
 	_ofs << _CssToString();
 	fcssG.close();
 
-	BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", QString(__CssDir.ToString()) + "tmpfg.css", frmMain);
+	BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", QString(__CssDir.ToString()) + "tmpfg.css");
 	return 0;
 }
 
@@ -3239,10 +3220,10 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 * REMARKS:  - root albums (ID == 1) are written into gallery root, others
 *			  are put into directory 'albums' 
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum, int i)
+int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int i)
 {
-	const IdList &idList = (itIsAnAlbum ? album.albums : album.images);
-	const ID_t id = idList[i];  
+	IdList &idList = (itIsAnAlbum ? album.albums : album.images);
+	ID_t id = idList[i];  
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
@@ -3341,6 +3322,117 @@ int AlbumGenerator::_WriteGalleryContainer(const Album & album, bool itIsAnAlbum
 	return 0;
 }
 
+/*========================================================
+ * TASK:	Process one image and thumbnail using
+ *			converters
+ * PARAMS:	im - actual Image (may be modified)
+ *			converter - common converter for images
+ *			thumbConverter - same for thumbnails
+ * GLOBALS:
+ * RETURNS:	nothing
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
+{
+	int doProcess = ImageConverter::prImage | ImageConverter::prThumb;	// suppose both image and thumb changed
+
+										// resize and copy and  watermark
+	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
+		dst = config.ImageDirectory().ToString() + im.LinkName(),
+		thumb = config.ThumbnailDirectory().ToString() + im.LinkName();
+
+	QFileInfo fiSrc(src), fiThumb(thumb), fiDest(dst);						// test for source image
+	bool srcExists = fiSrc.exists(),
+		dstExists = fiDest.exists(dst),
+		thumbExists = fiThumb.exists();
+
+	if (!srcExists)
+	{
+		if (dstExists)						// source file was deleted
+		{
+			QFile::remove(dst);				// delete
+			if (thumbExists)
+				QFile::remove(thumb);
+		}
+		return;
+	}
+
+	ImageReader imgReader(src, im.dontResize);			   // constructor doesn`t read image!
+
+
+	QDateTime dtSrc = fiSrc.lastModified();		// date of creation of source image.
+// DEBUG
+//		QString gsDate = dtSrc.toString();
+// /DEBUG
+	if (dstExists)		// then test if the source image was modified (width = 0: only added by name)
+	{					// and if not then do not process it
+		QDateTime dtDestCreated = fiDest.lastModified();	   // created() => birthTime() since Qt 5.10
+// DEBUG
+//			gsDate = dtDestCreated.toString();
+// /DEBUG
+		bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
+		int64_t	fiSize = fiSrc.size();
+		// special handling for images which must not be resized
+		bool bMustRecreateImageBasedOnSize = im.dontResize ? false : _MustRecreateImageBasedOnSize(im);
+		// order of these checks is important!
+		if (config.bButImages || (!bMustRecreateImageBasedOnSize && (fiSize == im.fileSize) && destIsNewer))
+			doProcess -= ImageConverter::prImage;			// then do not process
+		if (destIsNewer)
+			im.uploadDate = dtDestCreated.date();
+
+		if (im.fileSize != fiSize)			// image size changed: set new size in structure
+			im.fileSize = fiSize;
+	}
+	if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
+	{
+	//	if (!im.width)	// read JAlbum, and no parameters yet
+	//		thumbConverter.CalcSizes(imgReader);
+
+		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
+		bool thumbIsNewer = dtThumb > dtSrc;
+	//	// order of these checks is important! (for thumbnails always must check size)
+		if (config.bButImages || (!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer))
+			doProcess -= ImageConverter::prThumb;			// then do not process
+	}
+	// debug
+	//		doProcess = doProcessThumb = false;
+	// /debug
+	if (doProcess)
+	{
+		//		int btn;
+				//if (!QFile::exists(dst) && !config.bOvrImages)
+				//	if ((btn = QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG warning"), QMainWindow::tr("Image \n'%s'\n exists").arg(dst), QMessageBox::Yes | QMessageBox::Abort).exec()) == QMessageBox::Abort)
+				//	{ 
+				//			emit SignalToEnableEditTab(true);
+				//			return false;
+				//  }
+		_structChanged = 1;			// when image changes structure must be re-saved
+
+		WaterMark *pwm = nullptr;
+		if (config.waterMark.used)
+			pwm = &config.waterMark.wm;
+		if (doProcess & (ImageConverter::prImage | ImageConverter::prThumb))
+		{
+			converter.flags = doProcess + (im.dontResize ? ImageConverter::dontResize : 0) + 
+								(config.doNotEnlarge ? ImageConverter::dontEnlarge : 0);
+
+			im.aspect = converter.Process(imgReader, dst, thumb, config.bOvrImages, pwm);
+			im.owidth = converter.oSize.width();
+			im.oheight = converter.oSize.height();
+			im.width = converter.newSize.width();
+			im.height = converter.newSize.height();
+			_imageMap[im.ID] = im;
+		}
+//		if (doProcess & ImageConverter::prThumb)
+//			thumbConverter.Process(imgReader, thumb, true, config.bOvrImages, pwm);
+
+	}
+	if (im.uploadDate > _latestDateLimit)	// find latest upload date
+		_latestDateLimit = im.uploadDate;	// will be put into "latest.html"
+
+	++cnt;
+}
+
 /*============================================================================
 * TASK: gets images from source directories resize them if needed, then 
 *	optionally add watermark. Puts all images in image directory, plus 
@@ -3359,15 +3451,10 @@ int AlbumGenerator::_ProcessImages()
 
 	// progress bar
 	emit SignalToSetProgressParams(0, _imageMap.size(), 0, 1); // phase = 1
-	int cnt = 0;	// count of images copied
+	std::atomic_int cnt = 0;	// count of images copied
 
-	bool doProcess = true,		// only process image if this flag is set
-		doProcessThumb = true;	// same for thumb
-
-	QSize maxSize(config.imageWidth, config.imageHeight),
-		  maxThumbSize(config.thumbWidth, config.thumbHeight);
-	ImageConverter converter(maxSize, config.doNotEnlarge),
-		           thumbConverter(maxThumbSize, true, false);		// do not enlarge thumbnail image, but always change size for it
+	QRect maxSize{ config.imageWidth, config.imageHeight, config.thumbWidth, config.thumbHeight};
+	ImageConverter converter(maxSize, config.doNotEnlarge);
 
 	emit SignalToEnableEditTab(false);
 
@@ -3384,109 +3471,14 @@ int AlbumGenerator::_ProcessImages()
 		}
 		if (im.name.isEmpty())
 			continue;
-
-		doProcess = true;		// suppose image changed
-		doProcessThumb = true;	// suppose thumbnail changed
-		if (cnt > 10)
+		if (cnt > 10)			// delayed display of elapsed/remaining time
 		{
 			_remDsp.Update(cnt);
 			emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, cnt, true);
 		}
 
-		// resize and copy and  watermark
-		QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-				dst = config.ImageDirectory().ToString() + im.LinkName(),
-				thumb = config.ThumbnailDirectory().ToString() + im.LinkName();
-
-		QFileInfo fiSrc(src), fiThumb(thumb), fiDest(dst);						// test for source image
-		bool srcExists = fiSrc.exists(),
-			 dstExists = fiDest.exists(dst),
-			 thumbExists = fiThumb.exists();
-
-		if (!srcExists)
-		{
-			if (dstExists)						// source file was deleted
-			{
-				QFile::remove(dst);				// delete
-				if (thumbExists)
-					QFile::remove(thumb);
-			}
-			continue;
-		}
-
-		ImageReader imgReader(src, im.dontResize);			   // doesn`t read image yet!
-
-
-		QDateTime dtSrc = fiSrc.lastModified();		// date of creation of source image...
-// DEBUG
-//		QString gsDate = dtSrc.toString();
-// /DEBUG
-		if (dstExists)		// then test if the source image was modified (width = 0: only added by name)
-		{					// and if not then do not process it
-			QDateTime dtDestCreated = fiDest.lastModified();	   // created() => birthTime() since Qt 5.10
-// DEBUG
-//			gsDate = dtDestCreated.toString();
-// /DEBUG
-			bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
-			int64_t	fiSize = fiSrc.size();
-				// order of these checks is important!
-			if ( config.bButImages || (!_MustRecreateImageBasedOnSize(im) && fiSize == im.fileSize && destIsNewer) )
-					doProcess = false;			// then do not process
-			if(destIsNewer)
-				im.uploadDate = dtDestCreated.date();
-			
-			if (im.fileSize != fiSize)			// image size changed: set new size in structure
-				im.fileSize = fiSize;
-		}
-		if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
-		{
-			if (!im.width)	// read JAlbum, and no parameters yet
-				thumbConverter.GetSizes(imgReader);
-
-			QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
-			bool thumbIsNewer = dtThumb > dtSrc;
-			// order of these checks is important!
-			if(config.bButImages || (!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer) )
-				doProcessThumb = false;			// then do not process
-		}
-// debug
-//		doProcess = doProcessThumb = false;
-// /debug
-		if (doProcess || doProcessThumb)
-		{
-			//		int btn;
-					//if (!QFile::exists(dst) && !config.bOvrImages)
-					//	if ((btn = QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG warning"), QMainWindow::tr("Image \n'%s'\n exists").arg(dst), QMessageBox::Yes | QMessageBox::Abort).exec()) == QMessageBox::Abort)
-					//	{ 
-					//			emit SignalToEnableEditTab(true);
-					//			return false;
-					//  }
-			_structChanged = 1;			// when image changes structure must be re-saved
-
-			WaterMark *pwm = nullptr;
-			if (config.waterMark.used)
-				pwm = &config.waterMark.wm;
-			if (doProcess)
-			{
-				converter.dontResize = im.dontResize;
-
-				im.aspect = converter.Process(imgReader, dst, false, config.bOvrImages, pwm);
-				im.owidth = converter.oSize.width();
-				im.oheight = converter.oSize.height();
-				im.width = converter.newSize.width();
-				im.height = converter.newSize.height();
-				_imageMap[im.ID] = im;
-			}
-			if (doProcessThumb)
-				thumbConverter.Process(imgReader, thumb, true, config.bOvrImages, pwm);
-
-//			emit SignalImageMapChanged();	// modify list of images
-			QApplication::processEvents();
-		}
-		if (im.uploadDate > _latestDateLimit)	// find latest upload date
-			_latestDateLimit = im.uploadDate;	// will be put into "latest.html"
-							// progress bar
-		emit SignalProgressPos(++cnt, _imageMap.size());
+		_ProcessOneImage(im, converter, cnt);
+		emit SignalProgressPos(cnt, _imageMap.size()); // progress bar
 	}
 	emit SignalToEnableEditTab(true);
 	return 0;
@@ -3843,14 +3835,9 @@ void AlbumGenerator::_WriteStructReady(QString s)
 		return;
 	}
 	_structWritten = true;
-/*
-	QString stmp = QString(config.dsSrc.ToString());
-	s = stmp + +"gallery.struct";
-	stmp += "gallery.tmp";
-
-	BackupAndRename(s, stmp, frmMain, _keepPreviousBackup);
-*/
-	BackupAndRename(sStructPath, sStructTmp, frmMain, _keepPreviousBackup);
+	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
+	if(!s.isEmpty())
+		QMessageBox(QMessageBox::Warning, "falconG - Generate", s, QMessageBox::Close, frmMain).exec();
 }
 
 

@@ -922,8 +922,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	// set Default values
 	// no default for dsGRoot !     dsGRoot.defStr     = "falconG/";
 	dsAlbumDir.defStr  = "albums/";
-	dsImageDir.defStr  = "img/";
-	dsThumbDir.defStr  = "thumb/";
+	dsImageDir.defStr  = "imgs/";
+	dsThumbDir.defStr  = "thumbs/";
 	sUplink.defStr     =  "";		// inside dsGRoot base1hu.html, etc
 	dsCssDir.defStr    =  "css/";
 	dsFontDir.defStr   =  "fonts/";

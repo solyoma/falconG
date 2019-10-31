@@ -137,51 +137,54 @@ struct ImageReader : public QImageReader
 	bool isReady = false;
 	bool read() 
 	{ 
-		return isReady = QImageReader::read(&img); 
+		return isReady = QImageReader::read(&img) && !img.isNull(); 
 	}
 	bool canRead() { return (isReady ? true : QImageReader::canRead()); }
 	ImageReader(QIODevice *device, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(device, format) 
 	{
-		setAutoTransform(true);  // auto rotate
+		setAutoTransform(true);  // auto rotate	when portrait orientation is set in EXIF
 	}
-/*  ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(fileName, format)
-	{
-		setAutoTransform(true);  // auto rotate
-	}
-*/
 	ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader()
 	{
-		setAutoTransform(true);  // auto rotate
+		setAutoTransform(true);  // auto rotate when portrait orientation is set in EXIF
 		setFileName(fileName);
 		setFormat(format);
 	}
 };
 
-//---------------------
-//*****************************************																			//---------------------
+//*****************************************
 struct ImageConverter
-{
+{			  // only shrink image thumbnails may be enlarged(?)
+			  // dontResize may be used  for some images
+	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
 	QString name;
 	QSize oSize,					// original width and height for image
-		newSize, 					// calculated new dimensions
-		maxSize;					// maximum allowed converted dimensions for image
-	bool dontEnlarge = true;
-	bool dontResize = false;	
+		newSize, 					// calculated new dimensions for image
+		thumbSize;					// calculated thumbnail sizes
+
+	QRect maxSize;					// maximum allowed converted dimensions for image
+									// in x and y, and thumbnail size in width and height
+	int flags;
+	// TODO: bool keepAspectRatio = true;	// otherwise CROP image
 	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
 									// 0: not calculated
-	ImageConverter(QSize maxSize, bool doNotEnlarge = true, bool dontResize = false);		// create converter
 
-	double GetSizes(ImageReader &reader);	
-	double Process(ImageReader &reader, QString dest, bool thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+	ImageConverter(QRect maxSize, int flags = dontEnlarge);		// create converter
 
+	double CalcSizes(ImageReader &reader);	 // set original and new sizes
+	double Process(ImageReader &reader, QString dest, QString thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+
+	QString ErrorText() const { ; }
 private:
-	QImage * _pImg = nullptr;
+	QImage *_pImg = nullptr;
+	QString _qsErrorMsg;
 
+	double _CalcSizes(bool thumb);			// using oSize, newSize, maxSize for image, newSize, thumbSize, maxThumbSize for thumbnail _
 	void _AddWatermark(WaterMark &wm);		// to pImg using data from config
 };
 
 QString TimeToHMSStr(time_t t);
-bool BackupAndRename(QString name, QString tmpName, QWidget *parent = Q_NULLPTR, bool keepBackup = false);
+QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
 bool IsImageFile(const QString &name, QFileInfo *fi = nullptr);
 QString ToUTF8(QString string);

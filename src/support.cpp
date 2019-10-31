@@ -38,7 +38,7 @@ QString DecodeLF(QString s, bool toHtml)
 }
 #if 0
 /*============================================================================
-  * TASK:	Returns a string in which all '\n' sequences arereplaced with "<br>
+  * TASK:	Returns a string in which all '\n' sequences are replaced with "<br>
   * EXPECTS:	txt: string
   * RETURNS: possibly modified string
   * GLOBALS: none
@@ -123,9 +123,12 @@ void FileReader::_Trim()
 }
 
 /*============================================================================
-* TASK:	reads and concatenates an LF *or CR/LF) delimited line int o_line
-*		until EOF on the stream
-*       and converts it to UTF8 if unless it is UTF8 already
+* TASK:	reads a *line delimiter* (LF or CR+LF) delimited UTF-8 encoded 
+*		character string into '_line' from '_f' until EOF on the stream.
+*		If the last character before the line delimiter is a backslash the line
+*		does not ends at the delimiter, but it is a continuation line.
+*		Continuation lines are concatenated _line
+*		
 * EXPECTS:  last read line may be overwritten
 * GLOBALS:  _bpos - position in buffer to start of next line
 *           _bsize - size of data in buffer
@@ -133,12 +136,13 @@ void FileReader::_Trim()
 * RETURNS: nothing (_line and _ok are set)
 * REMARKS:	- concatenates input lines ending in a backslash character
 *			  with the next line
-*			- result in _line is always Utf8
+*			- result in _line is always Utf8, even if they were in the local
+*				encoding
 *			- at end of file or on read error _ok is set to false
 *			- static '_lastCharRead' contains the last character read into 
 *				buffer. If this character is an LF then the buffer ends with EOL 
 *				otherwise the line continues in the next bufferfull of characters
-*			- the character combination backslash + EOL character is discarded
+*			- the character combination 'backslash + EOL' character is discarded
 *--------------------------------------------------------------------------*/
 void FileReader::_readBinaryLine()
 {
@@ -146,8 +150,9 @@ void FileReader::_readBinaryLine()
 	if (!_ok)
 		return;
 
-	static char __lastCharRead = 0;  // can be BS or CR or everything else
-	static bool __backslashAtEnd = false;  // can be BS or CR or everything else
+	static char __lastCharRead = 0;		   // can be any character BS or CR
+	static bool __backslashAtEnd = false;  // partial line ended with a BS
+										   // next partial line may start with CR or LF
 
 	const char CR = '\r', LF = '\n', BS = '\\';
 	bool EOL = false;	
@@ -178,7 +183,7 @@ void FileReader::_readBinaryLine()
 
 			// EOL == false and the buffer ended with
 			// . \  CR |			   (__backslashAtEnd == false)
-			// . \  LF +-------------  line will continue here (__backslashAtEnd == falsee)
+			// . \  LF +-------------  line will continue here (__backslashAtEnd == false)
 			// \ CR LF | 			   (__backslashAtEnd == false)
 			// .  .  \ |			   (__backslashAtEnd == true)
 			// .  .  . |			   (__backslashAtEnd == false)
@@ -441,12 +446,12 @@ QStringList FileReader::ReadAndSplitLine(QChar sep)
 }
 
 /*============================================================================
-* TASK:		Read line even when it is empty
+* TASK:		Read line even when it is empty or a comment
 * EXPECTS:
 * GLOBALS:
-* REMARKS: 	- comments are discarded from line
+* REMARKS: 	- comments are not discarded from line
 *			- lines are always right trimmed
-*			- lines containing whitespace(s) only will be cleared of it
+*			- lines of whitespace(s) only will be cleared
 *--------------------------------------------------------------------------*/
 QString FileReader::NextLine(bool doNotDiscardComment)
 {
@@ -456,35 +461,35 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 		_DiscardComment();
 	_TrimRight();
 	
-//	if (!_line.isEmpty()  && _line.trimmed().isEmpty() )
-//		_line.clear();
 	return _line;
 }
 
 //*****************************************************
 
 /*============================================================================
-* TASK:		renames file as backup (add a ~) and rename tmp file to original name
-* EXPECTS:	name - name of existing file to be renamed
-*			tmpName - name of yet temporary file to be renamed to 'name'
-*			parent: pointer to widget used for QMessageBox
-*			keepbackup: if true do not rename 'name' to 'name~' but delete it
+* TASK:		create backup of file 'name' by renaming it to 'name~'
+*			and rename the new file 'tmpName' to original 'name'
+* EXPECTS:	name - name of existing file to be renamed and backed up
+*			tmpName:	name of yet temporary file to be renamed to 'name'
+*			keepBackup: keep existing backup file and simply delete 'name'
+*			before renaming 'tmpFile'. Otherwise an existing backup file 
+*			will be deleted
 * GLOBALS:	none
+* RETURNS:  empty QString when backup and rename was successfull, error message 
+*			on error
 * REMARKS:
 *--------------------------------------------------------------------------*/
-bool BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup)
+QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
 {
 	QFile ft(name), f(tmpName);
-	bool bErr = false;
-	QString st = QMainWindow::tr("falconG error"), sx;
+	QString qsErr;
 	if (keepBackup)
 	{
-		if(ft.exists() && ( ! ft.remove(name) || !f.rename(name) ) )
+		if( (ft.exists() && ! ft.remove() ) || !f.rename(name) )
 		{
-			sx = QMainWindow::tr("Either can't delete \n'%1'\n"
-								 " or can't rename '%2'\n"
+			qsErr = QMainWindow::tr("Either can't delete \n'%1'\n"
+								 " or can't rename '%2' to '%1'\n"
 								 "Modified file remain named as \n'%2'").arg(name).arg(tmpName);
-			bErr = true;
 		}
 	}
 	else
@@ -492,17 +497,16 @@ bool BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBa
 		ft.remove(name + "~");
 		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))
 		{
-			sx = QMainWindow::tr("Can't rename \n'%1'\n to \n'%1~'\n"
-								  "New file remain named as \n'%2'").arg(name).arg(tmpName);
-			bErr = true;
+			qsErr = QMainWindow::tr("Can't create backup file\n'%1~'\n"
+								 "New file\n'%2'\nwas not renamed").arg(name).arg(tmpName);
 		}
 	}
-	if (bErr)
-	{
-		QMessageBox(QMessageBox::Warning, st, sx, QMessageBox::Close, parent).exec();
-		return false;
-	}
-	return true;
+	//if (bErr)
+	//{
+	//	QMessageBox(QMessageBox::Warning, st, sx, QMessageBox::Close, parent).exec();
+	//	return false;
+	//}
+	return qsErr;
 }
 
 /* --------------------------------- helper functions -----------------------*/
@@ -585,25 +589,8 @@ QString ToUTF8(QString string)
 	if (string.isEmpty())
 		return string;
 	if (!ValidUtf8String(string, string.length()))
-	{
 		string = string.toUtf8();
-//		QByteArray byteArray = string.toUtf8();
-//		string.clear(); char ch;
-//		string = byteArray;
-		//for (int i = 0; i < byteArray.size(); ++i)
-		//{
-		//	ch = byteArray[i];
-		//	string += ch;
-		//}
-		//QByteArray byteArray = string.toUtf8();
-		//QTextCodec::ConverterState state;
-		//QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-		//const QString text = codec->toUnicode(byteArray.constData(), byteArray.size(), &state);
-		//if (state.invalidChars > 0) {
-		//	qDebug() << "Not a valid UTF-8 sequence.";
-		//return text;
-		//}
-	}
+
 	return string;
 }
 
@@ -621,8 +608,10 @@ QStringList ToUTF8(QStringList & sl)
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		loadn a rescaled (enlarged or shrinked) image into memory
+* EXPECTS:	path:	image path
+*			maxwidth, maxheight: maximum dimensions
+*			doNotEnlarge: only shrink or leave it
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -667,29 +656,35 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		constructor
+* EXPECTS:	parameters for transformation
 * GLOBALS:
-* REMARKS:
+* REMARKS:	Image name is not used here. It will be set in image reader
 *--------------------------------------------------------------------------*/
-ImageConverter::ImageConverter(QSize maxSize, bool doNotEnlarge, bool dontResize) :
-						maxSize(maxSize), dontEnlarge(doNotEnlarge), dontResize(dontResize)
+ImageConverter::ImageConverter(	QRect maxSize, int flags) :
+											maxSize(maxSize), flags(flags) 
 {
 
 }
 
+double ImageConverter::_CalcSizes(bool thumb)
+{
+	return 0.0;
+}
+
 /*============================================================================
   * TASK:	If the image reader can read the image sets original and new sizes
-  * EXPECTS:	allowed sizes set in constructor
+  * EXPECTS:	allowed maximum sizes set in constructor
   *				imgReader - reader for file name
   * RETURNS:	aspect ratio or 1.0 if any size is 0
   * GLOBALS:
-  * REMARKS: - sizes reflect the orientation: e.g. when EXIF rotation is used
-  *			   image height and width swapped 
+  * REMARKS: - sizes will reflect the orientation: 
+  *				when EXIF rotation is used
+  *			   image height and width  is swapped 
   *			 - sets the scaled dimensions into the reader
   *			 - thumbnail scaling happens in writer
  *--------------------------------------------------------------------------*/
-double ImageConverter::GetSizes(ImageReader &imgReader)
+double ImageConverter::CalcSizes(ImageReader &imgReader)
 {
 	if (!imgReader.canRead())
 		return 0;
@@ -701,74 +696,95 @@ double ImageConverter::GetSizes(ImageReader &imgReader)
 		oSize.transpose();
 
 	if (!oSize.width() || !oSize.height())
-		return 1.0;
-
-
-	aspect = (double)oSize.width() / (double)oSize.height();
-	if (dontResize)
-	{
-		newSize = oSize;
-	}
+		aspect =  1.0;
 	else
-	{
-		if ((newSize.width() > maxSize.width()) || (!dontEnlarge && aspect >= 1))
+	    aspect = (double)oSize.width() / (double)oSize.height();
+
+
+	if ((flags & dontResize) == 0)
+	{					// maxSize.x(),y() - new image width & height
+						// maxSize.width(),height() - thumbnail width & height
+		if ((newSize.width() > maxSize.width()) || ((flags & ~dontEnlarge) && aspect >= 1))
 		{
-			newSize.setWidth(maxSize.width());
-			newSize.setHeight(maxSize.width() / aspect);
+			newSize.setWidth(maxSize.x());
+			newSize.setHeight(maxSize.x() / aspect);
+			thumbSize.setWidth(maxSize.width());
+			thumbSize.setHeight(maxSize.width() / aspect);
 		}
-		if ((newSize.height() > maxSize.height()) || (!dontEnlarge && aspect <= 1))
+		if ((newSize.height() > maxSize.height()) || ((flags & ~dontEnlarge) && aspect <= 1))
 		{
-			newSize.setHeight(maxSize.height());
-			newSize.setWidth(aspect * maxSize.height());
+			newSize.setHeight(maxSize.y());
+			newSize.setWidth(aspect * maxSize.y());
+			thumbSize.setHeight(maxSize.height());
+			thumbSize.setWidth(aspect * maxSize.height());
 		}
 	}
-	imgReader.setScaledSize(newSize);
+	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
 	return aspect;
 }
 
 /*============================================================================
-* TASK:		resize and watermark images 
+* TASK:		resize images and add watermark
 * EXPECTS:	 
 *			 dest - path of destination image
 *			thumb - process a thumbnail?
 *			 ovr - overwrite image if it exists
 *			 pwm - pointer to watermark structure
 *			parameters maxwidth, maxheight,dontEnlarge are set
-* RETURNS: aspect ratio or 0 for load errors and -1.0 if destination exists and 
-*			it is not allowed to overwrite it
+* RETURNS:	- normal exit: aspect ratio 
+*			- load errors: 0.0
+*			- if destination exists and it is not allowed to overwrite it: -1.0
+*			- file write error: -2.0
 * GLOBALS: 
 * REMARKS:	- path of source image must be set into imgReader before calling
 *			- for thumbnails if the image was already loaded into imgReader
 *				then scale image during save, else save the image as it is
 *--------------------------------------------------------------------------*/
-double ImageConverter::Process(ImageReader &imgReader, QString dest, bool thumb, bool ovr, WaterMark *pwm)
+double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, bool ovr, WaterMark *pwm)
 {
 	if (!ovr)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
 		return -1.0;
 
-	if ((aspect = GetSizes(imgReader)) == 0)
+	if ((aspect = CalcSizes(imgReader)) == 0)
 		return 0;
 
-	if (!imgReader.isReady)
-	{								// not read yet
-// moved into constructor		imgReader.setAutoTransform(true);	// to rotate portrait images
-		imgReader.read();			// scaled image
+		// read scaled image
+	if (!imgReader.isReady)			// not read yet
+	{								
+		imgReader.read();			// scaled and possibly rotatetd image
 
-		_pImg = &imgReader.img;		// used in _AddWatermark
+		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
 		if (pwm)
 			_AddWatermark(*pwm);
-		thumb = false;				// already scaled, no need to scale on write
 	}
-	QImageWriter imageWriter(dest);
-	imageWriter.setQuality(imgReader.quality());
-	imageWriter.setFormat(imgReader.format());
-	if (thumb)			  // re-scale image
-		imgReader.img = imgReader.img.scaled(newSize,Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	
-	if (!imageWriter.write(imgReader.img))
+		
+	QString qsErr;
+	// write scaled image into 'dest'
+	if(flags & prImage)
+	{
+		QImageWriter imageWriter(dest);
+		imageWriter.setQuality(imgReader.quality());
+		imageWriter.setFormat(imgReader.format());
+
+		if (!imageWriter.write(imgReader.img))
+			qsErr = imageWriter.errorString() + "\n'" + dest + "'\n";
+	}
+	// write thumbnail image into 'thumb'
+	if(flags & prThumb)
+	{
+		//	re-scale image for thumbnail
+		imgReader.img = imgReader.img.scaled(thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+		QImageWriter imageWriter(thumb);
+		imageWriter.setQuality(imgReader.quality());
+		imageWriter.setFormat(imgReader.format());
+		if (!imageWriter.write(imgReader.img))
+			qsErr += imageWriter.errorString() + "\n'" + thumb + "'";
+	}
+	if(!qsErr.isEmpty())
 	{
 		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),
-			imageWriter.errorString() + "\n'" + dest + "'", QMessageBox::Ok).exec();
+			qsErr, QMessageBox::Ok).exec();
 	}
 	return aspect;
 }
@@ -776,7 +792,7 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, bool thumb,
 /*============================================================================
 * TASK:		add a watermark to the image '_pimg' points to
 * EXPECTS: 	wm is a filled in watermark structure with valid mark image
-*			_pimg [oints to existing image
+*			_pImg points to existing image
 *			width, height, etc are set up
 * GLOBALS:
 * REMARKS:

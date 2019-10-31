@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include "support.h"
+#include "stylehandler.h"
 
 const QString falconG_ini = "falconG.ini";
 
@@ -217,6 +218,7 @@ public:
 	CONFIG();
 
 	int majorStructVersion = 1, minorStructVersion = 2;		// 1.2
+	StyleHandler styleHandler;	// for the main window with all of its elements
 
 	void Read(const QString *dir = nullptr);
 	void Write();
@@ -226,6 +228,7 @@ public:
 	void FromOther(const CONFIG &cfg);
 	void RestoreDesign();
 	void RestoreOther();
+
 	_CDirStr GalleryRoot() const	{ return _CDirStr(dsGallery) + _CDirStr(dsGRoot); }
 	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
 	_CDirStr ThumbnailDirectory() const { return GalleryRoot() + dsThumbDir; }
