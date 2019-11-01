@@ -28,9 +28,7 @@ using QString=QString;
 using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
 using IdList = DeletableItemList<ID_t>;
 
-const ID_t INVALID_ID_FLAG = 0x8000000000000000ull;
-const ID_t ALBUM_ID_FLAG= 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
-const ID_t ID_MASK = ~(INVALID_ID_FLAG | ALBUM_ID_FLAG);
+const ID_t ALBUM_ID_FLAG = 0x8000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
 const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
 const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
@@ -98,7 +96,7 @@ struct LanguageTexts				// both Album and Image uses this
 //------------------------ base class for albums and images ------------------
 struct IABase
 {
-	ID_t ID = 0;		// CRC of image content + collision avoidance  (0: invalid)
+	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid)
 	bool exists = false;	// set to true if it exists on the disk somewhere
 							// some image names may come from comment files
 	ID_t titleID = 0;	// text ID of image title
@@ -249,6 +247,7 @@ struct IdsFromStruct
 	enum IDS { nothing, title, description, thumbnail } what = nothing;
 
 	ID_t titleID = 0, descID = 0, thumbnailID = 0;
+
 	void Clear() { titleID = descID = thumbnailID = 0; what = nothing; }
 	bool IsEmpty() const { return titleID == 0 && descID == 0 && thumbnailID == 0; }	// what does not important
 };
