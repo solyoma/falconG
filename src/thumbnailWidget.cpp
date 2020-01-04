@@ -464,7 +464,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 	int row = index.row();
 //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(row);
 // DEBUG
-#if 1
+#if 0
 	static QLabel *pLabel = nullptr;
 	if (pLabel)
 	{

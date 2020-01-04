@@ -28,7 +28,7 @@ const int WINDOW_ICON_SIZE = 48;
 const int THUMBNAIL_SIZE = 150;
 
 using ID_t = uint64_t;			// Cf. albums.h
-using IdList = DeletableItemList<ID_t>;
+using IdList = UndeletableItemList<ID_t>;
 using IntList = QVector<int>;
 
 /*=============================================================

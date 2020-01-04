@@ -1024,7 +1024,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 
 	__ReadWaterMark(s, waterMark, false, "Watermark", "11", 0, 0, 0xffffff, -1, -1, 100, "", 16, QFont::Bold, false);
 
-	// "" as default means -> use global defaults if tehere are such but do not display them
+	// "" as default means -> use global defaults if there are such but do not display them
 	// directories
 	__ConfigReadStr(s, dsSrc, "");			// no default
 	__ConfigReadStr(s, dsGallery, "");		// no default

@@ -237,6 +237,8 @@ public:
 	_ChangedFlag changed;		// any of config is changed		THIS MUST BE THE FIRST MEMBER OF CONFIG! (why?)
 	bool designChanged = false;	// page design is changed
 
+	_CBool bNoMoreWarnings;		// stop displaying warnings
+
 	// Gallery page
 					// local directories
 	_CDirStr dsApplication;		// home directory for the application (needed for copying resources from here)
@@ -336,6 +338,5 @@ public:
 		// calculated values	not saved not even included in the backup
 	QString homeLink;		// actual home link for given langyage hierarchy
 };
-
 
 extern CONFIG config;		// Global variable

@@ -1144,9 +1144,9 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 
 /*============================================================================
   * TASK: test the image sizes against config and see if it must be recreated
-  * EXPECTS:
+  * EXPECTS: im - input, image 
+  * GLOBALS: config
   * RETURNS: true or false
-  * GLOBALS:
   * REMARKS: - re-create when all must be re-generated OR
   *				no image sizes were determined yet OR
   *				destination image is too large OR
@@ -1154,7 +1154,7 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
   *			 - check this first as when either of the above is true even
   *				newer destinaton images must be overwritten
  *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_MustRecreateImageBasedOnSize(Image & img)
+bool AlbumGenerator::_MustRecreateImageBasedOnWandH(Image & img)
 {
 	return  config.bButImages ? false : 
 			(config.bGenerateAll && !config.bButImages)
@@ -1183,7 +1183,7 @@ bool AlbumGenerator::_MustRecreateImageBasedOnSize(Image & img)
   *				current size of thumb is smaller than allowed size but
   *				original size of image is larger than allowed size
  *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_MustRecreateThumbBasedOnSize(QString thumbPath, Image & img)
+bool AlbumGenerator::_MustRecreateThumbBasedOnWandH(QString thumbPath, Image & img)
 {
 	ImageReader reader(thumbPath);
 	QSize size = reader.size();
@@ -1787,7 +1787,7 @@ static bool __SameLevel(int level, QString line)
 
 /*==========================================================================
 * TASK:		reads text, description and thumbnail IDs from structure file
-* EXPECTS: reader - open file reader with the last line read in it
+* PARAMS:   reader - open file reader with the last line read in it
 *					which after 'level' number of spaces starts with a '[' 
 *					and ends with a ']'
 *					
@@ -1808,7 +1808,7 @@ static bool __SameLevel(int level, QString line)
 *			  of the thumbnail image. In the latter case the path name will be replaced
 *			  with the image ID
 *			- the order of the tags are arbitrary, but all language texts for the same tag 
-*			  must immediately follow each other: mixing tah lines are not allowed
+*			  must immediately follow each other: mixing tag lines are not allowed
 *           - reads lines until the first line without a starting '[' is read
 *				then returns
 *			- before returning it puts the last language texts into _textMap
@@ -3404,9 +3404,9 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
 		int64_t	fiSize = fiSrc.size();
 		// special handling for images which must not be resized
-		bool bMustRecreateImageBasedOnSize = im.dontResize ? false : _MustRecreateImageBasedOnSize(im);
+		bool bMustRecreateImageBasedOnWandH = im.dontResize ? false : _MustRecreateImageBasedOnWandH(im);
 		// order of these checks is important!
-		if (config.bButImages || (!bMustRecreateImageBasedOnSize && (fiSize == im.fileSize) && destIsNewer))
+		if (config.bButImages || (!bMustRecreateImageBasedOnWandH && (fiSize == im.fileSize) && destIsNewer))
 			doProcess -= ImageConverter::prImage;			// then do not process
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
@@ -3422,7 +3422,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (config.bButImages || (!_MustRecreateThumbBasedOnSize(thumb, im) && thumbIsNewer))
+		if (config.bButImages || (!_MustRecreateThumbBasedOnWandH(thumb, im) && thumbIsNewer))
 			doProcess -= ImageConverter::prThumb;			// then do not process
 	}
 	// debug

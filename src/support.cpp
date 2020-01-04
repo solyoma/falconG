@@ -1,8 +1,37 @@
+#include "config.h"
 #include "support.h"
+#include <QtWidgets>
 #include <QtDebug>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QPainter>
+#include <QTextStream>
+
+//*****************************************																			//---------------------
+void ShowWarning(QString qs, QWidget *parent)
+{
+	QFile f(config.dsApplication.ToString() + "falconG.warnings");
+	f.open(QIODevice::WriteOnly | QIODevice::Append);
+	if (f.isOpen())
+	{
+		QTextStream ofs(&f);
+		ofs << QDateTime::currentDateTime << " - " << qs << "\n";
+		f.close();
+	}
+
+	if (!config.bNoMoreWarnings)
+	{
+		QMessageBox msgBox(parent);
+		msgBox.addButton(QMessageBox::Ok);
+		msgBox.setWindowTitle(QMainWindow::tr("falconG - Warning"));
+		QCheckBox *pchk = new QCheckBox(QMainWindow::tr("No more warnings for this album"));
+		msgBox.setCheckBox(pchk);
+		msgBox.setText(qs);
+		msgBox.exec();
+		config.bNoMoreWarnings = msgBox.checkBox()->isChecked();
+	}
+}
+
 
 /*=============================================================
 * TASK:	replaces LF character in string 's'
@@ -704,14 +733,14 @@ double ImageConverter::CalcSizes(ImageReader &imgReader)
 	if ((flags & dontResize) == 0)
 	{					// maxSize.x(),y() - new image width & height
 						// maxSize.width(),height() - thumbnail width & height
-		if ((newSize.width() > maxSize.width()) || ((flags & ~dontEnlarge) && aspect >= 1))
+		if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0 && aspect >= 1))
 		{
 			newSize.setWidth(maxSize.x());
 			newSize.setHeight(maxSize.x() / aspect);
 			thumbSize.setWidth(maxSize.width());
 			thumbSize.setHeight(maxSize.width() / aspect);
 		}
-		if ((newSize.height() > maxSize.height()) || ((flags & ~dontEnlarge) && aspect <= 1))
+		if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0 && aspect <= 1))
 		{
 			newSize.setHeight(maxSize.y());
 			newSize.setWidth(aspect * maxSize.y());
@@ -781,11 +810,8 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 		if (!imageWriter.write(imgReader.img))
 			qsErr += imageWriter.errorString() + "\n'" + thumb + "'";
 	}
-	if(!qsErr.isEmpty())
-	{
-		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),
-			qsErr, QMessageBox::Ok).exec();
-	}
+	if (!qsErr.isEmpty())
+		ShowWarning(qsErr);
 	return aspect;
 }
 

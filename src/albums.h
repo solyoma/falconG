@@ -26,7 +26,7 @@
 
 using QString=QString;
 using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
-using IdList = DeletableItemList<ID_t>;
+using IdList = UndeletableItemList<ID_t>;
 
 const ID_t ALBUM_ID_FLAG = 0x8000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
 const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
@@ -40,12 +40,11 @@ class TextMap;			// used in text for ID calculation
 
 /*============================================================================
 * LanguageTexts and TextMap
-*	- LanguageTexts objects contains one QString for each language language
+*	- LanguageTexts objects contains the concatenated texts for all languages
 *	- Texts are represented by their ID, which may not be 0
-*	- text IDs are calculated for the longest QString. This is the base ID
+*	- text IDs are calculated using all language texts. This is the base ID
 *	- two or more texts may have the same base ID but different QStrings in 
 *		them (text ID collision)
-*	- his may occur even when the longest QString (
 *	  in which case the ID of the new text (the one that was added later on)
 *		is modified using the 'collision' member, which is 
 *			1 + the number of the other texts with the same base ID
@@ -60,8 +59,8 @@ struct LanguageTexts				// both Album and Image uses this
 {
 	ID_t ID = 0;		// same for all translations of this in all languages (0: invalid)
 	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << ID_COLLISION_FACTOR)
-	QList<int>	lenghts;	// set to have as many elements as there are languages, lang ID is index in text
-	QString textsForAllLanguages;
+	QVector<int> lenghts;	// set to have as many elements as there are languages, lang ID is index in text
+	QString textsForAllLanguages; //concatenated language texts
 	UsageCount usageCount; // how many times this same text is added to list
 
 	LanguageTexts(int languageCount = 0) { Clear(languageCount); }
@@ -99,8 +98,8 @@ struct IABase
 	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid)
 	bool exists = false;	// set to true if it exists on the disk somewhere
 							// some image names may come from comment files
-	ID_t titleID = 0;	// text ID of image title
-	ID_t descID = 0;	// text ID of image description
+	ID_t titleID = 0;	// default text ID of image title
+	ID_t descID = 0;	// default text ID of image description
 	QString name;		// without path but with extension and no ending '/' even for albums
 	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
 
@@ -249,7 +248,7 @@ struct IdsFromStruct
 	ID_t titleID = 0, descID = 0, thumbnailID = 0;
 
 	void Clear() { titleID = descID = thumbnailID = 0; what = nothing; }
-	bool IsEmpty() const { return titleID == 0 && descID == 0 && thumbnailID == 0; }	// what does not important
+	bool IsEmpty() const { return titleID == 0 && descID == 0 && thumbnailID == 0; }	// 'what' is unimportant
 };
 
 //------------------------------------------
@@ -298,8 +297,8 @@ class AlbumGenerator : public QObject
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
-	bool _MustRecreateImageBasedOnSize(Image &img);
-	bool _MustRecreateThumbBasedOnSize(QString thumbName, Image &img);
+	bool _MustRecreateImageBasedOnWandH(Image &img);
+	bool _MustRecreateThumbBasedOnWandH(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
@@ -392,13 +391,6 @@ signals:
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }
-	void ShowError(QString qs) 
-	{
-		QMessageBox(QMessageBox::Warning, 
-					QMainWindow::tr("falconG - Warning"),
-					qs, 
-					QMessageBox::Ok).exec();
-	}
 };
 
 //------------------------------------------

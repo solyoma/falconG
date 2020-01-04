@@ -5,9 +5,10 @@
 
 /*=============================================================
  * A deletable element
- * REMARKS:
+ * REMARKS:	- T must be
+ *				assignable, copyable, can test equality
  *------------------------------------------------------------*/
-template<typename T> struct DeletableItem
+template<typename T> struct UndeletableItem
 {
 	int batch = -100;	// it was deleted in this batch 
 						// -1: not deleted, -100 invalid
@@ -15,8 +16,8 @@ template<typename T> struct DeletableItem
 	T t;				// object deleted/restored
 	bool IsValid() { return batch != -100; }
 
-	DeletableItem() {}
-	DeletableItem(const T &t) : t(t) {}
+	UndeletableItem() {}
+	UndeletableItem(const T &t) : t(t) {}
 	operator T() { return t; }
 	operator T() const { return t;  }
 };
@@ -33,17 +34,19 @@ template<typename T> struct DeletableItem
 *
 *			- all indexes in arguments refer to not-deleted items
 *------------------------------------------------------------*/
-template<typename T> class DeletableItemList : public QVector<DeletableItem<T> >
+template<typename T> class UndeletableItemList : public QVector<UndeletableItem<T> >
 {
-	int _lastBatchUsed = -1;		// each batch of co-deleted elements has a batch index
-	DeletableItem<T> _dummy;		// used to return an invalid item
-	UsageCount _changed;			// incremented when element added or deleted
-									// undelete decrements it
-	typedef QVector < DeletableItem<T> > DeleteItemVector;
+	typedef QVector < UndeletableItem<T> > BaseClassType;   
 
-	int _size = 0;					// count of non-deleted items (can be < size() )
+	int _lastBatchUsed = -1;		// each batch of co-deleted elements has a batch index
+	UndeletableItem<T> _dummy;		// used to return an invalid item
+	UsageCount _changed;			// incremented when element added to list, deleted
+									// or un-deleted
+
+	int _size = 0;					// count of non-deleted items ( < size() )
+					// for speedup:
 	int _prev_log = -0,				// previous logical index
-		_prev_phys = 0;				// previous physical index (for speedup)
+		_prev_phys = 0;				// previous physical index 
 
 	/*========================================================
 	 * TASK:	gets real index for logical index
@@ -69,8 +72,8 @@ template<typename T> class DeletableItemList : public QVector<DeletableItem<T> >
 
 			_prev_log = li;
 
-			for (ind = _prev_phys; index >= 0 && ind < DeleteItemVector::size(); ++ind)
-				if (DeleteItemVector::operator[](ind).batch < 0 )	// not deleted
+			for (ind = _prev_phys; index >= 0 && ind < BaseClassType::size(); ++ind)
+				if (BaseClassType::operator[](ind).batch < 0 )	// not deleted
 					--index;
 			_prev_phys = --ind;
 		}
@@ -78,31 +81,69 @@ template<typename T> class DeletableItemList : public QVector<DeletableItem<T> >
 	}
 	//int _RealIndexFor(int index, int realFrom = 0)		  
 	//{
-	//	return /*const_cast<DeletableItemList*>(this)->*/_RealIndexFor(index, realFrom);
+	//	return /*const_cast<UndeletableItemList*>(this)->*/_RealIndexFor(index, realFrom);
 	//}
 public:
-	DeletableItemList() { _dummy.batch = -100;  }	// invalidate dummy
-	DeletableItemList(const DeletableItemList &dtl)	: DeletableItemList()
+	UndeletableItemList() { _dummy.batch = -100;  }	// invalidate dummy
+	UndeletableItemList(const UndeletableItemList &dtl)	: UndeletableItemList()
 	{
-		_lastBatchUsed = dtl._lastBatchUsed;
-		_size = dtl._size;
-		QVector<DeletableItem<T> >::operator=(dtl);
+		(void)operator=(dtl);
+	}
+	UndeletableItemList &operator=(const UndeletableItemList &other)
+	{
+		_lastBatchUsed = other._lastBatchUsed;
+		_size = other._size;
+		_changed = other._changed;
+		QVector<UndeletableItem<T> >::operator=(other);
+		return *this;
 	}
 
 	int size() const { return _size; }
 
 	// return index-th not deleted element
-	DeletableItem<T> &operator[](int index) 
+	UndeletableItem<T> &operator[](int index) 
 	{ 
 		int i = _RealIndexFor(index);
-		return  i >= 0 ? DeleteItemVector::operator[](i) : _dummy;
+		return  i >= 0 ? BaseClassType::operator[](i) : _dummy;
 	}
-	//DeletableItem<T> operator[](int index)
-	//{
-	//	int i = _RealIndexFor(index);
-	//	const DeletableItem<T> t = DeleteItemVector::operator[](i);
-	//	return  i >= 0 ? t : _dummy;
-	//}
+
+	/*========================================================
+	 * TASK:	check if element t is on the list (it may be
+	 *			deleted)
+	 * PARAMS:	t reference to element to be checked
+	 *			asDeleted - only return true if the element is
+	 *				deleted
+	 * RETURNS: if element is present
+	 *-------------------------------------------------------*/
+	bool Contains(T &t, bool asDeleted = false) const
+	{
+		int i = BaseClassType::indexOf(t) >= 0;
+		if (i < 0)
+			return false;
+
+		if(asDeleted)
+			return BaseClassType::operator[](i).batch >= 0;
+		return true;
+	}
+
+	/*========================================================
+	 * TASK:	check if element t is deleted
+	 * PARAMS:	reference to element checked
+	 * RETURNS: if element is deleted
+	 *-------------------------------------------------------*/
+	bool IsDeleted(T &t) const
+	{
+		return Contains(t, true);
+	}
+	/*========================================================
+	 * TASK:	check if element with index i is deleted
+	 * PARAMS:	physical index of element to check
+	 * RETURNS: if element is deleted
+	 *-------------------------------------------------------*/
+	bool IsDeleted(int i) const
+	{
+		return i >= 0 && i < BaseClassType::size() && BaseClassType::operator[](i).batch >= 0
+	}
 
 	// delete index-th not deleted item
 	void Delete(int index, int realFrom = 0)
@@ -158,12 +199,12 @@ public:
 	// undelete last deleted item(s)
 	void Undelete()		// last batch
 	{
-		if (!DeleteItemVector::size() || _lastBatchUsed < 0)
+		if (!BaseClassType::size() || _lastBatchUsed < 0)
 			return;
-		for (int i = 0; i < DeleteItemVector::size(); ++i)
-			if (DeleteItemVector::operator[](i).batch == _lastBatchUsed)
+		for (int i = 0; i < BaseClassType::size(); ++i)
+			if (BaseClassType::operator[](i).batch == _lastBatchUsed)
 			{
-				DeleteItemVector::operator[](i).batch = -1;
+				BaseClassType::operator[](i).batch = -1;
 				++_size;
 			}
 		--_lastBatchUsed;
@@ -172,8 +213,8 @@ public:
 
 	void push_back(const T&t)
 	{
-		const DeletableItem<T> dti(t);
-		DeleteItemVector::push_back(dti);
+		const UndeletableItem<T> dti(t);
+		BaseClassType::push_back(dti);
 		++_size;
 		++_changed;
 	}
