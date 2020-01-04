@@ -733,17 +733,25 @@ double ImageConverter::CalcSizes(ImageReader &imgReader)
 	if ((flags & dontResize) == 0)
 	{					// maxSize.x(),y() - new image width & height
 						// maxSize.width(),height() - thumbnail width & height
-		if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0 && aspect >= 1))
+		if (aspect >= 1)
 		{
-			newSize.setWidth(maxSize.x());
-			newSize.setHeight(maxSize.x() / aspect);
+			if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0))
+			{
+				newSize.setWidth(maxSize.x());
+				newSize.setHeight(maxSize.x() / aspect);
+			}
+			// thumbs always resized even when it means enlargement
 			thumbSize.setWidth(maxSize.width());
 			thumbSize.setHeight(maxSize.width() / aspect);
 		}
-		if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0 && aspect <= 1))
+		if (aspect <= 1)
 		{
-			newSize.setHeight(maxSize.y());
-			newSize.setWidth(aspect * maxSize.y());
+			if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0))
+			{
+				newSize.setHeight(maxSize.y());
+				newSize.setWidth(aspect * maxSize.y());
+			}
+			// thumbs always resized even when it means enlargement
 			thumbSize.setHeight(maxSize.height());
 			thumbSize.setWidth(aspect * maxSize.height());
 		}
