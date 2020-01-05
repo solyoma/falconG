@@ -809,6 +809,11 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 	// write thumbnail image into 'thumb'
 	if(flags & prThumb)
 	{
+		if (thumbSize.width() <= 0 || thumbSize.height() <= 0)
+		{
+			ShowWarning("Invalid sizes for thumbnail \n'"+thumb + "'\n");
+			return aspect;
+		}
 		//	re-scale image for thumbnail
 		imgReader.img = imgReader.img.scaled(thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
@@ -816,7 +821,7 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 		imageWriter.setQuality(imgReader.quality());
 		imageWriter.setFormat(imgReader.format());
 		if (!imageWriter.write(imgReader.img))
-			qsErr += imageWriter.errorString() + "\n'" + thumb + "'";
+			qsErr += "'"+thumb + "'\n" +imageWriter.errorString();
 	}
 	if (!qsErr.isEmpty())
 		ShowWarning(qsErr);
