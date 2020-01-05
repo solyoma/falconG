@@ -159,6 +159,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->bButImages.changed = false;
 		_parent->bAddTitlesToAll.changed = false;
 		_parent->bAddDescriptionsToAll.changed = false;
+		_parent->bLowerCaseImageExtensions.changed = false;
 		_parent->bReadJAlbum.changed = false;
 		_parent->bMenuToContact.changed = false;
 		_parent->bMenuToAbout.changed = false;
@@ -579,6 +580,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	bButImages = cfg.bButImages;
 	bAddTitlesToAll = cfg.bAddTitlesToAll;
 	bAddDescriptionsToAll = cfg.bAddDescriptionsToAll;
+	bLowerCaseImageExtensions = cfg.bLowerCaseImageExtensions;
 	bReadJAlbum = cfg.bReadJAlbum;
 	bReadFromGallery = cfg.bReadFromGallery;
 	bMenuToContact = cfg.bMenuToContact;
@@ -842,8 +844,9 @@ CONFIG::CONFIG()
 
 	bGenerateAll.nameStr = "bGenerateAll";
 	bButImages.nameStr = "bButImages";
-	bAddTitlesToAll.nameStr = "bbAddTitlesToAll";
+	bAddTitlesToAll.nameStr = "bAddTitlesToAll";
 	bAddDescriptionsToAll.nameStr = "bAddDescriptionsToAll";
+	bLowerCaseImageExtensions.nameStr = "bLowerCaseImageExtensions";
 	bReadJAlbum.nameStr  =  "bReadJAlbum";
 	bReadFromGallery.nameStr = "bReadFromGallery";
 	bSourceRelativePerSign.nameStr = "bSourceRelativePerSign";
@@ -1044,10 +1047,11 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadStr(s, sBaseName, "");		// 'album'
 
 		// sepcial data
-	__ConfigReadBool(s, bGenerateAll, false);	// unconditional save web pages
-	__ConfigReadBool(s, bButImages, false);	// unconditional save web pages
-	__ConfigReadBool(s, bAddTitlesToAll, false);		// only process changed/deleted/new images
+	__ConfigReadBool(s, bGenerateAll, false);				// unconditional save web pages
+	__ConfigReadBool(s, bButImages, false);					// unconditional save web pages
+	__ConfigReadBool(s, bAddTitlesToAll, false);			// only process changed/deleted/new images
 	__ConfigReadBool(s, bAddDescriptionsToAll, false);		// only process changed/deleted/new images
+	__ConfigReadBool(s, bLowerCaseImageExtensions, true);	// convert extension
 //	__ConfigReadBool(s, bReadJAlbum, true);
 	__ConfigReadBool(s, bMenuToContact, true);
 	__ConfigReadBool(s, bMenuToAbout, true);
@@ -1332,6 +1336,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteBool(s, bButImages);		// images download allowed
 	__ConfigWriteBool(s, bAddTitlesToAll);		// images download allowed
 	__ConfigWriteBool(s, bAddDescriptionsToAll);		// images download allowed
+	__ConfigWriteBool(s, bLowerCaseImageExtensions);	// convert extension
 //	__ConfigWriteBool(s, bReadJAlbum);
 	__ConfigWriteBool(s, bMenuToContact);
 	__ConfigWriteBool(s, bMenuToAbout);

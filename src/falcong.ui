@@ -1162,7 +1162,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
          </layout>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,0,1">
+         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,0,0,0">
           <property name="leftMargin">
            <number>9</number>
           </property>
@@ -1185,7 +1185,50 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="chkReadJalbum">
+            <property name="text">
+             <string>Read from directories/JAlbum</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="chkLowerCaseImageExtensions">
+            <property name="text">
+             <string>Lower case image extensions</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="chkAddTitlesToAll">
+            <property name="toolTip">
+             <string>Add title fields for images in 'gallery struct', which doesn't have one</string>
+            </property>
+            <property name="text">
+             <string>Title fields for all</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="chkAddDescToAll">
+            <property name="toolTip">
+             <string>Add description fields for images in 'gallery struct', which doesn't have one</string>
+            </property>
+            <property name="text">
+             <string>Description fields for all</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QCheckBox" name="chkOvrImages">
             <property name="font">
              <font>
@@ -1198,33 +1241,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
             <property name="checked">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="chkAddDescToAll">
-            <property name="text">
-             <string>Add description fields for all images in 'gallery struct'</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="chkAddTitlesToAll">
-            <property name="text">
-             <string>Add title fields for all images in 'gallery struct'</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="chkReadJalbum">
-            <property name="text">
-             <string>Read JAlbum</string>
             </property>
            </widget>
           </item>
@@ -4425,9 +4441,6 @@ font-weight: bold;
   <tabstop>edtDefaultFonts</tabstop>
   <tabstop>edtBaseName</tabstop>
   <tabstop>chkReadFromGallery</tabstop>
-  <tabstop>chkAddTitlesToAll</tabstop>
-  <tabstop>chkOvrImages</tabstop>
-  <tabstop>chkAddDescToAll</tabstop>
   <tabstop>btnGenerate</tabstop>
   <tabstop>btnPreview</tabstop>
   <tabstop>btnSaveConfig</tabstop>

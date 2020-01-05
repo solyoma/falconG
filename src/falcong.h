@@ -178,6 +178,7 @@ private slots:
 	void on_chkButImages_toggled(bool);
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkAddDescToAll_toggled(bool);
+	void on_chkLowerCaseImageExtensions_toggled(bool);
 	void on_chkReadJAlbum_toggled(bool);
 	void on_chkReadFromGallery_toggled(bool);
 

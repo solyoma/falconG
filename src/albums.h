@@ -148,12 +148,15 @@ struct Image : public IABase
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image &i);
 
-	QString LinkName() const 
+	QString LinkName(bool bLCExtension = false) const 
 	{ 
 		if (ID)
 		{
 			int pos = name.lastIndexOf('.');
-			return QString().setNum(ID) + name.mid(pos);	// e.g. 12345.jpg
+			QString s = name.mid(pos);
+			if (bLCExtension)
+				s = s.toLower();
+			return QString().setNum(ID) + s;	// e.g. 12345.jpg
 		}
 		else
 			return name;

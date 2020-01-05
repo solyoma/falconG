@@ -256,6 +256,7 @@ public:
 	
 	_CBool bAddTitlesToAll;		// into gallery.struct
 	_CBool bAddDescriptionsToAll; // into gallery.struct
+	_CBool bLowerCaseImageExtensions; // convert all image extensions to lowercase
 	_CBool bReadJAlbum;			// do not process gallery.struct, read from JAlbum structure
 	_CBool bReadFromGallery;	// read back from HTML files in gallery (you loose original names and paths!
 		// next two bools will not be read from or saved into the configuration file

@@ -3369,8 +3369,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-		dst = config.ImageDirectory().ToString() + im.LinkName(),
-		thumb = config.ThumbnailDirectory().ToString() + im.LinkName();
+		dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions),
+		thumb = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
 
 	QFileInfo fiSrc(src), fiThumb(thumb), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),

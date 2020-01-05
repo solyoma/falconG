@@ -496,6 +496,7 @@ void FalconG::_PopulateFromConfig()
 	ui.chkFacebook->setChecked(config.bFacebookLink);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
+	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 //	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);
 	ui.chkMenuToContact->setChecked(config.bMenuToContact);
@@ -1172,6 +1173,20 @@ void FalconG::on_chkAddTitlesToAll_toggled(bool on)
 		return;
 	config.bAddTitlesToAll = on;
 	config.bAddTitlesToAll.changed = true;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkLowerCaseImageExtensions_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bLowerCaseImageExtensions = on;
+	config.bLowerCaseImageExtensions.changed = true;
 }
 
 /*============================================================================
