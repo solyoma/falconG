@@ -428,7 +428,8 @@ void FalconG::_ConfigToSample()
 
 	ui.btnMenu->setStyleSheet(ss);
 	ui.btnUplink->setStyleSheet(ss);
-	_SetIconColor(*ui.btnUplink, config.Menu);
+	_SetUplinkIconColor();
+
 	ui.btnCaption->setStyleSheet(ss);
 
 					// style for other elements
@@ -482,6 +483,7 @@ void FalconG::_PopulateFromConfig()
 	ui.edtServerAddress->setText(config.sServerAddress);
 	ui.edtGalleryRoot->setText(config.dsGRoot.str);
 	ui.edtUplink->setText(config.sUplink);
+	ui.btnUplink->setIcon(QIcon(config.dsApplication.ToString() + "res/" + config.iconUplink));
 
 	ui.edtDescription->setText(config.sDescription);
 	ui.edtKeywords->setText(config.sKeywords);
@@ -2146,6 +2148,56 @@ void FalconG::on_btnUplink_clicked()
 	_WebColorButtonClicked();
 }
 
+
+/*========================================================
+ * TASK:	sets the uplink icon from a file set in 
+ *			config
+ * PARAMS:	iconName - name of icon in res/ directory
+ * GLOBALS:	config
+ * RETURNS: none, icon is set in btnUplink
+ * REMARKS: - if no name given does not load any icon: uses
+ *			  the one already set in the form file, just
+ *			  changes its color
+ *			- otherwise load file from the 'res' sub directory
+ *			- icon file must be flat 32 bit png file with 
+ *				transparent and white pixels. The color of 
+ *				the white pixels will be changed to 
+ *				config.Menu
+ *-------------------------------------------------------*/
+void FalconG::_SetUplinkIcon(QString iconName)
+{
+	if (iconName.isEmpty() || iconName == "uplink-icon")
+	{
+		_SetUplinkIconColor();
+		return;
+	}
+	iconName = config.dsApplication.ToString() + "res/"+iconName;
+	QIcon icon(iconName);
+	_lastUsedMenuForegroundColor = Qt::white;
+	_SetIconColor(icon, config.Menu);
+	ui.btnUplink->setIcon(icon);
+}
+
+/*========================================================
+ * TASK:	set icon for uplink from 'res' directory
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - icon must be a simple 2 color image
+ *-------------------------------------------------------*/
+void FalconG::on_btnSelectUplinkIcon_clicked()
+{
+	QString dir = config.dsApplication.ToString() + "res/";
+	QString file = QFileDialog::getOpenFileName(this, "falconG - Select icon", dir, "*.png");
+	if (!file.isEmpty())
+	{
+		QIcon icon(file);	 
+		_lastUsedMenuForegroundColor = Qt::white;
+		_SetIconColor(icon, config.Menu);
+		ui.btnUplink->setIcon(icon);
+	}
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -2785,6 +2837,21 @@ QString FalconG::_GradientStyleQt(_CElem &elem, bool invert)
 	return s;
 }
 
+
+/*========================================================
+ * TASK: sets the color of the uplink icon
+ * PARAMS: none
+ * GLOBALS: config, config.Menu, ui.btnUplink
+ * RETURNS: none
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_SetUplinkIconColor()
+{
+	QIcon icon = ui.btnUplink->icon();
+	_SetIconColor(icon, config.Menu);
+	ui.btnUplink->setIcon(icon);
+}
+
 /*=============================================================
  * TASK:	Enable/disable gradient  edits, buttons, and positions
  * EXPECTS:	ena: 0: save and disable, 
@@ -3111,16 +3178,19 @@ void FalconG::_SetWebColor()
 			_SetColorToConfig(handler, config.SmallGalleryTitle);
 			ui.btnSmallGalleryTitle->setStyleSheet(handler.StyleSheet());
 				break;
-		case aeMenuButtons:    handler.Set(ui.btnMenu->styleSheet());
-			_SetColorToConfig(handler, config.Menu);
-			ss = handler.StyleSheet();
-			ui.btnMenu->setStyleSheet(ss);
+		case aeMenuButtons:    
+			{
+				handler.Set(ui.btnMenu->styleSheet());
+				_SetColorToConfig(handler, config.Menu);
+				ss = handler.StyleSheet();
+				ui.btnMenu->setStyleSheet(ss);
 // DEBUG
 // ShowStyleOf(ui.btnMenu); 	
 //			ui.btnLang->setStyleSheet(ss);
-			ui.btnUplink->setStyleSheet(ss);
-			_SetIconColor(*ui.btnUplink, config.Menu);	// color white icon to config.Menu,color
-			ui.btnCaption->setStyleSheet(ss);
+				_SetUplinkIconColor();
+				ui.btnUplink->setStyleSheet(ss);
+				ui.btnCaption->setStyleSheet(ss);
+			}
 			break;
 		case aeAlbumTitle:	   handler.Set(ui.btnAlbumTitle->styleSheet());
 			_SetColorToConfig(handler, config.AlbumTitle);
@@ -3330,17 +3400,16 @@ void FalconG::_SaveChangedTexts()
 }
 
 /*============================================================================
-  * TASK:		changes the color of the icon of teh given button to the
+  * TASK:		changes the color of the icon of the given button to the
   *				one set in 'elem'
-  * EXPECTS: btn - QtPushButton with icon
+  * EXPECTS: icon - set the color of this
   *			 elem - _CElem with the color set
-  * RETURNS: nothing
-  * GLOBALS:
-  * REMARKS: uses the original color of the icon of the button
+  * RETURNS: pixmap of icon
+  * GLOBALS: _lastusedMenuForegroundColor
+  * REMARKS: 
  *--------------------------------------------------------------------------*/
-void FalconG::_SetIconColor(QPushButton &btn, _CElem & elem)
+void FalconG::_SetIconColor(QIcon &icon, _CElem & elem)
 {
-	QIcon icon = btn.icon();
 	QPixmap pm;
 	pm = icon.pixmap(64, 64);
 	QBitmap mask = pm.createMaskFromColor(_lastUsedMenuForegroundColor, Qt::MaskOutColor);
@@ -3348,7 +3417,7 @@ void FalconG::_SetIconColor(QPushButton &btn, _CElem & elem)
 	_lastUsedMenuForegroundColor = elem.color.name;
 	pm.fill(_lastUsedMenuForegroundColor);
 	pm.setMask(mask);
-	btn.setIcon(pm);
+	icon = QIcon(pm);
 }
 
 /*============================================================================

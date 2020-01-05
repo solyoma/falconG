@@ -151,6 +151,7 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->dsThumbDir.changed = false;
 
 		_parent->sUplink.changed = false;
+		_parent->iconUplink.changed = false;
 		_parent->sMainPage.changed = false;
 		_parent->sDescription.changed = false;
 		_parent->sKeywords.changed = false;
@@ -263,12 +264,15 @@ QString &_CDirStr::operator=(const QString s)
 * GLOBALS: config
 * RETURNS: the result
 * REMARKS: JAlbum quirk: if a link is relatice to the JA;lbuum root the path to the
-*		file name starts with a '/' instead of the full parh. Therefore 
+*		file name starts with a '/' instead of the full path. Therefore 
 *		when config.bSourceRelativePerSign is set such paths are considered relative
 *--------------------------------------------------------------------------*/
 _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 {
-	QString sub = subdir.ToString();
+	QString dir = ToString(), 
+			sub = subdir.ToString();
+	if(dir[dir.length()-1] != '/')
+		dir += '/';
 	if( (sub.length() > 2 && sub[1] == ':') || !config.bSourceRelativePerSign) 
 	{
 		if (QDir::isAbsolutePath(sub))	// then it cannot be my sub directory
@@ -277,7 +281,7 @@ _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 	if(sub[0] == '/')
 		sub = sub.mid(1);						// cut '/' from beginning
 
-	sub = QDir::cleanPath(ToString() + sub);	// get rid of ./ ../, etc
+	sub = QDir::cleanPath(dir + sub);	// get rid of ./ ../, etc
 												// but also ending '/'
 	_CDirStr tmp;
 	tmp.str = sub + '/';						// add back the '/'
@@ -572,6 +576,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	dsThumbDir = cfg.dsThumbDir;
 
 	sUplink = cfg.sUplink;				// if given uplink in gallery root goes here
+	iconUplink = cfg.iconUplink;				// if given uplink in gallery root goes here
 	sMainPage = cfg.sMainPage;
 	sDescription = cfg.sDescription;
 	sKeywords = cfg.sKeywords;
@@ -838,6 +843,7 @@ CONFIG::CONFIG()
 	dsFontDir.nameStr = "dsFontDir";
 	dsImageDir.nameStr = "dsImageDir";		
 	sUplink.nameStr = "sUplink";			
+	iconUplink.nameStr = "iconUplink";			
 	sMainPage.nameStr = "sMainPage";
 	sDescription.nameStr = "sDescription";
 	sKeywords.nameStr = "sKeywords";
@@ -928,6 +934,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	dsImageDir.defStr  = "imgs/";
 	dsThumbDir.defStr  = "thumbs/";
 	sUplink.defStr     =  "";		// inside dsGRoot base1hu.html, etc
+	iconUplink.defStr  =  "up-icon.png";	// in 'res' directory
 	dsCssDir.defStr    =  "css/";
 	dsFontDir.defStr   =  "fonts/";
 	sDefFonts.defStr   =  "Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif";
@@ -1038,6 +1045,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadStr(s, sGalleryTitle, "Andreas Falco Photography");
 	__ConfigReadStr(s, sGalleryLanguages, "");
 	__ConfigReadStr(s, sUplink, "");		// no defaults
+	__ConfigReadStr(s, iconUplink, "up-icon.png");		// no defaults
 	__ConfigReadStr(s, sMainPage, "");		// no defaults
 	__ConfigReadStr(s, sDescription, "");	// no defaults
 	__ConfigReadStr(s, sKeywords, "");		// no defaults
@@ -1327,6 +1335,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteStr(s, sGalleryTitle);
 	__ConfigWriteStr(s, sGalleryLanguages);	// hu,en
 	__ConfigWriteStr(s, sUplink);
+	__ConfigWriteStr(s, iconUplink);
 	__ConfigWriteStr(s, sMainPage);
 	__ConfigWriteStr(s, sDescription);
 	__ConfigWriteStr(s, sKeywords);

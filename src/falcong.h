@@ -90,6 +90,9 @@ private:
 	_CElem *_SelectSampleElement(QWidget *&pb, QString &name);	 // for _aeActiveElement
 	QString _FontStyle(_CElem &elem);
 	QString _GradientStyleQt(_CElem &elem, bool invert = false);	// Creates QT stylesheet gradinet string
+	void _SetUplinkIconColor();
+	void _SetUplinkIcon(QString iconName = QString());
+	void _SetIconColor(QIcon &icon, _CElem &elem);
 	void _EnableGbMenu(int ena);
 	void _EnableButtons();
 	void _SetCommonControlsFromWebButton(StyleHandler &shElem, QWidget *pb, _CElem &elem);
@@ -104,7 +107,6 @@ private:
 	void _SetWebColor();		// set WEB button colors
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
-	void _SetIconColor(QPushButton &btn, _CElem &elem);
 
 	enum whoChangedTheText {wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4};
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
@@ -231,6 +233,7 @@ private slots:
 	void on_btnGradBorder_clicked();
 	void on_btnLang_clicked();
 	void on_btnUplink_clicked();
+	void on_btnSelectUplinkIcon_clicked();
 	void on_btnCaption_clicked();
 	void on_btnAlbumTitle_clicked();
 	void on_btnAlbumDesc_clicked();

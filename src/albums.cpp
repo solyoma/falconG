@@ -2441,21 +2441,23 @@ bool AlbumGenerator::_ReadFromGallery()
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing file
-* REMARKS: the file up-link.png is not copied, but will be created from 
-*			icon image in falconG.cpp
+* REMARKS: the file 'up-icon.png' and 'left-icon.png' are not copied, 
+*			but created from icon images in the res directory of falconG
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyRes()
 {
+
 	QString src = config.dsApplication.ToString() + "res/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "res/";
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
 	for (QFileInfo &fi : list)
 	{
-		if(fi.fileName() != QString("left-icon.png"))
+		if(fi.fileName() != QString("left-icon.png") && fi.fileName() != QString("up-icon.png"))
 			QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
 	}
 	emit SignalToCreateUplinkIcon(dest + "left-icon.png");
+	emit SignalToCreateUplinkIcon(dest + "up-icon.png");
 	return 0;	
 }
 
@@ -3173,8 +3175,8 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 	_ofs << "<div class=\"menu-line\">\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
 		_ofs << "<a href=\"" << uplink
-		<< "\"><img src=\"" + updir + "res/left-icon.png\" style=\"height:14px;\" title=\"" + Languages::toTop[_actLanguage] + "\" alt=\""
-		+ Languages::toTop[_actLanguage] + "\"></a>\n";			  // UP link
+		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
+		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
 	_ofs << "<a href=\""
 		<< updir << config.homeLink << "\">" << Languages::toHomePage[_actLanguage]
 		<< "</a>\n";																											  // Home page

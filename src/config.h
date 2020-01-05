@@ -266,6 +266,7 @@ public:
 	_CString sUplink;			// path name of index.html file on server this gallery is embedded into.
 								// this page if set should have links into dsGRoot for all languages
 								// If given the main page;s uplink points here, otherwise no uplink on main page(s)
+	_CString iconUplink;		// name of the icon file in the 'res' sub-directory
 	_CString  sMainPage;		// name of the root file in the system The gallery root 
 								// (default index.html or index1en.html, index1hu.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
