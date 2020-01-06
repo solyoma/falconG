@@ -2139,14 +2139,19 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 }
 
 /*==========================================================================
-* TASK:		recursively reads album and all of its sub-albums  from structure
+* TASK:		recursively reads album and all of its sub-albums from ".struct"
+*			file
 * EXPECTS: reader - open file reader,
 *					reader.l() :
-*						album definition line "" +"<name>(A:id)'/'original path"
+*						album definition line: 
+*							<name>(A:id)'/'<original path>
+*							or <original path>'/'<name>
 *           parent: ID of parent
 *			level:	album level (number of spaces before name)
 * RETURNS:	ID of new album from structure
-* REMARKS:	- when a new album added, then its parent also changed
+* REMARKS:	-if an album id line is in reader then the id inside it must be new
+*			 otherwise the file is damaged
+*			- when a new album added, then its parent also changed
 *			- album definitions are delimited with a single empty line
 *			- each album line starts with as many spaces as its level
 *			- if the next album definition is on the same level
@@ -2227,6 +2232,10 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			ImageMap::lastUsedImagePath = album.path + album.name + "/";
 		}
 		id = sl[1].toULongLong();
+		if (_albumMap.contains(id))
+			throw BadStruct(reader.ReadCount(), QString("'%1' - duplicated album ID").arg(id));
+
+
 		album.ID = id;
 		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullName());
 	}
@@ -2345,10 +2354,13 @@ bool AlbumGenerator::_ReadStruct(QString from)
 	catch (BadStruct b)
 	{
 		QMessageBox(QMessageBox::Critical, QMainWindow::tr("falconG - Error"), 
-						QMainWindow::tr("Damaged structure file! Message:\n     ") +  
+						QMainWindow::tr("Damaged structure file!\n"
+										"Message: '") +  
 						b.msg + 
-						QMainWindow::tr("\n\n%1 lines read so far. Reading aborted,\n"
-										"because continuing would destroy your old gallery.struct file!").arg(b.cnt), 
+						QMainWindow::tr("'\n\n"
+										"Processing aborted, because continuing\n"
+										"could destroy your old .struct file!\n"
+										"%1 lines read so far. ").arg(b.cnt), 
 							QMessageBox::Abort, frmMain).exec();
 		b.cnt = 1;
 		throw(b);
