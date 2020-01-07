@@ -2166,7 +2166,7 @@ void FalconG::on_btnUplink_clicked()
  *-------------------------------------------------------*/
 void FalconG::_SetUplinkIcon(QString iconName)
 {
-	if (iconName.isEmpty() || iconName == "uplink-icon")
+	if (iconName.isEmpty() || iconName == "up-icon")
 	{
 		_SetUplinkIconColor();
 		return;

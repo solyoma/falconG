@@ -795,6 +795,52 @@ int Album::SubAlbumCount()
 	return albums.size();
 }
 
+
+/*========================================================
+ * TASK:	Calculates how many title text this album has
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS: count ( >= 0)
+ * REMARKS: - only calculates count when the titleCount < 0
+ *			- not recursive
+ *-------------------------------------------------------*/
+int Album::TitleCount()
+{
+	if (titleCount >= 0)
+		return titleCount;
+
+	titleCount = 0;
+	for (auto a : albums)
+		if (albumgen.Albums()[a].titleID)
+			++titleCount;
+	for (auto a : images)
+		if (albumgen.Images()[a].titleID)
+			++titleCount;
+	return titleCount;
+}
+
+/*========================================================
+*TASK:	Calculates how many description text this album has
+ * PARAMS :
+ * GLOBALS :
+ * RETURNS : count(>= 0)
+ * REMARKS :- only calculates count when the descCount < 0
+ *			- not recursive
+ * ------------------------------------------------------- */
+int Album::DescCount()
+{
+	if (descCount >= 0)
+		return descCount;
+
+	for (auto a : albums)
+		if (albumgen.Albums()[a].descID)
+			++descCount;
+	for (auto a : images)
+		if (albumgen.Images()[a].descID)
+			++descCount;
+	return descCount;
+}
+
 /*============================================================================
 * TASK: Create full link name of album
 * EXPECTS: language -  index of language
@@ -3196,9 +3242,9 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 		_ofs << "<a href=\"" << updir << Languages::FileNameForLanguage(config.sAbout, _actLanguage) << "\">" << Languages::toAboutPage[_actLanguage] << "</a>\n";
 	if (config.bMenuToContact)
 		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
-	if (config.bMenuToToggleCaptions)
+	if (config.bMenuToToggleCaptions && album.DescCount())
 		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
-	if (album.SubAlbumCount() && album.ImageCount())			// when no images no need to jump to albums
+	if (album.SubAlbumCount() == 0  || (album.SubAlbumCount() && album.ImageCount()) )	// when no images or no albums no need to jump to albums
 		_ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
 	if (config.generateLatestUploads)
 		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
@@ -3420,7 +3466,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		// special handling for images which must not be resized
 		bool bMustRecreateImageBasedOnWandH = im.dontResize ? false : _MustRecreateImageBasedOnWandH(im);
 		// order of these checks is important!
-		if (config.bButImages || (!bMustRecreateImageBasedOnWandH && (fiSize == im.fileSize) && destIsNewer))
+		if (config.bButImages || (!bMustRecreateImageBasedOnWandH && (fiSize == im.fileSize) && !destIsNewer))
 			doProcess -= ImageConverter::prImage;			// then do not process
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
@@ -3436,7 +3482,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (config.bButImages || (!_MustRecreateThumbBasedOnWandH(thumb, im) && thumbIsNewer))
+		if (config.bButImages || (!_MustRecreateThumbBasedOnWandH(thumb, im) && !thumbIsNewer))
 			doProcess -= ImageConverter::prThumb;			// then do not process
 	}
 	// debug

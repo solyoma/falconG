@@ -185,6 +185,8 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	bool changed = false;		// set to true when: any text, album thumbnail, images, albums, exluded changed
 	int imageCount = -1;
 	int albumCount = -1;
+	int titleCount = -1;
+	int descCount  = -1;
 
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -192,9 +194,12 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	int operator<(const Album &i);		 // uses searchBy
 	bool operator==(const Album &i);
 
+	bool Valid() const { return ID != 0; }
 	void Clear() { images.clear(); albums.clear(); excluded.clear(); }
 	int ImageCount();		// only non-excluded images
 	int SubAlbumCount();	// only non excluded albums (removes excluded albums) = count of children
+	int TitleCount();		// sets/returns titleCount
+	int DescCount();		// sets/returns descCount
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
 	QString SiteLink(int language );
