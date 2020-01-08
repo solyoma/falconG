@@ -1189,64 +1189,24 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 }
 
 /*============================================================================
-  * TASK: test the image sizes against config and see if it must be recreated
-  * EXPECTS: im - input, image 
-  * GLOBALS: config
-  * RETURNS: true or false
-  * REMARKS: - re-create when all must be re-generated OR
-  *				no image sizes were determined yet OR
-  *				destination image is too large OR
-  *				destination image is too small but it could be larger
-  *			 - check this first as when either of the above is true even
-  *				newer destinaton images must be overwritten
- *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_MustRecreateImageBasedOnWandH(Image & img)
-{
-	return  config.bButImages ? false : 
-			(config.bGenerateAll && !config.bButImages)
-		||
-			!img.width 
-		||
-			(img.width > config.imageWidth || img.height > config.imageHeight)
-		||
-			(
-			  (img.width < config.imageWidth && img.height < config.imageHeight)
-				&& 
-			  ( img.owidth > config.imageWidth || img.oheight > config.imageHeight)
-			)
-		;
-}
-
-/*============================================================================
   * TASK: test the sizesof an existing thumbnail against config and see 
   *		  if it must be recreated
-  * EXPECTS:
-  * RETURNS: true or false
+  * EXPECTS: thumbPath - full path of thumbnail file
+  *			 img - image data from data base
+  * RETURNS: 'true' :  
+  *				actual size of thumbnail is not the same as the one in data base
+  *			'false' : otherwise
   * GLOBALS:
   * REMARKS: - the thumbnail  already a rotated image wjen needed
-  *			 - re-create when
-  *				current size of thumb is larger than allowed size
-  *				current size of thumb is smaller than allowed size but
-  *				original size of image is larger than allowed size
+  *			 - 
  *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_MustRecreateThumbBasedOnWandH(QString thumbPath, Image & img)
+bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, Image & img)
 {
 	ImageReader reader(thumbPath);
-	QSize size = reader.size();
+	QSize size = reader.size();		// read thumbnail image dimensions from file
+	img.rdata.bThumbDifferent = (size.width() != img.rdata.tw) || (size.height() != img.rdata.th);
 
-	return  config.bButImages ? false :
-		(config.bGenerateAll && !config.bButImages)
-			||
-		!size.width()
-			||
-		(size.width() > config.thumbWidth || size.height() > config.thumbHeight)
-			||
-		(
-			(size.width() < config.thumbWidth && size.height() < config.thumbHeight)
-				&&
-			(img.owidth > config.thumbWidth || img.oheight > config.thumbHeight)
-		)
-	;
+	return img.rdata.bThumbDifferent;
 }
 
 /*==========================================================================
@@ -2078,7 +2038,7 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		img.owidth = sl[4].toInt();
 		img.oheight = sl[5].toInt();
 
-		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
+// calculated when asked for		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
 		img.uploadDate = DateFromString(sl[6]);
 		if (img.uploadDate > _latestDateLimit)
 			_latestDateLimit = img.uploadDate;
@@ -3437,7 +3397,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		dstExists = fiDest.exists(dst),
 		thumbExists = fiThumb.exists();
 
-	if (!srcExists)
+	if (!srcExists)	// then must check if it is changed
 	{
 		if (dstExists)						// source file was deleted
 		{
@@ -3449,12 +3409,30 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 	}
 
 	ImageReader imgReader(src, im.dontResize);			   // constructor doesn`t read image!
+	QSize size = imgReader.size();
+	QImageIOHandler::Transformations tr = imgReader.transformation();
+	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+		size.transpose();
+	im.GetResizedDimensions();
 
+	if (size.width() != im.owidth || size.height() != im.oheight)	// source changed rel. to data base: must re-create everything
+	{
+		im.owidth = size.width();
+		im.oheight = size.height();
+
+		im.GetResizedDimensions();		// must recalculate, 
+
+		im.rdata.bSizeDifferent = true; // but it is sure changed
+		im.rdata.bThumbDifferent = true;
+
+		im.SetNewDimensions();			// process to these sizes
+	}
 
 	QDateTime dtSrc = fiSrc.lastModified();		// date of creation of source image.
 // DEBUG
 //		QString gsDate = dtSrc.toString();
 // /DEBUG
+
 	if (dstExists)		// then test if the source image was modified (width = 0: only added by name)
 	{					// and if not then do not process it
 		QDateTime dtDestCreated = fiDest.lastModified();	   // created() => birthTime() since Qt 5.10
@@ -3463,27 +3441,31 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 // /DEBUG
 		bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
 		int64_t	fiSize = fiSrc.size();
-		// special handling for images which must not be resized
-		bool bMustRecreateImageBasedOnWandH = im.dontResize ? false : _MustRecreateImageBasedOnWandH(im);
-		// order of these checks is important!
-		if (config.bButImages || (!bMustRecreateImageBasedOnWandH && (fiSize == im.fileSize) && !destIsNewer))
+
+		if (config.bGenerateAll && config.bButImages)
 			doProcess -= ImageConverter::prImage;			// then do not process
+		else
+		{
+			if ( !im.rdata.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
+				doProcess -= ImageConverter::prImage;			// then do not process
+		}
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
 
-		if (im.fileSize != fiSize)			// image size changed: set new size in structure
+		if (im.fileSize != fiSize)			// source image size changed: set new size in structure
 			im.fileSize = fiSize;
 	}
 	if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
 	{
-	//	if (!im.width)	// read JAlbum, and no parameters yet
-	//		thumbConverter.CalcSizes(imgReader);
-
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (config.bButImages || (!_MustRecreateThumbBasedOnWandH(thumb, im) && !thumbIsNewer))
+		if (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumb, im) && thumbIsNewer))
 			doProcess -= ImageConverter::prThumb;			// then do not process
+// DEBUG
+		else
+			doProcess = doProcess;
+// /DEBUG
 	}
 	// debug
 	//		doProcess = doProcessThumb = false;
@@ -3502,20 +3484,22 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		WaterMark *pwm = nullptr;
 		if (config.waterMark.used)
 			pwm = &config.waterMark.wm;
-		if (doProcess & (ImageConverter::prImage | ImageConverter::prThumb))
-		{
-			converter.flags = doProcess + (im.dontResize ? ImageConverter::dontResize : 0) + 
-								(config.doNotEnlarge ? ImageConverter::dontEnlarge : 0);
+		converter.flags = doProcess + (im.dontResize ? ImageConverter::dontResize : 0) + 
+							(config.doNotEnlarge ? ImageConverter::dontEnlarge : 0);
+		converter.oSize.setWidth(im.owidth);
+		converter.oSize.setHeight(im.oheight);
+		converter.newSize.setWidth(im.width);
+		converter.newSize.setHeight(im.height);
+		converter.thumbSize.setWidth(im.rdata.tw);
+		converter.thumbSize.setHeight(im.rdata.th);
 
-			im.aspect = converter.Process(imgReader, dst, thumb, config.bOvrImages, pwm);
-			im.owidth = converter.oSize.width();
-			im.oheight = converter.oSize.height();
-			im.width = converter.newSize.width();
-			im.height = converter.newSize.height();
-			_imageMap[im.ID] = im;
-		}
-//		if (doProcess & ImageConverter::prThumb)
-//			thumbConverter.Process(imgReader, thumb, true, config.bOvrImages, pwm);
+		/*im.aspect = */ converter.Process(imgReader, dst, thumb, config.bOvrImages, pwm);
+		//im.owidth = converter.oSize.width();
+		//im.oheight = converter.oSize.height();
+		//im.width = converter.newSize.width();
+		//im.height = converter.newSize.height();
+		im.changed = true;			// so check in struct file before writing to disk
+		_imageMap[im.ID] = im;
 
 	}
 	if (im.uploadDate > _latestDateLimit)	// find latest upload date
@@ -3964,7 +3948,7 @@ void AlbumStructWriterThread::run()
     QString s = QString(config.dsSrc.ToString()) + "gallery.struct",
 		stmp = QString(config.dsSrc.ToString()) + "gallery.tmp";
  */
-	sStructPath		= config.dsSrc.str + n + QString(".struct"),
+	sStructPath	= config.dsSrc.str + n + QString(".struct"),
 	sStructTmp	= config.dsSrc.str + n + QString(".tmp");
 	QFile f(sStructTmp);
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -3977,10 +3961,11 @@ void AlbumStructWriterThread::run()
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << versionStr << majorStructVersion << "." << minorStructVersion 
+	_ofs << versionStr << majorStructVersion << "." << minorStructVersion
 		<< "\n#  © - András Sólyom (2018)\n\n"  // default values may differ from 'config'
-		<< "#Source=" << config.dsSrc.ToString()
-		<< "\n#Destination=" << config.dsGallery.ToString() << "\n"
+		<< "#Source=" << config.dsSrc.ToString() << "\n"
+		<< "#Destination=" << config.dsGallery.ToString() << "\n"
+		<< "#Created at " << QDateTime::currentDateTime().toString() << "\n"
 		<< "[Language count:" << Languages::Count() << "\n";
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
@@ -4038,6 +4023,10 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 		if (id && album.excluded.indexOf(id) < 0)		// not excluded
 		{
 			pImg = &_imageMap[id];
+			if (pImg->changed)
+			{
+				album.changed = true;
+			}
 			if (pImg->exists)
 			{
 				_ofs << indent;

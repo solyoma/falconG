@@ -15,7 +15,7 @@ void ShowWarning(QString qs, QWidget *parent)
 	if (f.isOpen())
 	{
 		QTextStream ofs(&f);
-		ofs << QDateTime::currentDateTime << " - " << qs << "\n";
+		ofs << QDateTime::currentDateTime << " - " << qs << "\n\n";
 		f.close();
 	}
 
@@ -686,8 +686,8 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 
 /*============================================================================
 * TASK:		constructor
-* EXPECTS:	parameters for transformation
-* GLOBALS:
+* EXPECTS:	maxSize - set from config.imageWidth, imageHeight, thumbWidth and thumbHeight
+* GLOBALS:	flags   - any combination of prImage, prThumb, dontEnlarge, dontResize
 * REMARKS:	Image name is not used here. It will be set in image reader
 *--------------------------------------------------------------------------*/
 ImageConverter::ImageConverter(	QRect maxSize, int flags) :
@@ -696,10 +696,10 @@ ImageConverter::ImageConverter(	QRect maxSize, int flags) :
 
 }
 
-double ImageConverter::_CalcSizes(bool thumb)
-{
-	return 0.0;
-}
+//double ImageConverter::_CalcSizes(bool thumb)
+//{
+//	return 0.0;
+//}
 
 /*============================================================================
   * TASK:	If the image reader can read the image sets original and new sizes
@@ -713,52 +713,52 @@ double ImageConverter::_CalcSizes(bool thumb)
   *			 - sets the scaled dimensions into the reader
   *			 - thumbnail scaling happens in writer
  *--------------------------------------------------------------------------*/
-double ImageConverter::CalcSizes(ImageReader &imgReader)
-{
-	if (!imgReader.canRead())
-		return 0;
-
-	newSize = oSize = imgReader.size();
-
-	QImageIOHandler::Transformations tr = imgReader.transformation();
-	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
-		oSize.transpose();
-
-	if (!oSize.width() || !oSize.height())
-		aspect =  1.0;
-	else
-	    aspect = (double)oSize.width() / (double)oSize.height();
-
-
-	if ((flags & dontResize) == 0)
-	{					// maxSize.x(),y() - new image width & height
-						// maxSize.width(),height() - thumbnail width & height
-		if (aspect >= 1)
-		{
-			if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0))
-			{
-				newSize.setWidth(maxSize.x());
-				newSize.setHeight(maxSize.x() / aspect);
-			}
-			// thumbs always resized even when it means enlargement
-			thumbSize.setWidth(maxSize.width());
-			thumbSize.setHeight(maxSize.width() / aspect);
-		}
-		if (aspect <= 1)
-		{
-			if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0))
-			{
-				newSize.setHeight(maxSize.y());
-				newSize.setWidth(aspect * maxSize.y());
-			}
-			// thumbs always resized even when it means enlargement
-			thumbSize.setHeight(maxSize.height());
-			thumbSize.setWidth(aspect * maxSize.height());
-		}
-	}
-	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
-	return aspect;
-}
+//double ImageConverter::CalcSizes(ImageReader &imgReader)
+//{
+//	if (!imgReader.canRead())
+//		return 0;
+//
+//	newSize = oSize = imgReader.size();	// actual source image size on disk
+//
+//	QImageIOHandler::Transformations tr = imgReader.transformation();
+//	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+//		oSize.transpose();
+//
+//	if (!oSize.width() || !oSize.height())
+//		aspect =  1.0;
+//	else
+//	    aspect = (double)oSize.width() / (double)oSize.height(); // < 1: portrait, > 1 landscape orientation
+//
+//
+//	if ((flags & dontResize) == 0)
+//	{					// maxSize.x(),y() - new image width & height
+//						// maxSize.width(),height() - thumbnail width & height
+//		if (aspect >= 1)
+//		{
+//			if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0))
+//			{
+//				newSize.setWidth(maxSize.x());
+//				newSize.setHeight(maxSize.x() / aspect);
+//			}
+//			// thumbs always resized even when it means enlargement
+//			thumbSize.setWidth(maxSize.width());
+//			thumbSize.setHeight(maxSize.width() / aspect);
+//		}
+//		if (aspect <= 1)
+//		{
+//			if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0))
+//			{
+//				newSize.setHeight(maxSize.y());
+//				newSize.setWidth(aspect * maxSize.y());
+//			}
+//			// thumbs always resized even when it means enlargement
+//			thumbSize.setHeight(maxSize.height());
+//			thumbSize.setWidth(aspect * maxSize.height());
+//		}
+//	}
+//	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
+//	return aspect;
+//}
 
 /*============================================================================
 * TASK:		resize images and add watermark
@@ -782,13 +782,13 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 	if (!ovr)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
 		return -1.0;
 
-	if ((aspect = CalcSizes(imgReader)) == 0)
-		return 0;
+//	if ((aspect = CalcSizes(imgReader)) == 0)
+//		return 0;
 
 		// read scaled image
 	if (!imgReader.isReady)			// not read yet
 	{								
-		imgReader.read();			// scaled and possibly rotatetd image
+		imgReader.read();			// scaled and possibly rotated image
 
 		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
 		if (pwm)

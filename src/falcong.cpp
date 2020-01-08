@@ -1142,6 +1142,7 @@ void FalconG::on_chkGenerateAll_toggled(bool on)
 	{
 		config.bGenerateAll = on;
 		config.bGenerateAll.changed = true;
+		ui.chkButImages->setChecked(false);
 	}
 }
 

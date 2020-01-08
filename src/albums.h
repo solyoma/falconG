@@ -120,17 +120,72 @@ struct IABase
 //------------------------------------------
 struct Image : public IABase
 {
-	QString checksum = 0;	// of content not used YET
+	bool changed = false;		// true: image is recreated (dimensions or file size or data changed)
+								// check this and create a new struct file on disk if any image changed
+								// inside any albums. Alse set the album changed flag if any of its
+								// images/thu,bnails, etc changed
+	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
 								// in the precessed line (!!notresized(...)this/image/)
 	QDate uploadDate;
-	int64_t fileSize=0;		// set together with 'exists' (if file does not exist fileSize is 0)
-	int width =0, height=0,		// of resized image
-		owidth=0, oheight = 0;  // original size, 
-							// set in ProcessImages (oheight = 0 -> not set)
-	double aspect = 1.0;	// aspect ratio
+	int64_t fileSize=0;			// of source file, set together with 'exists' (if file does not exist fileSize is 0)
+	int owidth = 0, oheight = 0,  // original dimensions, 
+		width = 0, height = 0;    // for resized image
 
+	struct ResizeData
+	{
+		int w = 0, h;		// resized width and height. w ==0 : not yet calculated
+		int tw, th;			// thumbnail - " -
+		bool bSizeDifferent, // from width and height
+			 bThumbDifferent; // set from external program after the old thumb sizes are determined
+	} rdata;
+
+	void GetResizedDimensions()
+	{
+		rdata.w = owidth;
+		rdata.h = oheight;
+		 
+		if (Aspect() >= 1)	// calculates '_aspect'
+		{
+			if (!dontResize)
+			{
+				if ((owidth > config.imageWidth) || ((owidth < config.imageWidth) && !config.doNotEnlarge))
+				{
+					rdata.w = config.imageWidth;
+					rdata.h = config.imageWidth / _aspect;		// height
+				}
+			}
+			// thumbs always resized even when it means enlargement
+			rdata.tw = config.thumbWidth;
+			rdata.th = config.thumbWidth / _aspect;
+		}
+		if (_aspect <= 1)
+		{
+			if (!dontResize)
+			{
+				if ((oheight > config.imageHeight) || ((oheight < config.imageHeight) && !config.doNotEnlarge))
+				{
+					rdata.w = config.imageHeight;
+					rdata.h = _aspect * config.imageHeight;
+				}
+			}
+			// thumbs always resized even when it means enlargement
+			rdata.tw = config.thumbHeight;
+			rdata.th = _aspect * config.thumbHeight;
+		}
+		rdata.bSizeDifferent = (width - rdata.w) || (height - rdata.h);
+	}
+
+	void SetNewDimensions()
+	{
+		if (rdata.w == 0)
+			GetResizedDimensions();
+
+		width = rdata.w;
+		height = rdata.h;
+
+	}
 
 	//Image() {}
 	//Image(const Image & im) : ID(im.ID), titleID(im.titleID), descID(im.descID),
@@ -147,6 +202,13 @@ struct Image : public IABase
 
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image &i);
+	double Aspect() 
+	{ 
+		if (_aspect) 
+			return _aspect; 
+		return _aspect = (oheight > 0) ? (double)owidth / (double)oheight : 1.0;
+	}
+
 
 	QString LinkName(bool bLCExtension = false) const 
 	{ 
@@ -171,6 +233,9 @@ struct Image : public IABase
 		}
 
 	}
+
+private:
+	double _aspect = 0;			// 0: unset, else =owidth/oheight : aspect ratio >1 => landscape orientation
 };
 
 //------------------------------------------
@@ -305,8 +370,8 @@ class AlbumGenerator : public QObject
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
-	bool _MustRecreateImageBasedOnWandH(Image &img);
-	bool _MustRecreateThumbBasedOnWandH(QString thumbName, Image &img);
+	bool MustRecreateImageBasedOnImageDimensions(Image &img);
+	bool MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);

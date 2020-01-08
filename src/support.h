@@ -169,9 +169,9 @@ struct ImageConverter
 	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
 									// 0: not calculated
 
-	ImageConverter(QRect maxSize, int flags = dontEnlarge);		// create converter
+	ImageConverter(QRect maxSize, int flags = dontEnlarge);		// create converter - maxSize is set so that this won't depend on 'config.h'
 
-	double CalcSizes(ImageReader &reader);	 // set original and new sizes
+//	double CalcSizes(ImageReader &reader);	 // set original and new sizes
 	double Process(ImageReader &reader, QString dest, QString thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
 	QString ErrorText() const { ; }
@@ -179,7 +179,7 @@ private:
 	QImage *_pImg = nullptr;
 	QString _qsErrorMsg;
 
-	double _CalcSizes(bool thumb);			// using oSize, newSize, maxSize for image, newSize, thumbSize, maxThumbSize for thumbnail _
+//	double _CalcSizes(bool thumb);			// using oSize, newSize, maxSize for image, newSize, thumbSize, maxThumbSize for thumbnail _
 	void _AddWatermark(WaterMark &wm);		// to pImg using data from config
 };
 

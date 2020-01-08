@@ -1055,8 +1055,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadStr(s, sBaseName, "");		// 'album'
 
 		// sepcial data
-	__ConfigReadBool(s, bGenerateAll, false);				// unconditional save web pages
-	__ConfigReadBool(s, bButImages, false);					// unconditional save web pages
+//	__ConfigReadBool(s, bGenerateAll, false);				// unconditional save web pages - not stored
+//	__ConfigReadBool(s, bButImages, false);					// unconditional save web pages
 	__ConfigReadBool(s, bAddTitlesToAll, false);			// only process changed/deleted/new images
 	__ConfigReadBool(s, bAddDescriptionsToAll, false);		// only process changed/deleted/new images
 	__ConfigReadBool(s, bLowerCaseImageExtensions, true);	// convert extension
@@ -1341,8 +1341,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteStr(s, sKeywords);
 
 											// sepcial data
-	__ConfigWriteBool(s, bGenerateAll);		// images download allowed
-	__ConfigWriteBool(s, bButImages);		// images download allowed
+//	__ConfigWriteBool(s, bGenerateAll);		// images download allowed not stored
+//	__ConfigWriteBool(s, bButImages);		// images download allowed
 	__ConfigWriteBool(s, bAddTitlesToAll);		// images download allowed
 	__ConfigWriteBool(s, bAddDescriptionsToAll);		// images download allowed
 	__ConfigWriteBool(s, bLowerCaseImageExtensions);	// convert extension
