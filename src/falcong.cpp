@@ -1069,7 +1069,7 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
   *			for linked thumbnail sizes change the value in the height box
   * EXPECTS: val: new  thumbnail width
   * GLOBALS:
-  * REMARKS: - when linked the scpoect ratio will not change
+  * REMARKS: - when linked the aspect ratio will not change
   *			 - when not linked, the height will not change
   *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/
@@ -1100,7 +1100,7 @@ void FalconG::on_sbThumbnailWidth_valueChanged(int val)
   *			for linked thumbnail sizes change the value in the width box
   * EXPECTS: val - new thumbnail height
   * GLOBALS:
-  * REMARKS: - when linked the scpoect ratio will not change
+  * REMARKS: - when linked the aspect ratio will not change
   *			 - when not linked, the width will not change
   *			 - does not modify the thumbnail
  *--------------------------------------------------------------------------*/

@@ -1204,9 +1204,10 @@ bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, 
 {
 	ImageReader reader(thumbPath);
 	QSize size = reader.size();		// read thumbnail image dimensions from file
-	img.rdata.bThumbDifferent = (size.width() != img.rdata.tw) || (size.height() != img.rdata.th);
-
-	return img.rdata.bThumbDifferent;
+									// because integer arithmetic the calculated w & H may be different
+									// from that of the converted thumbnail file
+									// assumption: this may only happen to the width and not the height
+	return img.rdata.bThumbDifferent = abs(size.width() - img.rdata.tw) > 2 || abs(size.height() - img.rdata.th) > 2;
 }
 
 /*==========================================================================

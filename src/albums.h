@@ -138,43 +138,43 @@ struct Image : public IABase
 		int w = 0, h;		// resized width and height. w ==0 : not yet calculated
 		int tw, th;			// thumbnail - " -
 		bool bSizeDifferent, // from width and height
-			 bThumbDifferent; // set from external program after the old thumb sizes are determined
+			bThumbDifferent; // set from external program after the old thumb sizes are determined
 	} rdata;
 
 	void GetResizedDimensions()
 	{
 		rdata.w = owidth;
 		rdata.h = oheight;
+		double thumbAspect = config.ImageAndThumbAspectDiffer() ? config.ThumbAspect() : Aspect();
 		 
-		if (Aspect() >= 1)	// calculates '_aspect'
+		if (Aspect() >= 1.0)	// calculates '_aspect'
 		{
 			if (!dontResize)
 			{
 				if ((owidth > config.imageWidth) || ((owidth < config.imageWidth) && !config.doNotEnlarge))
 				{
 					rdata.w = config.imageWidth;
-					rdata.h = config.imageWidth / _aspect;		// height
+					rdata.h = round(config.imageWidth / _aspect);		// height
 				}
 			}
 			// thumbs always resized even when it means enlargement
 			rdata.tw = config.thumbWidth;
-			rdata.th = config.thumbWidth / _aspect;
+			rdata.th = round(config.thumbWidth / thumbAspect);
 		}
-		if (_aspect <= 1)
+		if (_aspect <= 1.0)
 		{
 			if (!dontResize)
 			{
 				if ((oheight > config.imageHeight) || ((oheight < config.imageHeight) && !config.doNotEnlarge))
 				{
-					rdata.w = config.imageHeight;
-					rdata.h = _aspect * config.imageHeight;
+					rdata.h = config.imageHeight;
+					rdata.w = round(_aspect * config.imageHeight);
 				}
 			}
-			// thumbs always resized even when it means enlargement
-			rdata.tw = config.thumbHeight;
-			rdata.th = _aspect * config.thumbHeight;
+			rdata.th = config.thumbHeight;
+			rdata.tw = round(thumbAspect * config.thumbHeight);
 		}
-		rdata.bSizeDifferent = (width - rdata.w) || (height - rdata.h);
+		rdata.bSizeDifferent = (abs(rdata.w - width) > 2) || (abs(rdata.h - height) > 2);
 	}
 
 	void SetNewDimensions()
@@ -208,7 +208,13 @@ struct Image : public IABase
 			return _aspect; 
 		return _aspect = (oheight > 0) ? (double)owidth / (double)oheight : 1.0;
 	}
-
+	double ThumbAspect()
+	{
+		if (config.ImageAndThumbAspectDiffer())
+			return config.ThumbAspect();
+		else 
+			return _aspect;
+	}
 
 	QString LinkName(bool bLCExtension = false) const 
 	{ 
@@ -235,7 +241,8 @@ struct Image : public IABase
 	}
 
 private:
-	double _aspect = 0;			// 0: unset, else =owidth/oheight : aspect ratio >1 => landscape orientation
+	double _aspect = 0;			// for actual image
+								// 0: unset, else if owidth/oheight : aspect ratio >1 => landscape orientation
 };
 
 //------------------------------------------

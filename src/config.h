@@ -211,6 +211,8 @@ class CONFIG
 		operator bool() { return _state; }
 	};
 
+	double  _thumbAspect = 0;
+	bool _aspectsDiffer = false;	// _imageAspect and _thumAspect
 	void _WriteIni(QString name);
 
 
@@ -228,6 +230,23 @@ public:
 	void FromOther(const CONFIG &cfg);
 	void RestoreDesign();
 	void RestoreOther();
+
+	double ThumbAspect(bool reset=false)
+	{
+		if (!reset && _thumbAspect)
+			return _thumbAspect;
+		double imageAspect = imageHeight ? (double)imageWidth / (double)imageHeight : 1.0;
+		
+		_thumbAspect = thumbHeight ? (double)thumbWidth / (double)thumbHeight : 1.0;
+		_aspectsDiffer = round(100.0*imageAspect) - round(100.0*_thumbAspect) > 1.0;
+		return _thumbAspect;
+	}
+
+	bool ImageAndThumbAspectDiffer(bool reset = false)
+	{
+		ThumbAspect(reset);
+		return _aspectsDiffer;
+	}
 
 	_CDirStr GalleryRoot() const	{ return _CDirStr(dsGallery) + _CDirStr(dsGRoot); }
 	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
