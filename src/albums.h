@@ -130,67 +130,51 @@ struct Image : public IABase
 								// in the precessed line (!!notresized(...)this/image/)
 	QDate uploadDate;
 	int64_t fileSize=0;			// of source file, set together with 'exists' (if file does not exist fileSize is 0)
-	int owidth = 0, oheight = 0,  // original dimensions, 
-		width = 0, height = 0;    // for resized image
+	QSize	osize = { 0, 0 },	// original dimensions read from struct file or set from file,
+			ssize = { 0, 0 },	// transformed size read from .struct file
+			size = { 0, 0 },	// image to be resized to this size
+			tsize;				// thumbnail size. Determined externally
 
-	struct ResizeData
-	{
-		int w = 0, h;		// resized width and height. w ==0 : not yet calculated
-		int tw, th;			// thumbnail - " -
-		bool bSizeDifferent, // from width and height
-			bThumbDifferent; // set from external program after the old thumb sizes are determined
-	} rdata;
+	bool	bSizeDifferent;		// from width and height
 
 	void GetResizedDimensions()
 	{
-		rdata.w = owidth;
-		rdata.h = oheight;
-		double thumbAspect = config.ImageAndThumbAspectDiffer() ? config.ThumbAspect() : Aspect();
-		 
-		if (Aspect() >= 1.0)	// calculates '_aspect'
+		size = osize;
+		QSize csize = config.ImageSize(),
+			  ctsize= config.ThumbSize();
+
+		if (!dontResize && 
+				( 				// too big
+					(size.width() > csize.width() || size.height() > csize.height()) ||
+								// to small and enlargement is allowed
+					(!config.doNotEnlarge && size.width() < csize.width() && size.height() < csize.height())
+				)
+			)
+			   size.scale(csize, Qt::KeepAspectRatio);
+
+		bSizeDifferent = (abs(size.width() - ssize.width()) > 2) || (abs(size.height() - ssize.height()) > 2);
+
+		tsize = osize;
+		// get minimum size that fills the 'tsize' rectangle. It may extend outside the allowed rectangle
+		tsize.scale(ctsize, Qt::KeepAspectRatio); 
+		// thumbnails must have the vertical size the same as in tsize
+		if (tsize.height() != ctsize.height())
 		{
-			if (!dontResize)
-			{
-				if ((owidth > config.imageWidth) || ((owidth < config.imageWidth) && !config.doNotEnlarge))
-				{
-					rdata.w = config.imageWidth;
-					rdata.h = round(config.imageWidth / _aspect);		// height
-				}
-			}
-			// thumbs always resized even when it means enlargement
-			rdata.tw = config.thumbWidth;
-			rdata.th = round(config.thumbWidth / thumbAspect);
+			tsize.setWidth(round((double)ctsize.height() / (double)tsize.height() * tsize.width()));
+			tsize.setHeight(ctsize.height());
 		}
-		if (_aspect <= 1.0)
+		if (tsize.width() > ctsize.width())	// crop thumbnail from image
 		{
-			if (!dontResize)
-			{
-				if ((oheight > config.imageHeight) || ((oheight < config.imageHeight) && !config.doNotEnlarge))
-				{
-					rdata.h = config.imageHeight;
-					rdata.w = round(_aspect * config.imageHeight);
-				}
-			}
-			rdata.th = config.thumbHeight;
-			rdata.tw = round(thumbAspect * config.thumbHeight);
+			// TODO
 		}
-		rdata.bSizeDifferent = (abs(rdata.w - width) > 2) || (abs(rdata.h - height) > 2);
 	}
 
 	void SetNewDimensions()
 	{
-		if (rdata.w == 0)
+		if (size.width() == 0)
 			GetResizedDimensions();
-
-		width = rdata.w;
-		height = rdata.h;
-
+		ssize = size;
 	}
-
-	//Image() {}
-	//Image(const Image & im) : ID(im.ID), titleID(im.titleID), descID(im.descID),
-	//						  name(im.name), path(im.path), checksum(im.checksum),
-	//						  uploadTime(im.uploadTime) {}
 
 	enum SearchCond : int { byID,		// ID only
 							byBaseID,	// ID for image w. o path: compare names (no path) as well
@@ -206,7 +190,7 @@ struct Image : public IABase
 	{ 
 		if (_aspect) 
 			return _aspect; 
-		return _aspect = (oheight > 0) ? (double)owidth / (double)oheight : 1.0;
+		return _aspect = (osize.height() > 0) ? (double)osize.width() / (double)osize.height() : 1.0;
 	}
 	double ThumbAspect()
 	{

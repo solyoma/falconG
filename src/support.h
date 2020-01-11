@@ -133,6 +133,8 @@ struct WaterMark
 //*****************************************																			
 struct ImageReader : public QImageReader
 {
+	QSize thumbSize = { 0, 0 },	// these must be set before processing thumbnails
+		  imgSize;
 	QImage img;			// read scaled image into this
 	bool isReady = false;
 	bool read() 
@@ -149,30 +151,26 @@ struct ImageReader : public QImageReader
 		setAutoTransform(true);  // auto rotate when portrait orientation is set in EXIF
 		setFileName(fileName);
 		setFormat(format);
+		setQuality(100);	// for jpeg only
 	}
 };
 
 //*****************************************
 struct ImageConverter
-{			  // only shrink image thumbnails may be enlarged(?)
+{			  // if 'dontEnlarge' flag is set only shrinks image, but 
+			  //	thumbnails may be enlarged
 			  // dontResize may be used  for some images
 	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
 	QString name;
-	QSize oSize,					// original width and height for image
-		newSize, 					// calculated new dimensions for image
-		thumbSize;					// calculated thumbnail sizes
-
-	QRect maxSize;					// maximum allowed converted dimensions for image
-									// in x and y, and thumbnail size in width and height
 	int flags;
 	// TODO: bool keepAspectRatio = true;	// otherwise CROP image
 	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
 									// 0: not calculated
 
-	ImageConverter(QRect maxSize, int flags = dontEnlarge);		// create converter - maxSize is set so that this won't depend on 'config.h'
+	ImageConverter(int flags = dontEnlarge) : flags(flags) { }
 
 //	double CalcSizes(ImageReader &reader);	 // set original and new sizes
-	double Process(ImageReader &reader, QString dest, QString thumb, bool ovr, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+	double Process(ImageReader &reader, QString dest, QString thumb, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
 	QString ErrorText() const { ; }
 private:

@@ -685,23 +685,6 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 }
 
 /*============================================================================
-* TASK:		constructor
-* EXPECTS:	maxSize - set from config.imageWidth, imageHeight, thumbWidth and thumbHeight
-* GLOBALS:	flags   - any combination of prImage, prThumb, dontEnlarge, dontResize
-* REMARKS:	Image name is not used here. It will be set in image reader
-*--------------------------------------------------------------------------*/
-ImageConverter::ImageConverter(	QRect maxSize, int flags) :
-											maxSize(maxSize), flags(flags) 
-{
-
-}
-
-//double ImageConverter::_CalcSizes(bool thumb)
-//{
-//	return 0.0;
-//}
-
-/*============================================================================
   * TASK:	If the image reader can read the image sets original and new sizes
   * EXPECTS:	allowed maximum sizes set in constructor
   *				imgReader - reader for file name
@@ -777,15 +760,19 @@ ImageConverter::ImageConverter(	QRect maxSize, int flags) :
 *			- for thumbnails if the image was already loaded into imgReader
 *				then scale image during save, else save the image as it is
 *--------------------------------------------------------------------------*/
-double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, bool ovr, WaterMark *pwm)
+double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, WaterMark *pwm)
 {
-	if (!ovr)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
+	if (!config.bOvrImages)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
 		return -1.0;
 
-//	if ((aspect = CalcSizes(imgReader)) == 0)
-//		return 0;
+	QImageIOHandler::Transformations tr = imgReader.transformation();
+//	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+//		newSize.transpose();
+	imgReader.setScaledSize(imgReader.imgSize);	// newSize used in read, thumbSize used in write
+// DEBUG
+	QString imageName = imgReader.fileName();
+// /DEBUG
 
-		// read scaled image
 	if (!imgReader.isReady)			// not read yet
 	{								
 		imgReader.read();			// scaled and possibly rotated image
@@ -807,15 +794,18 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 			qsErr = imageWriter.errorString() + "\n'" + dest + "'\n";
 	}
 	// write thumbnail image into 'thumb'
+	// thumbnail image dimensions are never transposed 
+	// and all thumbnail images have the same height
+	// which is set in 'config'
 	if(flags & prThumb)
 	{
-		if (thumbSize.width() <= 0 || thumbSize.height() <= 0)
+		if (imgReader.thumbSize.width() <= 0 || imgReader.thumbSize.height() <= 0)
 		{
 			ShowWarning("Invalid sizes for thumbnail \n'"+thumb + "'\n");
 			return aspect;
 		}
 		//	re-scale image for thumbnail
-		imgReader.img = imgReader.img.scaled(thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		imgReader.img = imgReader.img.scaled(imgReader.thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
 		QImageWriter imageWriter(thumb);
 		imageWriter.setQuality(imgReader.quality());

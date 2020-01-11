@@ -230,6 +230,8 @@ public:
 	void FromOther(const CONFIG &cfg);
 	void RestoreDesign();
 	void RestoreOther();
+	QSize ImageSize() { return QSize(imageWidth, imageHeight);	}
+	QSize ThumbSize() { return QSize(thumbWidth, thumbHeight); }
 
 	double ThumbAspect(bool reset=false)
 	{

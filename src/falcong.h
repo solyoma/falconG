@@ -147,7 +147,9 @@ private slots:
 	void on_edtAlbumDir_textChanged();
 	void on_edtAbout_textChanged();
 	void on_edtBackgroundColor_textChanged();				// for many WEB element
+	void on_edtBaseName_textChanged();
 	void on_edtDestGallery_textChanged();
+	void on_edtFontDir_textChanged();
 	void on_edtGalleryRoot_textChanged();
 	void on_edtGradStartColor_textChanged();			// gradient color #1 for many WEB element
 	void on_edtGradMiddleColor_textChanged();			// gradient color #2 for many WEB element
@@ -161,10 +163,12 @@ private slots:
 	void on_edtDescription_textChanged();
 	void on_edtKeywords_textChanged();
 	void on_edtTextColor_textChanged();				// for many WEB element
+	void on_edtThumb_textChanged();
 	void on_edtTrackingCode_textChanged();
 	void on_edtUplink_textChanged();
 	void on_edtMainPage_textChanged();
 	void on_edtWatermark_textChanged();
+
 	void on_sbImageHeight_valueChanged(int h);			// image height
 	void on_sbImageWidth_valueChanged(int w);				// image width
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height

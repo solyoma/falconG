@@ -493,7 +493,16 @@ void FalconG::_PopulateFromConfig()
 	ui.edtEmailTo->setText(config.sMailTo);
 	ui.edtAbout->setText(config.sAbout);
 
-	ui.edtImg->setText(config.dsImageDir.ToString());
+	if (!config.dsAlbumDir.IsEmpty() && ui.edtAlbumDir->placeholderText() != config.dsAlbumDir.ToString())
+		ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
+	if (!config.sBaseName.IsEmpty() && ui.edtBaseName->placeholderText() != config.sBaseName.ToString())
+		ui.edtBaseName->setText(config.sBaseName.ToString());
+	if (!config.dsFontDir.IsEmpty() && ui.edtFontDir->placeholderText() != config.dsFontDir.ToString())
+		ui.edtFontDir->setText(config.dsFontDir.ToString());
+	if (!config.dsImageDir.IsEmpty() && ui.edtImg->placeholderText() != config.dsImageDir.ToString())
+		ui.edtImg->setText(config.dsImageDir.ToString());
+	if (!config.dsThumbDir.IsEmpty() && ui.edtThumb->placeholderText() != config.dsThumbDir.ToString())
+		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
 	ui.chkFacebook->setChecked(config.bFacebookLink);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
@@ -607,6 +616,16 @@ void FalconG::on_edtDestGallery_textChanged()
 	_EnableButtons();
 }
 
+void FalconG::on_edtFontDir_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsFontDir = ui.edtFontDir->text();
+	config.dsFontDir.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -686,10 +705,11 @@ void FalconG::on_edtAlbumDir_textChanged()
 {
 	if (_busy)
 		return;
-
+	++_busy;
 	config.dsAlbumDir = ui.edtAlbumDir->text();
 	config.dsAlbumDir.changed = true;
 	ui.btnSaveConfig->setEnabled(true);
+	--_busy;
 }
 
 /*============================================================================
@@ -859,6 +879,20 @@ void FalconG::on_edtTextColor_textChanged()
 	ui.btnSaveConfig->setEnabled(true);
 }
 
+void FalconG::on_edtThumb_textChanged()
+{
+	if (_busy)
+		return;
+	
+	++_busy;
+	config.dsThumbDir = ui.edtThumb->text();
+	config.dsThumbDir.changed = true;
+	ui.btnSaveConfig->setEnabled(true);
+
+	--_busy;
+	ui.btnSaveConfig->setEnabled(true);
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -880,6 +914,16 @@ void FalconG::on_edtBackgroundColor_textChanged()
 
 	_SetWebColor();
 	--_busy;
+	ui.btnSaveConfig->setEnabled(true);
+}
+
+void FalconG::on_edtBaseName_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsGRoot = ui.edtGalleryRoot->text();
+	config.dsGRoot.changed = true;
 	ui.btnSaveConfig->setEnabled(true);
 }
 

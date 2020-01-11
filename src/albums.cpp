@@ -591,8 +591,8 @@ QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 	{
 		_ofs << LinkName() << " ("
 			<< fileSize << ","
-			<< width << "x" << height << ","
-			<< owidth << "x" << oheight << ","
+			<< size.width() << "x" << size.height() << ","
+			<< osize.width() << "x" << osize.height() << ","
 			// ISO 8601 extended format: either yyyy-MM-dd for dates or 
 			<< uploadDate.toString(Qt::ISODate)
 			<< ") => " << fullName << "\n";
@@ -1192,7 +1192,7 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
   * TASK: test the sizesof an existing thumbnail against config and see 
   *		  if it must be recreated
   * EXPECTS: thumbPath - full path of thumbnail file
-  *			 img - image data from data base
+  *			 img - image data from data base with correct thumbnail size set in it
   * RETURNS: 'true' :  
   *				actual size of thumbnail is not the same as the one in data base
   *			'false' : otherwise
@@ -1203,11 +1203,11 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, Image & img)
 {
 	ImageReader reader(thumbPath);
-	QSize size = reader.size();		// read thumbnail image dimensions from file
+	QSize 	tsize = config.ThumbSize(),
+			thumbSize = reader.size();		// read thumbnail image dimensions from file
 									// because integer arithmetic the calculated w & H may be different
 									// from that of the converted thumbnail file
-									// assumption: this may only happen to the width and not the height
-	return img.rdata.bThumbDifferent = abs(size.width() - img.rdata.tw) > 2 || abs(size.height() - img.rdata.th) > 2;
+	return abs(thumbSize.width() - img.tsize.width()) > 2 || abs(thumbSize.height() - img.tsize.height()) > 2;
 }
 
 /*==========================================================================
@@ -1570,7 +1570,7 @@ bool AlbumGenerator::Read()
 	im.exists = true;
 	im.name = "NoImage.jpg";
 	im.ID = 0;
-	im.width = im.height = im.owidth = im.oheight = 800;
+	im.ssize = im.osize = QSize(800, 800);
 	_imageMap[0] = im;
 
 	QString s = CONFIGS_USED::NameForConfig(".struct");
@@ -2034,10 +2034,8 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 		img.SetResizeType();	// handle starting '!!'
 
 		img.ID = id;
-		img.width = sl[2].toInt();
-		img.height = sl[3].toInt();
-		img.owidth = sl[4].toInt();
-		img.oheight = sl[5].toInt();
+		img.ssize = QSize(sl[2].toInt(), sl[3].toInt() );	// scaled size from .struct file
+		img.osize = QSize(sl[4].toInt(), sl[5].toInt() );	// original size - " -
 
 // calculated when asked for		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
 		img.uploadDate = DateFromString(sl[6]);
@@ -2858,7 +2856,6 @@ QString AlbumGenerator::_CssToString()
 		"	-moz-hyphens: auto;\n"
 		"	-webkit-hyphens: auto;\n"
 		"	-ms-hyphens: auto;\n"
-		"   max-width:600px\n"
 		"}\n"
 		"\n"
 // p.album-title
@@ -2870,7 +2867,9 @@ QString AlbumGenerator::_CssToString()
 		".desc p{\n"
 		"	font-size: 12pt;\n"
 		"	line-height: 12pt;\n"
-			"   text-align: center;\n"
+		"   text-align: center;\n"
+		"	max-width:90%;\n"
+		"	margin:auto;\n"
 		"}\n"
 		"\n"
 		"section div.thumb{\n"
@@ -2932,7 +2931,7 @@ QString AlbumGenerator::_CssToString()
 		"		width:600px;\n"
 		"  	}\n"
 		"	.album-desc{\n"
-		"		width:600px;\n"
+		"		width:95vw;\n"
 		"	}\n"
 		"}\n"
 		"\n"
@@ -2940,17 +2939,20 @@ QString AlbumGenerator::_CssToString()
 		"@media only screen and (min-width:1200px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
-		"		max-width:400px;\n"
+		"		max-width:95vw;\n"
 		"		flex-direction:column;\n"
 		"		padding:0 3px;\n"
 		"	}\n"
 		"	img{\n"
 		"		max-width: 100%;\n" 
-		"		max-height:267px;\n"
+		"		height:267px;\n"
 		"	}\n"
 		"	p{\n"
 		"		font-size: 12pt;\n"
 		"	}\n"
+		"	.desc p {\n"
+		"		max-width:427px;" // set as .img.height x 1.5
+		"		margin:auto"
 		// about
 		"   .about{\n"
 		"		margin:auto;\n"
@@ -3203,7 +3205,7 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 		_ofs << "<a href=\"" << updir << Languages::FileNameForLanguage(config.sAbout, _actLanguage) << "\">" << Languages::toAboutPage[_actLanguage] << "</a>\n";
 	if (config.bMenuToContact)
 		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
-	if (config.bMenuToToggleCaptions && album.DescCount())
+	if (config.bMenuToToggleCaptions && album.DescCount() > 0)
 		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() == 0  || (album.SubAlbumCount() && album.ImageCount()) )	// when no images or no albums no need to jump to albums
 		_ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
@@ -3391,9 +3393,9 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
 		dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions),
-		thumb = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
+		thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
 
-	QFileInfo fiSrc(src), fiThumb(thumb), fiDest(dst);						// test for source image
+	QFileInfo fiSrc(src), fiThumb(thumbName), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),
 		dstExists = fiDest.exists(dst),
 		thumbExists = fiThumb.exists();
@@ -3404,27 +3406,26 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		{
 			QFile::remove(dst);				// delete
 			if (thumbExists)
-				QFile::remove(thumb);
+				QFile::remove(thumbName);
 		}
 		return;
 	}
 
-	ImageReader imgReader(src, im.dontResize);			   // constructor doesn`t read image!
-	QSize size = imgReader.size();
+	ImageReader imgReader(src, im.dontResize);			// constructor doesn`t read image!
+	QSize imgSize = imgReader.size();					// size read from file
 	QImageIOHandler::Transformations tr = imgReader.transformation();
 	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
-		size.transpose();
+		imgSize.transpose();
+
 	im.GetResizedDimensions();
 
-	if (size.width() != im.owidth || size.height() != im.oheight)	// source changed rel. to data base: must re-create everything
+	if (imgSize.width() != im.osize.width() || imgSize.height() != im.osize. height())	// source changed rel. to data base: must re-create everything
 	{
-		im.owidth = size.width();
-		im.oheight = size.height();
+		im.osize = imgSize;
 
 		im.GetResizedDimensions();		// must recalculate, 
 
-		im.rdata.bSizeDifferent = true; // but it is sure changed
-		im.rdata.bThumbDifferent = true;
+		im.bSizeDifferent = true;		// but it is sure changed
 
 		im.SetNewDimensions();			// process to these sizes
 	}
@@ -3447,7 +3448,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 			doProcess -= ImageConverter::prImage;			// then do not process
 		else
 		{
-			if ( !im.rdata.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
+			if ( !im.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
 				doProcess -= ImageConverter::prImage;			// then do not process
 		}
 		if (destIsNewer)
@@ -3461,11 +3462,11 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumb, im) && thumbIsNewer))
+		if (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer))
 			doProcess -= ImageConverter::prThumb;			// then do not process
 // DEBUG
-		else
-			doProcess = doProcess;
+		//else
+		//	doProcess = doProcess;
 // /DEBUG
 	}
 	// debug
@@ -3487,14 +3488,10 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 			pwm = &config.waterMark.wm;
 		converter.flags = doProcess + (im.dontResize ? ImageConverter::dontResize : 0) + 
 							(config.doNotEnlarge ? ImageConverter::dontEnlarge : 0);
-		converter.oSize.setWidth(im.owidth);
-		converter.oSize.setHeight(im.oheight);
-		converter.newSize.setWidth(im.width);
-		converter.newSize.setHeight(im.height);
-		converter.thumbSize.setWidth(im.rdata.tw);
-		converter.thumbSize.setHeight(im.rdata.th);
 
-		/*im.aspect = */ converter.Process(imgReader, dst, thumb, config.bOvrImages, pwm);
+		imgReader.thumbSize = im.tsize;
+		imgReader.imgSize = im.size;
+		converter.Process(imgReader, dst, thumbName, pwm);
 		//im.owidth = converter.oSize.width();
 		//im.oheight = converter.oSize.height();
 		//im.width = converter.newSize.width();
@@ -3530,7 +3527,7 @@ int AlbumGenerator::_ProcessImages()
 	std::atomic_int cnt = 0;	// count of images copied
 
 	QRect maxSize{ config.imageWidth, config.imageHeight, config.thumbWidth, config.thumbHeight};
-	ImageConverter converter(maxSize, config.doNotEnlarge);
+	ImageConverter converter(config.doNotEnlarge);
 
 	emit SignalToEnableEditTab(false);
 
@@ -3963,11 +3960,13 @@ void AlbumStructWriterThread::run()
 	_ofs.setCodec("UTF-8");
 
 	_ofs << versionStr << majorStructVersion << "." << minorStructVersion
-		<< "\n#  © - András Sólyom (2018)\n\n"  // default values may differ from 'config'
-		<< "#Source=" << config.dsSrc.ToString() << "\n"
-		<< "#Destination=" << config.dsGallery.ToString() << "\n"
-		<< "#Created at " << QDateTime::currentDateTime().toString() << "\n"
-		<< "[Language count:" << Languages::Count() << "\n";
+		<< "\n#  © - András Sólyom (2018)"  // default values may differ from 'config'
+		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
+		<< "\n\n#Source=" << config.dsSrc.ToString()
+		<< "\n#Destination=" << config.dsGallery.ToString()
+		<< "\n\n#Image rectangle: " << config.imageWidth <<"x" << config.imageHeight
+		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight
+		<< "\n\n[Language count:" << Languages::Count() << "\n";
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
 		_ofs << i << "\n"
@@ -4035,8 +4034,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 					_ofs << "!!";
 				_ofs << pImg->name << "(" 										   // field #1
 					<< pImg->ID << ","											   // field #2
-					<< pImg->width << "x" << pImg->height << ","				   // field #3 - #4
-					<< pImg->owidth << "x" << pImg->oheight << ","				   // field #5 - #6
+					<< pImg->size.width() << "x" << pImg->size.height() << ","	   // field #3 - #4
+					<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
 					<< pImg->fileSize << ")";									   // field #8
