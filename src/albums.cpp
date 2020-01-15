@@ -767,13 +767,16 @@ bool Album::operator==(const Album &i)
 *--------------------------------------------------------------------------*/
 int Album::ImageCount()
 {
+	if (imageCount >= 0)
+		return imageCount;
+
 	if (excluded.isEmpty())
-		return images.size();
+		return imageCount = images.size();
 
 	for (int i = images.size() -1; i >= 0; --i)	// from end to start
 		if (excluded.indexOf(images[i]) >= 0)
 			images.removeAt(i);
-	return images.size();
+	return imageCount = images.size();
 }
 
 /*============================================================================
@@ -785,14 +788,17 @@ int Album::ImageCount()
 *--------------------------------------------------------------------------*/
 int Album::SubAlbumCount()
 {
+	if (albumCount >= 0)
+		return albumCount;
+
 	if (excluded.isEmpty())
-		return albums.size();
+		return albumCount = albums.size();
 
 	for (int i = albums.size()-1; i >= 0; --i)
 		if (excluded.indexOf(albums[i]) >= 0)
 			albums.removeAt(i);
 
-	return albums.size();
+	return albumCount = albums.size();
 }
 
 
@@ -3207,7 +3213,7 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 		_ofs << "<a href=\"mailto:" << config.sMailTo << "\">" << Languages::toContact[_actLanguage] << "</a>\n";
 	if (config.bMenuToToggleCaptions && album.DescCount() > 0)
 		_ofs << "<a href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
-	if (album.SubAlbumCount() == 0  || (album.SubAlbumCount() && album.ImageCount()) )	// when no images or no albums no need to jump to albums
+	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
 		_ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
 	if (config.generateLatestUploads)
 		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
@@ -3612,7 +3618,7 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 			_WriteGalleryContainer(album, false, i);
 		_ofs << "</section>\n<!-- end section Images -->\n";
 	}
-	if (album.SubAlbumCount())
+	if (album.SubAlbumCount() > 0)
 	{
 		_ofs << "\n<!--start section albums -->\n"
 			<< "<a name = \"galleries\"  id = \"folders\">" << Languages::Albums[_actLanguage] << "</a>\n"
@@ -3660,7 +3666,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 
 	QString s;
 	if ( album.ID == 1)		// top level: use name from config 
-		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
+		s = config.dsGallery.AddSep(config.dsGallery.ToString()) + RootNameFromBase(config.sMainPage.ToString(), language);
 	else
 		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language); // all non root albums are in the same directory
 
@@ -3677,7 +3683,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if (_processing) 		// create sub albums
 
 	{
-		if (album.SubAlbumCount())
+		if (album.SubAlbumCount() >0)
 		{
 			uplink = album.NameFromID(language);
 			if (album.ID == 1)

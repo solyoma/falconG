@@ -37,6 +37,13 @@ struct _CString
 struct _CDirStr : public _CString
 {
 	operator QString() = delete;
+	
+	static QString AddSep(QString &qs) // add separator only when needed
+	{								// returns true if added, false otherwise
+		if (qs.length() && qs[qs.length() - 1] != QChar('/'))
+			qs += "/"; 
+		return qs;
+	}
 	QString &operator=(const QString s);
 	QString &operator=(const _CDirStr &s) { str = s.str; changed = s.changed; return str; };
 	_CDirStr operator+(const _CDirStr &subdir);

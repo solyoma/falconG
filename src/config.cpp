@@ -249,8 +249,7 @@ QString &_CString::operator=(const QString s)
 QString &_CDirStr::operator=(const QString s)
 {
 	 QString qs = QDir::cleanPath(s);
-	 if (qs.length() && qs[qs.length() - 1] != QChar('/'))
-		 qs += "/";
+	 AddSep(qs);
 	 if (str == qs )
 		 return str;
 
