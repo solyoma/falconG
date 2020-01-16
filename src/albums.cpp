@@ -2604,11 +2604,12 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += " background:" + _GradientCssToString(config.Menu);
 	else
 		s += " color:" + ColorToStr(config.Menu.color) + ";\n background-color:" + ColorToStr(config.Menu.background) + ";\n";
-	s += " border: 1px solid " + config.Menu.border.color.name + ";";
+	if(config.Menu.border.used)
+		s += " border: 1px solid " + config.Menu.border.color.name + ";";
 	if (config.Menu.shadow.use)
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
-		_ShadowToString(" -moz-box-shadow", config.Menu) +
-		_ShadowToString(" box-shadow", config.Menu);
+			_ShadowToString(" -moz-box-shadow", config.Menu) +
+			_ShadowToString(" box-shadow", config.Menu);
 	s += "\n}\n"
 		// state: Down
 		// menu button pressed: change color order
@@ -2617,7 +2618,8 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += " background:" + _GradientCssToString(config.Menu, true);
 	else
 		s += " color:" + ColorToStr(config.Menu.background) + ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
-	s += " border: 1px solid " + config.Menu.border.color.name + ";";
+	if (config.Menu.border.used)
+		s += " border: 1px solid " + config.Menu.border.color.name + ";";
 	if (config.Menu.shadow.use)
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
 		_ShadowToString(" -moz-box-shadow", config.Menu) +
