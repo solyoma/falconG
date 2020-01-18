@@ -77,17 +77,20 @@ void CONFIGS_USED::Write()
 		CONFIGS_USED::indexOfLastUsed = -1;
 	else
 	{
-		int n;
-		if ((n = CONFIGS_USED::lastConfigs.indexOf(sLast, 0)) < 0)
+		if (CONFIGS_USED::indexOfLastUsed < 0)	// then search list for last item
 		{
-			if (CONFIGS_USED::lastConfigs.size() == CONFIGS_USED::maxSavedConfigs)
-				CONFIGS_USED::lastConfigs.removeLast();
+			int n;
+			if ((n = CONFIGS_USED::lastConfigs.indexOf(sLast, 0)) < 0)
+			{
+				if (CONFIGS_USED::lastConfigs.size() == CONFIGS_USED::maxSavedConfigs)
+					CONFIGS_USED::lastConfigs.removeLast();
 
-			CONFIGS_USED::lastConfigs.insert(0, sLast);					  
-			CONFIGS_USED::indexOfLastUsed = 0;
+				CONFIGS_USED::lastConfigs.insert(0, sLast);
+				CONFIGS_USED::indexOfLastUsed = 0;
+			}
+			else
+				CONFIGS_USED::indexOfLastUsed = n;
 		}
-		else
-			CONFIGS_USED::indexOfLastUsed = n;
 	}
 
 	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
@@ -244,12 +247,13 @@ QString &_CString::operator=(const QString s)
 * EXPECTS: s - QString
 * GLOBALS: config
 * RETURNS: the QString
-* REMARKS: may modify the 'changed' field of global variable 'config'
+* REMARKS:	- may modify the 'changed' field of global variable 'config'
+*			- the stored string always ends with a '/'
 *--------------------------------------------------------------------------*/
 QString &_CDirStr::operator=(const QString s)
 {
 	 QString qs = QDir::cleanPath(s);
-	 AddSep(qs);
+	 qs = AddSep(qs);
 	 if (str == qs )
 		 return str;
 

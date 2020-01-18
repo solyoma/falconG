@@ -34,16 +34,17 @@ struct _CString
 	int Length() const { return ToString().length(); }
 };
 
-struct _CDirStr : public _CString
+struct _CDirStr : public _CString	 // always ends with '/'
 {
 	operator QString() = delete;
 	
-	static QString AddSep(QString &qs) // add separator only when needed
-	{								// returns true if added, false otherwise
+	static QString AddSep(QString qs) // add separator only when needed
+	{									// modifies argument!
 		if (qs.length() && qs[qs.length() - 1] != QChar('/'))
 			qs += "/"; 
 		return qs;
 	}
+
 	QString &operator=(const QString s);
 	QString &operator=(const _CDirStr &s) { str = s.str; changed = s.changed; return str; };
 	_CDirStr operator+(const _CDirStr &subdir);
@@ -157,10 +158,10 @@ struct _CBorder
 	bool used;
 	_Changed changed;
 
-	_CBorder &operator=(bool on) { changed = (used == on); used = on; return *this; }
-	_CBorder &operator=(int w) { changed = (width == w); width = w; return *this; }
-	_CBorder &operator=(_CColor &c) { color = c; changed = color.changed; return *this; }
-	_CBorder &operator=(QString &c) { color = c; changed = color.changed; return *this; }
+	_CBorder &operator=(bool on)	{ if(used != on) changed = true; used = on; return *this; }
+	_CBorder &operator=(int w)		{ if(width != w) changed = true; width = w; return *this; }
+	_CBorder &operator=(_CColor &c) { color = c; if(color.changed) changed = true; return *this; }
+	_CBorder &operator=(QString &c) { color = c; if(color.changed) changed = true; return *this; }
 };
 
 struct _CElem

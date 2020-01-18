@@ -1,7 +1,6 @@
 #include "sourcehistory.h"
 #include <QAbstractItemModel>
 
-
 // ************************ class Model ********************************
 
 /*=============================================================
@@ -17,6 +16,69 @@ void Model::Undo()
 	_list += _deletedList; 
 	_deletedList.clear(); 
 	endResetModel();
+}
+
+int Model::IndexOf(QString qs) // in source list
+{
+	for (int i = 0; i < _lstSrc.size(); ++i)
+#ifdef _MSC_VER		// windows: LC UC letters are the same in path
+		if (qs.toLower() == _lstSrc[i].toLower())
+#else
+		if (qs == _lstSrc[i])
+#endif
+			return i;
+	return -1;
+}
+
+bool Model::Insert(QString s)	// returns changed state
+{
+	if (s[s.length() - 1] != '/')
+		s += "/";
+	if (IndexOf(s) < 0)
+	{
+		beginResetModel();
+		_list.insert(0, s);
+		endResetModel();
+		return true;
+	}
+	return false;
+}
+
+void Model::Sort() // of source list
+{
+	const int n = _lstSrc.size();
+	std::vector<int> ix(n);
+	for (int i = 0; i < n; ++i)
+		ix[i] = i;
+	auto sf = [&](int left, int right)
+	{
+#ifdef _MSC_VER
+		return _lstSrc[ix[left]].toLower() < _lstSrc[ix[right]].toLower();
+#else
+		return _lstSrc[ix[left]] < _lstSrc[ix[right]];
+#endif
+	};
+
+	beginResetModel();
+
+	std::sort(ix.begin(), ix.end(), sf);
+	for (int i = 0; i < n; ++i)
+		std::swap(_lstSrc[i], _lstSrc[ix[i]]);
+	endResetModel();
+}
+
+void Model::MoveLine(int &which, bool up)
+{
+	int pos = which;
+	QString qs = _lstSrc[pos];
+	pos += up ? -1 : 1;
+	if (pos < 0 || pos > _lstSrc.size())
+		return;
+	beginResetModel();
+	_lstSrc.removeAt(which);
+	_lstSrc.insert(pos, qs);
+	endResetModel();
+	which = pos;
 }
 
 /*============================================================================
@@ -95,17 +157,20 @@ bool SourceHistory::_changed = false;
  * RETURNS
  * REMARKS:
 *--------------------------------------------------------------------------*/
-SourceHistory::SourceHistory(QStringList &list, QString defaultPath, QWidget *parent)
-	: _srcPath(defaultPath), QDialog(parent)
+SourceHistory::SourceHistory(int maxSize, QStringList &list, QString defaultPath, QWidget *parent)
+	:_list(list), _srcPath(defaultPath), QDialog(parent)
 {
 	ui.setupUi(this);
 
 	_selected = -1;
 
+	ui.sbHistSize->setValue(maxSize);
+
 	ui.lvHistory->setModel(new Model(list, parent));
 	// get selection changed info from the view (no easier way...)
 	connect(ui.lvHistory->selectionModel(),	&QItemSelectionModel::selectionChanged,
 		this, &SourceHistory::SelectionChanged);
+	_pModel = dynamic_cast<Model*>(ui.lvHistory->model());
 }
 
 /*============================================================================
@@ -156,9 +221,7 @@ void SourceHistory::on_btnCancel_clicked()
  *------------------------------------------------------------*/
 void SourceHistory::on_btnSelect_clicked()
 {
-	Model *pmodel;
-	pmodel = dynamic_cast<Model*>(ui.lvHistory->model());
-	pmodel->AcceptChanges();
+	_pModel->AcceptChanges();
 	close();
 }
 
@@ -176,12 +239,10 @@ void SourceHistory::on_lvHistory_doubleClicked()
  *------------------------------------------------------------*/
 void SourceHistory::on_btnDelete_clicked()
 {
-	Model *pmodel;
-	pmodel = dynamic_cast<Model*>(ui.lvHistory->model());
-	pmodel->removeRow(_selected);
+	_pModel->removeRow(_selected);
 	_selected = -1;
 	_changed = true;
-	ui.btnUndelete->setEnabled(pmodel->UndoCount());
+	ui.btnUndelete->setEnabled(_pModel->UndoCount());
 	ui.btnDelete->setEnabled(false);
 }
 
@@ -194,11 +255,31 @@ void SourceHistory::on_btnDelete_clicked()
 *------------------------------------------------------------*/
 void SourceHistory::on_btnUndelete_clicked()
 {
-	Model *pmodel;
-	pmodel = dynamic_cast<Model*>(ui.lvHistory->model());
-	pmodel->Undo();
+	_pModel->Undo();
 	ui.btnUndelete->setEnabled(false);
 	ui.btnDelete->setEnabled(false);
+	_changed = true;
+	_selected = -1;
+}
+
+void SourceHistory::on_btnSort_clicked()
+{
+	_pModel->Sort();
+	_changed = true;
+	_selected = -1;
+}
+
+void SourceHistory::on_btnMoveUp_clicked()
+{
+	_pModel->MoveLine(_selected, true);
+}
+void SourceHistory::on_btnMoveDown_clicked()
+{
+	_pModel->MoveLine(_selected, false);
+}
+
+void SourceHistory::on_sbHistSize_valueChanged(int n)
+{
 	_changed = true;
 	_selected = -1;
 }

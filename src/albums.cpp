@@ -2622,8 +2622,8 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += " border: 1px solid " + config.Menu.border.color.name + ";";
 	if (config.Menu.shadow.use)
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
-		_ShadowToString(" -moz-box-shadow", config.Menu) +
-		_ShadowToString(" box-shadow", config.Menu);
+			_ShadowToString(" -moz-box-shadow", config.Menu) +
+			_ShadowToString(" box-shadow", config.Menu);
 	s += "\n}\n";
 	return s;
 }
@@ -2854,7 +2854,7 @@ QString AlbumGenerator::_CssToString()
 		".img-container, .gallery-container{\n"
 		"	display:flex;\n"
 		"	flex-direction: column;\n"
-		"   padding:0 3px;\n"
+		"   padding:0 1px;\n"
 		"}\n"
 		"\n"
 // .desc
@@ -2888,7 +2888,7 @@ QString AlbumGenerator::_CssToString()
 		"	justify-content: center;\n"
 		"	flex-wrap: wrap;\n"
 		"	flex-direction: row;\n"
-		"	padding: 2px;\n"
+		"	padding: 1px;\n"
 		"   margin: 0 2;\n"
 		"}\n";
 		// image border is set in _ColorCSSToString()
@@ -2903,7 +2903,7 @@ QString AlbumGenerator::_CssToString()
 		"	width:100% ;\n"
 		"	justify-content:center;\n"
 		"	margin-bottom: 10px;\n"
-		"	padding-bottom: 40px;\n"
+		"	padding-bottom: 5px;\n"
 		"}\n"
 		"div.links a, .showhide{\n"
 		"	text-decoration:none;\n"
@@ -2930,6 +2930,9 @@ QString AlbumGenerator::_CssToString()
 		"		max-width: 100%;\n" 
 			//max-height:267px; 
 		"	}\n"
+		"	div.links{\n"
+		"		padding-bottom: 10px;\n"
+		"}\n"
 		"	p{\n"
 		"		font-size:12pt\n"
 		"	}\n"
@@ -2939,7 +2942,7 @@ QString AlbumGenerator::_CssToString()
 		"		width:600px;\n"
 		"  	}\n"
 		"	.album-desc{\n"
-		"		width:95vw;\n"
+		"		width:50vw;\n"
 		"	}\n"
 		"}\n"
 		"\n"
@@ -2947,14 +2950,17 @@ QString AlbumGenerator::_CssToString()
 		"@media only screen and (min-width:1200px) {\n"
 		"	.img-container, .gallery-container\n"
 		"	{\n"
-		"		max-width:95vw;\n"
+		"		max-width:99vw;\n"
 		"		flex-direction:column;\n"
-		"		padding:0 3px;\n"
+		"		padding:0 1px;\n"
 		"	}\n"
-		"	img{\n"
-		"		max-width: 100%;\n" 
-		"		height:267px;\n"
+		"	div.thumb img{\n"
+//		"		max-width:" + QString().setNum(config.thumbWidth) + ";\n"
+		"		height:" + QString().setNum(config.thumbHeight) + "px;\n"
 		"	}\n"
+		"	div.links{\n"
+		"		padding-bottom: 30px;\n"
+		"}\n"
 		"	p{\n"
 		"		font-size: 12pt;\n"
 		"	}\n"
@@ -3098,7 +3104,7 @@ QString AlbumGenerator::_PageHeaderToString(ID_t id)
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "/>\n");
 	s += QString(sCssLink + "colors.css\">\n" +
 		sCssLink + "falconG.css\">\n" + 
-		"<script type=\"text/javascript\"  src=\"" + supdir + "res/falconG.js\"></script>"	);
+		"<script type=\"text/javascript\"  src=\"" + supdir + "js/falconG.js\"></script>"	);
 
 	s += QString("</head>\n");
 
@@ -3668,7 +3674,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 
 	QString s;
 	if ( album.ID == 1)		// top level: use name from config 
-		s = config.dsGallery.AddSep(config.dsGallery.ToString()) + RootNameFromBase(config.sMainPage.ToString(), language);
+		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
 	else
 		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language); // all non root albums are in the same directory
 

@@ -2771,7 +2771,7 @@ border-radius: 5px;
                    </property>
                    <property name="icon">
                     <iconset resource="falcong.qrc">
-                     <normaloff>:/icons/Resources/left-icon.png</normaloff>:/icons/Resources/left-icon.png</iconset>
+                     <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -3358,7 +3358,7 @@ will be cropped from the top left corner to a size which
 has the same aspect ratio as the thumbnail.</string>
                  </property>
                  <property name="text">
-                  <string>Use exact thumbnail size</string>
+                  <string>Crop thumbnails to this size</string>
                  </property>
                 </widget>
                </item>

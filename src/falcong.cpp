@@ -1,5 +1,4 @@
 #include <QCloseEvent>
-#include <QCloseEvent>
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QColorDialog>
@@ -239,8 +238,11 @@ void FalconG::closeEvent(QCloseEvent * event)
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnSourceHistory_clicked()
 {
-	SourceHistory hist(CONFIGS_USED::lastConfigs, ui.edtSourceGallery->text(), this);
+	SourceHistory hist(CONFIGS_USED::maxSavedConfigs, CONFIGS_USED::lastConfigs, ui.edtSourceGallery->text(), this);
+
 	hist.exec();
+	CONFIGS_USED::maxSavedConfigs = hist.MaxSize();
+
 	if (SourceHistory::Changed() || (SourceHistory::Selected() >= 0 &&
 		SourceHistory::Selected() != CONFIGS_USED::indexOfLastUsed) )
 	{
@@ -567,6 +569,7 @@ void FalconG::_PopulateFromConfig()
 
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
+	ui.chkImageBorder->setChecked(config.imageBorder.used);
 	_ConfigToSample(); // to sample "WEB page"
 	config.changed = false;
 
@@ -1414,12 +1417,18 @@ void FalconG::on_edtFontFamily_textChanged()
  *--------------------------------------------------------------------------*/
 void FalconG::on_chkImageBorder_toggled(bool on)
 {
-	StyleHandler handler;
-	QString ss;
-	handler.Set(ui.btnBorderColor->styleSheet());
-	ss = handler.GetItem("QToolButton", "background-color");	// background
-	ss = (on ? QString("border%1px").arg(config.imageBorder.width): QString()) + "solid " + ss;
-	ui.btnImage->setStyleSheet(handler.StyleSheet());
+	if (on)	// border present: set up parameters
+	{
+		QString ss;
+		ss = config.imageBorder.color.name;	// background
+		ss = QString("QToolButton {\n border:%1px").arg(config.imageBorder.width)  + " solid " + ss + "\n}\n";
+		ui.btnImage->setStyleSheet(ss);
+		// DEBUG
+//		ShowStyleOf(ui.btnImage);
+	}
+	else
+		ui.btnImage->setStyleSheet("QToolButton {\n border:none;\n }");
+	config.imageBorder = on;
 	config.changed = config.designChanged = true;
 	_EnableButtons();
 }
@@ -1871,8 +1880,6 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	if (_busy)
 		return;
 
-	if (!ui.chkImageBorder->isChecked())
-		return;
 	config.imageBorder.changed = config.designChanged = true;
 	config.imageBorder.width = val;
 	if (ui.chkImageBorder->isChecked())
@@ -2470,12 +2477,13 @@ void FalconG::on_btnBorderColor_clicked()
 
 	QColor qc(handler.GetItem("QToolButton", "background-color"));
 	qc = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qc.isValid() && ui.chkImageBorder->isChecked())
+	if (qc.isValid())
 	{
 		handler.SetItem("QToolButton", "background-color", qc.name());
 		ui.btnBorderColor->setStyleSheet(handler.StyleSheet());
 		config.imageBorder.color = qc.name();
 		on_sbBorderWidth_valueChanged(ui.sbBorderWidth->value());
+		config.changed = config.designChanged = true;
 	}
 }
 
@@ -3474,6 +3482,12 @@ void FalconG::_SetIconColor(QIcon &icon, _CElem & elem)
 void FalconG::on_btnSaveStyleSheet_clicked()
 {
 	albumgen.SaveStyleSheets();
+	QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
+	QMessageBox(QMessageBox::Information, 
+				QString("falconG"),
+				QString(QMainWindow::tr("Style sheets 'falconG.css' and 'colors.css' are saved\ninto %1").arg(s)),
+				QMessageBox::Ok,
+				this).exec();
 }
 
 
