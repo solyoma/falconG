@@ -153,12 +153,8 @@ FalconG::FalconG(QWidget *parent)
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
 
-	CONFIGS_USED::Read();
-									  // if there was a last used directory read from it
-	if ((CONFIGS_USED::indexOfLastUsed >= 0) && (CONFIGS_USED::lastConfigs.size() > CONFIGS_USED::indexOfLastUsed))
-		config.Read(&CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed)); 
-	else
-		config.Read();				 // else read from program directory
+	CONFIGS_USED::Read();		// to get last used configuration
+	config.Read();				// to read config from
 
 	frmMain = this;
 	_PopulateFromConfig();	// edit values from config
@@ -249,7 +245,7 @@ void FalconG::on_btnSourceHistory_clicked()
 		if (SourceHistory::Selected() >= 0)
 		{
 			CONFIGS_USED::indexOfLastUsed = SourceHistory::Selected();
-			config.Read(&CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
+			config.Read();
 
 			_PopulateFromConfig();	// edit values from config
 
@@ -511,6 +507,11 @@ void FalconG::_PopulateFromConfig()
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
+	--_busy;
+	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
+	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
+	++_busy;
+
 //	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);
 	ui.chkMenuToContact->setChecked(config.bMenuToContact);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
@@ -539,6 +540,8 @@ void FalconG::_PopulateFromConfig()
 
 	ui.sbImageWidth->setValue(config.imageWidth);
 	ui.sbImageHeight->setValue(config.imageHeight);
+	ui.sbThumbnailWidth->setValue(config .thumbWidth);
+	ui.sbThumbnailHeight->setValue(config.thumbHeight);
 	ui.btnLink->setChecked(config.imageSizesLinked);
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 
@@ -654,7 +657,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 		QFile f(config.dsSrc.str + falconG_ini);
 		if (f.exists())
 		{
-			config.Read(&CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
+			config.Read();
 			_PopulateFromConfig();	// edit values from config
 
 			_WebBackgroundClicked();	// default selection to config parameters
@@ -1127,14 +1130,14 @@ void FalconG::on_sbThumbnailWidth_valueChanged(int val)
 	++_busy;
 	int h = config.thumbHeight;
 
-	if (ui.btnLink->isChecked())
-	{
-		h = val / _aspect;
-		ui.sbThumbnailHeight->setValue(h);
-		config.thumbHeight = h;
-		config.thumbHeight.changed = true;
-		h = 0; // no change in aspect ratio when linked!
-	}
+	//if (ui.btnLink->isChecked())
+	//{
+	//	h = val / _aspect;
+	//	ui.sbThumbnailHeight->setValue(h);
+	//	config.thumbHeight = h;
+	//	config.thumbHeight.changed = true;
+	//	h = 0; // no change in aspect ratio when linked!
+	//}
 	config.thumbWidth = val;
 	config.thumbWidth.changed = true;
 	if (h)	// else no change
@@ -1158,14 +1161,14 @@ void FalconG::on_sbThumbnailHeight_valueChanged(int val)
 	++_busy;
 	int w = config.thumbWidth;
 
-	if (ui.btnLink->isChecked())
-	{
-		w = val * _aspect;		// new width
-		ui.sbThumbnailWidth->setValue(w);
-		config.thumbWidth = w;
-		config.thumbWidth.changed = true;
-		w = 0; // no change in aspect ratio when linked!
-	}
+	//if (ui.btnLink->isChecked())
+	//{
+	//	w = val * _aspect;		// new width
+	//	ui.sbThumbnailWidth->setValue(w);
+	//	config.thumbWidth = w;
+	//	config.thumbWidth.changed = true;
+	//	w = 0; // no change in aspect ratio when linked!
+	//}
 	config.thumbHeight = val;
 	config.thumbHeight.changed = true;
 	if (w && val)
@@ -1555,6 +1558,34 @@ void FalconG::on_chkDoNotEnlarge_toggled(bool on)
 	config.doNotEnlarge = on;
 	config.doNotEnlarge.changed = true;
 	_EnableButtons();
+}
+
+void FalconG::on_chkCropThumbnails_toggled(bool b)
+{
+	if (_busy)
+		return;
+	++_busy;
+	config.bCropThumbnails = b;
+	if (config.bDistrortThumbnails && b)
+		config.bDistrortThumbnails = false;
+	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
+	ui.sbThumbnailWidth->setEnabled(config.bDistrortThumbnails || b);
+//	config.changed = true;
+	--_busy;
+}
+
+void FalconG::on_chkDistortThumbnails_toggled(bool b)
+{
+	if (_busy)
+		return;
+	++_busy;
+	config.bDistrortThumbnails = b;
+	if (b && config.bCropThumbnails)
+		config.bCropThumbnails = false;
+	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
+	ui.sbThumbnailWidth->setEnabled(b || config.bCropThumbnails);
+//	config.changed = true;
+	--_busy;
 }
 
 /*============================================================================
@@ -2331,6 +2362,12 @@ void FalconG::on_btnImageDesc_clicked()
 void FalconG::on_btnSaveConfig_clicked()
 {
 	config.Write();
+	QString s	 = CONFIGS_USED::NameForConfig(".ini");
+	QMessageBox(QMessageBox::Information,
+		QString("falconG"),
+		QString(QMainWindow::tr("Configuration file '%1' is saved").arg(s)),
+		QMessageBox::Ok,
+		this).exec();
 }
 
 

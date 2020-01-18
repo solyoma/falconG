@@ -2854,7 +2854,7 @@ QString AlbumGenerator::_CssToString()
 		".img-container, .gallery-container{\n"
 		"	display:flex;\n"
 		"	flex-direction: column;\n"
-		"   padding:0 1px;\n"
+		"	padding:0 1px;\n"
 		"}\n"
 		"\n"
 // .desc
@@ -2875,36 +2875,42 @@ QString AlbumGenerator::_CssToString()
 		".desc p{\n"
 		"	font-size: 12pt;\n"
 		"	line-height: 12pt;\n"
-		"   text-align: center;\n"
+		"	text-align: center;\n"
 		"	max-width:90%;\n"
 		"	margin:auto;\n"
 		"}\n"
 		"\n"
-		"section div.thumb{\n"
-		"	max-width:100% ;\n"
-		"	display:-webkit-flex;\n"
+// section div.thumb
+		"section div.thumb{\n";
+	s += "	display:-webkit-flex;\n"
 		"	display:-ms-flexbox;\n"
 		"	display:flex; \n"
 		"	justify-content: center;\n"
 		"	flex-wrap: wrap;\n"
 		"	flex-direction: row;\n"
 		"	padding: 1px;\n"
-		"   margin: 0 2;\n"
-		"}\n";
-		// image border is set in _ColorCSSToString()
-		s += "\n"
-		".img-container img, .gallery-container img{\n"
-		"	margin:auto;\n"
-		"	max-width: 100% ;\n"
+		"	margin: 0 2;\n"
 		"}\n"
 		"\n"
+		// .img-container img
+		// .gallery-container img
+		".img-container img, .gallery-container img{\n"
+		"	margin:auto;\n"
+		"	max-width:99vw;\n"
+ // image border is set in _ColorCSSToString()
+		"}\n"
+		"\n"
+// div.links
 		"div.links{\n"
 		"	display:flex;\n"
 		"	width:100% ;\n"
 		"	justify-content:center;\n"
+		"	margin: auto;\n"
 		"	margin-bottom: 10px;\n"
 		"	padding-bottom: 5px;\n"
 		"}\n"
+		"\n"
+// div.links a, .showhide
 		"div.links a, .showhide{\n"
 		"	text-decoration:none;\n"
 		"	font-family:\"Playfair Display\", sans-serif, Arial;\n"
@@ -2918,21 +2924,42 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"	/* -- media queries ***/\n"
 		"@media only screen and (orientation: landscape) {\n"
-		"	img{ max-height: 90vh; }\n"
-		"}\n"
+		"	.img-container img,\n"
+		"	.gallery_container img {\n";
+	if (config.bDistrortThumbnails)
+		s += "		width:" + QString().setNum(config.thumbWidth) + "px;\n";
+	s += "		max-height: 90vh; \n	}\n";
+
+	s +="}\n"
+		"\n"
 		"@media only screen and (min-width:700px) {\n"
-		"	.img-container, .gallery-container\n"
-		"	{\n"
+		"	.img-container, .gallery-container{\n"
 		"		max-width:100vw;\n"
 		"		padding:0 3px;\n"
-		"	}\n"
-		"	img{\n"
-		"		max-width: 100%;\n" 
-			//max-height:267px; 
+		"	}\n";
+	if (config.bCropThumbnails || config.bDistrortThumbnails)
+	{
+// div.thumb > 700px
+		s += "	div.thumb {\n"
+			 "		max-width:" + QString().setNum(config.thumbWidth) + "px;\n";
+
+		if (config.bCropThumbnails)
+			s += "		overflow:hidden;\n";
+
+		s += "	}\n";
+	}
+
+	s +=
+		"\n"
+		"	.img-container img,\n"
+		"	.gallery_container img {\n"
+		"		max-width:99vw;\n"
+		"		height:"+ QString().setNum(config.thumbHeight) + "px;\n"
 		"	}\n"
 		"	div.links{\n"
 		"		padding-bottom: 10px;\n"
-		"}\n"
+		"	}\n"
+		"\n" 
 		"	p{\n"
 		"		font-size:12pt\n"
 		"	}\n"
@@ -2954,19 +2981,13 @@ QString AlbumGenerator::_CssToString()
 		"		flex-direction:column;\n"
 		"		padding:0 1px;\n"
 		"	}\n"
-		"	div.thumb img{\n"
-//		"		max-width:" + QString().setNum(config.thumbWidth) + ";\n"
-		"		height:" + QString().setNum(config.thumbHeight) + "px;\n"
-		"	}\n"
 		"	div.links{\n"
 		"		padding-bottom: 30px;\n"
-		"}\n"
-		"	p{\n"
-		"		font-size: 12pt;\n"
 		"	}\n"
+		"\n"
 		"	.desc p {\n"
 		"		max-width:427px;" // set as .img.height x 1.5
-		"		margin:auto"
+		"		margin:auto;"
 		// about
 		"   .about{\n"
 		"		margin:auto;\n"

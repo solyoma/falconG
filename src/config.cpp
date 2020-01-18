@@ -103,7 +103,17 @@ void CONFIGS_USED::Write()
 	s.endGroup();
 }
 
-QString CONFIGS_USED::NameForConfig(QString sExt, const QString *path)
+
+/*========================================================
+ * TASK: Reads configuration from ini or struct files
+ * PARAMS:	sExt - extension (.ini or .struct)
+ *					defaults: 'falconG.ini' and 'gallery.struct'
+ * GLOBALS:
+ * RETURNS:	full path name of config file
+ * REMARKS: - if there was a last used directory read from it
+ *				else read from program directory
+ *-------------------------------------------------------*/
+QString CONFIGS_USED::NameForConfig(QString sExt)
 {
 	QString sDefault;
 	if (sExt == ".ini")
@@ -111,8 +121,8 @@ QString CONFIGS_USED::NameForConfig(QString sExt, const QString *path)
 	else
 		sDefault = "gallery.struct";
 
-	QString sIniName, p, n, s;
-	s = path ? *path : (indexOfLastUsed >= 0 && indexOfLastUsed < lastConfigs.size() ? lastConfigs[indexOfLastUsed] : sDefault);
+	QString sIniName, p, n, s;				  // if there was a last used directory read from it
+	s = indexOfLastUsed >= 0 && indexOfLastUsed < lastConfigs.size() ? lastConfigs[indexOfLastUsed] : sDefault;
 	SeparateFileNamePath(s, p, n);	// cuts '/' from name
 	if (s[s.length() - 1] != '/')
 		s += "/";
@@ -171,6 +181,8 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
 		_parent->bMenuToToggleCaptions.changed = false;
 		_parent->bFacebookLink.changed = false;
 		_parent->doNotEnlarge.changed = false;
+		_parent->bCropThumbnails.changed = false;
+		_parent->bDistrortThumbnails.changed = false;
 		_parent->imageBorder.changed = false;
 
 		_parent->bCanDownload.changed = false;
@@ -908,6 +920,8 @@ CONFIG::CONFIG()
 	thumbHeight.nameStr = "thumbHeight";
 	imageSizesLinked.nameStr = "imageSizesLinked";
 	doNotEnlarge.nameStr = "doNotEnlarge";
+	bCropThumbnails.nameStr = "CropThumbnails";
+	bDistrortThumbnails.nameStr = "DistrortThumbnails";
 	
 	iconToTopOn.nameStr = "iconToTopOn";
 	iconInfoOn.nameStr = "iconInfoOn";
@@ -927,9 +941,9 @@ CONFIG::CONFIG()
   *					in the program directory
   *					
   *	RETURNS: nothing
-  * REMARKS:
+  * REMARKS:  read CONFIGS_USED first!
  *---------------------------------------------------------------------------*/
-void CONFIG::Read(const QString *path)		// synchronize with Write!
+void CONFIG::Read()		// synchronize with Write!
 {
 	// set Default values
 	// no default for dsGRoot !     dsGRoot.defStr     = "falconG/";
@@ -948,7 +962,7 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	sAbout.defStr      =  "about.html";
 
 
-	QString sIniName = CONFIGS_USED::NameForConfig(".ini", path);
+	QString sIniName = CONFIGS_USED::NameForConfig(".ini");
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
@@ -1086,6 +1100,8 @@ void CONFIG::Read(const QString *path)		// synchronize with Write!
 	__ConfigReadInt(s, thumbHeight, 400);
 	__ConfigReadInt(s, imageSizesLinked, true);
 	__ConfigReadBool(s, doNotEnlarge, true);
+	__ConfigReadBool(s, bCropThumbnails, false);
+	__ConfigReadBool(s, bDistrortThumbnails, false);
 		// image decoration
 	__ConfigReadBorder(s, imageBorder, true, 2, QString("eaa41e"));
 		// icons
@@ -1381,8 +1397,12 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteInt(s, imageWidth);
 	__ConfigWriteInt(s, imageHeight);
 	__ConfigWriteInt(s, imageSizesLinked);
+	__ConfigWriteInt(s, thumbWidth);
+	__ConfigWriteInt(s, thumbHeight);
 	__ConfigWriteBool(s, doNotEnlarge);
-				// image decoration
+	__ConfigWriteBool(s, bCropThumbnails);
+	__ConfigWriteBool(s, bDistrortThumbnails);
+	// image decoration
 	__ConfigWriteBorder(s, imageBorder);
 	
 	__ConfigWriteBool(s, iconToTopOn);

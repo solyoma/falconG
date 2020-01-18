@@ -204,7 +204,7 @@ struct CONFIGS_USED
 	static void Read();	// the last directories used
 	static void Write();
 
-	static QString NameForConfig(QString sExt, const QString *path = nullptr);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
+	static QString NameForConfig(QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
 //-------------------------
@@ -230,7 +230,7 @@ public:
 	int majorStructVersion = 1, minorStructVersion = 2;		// 1.2
 	StyleHandler styleHandler;	// for the main window with all of its elements
 
-	void Read(const QString *dir = nullptr);
+	void Read();
 	void Write();
 
 	CONFIG &operator=(const CONFIG &cfg);
@@ -351,8 +351,9 @@ public:
 	_CElem AlbumDesc;			// "Hungary"
 	_CElem Section;				// "Images" or "Albums"
 	_CElem ImageTitle;			// not the image itself, just the texts!
-	_CElem ImageDesc;			// 
-				// images
+	_CElem ImageDesc;		
+	// 
+				// image page
 	_CElem images;				// color for images and folders
 	_CInt imageWidth;
 	_CInt imageHeight;
@@ -360,6 +361,8 @@ public:
 	_CInt thumbHeight;
 	_CInt imageSizesLinked;
 	_CBool doNotEnlarge;		// default: true
+	_CBool bCropThumbnails    ;	// default: false exclusive with bDistortThumbnails
+	_CBool bDistrortThumbnails; // default: false eclusive with bCropThumbnails
 				// image decoration
 	_CBool iconToTopOn;
 	_CBool iconInfoOn;

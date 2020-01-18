@@ -208,6 +208,8 @@ private slots:
 	void on_chkUseWM_toggled(bool);				// watermark
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkDoNotEnlarge_toggled(bool);
+	void on_chkCropThumbnails_toggled(bool);
+	void on_chkDistortThumbnails_toggled(bool);
 	void on_chkSourceRelativePerSign_toggled(bool);
 	void on_chkMenuToContact_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
