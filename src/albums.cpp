@@ -2920,6 +2920,7 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		"div.links a:hover, .showhide:hover{\n"
 		"	font-weight: 700;\n"
+		"   font-style: italic;\n"
 		"}\n"
 		"\n"
 		"	/* -- media queries ***/\n"
@@ -2986,7 +2987,7 @@ QString AlbumGenerator::_CssToString()
 		"	}\n"
 		"\n"
 		"	.desc p {\n"
-		"		max-width:427px;" // set as .img.height x 1.5
+		"		max-width:600px;" // set as .img.height x 1.5
 		"		margin:auto;"
 		// about
 		"   .about{\n"
@@ -3377,7 +3378,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	}
 
 
-	_ofs << "\"><img src=\"" + sThumbnailPath + "\" alt=\"\"></a>\n"
+	_ofs << "\"><img data-src=\"" + sThumbnailPath + "\" alt=\""+title+"\"></a>\n"
 			"     </div>\n";									   // end of div thumb
 	
     //  -------------------------- description
@@ -3390,7 +3391,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-		/*	"        <a href=\"#top\"><img src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
+		/*	"        <a href=\"#top\"><img data-src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
 																					"\" alt=\"" + Languages::upOneLevel[_actLanguage]  + "\"></a>\n"
 		 */
 				"        <a class=\"album-title\" href=\"" + sAlbumDir;
@@ -3401,7 +3402,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
 		<< "</a>\n";
 	/*
-		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
+		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img data-src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
 								"\" alt=\"" + Languages::showCaptions[_actLanguage] + "\"></a></div>\n"
 			"     </div>\n";											 
     */
@@ -3622,9 +3623,9 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 	_ofs << _PageHeaderToString(album.ID);
 
 	if (config.bRightClickProtected)
-		_ofs << "<body oncontextmenu=\"return false;\">;\n";
+		_ofs << "<body oncontextmenu=\"return false;\" onload=\"falconGLoad()\">;\n";
 	else
-		_ofs << "<body>\n";
+		_ofs << "<body onload=\"falconGLoad()\">\n";
 
 	if (config.bFacebookLink)
 		_ofs << _IncludeFacebookLibrary(); 
