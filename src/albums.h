@@ -140,8 +140,7 @@ struct Image : public IABase
 	void GetResizedDimensions()
 	{
 		size = osize;
-		QSize csize = config.ImageSize(),
-			  ctsize= config.ThumbSize();
+		QSize csize = config.ImageSize();
 
 		if (!dontResize && 
 				( 				// too big
@@ -154,18 +153,24 @@ struct Image : public IABase
 
 		bSizeDifferent = (abs(size.width() - ssize.width()) > 2) || (abs(size.height() - ssize.height()) > 2);
 
+		SetThumbSize();
+		//if (tsize.width() > ctsize.width())	// crop thumbnail from image
+		//{
+		//	// was TODO but now cropping and distorsion is set into falconG.css !
+		//}
+	}
+
+	void SetThumbSize()
+	{
+		QSize ctsize= config.ThumbSize();
 		tsize = osize;
 		// get minimum size that fills the 'tsize' rectangle. It may extend outside the allowed rectangle
-		tsize.scale(ctsize, Qt::KeepAspectRatio); 
-		// thumbnails must have the vertical size the same as in tsize
+		tsize.scale(ctsize, Qt::KeepAspectRatio);
+		// thumbnails must have the vertical size the same as in ctsize
 		if (tsize.height() != ctsize.height())
 		{
 			tsize.setWidth(round((double)ctsize.height() / (double)tsize.height() * tsize.width()));
 			tsize.setHeight(ctsize.height());
-		}
-		if (tsize.width() > ctsize.width())	// crop thumbnail from image
-		{
-			// TODO
 		}
 	}
 

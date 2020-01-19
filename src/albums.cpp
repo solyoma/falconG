@@ -2892,12 +2892,13 @@ QString AlbumGenerator::_CssToString()
 		"	margin: 0 2;\n"
 		"}\n"
 		"\n"
-		// .img-container img
-		// .gallery-container img
-		".img-container img, .gallery-container img{\n"
+// .img-container img
+// .gallery-container img
+		".img-container img,\n"
+		" .gallery-container img {\n"
 		"	margin:auto;\n"
 		"	max-width:99vw;\n"
- // image border is set in _ColorCSSToString()
+// image border is set in _ColorCSSToString()
 		"}\n"
 		"\n"
 // div.links
@@ -2933,6 +2934,7 @@ QString AlbumGenerator::_CssToString()
 
 	s +="}\n"
 		"\n"
+// Screens wider than 700 px
 		"@media only screen and (min-width:700px) {\n"
 		"	.img-container, .gallery-container{\n"
 		"		max-width:100vw;\n"
@@ -2957,6 +2959,7 @@ QString AlbumGenerator::_CssToString()
 		"		max-width:99vw;\n"
 		"		height:"+ QString().setNum(config.thumbHeight) + "px;\n"
 		"	}\n"
+		"\n"
 		"	div.links{\n"
 		"		padding-bottom: 10px;\n"
 		"	}\n"
@@ -2974,6 +2977,7 @@ QString AlbumGenerator::_CssToString()
 		"	}\n"
 		"}\n"
 		"\n"
+// Screens wider than 1200 px
 		"	/* large screens */\n"
 		"@media only screen and (min-width:1200px) {\n"
 		"	.img-container, .gallery-container\n"
@@ -3340,8 +3344,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		{
 			if (_imageMap.contains(thumb))
 				pImage = &_imageMap[thumb];
-			else
-			{
+			else	  // the thumbnail image is not in data base, but 
+			{		  // it can be present on the disk so set paths from it
 				sImagePath = sImageDir + QString("%1.jpg").arg(thumb);
 				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb);
 			}
@@ -3377,8 +3381,16 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		_ofs << sImagePath;		// image in the image directory
 	}
 
-
-	_ofs << "\"><img data-src=\"" + sThumbnailPath + "\" alt=\""+title+"\"></a>\n"
+	_ofs << "\"><img data-src=\"" + sThumbnailPath + "\" alt=\"" + title + "\"";
+	
+	if (pImage)
+	{
+		if (pImage->tsize.width() <= 0)
+			pImage->SetThumbSize();
+		if (pImage->tsize.width() >= 700)		// too wide thumbnail image
+			_ofs << " style=\"max-height:calc(99vw / " << (int)(pImage->Aspect()) << ")\"";
+	}
+	_ofs << "></a>\n"
 			"     </div>\n";									   // end of div thumb
 	
     //  -------------------------- description
