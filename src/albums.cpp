@@ -4077,6 +4077,9 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album & album, QSt
 			}
 			if (pImg->exists)
 			{
+				if (!pImg->size.width())	// transformed size is 0, ifwe do not processed images
+					pImg->size = pImg->ssize;
+
 				_ofs << indent;
 				if (pImg->dontResize)
 					_ofs << "!!";
