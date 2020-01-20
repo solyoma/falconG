@@ -3320,14 +3320,17 @@ font-weight: bold;
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>All thumbnail image have the same height.
+                  <string>All thumbnail images will have the same height.
 
 Check this button if you want thumbnails to have the
 exact sizes given here. In this case the thumbnail
 will be cropped from the top left corner of the
 source image to this size. 
 
-The thumbnail still may be narrower!</string>
+The thumbnail still may be narrower!
+
+Need only save the CSS files, no new generation
+is required..</string>
                  </property>
                  <property name="text">
                   <string>Crop thumbnails to this size</string>
@@ -3359,9 +3362,13 @@ The thumbnail still may be narrower!</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Wide thumbnails will be squized into the 
-width given here.
-</string>
+                  <string>Wide thumbnails will be squeezed into the 
+width given here. This distorsion is created
+by the browser, so it may not be what you want.
+
+
+Need only save the CSS files, no new generation
+is required.</string>
                  </property>
                  <property name="text">
                   <string>Modify aspect ratio for thumbnails</string>
