@@ -12,6 +12,323 @@ static bool __bClearChangedFlag = false;	// set to true to clear the changed fla
 CONFIG config,		// must be here because _Changed uses it
 	   configSave;
 
+// new ACONFIG based configuration
+QString AconfigKindToString(ACONFIG_KIND kind)
+{
+	switch (kind)
+	{
+		case ackBool: return "bool field";
+		case ackInt:  return "int field";
+		case ackReal: return "real field";
+		case ackText: return "text field";
+		case ackNone:
+		default:		return "undefined";
+	}
+}
+
+
+void BOOL_FIELD::Store(QSettings &s)
+{
+	if (value != defVal)
+	{
+		s.beginGroup(name);
+			s.setValue("type", "b");
+			s.setValue("value",value);
+			s.setValue("default:", defVal);
+		s.endGroup();
+	}
+	changed = false;
+}
+void INT_FIELD::Store(QSettings &s)
+{
+	if (value != defVal)
+	{
+		s.beginGroup(name);
+			s.setValue("type", "i");
+			s.setValue("value", value);
+			s.setValue("default:", defVal);
+		s.endGroup();
+	}
+	changed = false;
+}
+void REAL_FIELD::Store(QSettings &s)
+{
+	if (value != defVal)
+	{
+		s.beginGroup(name);
+			s.setValue("type", "r");
+			s.setValue("value", value);
+			s.setValue("default:", defVal);
+		s.endGroup();
+	}
+	changed = false;
+}
+void TEXT_FIELD::Store(QSettings &s)
+{
+	if (value != defVal)
+	{
+		s.beginGroup(name);
+			s.setValue("type", "t");
+			s.setValue("value", value);
+			s.setValue("default:", defVal);
+		s.endGroup();
+	}
+	changed = false;
+}
+void COMPOUND_FIELD::Store(QSettings &s)
+{
+	BOOL_FIELD *pb;
+
+	bool notRoot = (name != "root");
+	if(notRoot)
+		s.beginGroup(name);
+
+	for (auto pf : _fields)
+		{
+			if(pf->kind != ackNone)
+				pf->Store(s);
+		}
+
+	if (notRoot)
+		s.endGroup();
+
+	changed = false;
+}
+
+BOOL_FIELD& BOOL_FIELD::operator=(bool newVal)
+{
+	if (changed = (newVal != value))
+	{
+		value = newVal;
+		if (parent)
+			static_cast<COMPOUND_FIELD *>(parent)->SetChanged(true);
+	}
+	return *this;
+}
+
+
+INT_FIELD& INT_FIELD::operator=(int newVal)
+{
+	if (changed = (newVal != value))
+	{
+		value = newVal;
+		if (parent)
+			parent->SetChanged(true);
+	}
+	return *this;
+}
+REAL_FIELD& REAL_FIELD::operator=(double newVal)
+{
+	if (changed = (newVal != value))
+	{
+		value = newVal;
+		if (parent)
+			parent->SetChanged(true);
+	}
+	return *this;
+}
+//-------------------------------------
+TEXT_FIELD& TEXT_FIELD::operator=(QString newVal)
+{
+	if (changed = (newVal != value))
+	{
+		value = newVal;
+		if (parent)
+			parent->SetChanged(true);
+	}
+	return *this;
+}
+
+
+void COMPOUND_FIELD::AddBoolField(QString name, bool defVal, bool val)
+{
+	BOOL_FIELD intf(name, defVal, val, this);
+	_boolList.push_back(intf);
+	if (_fields.count(name) && _fields[name]->kind != ackBool)
+		throw "type mismatch";
+	_fields[name] = &_boolList.back();
+}
+void COMPOUND_FIELD::AddIntField(QString name, int defVal, int val)
+{
+	INT_FIELD intf(name, defVal, val, this);
+	_intList.push_back(intf);
+	if (_fields.count(name) && _fields[name]->kind != ackInt)
+		throw "type mismatch";
+	_fields[name] = &_intList.back();
+}
+void COMPOUND_FIELD::AddRealField(QString name, double defVal, double val)
+{
+	REAL_FIELD intf(name, defVal, val, this);
+	_realList.push_back(intf);
+	if (_fields.count(name) && _fields[name]->kind != ackReal)
+		throw "type mismatch";
+	_fields[name] = &_realList.back();
+}
+void COMPOUND_FIELD::AddTextField(QString name, QString defVal, QString val)
+{
+	TEXT_FIELD textf(name, defVal, val, this);
+	size_t n = _textList.size();
+	_textList.push_back(textf);
+	if (_fields.count(name) && _fields[name]->kind != ackText)
+		throw "type mismatch";
+	_fields[name] = &_textList.back();
+}
+void COMPOUND_FIELD::AddCompundField(QString name, QString defVal, QString val)
+{
+	COMPOUND_FIELD cmpf(name, defVal, val, this);
+	size_t n = _textList.size();
+}
+
+size_t COMPOUND_FIELD::Size(ACONFIG_KIND kind) const
+{
+	switch (kind)
+	{
+		case ackBool:	return _boolList.size();
+		case ackInt:	return _intList.size();
+		case ackReal:	return _realList.size();
+		case ackText:	return _textList.size();
+		case ackComp:	return _compList.size();
+		default:		return _fields.size();
+	}
+}
+
+// ************* ACONFIG **************
+
+void ACONFIG::Load(QString fname)	// from file
+{
+	QFile qf(fname);
+	if( !qf.open(QFile::ReadOnly) )
+		throw "can't open";
+	_ifs.setDevice(&qf);
+
+	QString qs;
+	QStringList sl;
+	while (!_ifs.atEnd())
+	{
+		_ifs.readLineInto(&qs);
+		sl = qs.split(',');
+
+		if (sl.size() != 4) // <name>,<type>,<value>,<default>
+			throw "bad string";
+		switch (sl[1][0].unicode())
+		{
+		case 'b': AddBoolField(sl[0], sl[2].toInt(), sl[3].toInt()); break;
+		case 'i': AddIntField( sl[0], sl[2].toInt(), sl[3].toInt()); break;
+		case 'r': AddRealField(sl[0], sl[2].toDouble(), sl[3].toDouble()); break;
+		case 't': AddTextField(sl[0], sl[2], sl[3]);
+		default: break;
+		}
+	}
+	qf.close();
+
+	_changed = false;
+}
+
+void ACONFIG::Store(QString fname)
+{
+	QFile qfs(fname);
+	if (!qfs.open(QFile::WriteOnly|QFile::Truncate))
+		throw "can't open";
+
+	for (auto p : _fields)
+		p->Store(_ofs);
+
+	qfs.close();
+	_changed = false;
+}
+// DEBUG
+FIELD_BASE *ACONFIG::operator[](QString fieldn)
+{
+
+	if (_fields.count(fieldn))
+		return _fields[fieldn];
+	return nullptr;
+}
+COMPOUND_FIELD &ACONFIG::CopyFrom(const ACONFIG &other)
+{
+	_changed = other._changed;
+	_intList = other._intList;
+	_boolList = other._boolList;
+	_realList = other._realList;
+	_textList = other._textList;
+	_compList = other._compList;
+
+	_fields.clear();
+	// set up new _fields
+	for (auto a : _boolList)
+		_fields[a.name] = &a;
+	for (auto a : _intList)
+		_fields[a.name] = &a;
+	for (auto a : _realList)
+		_fields[a.name] = &a;
+	for (auto a : _textList)
+		_fields[a.name] = &a;
+	for (auto a : _compList)
+		_fields[a.name] = &a;
+
+	return *this;
+}
+
+//--------------------------------------------------------------
+// writes field into open file in format
+// <name>,<kind (one LC letter)>,<default>,<actual value>
+
+void ACONFIG::_Write(FIELD_BASE * pf)
+{
+	pf->Store(_ofs);
+	pf->changed = false;
+}
+
+void COMPOUND_FIELD::DumpFields(ACONFIG_KIND kind, QString file)
+{
+	QFile qfs;
+	QTextStream *pts, ofs;
+
+	if (!file.isEmpty())			// then print in file
+	{
+		qfs.setFileName(file);
+		if (qfs.open(QFile::WriteOnly))
+		{
+			ofs.setDevice(&qfs);
+			pts = &ofs;
+		}
+	}
+	else
+		pts = &QTextStream(stdin);
+
+	FIELD_BASE *pf;
+	for (auto a : _fields)
+	{
+		pf = nullptr;
+		switch (kind)
+		{
+		case ackBool: if (a->kind == ackBool) pf = a; break;
+		case ackInt:  if (a->kind == ackInt)  pf = a; break;
+		case ackReal: if (a->kind == ackReal) pf = a; break;
+		case ackText: if (a->kind == ackText) pf = a; break;
+		case ackNone: pf = a; break;
+		default: break;
+		}
+		*pts << "name: " << pf->name << ", kind: " << AconfigKindToString(pf->kind)
+			<< ", changed: " << (pf->changed ? "yes" : "no") << ", default: ";
+		switch (pf->kind)
+		{
+		case ackBool: *pts << static_cast<BOOL_FIELD *>(pf)->defVal << ", value: " << static_cast<BOOL_FIELD *>(pf)->value << "\n"; break;
+		case ackInt:  *pts << static_cast<INT_FIELD *> (pf)->defVal << ", value: " << static_cast<INT_FIELD *>(pf)->value << "\n"; break;
+		case ackReal: *pts << static_cast<REAL_FIELD *>(pf)->defVal << ", value: " << static_cast<INT_FIELD *>(pf)->value << "\n"; break;
+		case ackText: *pts << static_cast<TEXT_FIELD *>(pf)->defVal << ", value: " << static_cast<TEXT_FIELD *>(pf)->value << "\n"; break;
+		}
+	}
+	if (file.isEmpty())	// wrote to stdout
+		delete pts;		// ???
+}
+
+
+
+
+
+
+
 /*=====================_Changed flags ====================================================*/
 bool _Changed::operator=(bool val) 
 {

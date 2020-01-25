@@ -1,36 +1,172 @@
 #pragma once
-#pragma once
-
 #include <QtCore>
+
 #include "support.h"
 #include "stylehandler.h"
 
 const QString falconG_ini = "falconG.ini";
 
-class _Changed
+class COMMON_FIELD;
+
+enum ACONFIG_KIND { ackNone, ackBool, ackInt, ackReal, ackText, ackComp };
+
+QString AconfigKindToString(ACONFIG_KIND);
+
+struct FIELD_BASE
 {
-	bool _changed = false;
-public:
-	bool operator=(bool val);
-	bool operator|=(bool val);
-	bool operator&=(bool val);
-	bool operator!=(bool val);
-	bool operator==(bool val);
-	operator bool() { return _changed; }
+	QString name;
+	ACONFIG_KIND kind;
+	COMPOUND_FIELD  *parent;
+	bool changed = false;
+	FIELD_BASE(QString name, ACONFIG_KIND kind = ackNone, COMPOUND_FIELD  *parent = nullptr) : name(name), kind(kind), parent(parent) { 	}
+
+	virtual void Store(QSettings &s) = 0;	 // - " -
+	virtual QString ToString() const = 0;
+	virtual	QString DefToString() const = 0;
+	virtual bool NotDefault() const = 0;
+	virtual ~FIELD_BASE() {}
 };
 
-struct _CString
+struct BOOL_FIELD : public FIELD_BASE
 {
-	QString nameStr;
-	QString str,
-			defStr;
-	_Changed changed;
+	bool value;
+	bool defVal;
+	BOOL_FIELD(QString aname, bool aDefVal = false, bool val = false, COMPOUND_FIELD *aparent = nullptr) :
+		FIELD_BASE(aname, ackBool, aparent), value(val), defVal(aDefVal) {}
+	virtual void Store(QSettings &s);
+	virtual QString ToString() const { return value ? "TRUE" : "FALSE"; }
+	virtual QString DefToString() const { return defVal ? "TRUE" : "FALSE"; }
+	virtual bool NotDefault() const { return value != defVal; }
+	BOOL_FIELD& operator=(bool newVal);
+};
+
+struct INT_FIELD : public FIELD_BASE
+{
+	int value = 0;
+	int defVal = 0;		// if Load() is unsuccesfull use this
+	INT_FIELD(QString aname, int defVal = 0, int val = 0, COMPOUND_FIELD *aparent = nullptr) :
+		FIELD_BASE(aname, ackInt, aparent), value(val), defVal(defVal) {}
+	virtual void Store(QSettings &s);
+	virtual QString ToString(int digits = 0) const
+	{
+		QString s = QString().setNum(value);
+		return digits ? (QString(digits, '0') + s).right(digits) : s;
+	}
+	virtual QString ToHexString(int digits = 0, bool prefix=false) const
+	{
+		QString s = QString("%1").arg(value, digits ? digits : 8, 16).trimmed();
+		if (digits > 0)
+			s = (QString(digits, '0') + s).right(digits);
+		
+		return prefix ? "0x"+s : s;
+	}
+	virtual QString DefToString() const { return QString().setNum(defVal); }
+	virtual bool NotDefault() const { return value != defVal; }
+	INT_FIELD& operator=(int newVal);
+};
+
+struct REAL_FIELD : public FIELD_BASE
+{
+	double value = 0;
+	double defVal = 0;		// if Load() is unsuccesfull use this
+	REAL_FIELD(QString aname, double defVal = 0.0, double val = 0.0, COMPOUND_FIELD *aparent = nullptr) :
+		FIELD_BASE(aname, ackReal, aparent), value(val), defVal(defVal) {}
+	virtual void Store(QSettings &s);
+	virtual QString ToString() const { return QString().setNum(value); }
+	virtual QString DefToString() const { return QString().setNum(defVal); }
+	virtual bool NotDefault() const { return value != defVal; }
+	REAL_FIELD& operator=(double newVal);
+};
+
+struct TEXT_FIELD : public FIELD_BASE
+{
+	QString value;
+	QString defVal;		// if Load() is unsuccesfull use this
+	TEXT_FIELD(QString aname, QString aDefVal = QString(), QString val = QString(), COMPOUND_FIELD *aparent = nullptr) :
+		FIELD_BASE(aname, ackText, aparent), defVal(aDefVal), value(val) {}
+	virtual void Store(QSettings &s);
+	virtual QString ToString() const { return value.isEmpty() ? defVal : value; }
+	virtual QString DefToString() const { return defVal; }
+	virtual bool NotDefault() const { return value != defVal; }
+	TEXT_FIELD& operator=(QString newVal);
+};
+
+class COMPOUND_FIELD : public TEXT_FIELD
+{
+protected:
+	QMap<QString, FIELD_BASE*> _fields;
+
+	QList<BOOL_FIELD>	_boolList;
+	QList<INT_FIELD>	_intList;
+	QList<REAL_FIELD>	_realList;
+	QList<TEXT_FIELD>	_textList;
+	QList<COMPOUND_FIELD> _compList;
+public:
+	COMPOUND_FIELD(QString aname, QString aDefVal = QString(), QString val = QString(), COMPOUND_FIELD* aparent = nullptr) :
+					TEXT_FIELD(aname, aDefVal, val, aparent) {}
+
+	void SetChanged(bool changed) { changed = changed; }
+	void Clear() { _boolList.clear(); _intList.clear(); _realList.clear(); _textList.clear(); _fields.clear(); changed = false; }
+
+	void AddBoolField(QString name, bool defVal = false, bool val = false);
+	void AddIntField(QString name, int defVal = 0, int val = 0);
+	void AddRealField(QString name, double defVal = 0.0, double val = 0.0);
+	void AddTextField(QString name, QString defVal = QString(), QString val = QString());
+	void AddCompundField(QString name, QString defVal = QString(), QString val = QString());
+
+	virtual void Store(QSettings &s);
+	virtual QString ToString() const 
+	{ 
+		QString s;
+		for (auto f : _fields)
+			s += f->ToString() + "\n";
+		return s;
+	}
+	virtual QString DefToString() const
+	{
+		QString s;
+		for (auto f : _fields)
+			s += f->DefToString() + "\n";
+		return s;
+	}
+	virtual bool NotDefault() const 
+	{	
+		for (auto pf : _fields)
+			if (pf->NotDefault())
+				return true;
+		return false;	
+	}
+	size_t Size(ACONFIG_KIND kind = ackNone) const;
+
+	COMPOUND_FIELD &CopyFrom(const ACONFIG &other);
+	// debug
+	void DumpFields(ACONFIG_KIND kind = ackNone, QString file = QString());	// print all
+};
+
+class ACONFIG : public COMPOUND_FIELD
+{
+	QTextStream _ifs;
+	QTextStream _ofs;
+	bool _changed;
+
+	void _Write(FIELD_BASE *pf);
+public:
+	ACONFIG() : COMPOUND_FIELD("root") {}		 // root field has no group
+
+	void Load(QString fname);	// from file
+	void Store(QString fname);
+	// DEBUG
+		// operators
+	FIELD_BASE *operator[](QString fieldn);
+};
+
+//***************************** use the above definition ***************
+
+struct _CString : public TEXT_FIELD
+{
 	QString &operator=(const QString s);
-	QString &operator=(const _CString &s) { str = s.str; changed = s.changed; return str; };
-//	operator const QString() const { return ToString(); }
-	operator QString() const { return ToString(); }
-	bool IsEmpty() const { return str.isEmpty();  }
-	QString ToString() const { return str.isEmpty() ? defStr : str; }
+	QString &operator=(const _CString &s) { value = s.value; changed = s.changed; return value; };
+	QString ToString() const { return value.isEmpty() ? defVal : value; }
 	int Length() const { return ToString().length(); }
 };
 
@@ -46,52 +182,27 @@ struct _CDirStr : public _CString	 // always ends with '/'
 	}
 
 	QString &operator=(const QString s);
-	QString &operator=(const _CDirStr &s) { str = s.str; changed = s.changed; return str; };
+	QString &operator=(const _CDirStr &s) { value = s.value; changed = s.changed; return value; };
 	_CDirStr operator+(const _CDirStr &subdir);
 	_CDirStr operator+(const QString subdir);
 };
 
-struct _CBool
-{
-	QString nameStr;
-	bool set = false;
-	_Changed changed;
-	bool &operator=(const bool s);
-	operator bool() const { return set; }
-	QString ToString() const { return set ? "true" : "false"; }
-};
+using _CBool = BOOL_FIELD;
+using _CInt = INT_FIELD;
 
-struct _CInt
+struct _CColor : public COMPOUND_FIELD
 {
-	QString nameStr;
-	int val = 0;
-	_Changed changed;
-	int &operator=(const int s);
-	operator int() const { return val; }
-	QString ToString(int digits = 0) const 
+	//  value and defVal are always in the form '#xxx' or '#xxxxxx' where x is a hexadecimal digit
+	_CColor(QString name, COMPOUND_FIELD *parent = nullptr) : COMPOUND_FIELD(name, parent) 
 	{
-		QString s = QString("%1").arg(val); 
-		if (digits > 0) 
-			s = (QString(digits, '0') + s).right(digits); 
-		return s;	
+		AddTextField(name,  ????  )
 	}
-	QString ToHexString(int digits=0) const 
-	{ 
-		QString s = QString("%1").arg(val, digits ? digits : 8, 16).trimmed(); 
-		if (digits > 0)
-			s = (QString(digits, '0') + s).right(digits);
-		return s;
-	}
-};
 
-struct _CColor
-{
-	QString name;				// always in the form '#xxx' or '#xxxxxx' where x is a hexadecimal digit
 	int opacity=-100;			// opacity in percent. < 0: not used
-	_Changed changed;
 	QString operator=(QString s);
 	operator QString() const;	// drop the '#'
 	void Set(QString str, int opac);
+	virtual void Store(QSettings &s) { COMPOUND_FIELD::Store(s); }
 };
 
 struct _CFont
