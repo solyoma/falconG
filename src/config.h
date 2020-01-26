@@ -19,12 +19,23 @@ struct FIELD_BASE
 	COMPOUND_FIELD  *parent;
 	bool changed = false;
 	FIELD_BASE(QString name, ACONFIG_KIND kind = ackNone, COMPOUND_FIELD  *parent = nullptr) : name(name), kind(kind), parent(parent) { 	}
+	FIELD_BASE(const FIELD_BASE &fb) : FIELD_BASE(fb.name, fb.kind, fb.parent) {};
+	FIELD_BASE &operator=(const FIELD_BASE &other)
+	{
+		name = other.name;
+		kind = other.kind;
+		parent = other.parent;
+		changed = changed;
+
+		return *this;
+	}
 
 	virtual void Store(QSettings &s) = 0;	 // - " -
+	virtual void Retrieve(QSettings &s) = 0;
 	virtual QString ToString() const = 0;
 	virtual	QString DefToString() const = 0;
 	virtual bool NotDefault() const = 0;
-	virtual ~FIELD_BASE() {}
+	//virtual ~FIELD_BASE() {}
 };
 
 struct BOOL_FIELD : public FIELD_BASE
@@ -33,11 +44,14 @@ struct BOOL_FIELD : public FIELD_BASE
 	bool defVal;
 	BOOL_FIELD(QString aname, bool aDefVal = false, bool val = false, COMPOUND_FIELD *aparent = nullptr) :
 		FIELD_BASE(aname, ackBool, aparent), value(val), defVal(aDefVal) {}
+	BOOL_FIELD(const BOOL_FIELD &bf) : BOOL_FIELD(bf.name, bf.defVal, bf.value, bf.parent) {}
 	virtual void Store(QSettings &s);
+	virtual void Retrieve(QSettings &s);
 	virtual QString ToString() const { return value ? "TRUE" : "FALSE"; }
 	virtual QString DefToString() const { return defVal ? "TRUE" : "FALSE"; }
 	virtual bool NotDefault() const { return value != defVal; }
 	BOOL_FIELD& operator=(bool newVal);
+	BOOL_FIELD &operator=(const BOOL_FIELD &other) { FIELD_BASE::operator=(other); value = other.value; defVal = other.defVal; ; return *this;	}
 };
 
 struct INT_FIELD : public FIELD_BASE
@@ -46,13 +60,14 @@ struct INT_FIELD : public FIELD_BASE
 	int defVal = 0;		// if Load() is unsuccesfull use this
 	INT_FIELD(QString aname, int defVal = 0, int val = 0, COMPOUND_FIELD *aparent = nullptr) :
 		FIELD_BASE(aname, ackInt, aparent), value(val), defVal(defVal) {}
-	virtual void Store(QSettings &s);
-	virtual QString ToString(int digits = 0) const
+	INT_FIELD(const INT_FIELD &bf) : INT_FIELD(bf.name, bf.defVal, bf.value, bf.parent) {}
+
+	QString ToString(int digits) const
 	{
 		QString s = QString().setNum(value);
 		return digits ? (QString(digits, '0') + s).right(digits) : s;
 	}
-	virtual QString ToHexString(int digits = 0, bool prefix=false) const
+	QString ToHexString(int digits = 0, bool prefix=false) const
 	{
 		QString s = QString("%1").arg(value, digits ? digits : 8, 16).trimmed();
 		if (digits > 0)
@@ -60,9 +75,18 @@ struct INT_FIELD : public FIELD_BASE
 		
 		return prefix ? "0x"+s : s;
 	}
+
+	virtual void Store(QSettings &s);
+	virtual void Retrieve(QSettings &s);
+
+	virtual QString ToString() const
+	{
+		return QString().setNum(value);
+	}
 	virtual QString DefToString() const { return QString().setNum(defVal); }
 	virtual bool NotDefault() const { return value != defVal; }
 	INT_FIELD& operator=(int newVal);
+	INT_FIELD &operator=(const INT_FIELD &other) { FIELD_BASE::operator=(other); value = other.value; defVal = other.defVal; return *this; }
 };
 
 struct REAL_FIELD : public FIELD_BASE
@@ -71,11 +95,16 @@ struct REAL_FIELD : public FIELD_BASE
 	double defVal = 0;		// if Load() is unsuccesfull use this
 	REAL_FIELD(QString aname, double defVal = 0.0, double val = 0.0, COMPOUND_FIELD *aparent = nullptr) :
 		FIELD_BASE(aname, ackReal, aparent), value(val), defVal(defVal) {}
+	REAL_FIELD(const REAL_FIELD &bf) : REAL_FIELD(bf.name, bf.defVal, bf.value, bf.parent) {}
+
 	virtual void Store(QSettings &s);
+	virtual void Retrieve(QSettings &s);
+
 	virtual QString ToString() const { return QString().setNum(value); }
 	virtual QString DefToString() const { return QString().setNum(defVal); }
 	virtual bool NotDefault() const { return value != defVal; }
 	REAL_FIELD& operator=(double newVal);
+	REAL_FIELD &operator=(const REAL_FIELD &other) { FIELD_BASE::operator=(other); value = other.value; defVal = other.defVal; ; return *this;}
 };
 
 struct TEXT_FIELD : public FIELD_BASE
@@ -84,11 +113,16 @@ struct TEXT_FIELD : public FIELD_BASE
 	QString defVal;		// if Load() is unsuccesfull use this
 	TEXT_FIELD(QString aname, QString aDefVal = QString(), QString val = QString(), COMPOUND_FIELD *aparent = nullptr) :
 		FIELD_BASE(aname, ackText, aparent), defVal(aDefVal), value(val) {}
+	TEXT_FIELD(const TEXT_FIELD &bf) : TEXT_FIELD(bf.name, bf.defVal, bf.value, bf.parent) {}
+
 	virtual void Store(QSettings &s);
+	virtual void Retrieve(QSettings &s);
+
 	virtual QString ToString() const { return value.isEmpty() ? defVal : value; }
 	virtual QString DefToString() const { return defVal; }
 	virtual bool NotDefault() const { return value != defVal; }
 	TEXT_FIELD& operator=(QString newVal);
+	TEXT_FIELD& operator=(const TEXT_FIELD &other) { FIELD_BASE::operator=(other); value = other.value; defVal = other.defVal; ; return *this;}
 };
 
 class COMPOUND_FIELD : public TEXT_FIELD
@@ -101,9 +135,12 @@ protected:
 	QList<REAL_FIELD>	_realList;
 	QList<TEXT_FIELD>	_textList;
 	QList<COMPOUND_FIELD> _compList;
+
+	void _CopyLists(const COMPOUND_FIELD &other);
 public:
 	COMPOUND_FIELD(QString aname, QString aDefVal = QString(), QString val = QString(), COMPOUND_FIELD* aparent = nullptr) :
 					TEXT_FIELD(aname, aDefVal, val, aparent) {}
+	COMPOUND_FIELD(const COMPOUND_FIELD &bf) : COMPOUND_FIELD(bf.name, bf.defVal, bf.value, bf.parent) {}
 
 	void SetChanged(bool changed) { changed = changed; }
 	void Clear() { _boolList.clear(); _intList.clear(); _realList.clear(); _textList.clear(); _fields.clear(); changed = false; }
@@ -115,7 +152,9 @@ public:
 	void AddCompundField(QString name, QString defVal = QString(), QString val = QString());
 
 	virtual void Store(QSettings &s);
-	virtual QString ToString() const 
+	virtual void Retrieve(QSettings &s);
+
+	virtual QString ToString() const
 	{ 
 		QString s;
 		for (auto f : _fields)
@@ -138,26 +177,23 @@ public:
 	}
 	size_t Size(ACONFIG_KIND kind = ackNone) const;
 
-	COMPOUND_FIELD &CopyFrom(const ACONFIG &other);
-	// debug
+	FIELD_BASE *operator[](QString fieldn);
+
+		// operators
+	COMPOUND_FIELD &operator=(const COMPOUND_FIELD &other);
+		// debug
 	void DumpFields(ACONFIG_KIND kind = ackNone, QString file = QString());	// print all
 };
 
 class ACONFIG : public COMPOUND_FIELD
 {
-	QTextStream _ifs;
-	QTextStream _ofs;
-	bool _changed;
-
 	void _Write(FIELD_BASE *pf);
 public:
 	ACONFIG() : COMPOUND_FIELD("root") {}		 // root field has no group
 
-	void Load(QString fname);	// from file
-	void Store(QString fname);
+	void Load(QString iniName = QString("falconG.ini"));
+	void Store(QString iniName = QString("falconG.ini"));
 	// DEBUG
-		// operators
-	FIELD_BASE *operator[](QString fieldn);
 };
 
 //***************************** use the above definition ***************
