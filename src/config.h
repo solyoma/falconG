@@ -190,8 +190,8 @@ struct _CWaterMark
 
 /*==================================
  *  Structure of falconG.ini in program directory
- *  holds the last N directories used
- *  each directory must have its own ini file
+ *  holds the last 'maxSavedConfigs' directories used.
+ *  Each directory must have its own ini file
  *---------------------------------*/
 class CONFIG;
 
@@ -262,7 +262,7 @@ public:
 	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
 	_CDirStr ThumbnailDirectory() const { return GalleryRoot() + dsThumbDir; }
 	_CDirStr AlbumDirectory() const { return GalleryRoot() + dsAlbumDir; }
-
+		  // **** Fields of CONFIG ***
 	_ChangedFlag changed;		// any of config is changed		THIS MUST BE THE FIRST MEMBER OF CONFIG! (why?)
 	bool designChanged = false;	// page design is changed
 

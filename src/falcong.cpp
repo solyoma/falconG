@@ -633,10 +633,11 @@ void FalconG::on_edtFontDir_textChanged()
 }
 
 /*============================================================================
-* TASK:
+* TASK:	   Handle source gallery changes
 * EXPECTS:
 * GLOBALS:
-* REMARKS:
+* REMARKS: Although the first .struct file will be saved into the source 
+*			directory
 *--------------------------------------------------------------------------*/
 void FalconG::on_edtSourceGallery_textChanged()
 {	
