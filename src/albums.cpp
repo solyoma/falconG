@@ -2726,25 +2726,25 @@ QString AlbumGenerator::_CssToString()
 		"   overflow: auto;\n"
 		"}\n"
 		"\n"
-// .falconG
-		".falconG{\n" 
-		+ _FontToCss(config.GalleryTitle) + 
+		// .falconG
+		".falconG{\n"
+		+ _FontToCss(config.GalleryTitle) +
 		"	margin-left: 10px;\n"
 		"}\n"
 		"\n"
-// h2
+		// h2
 		"h2.album-title{\n" // only for gallery title else have overriding class
 		+ _FontToCss(config.GalleryTitle) +
 		"	text-align: center;\n"
 		"}\n"
 		"\n"
-// about
+		// about
 		".about{\n"
 		"	margin:auto;\n"
 		"	width:400px;\n"
 		"}\n"
 
-// a.title
+		// a.title
 		"a.title{\n"
 		+ _FontToCss(config.GalleryTitle) +
 		"}\n"
@@ -2757,19 +2757,19 @@ QString AlbumGenerator::_CssToString()
 		"a.doboz {\n"
 		"	font-size: 8pt;\n"
 		"}\n"
-// a[name = \"images\"], a[name = \"galleries\"]
+		// a[name = \"images\"], a[name = \"galleries\"]
 		"a[name=\"images\"], a[name=\"galleries\"]{\n"
 		+ _FontToCss(config.Section) +
 		"	text-align:center;\n"
 		"	padding:1em 0 1em 0;\n"
 		"}\n"
 		"\n"
-// p
+		// p
 		"p{\n"
 		"	font-size: 13px;\n"
 		"}\n"
 		"\n"
-// div.menu-line a
+		// div.menu-line a
 		"div.menu-line a{\n"
 		+ _FontToCss(config.Menu) +
 		"	line-height: 18px;\n"
@@ -2780,7 +2780,7 @@ QString AlbumGenerator::_CssToString()
 		"	padding: 4px 10px 3px;\n"
 		"}\n"
 		"\n"
-// a.facebook
+		// a.facebook
 		"a.facebook{\n"
 		"	display: inline-block;\n"
 		"	border: 1px solid #00266d;\n"
@@ -2805,25 +2805,25 @@ QString AlbumGenerator::_CssToString()
 		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"}\n"
 		"\n"
-// <header>
+		// <header>
 		"header{\n"
 		+ _FontToCss(config.Web) +
 		"	text-align: left;\n"
 		"	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);\n"
 		"}\n"
 		"\n"
-// <footer>
+		// <footer>
 		"footer{\n"
 		+ _FontToCss(config.Web) +
 		"	text-align: center;\n"
 		"	margin:auto;\n"
 		"}\n"
 		"\n"
-// Album title
+		// Album title
 		".album-title{\n"
 		+ _FontToCss(config.AlbumTitle) +
 		"}\n"
-// album-desc
+		// album-desc
 		".album-desc{\n"
 		+ _FontToCss(config.AlbumDesc) +
 		"	margin:auto;\n"
@@ -2831,7 +2831,7 @@ QString AlbumGenerator::_CssToString()
 		"   text-align:center;\n"
 		"}\n"
 		"\n"
-// <main>
+		// <main>
 		"	/* --- main section --*/\n"
 		"main{\n"
 		"	display: flex;\n"
@@ -2841,7 +2841,7 @@ QString AlbumGenerator::_CssToString()
 		"}\n"
 		"	/* --- end main section --*/\n"
 		"\n"
-// #images, #folders
+		// #images, #folders
 		"#images, .folders{\n"
 		"	display: flex;\n"
 		"	flex-flow: row wrap;\n"
@@ -2849,7 +2849,7 @@ QString AlbumGenerator::_CssToString()
 		"	max-width: 100% ;\n"
 		"}\n"
 		"\n"
-// .img-container .gallery container
+		// .img-container .gallery container
 		"		/* ---- img----- */\n"
 		".img-container, .gallery-container{\n"
 		"	display:flex;\n"
@@ -2857,7 +2857,12 @@ QString AlbumGenerator::_CssToString()
 		"	padding:0 1px;\n"
 		"}\n"
 		"\n"
-// .desc
+		// im dest-src=
+		"[data-src] {\n"
+		"	min-width:50px;\n"
+		"	min-height:50px;\n"
+		"}\n"
+// .desc	  
 		".desc{\n"
 		"	display:none;\n"
 		"	hyphens: auto;\n"
@@ -3529,7 +3534,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 				//			emit SignalToEnableEditTab(true);
 				//			return false;
 				//  }
-		_structChanged = 1;			// when image changes structure must be re-saved
+		++_structChanged;			// when image changes structure must be re-saved
 
 		WaterMark *pwm = nullptr;
 		if (config.waterMark.used)

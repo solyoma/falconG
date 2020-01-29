@@ -93,7 +93,7 @@ QString ColorToStr(_CColor color)
 	int n = c[0] == '#' ? 1 : 0;
 	int opacity = color.opacity;
 	if (opacity > 0)	// color name format: #AABBCC
-		return QString("rgba(%1,%2,%3,%4)").arg(c.mid(n, 2).toInt(nullptr, 16)).arg(c.mid(n+2, 2).toInt(nullptr, 16)).arg(c.mid(n+4, 2).toInt(nullptr, 16)).arg(opacity / 100.0);
+		return QString("rgba(%1,%2,%3,%4)").arg(c.mid(n, 2).toInt(nullptr, 16)).arg(c.mid(n+2, 2).toInt(nullptr, 16)).arg(c.mid(n+4, 2).toInt(nullptr, 16)).arg((double)opacity / 100.0);
 
 	return n ? c : '#' + c;
 }
@@ -3126,16 +3126,46 @@ void FalconG::_OpacityChanged(int val, int which)
 	{
 		case aeWebPage:
 			handler.Set(ui.pnlGallery->styleSheet());
-			handler.SetItem("QWidget", (which == 1 ? "color" : "background-color:"), ss);
+			if (which == 1)
+			{
+				handler.SetItem("QWidget", "color", ss);
+				config.Web.color = pElem->color;
+			}
+			else
+			{
+				handler.SetItem("QWidget", "background-color:", ss);
+				config.Web.background = pElem->background;
+			}
 			ui.pnlGallery->setStyleSheet(handler.StyleSheet());
+
 			break;
 		case aeMenuButtons:    pElem = &config.Menu;
 			ui.btnMenu->setStyleSheet(handler.StyleSheet());
 			ui.btnUplink->setStyleSheet(handler.StyleSheet());
 			ui.btnCaption->setStyleSheet(handler.StyleSheet());
+			if (which == 1)
+			{
+				handler.SetItem("QWidget", "color", ss);
+				config.Menu.color = pElem->color;
+			}
+			else
+			{
+				handler.SetItem("QWidget", "background-color:", ss);
+				config.Menu.background = pElem->background;
+			}
 			break;
 		case aeLangButton: pElem = &config.Lang;
 			ui.btnLang->setStyleSheet(handler.StyleSheet());
+			if (which == 1)
+			{
+				handler.SetItem("QWidget", "color", ss);
+				config.Lang.color = pElem->color;
+			}
+			else
+			{
+				handler.SetItem("QWidget", "background-color:", ss);
+				config.Lang.background = pElem->background;
+			}
 			break;
 		default: break;
 	}
