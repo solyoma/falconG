@@ -3414,7 +3414,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	else
 		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
 	if (pImage && config.bDebugging)
-		title += pImage->name + QString("<br>%1<br>").arg(pImage->ID);
+		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
 		<< "</a>\n";
 	/*
