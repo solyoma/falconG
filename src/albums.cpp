@@ -3408,14 +3408,13 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-		/*	"        <a href=\"#top\"><img data-src=\""+sOneDirUp+"res/up-icon.png\" style=\"height:14px;\" title=\""+Languages::upOneLevel[_actLanguage] +
-																					"\" alt=\"" + Languages::upOneLevel[_actLanguage]  + "\"></a>\n"
-		 */
 				"        <a class=\"album-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
 	else
 		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
+	if (pImage && config.bDebugging)
+		title += pImage->name + QString("<br>%1<br>").arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
 		<< "</a>\n";
 	/*

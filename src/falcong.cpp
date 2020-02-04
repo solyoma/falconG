@@ -2879,6 +2879,11 @@ void FalconG::on_btnPreview_clicked()
 	}
 }
 
+void FalconG::on_chkDebugging_toggled(bool b)
+{
+	config.bDebugging = b;
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:

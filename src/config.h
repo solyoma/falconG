@@ -371,6 +371,9 @@ public:
 	_CWaterMark waterMark;
 		// calculated values	not saved not even included in the backup
 	QString homeLink;		// actual home link for given langyage hierarchy
+
+	// Debug
+	_CBool bDebugging;
 };
 
 extern CONFIG config;		// Global variable

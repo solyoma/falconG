@@ -276,6 +276,8 @@ private slots:
 	void on_edtDescriptionText_textChanged();
 
 	void on_btnPreview_clicked();
+
+	void on_chkDebugging_toggled(bool);
 };
 
 extern FalconG *frmMain;

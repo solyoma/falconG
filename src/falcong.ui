@@ -1244,6 +1244,20 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="chkDebugging">
+            <property name="contextMenuPolicy">
+             <enum>Qt::DefaultContextMenu</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">if selected each photo will have a title with the
+original file name.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Debugging</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
