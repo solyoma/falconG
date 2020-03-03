@@ -58,7 +58,7 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 	 *-------------------------------------------------------*/
 	int _RealIndexFor(int index)	
 	{
-		if (index < 0 || index > 100)
+		if (index < 0 || index > size())
 			return -1;
 
 		int ind = -1;

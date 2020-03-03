@@ -2636,14 +2636,22 @@ QString AlbumGenerator::_MenuColorCSSToString()
 	if (config.Menu.gradient.used)
 		s += " background:" + _GradientCssToString(config.Menu, true);
 	else
-		s += " color:" + ColorToStr(config.Menu.background) + ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
+		s += "	color:" + ColorToStr(config.Menu.background) + 
+			 ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
+
 	if (config.Menu.border.used)
 		s += " border: 1px solid " + config.Menu.border.color.name + ";";
 	if (config.Menu.shadow.use)
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
 			_ShadowToString(" -moz-box-shadow", config.Menu) +
 			_ShadowToString(" box-shadow", config.Menu);
-	s += "\n}\n";
+		s += "\n}\n\n";
+
+	s +=	"div.menu-line a.doboz{\n"
+			"	color:" + ColorToStr(config.Lang.color) + ";\n"
+			"	background-color:rgba(0,0,0,0.1);\n"
+			"}\n";
+
 	return s;
 }
 
@@ -2670,7 +2678,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString(".album-desc", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("h2.desc", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("a, a:visited", config.Menu, wColor) +
-		_ElemColorCssToString("a.doboz", config.Lang, wColor) +
+//		_ElemColorCssToString("a.doboz", config.Lang, wColor) +
 		_ElemColorCssToString("a[name=\"images\"],a[name=\"galleries\"]", config.Section, wColor) +
 		_ElemColorCssToString(".folders p", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
@@ -2773,9 +2781,6 @@ QString AlbumGenerator::_CssToString()
 		"	text-decoration: none;\n"
 		"}\n"
 		"\n"
-		"a.doboz {\n"
-		"	font-size: 8pt;\n"
-		"}\n"
 		// a[name = \"images\"], a[name = \"galleries\"]
 		"a[name=\"images\"], a[name=\"galleries\"]{\n"
 		+ _FontToCss(config.Section) +
@@ -2797,6 +2802,12 @@ QString AlbumGenerator::_CssToString()
 		"	display: inline-block;\n"
 		"	margin: 2px 3px 2px 2px;\n"
 		"	padding: 4px 10px 3px;\n"
+		"}\n"
+		"\n"
+		"div.menu-line a.doboz{\n"
+		"	font-size: 8pt;\n"
+		"	border:0;\n"
+		"	box-shadow: 0;\n"
 		"}\n"
 		"\n"
 		// a.facebook
@@ -3275,6 +3286,11 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 		_ofs << "<a href='#folders'>" << Languages::toAlbums[_actLanguage] << "</a>\n";								  // to albums
 	if (config.generateLatestUploads)
 		_ofs << "<a href=\"" << config.dsGRoot.ToString() << "latest_" + Languages::abbrev[_actLanguage] << ".php\">" << Languages::latestTitle[_actLanguage] << "</a>\n";
+	// _actLanguage switch texts
+	for (int i = 0; i < Languages::Count(); ++i)
+		if (i != _actLanguage)
+			_ofs << "<a class=\"doboz\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp\n";
+
 
 	_ofs << "</div>\n";
 	//// debug
@@ -3299,10 +3315,6 @@ int AlbumGenerator::_OuputHeaderSection(Album &album)
 		    "<a href=\""<< album.SiteLink(_actLanguage) << "\">"
 				"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
 			"</a>&nbsp; &nbsp;";
-	// _actLanguage switch texts
-	for (int i = 0; i < Languages::Count(); ++i)
-		if (i != _actLanguage)
-			_ofs << "<a class=\"doboz\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp\n";
 	// facebook link
 	_OutputFacebookLink(album.LinkName(_actLanguage, true), album.ID);
 	_ofs << "<br><br><br>\n";
