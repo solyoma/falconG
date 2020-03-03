@@ -2889,8 +2889,8 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		// im dest-src=
 		"[data-src] {\n"
-		"	min-width:50px;\n"
-		"	min-height:50px;\n"
+		"	min-width:" + QString().setNum(config.imageWidth)  + ";\n"
+		"	min-height:" + QString().setNum(config.imageHeight) + ";\n"
 		"}\n"
 // .desc	  
 		".desc{\n"
@@ -3417,7 +3417,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		_ofs << sImagePath;		// image in the image directory
 	}
 
-	_ofs << "\"><img data-src=\"" + sThumbnailPath + "\" alt=\"" + title + "\"";
+	// the first 10 images will always be loaded immediately
+	_ofs << (i > 10 ? "\"><img data-src=\"" : "\"><img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
 	
 	if (pImage)
 	{

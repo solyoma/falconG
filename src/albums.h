@@ -403,7 +403,7 @@ class AlbumGenerator : public QObject
 	void _OutputMenuLine(Album &album, QString uplink);
 	int _OuputHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
-	int _WriteGalleryContainer(Album &album, bool albums, int i);
+	int _WriteGalleryContainer(Album &album, bool thisIsAnAlbum, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into image directory
 	int __CreatePageInner(QFile &f, Album &album, int language, QString uplink, int &processedCount);
