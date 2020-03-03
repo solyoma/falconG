@@ -2889,8 +2889,8 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 		// im dest-src=
 		"[data-src] {\n"
-		"	min-width:" + QString().setNum(config.imageWidth)  + ";\n"
-		"	min-height:" + QString().setNum(config.imageHeight) + ";\n"
+		"	min-width:" + QString().setNum(config .thumbWidth)  + ";\n"
+		"	min-height:" + QString().setNum(config.thumbHeight) + ";\n"
 		"}\n"
 // .desc	  
 		".desc{\n"
