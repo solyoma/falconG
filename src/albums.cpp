@@ -2460,6 +2460,25 @@ bool AlbumGenerator::_ReadFromGallery()
 }
 
 /*============================================================================
+* TASK:	copies directory 'js'
+* EXPECTS:	config fields are set
+* GLOBALS:	'config'
+* RETURNS: 0: OK, 1: error writing file
+* REMARKS: the file 'up-icon.png' and 'left-icon.png' are not copied,
+*			but created from icon images in the res directory of falconG
+*--------------------------------------------------------------------------*/
+int AlbumGenerator::_DoCopyJs()
+{
+	QString src = config.dsApplication.ToString() + "js/",
+		dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
+	QDir dir(src);  // res in actual progam directory
+	QFileInfoList list = dir.entryInfoList(QDir::Files);
+	for (QFileInfo &fi : list)
+		QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
+	return 0;
+}
+
+/*============================================================================
 * TASK:	Creates constants.php		-   - " -
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
@@ -3921,7 +3940,10 @@ int AlbumGenerator::Write()
 
 	int i;					// returns:
 	if (_processing)
-		i = _DoCopyRes();			// 0 | 1	does not copy 'up-link.png' !
+	{
+		i = _DoCopyRes();			// 0 | 1	modifes 'up-link.png' !
+		i = _DoCopyJs();
+	}
 	if (_processing)
 		i |= _DoHtAccess();			// 0 | 2
 	if (_processing)

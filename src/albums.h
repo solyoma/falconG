@@ -410,7 +410,8 @@ class AlbumGenerator : public QObject
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateHomePage();
 
-	int _DoCopyRes();
+	int _DoCopyRes();	// copy directory 'res', modify png colors
+	int _DoCopyJs();	// copy directory 'js'
 	int _DoColorsCss();
 	int _DoStyleFG();
 	int _DoPages();
