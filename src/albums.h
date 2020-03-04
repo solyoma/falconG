@@ -398,10 +398,10 @@ class AlbumGenerator : public QObject
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
 	
 					// write gallery files
-	void _OutputFacebookLink(QString linkName, ID_t ID);
+	void _WriteFacebookLink(QString linkName, ID_t ID);
 	QString _IncludeFacebookLibrary();
 	void _OutputMenuLine(Album &album, QString uplink);
-	int _OuputHeaderSection(Album &album);
+	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
 	int _WriteGalleryContainer(Album &album, bool thisIsAnAlbum, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);

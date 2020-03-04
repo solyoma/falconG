@@ -3218,7 +3218,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
   * GLOBALS:
   * REMARKS: 
  *--------------------------------------------------------------------------*/
-void AlbumGenerator::_OutputFacebookLink(QString linkName, ID_t ID)
+void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 {
 	if (!config.bFacebookLink)
 		return;
@@ -3308,7 +3308,7 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 *				no '../' prefix for css, res, etb
 *				albums/ prepended to album links
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_OuputHeaderSection(Album &album)
+int AlbumGenerator::_WriteHeaderSection(Album &album)
 {
 
 	_ofs << "<header>\n"
@@ -3316,7 +3316,7 @@ int AlbumGenerator::_OuputHeaderSection(Album &album)
 				"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
 			"</a>&nbsp; &nbsp;";
 	// facebook link
-	_OutputFacebookLink(album.LinkName(_actLanguage, true), album.ID);
+	_WriteFacebookLink(album.LinkName(_actLanguage, true), album.ID);
 	_ofs << "<br><br><br>\n";
 	if(album.titleID)
 		_ofs << "<h2 class=\"album-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
@@ -3680,7 +3680,7 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 
 	_OutputMenuLine(album, uplink);	/* sticky menu line*/
 	_ofs << "<!--Header section-->\n";
-	_OuputHeaderSection(album);
+	_WriteHeaderSection(album);
 
 	_ofs << "<!-- Main section -->\n"
 		"<main id=\"main\">\n";
@@ -3812,7 +3812,7 @@ int AlbumGenerator::_CreateHomePage()
 		<< _IncludeFacebookLibrary()
 		<< "<!--Header section-->\n"
 		<< "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
-	_OutputFacebookLink(_albumMap[1].LinkName(_actLanguage, true), 1);	// when required
+	_WriteFacebookLink(_albumMap[1].LinkName(_actLanguage, true), 1);	// when required
 	_ofs << "<p class=\"menu-line\">\n";
 	// languages
 	for (int i = 0; i < Languages::Count(); ++i)
