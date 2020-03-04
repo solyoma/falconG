@@ -2647,7 +2647,7 @@ QString AlbumGenerator::_MenuColorCSSToString()
 			_ShadowToString(" box-shadow", config.Menu);
 		s += "\n}\n\n";
 
-	s +=	"div.menu-line a.doboz{\n"
+	s +=	"div.menu-line a.langs{\n"
 			"	color:" + ColorToStr(config.Lang.color) + ";\n"
 			"	background-color:rgba(0,0,0,0.1);\n"
 			"}\n";
@@ -2678,7 +2678,7 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString(".album-desc", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("h2.desc", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("a, a:visited", config.Menu, wColor) +
-//		_ElemColorCssToString("a.doboz", config.Lang, wColor) +
+//		_ElemColorCssToString("a.langs", config.Lang, wColor) +
 		_ElemColorCssToString("a[name=\"images\"],a[name=\"galleries\"]", config.Section, wColor) +
 		_ElemColorCssToString(".folders p", config.AlbumDesc, wColor) +
 		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
@@ -2804,7 +2804,7 @@ QString AlbumGenerator::_CssToString()
 		"	padding: 4px 10px 3px;\n"
 		"}\n"
 		"\n"
-		"div.menu-line a.doboz{\n"
+		"div.menu-line a.langs{\n"
 		"	font-size: 8pt;\n"
 		"	border:0;\n"
 		"	box-shadow: 0;\n"
@@ -3289,7 +3289,7 @@ void AlbumGenerator::_OutputMenuLine(Album &album, QString uplink)
 	// _actLanguage switch texts
 	for (int i = 0; i < Languages::Count(); ++i)
 		if (i != _actLanguage)
-			_ofs << "<a class=\"doboz\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp\n";
+			_ofs << "<a class=\"langs\" href=\"" + album.NameFromID(i) + "\">"   << Languages::names[i] << "</a>&nbsp;&nbsp\n";
 
 
 	_ofs << "</div>\n";
@@ -3337,8 +3337,8 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 		// TODO
 	_ofs << " <!-- footer section with social media links -->\n"
 		"<footer class = \"footer\">\n"
-		<< QString(Languages::countOfImages[_actLanguage]).arg(album.images.size()).arg(album.albums.size()) << "<br>\n"
-		<< Languages::falconG[_actLanguage] <<
+		<< QString(Languages::countOfImages[_actLanguage]).arg(album.images.size()).arg(album.albums.size()) << "<br><br>\n"
+		<< Languages::falconG[_actLanguage] << "<br>\n"
 			"</footer>\n";
 	return 0;
 }
@@ -3418,7 +3418,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	}
 
 	// the first 10 images will always be loaded immediately
-	_ofs << (i > 10 ? "\"><img data-src=\"" : "\"><img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
+	_ofs << (i > 9 ? "\"><img data-src=\"" : "\"><img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
 	
 	if (pImage)
 	{
