@@ -108,6 +108,8 @@ private:
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
 
+	void _StyleTheProgram(int which);
+
 	enum whoChangedTheText {wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4};
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
 
@@ -274,6 +276,11 @@ private slots:
 	void on_cmbLanguage_currentIndexChanged(int index);
 	void on_edtTitleText_textChanged();
 	void on_edtDescriptionText_textChanged();
+
+	// option page
+	void on_rbDefaultStyle_toggled(bool);
+	void on_rbDarkStyle_toggled(bool);
+	void on_rbBlackStyle_toggled(bool);
 
 	void on_btnPreview_clicked();
 

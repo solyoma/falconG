@@ -576,6 +576,8 @@ void FalconG::_PopulateFromConfig()
 	_ConfigToSample(); // to sample "WEB page"
 	config.changed = false;
 
+	
+	_StyleTheProgram(ui.rbDarkStyle->isChecked() ? 1 : 0);	// dark theme
 	--_busy;
 }
 
@@ -2011,7 +2013,9 @@ void FalconG::_SetCommonControlsFromWebButton(StyleHandler &shElem, QWidget * pb
 	ui.chkTextOpacity->setChecked(elem.color.opacity > 0); 
 	ui.chkBackgroundOpacity->setChecked(elem.background.opacity > 0); 
 	ui.sbTextOpacity->setValue(abs(elem.color.opacity)); 
-	ui.sbBackgroundOpacity->setValue(abs(elem.background.opacity)); 
+	ui.sbTextOpacity->setEnabled(ui.chkTextOpacity->isChecked());
+	ui.sbBackgroundOpacity->setValue(abs(elem.background.opacity));
+	ui.sbBackgroundOpacity->setEnabled(ui.chkBackgroundOpacity->isChecked());
 	
 	_EnableGbMenu(0);		// backup changed colors into static variables  and disable buttons
 
@@ -2051,6 +2055,7 @@ void FalconG::_WebColorButtonClicked()
 	{
 		case aeWebPage:   
 			_SetCommonControlsFromWebButton(shElem, ui.frmWeb, config.Web);
+			ui.lblActualElem->setText("Whole Page");
 			break;
 
 		case aeMenuButtons:
@@ -2068,38 +2073,48 @@ void FalconG::_WebColorButtonClicked()
 			ui.sbGradStopPos->setValue(config.Menu.gradient.gs[2].percent);
 			ui.chkGradient->setChecked(config.Menu.gradient.used);
 			_EnableGbMenu(1);		// backup changed colors into static variables  and enable buttons
+			ui.lblActualElem->setText("Menu Buttons");
 			break;
 		case aeGalleryTitle:
 				// color select buttons
 			SET_ELEM_PARAMETERS(GalleryTitle, GalleryTitle)
+				ui.lblActualElem->setText("Gallery Title");
 			break;
 		case aeSmallGalleryTitle:
 				// color select buttons
 			SET_ELEM_PARAMETERS(SmallGalleryTitle, SmallGalleryTitle)
+				ui.lblActualElem->setText("Small Gallery Title");
 			break;
 		case aeGalleryDesc:
 			// color select buttons
 			SET_ELEM_PARAMETERS(GalleryDesc, GalleryDesc)
-				break;
+				ui.lblActualElem->setText("Gallery Description");
+			break;
 		case aeLangButton:
 			// color select buttons
 			SET_ELEM_PARAMETERS(Lang, Lang)
-				break;
+				ui.lblActualElem->setText("Language");
+			break;
 		case aeAlbumTitle:
 			SET_ELEM_PARAMETERS(AlbumTitle, AlbumTitle)
+				ui.lblActualElem->setText("Album Title");
 			break;
 		case aeAlbumDesc:
 			SET_ELEM_PARAMETERS(AlbumDesc, AlbumDesc)
-				break;
+				ui.lblActualElem->setText("Album Description");
+			break;
 		case aeSection:
 			SET_ELEM_PARAMETERS(Section, Section)
-				break;
+				ui.lblActualElem->setText("Image/Album Text");
+			break;
 		case aeImageTitle:
 			SET_ELEM_PARAMETERS(ImageTitle, ImageTitle)
+				ui.lblActualElem->setText("Image Title");
 			break;
 		case aeImageDesc:
 			SET_ELEM_PARAMETERS(ImageDesc, ImageDesc)
-				break;
+				ui.lblActualElem->setText("Image Description");
+			break;
 	}
 // DEBUG 1 line
 //	ShowStyleOf(ui.btnColor);
@@ -2860,6 +2875,30 @@ void FalconG::on_edtDescriptionText_textChanged()
 	--_busy;
 }
 
+
+/*========================================================
+ * TASK:	the three function below change the program style
+ * PARAMS:	if the given radio button is checked
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_rbDefaultStyle_toggled(bool on)
+{
+	if (on)
+		frmMain->_StyleTheProgram(0);
+}
+void FalconG::on_rbDarkStyle_toggled(bool on)
+{
+	if (on)
+		frmMain->_StyleTheProgram(1);
+}
+void FalconG::on_rbBlackStyle_toggled(bool on)
+{
+	if (on)
+		frmMain->_StyleTheProgram(2);
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3142,7 +3181,6 @@ void FalconG::_OpacityChanged(int val, int which)
 				config.Web.background = pElem->background;
 			}
 			ui.pnlGallery->setStyleSheet(handler.StyleSheet());
-
 			break;
 		case aeMenuButtons:    pElem = &config.Menu;
 			ui.btnMenu->setStyleSheet(handler.StyleSheet());
@@ -3523,6 +3561,178 @@ void FalconG::_SaveChangedTexts()
 	_selection.changed = 0;				// all changes saved
 
 	albumgen.WriteDirStruct(true);		// keep previous backup file
+}
+
+void FalconG::_StyleTheProgram(int which)
+{
+	static QString styles[] = {
+		// system default
+	R"END(/*====================================*/
+		lblActualElem {
+			color:#red;
+		}
+	)END"
+		//--------------- comma separator ------
+		,
+		//--------------- comma separator ------
+
+		// dark theme
+	R"END(
+		* {
+			background-color:#282828; 
+			color:#ccc;
+		}
+
+		#lblActualElem {
+			color:#f0a91f;
+		}		
+
+		#menuWidget {
+			background-color:rgb(0,0,0,0);
+		}
+
+		QTabWidget::pane { /* The tab widget frame */
+		    /*  border-top: 2px solid #f0f0f0;*/
+		}
+		
+		QTabWidget::tab-bar {
+		      left: 5px; /* move to the right by 5px */
+		}
+		
+		/* Style the tab using the tab sub-control. Note that
+		   it reads QTabBar _not_ QTabWidget */
+		QTabBar::tab {
+		      background-color:#282828;
+			  color:#f0f0f0;
+		      border: 1px solid #4d4d4d;
+		      border-bottom-color: #282828; /* same as the pane color */
+		      border-top-left-radius: 4px;
+		      border-top-right-radius: 4px;
+		      min-width: 20ex;
+		      padding: 2px;
+		}
+		
+		QTabBar::tab:selected, QTabBar::tab:hover {
+		      background-color: #383838;
+		}
+		
+		QTabBar::tab:selected {
+		      border-color: #9B9B9B;
+		      border-bottom-color: #282828; /* same as pane color */
+		}
+		
+		QTabBar::tab:!selected {
+		      margin-top: 2px; /* make non-selected tabs look smaller */
+		}
+		/*======================*/
+		QToolTip {
+		    border: 2px solid #4d4d4d;
+		    border-radius: 4px;
+		}
+		/*===================================*/
+		QTextEdit, QLineEdit {
+			background-color:#4d4d4d;
+		    border: 2px solid #747474;
+		    border-radius: 10px;
+		    padding: 0 8px;
+		    selection-background-color: #666;
+		}
+		
+		QTextEdit:focus, QLineEdit:focus {
+			border-color:#f0f0f0;
+		    color:#f0f0f0;
+		}
+
+		QTextEdit:read-only, QLineEdit:read-only {
+		    background:#555;
+		}
+		
+		/*===================================*/
+		QGroupBox {
+			border: 2px solid #747474;	
+		}
+		/*===================================*/
+		QSpinBox {
+		    border: 2px solid #747474;
+		    border-radius: 10px;
+		    padding: 0 8px;
+		    selection-background-color: #666;
+		}
+		QSpinBox:focus {
+			border-color:#f0f0f0;
+		}
+		/*===================================*/
+		QRadioButton, QCheckBox {
+		      spacing: 5px;
+		}
+		
+		QRadioButton::indicator,   QCheckBox::indicator {
+		    width: 13px;
+		    height: 13px;
+		/*			 background-color:#747474; */
+		}
+		/*===================================*/
+		QPushButton {
+			border:2px solid #f0f0f0;
+			border-radius:10px;
+			padding:2px 4px;
+		}
+
+		QPushButton:hover, QPushButton:pressed {
+			background-color:#666;
+		}
+
+		QPushButton:disabled {
+			border-color:#666;
+		}
+		QPushButton:flat {
+			border:0;
+			border-radius:0;
+		}
+		
+		/*====================================*/
+		QTreeView,QListView {
+			border:2px solid #747474;
+			border-radius:10px;
+		}
+		/*====================================*/
+		  QProgressBar {
+		  border: 0;
+		}
+		QProgressBar::chunk{
+			background-color: #f0a91f;
+			width: 20px;
+		}
+		)END"
+		//"QRadioButton::indicator:unchecked,   QCheckBox::indicator:unchecked {"
+		//"/*      image: url(:/images/checkbox_unchecked.png);*/"
+		//"}"
+		//""
+		//"QRadioButton::indicator:unchecked:hover,  QCheckBox::indicator:unchecked:hover {"
+		//"/*      image: url(:/images/checkbox_unchecked_hover.png);*/"
+		//"}"
+		//""
+		//"QRadioButton::indicator:unchecked:pressed,  QCheckBox::indicator:unchecked:pressed {"
+		//"/*      image: url(:/images/checkbox_unchecked_pressed.png);*/"
+		//"}"
+		//""
+		//"QCheckBox::indicator:checked {"
+		//"/*      image: url(:/images/checkbox_checked.png);*/"
+		//"}"
+		//""
+		//"QCheckBox::indicator:checked:hover {"
+		//"    image: url(:/images/checkbox_checked_hover.png);"
+		//"}"
+		//""
+		//"QCheckBox::indicator:checked:pressed {"
+		//"    image: url(:/images/checkbox_checked_pressed.png);"
+		//"}"
+		//""
+		//"QCheckBox::indicator:indeterminate:hover {"
+		//"    image: url(:/images/checkbox_indeterminate_hover.png);"
+		//"}"
+	};
+	frmMain->setStyleSheet(styles[which]);
 }
 
 /*============================================================================
