@@ -372,6 +372,9 @@ public:
 		// calculated values	not saved not even included in the backup
 	QString homeLink;		// actual home link for given langyage hierarchy
 
+	// Option page
+	_CInt styleIndex;
+
 	// Debug
 	_CBool bDebugging;
 };

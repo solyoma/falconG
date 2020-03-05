@@ -347,7 +347,8 @@ int &_CInt::operator=(const int s)
 	{
 		val = s;
 		changed = true;		// ? why was it commented out
-	} return val;
+	} 
+	return val;
 }
 
 /*===========================================================================
@@ -678,6 +679,7 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	iconInfoOn = cfg.iconInfoOn;
 
 	imageBorder = cfg.imageBorder;
+	styleIndex = cfg.styleIndex;
 }
 //------------ ******************* ---------------------------
 static inline void __ConfigReadInt( QSettings &s, _CInt &name,int defval)	
@@ -926,6 +928,7 @@ CONFIG::CONFIG()
 	iconToTopOn.nameStr = "iconToTopOn";
 	iconInfoOn.nameStr = "iconInfoOn";
 	imageBorder.nameStr = "imageBorder";
+	styleIndex.nameStr = "styleIndex";
 }
 
 /*============================================================================
@@ -1115,6 +1118,7 @@ void CONFIG::Read()		// synchronize with Write!
 	__ConfigReadBool(s, generateLatestUploads, true);
 	__ConfigReadInt(s, newUploadInterval, 14);		// days
 	__ConfigReadInt(s, nLatestCount, 10);	// days
+	__ConfigReadInt(s, styleIndex, 0);	// 	default style
 	changed = false;
 	configSave = *this;
 }
@@ -1416,4 +1420,5 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteBool(s, generateLatestUploads);
 	__ConfigWriteInt(s, newUploadInterval);		// days
 	__ConfigWriteInt(s, nLatestCount);			// days
+	__ConfigWriteInt(s, styleIndex);			// 0,1
 }

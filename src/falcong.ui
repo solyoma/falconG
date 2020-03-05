@@ -10,13 +10,13 @@
     <x>0</x>
     <y>0</y>
     <width>753</width>
-    <height>864</height>
+    <height>953</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>753</width>
-    <height>0</height>
+    <height>935</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -162,7 +162,7 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
@@ -190,6 +190,9 @@ regardless if they were already OK.</string>
            <string>Local machine</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="topMargin">
+            <number>15</number>
+           </property>
            <item row="1" column="0" colspan="3">
             <widget class="QCheckBox" name="chkSourceRelativePerSign">
              <property name="font">
@@ -317,6 +320,9 @@ regardless if they were already OK.</string>
            <string>Gallery on Server</string>
           </property>
           <layout class="QFormLayout" name="formLayout">
+           <property name="topMargin">
+            <number>15</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_19">
              <property name="font">
@@ -771,6 +777,9 @@ regardless if they were already OK.</string>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_15">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
@@ -885,6 +894,9 @@ regardless if they were already OK.</string>
                <string>Google Analytics</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_2">
+               <property name="topMargin">
+                <number>11</number>
+               </property>
                <item row="0" column="0">
                 <widget class="QCheckBox" name="chkUseGoogleAnalytics">
                  <property name="font">
@@ -945,6 +957,9 @@ regardless if they were already OK.</string>
                <string>Advanced (you may leave theese alone)</string>
               </property>
               <layout class="QFormLayout" name="formLayout_2">
+               <property name="topMargin">
+                <number>13</number>
+               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_56">
                  <property name="minimumSize">
@@ -1167,13 +1182,13 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>4</number>
+           <number>11</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
           </property>
           <property name="bottomMargin">
-           <number>4</number>
+           <number>11</number>
           </property>
           <item row="0" column="0">
            <widget class="QCheckBox" name="chkReadFromGallery">
@@ -1850,7 +1865,7 @@ original file name.</string>
                 <number>3</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>11</number>
                </property>
                <property name="rightMargin">
                 <number>3</number>
@@ -2140,7 +2155,7 @@ original file name.</string>
                 <number>3</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>11</number>
                </property>
                <property name="rightMargin">
                 <number>3</number>
@@ -2377,8 +2392,11 @@ original file name.</string>
                <property name="bottomMargin">
                 <number>3</number>
                </property>
-               <property name="spacing">
+               <property name="horizontalSpacing">
                 <number>3</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>6</number>
                </property>
                <item row="5" column="0" colspan="3">
                 <widget class="QCheckBox" name="chkIconTop">
@@ -2521,6 +2539,9 @@ background-color:#ffff00;
                <string>Background image</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_15">
+               <property name="topMargin">
+                <number>11</number>
+               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_63">
                  <property name="text">
@@ -2670,6 +2691,9 @@ background-color:#ffff00;
              <string>Sample</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_14" stretch="0,1">
+             <property name="topMargin">
+              <number>12</number>
+             </property>
              <item>
               <widget class="QFrame" name="pnlGallery">
                <property name="styleSheet">
@@ -3524,7 +3548,7 @@ so when one changes the other changes too.
                   <number>4</number>
                  </property>
                  <property name="topMargin">
-                  <number>4</number>
+                  <number>12</number>
                  </property>
                  <property name="rightMargin">
                   <number>4</number>
@@ -4525,7 +4549,7 @@ so when one changes the other changes too.
         <property name="title">
          <string>&amp;Style</string>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>30</x>

@@ -576,8 +576,16 @@ void FalconG::_PopulateFromConfig()
 	_ConfigToSample(); // to sample "WEB page"
 	config.changed = false;
 
-	
-	_StyleTheProgram(ui.rbDarkStyle->isChecked() ? 1 : 0);	// dark theme
+	switch (config.styleIndex)
+	{
+		case 0:
+		default: 
+			ui.rbDefaultStyle->setChecked(true);
+			break;
+		case 1:		// dark theme
+			ui.rbDarkStyle->setChecked(true);
+			break;
+	}
 	--_busy;
 }
 
@@ -3565,26 +3573,33 @@ void FalconG::_SaveChangedTexts()
 
 void FalconG::_StyleTheProgram(int which)
 {
-	static QString styles[] = {
-		// system default
-	R"END(/*====================================*/
-		lblActualElem {
-			color:#red;
-		}
-	)END"
-		//--------------- comma separator ------
-		,
-		//--------------- comma separator ------
+		// change these for new color set
+	static QString sWebBkgColor[]		= { "", "#282828",	""}, // %1  WEB background
+				   sWebFgColor[]		= { "", "#ccc",		""}, // %2  QWEB foreground
+				   sActElemColor[]		= { "", "#f0a91f",	""}, // %3  label color for selected _CElem
+				   sTabTextColor[]		= { "", "#f0f0f0",	""}, // %4  TAB text
+				   sBorderColor[]		= { "", "#4d4d4d",	""}, // %5  border
+				   sSelectedTab[]		= { "", "#383838",	""}, // %6  selected TAB
+				   sSelTabBorder[]		= { "", "#9B9B9B",	""}, // %7
+				   sEditBackground[]	= { "", "#4d4d4d",	""}, // %8  editor backgrounds
+				   sEditBorder[]		= { "", "#747474",	""}, // %9  editor border, groupbox border, spinbox border , listView
+				   sSelBackground[]		= { "", "#666",		""}, // %10 background of selected text in editors , spinboxes
+				   sActiveEditBorder[]	= { "", "#f0f0f0",	""}, // %11 when the edit box has the focus same for spin boxes, active push button border
+				   sFocusdEditText[]	= { "", "#f0f0f0",	""}, // %12 when the edit box has the focus: text
+				   sReadOnlyBackground[]= { "", "#555",		""}, // %13
+				   sProgressChunk[]		= { "", "#747474",	""}; // %14
+				   
 
-		// dark theme
-	R"END(
+	 // theme style string used only when not the default style is used
+	static QString styles = {
+	R"END(							 
 		* {
-			background-color:#282828; 
-			color:#ccc;
+			background-color:%1; 
+			color:%2;
 		}
 
 		#lblActualElem {
-			color:#f0a91f;
+			color:%3;
 		}		
 
 		#menuWidget {
@@ -3602,10 +3617,10 @@ void FalconG::_StyleTheProgram(int which)
 		/* Style the tab using the tab sub-control. Note that
 		   it reads QTabBar _not_ QTabWidget */
 		QTabBar::tab {
-		      background-color:#282828;
-			  color:#f0f0f0;
-		      border: 1px solid #4d4d4d;
-		      border-bottom-color: #282828; /* same as the pane color */
+		      background-color:%1;
+			  color:%4;
+		      border: 1px solid %5;
+		      border-bottom-color: %1; /* same as the pane color */
 		      border-top-left-radius: 4px;
 		      border-top-right-radius: 4px;
 		      min-width: 20ex;
@@ -3613,12 +3628,12 @@ void FalconG::_StyleTheProgram(int which)
 		}
 		
 		QTabBar::tab:selected, QTabBar::tab:hover {
-		      background-color: #383838;
+		      background-color: %6;
 		}
 		
 		QTabBar::tab:selected {
-		      border-color: #9B9B9B;
-		      border-bottom-color: #282828; /* same as pane color */
+		      border-color: %7;
+		      border-bottom-color: %1; /* same as pane color */
 		}
 		
 		QTabBar::tab:!selected {
@@ -3626,40 +3641,40 @@ void FalconG::_StyleTheProgram(int which)
 		}
 		/*======================*/
 		QToolTip {
-		    border: 2px solid #4d4d4d;
+		    border: 2px solid %5;
 		    border-radius: 4px;
 		}
 		/*===================================*/
 		QTextEdit, QLineEdit {
-			background-color:#4d4d4d;
-		    border: 2px solid #747474;
+			background-color:%8;
+		    border: 2px solid %9;
 		    border-radius: 10px;
 		    padding: 0 8px;
-		    selection-background-color: #666;
+		    selection-background-color:%10;
 		}
 		
 		QTextEdit:focus, QLineEdit:focus {
-			border-color:#f0f0f0;
-		    color:#f0f0f0;
+			border-color:%11;
+		    color:%12;
 		}
 
 		QTextEdit:read-only, QLineEdit:read-only {
-		    background:#555;
+		    background:%13;
 		}
 		
 		/*===================================*/
 		QGroupBox {
-			border: 2px solid #747474;	
+			border: 2px solid %9;	
 		}
 		/*===================================*/
 		QSpinBox {
-		    border: 2px solid #747474;
+		    border: 2px solid %9;
 		    border-radius: 10px;
 		    padding: 0 8px;
-		    selection-background-color: #666;
+		    selection-background-color:%10;
 		}
 		QSpinBox:focus {
-			border-color:#f0f0f0;
+			border-color:%11;
 		}
 		/*===================================*/
 		QRadioButton, QCheckBox {
@@ -3669,21 +3684,20 @@ void FalconG::_StyleTheProgram(int which)
 		QRadioButton::indicator,   QCheckBox::indicator {
 		    width: 13px;
 		    height: 13px;
-		/*			 background-color:#747474; */
 		}
 		/*===================================*/
 		QPushButton {
-			border:2px solid #f0f0f0;
+			border:2px solid %11;
 			border-radius:10px;
 			padding:2px 4px;
 		}
 
 		QPushButton:hover, QPushButton:pressed {
-			background-color:#666;
+			background-color:%10;
 		}
 
 		QPushButton:disabled {
-			border-color:#666;
+			border-color:%10;		// same as selection background
 		}
 		QPushButton:flat {
 			border:0;
@@ -3692,7 +3706,7 @@ void FalconG::_StyleTheProgram(int which)
 		
 		/*====================================*/
 		QTreeView,QListView {
-			border:2px solid #747474;
+			border:2px solid %5;
 			border-radius:10px;
 		}
 		/*====================================*/
@@ -3700,7 +3714,7 @@ void FalconG::_StyleTheProgram(int which)
 		  border: 0;
 		}
 		QProgressBar::chunk{
-			background-color: #f0a91f;
+			background-color: %14;
 			width: 20px;
 		}
 		)END"
@@ -3732,7 +3746,31 @@ void FalconG::_StyleTheProgram(int which)
 		//"    image: url(:/images/checkbox_indeterminate_hover.png);"
 		//"}"
 	};
-	frmMain->setStyleSheet(styles[which]);
+	config.styleIndex = which;
+	if (which)
+	{
+		QString ss =
+			QString(styles)
+			.arg(sWebBkgColor[which])
+			.arg(sWebFgColor[which])
+			.arg(sActElemColor[which])
+			.arg(sTabTextColor[which])
+			.arg(sBorderColor[which])
+			.arg(sSelectedTab[which])
+			.arg(sSelTabBorder[which])
+			.arg(sEditBackground[which])
+			.arg(sEditBorder[which])
+			.arg(sSelBackground[which])
+			.arg(sActiveEditBorder[which])
+			.arg(sFocusdEditText[which])
+			.arg(sReadOnlyBackground[which])
+			.arg(sProgressChunk[which]);
+		
+		frmMain->setStyleSheet(ss);
+	}
+	else
+			frmMain->setStyleSheet("");
+
 }
 
 /*============================================================================
