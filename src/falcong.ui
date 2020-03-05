@@ -162,11 +162,11 @@ regardless if they were already OK.</string>
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGallery">
        <attribute name="title">
-        <string>Gallery</string>
+        <string>&amp;Gallery</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_17">
         <property name="spacing">
@@ -1387,13 +1387,71 @@ original file name.</string>
       </widget>
       <widget class="QWidget" name="tabDesign">
        <attribute name="title">
-        <string>Design</string>
+        <string>&amp;Design</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_16">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,1">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <property name="leftMargin">
+               <number>10</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>2</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_64">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Actual:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lblActualElem">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>WEB</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
             <item>
              <widget class="QGroupBox" name="groupBox_4">
               <property name="font">
@@ -3006,18 +3064,17 @@ font-weight:bold;
                 <item row="6" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
-                   <widget class="QPushButton" name="btnIconToTop">
-                    <property name="text">
-                     <string/>
+                   <spacer name="horizontalSpacer_13">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="icon">
-                     <iconset>
-                      <normaloff>:/icon/Resources/up-icon.png</normaloff>:/icon/Resources/up-icon.png</iconset>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
                     </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
+                   </spacer>
                   </item>
                   <item>
                    <widget class="QPushButton" name="btnImageTitle">
@@ -3047,24 +3104,17 @@ font-weight: bold;
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnDescription">
-                    <property name="text">
-                     <string/>
+                   <spacer name="horizontalSpacer_12">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="icon">
-                     <iconset>
-                      <normaloff>:/icon/Resources/content-icon.png</normaloff>:/icon/Resources/content-icon.png</iconset>
-                    </property>
-                    <property name="iconSize">
+                    <property name="sizeHint" stdset="0">
                      <size>
-                      <width>32</width>
-                      <height>32</height>
+                      <width>40</width>
+                      <height>20</height>
                      </size>
                     </property>
-                    <property name="flat">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -3138,7 +3188,7 @@ font-weight: bold;
       </widget>
       <widget class="QWidget" name="tabImages">
        <attribute name="title">
-        <string>Images</string>
+        <string>&amp;Images</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_1">
         <item>
@@ -4011,7 +4061,7 @@ so when one changes the other changes too.
         </sizepolicy>
        </property>
        <attribute name="title">
-        <string>Edit</string>
+        <string>&amp;Edit</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_20">
         <property name="spacing">
@@ -4452,6 +4502,87 @@ so when one changes the other changes too.
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>&amp;Options</string>
+       </attribute>
+       <widget class="QGroupBox" name="grpProgramStyle">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>30</y>
+          <width>121</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="title">
+         <string>&amp;Style</string>
+        </property>
+        <widget class="QWidget" name="">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>20</y>
+           <width>81</width>
+           <height>65</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_21">
+          <item>
+           <widget class="QRadioButton" name="rbDefaultStyle">
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>De&amp;fault</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rbDarkStyle">
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Da&amp;rk</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rbBlackStyle">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>&amp;Black</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </widget>
      </widget>
     </item>
