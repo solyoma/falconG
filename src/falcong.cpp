@@ -3587,9 +3587,8 @@ void FalconG::_StyleTheProgram(int which)
 				   sActiveEditBorder[]	= { "", "#f0f0f0",	""}, // %11 when the edit box has the focus same for spin boxes, active push button border
 				   sFocusdEditText[]	= { "", "#f0f0f0",	""}, // %12 when the edit box has the focus: text
 				   sReadOnlyBackground[]= { "", "#555",		""}, // %13
-				   sProgressChunk[]		= { "", "#747474",	""}; // %14
+				   sProgressChunk[]		= { "", "#f0a91f",	""}; // %14
 				   
-
 	 // theme style string used only when not the default style is used
 	static QString styles = {
 	R"END(							 
@@ -3697,8 +3696,9 @@ void FalconG::_StyleTheProgram(int which)
 		}
 
 		QPushButton:disabled {
-			border-color:%10;		// same as selection background
+			border-color:%10;		/* same as selection background */
 		}
+
 		QPushButton:flat {
 			border:0;
 			border-radius:0;
@@ -3767,6 +3767,12 @@ void FalconG::_StyleTheProgram(int which)
 			.arg(sProgressChunk[which]);
 		
 		frmMain->setStyleSheet(ss);
+
+		//QFile f("style.txt");
+		//f.open(QIODevice::WriteOnly);
+		//QTextStream ofs(&f);
+		//ofs << ss;
+
 	}
 	else
 			frmMain->setStyleSheet("");
