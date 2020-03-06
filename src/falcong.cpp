@@ -585,6 +585,12 @@ void FalconG::_PopulateFromConfig()
 		case 1:		// dark theme
 			ui.rbDarkStyle->setChecked(true);
 			break;
+		case 2:		// black theme
+			ui.rbBlackStyle->setChecked(true);
+			break;
+		case 3:		// blue theme
+			ui.rbBlueStyle->setChecked(true);
+			break;
 	}
 	--_busy;
 }
@@ -2906,6 +2912,11 @@ void FalconG::on_rbBlackStyle_toggled(bool on)
 	if (on)
 		frmMain->_StyleTheProgram(2);
 }
+void FalconG::on_rbBlueStyle_toggled(bool on)
+{
+	if (on)
+		frmMain->_StyleTheProgram(3);
+}
 
 /*============================================================================
 * TASK:
@@ -3574,21 +3585,25 @@ void FalconG::_SaveChangedTexts()
 void FalconG::_StyleTheProgram(int which)
 {
 		// change these for new color set
-	static QString sWebBkgColor[]		= { "", "#282828",	""}, // %1  WEB background
-				   sWebFgColor[]		= { "", "#ccc",		""}, // %2  QWEB foreground
-				   sActElemColor[]		= { "", "#f0a91f",	""}, // %3  label color for selected _CElem
-				   sTabTextColor[]		= { "", "#f0f0f0",	""}, // %4  TAB text
-				   sBorderColor[]		= { "", "#4d4d4d",	""}, // %5  border
-				   sSelectedTab[]		= { "", "#383838",	""}, // %6  selected TAB
-				   sSelTabBorder[]		= { "", "#9B9B9B",	""}, // %7
-				   sEditBackground[]	= { "", "#4d4d4d",	""}, // %8  editor backgrounds
-				   sEditBorder[]		= { "", "#747474",	""}, // %9  editor border, groupbox border, spinbox border , listView
-				   sSelBackground[]		= { "", "#666",		""}, // %10 background of selected text in editors , spinboxes
-				   sActiveEditBorder[]	= { "", "#f0f0f0",	""}, // %11 when the edit box has the focus same for spin boxes, active push button border
-				   sFocusdEditText[]	= { "", "#f0f0f0",	""}, // %12 when the edit box has the focus: text
-				   sReadOnlyBackground[]= { "", "#555",		""}, // %13
-				   sProgressChunk[]		= { "", "#f0a91f",	""}; // %14
-				   
+	static QString sWebBkgColor[]		= { "", "#282828",	"#191919",	"#3b5876"}, // %1  WEB background
+				   sWebFgColor[]		= { "", "#cccccc",	"#e1e1e1",	"#cccccc"}, // %2  WEB foreground
+				   sActElemColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f"}, // %3  label color for selected _CElem
+				   sTabTextColor[]		= { "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0"}, // %4  TAB text
+				   sBorderColor[]		= { "", "#4d4d4d",	"#323232",	"#3b5876"}, // %5  border
+				   sSelectedTab[]		= { "", "#383838",	"#282828",	"#8faed2"}, // %6  selected TAB
+				   sSelTabBorder[]		= { "", "#9B9B9B",	"#9b9b9b",	"#3b589b"}, // %7
+				   sEditBackground[]	= { "", "#454545",	"#323232",	"#1c3a55"}, // %8  editor backgrounds
+				   sEditBorder[]		= { "", "#747474",	"#606060",	"#3b5860"}, // %9  editor border, groupbox border, spinbox border , listView
+				   sSelBackground[]		= { "", "#666666",	"#4a4a4a",	"#3b584a"}, // %10 background of selected text in editors , spinboxes
+				   sActiveEditBorder[]	= { "", "#f0f0f0",	"#a8a8a8",	"#3b58a8"}, // %11 when the edit box has the focus same for spin boxes, active push button border
+				   sFocusdEditText[]	= { "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0"}, // %12 when the edit box has the focus: text
+				   sReadOnlyBackground[]= { "", "#555555",	"#292929",	"#3b5829"}, // %13
+				   sProgressChunk[]		= { "", "#e28308",	"#e28308",	"#3b5808"}, // %14
+				   sSampleBackground[]	= { "", "#121212",  "#111111",  "#3b5811"}, // %15 
+				   sEditPlaceHolder[]	= { "", "#cccccc",  "#e1e1e1",  "#AAAAAA"}, // %16
+				   sCheckBoxIndUnchk[]	= { "", "#747474",  "#606060",  "#3b5860"}, // %17
+				   sCheckBoxIndChk[]	= { "", "#555555",  "#323232",  "#1c3a55"}; // %18
+
 	 // theme style string used only when not the default style is used
 	static QString styles = {
 	R"END(							 
@@ -3665,6 +3680,9 @@ void FalconG::_StyleTheProgram(int which)
 		QGroupBox {
 			border: 2px solid %9;	
 		}
+		#groupBox_6 {
+			background-color:%15;
+		}
 		/*===================================*/
 		QSpinBox {
 		    border: 2px solid %9;
@@ -3715,9 +3733,18 @@ void FalconG::_StyleTheProgram(int which)
 		}
 		QProgressBar::chunk{
 			background-color: %14;
-			width: 20px;
+			width: 10px;
 		}
+		"
 		)END"
+		//QCheckBox::indicator:checked{
+		//	background - color: % 18
+		//}
+
+		//QCheckBox::indicator : checked{
+		//	background - color: % 17
+		//}
+
 		//"QRadioButton::indicator:unchecked,   QCheckBox::indicator:unchecked {"
 		//"/*      image: url(:/images/checkbox_unchecked.png);*/"
 		//"}"
@@ -3747,6 +3774,7 @@ void FalconG::_StyleTheProgram(int which)
 		//"}"
 	};
 	config.styleIndex = which;
+	config.changed = true;
 	if (which)
 	{
 		QString ss =
@@ -3764,14 +3792,17 @@ void FalconG::_StyleTheProgram(int which)
 			.arg(sActiveEditBorder[which])
 			.arg(sFocusdEditText[which])
 			.arg(sReadOnlyBackground[which])
-			.arg(sProgressChunk[which]);
-		
+			.arg(sProgressChunk[which])
+			.arg(sSampleBackground[which])
+			.arg(sCheckBoxIndChk[which])
+			.arg(sCheckBoxIndUnchk[which]);
+
 		frmMain->setStyleSheet(ss);
 
 		//QFile f("style.txt");
 		//f.open(QIODevice::WriteOnly);
-		//QTextStream ofs(&f);
-		//ofs << ss;
+		//QTextStream textstream(&f);
+		//textstream << ss;
 
 	}
 	else

@@ -281,6 +281,7 @@ private slots:
 	void on_rbDefaultStyle_toggled(bool);
 	void on_rbDarkStyle_toggled(bool);
 	void on_rbBlackStyle_toggled(bool);
+	void on_rbBlueStyle_toggled(bool);
 
 	void on_btnPreview_clicked();
 

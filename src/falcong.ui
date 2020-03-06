@@ -10,13 +10,13 @@
     <x>0</x>
     <y>0</y>
     <width>753</width>
-    <height>953</height>
+    <height>864</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>753</width>
-    <height>935</height>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -190,9 +190,6 @@ regardless if they were already OK.</string>
            <string>Local machine</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <property name="topMargin">
-            <number>15</number>
-           </property>
            <item row="1" column="0" colspan="3">
             <widget class="QCheckBox" name="chkSourceRelativePerSign">
              <property name="font">
@@ -320,9 +317,6 @@ regardless if they were already OK.</string>
            <string>Gallery on Server</string>
           </property>
           <layout class="QFormLayout" name="formLayout">
-           <property name="topMargin">
-            <number>15</number>
-           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_19">
              <property name="font">
@@ -777,9 +771,6 @@ regardless if they were already OK.</string>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_15">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
             <item>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
@@ -894,9 +885,6 @@ regardless if they were already OK.</string>
                <string>Google Analytics</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_2">
-               <property name="topMargin">
-                <number>11</number>
-               </property>
                <item row="0" column="0">
                 <widget class="QCheckBox" name="chkUseGoogleAnalytics">
                  <property name="font">
@@ -957,9 +945,6 @@ regardless if they were already OK.</string>
                <string>Advanced (you may leave theese alone)</string>
               </property>
               <layout class="QFormLayout" name="formLayout_2">
-               <property name="topMargin">
-                <number>13</number>
-               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_56">
                  <property name="minimumSize">
@@ -1182,13 +1167,13 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>11</number>
+           <number>4</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
           </property>
           <property name="bottomMargin">
-           <number>11</number>
+           <number>4</number>
           </property>
           <item row="0" column="0">
            <widget class="QCheckBox" name="chkReadFromGallery">
@@ -1865,7 +1850,7 @@ original file name.</string>
                 <number>3</number>
                </property>
                <property name="topMargin">
-                <number>11</number>
+                <number>3</number>
                </property>
                <property name="rightMargin">
                 <number>3</number>
@@ -2155,7 +2140,7 @@ original file name.</string>
                 <number>3</number>
                </property>
                <property name="topMargin">
-                <number>11</number>
+                <number>3</number>
                </property>
                <property name="rightMargin">
                 <number>3</number>
@@ -2392,11 +2377,8 @@ original file name.</string>
                <property name="bottomMargin">
                 <number>3</number>
                </property>
-               <property name="horizontalSpacing">
+               <property name="spacing">
                 <number>3</number>
-               </property>
-               <property name="verticalSpacing">
-                <number>6</number>
                </property>
                <item row="5" column="0" colspan="3">
                 <widget class="QCheckBox" name="chkIconTop">
@@ -2539,9 +2521,6 @@ background-color:#ffff00;
                <string>Background image</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_15">
-               <property name="topMargin">
-                <number>11</number>
-               </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_63">
                  <property name="text">
@@ -2691,9 +2670,6 @@ background-color:#ffff00;
              <string>Sample</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_14" stretch="0,1">
-             <property name="topMargin">
-              <number>12</number>
-             </property>
              <item>
               <widget class="QFrame" name="pnlGallery">
                <property name="styleSheet">
@@ -2945,94 +2921,8 @@ distinctio...</string>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
-               <layout class="QGridLayout" name="gridLayout_14">
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="btnAlbumDesc">
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores
-distinctio, aperiam quam deserunt accusantium
-possimus minima?</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="btnSection">
-                  <property name="font">
-                   <font>
-                    <family>Papyrus</family>
-                    <pointsize>22</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff;
-font-family:Papyrus;
-font-size:22pt;
-font-weight:bold;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Images</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QPushButton" name="btnImageDesc">
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
-elit. Placeat delectus facilis dolorum dolores</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="btnAlbumTitle">
-                  <property name="font">
-                   <font>
-                    <family>Monotype Corsiva</family>
-                    <pointsize>16</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color:#fff;
-font-family:&quot;Monotype Corsiva&quot;;
-font-size:16pt;
-font-weight:bold;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Album Title</string>
-                  </property>
-                  <property name="flat">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
+               <layout class="QVBoxLayout" name="verticalLayout_22">
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <property name="sizeConstraint">
                    <enum>QLayout::SetNoConstraint</enum>
@@ -3085,21 +2975,138 @@ font-weight:bold;
                   </item>
                  </layout>
                 </item>
-                <item row="6" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_15">
+                <item>
+                 <widget class="QPushButton" name="btnAlbumTitle">
+                  <property name="font">
+                   <font>
+                    <family>Monotype Corsiva</family>
+                    <pointsize>16</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff;
+font-family:&quot;Monotype Corsiva&quot;;
+font-size:16pt;
+font-weight:bold;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Album Title</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnAlbumDesc">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
+elit. Placeat delectus facilis dolorum dolores
+distinctio, aperiam quam deserunt accusantium
+possimus minima?</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnSection">
+                  <property name="font">
+                   <font>
+                    <family>Papyrus</family>
+                    <pointsize>22</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff;
+font-family:Papyrus;
+font-size:22pt;
+font-weight:bold;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Images</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_14">
                   <item>
-                   <spacer name="horizontalSpacer_13">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QToolButton" name="btnImage">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
                     </property>
-                    <property name="sizeHint" stdset="0">
+                    <property name="minimumSize">
                      <size>
-                      <width>40</width>
-                      <height>20</height>
+                      <width>275</width>
+                      <height>185</height>
                      </size>
                     </property>
-                   </spacer>
+                    <property name="maximumSize">
+                     <size>
+                      <width>275</width>
+                      <height>185</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">QToolButton {
+ border: 1px solid #ffff00;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="falcong.qrc">
+                      <normaloff>:/icons/Resources/Lazise_02596-Edit.png</normaloff>:/icons/Resources/Lazise_02596-Edit.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>270</width>
+                      <height>180</height>
+                     </size>
+                    </property>
+                   </widget>
                   </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnImageDesc">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+color:#fff
+}</string>
+                  </property>
+                  <property name="text">
+                   <string>Lorem ipsum dolor sit amet consectetur adipisicing
+elit. Placeat delectus facilis dolorum dolores</string>
+                  </property>
+                  <property name="flat">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
                    <widget class="QPushButton" name="btnImageTitle">
                     <property name="font">
@@ -3127,63 +3134,9 @@ font-weight: bold;
                     </property>
                    </widget>
                   </item>
-                  <item>
-                   <spacer name="horizontalSpacer_12">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </item>
-                <item row="4" column="1">
-                 <widget class="QToolButton" name="btnImage">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>275</width>
-                    <height>185</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>275</width>
-                    <height>185</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QToolButton {
- border: 1px solid #ffff00;
-}</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="falcong.qrc">
-                    <normaloff>:/icons/Resources/Lazise_02596-Edit.png</normaloff>:/icons/Resources/Lazise_02596-Edit.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>270</width>
-                    <height>180</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
                </layout>
-               <zorder>btnImage</zorder>
                <zorder>btnAlbumDesc</zorder>
                <zorder>btnSection</zorder>
                <zorder>btnAlbumTitle</zorder>
@@ -3548,7 +3501,7 @@ so when one changes the other changes too.
                   <number>4</number>
                  </property>
                  <property name="topMargin">
-                  <number>12</number>
+                  <number>4</number>
                  </property>
                  <property name="rightMargin">
                   <number>4</number>
@@ -4536,8 +4489,8 @@ so when one changes the other changes too.
          <rect>
           <x>30</x>
           <y>30</y>
-          <width>121</width>
-          <height>101</height>
+          <width>251</width>
+          <height>191</height>
          </rect>
         </property>
         <property name="font">
@@ -4554,8 +4507,8 @@ so when one changes the other changes too.
           <rect>
            <x>30</x>
            <y>20</y>
-           <width>81</width>
-           <height>65</height>
+           <width>95</width>
+           <height>88</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -4576,6 +4529,19 @@ so when one changes the other changes too.
            </widget>
           </item>
           <item>
+           <widget class="QRadioButton" name="rbBlueStyle">
+            <property name="font">
+             <font>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Blue</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QRadioButton" name="rbDarkStyle">
             <property name="font">
              <font>
@@ -4591,7 +4557,7 @@ so when one changes the other changes too.
           <item>
            <widget class="QRadioButton" name="rbBlackStyle">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="font">
              <font>

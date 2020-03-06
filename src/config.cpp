@@ -1420,5 +1420,5 @@ void CONFIG::_WriteIni(QString sIniName)
 	__ConfigWriteBool(s, generateLatestUploads);
 	__ConfigWriteInt(s, newUploadInterval);		// days
 	__ConfigWriteInt(s, nLatestCount);			// days
-	__ConfigWriteInt(s, styleIndex);			// 0,1
+	__ConfigWriteInt(s, styleIndex);			// 0,1,2,3
 }
