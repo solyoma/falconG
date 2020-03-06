@@ -3585,156 +3585,176 @@ void FalconG::_SaveChangedTexts()
 void FalconG::_StyleTheProgram(int which)
 {
 		// change these for new color set
-	static QString sWebBkgColor[]		= { "", "#282828",	"#191919",	"#3b5876"}, // %1  WEB background
-				   sWebFgColor[]		= { "", "#cccccc",	"#e1e1e1",	"#cccccc"}, // %2  WEB foreground
-				   sActElemColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f"}, // %3  label color for selected _CElem
-				   sTabTextColor[]		= { "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0"}, // %4  TAB text
-				   sBorderColor[]		= { "", "#4d4d4d",	"#323232",	"#3b5876"}, // %5  border
-				   sSelectedTab[]		= { "", "#383838",	"#282828",	"#8faed2"}, // %6  selected TAB
-				   sSelTabBorder[]		= { "", "#9B9B9B",	"#9b9b9b",	"#3b589b"}, // %7
-				   sEditBackground[]	= { "", "#454545",	"#323232",	"#1c3a55"}, // %8  editor backgrounds
-				   sEditBorder[]		= { "", "#747474",	"#606060",	"#3b5860"}, // %9  editor border, groupbox border, spinbox border , listView
-				   sSelBackground[]		= { "", "#666666",	"#4a4a4a",	"#3b584a"}, // %10 background of selected text in editors , spinboxes
-				   sActiveEditBorder[]	= { "", "#f0f0f0",	"#a8a8a8",	"#3b58a8"}, // %11 when the edit box has the focus same for spin boxes, active push button border
-				   sFocusdEditText[]	= { "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0"}, // %12 when the edit box has the focus: text
-				   sReadOnlyBackground[]= { "", "#555555",	"#292929",	"#3b5829"}, // %13
-				   sProgressChunk[]		= { "", "#e28308",	"#e28308",	"#3b5808"}, // %14
-				   sSampleBackground[]	= { "", "#121212",  "#111111",  "#3b5811"}, // %15 
-				   sEditPlaceHolder[]	= { "", "#cccccc",  "#e1e1e1",  "#AAAAAA"}, // %16
-				   sCheckBoxIndUnchk[]	= { "", "#747474",  "#606060",  "#3b5860"}, // %17
-				   sCheckBoxIndChk[]	= { "", "#555555",  "#323232",  "#1c3a55"}; // %18
+	static QString sBackground[]		= { "", "#282828",	"#191919",	"#3b5876" }, // %1  background
+				   sTextColor[]			= { "", "#cccccc",	"#e1e1e1",	"#cccccc" }, // %2  foreground
+				   sBorderColor[]		= { "", "#4d4d4d",	"#323232",	"#747474" }, // %3  border
+				   sFocusedInput[]		= { "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0" }, // %4  focused text
+				   sHoverColor[]		= { "", "#383838",	"#282828",	"#8faed2" }, // %5  hover over input
+				   sTabBorder[]			= { "", "#9B9B9B",	"#9b9b9b",	"#3b589b" }, // %6
+				   sInputBackground[]	= { "", "#454545",	"#323232",	"#1c3a55" }, // %7  editor backgrounds
+				   sSelectedInputBgr[]	= { "", "#666666",	"#4a4a4a",	"#3b584a" }, // %8
+				   sFocusedBorder[]		= { "", "#f0f0f0",	"#a8a8a8",	"#f0f0f0" }, // %9
+				   sDisabledBg[]		= { "", "#555555",	"#292929",	"#3b5829" }, // %10
+				   sImageBackground[]	= { "", "#111111",  "#000000",  "#12273f" }, // %11
+				   sPressedBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %12 button pressed
+				   sDefaultBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %13
+				   sProgressBarChunk[]	= { "", "#e28308",	"#e28308",	"#e28308" }, // %14
+				   sWarningColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f" }  // %15
+	;
 
 	 // theme style string used only when not the default style is used
 	static QString styles = {
 	R"END(							 
-		* {
-			background-color:%1; 
-			color:%2;
-		}
+* {
+	background-color:%1;       /* %1 background */
+	color:%2;                  /* %2 color */
+}
+        
+/* ------------------- geometry ------------------*/        
 
-		#lblActualElem {
-			color:%3;
-		}		
+QTabWidget::tab-bar {
+    left: 5px; /* move to the right by 5px */
+}
+QTabBar::tab {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+	min-width: 20ex;
+	padding: 2px;
+}        
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
 
-		#menuWidget {
-			background-color:rgb(0,0,0,0);
-		}
+QToolTip {
+    border-radius: 4px;
+}
 
-		QTabWidget::pane { /* The tab widget frame */
-		    /*  border-top: 2px solid #f0f0f0;*/
-		}
-		
-		QTabWidget::tab-bar {
-		      left: 5px; /* move to the right by 5px */
-		}
-		
-		/* Style the tab using the tab sub-control. Note that
-		   it reads QTabBar _not_ QTabWidget */
-		QTabBar::tab {
-		      background-color:%1;
-			  color:%4;
-		      border: 1px solid %5;
-		      border-bottom-color: %1; /* same as the pane color */
-		      border-top-left-radius: 4px;
-		      border-top-right-radius: 4px;
-		      min-width: 20ex;
-		      padding: 2px;
-		}
-		
-		QTabBar::tab:selected, QTabBar::tab:hover {
-		      background-color: %6;
-		}
-		
-		QTabBar::tab:selected {
-		      border-color: %7;
-		      border-bottom-color: %1; /* same as pane color */
-		}
-		
-		QTabBar::tab:!selected {
-		      margin-top: 2px; /* make non-selected tabs look smaller */
-		}
-		/*======================*/
-		QToolTip {
-		    border: 2px solid %5;
-		    border-radius: 4px;
-		}
-		/*===================================*/
-		QTextEdit, QLineEdit {
-			background-color:%8;
-		    border: 2px solid %9;
-		    border-radius: 10px;
-		    padding: 0 8px;
-		    selection-background-color:%10;
-		}
-		
-		QTextEdit:focus, QLineEdit:focus {
-			border-color:%11;
-		    color:%12;
-		}
+QProgressBar,
+QPushButton:flat {
+	border:0;
+}
+QProgressBar::chunk{
+	width: 10px;
+}
 
-		QTextEdit:read-only, QLineEdit:read-only {
-		    background:%13;
-		}
-		
-		/*===================================*/
-		QGroupBox {
-			border: 2px solid %9;	
-		}
-		#groupBox_6 {
-			background-color:%15;
-		}
-		/*===================================*/
-		QSpinBox {
-		    border: 2px solid %9;
-		    border-radius: 10px;
-		    padding: 0 8px;
-		    selection-background-color:%10;
-		}
-		QSpinBox:focus {
-			border-color:%11;
-		}
-		/*===================================*/
-		QRadioButton, QCheckBox {
-		      spacing: 5px;
-		}
-		
-		QRadioButton::indicator,   QCheckBox::indicator {
-		    width: 13px;
-		    height: 13px;
-		}
-		/*===================================*/
-		QPushButton {
-			border:2px solid %11;
-			border-radius:10px;
-			padding:2px 4px;
-		}
+QToolButton {
+	border:0;
+	border-radius:12px;
+	height:24px;
+	width:24px;
+}
+#btnSelectUplinkIcon {
+	width:32em;
+}
 
-		QPushButton:hover, QPushButton:pressed {
-			background-color:%10;
-		}
+QTextEdit, 
+QLineEdit,
+QSpinBox {
+    height:20px;
+	padding: 0 8px;
+}
+QPushButton {
+	padding:2px 4px;
+}
+QRadioButton::indicator,   
+QCheckBox::indicator {
+	width: 13px;
+	height: 13px;
+}
 
-		QPushButton:disabled {
-			border-color:%10;		/* same as selection background */
-		}
+QRadioButton, QCheckBox {
+	spacing: 5px;
+}
 
-		QPushButton:flat {
-			border:0;
-			border-radius:0;
-		}
-		
-		/*====================================*/
-		QTreeView,QListView {
-			border:2px solid %5;
-			border-radius:10px;
-		}
-		/*====================================*/
-		  QProgressBar {
-		  border: 0;
-		}
-		QProgressBar::chunk{
-			background-color: %14;
-			width: 10px;
-		}
+QTextEdit, 
+QLineEdit,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border-radius: 10px;
+}
+        
+/* ------------------ borders ----------------------*/        
+QTabBar::tab, 
+QToolTip,
+QTextEdit, 
+QLineEdit,
+QGroupBox,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border: 2px solid %3;          /* %3 border color */	
+}
+
+/* ------------------ colors --------------------*/
+QTabBar::tab,
+QTextEdit:focus, 
+QLineEdit:focus,
+QSpinBox:focus {
+    color:%4;                      /* %4  focused */
+}
+
+#menuWidget {
+	background-color:rgb(0,0,0,0);
+}
+QTabBar::tab:selected, 
+QTabBar::tab:hover,
+QPushButton:hover,
+QToolButton:hover {
+	background-color:%5;          /* %5 background hover + TAB selected*/
+}
+QTabBar::tab:selected {
+	border-color:%6;              /* %6 border of selected TAB */
+    border-bottom-color:%1;       /* %1 same as panel background*/
+}
+
+QToolButton,
+QTextEdit, 
+QLineEdit,
+QSpinBox {
+	background-color:%7;           /* %7 input background */
+}
+QTextEdit, 
+QLineEdit,
+QSpinBox {
+	selection-background-color:%8; /* %8 selected text in inputs*/
+}
+
+QTextEdit:focus, 
+QLineEdit:focus,
+QSpinBox:focus {
+	border-color:%9;               /* %9 border of focused */
+}
+
+QTextEdit:read-only, 
+QLineEdit:read-only, 
+QPushButton:disabled,
+QToolButton:disabled {
+	background:%10;                 /* %10 read only and disabled */
+}
+
+#lblBckImage,
+#groupBox_6 {
+	background-color:%11;           /* %11 sample area background and background image backround*/
+}
+QPushButton:pressed,
+QToolButton:pressed {
+	background-color:%12;           /* %12 button backgrounds */
+}
+
+QPusButton:default {
+    background-color:%13;           /* %13 button backgrounds */
+}
+
+QProgressBar::chunk{
+	background-color:%14;          /* %14 signal actual elem*/
+}
+
+#lblActualElem {                        /* %15 signal actual elem*/
+	color:%15;
+}
 		"
 		)END"
 		//QCheckBox::indicator:checked{
@@ -3779,23 +3799,22 @@ void FalconG::_StyleTheProgram(int which)
 	{
 		QString ss =
 			QString(styles)
-			.arg(sWebBkgColor[which])
-			.arg(sWebFgColor[which])
-			.arg(sActElemColor[which])
-			.arg(sTabTextColor[which])
-			.arg(sBorderColor[which])
-			.arg(sSelectedTab[which])
-			.arg(sSelTabBorder[which])
-			.arg(sEditBackground[which])
-			.arg(sEditBorder[which])
-			.arg(sSelBackground[which])
-			.arg(sActiveEditBorder[which])
-			.arg(sFocusdEditText[which])
-			.arg(sReadOnlyBackground[which])
-			.arg(sProgressChunk[which])
-			.arg(sSampleBackground[which])
-			.arg(sCheckBoxIndChk[which])
-			.arg(sCheckBoxIndUnchk[which]);
+			.arg(sBackground[which])		// %1 
+			.arg(sTextColor[which])		// %2 
+			.arg(sBorderColor[which])		// %3 
+			.arg(sFocusedInput[which])		// %4 
+			.arg(sHoverColor[which])		// %5 
+			.arg(sTabBorder[which])		// %6 
+			.arg(sInputBackground[which])		// %7
+			.arg(sSelectedInputBgr[which])		// %8 
+			.arg(sFocusedBorder[which])		// %9 
+			.arg(sDisabledBg[which])		// %10
+			.arg(sImageBackground[which])			// %11
+			.arg(sPressedBg[which])		// %12
+			.arg(sDefaultBg[which])		// %13
+			.arg(sProgressBarChunk[which])		// %14
+			.arg(sWarningColor[which])			// %15
+			;
 
 		frmMain->setStyleSheet(ss);
 
