@@ -2603,7 +2603,7 @@ void FalconG::on_btnResetDesign_clicked()
 void FalconG::on_btnDisplayHint_clicked()
 {
 	QMessageBox(QMessageBox::Information, "falconG - Hint",
-				 "<html><head/><body><p>With certain user interface themes the color of some elements"
+				 "<html><head/><body><p>With certain linux themes the color of some elements"
 				 " on the right may differ from the ones you set on the left.<br>"
 				 "A clear indication is a background mismatch between the color of the "
 				 "<span style=\" font - style:italic;\">Gallery title</span> area on the top and the "
@@ -2900,22 +2900,22 @@ void FalconG::on_edtDescriptionText_textChanged()
 void FalconG::on_rbDefaultStyle_toggled(bool on)
 {
 	if (on)
-		frmMain->_StyleTheProgram(0);
+		frmMain->_StyleTheProgram(stDefault);
 }
 void FalconG::on_rbDarkStyle_toggled(bool on)
 {
 	if (on)
-		frmMain->_StyleTheProgram(1);
+		frmMain->_StyleTheProgram(stDark);
 }
 void FalconG::on_rbBlackStyle_toggled(bool on)
 {
 	if (on)
-		frmMain->_StyleTheProgram(2);
+		frmMain->_StyleTheProgram(stBlack);
 }
 void FalconG::on_rbBlueStyle_toggled(bool on)
 {
 	if (on)
-		frmMain->_StyleTheProgram(3);
+		frmMain->_StyleTheProgram(stBlue);
 }
 
 /*============================================================================
@@ -3582,9 +3582,10 @@ void FalconG::_SaveChangedTexts()
 	albumgen.WriteDirStruct(true);		// keep previous backup file
 }
 
-void FalconG::_StyleTheProgram(int which)
+void FalconG::_StyleTheProgram(skinStyle which)
 {
 		// change these for new color set
+							//				def.  dark		  black		  blue
 	static QString sBackground[]		= { "", "#282828",	"#191919",	"#3b5876" }, // %1  background
 				   sTextColor[]			= { "", "#cccccc",	"#e1e1e1",	"#cccccc" }, // %2  foreground
 				   sBorderColor[]		= { "", "#4d4d4d",	"#323232",	"#747474" }, // %3  border
@@ -3593,8 +3594,8 @@ void FalconG::_StyleTheProgram(int which)
 				   sTabBorder[]			= { "", "#9B9B9B",	"#9b9b9b",	"#3b589b" }, // %6
 				   sInputBackground[]	= { "", "#454545",	"#323232",	"#1c3a55" }, // %7  editor backgrounds
 				   sSelectedInputBgr[]	= { "", "#666666",	"#4a4a4a",	"#3b584a" }, // %8
-				   sFocusedBorder[]		= { "", "#f0f0f0",	"#a8a8a8",	"#f0f0f0" }, // %9
-				   sDisabledBg[]		= { "", "#555555",	"#292929",	"#3b5829" }, // %10
+				   sFocusedBorder[]		= { "", "#c0c0c0",	"#a8a8a8",	"#92b1d5" }, // %9
+				   sDisabledBg[]		= { "", "#555555",	"#191919",	"#697a8e" }, // %10
 				   sImageBackground[]	= { "", "#111111",  "#000000",  "#12273f" }, // %11
 				   sPressedBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %12 button pressed
 				   sDefaultBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %13
@@ -3675,7 +3676,8 @@ QListView {
     border-radius: 10px;
 }
         
-/* ------------------ borders ----------------------*/        
+/* ------------------ borders ----------------------*/   
+QTabWidget:pane,     
 QTabBar::tab, 
 QToolTip,
 QTextEdit, 
@@ -3686,6 +3688,10 @@ QPushButton,
 QTreeView, 
 QListView {
     border: 2px solid %3;          /* %3 border color */	
+}
+
+#btnImage {
+	border-radius:0px;
 }
 
 /* ------------------ colors --------------------*/
@@ -3757,64 +3763,35 @@ QProgressBar::chunk{
 }
 		"
 		)END"
-		//QCheckBox::indicator:checked{
-		//	background - color: % 18
-		//}
-
-		//QCheckBox::indicator : checked{
-		//	background - color: % 17
-		//}
-
-		//"QRadioButton::indicator:unchecked,   QCheckBox::indicator:unchecked {"
-		//"/*      image: url(:/images/checkbox_unchecked.png);*/"
-		//"}"
-		//""
-		//"QRadioButton::indicator:unchecked:hover,  QCheckBox::indicator:unchecked:hover {"
-		//"/*      image: url(:/images/checkbox_unchecked_hover.png);*/"
-		//"}"
-		//""
-		//"QRadioButton::indicator:unchecked:pressed,  QCheckBox::indicator:unchecked:pressed {"
-		//"/*      image: url(:/images/checkbox_unchecked_pressed.png);*/"
-		//"}"
-		//""
-		//"QCheckBox::indicator:checked {"
-		//"/*      image: url(:/images/checkbox_checked.png);*/"
-		//"}"
-		//""
-		//"QCheckBox::indicator:checked:hover {"
-		//"    image: url(:/images/checkbox_checked_hover.png);"
-		//"}"
-		//""
-		//"QCheckBox::indicator:checked:pressed {"
-		//"    image: url(:/images/checkbox_checked_pressed.png);"
-		//"}"
-		//""
-		//"QCheckBox::indicator:indeterminate:hover {"
-		//"    image: url(:/images/checkbox_indeterminate_hover.png);"
-		//"}"
 	};
-	config.styleIndex = which;
-	config.changed = true;
+	config.styleIndex = (int)which;
+	if(!_busy)
+		config.changed = true;
 	if (which)
 	{
 		QString ss =
 			QString(styles)
 			.arg(sBackground[which])		// %1 
-			.arg(sTextColor[which])		// %2 
+			.arg(sTextColor[which])			// %2 
 			.arg(sBorderColor[which])		// %3 
 			.arg(sFocusedInput[which])		// %4 
 			.arg(sHoverColor[which])		// %5 
-			.arg(sTabBorder[which])		// %6 
-			.arg(sInputBackground[which])		// %7
-			.arg(sSelectedInputBgr[which])		// %8 
+			.arg(sTabBorder[which])			// %6 
+			.arg(sInputBackground[which])	// %7
+			.arg(sSelectedInputBgr[which])	// %8 
 			.arg(sFocusedBorder[which])		// %9 
 			.arg(sDisabledBg[which])		// %10
-			.arg(sImageBackground[which])			// %11
-			.arg(sPressedBg[which])		// %12
-			.arg(sDefaultBg[which])		// %13
-			.arg(sProgressBarChunk[which])		// %14
-			.arg(sWarningColor[which])			// %15
+			.arg(sImageBackground[which])	// %11
+			.arg(sPressedBg[which])			// %12
+			.arg(sDefaultBg[which])			// %13
+			.arg(sProgressBarChunk[which])	// %14
+			.arg(sWarningColor[which])		// %15
 			;
+
+		if (which == stBlue)		// blue
+			ss += "QCheckBox::indicator:checked{"
+				  "	  image: url(:/icons/Resources/blue-checked.png);"
+			      "}";
 
 		frmMain->setStyleSheet(ss);
 

@@ -16,7 +16,7 @@
   <property name="minimumSize">
    <size>
     <width>753</width>
-    <height>0</height>
+    <height>864</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -2564,7 +2564,7 @@ background-color:#ffff00;
                 </widget>
                </item>
                <item row="2" column="2" rowspan="2">
-                <widget class="QLabel" name="lblbckImage">
+                <widget class="QLabel" name="lblBckImage">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -2578,8 +2578,7 @@ background-color:#ffff00;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background:white;
-/* :url(&quot;s:/photo/falconG/src/Resources/Lazise_02596-Edit&quot;) white */</string>
+                  <string notr="true"/>
                  </property>
                  <property name="text">
                   <string>background image</string>

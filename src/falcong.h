@@ -71,6 +71,9 @@ public:
 signals:
 	void CancelRun();
 private:
+
+	enum skinStyle { stDefault, stDark, stBlack, stBlue};
+
 	Ui::falconGClass ui;
 
 	Semaphore	_busy,		// prevent recursive parameter changes
@@ -108,7 +111,7 @@ private:
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
 
-	void _StyleTheProgram(int which);
+	void _StyleTheProgram(skinStyle which);
 
 	enum whoChangedTheText {wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4};
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
