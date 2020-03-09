@@ -2065,11 +2065,14 @@ void FalconG::_WebColorButtonClicked()
 #define SET_ELEM_PARAMETERS(button, name) \
 	_SetCommonControlsFromWebButton(shElem, ui.btn##button, config.name);
 	//------------
+	ui.chkSetAll->setEnabled(false);
+
 	switch (_aeActiveElement)
 	{
 		case aeWebPage:   
 			_SetCommonControlsFromWebButton(shElem, ui.frmWeb, config.Web);
 			ui.lblActualElem->setText("Whole Page");
+			ui.chkSetAll->setEnabled(true);
 			break;
 
 		case aeMenuButtons:
@@ -3119,6 +3122,7 @@ _CElem *FalconG::_SelectSampleElement(QWidget *&pb, QString &name)
 {
 	_CElem *pElem = nullptr;
 	name = "QPushButton";
+
 	switch (_aeActiveElement)
 	{
 		case aeWebPage:   pElem = &config.Web;
@@ -3246,6 +3250,21 @@ void FalconG::_SetColorToConfig(StyleHandler &handler, _CElem &elem)
 	QString qsClass;
 	qsClass = elem.nameStr == "Web" ? "QFrame" : "QPushButton";
 
+	if (elem.background != ui.edtBackgroundColor->text() || elem.background.opacity != pmb1 *ui.sbTextOpacity->value()) 
+	{	
+		elem.background = ui.edtBackgroundColor->text();	
+		elem.background.opacity = pmb1 * ui.sbBackgroundOpacity->value(); 
+		elem.background.changed = true; 
+		handler.SetItem(qsClass, "background-color", ColorToStr(elem.background));
+		ui.btnSaveConfig->setEnabled(config.changed == true);
+	}
+
+	if (ui.chkSetAll->isEnabled() && _aeActiveElement != aeWebPage)
+	{
+		_EnableButtons();
+		return;					// only set background color
+	}
+
 	if (elem.shadow.changed)
 	{
 		StyleHandler hshadow(ui.btnShadowColor->styleSheet());
@@ -3267,14 +3286,6 @@ void FalconG::_SetColorToConfig(StyleHandler &handler, _CElem &elem)
 		ui.btnSaveConfig->setEnabled(config.changed == true);  
 		handler.SetItem(qsClass, "color", ColorToStr(elem.color));
 	}	
-	if (elem.background != ui.edtBackgroundColor->text() || elem.background.opacity != pmb1 *ui.sbTextOpacity->value()) 
-	{	
-		elem.background = ui.edtBackgroundColor->text();	
-		elem.background.opacity = pmb1 * ui.sbBackgroundOpacity->value(); 
-		elem.background.changed = true; 
-		handler.SetItem(qsClass, "background-color", ColorToStr(elem.background));
-		ui.btnSaveConfig->setEnabled(config.changed == true);
-	}
 	if(elem.gradient.useEver && elem.gradient.changed)
 	{
 		if (elem.gradient.gs[0].color != ui.edtGradStartColor->text())
@@ -3341,6 +3352,33 @@ void FalconG::_SetWebColor()
 			ui.frmWeb->setStyleSheet(ss); 
 			//ss = "QWidget {" + ss.mid(11);
 			ui.pnlGallery->setStyleSheet(ss);
+			if (ui.chkSetAll->isChecked())	// than set background for all elements
+			{
+				AlbumElements aelem = _aeActiveElement;		// save active element
+
+				_aeActiveElement = aeGalleryTitle;
+				_SetWebColor();						// only sets background color as chkSetAll is enabled!
+				_aeActiveElement = aeGalleryDesc;
+				_SetWebColor();
+				_aeActiveElement = aeLangButton;
+				_SetWebColor();
+				_aeActiveElement = aeSmallGalleryTitle;
+				_SetWebColor();
+				_aeActiveElement = aeMenuButtons;
+				_SetWebColor();
+				_aeActiveElement = aeAlbumTitle;
+				_SetWebColor();
+				_aeActiveElement = aeAlbumDesc;
+				_SetWebColor();
+				_aeActiveElement = aeSection;
+				_SetWebColor();
+				_aeActiveElement = aeImageTitle;
+				_SetWebColor();
+				_aeActiveElement = aeImageDesc;
+				_SetWebColor();
+
+				_aeActiveElement = aelem;					// restore active element
+			}
 // DEBUG
 //ShowStyleOf(ui.pnlGallery); 	
 			break;

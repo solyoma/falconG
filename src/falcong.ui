@@ -1706,10 +1706,20 @@ original file name.</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2" colspan="2">
+               <item row="2" column="0">
                 <widget class="QToolButton" name="btnSelectUplinkIcon">
                  <property name="text">
-                  <string>Select icon for up-link</string>
+                  <string>Icon for up-link</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2" colspan="2">
+                <widget class="QCheckBox" name="chkSetAll">
+                 <property name="text">
+                  <string>Set All Backgrounds</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -2564,7 +2574,7 @@ background-color:#ffff00;
                 </widget>
                </item>
                <item row="2" column="2" rowspan="2">
-                <widget class="QLabel" name="lblBckImage">
+                <widget class="QLabel" name="lblbckImage">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -2578,7 +2588,8 @@ background-color:#ffff00;
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true"/>
+                  <string notr="true">background:white;
+/* :url(&quot;s:/photo/falconG/src/Resources/Lazise_02596-Edit&quot;) white */</string>
                  </property>
                  <property name="text">
                   <string>background image</string>
@@ -4523,7 +4534,7 @@ so when one changes the other changes too.
              <string>De&amp;fault</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -4537,6 +4548,9 @@ so when one changes the other changes too.
             </property>
             <property name="text">
              <string>Blue</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
