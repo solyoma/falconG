@@ -438,7 +438,7 @@ void FalconG::_ConfigToSample()
 	ss = "QFrame {" + __ColorStyle(config.Web) + "\n}\n";
 	ui.frmWeb->setStyleSheet(ss);
 	//ss = "QWidget" + ss.mid(6);
-	//ss = "QWidget {\nbackground-color: " + ColorToStr(config.Web.background)\
+	//ss = "QWidget {\nbackground-color: " + ColorToStr(config.Web.background)
 	//	+ ";\n color: " + ColorToStr(config.Web.color) + ";\n}";
 	ui.pnlGallery->setStyleSheet(ss);
 	// DEBUG

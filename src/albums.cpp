@@ -2645,7 +2645,7 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
 			_ShadowToString(" -moz-box-shadow", config.Menu) +
 			_ShadowToString(" box-shadow", config.Menu);
-		s += "\n}\n\n";
+	s += "\n}\n\n";
 
 	s +=	"div.menu-line a.langs{\n"
 			"	color:" + ColorToStr(config.Lang.color) + ";\n"

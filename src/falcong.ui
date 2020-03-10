@@ -25,6 +25,11 @@
     <height>16777215</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Tahoma</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Falcon's gallery Generator</string>
   </property>
@@ -157,6 +162,7 @@ regardless if they were already OK.</string>
      <widget class="QTabWidget" name="tabFalconG">
       <property name="font">
        <font>
+        <family>Tahoma</family>
         <weight>50</weight>
         <bold>false</bold>
        </font>
@@ -182,6 +188,7 @@ regardless if they were already OK.</string>
           </property>
           <property name="font">
            <font>
+            <family>Tahoma</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -194,6 +201,7 @@ regardless if they were already OK.</string>
             <widget class="QCheckBox" name="chkSourceRelativePerSign">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -213,6 +221,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtDestGallery">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -226,6 +235,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtSourceGallery">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -239,6 +249,7 @@ regardless if they were already OK.</string>
             <widget class="QToolButton" name="btnBrowseSource">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -252,6 +263,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_17">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -268,6 +280,7 @@ regardless if they were already OK.</string>
             <widget class="QToolButton" name="btnBrowseDestination">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -281,6 +294,7 @@ regardless if they were already OK.</string>
             <widget class="QPushButton" name="btnSourceHistory">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -309,6 +323,7 @@ regardless if they were already OK.</string>
           </property>
           <property name="font">
            <font>
+            <family>Tahoma</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -321,6 +336,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_19">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -337,6 +353,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtServerAddress">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -350,6 +367,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_20">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -366,6 +384,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtGalleryRoot">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -382,6 +401,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_5">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -395,6 +415,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtUplink">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -411,6 +432,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_21">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -427,6 +449,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtMainPage">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -446,6 +469,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_36">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -459,6 +483,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtDescription">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -472,6 +497,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_61">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -485,6 +511,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtKeywords">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -503,6 +530,7 @@ regardless if they were already OK.</string>
            <widget class="QGroupBox" name="gbGallery">
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -515,6 +543,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToDescriptions">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -528,6 +557,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtAbout">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -544,6 +574,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_50">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -557,6 +588,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkRightClickProtected">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -570,6 +602,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtGalleryTitle">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -586,6 +619,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_47">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -599,6 +633,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtBackImage">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -618,6 +653,7 @@ regardless if they were already OK.</string>
                </property>
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -634,6 +670,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtEmailTo">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -647,6 +684,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkAllowLinkToImages">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -660,6 +698,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_42">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -676,6 +715,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToContact">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -689,6 +729,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkCanDownload">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -702,6 +743,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToToggleCaptions">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -715,6 +757,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkFacebook">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -728,6 +771,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToAbout">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -741,6 +785,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_62">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -754,6 +799,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtGalleryLanguages">
                <property name="font">
                 <font>
+                 <family>Tahoma</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -775,6 +821,7 @@ regardless if they were already OK.</string>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -787,6 +834,7 @@ regardless if they were already OK.</string>
                 <widget class="QSpinBox" name="sbNewDays">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -797,6 +845,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_31">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -810,6 +859,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_30">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -826,6 +876,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_18">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -839,6 +890,7 @@ regardless if they were already OK.</string>
                 <widget class="QSpinBox" name="sbLatestCount">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -855,6 +907,7 @@ regardless if they were already OK.</string>
                 <widget class="QCheckBox" name="chkSetLatest">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -877,6 +930,7 @@ regardless if they were already OK.</string>
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -889,6 +943,7 @@ regardless if they were already OK.</string>
                 <widget class="QCheckBox" name="chkUseGoogleAnalytics">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -902,6 +957,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_9">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -918,6 +974,7 @@ regardless if they were already OK.</string>
                 <widget class="QLineEdit" name="edtTrackingCode">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -937,6 +994,7 @@ regardless if they were already OK.</string>
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -955,6 +1013,7 @@ regardless if they were already OK.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -971,6 +1030,7 @@ regardless if they were already OK.</string>
                 <widget class="QLineEdit" name="edtImg">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -994,6 +1054,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1010,6 +1071,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtThumb">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1027,6 +1089,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLabel" name="label_22">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1043,6 +1106,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtAlbumDir">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1056,6 +1120,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLabel" name="label_44">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1072,6 +1137,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtFontDir">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1090,6 +1156,7 @@ Will be put in stylesa.css</string>
                 <widget class="QLabel" name="label_46">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1106,6 +1173,7 @@ Will be put in stylesa.css</string>
                 <widget class="QLineEdit" name="edtDefaultFonts">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1126,6 +1194,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 <widget class="QLabel" name="label_45">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1142,6 +1211,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 <widget class="QLineEdit" name="edtBaseName">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1232,6 +1302,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            <widget class="QCheckBox" name="chkOvrImages">
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1359,7 +1430,10 @@ original file name.</string>
              </property>
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1412,6 +1486,7 @@ original file name.</string>
                <widget class="QLabel" name="label_64">
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
                   <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -1426,7 +1501,10 @@ original file name.</string>
                <widget class="QLabel" name="lblActualElem">
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
                  </font>
                 </property>
                 <property name="styleSheet">
@@ -1456,6 +1534,7 @@ original file name.</string>
              <widget class="QGroupBox" name="groupBox_4">
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -1468,6 +1547,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_35">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1484,6 +1564,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_26">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1506,6 +1587,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1519,6 +1601,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_34">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1535,6 +1618,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_57">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1548,6 +1632,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkBackgroundOpacity">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1564,6 +1649,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_33">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1586,6 +1672,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1618,6 +1705,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1640,6 +1728,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_16">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1653,6 +1742,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkTextOpacity">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1688,6 +1778,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1764,6 +1855,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1790,6 +1882,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1816,6 +1909,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1860,6 +1954,7 @@ original file name.</string>
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -1917,6 +2012,7 @@ original file name.</string>
                 <widget class="QSpinBox" name="sbGradStartPos">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1933,6 +2029,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1952,6 +2049,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1965,6 +2063,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkGradient">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2035,6 +2134,7 @@ original file name.</string>
                 <widget class="QSpinBox" name="sbGradStopPos">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2051,6 +2151,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkButtonBorder">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2067,6 +2168,7 @@ original file name.</string>
                 <widget class="QSpinBox" name="sbGradMiddlePos">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2089,6 +2191,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2102,6 +2205,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_58">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2115,6 +2219,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_59">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2128,6 +2233,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_60">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2150,6 +2256,7 @@ original file name.</string>
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2177,6 +2284,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_27">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2193,6 +2301,7 @@ original file name.</string>
                 <widget class="QLineEdit" name="edtFontFamily">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2203,6 +2312,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_28">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2219,6 +2329,7 @@ original file name.</string>
                 <widget class="QComboBox" name="cbPointSize">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2318,6 +2429,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkBold">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2331,6 +2443,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkItalic">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2344,6 +2457,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkUnderline">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2357,6 +2471,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkStrikethrough">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2379,6 +2494,7 @@ original file name.</string>
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2409,6 +2525,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2428,6 +2545,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2444,6 +2562,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkImageBorder">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2478,6 +2597,7 @@ background-color:#ffff00;
                 <widget class="QLabel" name="label_14">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2500,6 +2620,7 @@ background-color:#ffff00;
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2513,6 +2634,7 @@ background-color:#ffff00;
                 <widget class="QLabel" name="label_15">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2535,6 +2657,7 @@ background-color:#ffff00;
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2684,6 +2807,7 @@ background-color:#ffff00;
             </property>
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -3210,6 +3334,7 @@ font-weight: bold;
               </property>
               <property name="font">
                <font>
+                <family>Tahoma</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -3222,6 +3347,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_7">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3235,6 +3361,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbImageWidth">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3257,6 +3384,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_2">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3283,6 +3411,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_3">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3296,6 +3425,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbThumbnailHeight">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3318,6 +3448,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3331,6 +3462,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbImageHeight">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3356,6 +3488,7 @@ font-weight: bold;
                  </property>
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3378,6 +3511,7 @@ font-weight: bold;
                 <widget class="QCheckBox" name="chkCropThumbnails">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3404,6 +3538,7 @@ is required..</string>
                 <widget class="QCheckBox" name="chkDoNotEnlarge">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3420,6 +3555,7 @@ is required..</string>
                 <widget class="QCheckBox" name="chkDistortThumbnails">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3442,6 +3578,7 @@ is required.</string>
                 <widget class="QToolButton" name="btnLink">
                  <property name="font">
                   <font>
+                   <family>Tahoma</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3492,6 +3629,7 @@ so when one changes the other changes too.
             </property>
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -3538,6 +3676,7 @@ so when one changes the other changes too.
                   <widget class="QSpinBox" name="sbWmOpacity">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3568,6 +3707,7 @@ so when one changes the other changes too.
                   <widget class="QLabel" name="label_12">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3584,6 +3724,7 @@ so when one changes the other changes too.
                   <widget class="QCheckBox" name="chkUseWM">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3597,6 +3738,7 @@ so when one changes the other changes too.
                   <widget class="QLabel" name="label_13">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3613,6 +3755,7 @@ so when one changes the other changes too.
                   <widget class="QLineEdit" name="edtWatermark">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3627,6 +3770,7 @@ so when one changes the other changes too.
                   <widget class="QGroupBox" name="groupBox_7">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -3639,6 +3783,7 @@ so when one changes the other changes too.
                      <widget class="QLineEdit" name="edtWmVertMargin">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3649,6 +3794,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_8">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3662,6 +3808,7 @@ so when one changes the other changes too.
                      <widget class="QComboBox" name="cbWmVPosition">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3690,6 +3837,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_6">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3709,6 +3857,7 @@ so when one changes the other changes too.
                   <widget class="QGroupBox" name="groupBox_9">
                    <property name="font">
                     <font>
+                     <family>Tahoma</family>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -3721,6 +3870,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_48">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3734,6 +3884,7 @@ so when one changes the other changes too.
                      <widget class="QComboBox" name="cbWmHPosition">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3762,6 +3913,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_49">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3775,6 +3927,7 @@ so when one changes the other changes too.
                      <widget class="QLineEdit" name="edtWmHorizMargin">
                       <property name="font">
                        <font>
+                        <family>Tahoma</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3815,6 +3968,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3841,6 +3995,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3867,6 +4022,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3877,6 +4033,7 @@ so when one changes the other changes too.
                    <widget class="QLabel" name="label_52">
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3923,6 +4080,7 @@ so when one changes the other changes too.
          <widget class="QGroupBox" name="groupBox_8">
           <property name="font">
            <font>
+            <family>Tahoma</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -3941,6 +4099,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -3971,6 +4130,7 @@ so when one changes the other changes too.
             <widget class="QLabel" name="label_29">
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -3993,6 +4153,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -4012,6 +4173,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Tahoma</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -4149,6 +4311,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4204,6 +4367,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4285,6 +4449,7 @@ so when one changes the other changes too.
                   </property>
                   <property name="font">
                    <font>
+                    <family>Tahoma</family>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -4330,6 +4495,7 @@ so when one changes the other changes too.
                    <widget class="QLabel" name="label_10">
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4404,6 +4570,7 @@ so when one changes the other changes too.
                   </property>
                   <property name="font">
                    <font>
+                    <family>Tahoma</family>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -4445,6 +4612,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Tahoma</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4517,6 +4685,7 @@ so when one changes the other changes too.
         </property>
         <property name="font">
          <font>
+          <family>Tahoma</family>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -4538,6 +4707,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbDefaultStyle">
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4554,6 +4724,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbBlueStyle">
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4570,6 +4741,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbDarkStyle">
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4586,6 +4758,7 @@ so when one changes the other changes too.
             </property>
             <property name="font">
              <font>
+              <family>Tahoma</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4602,14 +4775,6 @@ so when one changes the other changes too.
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <action name="actionOpen">
    <property name="text">
