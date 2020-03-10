@@ -1708,13 +1708,25 @@ original file name.</string>
                </item>
                <item row="2" column="0">
                 <widget class="QToolButton" name="btnSelectUplinkIcon">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Icon for up-link</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2" colspan="2">
+               <item row="2" column="2" colspan="3">
                 <widget class="QCheckBox" name="chkSetAll">
+                 <property name="font">
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Set All Backgrounds</string>
                  </property>
