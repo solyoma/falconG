@@ -115,7 +115,7 @@ struct WaterMark
 	{
 		QFontMetrics fm(font);
 
-		int markWidth = fm.width(text),
+		int markWidth = fm.horizontalAdvance(text),
 			markHeight = fm.height();
 		delete mark;
 		mark = new QImage(markWidth, markHeight, QImage::Format_ARGB32);
@@ -172,7 +172,7 @@ struct ImageConverter
 //	double CalcSizes(ImageReader &reader);	 // set original and new sizes
 	double Process(ImageReader &reader, QString dest, QString thumb, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
-	QString ErrorText() const { ; }
+	QString ErrorText() const { return QString(); }
 private:
 	QImage *_pImg = nullptr;
 	QString _qsErrorMsg;

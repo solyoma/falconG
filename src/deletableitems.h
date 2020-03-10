@@ -142,7 +142,7 @@ public:
 	 *-------------------------------------------------------*/
 	bool IsDeleted(int i) const
 	{
-		return i >= 0 && i < BaseClassType::size() && BaseClassType::operator[](i).batch >= 0
+		return i >= 0 && i < BaseClassType::size() && BaseClassType::operator[](i).batch >= 0;
 	}
 
 	// delete index-th not deleted item

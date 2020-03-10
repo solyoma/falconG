@@ -15,7 +15,7 @@ void ShowWarning(QString qs, QWidget *parent)
 	if (f.isOpen())
 	{
 		QTextStream ofs(&f);
-		ofs << QDateTime::currentDateTime << " - " << qs << "\n\n";
+		ofs << QDateTime::currentDateTime().toString() << " - " << qs << "\n\n";
 		f.close();
 	}
 
