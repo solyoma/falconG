@@ -51,7 +51,7 @@
      <number>2</number>
     </property>
     <item row="2" column="0">
-     <widget class="QWidget" name="widget_10" native="true">
+     <widget class="QWidget" name="pnlButtons" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -64,7 +64,7 @@
         <height>0</height>
        </size>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_1">
+      <layout class="QHBoxLayout" name="pnlButtonsLayout">
        <item>
         <widget class="QPushButton" name="btnGenerate">
          <property name="enabled">
@@ -173,7 +173,7 @@ regardless if they were already OK.</string>
        <attribute name="title">
         <string>&amp;Gallery</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_17">
+       <layout class="QVBoxLayout" name="tabGalleryLayout">
         <property name="spacing">
          <number>2</number>
         </property>
@@ -515,7 +515,7 @@ regardless if they were already OK.</string>
             <property name="title">
              <string>Gallery</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_17">
+            <layout class="QGridLayout" name="gbGalleryLayout">
              <item row="11" column="3">
               <widget class="QCheckBox" name="chkMenuToDescriptions">
                <property name="font">
@@ -787,7 +787,7 @@ regardless if they were already OK.</string>
               <property name="title">
                <string>Latest uploads</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_6">
+              <layout class="QGridLayout" name="gbLatestLayout">
                <item row="0" column="1">
                 <widget class="QSpinBox" name="sbNewDays">
                  <property name="font">
@@ -1396,7 +1396,7 @@ original file name.</string>
        <attribute name="title">
         <string>&amp;Design</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_16">
+       <layout class="QVBoxLayout" name="tabDesignLayout">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,1">
           <item>
@@ -1462,7 +1462,7 @@ original file name.</string>
              </layout>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_4">
+             <widget class="QGroupBox" name="gbColors">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -1472,7 +1472,7 @@ original file name.</string>
               <property name="title">
                <string>Colors</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_4">
+              <layout class="QGridLayout" name="gbColorsLayout">
                <item row="1" column="5">
                 <widget class="QLabel" name="label_35">
                  <property name="font">
@@ -1876,7 +1876,7 @@ original file name.</string>
               <property name="title">
                <string>Menu</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_12" columnstretch="0,1,1,1,1">
+              <layout class="QGridLayout" name="gbMenuLayout" columnstretch="0,1,1,1,1">
                <property name="leftMargin">
                 <number>3</number>
                </property>
@@ -2150,7 +2150,7 @@ original file name.</string>
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_5">
+             <widget class="QGroupBox" name="gbFont">
               <property name="minimumSize">
                <size>
                 <width>270</width>
@@ -2166,15 +2166,15 @@ original file name.</string>
               <property name="title">
                <string>Font</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_13">
+              <layout class="QGridLayout" name="gbFontLayout">
                <property name="leftMargin">
-                <number>3</number>
+                <number>9</number>
                </property>
                <property name="topMargin">
                 <number>3</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>9</number>
                </property>
                <property name="bottomMargin">
                 <number>3</number>
@@ -2395,7 +2395,7 @@ original file name.</string>
               <property name="title">
                <string>Image Decoration</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_10">
+              <layout class="QGridLayout" name="gbDecorationLayout">
                <property name="leftMargin">
                 <number>3</number>
                </property>
@@ -2535,7 +2535,7 @@ background-color:#ffff00;
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_2">
+             <widget class="QGroupBox" name="gbBackgroundImage">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -2551,7 +2551,7 @@ background-color:#ffff00;
               <property name="title">
                <string>Background image</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_15">
+              <layout class="QGridLayout" name="gbBackgroundImageLayout">
                <item row="0" column="0">
                 <widget class="QLabel" name="label_63">
                  <property name="text">
@@ -2684,7 +2684,7 @@ background-color:#ffff00;
            </layout>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox_6">
+           <widget class="QGroupBox" name="gbSample">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -2700,7 +2700,7 @@ background-color:#ffff00;
             <property name="title">
              <string>Sample</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_14" stretch="0,1">
+            <layout class="QVBoxLayout" name="gbSampleLayout" stretch="0,1">
              <item>
               <widget class="QFrame" name="pnlGallery">
                <property name="styleSheet">
@@ -2962,7 +2962,7 @@ distinctio...</string>
                    <widget class="QPushButton" name="btnSmallGalleryTitle">
                     <property name="font">
                      <font>
-                      <family>Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif</family>
+                      <family>Constantia</family>
                       <pointsize>10</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
@@ -3198,7 +3198,7 @@ font-weight: bold;
        <attribute name="title">
         <string>&amp;Images</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_1">
+       <layout class="QVBoxLayout" name="tabImageLayout">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <property name="topMargin">
@@ -3210,7 +3210,7 @@ font-weight: bold;
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QGroupBox" name="groupBox">
+             <widget class="QGroupBox" name="gbResizing">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -3513,7 +3513,7 @@ so when one changes the other changes too.
               <number>0</number>
              </property>
              <property name="leftMargin">
-              <number>0</number>
+              <number>9</number>
              </property>
              <property name="topMargin">
               <number>0</number>
@@ -3633,7 +3633,7 @@ so when one changes the other changes too.
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_7">
+                  <widget class="QGroupBox" name="gbVerticalPosition">
                    <property name="font">
                     <font>
                      <weight>75</weight>
@@ -3643,7 +3643,7 @@ so when one changes the other changes too.
                    <property name="title">
                     <string>Vertical position</string>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_3">
+                   <layout class="QGridLayout" name="gbVerticalPositionLayout">
                     <item row="2" column="1">
                      <widget class="QLineEdit" name="edtWmVertMargin">
                       <property name="font">
@@ -3715,7 +3715,7 @@ so when one changes the other changes too.
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_9">
+                  <widget class="QGroupBox" name="gbHorizontalPosition">
                    <property name="font">
                     <font>
                      <weight>75</weight>
@@ -3725,7 +3725,7 @@ so when one changes the other changes too.
                    <property name="title">
                     <string>Horizontal position</string>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_9">
+                   <layout class="QGridLayout" name="gbHorizontalPositionLayout">
                     <item row="2" column="3">
                      <widget class="QLabel" name="label_48">
                       <property name="font">
@@ -3796,14 +3796,14 @@ so when one changes the other changes too.
                 </layout>
                </item>
                <item>
-                <widget class="QWidget" name="widget_2" native="true">
+                <widget class="QWidget" name="pnlShadow" native="true">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <layout class="QHBoxLayout" name="pnlShadowLayout">
                   <item>
                    <widget class="QLabel" name="label_25">
                     <property name="text">
@@ -3929,7 +3929,7 @@ so when one changes the other changes too.
          </layout>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_8">
+         <widget class="QGroupBox" name="gbWatermarkFont">
           <property name="font">
            <font>
             <weight>75</weight>
@@ -3939,7 +3939,7 @@ so when one changes the other changes too.
           <property name="title">
            <string>Font</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_7">
+          <layout class="QGridLayout" name="gbWatermarkFontLayout">
            <item row="0" column="6">
             <widget class="QLineEdit" name="edtWmColor">
              <property name="sizePolicy">
@@ -4071,7 +4071,7 @@ so when one changes the other changes too.
        <attribute name="title">
         <string>&amp;Edit</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_20">
+       <layout class="QVBoxLayout" name="tabEditLayout">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -4147,7 +4147,7 @@ so when one changes the other changes too.
                  <number>1</number>
                 </property>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                 <layout class="QVBoxLayout" name="editAlbumsLayout">
                   <item>
                    <widget class="QLabel" name="label_51">
                     <property name="sizePolicy">
@@ -4202,7 +4202,7 @@ so when one changes the other changes too.
                  <number>1</number>
                 </property>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <layout class="QVBoxLayout" name="editImagesLayout">
                   <item>
                    <widget class="QLabel" name="label_53">
                     <property name="sizePolicy">
@@ -4511,7 +4511,7 @@ so when one changes the other changes too.
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tabOptions">
        <attribute name="title">
         <string>&amp;Options</string>
        </attribute>

@@ -111,6 +111,7 @@ private:
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
 
+	void _SetLayoutMargins(skinStyle which);
 	void _StyleTheProgram(skinStyle which);
 
 	enum whoChangedTheText {wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4};

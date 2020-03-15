@@ -3620,8 +3620,50 @@ void FalconG::_SaveChangedTexts()
 	albumgen.WriteDirStruct(true);		// keep previous backup file
 }
 
+void FalconG::_SetLayoutMargins(skinStyle which)
+{
+	int layoutTop = 9;
+	QMargins margins;
+
+	auto modifyLayout = [&](QWidget* pw)
+	{
+		margins = pw->layout()->contentsMargins();
+		margins.setTop(layoutTop);
+		pw->layout()->setContentsMargins(margins);
+	};
+
+	switch (which)
+	{
+		case stDefault:
+		default:
+			layoutTop = 9;
+			break;
+		case stBlue:
+		case stDark:
+		case stBlack:
+			layoutTop = 18;
+			break;
+	}
+	modifyLayout(ui.gbLocalMachine);
+	modifyLayout(ui.gbServer);
+	modifyLayout(ui.gbGallery);
+	modifyLayout(ui.gbLatest);
+	modifyLayout(ui.gbMenu);
+	modifyLayout(ui.gbFont);
+	modifyLayout(ui.gbDecoration);
+	modifyLayout(ui.gbBackgroundImage);
+	modifyLayout(ui.gbSample);
+	modifyLayout(ui.gbResizing);
+	modifyLayout(ui.gbWatermark);
+	modifyLayout(ui.gbVerticalPosition);
+	modifyLayout(ui.gbHorizontalPosition);
+	modifyLayout(ui.gbWatermarkFont);
+}
+
 void FalconG::_StyleTheProgram(skinStyle which)
 {
+	_SetLayoutMargins(which);
+
 		// change these for new color set
 							//				def.  dark		  black		  blue
 	static QString sBackground[]		= { "", "#282828",	"#191919",	"#3b5876" }, // %1  background
@@ -3638,7 +3680,8 @@ void FalconG::_StyleTheProgram(skinStyle which)
 				   sPressedBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %12 button pressed
 				   sDefaultBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %13
 				   sProgressBarChunk[]	= { "", "#e28308",	"#e28308",	"#e28308" }, // %14
-				   sWarningColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f" }  // %15
+				   sWarningColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f" }, // %15
+				   sBoldTitleColor[]	= { "", "white",	"white",	"yellow"  }	 // %16	 GroupBox title
 	;
 
 	 // theme style string used only when not the default style is used
@@ -3733,6 +3776,10 @@ QListView {
 }
 
 /* ------------------ colors --------------------*/
+QGroupBox::title {
+	color:%16
+}
+
 QTabBar::tab,
 QTextEdit:focus, 
 QLineEdit:focus,
@@ -3824,6 +3871,7 @@ QProgressBar::chunk{
 			.arg(sDefaultBg[which])			// %13
 			.arg(sProgressBarChunk[which])	// %14
 			.arg(sWarningColor[which])		// %15
+			.arg(sBoldTitleColor[which])			// %16
 			;
 
 		if (which == stBlue)		// blue
