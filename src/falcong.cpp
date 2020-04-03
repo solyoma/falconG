@@ -3081,7 +3081,7 @@ void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
 			elem.background.changed = true;
 		}
 	}
-	if(!which  & 1)
+	if((which & 1) == 0 )
 	{
 		val = (ui.chkTextOpacity->isChecked() ? 1 : -1)*ui.sbTextOpacity->value();
 		if (elem.color.opacity != val)
@@ -3646,6 +3646,7 @@ void FalconG::_SetLayoutMargins(skinStyle which)
 	}
 	modifyLayout(ui.gbLocalMachine);
 	modifyLayout(ui.gbServer);
+	modifyLayout(ui.gbAdvanced);
 	modifyLayout(ui.gbGallery);
 	modifyLayout(ui.gbLatest);
 	modifyLayout(ui.gbMenu);
@@ -3681,7 +3682,7 @@ void FalconG::_StyleTheProgram(skinStyle which)
 				   sDefaultBg[]			= { "", "#555555",  "#323232",  "#555555" }, // %13
 				   sProgressBarChunk[]	= { "", "#e28308",	"#e28308",	"#e28308" }, // %14
 				   sWarningColor[]		= { "", "#f0a91f",	"#f0a91f",	"#f0a91f" }, // %15
-				   sBoldTitleColor[]	= { "", "white",	"white",	"yellow"  }	 // %16	 GroupBox title
+				   sBoldTitleColor[]	= { "", "#e28308",	"#e28308",	"#e28308" }	 // %16	 GroupBox title
 	;
 
 	 // theme style string used only when not the default style is used
@@ -3871,7 +3872,7 @@ QProgressBar::chunk{
 			.arg(sDefaultBg[which])			// %13
 			.arg(sProgressBarChunk[which])	// %14
 			.arg(sWarningColor[which])		// %15
-			.arg(sBoldTitleColor[which])			// %16
+			.arg(sBoldTitleColor[which])	// %16
 			;
 
 		if (which == stBlue)		// blue
