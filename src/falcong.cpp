@@ -3615,7 +3615,7 @@ void FalconG::_SaveChangedTexts()
 		}
 	}
 
-	_selection.changed = 0;				// all changes saved
+	_selection.changed = FalconGEditTabSelection::fsNothing;				// all changes saved
 
 	albumgen.WriteDirStruct(true);		// keep previous backup file
 }

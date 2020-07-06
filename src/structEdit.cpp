@@ -156,7 +156,7 @@ void AlbumTreeModel::ModelChanged()
 Qt::ItemFlags AlbumTreeModel::flags(const QModelIndex & index) const
 {
 	if (!index.isValid())
-		return 0;
+		return Qt::ItemFlags();
 
     Qt::ItemFlags iflags = QAbstractItemModel::flags(index)	// contains the commented out flags below
 		//| Qt::ItemIsSelectable

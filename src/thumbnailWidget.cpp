@@ -61,8 +61,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(par
     _fileFilters = new QStringList;
     _emptyImg.load(":/icon/empty_image.png");
 
-    QTime time = QTime::currentTime();
-    qsrand((uint) time.msec());
+    //QTime time = QTime::currentTime();
+    // qsrand((uint) time.msec());
+    // using QRandomGenerator::global() which is always securely seeded
 
 	setDragEnabled(true);
 	setAcceptDrops(true);
@@ -183,7 +184,7 @@ int ThumbnailWidget::getLastRow()
 *------------------------------------------------------------*/
 int ThumbnailWidget::getRandomRow()
 {
-    return qrand() % (_thumbnailWidgetModel->rowCount());
+    return QRandomGenerator::global()->generate() % (_thumbnailWidgetModel->rowCount());
 }
 
 /*=============================================================
@@ -891,7 +892,7 @@ void ThumbnailWidget::addThumb(int which)
  *------------------------------------------------------------*/
 void ThumbnailWidget::wheelEvent(QWheelEvent *event)
 {
-    if (event->delta() < 0) {
+    if (event->angleDelta().y() < 0) {
         verticalScrollBar()->setValue(verticalScrollBar()->value() + _thumbSize);
     } else {
         verticalScrollBar()->setValue(verticalScrollBar()->value() - _thumbSize);
