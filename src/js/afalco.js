@@ -3,12 +3,14 @@
 // Set your top level matrix album directory in DoLang() before using this
 // code
 
-var lang = "en";
+var lang = "en";            // default, got it from 'localStorage'
 
 function SetTextsForLanguage()
 {
-			 
-		lang=falco_readCookie("falco_lang");
+		var lng = localStorage.getItem('falconG-lang');
+        if (lng )
+            lang = lng;
+		// lang=falco_readCookie("falco_lang");
 		var which = lang == "hu" ? 1 : 0;
 //alert("lang = "+ lang + "\nwhich = "+which);		
 		if(which === 1)
@@ -40,8 +42,9 @@ function SetLang(language)  // lang = 'hu' or 'en'
 {
  if(language === 'hu' || language === 'en')
  {
+    localStorage.setItem('falconG-lang', language);
 	lang = language;
-	falco_createCookie('falco_lang',language, 90);
+	// falco_createCookie('falco_lang',language, 90);
  }
 }
 function DoLink(which, addr)
