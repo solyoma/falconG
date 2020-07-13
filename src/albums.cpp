@@ -2684,6 +2684,10 @@ QString AlbumGenerator::_ColorCSSToString()
 		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
 		_ElemColorCssToString("footer", config.ImageDesc, wColor) + 
 
+		".lightbox .caption {\n"+
+		"   color:" + ColorToStr(config.AlbumTitle.color) + ";\n"
+		"}\n" +
+
 		// block for menu buttons
 		_MenuColorCSSToString() + 
 		// end of menu button
@@ -2917,55 +2921,97 @@ QString AlbumGenerator::_CssToString()
 		"\n"
 // section div.thumb
 		"section div.thumb{\n";
-	s += "	display:-webkit-flex;\n"
-		"	display:-ms-flexbox;\n"
-		"	display:flex; \n"
-		"	justify-content: center;\n"
-		"	flex-wrap: wrap;\n"
-		"	flex-direction: row;\n"
-		"	padding: 1px;\n"
-		"	margin: 0 2;\n"
-		"}\n"
-		"\n"
-// .img-container img
-// .gallery-container img
-		".img-container img,\n"
-		" .gallery-container img {\n"
-		"	margin:auto;\n"
-		"	max-width:99vw;\n"
-// image border is set in _ColorCSSToString()
-		"}\n"
-		"\n"
-// div.links
-		"div.links{\n"
-		"	display:flex;\n"
-		"	width:100% ;\n"
-		"	justify-content:center;\n"
-		"	margin: auto;\n"
-		"	margin-bottom: 10px;\n"
-		"	padding-bottom: 5px;\n"
-		"}\n"
-		"\n"
-// div.links a, .showhide
-		"div.links a, .showhide{\n"
-		"	text-decoration:none;\n"
-		"	font-family:\"Playfair Display\", sans-serif, Arial;\n"
-		"	font-weight:bold;\n"
-		"	cursor:pointer;\n"
-		"}\n"
-		"\n"
-		"div.links a:hover, .showhide:hover{\n"
-		"	font-weight: 700;\n"
-		"   font-style: italic;\n"
-		"}\n"
-		"\n"
+		s += "	display:-webkit-flex;\n"
+			"	display:-ms-flexbox;\n"
+			"	display:flex; \n"
+			"	justify-content: center;\n"
+			"	flex-wrap: wrap;\n"
+			"	flex-direction: row;\n"
+			"	padding: 1px;\n"
+			"	margin: 0 2;\n"
+			"}\n"
+			"\n"
+	// .img-container img
+	// .gallery-container img
+			".img-container img,\n"
+			" .gallery-container img {\n"
+			"	margin:auto;\n"
+			"	max-width:99vw;\n"
+	// image border is set in _ColorCSSToString()
+			"}\n"
+			"\n"
+	// div.links
+			"div.links{\n"
+			"	display:flex;\n"
+			"	width:100% ;\n"
+			"	justify-content:center;\n"
+			"	margin: auto;\n"
+			"	margin-bottom: 10px;\n"
+			"	padding-bottom: 5px;\n"
+			"}\n"
+			"\n"
+	// div.links a, .showhide
+			"div.links a, .showhide{\n"
+			"	text-decoration:none;\n"
+			"	font-family:\"Playfair Display\", sans-serif, Arial;\n"
+			"	font-weight:bold;\n"
+			"	cursor:pointer;\n"
+			"}\n"
+			"\n"
+			"div.links a:hover, .showhide:hover{\n"
+			"	font-weight: 700;\n"
+			"   font-style: italic;\n"
+			"}\n"
+			"\n";
+		// light boc
+		s += R"CSS(
+.lightbox {
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    position: fixed;
+    z-index: 20;
+    padding-top: 30px;
+    box-sizing: border-box;
+	overflow:auto;
+  }
+
+#lb-flex {
+    display: flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width: 100%;
+    height: 100%;
+}
+  
+.lightbox img {
+    display: block;
+    cursor:pointer;
+}
+  
+.lightbox .caption {
+    margin: 15px auto;
+    width: 50%;
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    font-weight: 700;
+}
+		 )CSS";
+
+// ---- media queries
+  s+=
 		"	/* -- media queries ***/\n"
 		"@media only screen and (orientation: landscape) {\n"
 		"	.img-container img,\n"
 		"	.gallery_container img {\n";
 	if (config.bDistrortThumbnails)
 		s += "		width:" + QString().setNum(config.thumbWidth) + "px;\n";
-	s += "		max-height: 90vh; \n	}\n";
+	s += "		max-height: 95vh; \n	}\n";
 
 	s +="}\n"
 		"\n"
@@ -2975,6 +3021,10 @@ QString AlbumGenerator::_CssToString()
 		"		max-width:100vw;\n"
 		"		padding:0 3px;\n"
 		"	}\n";
+	//s += "    .lightbox img	{\n"
+	//	"	      max-width:99vw;\n"
+	//	"     }\n";
+	
 	if (config.bCropThumbnails || config.bDistrortThumbnails)
 	{
 // div.thumb > 700px
@@ -3322,6 +3372,15 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 		_ofs << "<h2 class=\"album-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
 	if (album.descID)
 		_ofs << "<p class=\"album-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
+
+	_ofs << R"X(
+    <div id="lightbox" class="lightbox">
+	  <div id="lb-flex">
+		<img id="lightbox-img" onclick="LightBoxFadeOut()">
+		<p id="lightbox-caption" class="caption"></p>
+	  </div>
+	</ div>
+			  )X";
 	_ofs << "</header>\n";
 	return 0;
 }
@@ -3396,6 +3455,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		 << ">\n"
 		    "     <div class=\"thumb\">\n"
 		    "       <a href=\"";
+	// ----- links to albums or individual images on same web page
 	if (itIsAnAlbum)
 	{
 		title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
@@ -3414,11 +3474,18 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
 		sImagePath = sImageDir + ( (album.images.size() > 0 ? pImage->LinkName() : QString()) );
 		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
-		_ofs << sImagePath;		// image in the image directory
+		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')";		// image in the image directory
 	}
 
-	// the first 10 images will always be loaded immediately
-	_ofs << (i > 9 ? "\"><img data-src=\"" : "\"><img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
+	if (pImage)
+	{
+		_ofs << "\" id=\""
+			<< pImage->LinkName().left(pImage->LinkName().length() - 4)
+			<< "\">";		// HTML5: no 'name' attribute to <a>, use 'id' instead
+	}
+
+	// the first 3 images will always be loaded immediately
+	_ofs << (i > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
 	
 	if (pImage)
 	{
@@ -3426,6 +3493,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 			pImage->SetThumbSize();
 		if (pImage->tsize.width() >= 700)		// too wide thumbnail image
 			_ofs << " style=\"max-height:calc(99vw / " << (int)(pImage->Aspect()) << ")\"";
+		else
+			_ofs << " style=\"width: " << pImage->tsize.width() << "; height: " << pImage->tsize.height() << ";\"";
 	}
 	_ofs << "></a>\n"
 			"     </div>\n";									   // end of div thumb
@@ -3444,7 +3513,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
 	else
-		_ofs << (sImagePath.isEmpty() ? "#" : sImagePath) + "\">";
+		_ofs << (sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title + "')")  + "\">";
 	if (pImage && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
@@ -3668,12 +3737,11 @@ int AlbumGenerator::__CreatePageInner(QFile &f, Album & album, int language, QSt
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << _PageHeaderToString(album.ID);
-
+	_ofs << _PageHeaderToString(album.ID)
+		 << "<body onload = \"falconGLoad()\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
-		_ofs << "<body oncontextmenu=\"return false;\" onload=\"falconGLoad()\">;\n";
-	else
-		_ofs << "<body onload=\"falconGLoad()\">\n";
+		_ofs << " oncontextmenu=\"return false;\"";
+	_ofs << ">\n";
 
 	if (config.bFacebookLink)
 		_ofs << _IncludeFacebookLibrary(); 
