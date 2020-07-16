@@ -3451,22 +3451,35 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	else
 		pImage = &_imageMap[id];
 
-	_ofs << "   <section class=\"img-container\""
-		 << ">\n"
-		    "     <div class=\"thumb\">\n"
-		    "       <a href=\"";
-	// ----- links to albums or individual images on same web page
+	if (pImage)
+	{
+		if (pImage->tsize.width() <= 0)
+			pImage->SetThumbSize();
+	}
+
+
+	_ofs << "   <section class=\"img-container\">\n"
+		"     <div class=\"thumb\"";
+	if (pImage)
+		_ofs << " id=\"" << pImage->ID << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
+	_ofs << ">";
+
 	if (itIsAnAlbum)
 	{
 		title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
 		desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], true);
-		
+
 		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
 		{
 			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
 			sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
 		}
-		_ofs <<  sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false);	// non root albums are in the same sub directory
+	}
+	_ofs << "\n       <a href=\"";
+
+	if (itIsAnAlbum)
+	{
+		_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
 	}
 	else
 	{
@@ -3474,27 +3487,19 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
 		sImagePath = sImageDir + ( (album.images.size() > 0 ? pImage->LinkName() : QString()) );
 		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
-		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')";		// image in the image directory
+		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')\">";		// image in the image directory
 	}
 
-	if (pImage)
-	{
-		_ofs << "\" id=\""
-			<< pImage->LinkName().left(pImage->LinkName().length() - 4)
-			<< "\">";		// HTML5: no 'name' attribute to <a>, use 'id' instead
-	}
 
 	// the first 3 images will always be loaded immediately
 	_ofs << (i > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
 	
 	if (pImage)
 	{
-		if (pImage->tsize.width() <= 0)
-			pImage->SetThumbSize();
 		if (pImage->tsize.width() >= 700)		// too wide thumbnail image
 			_ofs << " style=\"max-height:calc(99vw / " << (int)(pImage->Aspect()) << ")\"";
-		else
-			_ofs << " style=\"width: " << pImage->tsize.width() << "; height: " << pImage->tsize.height() << ";\"";
+//		else
+//			_ofs << " style=\"width: " << pImage->tsize.width() << "; height: " << pImage->tsize.height() << ";\"";
 	}
 	_ofs << "></a>\n"
 			"     </div>\n";									   // end of div thumb

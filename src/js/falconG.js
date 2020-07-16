@@ -2,7 +2,35 @@
 // email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com). 
 
 
-var showDesc = 1;
+var showDesc = 0;
+
+window.addEventListener("resize", ResizeThumbs)
+
+function ResizeThumbs()
+{
+    const thumbs = document.querySelectorAll(".thumb");
+    var wh = PageWidthHeight();
+    thumbs.forEach( thumb => {
+            var w = thumb.getAttribute('w'), 
+                h = thumb.getAttribute('h');
+            var aspect = w / h;
+            
+            thumb.style.width = w + "px";       // default
+            thumb.style.height = h + "px";
+            
+            if(w > wh.width)
+            {
+                thumb.style.width = wh.width + "px"
+                thumb.style.height = (wh.width / aspect)  + "px" 
+            }
+            if(h > wh.height)
+            {
+                thumb.style.height = wh.height + "px"
+                thumb.style.width = (wh.height * aspect)  + "px" 
+            }
+    })
+    
+}
 
 function ShowHide()
 {
@@ -13,35 +41,36 @@ function ShowHide()
 		d[i].style.display = (showDesc == 0 ? "none" : "block");
 	}
 	showDesc ^= 1;
+    sessionStorage.setItem("showDescription", showDesc);
 }
 
-//from http://www.quirksmode.org/js/cookies.html
-// falco_ is added
+// ********************* SCROLL BACK TO POSITION *************
 
-function falco_createCookie(name,value,days) {
-	if (days) {
-		var date = new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
-	}
-	else var expires = "";
-	document.cookie = name+"="+value+expires+"; path=/";
+function PageWidthHeight()
+{
+    var body = document.body,
+        html = document.documentElement;
+
+    var h = Math.max( body.scrollHeight, body.offsetHeight, 
+                           html.clientHeight, html.scrollHeight, html.offsetHeight );    
+    var w = Math.max( body.scrollWidth, body.offsetWidth, 
+                           html.clientWidth, html.scrollWidth, html.offsetWidth );    
+    return { height:h, width:w }
 }
 
-function falco_readCookie(name) {
-	var nameEQ = name + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-	}
-	return null;
+// when link uses onbeforeunload
+
+function BeforeUnload()
+{
+    console.log( "From page '"+ window.location.href + "' (width, height):" + PageWidthHeight().width + ", " + PageWidthHeight().height + " pos=" +(document.documentElement.scrollTop || document.body.scrollTop));
+    
+    sessionStorage.setItem(window.location.href, document.documentElement.scrollTop || document.body.scrollTop); 
 }
 
-function falco_eraseCookie(name) {
-	createCookie(name,"",-1);
-}
+const imgOptions = {
+    treshold: 0,
+    rootMargin: "0px 0px -10px 0px"
+};
 //****************************************************
 function preloadImage(img) {
     const src=img.getAttribute("data-src");
@@ -51,20 +80,18 @@ function preloadImage(img) {
     img.removeAttribute("data-src");
 }
 
-const imgOptions = {
-    treshold: 0,
-    rootMargin: "0px 0px -10px 0px"
-};
-
-function BeforeUnload()
-{
-//    console.log( "From page '"+ window.location.href + "' y = " + (document.documentElement.scrollTop || document.body.scrollTop));
-    
-    sessionStorage.setItem(window.location.href, document.documentElement.scrollTop || document.body.scrollTop); 
-}
-
 function falconGLoad()
 {
+    ResizeThumbs();
+    showDesc = sessionStorage.getItem("showDescription");
+    if(!showDesc)       // e.g. not defined
+        showDesc = 0;       
+    else
+        showDesc ^= 1;  // invert stored
+    
+console.log("showDesc=" + showDesc)    
+    ShowHide(showDesc);
+    t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");
     cnt = 0;
 
@@ -84,19 +111,13 @@ function falconGLoad()
         imgObserver.observe(image);
 	})
     
-    pos  = sessionStorage.getItem(window.location.href);
-    if( pos > 0)
-    { 
-//        console.log( "scroll to y= " + pos);
-        setTimeout(function() {
-                                document.body.scrollTo(0, pos); 
-//                                console.log( "scrolled to y= " + (document.documentElement.scrollTop || document.body.scrollTop) + "\n" );
-        }, 20);
-    }
-    
+
+    var pos = sessionStorage.getItem(window.location.href);
+    if(pos !== undefined && pos > 0)
+        document.body.scrollTo(0, pos);
 }
 
-// Show lightbox
+// ********************************************************* Show lightbox
 
 function FadeInOut(fadeIn)
 {
