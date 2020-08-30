@@ -3238,7 +3238,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 {
 	bool multipleLanguages = Languages::Count() > 1;
 
-	QString path, name, ext;						// see if name has a path, which may be outside /inside of gallery root
+	QString path, name, ext;						// see if name has a path, which may be either outside or inside of gallery root
 	SeparateFileNamePath(base, path, name, &ext);
 	if (ext.isEmpty())
 		ext = ".html";
