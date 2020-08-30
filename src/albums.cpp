@@ -2889,6 +2889,8 @@ QString AlbumGenerator::_CssToString()
 		"	display:flex;\n"
 		"	flex-direction: column;\n"
 		"	padding:0 1px;\n"
+		"   justify-content:center;\n"
+		"   align-items:center;\n"
 		"}\n"
 		"\n"
 		// im dest-src=
