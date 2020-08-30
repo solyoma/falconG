@@ -766,12 +766,10 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 		return -1.0;
 
 	QImageIOHandler::Transformations tr = imgReader.transformation();
-//	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
-//		newSize.transpose();
-	imgReader.setScaledSize(imgReader.imgSize);	// newSize used in read, thumbSize used in write
-// DEBUG
-	QString imageName = imgReader.fileName();
-// /DEBUG
+	QSize newSize = imgReader.imgSize;	// if tr then it may already transposed sizes (from camera, not from PS/LR)
+	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+		newSize.transpose();
+	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
 
 	if (!imgReader.isReady)			// not read yet
 	{								
