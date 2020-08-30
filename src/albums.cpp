@@ -3550,8 +3550,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-		dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions),
-		thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
+			dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions),
+			thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
 
 	QFileInfo fiSrc(src), fiThumb(thumbName), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),
@@ -3569,9 +3569,9 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		return;
 	}
 
-	ImageReader imgReader(src, im.dontResize);			// constructor doesn`t read image!
-	QSize imgSize = imgReader.size();					// size read from file
-	QImageIOHandler::Transformations tr = imgReader.transformation();
+	ImageReader imgReader(src, im.dontResize);			// constructor opens file, but doesn`t read image! 'autoTransform' is set to true
+	QSize imgSize = imgReader.size();					// size read from file (autoTransform affects only read() and not this size())
+	QImageIOHandler::Transformations tr = imgReader.transformation(); // from file
 	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
 		imgSize.transpose();
 
