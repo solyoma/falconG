@@ -84,10 +84,10 @@ public:
 struct WaterMark
 {
 	QString text;
-	int origin = 0+0;	// 0,1,2: index of vertical 0,0x10,0x20 - horizontal
+	int origin = 0+0;	// 0,1,2: index of vertical 0,0x10,0x20 - index of horizontal
 	int marginX = 0, // measured from nearest horizontal image edge 
 		marginY = 0; // measured from nearest vert. image edge
-	int color = 0,		// rgb
+	int color = 0xffffff,		// rgb
 		background = -1, // rgb -1: not used
 		shadowColor = -1,// color (rgb) -1: not used
 		opacity = 0;	// in percent

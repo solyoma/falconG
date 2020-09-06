@@ -107,6 +107,7 @@ private:
 	void _SetChangedConfig();
 	void _OpacityChanged(int val, int which);	// which = 0 -> color, 1: background
 	void _SetColorToConfig(StyleHandler &handler, _CElem &elem);
+	void _SetFontToConfig(_CElem &elem);	// called inside _SetColorToConfig
 	void _SetWebColor();		// set WEB button colors
 	void _SetupWebButtonFromConfig();
 	void _SaveChangedTexts();  // when texts are edited and changed
@@ -184,6 +185,8 @@ private slots:
 	void on_edtWmVertMargin_textChanged();
 
 	void on_cbPointSize_currentTextChanged(const QString &txt);
+	void on_chkDifferentFirstLine_toggled(bool b);
+	void on_cbPointSizeFirstLine_currentTextChanged(const QString &txt);
 	void on_edtFontFamily_textChanged();
 
 	void on_chkGenerateAll_toggled(bool);
@@ -241,7 +244,7 @@ private slots:
 	void on_btnGalleryTitle_clicked();
 	void on_btnGalleryDesc_clicked();
 	void on_btnSmallGalleryTitle_clicked();
-	void on_btnMenu_clicked();
+	void on_btnHome_clicked();
 	void on_btnGradBorder_clicked();
 	void on_btnLang_clicked();
 	void on_btnUplink_clicked();
@@ -258,7 +261,7 @@ private slots:
 	void on_btnBrowseSource_clicked();
 	void on_btnBrowseDestination_clicked();
 	// color buttons
-	void on_btnColor_clicked();	
+	void on_btnForeground_clicked();	
 	void on_btnBackground_clicked();
 	void on_btnBrowseForBackgroundImage();
 	void on_btnGradStartColor_clicked();

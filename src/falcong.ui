@@ -162,6 +162,7 @@ regardless if they were already OK.</string>
      <widget class="QTabWidget" name="tabFalconG">
       <property name="font">
        <font>
+        <family>Arial</family>
         <weight>50</weight>
         <bold>false</bold>
        </font>
@@ -187,6 +188,7 @@ regardless if they were already OK.</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -199,6 +201,7 @@ regardless if they were already OK.</string>
             <widget class="QCheckBox" name="chkSourceRelativePerSign">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -218,6 +221,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtDestGallery">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -231,6 +235,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtSourceGallery">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -244,6 +249,7 @@ regardless if they were already OK.</string>
             <widget class="QToolButton" name="btnBrowseSource">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -257,6 +263,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_17">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -273,6 +280,7 @@ regardless if they were already OK.</string>
             <widget class="QToolButton" name="btnBrowseDestination">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -286,6 +294,7 @@ regardless if they were already OK.</string>
             <widget class="QPushButton" name="btnSourceHistory">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -314,6 +323,7 @@ regardless if they were already OK.</string>
           </property>
           <property name="font">
            <font>
+            <family>Arial</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -326,6 +336,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_19">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -342,6 +353,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtServerAddress">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -355,6 +367,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_20">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -371,6 +384,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtGalleryRoot">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -387,6 +401,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_5">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -400,6 +415,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtUplink">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -416,6 +432,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_21">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -432,6 +449,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtMainPage">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -451,6 +469,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_36">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -464,6 +483,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtDescription">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -477,6 +497,7 @@ regardless if they were already OK.</string>
             <widget class="QLabel" name="label_61">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -490,6 +511,7 @@ regardless if they were already OK.</string>
             <widget class="QLineEdit" name="edtKeywords">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -508,6 +530,7 @@ regardless if they were already OK.</string>
            <widget class="QGroupBox" name="gbGallery">
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -520,6 +543,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToDescriptions">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -533,6 +557,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtAbout">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -549,6 +574,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_50">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -562,6 +588,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkRightClickProtected">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -575,6 +602,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtGalleryTitle">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -591,6 +619,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_47">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -604,6 +633,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtBackImage">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -623,6 +653,7 @@ regardless if they were already OK.</string>
                </property>
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -639,6 +670,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtEmailTo">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -652,6 +684,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkAllowLinkToImages">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -665,6 +698,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_42">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -681,6 +715,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToContact">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -694,6 +729,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkCanDownload">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -707,6 +743,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToToggleCaptions">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -720,6 +757,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkFacebook">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -733,6 +771,7 @@ regardless if they were already OK.</string>
               <widget class="QCheckBox" name="chkMenuToAbout">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -746,6 +785,7 @@ regardless if they were already OK.</string>
               <widget class="QLabel" name="label_62">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -759,6 +799,7 @@ regardless if they were already OK.</string>
               <widget class="QLineEdit" name="edtGalleryLanguages">
                <property name="font">
                 <font>
+                 <family>Arial</family>
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
@@ -780,6 +821,7 @@ regardless if they were already OK.</string>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -792,6 +834,7 @@ regardless if they were already OK.</string>
                 <widget class="QSpinBox" name="sbNewDays">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -802,6 +845,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_31">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -815,6 +859,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_30">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -831,6 +876,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_18">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -844,6 +890,7 @@ regardless if they were already OK.</string>
                 <widget class="QSpinBox" name="sbLatestCount">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -860,6 +907,7 @@ regardless if they were already OK.</string>
                 <widget class="QCheckBox" name="chkSetLatest">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -882,6 +930,7 @@ regardless if they were already OK.</string>
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -894,6 +943,7 @@ regardless if they were already OK.</string>
                 <widget class="QCheckBox" name="chkUseGoogleAnalytics">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -907,6 +957,7 @@ regardless if they were already OK.</string>
                 <widget class="QLabel" name="label_9">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -923,6 +974,7 @@ regardless if they were already OK.</string>
                 <widget class="QLineEdit" name="edtTrackingCode">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -942,6 +994,7 @@ regardless if they were already OK.</string>
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -960,6 +1013,7 @@ regardless if they were already OK.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -976,6 +1030,7 @@ regardless if they were already OK.</string>
                 <widget class="QLineEdit" name="edtImg">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -999,6 +1054,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1015,6 +1071,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtThumb">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1032,6 +1089,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLabel" name="label_22">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1048,6 +1106,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtAlbumDir">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1061,6 +1120,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLabel" name="label_44">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1077,6 +1137,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                 <widget class="QLineEdit" name="edtFontDir">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1095,6 +1156,7 @@ Will be put in stylesa.css</string>
                 <widget class="QLabel" name="label_46">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1111,6 +1173,7 @@ Will be put in stylesa.css</string>
                 <widget class="QLineEdit" name="edtDefaultFonts">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1131,6 +1194,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 <widget class="QLabel" name="label_45">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1147,6 +1211,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 <widget class="QLineEdit" name="edtBaseName">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1191,7 +1256,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            </widget>
           </item>
           <item row="0" column="3">
-           <widget class="QCheckBox" name="chkReadJalbum">
+           <widget class="QCheckBox" name="chkReadJAlbum">
             <property name="text">
              <string>Read from directories/JAlbum</string>
             </property>
@@ -1237,6 +1302,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            <widget class="QCheckBox" name="chkOvrImages">
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1364,6 +1430,7 @@ original file name.</string>
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>10</pointsize>
                <weight>50</weight>
                <bold>false</bold>
@@ -1419,6 +1486,7 @@ original file name.</string>
                <widget class="QLabel" name="label_64">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
@@ -1433,6 +1501,7 @@ original file name.</string>
                <widget class="QLabel" name="lblActualElem">
                 <property name="font">
                  <font>
+                  <family>Arial</family>
                   <pointsize>10</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
@@ -1465,6 +1534,7 @@ original file name.</string>
              <widget class="QGroupBox" name="gbColors">
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -1477,6 +1547,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_35">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1493,6 +1564,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_26">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1513,8 +1585,15 @@ original file name.</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1528,6 +1607,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_34">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1544,6 +1624,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_57">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1557,6 +1638,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkBackgroundOpacity">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1573,6 +1655,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_33">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1593,8 +1676,15 @@ original file name.</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1605,7 +1695,7 @@ original file name.</string>
                 </widget>
                </item>
                <item row="0" column="3">
-                <widget class="QToolButton" name="btnColor">
+                <widget class="QToolButton" name="btnForeground">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1627,6 +1717,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1649,6 +1740,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_16">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1662,6 +1754,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkTextOpacity">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1697,6 +1790,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1719,6 +1813,7 @@ original file name.</string>
                 <widget class="QToolButton" name="btnSelectUplinkIcon">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1732,6 +1827,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkSetAll">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1773,6 +1869,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1799,6 +1896,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1825,6 +1923,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1869,6 +1968,7 @@ original file name.</string>
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -1924,8 +2024,15 @@ original file name.</string>
                </item>
                <item row="1" column="3">
                 <widget class="QSpinBox" name="sbGradStartPos">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1940,8 +2047,15 @@ original file name.</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1959,8 +2073,15 @@ original file name.</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -1974,6 +2095,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkGradient">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2028,6 +2150,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>MS Shell Dlg 2</family>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -2042,8 +2165,15 @@ original file name.</string>
                </item>
                <item row="3" column="3">
                 <widget class="QSpinBox" name="sbGradStopPos">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2060,6 +2190,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkButtonBorder">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2074,8 +2205,15 @@ original file name.</string>
                </item>
                <item row="2" column="3">
                 <widget class="QSpinBox" name="sbGradMiddlePos">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2096,8 +2234,15 @@ original file name.</string>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2111,6 +2256,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_58">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2124,6 +2270,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_59">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2137,6 +2284,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_60">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2154,11 +2302,12 @@ original file name.</string>
               <property name="minimumSize">
                <size>
                 <width>270</width>
-                <height>100</height>
+                <height>130</height>
                </size>
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2166,26 +2315,12 @@ original file name.</string>
               <property name="title">
                <string>Font</string>
               </property>
-              <layout class="QGridLayout" name="gbFontLayout">
-               <property name="leftMargin">
-                <number>9</number>
-               </property>
-               <property name="topMargin">
-                <number>3</number>
-               </property>
-               <property name="rightMargin">
-                <number>9</number>
-               </property>
-               <property name="bottomMargin">
-                <number>3</number>
-               </property>
-               <property name="spacing">
-                <number>3</number>
-               </property>
+              <layout class="QGridLayout" name="gridLayout_3">
                <item row="0" column="0">
                 <widget class="QLabel" name="label_27">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2198,10 +2333,17 @@ original file name.</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1" colspan="2">
+               <item row="0" column="1" colspan="3">
                 <widget class="QLineEdit" name="edtFontFamily">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2212,6 +2354,7 @@ original file name.</string>
                 <widget class="QLabel" name="label_28">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2224,10 +2367,45 @@ original file name.</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1" colspan="2">
-                <widget class="QComboBox" name="cbPointSize">
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="chkBold">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Bold</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0" colspan="2">
+                <widget class="QCheckBox" name="chkUnderline">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Underline</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="cbPointSize">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2323,23 +2501,131 @@ original file name.</string>
                  </item>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="chkBold">
+               <item row="1" column="2">
+                <widget class="QCheckBox" name="chkDifferentFirstLine">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
                  <property name="text">
-                  <string>Bold</string>
+                  <string>&amp;Different 1st:</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2">
+               <item row="1" column="3">
+                <widget class="QComboBox" name="cbPointSizeFirstLine">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="currentIndex">
+                  <number>6</number>
+                 </property>
+                 <property name="insertPolicy">
+                  <enum>QComboBox::NoInsert</enum>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>8pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>9pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>10pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>11pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>12pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>14pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>16pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>18pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>20pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>22pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>24pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>26pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>28pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>36pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>48pt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>72pt</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="3">
                 <widget class="QCheckBox" name="chkItalic">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2349,23 +2635,11 @@ original file name.</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0" colspan="2">
-                <widget class="QCheckBox" name="chkUnderline">
-                 <property name="font">
-                  <font>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Underline</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="2">
+               <item row="3" column="3">
                 <widget class="QCheckBox" name="chkStrikethrough">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2388,6 +2662,7 @@ original file name.</string>
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2418,6 +2693,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2437,6 +2713,7 @@ original file name.</string>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2453,6 +2730,7 @@ original file name.</string>
                 <widget class="QCheckBox" name="chkImageBorder">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2469,6 +2747,7 @@ original file name.</string>
                 <widget class="QToolButton" name="btnBorderColor">
                  <property name="font">
                   <font>
+                   <family>MS Shell Dlg 2</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2487,6 +2766,7 @@ background-color:#ffff00;
                 <widget class="QLabel" name="label_14">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2504,11 +2784,12 @@ background-color:#ffff00;
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>30</height>
+                   <height>24</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2522,6 +2803,7 @@ background-color:#ffff00;
                 <widget class="QLabel" name="label_15">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -2544,6 +2826,7 @@ background-color:#ffff00;
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -2560,7 +2843,14 @@ background-color:#ffff00;
                 </widget>
                </item>
                <item row="0" column="1" colspan="2">
-                <widget class="QLineEdit" name="edtBckImageName"/>
+                <widget class="QLineEdit" name="edtBckImageName">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                </widget>
                </item>
                <item row="3" column="0">
                 <widget class="QRadioButton" name="rbTileBckImage">
@@ -2693,6 +2983,7 @@ background-color:#ffff00;
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -2787,7 +3078,7 @@ background-color:#a03020;
                     <bool>true</bool>
                    </property>
                   </widget>
-                  <widget class="QPushButton" name="btnMenu">
+                  <widget class="QPushButton" name="btnHome">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -3219,6 +3510,7 @@ font-weight: bold;
               </property>
               <property name="font">
                <font>
+                <family>Arial</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -3231,6 +3523,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_7">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3244,6 +3537,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbImageWidth">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3266,6 +3560,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_2">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3292,6 +3587,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label_3">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3305,6 +3601,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbThumbnailHeight">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3327,6 +3624,7 @@ font-weight: bold;
                 <widget class="QLabel" name="label">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3340,6 +3638,7 @@ font-weight: bold;
                 <widget class="QSpinBox" name="sbImageHeight">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3365,6 +3664,7 @@ font-weight: bold;
                  </property>
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3387,6 +3687,7 @@ font-weight: bold;
                 <widget class="QCheckBox" name="chkCropThumbnails">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3413,6 +3714,7 @@ is required..</string>
                 <widget class="QCheckBox" name="chkDoNotEnlarge">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3429,6 +3731,7 @@ is required..</string>
                 <widget class="QCheckBox" name="chkDistortThumbnails">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3451,6 +3754,7 @@ is required.</string>
                 <widget class="QToolButton" name="btnLink">
                  <property name="font">
                   <font>
+                   <family>Arial</family>
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
@@ -3501,6 +3805,7 @@ so when one changes the other changes too.
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -3547,6 +3852,7 @@ so when one changes the other changes too.
                   <widget class="QSpinBox" name="sbWmOpacity">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3577,6 +3883,7 @@ so when one changes the other changes too.
                   <widget class="QLabel" name="label_12">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3593,6 +3900,7 @@ so when one changes the other changes too.
                   <widget class="QCheckBox" name="chkUseWM">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3606,6 +3914,7 @@ so when one changes the other changes too.
                   <widget class="QLabel" name="label_13">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3622,6 +3931,7 @@ so when one changes the other changes too.
                   <widget class="QLineEdit" name="edtWatermark">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
@@ -3636,6 +3946,7 @@ so when one changes the other changes too.
                   <widget class="QGroupBox" name="gbVerticalPosition">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -3648,6 +3959,7 @@ so when one changes the other changes too.
                      <widget class="QLineEdit" name="edtWmVertMargin">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3658,6 +3970,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_8">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3671,6 +3984,7 @@ so when one changes the other changes too.
                      <widget class="QComboBox" name="cbWmVPosition">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3699,6 +4013,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_6">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3718,6 +4033,7 @@ so when one changes the other changes too.
                   <widget class="QGroupBox" name="gbHorizontalPosition">
                    <property name="font">
                     <font>
+                     <family>Arial</family>
                      <weight>75</weight>
                      <bold>true</bold>
                     </font>
@@ -3730,6 +4046,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_48">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3743,6 +4060,7 @@ so when one changes the other changes too.
                      <widget class="QComboBox" name="cbWmHPosition">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3771,6 +4089,7 @@ so when one changes the other changes too.
                      <widget class="QLabel" name="label_49">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3784,6 +4103,7 @@ so when one changes the other changes too.
                      <widget class="QLineEdit" name="edtWmHorizMargin">
                       <property name="font">
                        <font>
+                        <family>Arial</family>
                         <weight>50</weight>
                         <bold>false</bold>
                        </font>
@@ -3824,6 +4144,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3850,6 +4171,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3876,6 +4198,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3886,6 +4209,7 @@ so when one changes the other changes too.
                    <widget class="QLabel" name="label_52">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -3932,6 +4256,7 @@ so when one changes the other changes too.
          <widget class="QGroupBox" name="gbWatermarkFont">
           <property name="font">
            <font>
+            <family>Arial</family>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -3950,6 +4275,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -3980,6 +4306,7 @@ so when one changes the other changes too.
             <widget class="QLabel" name="label_29">
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -4002,6 +4329,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -4021,6 +4349,7 @@ so when one changes the other changes too.
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
@@ -4158,6 +4487,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4213,6 +4543,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4294,6 +4625,7 @@ so when one changes the other changes too.
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -4339,6 +4671,7 @@ so when one changes the other changes too.
                    <widget class="QLabel" name="label_10">
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4413,6 +4746,7 @@ so when one changes the other changes too.
                   </property>
                   <property name="font">
                    <font>
+                    <family>Arial</family>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -4454,6 +4788,7 @@ so when one changes the other changes too.
                     </property>
                     <property name="font">
                      <font>
+                      <family>Arial</family>
                       <weight>75</weight>
                       <bold>true</bold>
                      </font>
@@ -4526,6 +4861,7 @@ so when one changes the other changes too.
         </property>
         <property name="font">
          <font>
+          <family>Arial</family>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -4547,6 +4883,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbDefaultStyle">
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4563,6 +4900,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbBlueStyle">
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4579,6 +4917,7 @@ so when one changes the other changes too.
            <widget class="QRadioButton" name="rbDarkStyle">
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -4595,6 +4934,7 @@ so when one changes the other changes too.
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <weight>50</weight>
               <bold>false</bold>
              </font>

@@ -210,31 +210,30 @@ void StyleHandler::Set(const QString & ss)
 		_groups[qs] = _rules;
 }
 
-QString StyleHandler::StyleSheet() const
+QString StyleHandler::StyleSheet()
 {
-	QString ss;
-
+	_ssr.clear();
 	if (_groups.size())
 	{
 		for (auto it = _groups.constBegin(); it != _groups.constEnd(); ++it)
 		{
-			ss += it.key() + " {\n";
+			_ssr += it.key() + " {\n";
 			auto el = it.value();
 			for (auto ite = el.constBegin(); ite != el.constEnd(); ++ite)
 			{
-				ss += "  " + ite.key() + ":" + ite.value() + ";\n";
+				_ssr += "  " + ite.key() + ":" + ite.value() + ";\n";
 			}
-			ss += "}\n";
+			_ssr += "}\n";
 		}
 	}
 	else	 // no group just elements
 	{
 		for (auto ite = _rules.constBegin(); ite != _rules.constEnd(); ++ite)
 		{
-			ss += "  " + ite.key() + ":" + ite.value() + ";\n";
+			_ssr += "  " + ite.key() + ":" + ite.value() + ";\n";
 		}
 	}
-	return ss;
+	return _ssr;
 }
 
 

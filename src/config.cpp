@@ -12,46 +12,14 @@ static bool __bClearChangedFlag = false;	// set to true to clear the changed fla
 CONFIG config,		// must be here because _Changed uses it
 	   configSave;
 
-/*=====================_Changed flags ====================================================*/
-bool _Changed::operator=(bool val) 
-{
-	if (val != _changed)
-	{
-		_changed = val; 
-		if(val)
-			config.changed = true;
-	} 
-	return val;
-}
-
-bool _Changed::operator!=(bool val)
-{
-	return (val != _changed);
-}
-
-bool _Changed::operator==(bool val)
-{
-	return (val == _changed);
-}
-
-bool _Changed::operator|=(bool val)
-{
-	val |= _changed;
-	return operator=(val);
-}
-
-bool _Changed::operator&=(bool val)
-{
-	val &= _changed;
-	return operator=(val);
-}
-
 /*========================== CONFIG_USED ====================*/
 void CONFIGS_USED::Read()
 {
 	lastConfigs.clear();
 	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
-	s.beginGroup("config_save");
+
+	s.beginGroup("config_save"); //--------------------------------
+
 	maxSavedConfigs = s.value("maxSaveConfigs", 10).toInt();
 	int numSaveConfigs = s.value("numSaveConfigs", 0).toInt();
 	indexOfLastUsed = s.value("indexOfLastUsed", 0).toInt();
@@ -67,12 +35,13 @@ void CONFIGS_USED::Read()
 			lastConfigs.push_back(str);
 		}
 	}
-	s.endGroup();
+
+	s.endGroup();				//------------------------------------
 }
 
 void CONFIGS_USED::Write()
 {
-	QString sLast = parent->dsSrc.str.trimmed();
+	QString sLast = parent->dsSrc.v.trimmed();
 	if (sLast.isEmpty())		
 		CONFIGS_USED::indexOfLastUsed = -1;
 	else
@@ -127,11 +96,11 @@ QString CONFIGS_USED::NameForConfig(QString sExt)
 	if (s[s.length() - 1] != '/')
 		s += "/";
 	if (n.isEmpty())
-		sIniName = sDefault;
+		sIniName = sDefault;		 //	 'falconG.ini' (in program folder)
 	else
-		sIniName = s + n + sExt;
+		sIniName = s + n + sExt;	 // = <path w.o. last folder name from 'falcong.ini'>/<folder>/<folder>.ini
 
-	if (!QFile::exists(sIniName))
+	if (!QFile::exists(sIniName))	 
 	{
 		sIniName = s + sDefault;
 		if (!QFile::exists(sIniName))
@@ -143,99 +112,6 @@ QString CONFIGS_USED::NameForConfig(QString sExt)
 
 
 
-// ! If you add any new field to CONFIG you need to add the name, 
-//		the default value the read and write calls and make changes
-//		to PopulateFromConfig() in 'falconG.cpp'
-
-bool CONFIG::_ChangedFlag::operator=(bool flag)
-{
-	_state = flag;
-	if (!flag)		// not changed: clear all 'changed' flags
-	{
-		_parent->dsApplication.changed = false;
-		_parent->dsSrc.changed = false;
-		_parent->dsGallery.changed = false;
-		_parent->sGalleryLanguages.changed = false;
-		_parent->dsGRoot.changed = false;
-		_parent->dsAlbumDir.changed = false;
-		_parent->dsCssDir.changed = false;
-		_parent->dsFontDir.changed = false;
-		_parent->dsImageDir.changed = false;
-		_parent->dsThumbDir.changed = false;
-
-		_parent->sUplink.changed = false;
-		_parent->iconUplink.changed = false;
-		_parent->sMainPage.changed = false;
-		_parent->sDescription.changed = false;
-		_parent->sKeywords.changed = false;
-		
-		_parent->bGenerateAll.changed = false;
-		_parent->bButImages.changed = false;
-		_parent->bAddTitlesToAll.changed = false;
-		_parent->bAddDescriptionsToAll.changed = false;
-		_parent->bLowerCaseImageExtensions.changed = false;
-		_parent->bReadJAlbum.changed = false;
-		_parent->bMenuToContact.changed = false;
-		_parent->bMenuToAbout.changed = false;
-		_parent->bMenuToDescriptions.changed = false;
-		_parent->bMenuToToggleCaptions.changed = false;
-		_parent->bFacebookLink.changed = false;
-		_parent->doNotEnlarge.changed = false;
-		_parent->bCropThumbnails.changed = false;
-		_parent->bDistrortThumbnails.changed = false;
-		_parent->imageBorder.changed = false;
-
-		_parent->bCanDownload.changed = false;
-		_parent->bForceSSL.changed = false;
-		_parent->bRightClickProtected.changed = false;
-		_parent->bOvrImages.changed = false;
-		_parent->bSourceRelativePerSign.changed = false;
-
-		_parent->sServerAddress.changed = false;
-		_parent->sDefFonts.changed = false;
-		_parent->sBaseName.changed = false;
-		_parent->sMailTo.changed = false;
-		_parent->sAbout.changed = false;
-
-		_parent->generateLatestUploads.changed = false;
-		_parent->newUploadInterval.changed = false;
-		_parent->nLatestCount.changed = false;
-
-		_parent->googleAnalyticsOn.changed = false;
-		_parent->googleAnalTrackingCode.changed = false;
-
-		_parent->sGalleryTitle.changed = false;
-		_parent->sGalleryLanguages.changed = false;
-		_parent->GalleryTitle.ClearChanged();
-		_parent->GalleryDesc.ClearChanged();
-
-		_parent->Web.ClearChanged();
-		_parent->Lang.ClearChanged();
-		_parent->Menu.ClearChanged();
-
-		_parent->SmallGalleryTitle.ClearChanged();
-		_parent->AlbumTitle.ClearChanged();
-		_parent->AlbumDesc.ClearChanged();
-		_parent->Section.ClearChanged();
-		_parent->ImageTitle.ClearChanged();
-		_parent->ImageDesc.ClearChanged();
-
-		_parent->images.ClearChanged();
-		_parent->imageWidth.changed = false;
-		_parent->imageHeight.changed = false;
-		_parent->thumbWidth.changed = false;
-		_parent->thumbHeight.changed = false;
-		_parent->imageSizesLinked.changed = false;
-
-		_parent->iconToTopOn.changed = false;
-		_parent->iconInfoOn.changed = false;
-		_parent->imageBorder.changed = false;
-		_parent->imageBorder.color.changed = false;
-
-		_parent->waterMark.changed = false;
-	}
-	return flag;
-}
 
 /*===========================================================================
  * TASK: assign a QString to a CString
@@ -246,12 +122,9 @@ bool CONFIG::_ChangedFlag::operator=(bool flag)
  *--------------------------------------------------------------------------*/
 QString &_CString::operator=(const QString s) 
 { 
-	if (str != s) 
-	{ 
-		str = s; 
-//		changed = true;
-	} 
-	return str; 
+	if (v != s) 
+		v = s; 
+	return v; 
 }
 
 /*===========================================================================
@@ -266,11 +139,11 @@ QString &_CDirStr::operator=(const QString s)
 {
 	 QString qs = QDir::cleanPath(s);
 	 qs = AddSep(qs);
-	 if (str == qs )
-		 return str;
+	 if (v == qs )
+		 return v;
 
-	 str = qs;
-	return str;
+	 v = qs;
+	return v;
 }
 
 /*===========================================================================
@@ -299,7 +172,7 @@ _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 	sub = QDir::cleanPath(dir + sub);	// get rid of ./ ../, etc
 												// but also ending '/'
 	_CDirStr tmp;
-	tmp.str = sub + '/';						// add back the '/'
+	tmp.v = sub + '/';						// add back the '/'
 	return tmp;
 }
 
@@ -326,70 +199,21 @@ _CDirStr _CDirStr::operator+(const QString subdir)
 *--------------------------------------------------------------------------*/
 bool &_CBool::operator=(const bool s)
 { 
-	if (set != s) 
-	{ 
-		set = s; 
-		changed = true;		// ? why was it commented out
-	} 
-	return set; 
+	return v = s; 
 }
 
 /*===========================================================================
- * TASK: assig a int to a CInt
- * EXPECTS: s - int
+ * TASK: assign an into a CInt
+ * EXPECTS: i - int
  * GLOBALS: config
  * RETURNS: the int
  * REMARKS: may modify the 'changed' field of global variable 'config'
 *--------------------------------------------------------------------------*/
-int &_CInt::operator=(const int s)
+int &_CInt::operator=(const int i)
 {
-	if (val != s)
-	{
-		val = s;
-		changed = true;		// ? why was it commented out
-	} 
-	return val;
+	return v = i;
 }
-
-/*===========================================================================
- * TASK: assign a QString to a CColor but do not modify opacity
- * EXPECTS: s - QString: formats xxx or xxxxxx or #xxx or #xxxxxx, where all
- *				 x's are any hexadecimaL DIGIT
- * GLOBALS: config
- * RETURNS: color QString: always starts with a '#'
- * REMARKS:	- may modify the 'changed' field of global variable 'config'
- *			- no symbolic color names
- *			- any combination of upper and lower case hexadecimal numbers
- *			- if the QString is #xyz, then it is the same as #xxyyzz
-*--------------------------------------------------------------------------*/
-QString _CColor::operator=(QString s)
-{
-	if (s.length() > 0 && s[0] != '#')
-		s = QChar('#') + s;
-	if (s.length() != 4 && s.length() != 7)
-		return "";
-	int n;
-	for (int i = 1; i < s.length(); ++i)
-	{
-		n = s[i].toLower().unicode();
-		if (n < '0' || (n > '9' && (n < 'a' || n > 'f')))
-			return "";
-	}
-	if (name.toLower() != s.toLower())
-	{
-		name = s;
-		changed = true;		// ? why was it commented out
-	}
-	return name;
-}
-/*===========================================================================
- * TASK: drop the leading '# from the name
- * EXPECTS: nothing
- * GLOBALS: -
- * RETURNS: name without the leading '#'
- * REMARKS: 
- *--------------------------------------------------------------------------*/
-_CColor::operator QString() const { return name.mid(1); }	// drop the '#'
+// --------------------------- _CColor ------------------------------
 
 /*===========================================================================
  * TASK: assign a QString to a CColor and modify opacity
@@ -398,20 +222,85 @@ _CColor::operator QString() const { return name.mid(1); }	// drop the '#'
  *		   opac - opacity in percent 0..100
  * GLOBALS: config
  * RETURNS: nothing
- * REMARKS:	- may modify the 'changed' field of global variable 'config'
+ * REMARKS:	- if string name is invalid does not set it
  *			- no symbolic color names
  *			- any combination of upper and lower case hexadecimal numbers
  *			- if the QString is #xyz, then it is the same as #xxyyzz
  *--------------------------------------------------------------------------*/
 void _CColor::Set(QString str, int opac)
 { 
-	*this = str; 
-	if (opacity != opac)
-	{
-		opacity = opac;
-		changed = true;
-	}
+	if (!_ColorStringValid(str))
+		return;
+
+	_colorName = str; 
+	if (_opacity != opac)
+		_opacity = opac;
+	_Prepare();
 }
+
+/*===========================================================================
+ * TASK: assign a QString to a CColor but do not modify opacity
+ * EXPECTS: s - QString: formats xxx or xxxxxx or #xxx or #xxxxxx, where all
+ *				 x's are any hexadecimaL DIGIT
+ * GLOBALS: config
+ * RETURNS: color QString: always starts with a '#'
+ * REMARKS:	- if color is invalid does not change it
+ *			- no symbolic color names
+ *			- any combination of upper and lower case hexadecimal numbers
+ *			- if the QString is #xyz, then it is the same as #xxyyzz
+*--------------------------------------------------------------------------*/
+QString _CColor::operator=(QString s)
+{
+	if (!_ColorStringValid(s))
+		return QString();
+	// here s starts with '#'
+	if (_colorName.toLower() != s.toLower())
+		_colorName = s.toLower();
+	_Prepare();
+
+	return _colorName;
+}
+_CColor& _CColor::operator=(_CColor c)
+{
+	v = c.v; v0 = c.v0;
+	_Setup();
+	return *this;
+}
+/*===========================================================================
+ * TASK: drop the leading '# from the name
+ * EXPECTS: nothing
+ * GLOBALS: -
+ * RETURNS: name without the leading '#'
+ * REMARKS: 
+ *--------------------------------------------------------------------------*/
+//_CColor::operator QString() const { return _colorName.mid(1); }	// drop the '#'
+
+/*========================================================
+ * TASK:	checks wether s is a valid color number string
+ * PARAMS:	s color string
+ * GLOBALS:
+ * RETURNS: true or false
+ * REMARKS: - accepted formats (x: lower or upper case 
+ *				hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
+ *			after it returns the string always starts with '#'
+ *-------------------------------------------------------*/
+bool _CColor::_ColorStringValid(QString &s)
+{
+	if (s.length() > 0 && s[0] != '#')
+		s = QChar('#') + s;
+	if (s.length() != 4 && s.length() != 7)
+		return false;
+	int n;
+	for (int i = 1; i < s.length(); ++i)
+	{
+		n = s[i].toLower().unicode();
+		if (n < '0' || (n > '9' && (n < 'a' || n > 'f')))
+			return false;
+	}
+	return true;
+}
+
+// --------------------------- _CFont ------------------------------
 
 /*===========================================================================
  * TASK: setting font parameters
@@ -423,13 +312,76 @@ void _CColor::Set(QString str, int opac)
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
  *--------------------------------------------------------------------------*/
-void _CFont::Set(QString fam, QString siz, int feat)
+void _CFont::Set(QString fam, QString siz, int feat, QString sFsSize)
 {
-	if (fam == family && sizestr == siz && features == feat)
-		return;
-	family = fam; sizestr = siz; 
-	features = feat;
-	changed = true;
+	_details.clear();
+	_details.push_back(fam);
+	_details.push_back(siz);
+	_details.push_back(QString().setNum(feat) );
+	_details.push_back("0");			// default: no different first line
+	_details.push_back(_details[1]);	// first line same as others
+	if(!sFsSize.isEmpty())	
+	{
+		_details[3] = "1";	// different first line
+		_details[4] = sFsSize;
+	}
+
+	_Prepare();
+}
+void _CFont::SetFamily(QString fam)
+{
+	_details[0] = fam;
+	_Prepare();
+}
+
+void _CFont::SetFeature(int feat, bool single)
+{
+	if (single)
+		feat = Features() | feat;
+
+	_details[2] = QString().setNum(feat);
+	_Prepare();
+}
+
+void _CFont::SetSize(int pt)
+{
+	SetSize(QString().setNum(pt));
+}
+
+void _CFont::SetSize(QString s)
+{
+	_details[1] = s;
+	_Prepare();
+}
+
+void _CFont::SetDifferentFirstLine(bool set, QString size)
+{
+	_details[3] = set ? "1" : "0";
+	if (!size.isEmpty())
+		_details[4] = size;
+}
+
+void _CFont::_Prepare()
+{				  // only add first line size if used or different then line size
+	int n = _details[3] == "1" && _details[1] != _details[4] ? 5 : 4;
+	v = _details[0];
+	for (int i = 1; i < n; ++i)
+		v += "|" + _details[i];
+}
+
+void _CFont::_Setup()
+{
+	_details = v.split(QChar('|'));		   
+	switch (_details.size())		// No breaks!
+	{								// element 0 is family
+		case 1: _details.push_back("10pt");
+		case 2: _details.push_back("0");
+		case 3: _details.push_back("0");
+		case 4: _details.push_back("10pt");
+		default:
+			break;
+	}
+	_Prepare();
 }
 
 /*===========================================================================
@@ -441,26 +393,61 @@ void _CFont::Set(QString fam, QString siz, int feat)
 *--------------------------------------------------------------------------*/
 void _CFont::ClearFeatures()
 { 
-	if (!features) 
-		return; 
-	features = 0; 
-	changed = true;
+	_details.pop_back();
+	_Prepare();
+}
+
+//------------------------------------- _CShadow ------------------------------
+
+void _CShadow::_Setup()
+{
+	_details = v.split(QChar('|'));
+	while (_details.size() < 4)
+		_details.push_back("0");
+	if(_details.size() != 5)
+		_details.push_back("#000000");
+
+	if (_details[3].at(0).isDigit())
+		_ixBlur = 3;
+	else
+		_ixBlur = 4;
+	_ixColor = _ixBlur ^ 7;
+	_Prepare();
+//	v0 = v;
+}
+
+void _CShadow::_Prepare()
+{
+	v.clear();
+
+	v = _details[0];
+	for (int i = 1; i < _details.size(); ++i)
+		v += "|" + _details[i];
 }
 
 /*===========================================================================
  * TASK: set top,right,bttom or left shadow
- * EXPECTS: which - which side
- *		   value - size of shadow in pixels
+ * EXPECTS: which - 0:   use, 1:horiz, 2: vert, 3 blur
+ *		    val   - size of shadow in pixels
+ *					but color may also be set as a number (see REMARKS)
+ *			_ixBlur and _ixColor are set
  * GLOBALS: config
  * RETURNS: nothing
- * REMARKS: may modify the 'changed' field of global variable 'config'
-*--------------------------------------------------------------------------*/
-void _CShadow::Set(int which, int val)
+ * REMARKS:
+ --------------------------------------------------------------------------*/
+void _CShadow::Set(int which, int val)	// which: 1: horiz, 2: vert, 3:blur !
 {
-	if (values[which] == val)
-		return;
-	values[which] = val;
-	changed = true;
+	if(which < 3)		// these always exist
+		_details[which] = QString().setNum(val);
+	else   // 3 or 4   : blur or color may or may not exist
+	{
+		if (which == _ixBlur)
+			_details[_ixBlur] = QString().setNum(val);
+		else 
+			_details[_ixColor] = QString("#%1").arg(_CInt::IntToHexString(val, 6));
+	}
+
+	_Prepare();
 }
 /*===========================================================================
  * TASK: set all of the shadows
@@ -468,24 +455,24 @@ void _CShadow::Set(int which, int val)
  * GLOBALS: config
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
- *          member 'useEver' is not set here. set it manually 
 *--------------------------------------------------------------------------*/
 void _CShadow::Set(int horiz, int vert, int blur, QString clr, bool used)
 {
-	if (values[0] == horiz &&			// horizontal
-		values[1] == vert &&		// vertical
-		values[2] == blur &&		// blur radius
-		use == used &&				// used
-		(clr.isEmpty() || (!clr.isEmpty() && clr == color)) )
-		return;
+	QString oldV = v;
+	_details.clear();
+	_ixBlur = _ixColor = -1;
 
-	values[0] = horiz;			   // horizontal
-	values[0] = vert;			   // vertical
-	values[0] = blur;			   // blur radius
-	use = used;
-	if (!clr.isEmpty())	
-		color = clr;
-	changed = true;
+	_details.push_back(used ? "1" : "0");
+	_details.push_back(QString().setNum(horiz));
+	_details.push_back(QString().setNum(vert));
+	_details.push_back(QString().setNum(blur));
+	_ixBlur = 3;
+	if (clr.isEmpty())
+		clr = "#000000";
+	_details.push_back(clr);
+	_ixColor = 4;
+
+	_Prepare();	// new v
 }
 
 /*===========================================================================
@@ -498,9 +485,8 @@ void _CShadow::Set(int horiz, int vert, int blur, QString clr, bool used)
 *--------------------------------------------------------------------------*/
 bool _CGradientStop::Set(int pc, QString clr) 
 { 
-	if (percent == pc && color == clr) 
-		return false; 
-	percent = pc; color = clr;
+	percent = pc; 
+	color = clr;
 	return true; 
 }
 
@@ -512,12 +498,12 @@ bool _CGradientStop::Set(int pc, QString clr)
  * GLOBALS: config
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
- *          member 'useEver' is not set here. set it manually
  *--------------------------------------------------------------------------*/
 void _CGradient::Set(int which, int pc, QString clr) 
 { 
-	changed |= gs[which].Set(pc, clr); 
-	useEver = true;
+	gs[which].Set(pc, clr); 
+	if (!_internal)
+		_Prepare();
 }
 
 /*===========================================================================
@@ -529,17 +515,129 @@ void _CGradient::Set(int which, int pc, QString clr)
  * GLOBALS: config
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
- *          member 'useEver' is not set here. set it manually
  *--------------------------------------------------------------------------*/
 void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QString middleColor, int bottomStop, QString bottomColor, bool chg)
 {
 	gs[0].Set(topStop, topColor);
 	gs[1].Set(middleStop, middleColor);
 	gs[2].Set(bottomStop, bottomColor);
-	used = usd;
-	config.changed = changed |= chg;
+
+	if (!_internal)
+		_Prepare();
 }
 
+void _CGradient::_Setup()
+{
+	QStringList qsl = v.split(QChar('|'));	// <used = 1>|<positionTop(%)>|<color Top>|<positionMiddle(%)>|<color Middle>|<positionBottom(%)>|<color bottom>
+							// index in qsl		  0			    1			   2			  3			        4				   5				6				
+	_internal = true;
+	used = qsl[0].toInt();
+	for (int i = 1; i < 7; i += 2)
+	{
+		if (i + 1 < qsl.size())
+			Set(i / 2, qsl[i].toInt(), qsl[i + 1]);
+		else
+			Set(i / 2, 0, "#000000");
+	}
+	_internal = false;
+}
+
+void _CGradient::_Prepare()
+{
+	v = QString("%1|%2|%3|%4|%5|%6").arg(used)
+									.arg(gs[0].percent).arg(gs[0].color)
+									.arg(gs[1].percent).arg(gs[1].color)
+									.arg(gs[2].percent).arg(gs[2].color);
+}
+
+
+void _CBorder::_Setup()
+{
+	QStringList qsl = v.split(QChar('|'));
+	used = qsl[0].at(0) == '1';
+	color = qsl[1];
+	if (color.at(0) != '#')
+		color = "#" + color;
+	width = qsl[2].toInt();
+}
+
+void _CBorder::_Prepare()
+{
+	v = QString("%1|%1|%1").arg(used ? 1 : 0).arg(color).arg(width);
+}
+
+bool _CElem::Changed() const
+{
+	bool res = color.Changed() | background.Changed() | font.Changed();
+	if(_bMayShadow)
+	 	res |= shadow.Changed() | border.Changed();
+	if(_bMayGradient)	 
+		res |= gradient.Changed() ;
+	return res;
+}
+
+void _CElem::ClearChanged()
+{
+	color.ClearChanged();
+	background.ClearChanged();
+	font.ClearChanged();
+	shadow.ClearChanged();
+	gradient.ClearChanged();
+	border.ClearChanged();
+}
+
+void _CElem::ColorsAndFontsFrom(const _CElem& other)
+{
+	_CFG_ITEM::operator=(other);
+	color = other.color; 
+		color.vd = color.v;				// and this will become the default
+	background = other.background;
+		background.vd = background.v;	// for when no value is giveb
+	font = other.font;
+		font.vd = font.v;
+}
+
+void _CElem::Write(QSettings& s, QString group)
+{
+	v = false;
+	if (!group.isEmpty())
+		s.beginGroup(group);
+	s.beginGroup(itemName);
+		color.Write(s);
+		background.Write(s);
+		font.Write(s);
+		if(_bMayShadow)
+		{	
+			shadow.Write(s);
+			border.Write(s);
+		}
+		if(_bMayGradient)
+			gradient.Write(s);
+	s.endGroup();
+	if (!group.isEmpty())
+		s.endGroup();
+}
+
+void _CElem::Read(QSettings& s, QString group)
+{
+	v = false;
+	if (!group.isEmpty())
+		s.beginGroup(group);
+	s.beginGroup(itemName);
+		color.Read(s);
+		background.Read(s);
+		font.Read(s);
+		if (_bMayShadow)
+		{
+			shadow.Read(s);
+			border.Read(s);
+		}
+		if(_bMayGradient)
+			gradient.Read(s);
+	s.endGroup();
+	if (!group.isEmpty())
+		s.endGroup();
+}
 
 /*===========================================================================
 * TASK:  inequality operator for _CWaterMark
@@ -550,12 +648,149 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 *--------------------------------------------------------------------------*/
 _CWaterMark &_CWaterMark::operator=(const _CWaterMark &cwm)
 {
-	changed = ((WaterMark&)cwm.wm != (WaterMark&)wm);	//'const'
+	v = ((WaterMark&)cwm.wm != (WaterMark&)wm);	//'const'
 	wm = cwm.wm;
 	used = cwm.used;
 	return *this;
 }
 
+void _CWaterMark::Write(QSettings& s, QString group)
+{
+	v = false;
+	if (!group.isEmpty())
+		s.beginGroup(group);
+
+	QString sOrigin;
+	s.beginGroup(itemName);
+		s.setValue("used", used);
+		s.setValue("text", wm.text);
+
+		s.setValue("origin", wm.origin); // low 4 bits: vertical, high 4 bits : horizontal
+
+		s.setValue("mx", wm.marginX);
+		s.setValue("my", wm.marginY);
+		s.setValue("color", wm.color);
+		s.setValue("background", wm.background);
+		s.setValue("shadow", wm.shadowColor);
+		s.setValue("opacity", wm.opacity);
+
+		s.setValue("family", wm.font.family());
+		s.setValue("size", wm.font.pointSize());
+		s.setValue("weight", wm.font.weight());
+		s.setValue("italic", wm.font.italic());
+	s.endGroup();
+
+	if (!group.isEmpty())
+		s.endGroup();
+
+}
+
+void _CWaterMark::Read(QSettings& s, QString group)
+{
+	v = false;
+	if (!group.isEmpty())
+		s.beginGroup(group);
+
+	s.beginGroup(itemName);
+		used = s.value("used", false).toBool();
+		wm.text = s.value("text", "Watermark").toString();
+
+		wm.origin = s.value("origin", 11).toInt(); // low 4 bit: vertical next 4 bits: horizontal
+
+		wm.marginX = s.value("mx", 0).toInt();
+		wm.marginY = s.value("my", 0).toInt();
+		wm.color = s.value("color", 0xffffff).toInt();
+		wm.background = s.value("background", -1).toInt();
+		wm.shadowColor = s.value("shadow", -1).toInt();
+		wm.opacity = s.value("opacity", 100).toInt();
+		wm.font.setFamily(s.value("family", "").toString());
+		wm.font.setPointSize(s.value("size", 16).toInt());
+		wm.font.setWeight(s.value("weight", QFont::Bold).toInt());
+		wm.font.setItalic(s.value("italic", false).toBool());
+	s.endGroup();
+
+
+	if (!group.isEmpty())
+		s.endGroup();
+}
+
+// not needed
+void CONFIG::ClearChanged()
+{
+	_changed = false;
+	dsSrc.ClearChanged();
+	dsGallery.ClearChanged();
+	dsGRoot.ClearChanged();
+	dsAlbumDir.ClearChanged();
+
+	sServerAddress.ClearChanged();
+	sBaseName.ClearChanged();
+	sMailTo.ClearChanged();
+	sAbout.ClearChanged();
+	sGalleryTitle.ClearChanged();
+	sGalleryLanguages.ClearChanged();
+	sUplink.ClearChanged();
+	iconUplink.ClearChanged();
+	sMainPage.ClearChanged();
+	sDescription.ClearChanged();
+	sKeywords.ClearChanged();
+
+	bAddTitlesToAll.ClearChanged();
+	bAddDescriptionsToAll.ClearChanged();
+	bLowerCaseImageExtensions.ClearChanged();
+
+	bMenuToContact.ClearChanged();
+	bMenuToAbout.ClearChanged();
+	bMenuToDescriptions.ClearChanged();
+	bMenuToToggleCaptions.ClearChanged();
+
+	bRightClickProtected.ClearChanged();
+	bCanDownload.ClearChanged();
+	bForceSSL.ClearChanged();
+	bOvrImages.ClearChanged();
+	bSourceRelativePerSign.ClearChanged();
+	bFacebookLink.ClearChanged();
+
+	dsImageDir.ClearChanged();
+	dsCssDir.ClearChanged();
+	dsFontDir.ClearChanged();
+	sDefFonts.ClearChanged();
+
+	Web.ClearChanged();
+	Menu.ClearChanged();
+	SmallGalleryTitle.ClearChanged();
+	GalleryTitle.ClearChanged();
+	GalleryDesc.ClearChanged();
+	AlbumTitle.ClearChanged();
+	AlbumDesc.ClearChanged();
+	Section.ClearChanged();
+	ImageTitle.ClearChanged();
+	ImageDesc.ClearChanged();
+				// images
+	imageWidth.ClearChanged();
+	imageHeight.ClearChanged();
+	imageSizesLinked.ClearChanged();
+	thumbWidth.ClearChanged();
+	thumbHeight.ClearChanged();
+	doNotEnlarge.ClearChanged();
+	bCropThumbnails.ClearChanged();
+	bDistrortThumbnails.ClearChanged();
+
+	imageBorder.ClearChanged();
+
+	iconToTopOn.ClearChanged();
+	iconInfoOn.ClearChanged();
+
+	waterMark.ClearChanged();
+
+	googleAnalyticsOn.ClearChanged();
+	googleAnalTrackingCode.ClearChanged();
+
+	generateLatestUploads.ClearChanged();
+	newUploadInterval.ClearChanged();
+	nLatestCount.ClearChanged();
+	styleIndex.ClearChanged();
+}
 
 /*===========================================================================
  * TASK:  assignment operator for CONFIG
@@ -613,7 +848,6 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	bForceSSL = cfg.bForceSSL;
 	bRightClickProtected = cfg.bRightClickProtected;
 	bOvrImages = cfg.bOvrImages;
-	bSourceRelativePerSign.changed = cfg.bSourceRelativePerSign;
 
 	sServerAddress = cfg.sServerAddress;
 	sDefFonts = cfg.sDefFonts;
@@ -668,7 +902,6 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	waterMark = cfg.waterMark;
 	bFacebookLink = cfg.bFacebookLink;
 	// images
-	images = cfg.images;
 	imageWidth = cfg.imageWidth;
 	imageHeight = cfg.imageHeight;
 	thumbWidth = cfg.thumbWidth;
@@ -681,166 +914,6 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	imageBorder = cfg.imageBorder;
 	styleIndex = cfg.styleIndex;
 }
-//------------ ******************* ---------------------------
-static inline void __ConfigReadInt( QSettings &s, _CInt &name,int defval)	
-{ 
-	name = s.value(name.nameStr,defval).toInt();	  
-}
-static inline void __ConfigReadStr( QSettings &s, _CString &name, QString defval)	
-{ 
-	name = s.value(name.nameStr,defval).toString(); 
-}
-static inline void __ConfigReadBool(QSettings &s, _CBool &name, bool defval)
-{ 
-	name =s.value(name.nameStr, defval).toBool(); 
-}
-
-/*============================================================================
-* TASK: read configuration settings for elem
-* EXPECTS: s - open settings
-*		   elem - elem
-*			elem default parameters
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __ConfigReadBorder(QSettings &s, _CBorder &name, bool BORDERON, int BORDERWIDTH, QString BORDERCOLOR)
-{
-	s.beginGroup(name.nameStr);
-		name.used = s.value("used", BORDERON).toBool();
-		name.width = s.value("width", BORDERWIDTH).toInt();
-		name.color = s.value("color", BORDERCOLOR).toString();
-	s.endGroup();
-}
-
-/*============================================================================
-* TASK: read configuration settings for elem
-* EXPECTS: s - open settings 
-*		   elem - elem
-*			elem default parameters
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __ReadElem(QSettings &s, _CElem &elem, QString COLOR, 
-								QString BCKCOLOR, int OPACITY, int BOPACITY, 
-								QString FONTFAMILY, QString FONTSIZE, int FEATURES, 
-								bool BORDERON, int BORDERWIDTH, QString BORDERCOLOR)
-{
-	s.beginGroup(elem.nameStr ); 
-		s.beginGroup("color");	
-			elem.color.name = s.value("name", COLOR).toString(); 
-			elem.color.opacity = s.value("opacity", OPACITY).toInt();	
-		s.endGroup();	
-		s.beginGroup("background");	
-			elem.background.name = s.value("name", BCKCOLOR).toString(); 
-			elem.background.opacity = s.value("opacity", BOPACITY).toInt();	
-		s.endGroup();	
-		s.beginGroup("font");	
-			elem.font.family = s.value("family", FONTFAMILY).toString(); 
-			elem.font.sizestr = s.value("size", FONTSIZE).toString(); 
-			elem.font.features = s.value("features", FEATURES).toInt(); 
-		s.endGroup(); 
-		s.beginGroup("border");	
-			elem.border.used = s.value("used", BORDERON).toBool(); 
-			elem.border.width = s.value("width", BORDERWIDTH).toInt(); 
-			elem.border.color = s.value("color", BORDERCOLOR).toString(); 
-		s.endGroup(); 
-	s.endGroup();
-	elem.ClearChanged();
-}
-
-/*============================================================================
-* TASK: read configuration settings for elem
-* EXPECTS: s - open settings
-*		   elem - elem
-*			elem default parameters
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __ReadElemWShadow(QSettings &s, _CElem & elem, QString color,
-	QString bckcolor, int opacity, int bopacity,
-	QString fontfamily, QString fontsize, int features,
-	bool borderon, int borderwidth, QString bordercolor,
-	int SHHORIZ, int SHVERT, int SHBLUR, QString SHCOLOR, bool SHUSED)
-{
-	__ReadElem(s, elem, color, bckcolor, opacity, bopacity, fontfamily, fontsize, 
-						features, borderon, borderwidth, bordercolor);
-	s.beginGroup(elem.nameStr);
-		s.beginGroup("shadow");
-			elem.shadow.Set(s.value("horiz", SHHORIZ).toInt(), s.value("vert", SHVERT).toInt(), 
-							s.value("blur", SHBLUR).toInt(),  
-							s.value("color", SHCOLOR).toString(), s.value("use",SHUSED).toBool());
-		s.endGroup();
-		elem.shadow.changed = false;
-	if (elem.shadow.values[0] | elem.shadow.values[1] | elem.shadow.values[2] | elem.shadow.values[3])
-		elem.shadow.useEver = elem.shadow.use = true;
-	s.endGroup();
-}
-
-/*============================================================================
-* TASK: read configuration settings for elem
-* EXPECTS: s - open settings
-*		   elem - elem
-*			elem default parameters
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __ReadElemWGradient(QSettings &s, _CElem & elem, QString color,
-	QString bckcolor, int opacity, int bopacity,
-	QString fontfamily, QString fontsize, int features,
-	bool borderon, int borderwidth, QString bordercolor,
-	int shhoriz, int shvert, int shblur, QString shcolor, bool shused,
-	bool GRUSED, int GRTOPSTP, QString GRTOPCOLOR, int GRMIDDLESTP, 
-	QString GRMIDDLECOLOR, int GRBOTTOMSTP, QString GRBOTTOMCOLOR)
-{
-	__ReadElemWShadow(s, elem, color, bckcolor, opacity, bopacity, fontfamily, 
-						fontsize, features, borderon, borderwidth, bordercolor, 
-										shhoriz, shvert, shblur, shcolor, shused);
-	s.beginGroup(elem.nameStr);
-		s.beginGroup("gradient");
-			elem.gradient.Set(s.value("used", GRUSED).toBool(),
-							s.value("topstop", GRTOPSTP).toInt(),
-							s.value("topcolor", GRTOPCOLOR).toString(), 
-							s.value("middlestop", GRMIDDLESTP).toInt(), 
-							s.value("middlecolor", GRMIDDLECOLOR).toString(),
-							s.value("bottomstop", GRBOTTOMSTP).toInt(), 
-							s.value("bottomcolor", GRBOTTOMCOLOR).toString(),
-							false);  // !changed
-			s.endGroup();
-	s.endGroup();
-	elem.gradient.useEver = true;
-}
-/*============================================================================
-* TASK: read configuration settings for watermark
-* EXPECTS: s - open settings
-*		   wm =watermark
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __ReadWaterMark(QSettings &s, _CWaterMark &elem, bool WUSED,
-	QString WMTEXT, QString WMORIGIN, int WMMARGINX,int WMMARGINY, int WMCOLOR,
-	int WMBACKGROUND, int WMSHADOWCOLOR, int WMOPACITY,
-	QString WMFAMILY, int WMFSIZE, int WMFWEIGHT, bool WMITALIC)
-{
-	s.beginGroup(elem.nameStr);
-		elem.used = s.value("used", WUSED).toBool();
-		elem.changed = false;
-		elem.wm.text = s.value("text", WMTEXT).toString();
-
-		elem.wm.origin = s.value("origin", WMORIGIN).toInt(); // low 4 bit: vertical next 4 bits: horizontal
-
-		elem.wm.marginX = s.value("mx", WMMARGINX).toInt();
-		elem.wm.marginY = s.value("my", WMMARGINY).toInt();
-		elem.wm.color = s.value("color", WMCOLOR).toInt();
-		elem.wm.background = s.value("background", WMBACKGROUND).toInt();
-		elem.wm.shadowColor = s.value("shadow", WMSHADOWCOLOR).toInt();
-		elem.wm.opacity = s.value("opacity", WMOPACITY).toInt();
-		elem.wm.font.setFamily(s.value("family",WMFAMILY).toString());
-		elem.wm.font.setPointSize(s.value("size", WMFSIZE).toInt());
-		elem.wm.font.setWeight(s.value("weight", WMFWEIGHT).toInt());
-		elem.wm.font.setItalic(s.value("italic", WMITALIC).toBool());
-	s.endGroup();
-}
-
 /*============================================================================
 * TASK: constructor
 * EXPECTS: nothing
@@ -849,86 +922,7 @@ static inline void __ReadWaterMark(QSettings &s, _CWaterMark &elem, bool WUSED,
 *---------------------------------------------------------------------------*/
 CONFIG::CONFIG()
 {
-	changed.SetParent(this);
 	CONFIGS_USED::parent = this;
-
-	dsSrc.nameStr = "dsSrc";				
-	dsGallery.nameStr = "dsGallery";			
-	dsGRoot.nameStr = "dsGRoot";			
-	dsAlbumDir.nameStr = "dsAlbumDir";		
-	dsCssDir.nameStr = "dsCssDir";
-	dsFontDir.nameStr = "dsFontDir";
-	dsImageDir.nameStr = "dsImageDir";		
-	sUplink.nameStr = "sUplink";			
-	iconUplink.nameStr = "iconUplink";			
-	sMainPage.nameStr = "sMainPage";
-	sDescription.nameStr = "sDescription";
-	sKeywords.nameStr = "sKeywords";
-
-	bGenerateAll.nameStr = "bGenerateAll";
-	bButImages.nameStr = "bButImages";
-	bAddTitlesToAll.nameStr = "bAddTitlesToAll";
-	bAddDescriptionsToAll.nameStr = "bAddDescriptionsToAll";
-	bLowerCaseImageExtensions.nameStr = "bLowerCaseImageExtensions";
-	bReadJAlbum.nameStr  =  "bReadJAlbum";
-	bReadFromGallery.nameStr = "bReadFromGallery";
-	bSourceRelativePerSign.nameStr = "bSourceRelativePerSign";
-	bMenuToAbout.nameStr = "bMenuToAbout";
-	bMenuToContact.nameStr = "bMenuToContact";
-	bMenuToDescriptions.nameStr = "bMenuToDescriptions";
-	bMenuToToggleCaptions.nameStr = "bMenuToToggleCaptions";
-
-	bCanDownload.nameStr = "bCanDownload";
-	bForceSSL.nameStr = "bForceSSL";			
-	bRightClickProtected.nameStr = "bRightClickProtected";
-	bOvrImages.nameStr = "bOvrImages";
-
-	sServerAddress.nameStr = "sServerAddress";	
-
-	sDefFonts.nameStr = "sDefFonts";			
-	sBaseName.nameStr = "sBaseName";			
-	sMailTo.nameStr = "sMailTo";			
-	sAbout.nameStr = "sAbout";			
-
-	generateLatestUploads.nameStr = "generateLatestUploads";
-	newUploadInterval.nameStr = "newUploadInterval";	
-	nLatestCount.nameStr = "nLatestCount";			
-								
-	googleAnalyticsOn.nameStr = "googleAnalyticsOn";
-	googleAnalTrackingCode.nameStr = "googleAnalTrackingCode";
-
-	sGalleryDesc.nameStr = "sGalleryDesc";
-	sGalleryTitle.nameStr = "sGalleryTitle";
-	sGalleryLanguages.nameStr = "sGalleryLanguages";
-	bFacebookLink.nameStr = "facebook";
-	// Design page
-
-	Web.nameStr = "Web";
-	Lang.nameStr = "Lang";				
-	Menu.nameStr = "Menu";				
-	GalleryTitle.nameStr = "GalleryTitle";		
-	SmallGalleryTitle.nameStr = "SmallGalleryTitle";	
-	GalleryDesc.nameStr = "GalleryDesc";		
-	AlbumTitle.nameStr = "AlbumTitle";			
-	AlbumDesc.nameStr = "AlbumDesc";			
-	Section.nameStr = "Section";			
-	ImageTitle.nameStr = "ImageTitle";			
-	ImageDesc.nameStr = "ImageDesc";			
-	images.nameStr = "images";				
-	waterMark.nameStr = "waterMark";
-	imageWidth.nameStr = "imageWidth";
-	imageHeight.nameStr = "imageHeight";
-	thumbWidth.nameStr = "thumbWidth";
-	thumbHeight.nameStr = "thumbHeight";
-	imageSizesLinked.nameStr = "imageSizesLinked";
-	doNotEnlarge.nameStr = "doNotEnlarge";
-	bCropThumbnails.nameStr = "CropThumbnails";
-	bDistrortThumbnails.nameStr = "DistrortThumbnails";
-	
-	iconToTopOn.nameStr = "iconToTopOn";
-	iconInfoOn.nameStr = "iconInfoOn";
-	imageBorder.nameStr = "imageBorder";
-	styleIndex.nameStr = "styleIndex";
 }
 
 /*============================================================================
@@ -944,367 +938,202 @@ CONFIG::CONFIG()
   *					in the program directory
   *					
   *	RETURNS: nothing
-  * REMARKS:  read CONFIGS_USED first!
+  * REMARKS: - read CONFIGS_USED before using this!
+  *			 - Config element "Web" contains the default foreground and 
+  *				background colors. These will be set into all other elements,
+  *				but modified if the others changed
  *---------------------------------------------------------------------------*/
 void CONFIG::Read()		// synchronize with Write!
 {
-	// set Default values
-	// no default for dsGRoot !     dsGRoot.defStr     = "falconG/";
-	dsAlbumDir.defStr  = "albums/";
-	dsImageDir.defStr  = "imgs/";
-	dsThumbDir.defStr  = "thumbs/";
-	sUplink.defStr     =  "";		// inside dsGRoot base1hu.html, etc
-	iconUplink.defStr  =  "up-icon.png";	// in 'res' directory
-	dsCssDir.defStr    =  "css/";
-	dsFontDir.defStr   =  "fonts/";
-	sDefFonts.defStr   =  "Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif";
-	sBaseName.defStr   =  "album";
-	sMainPage.defStr   = "index.html";
-	sDescription.defStr= "";
-	sKeywords.defStr   = "";
-	sAbout.defStr      =  "about.html";
-
 
 	QString sIniName = CONFIGS_USED::NameForConfig(".ini");
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
 
-	// reading order: Web must come first, as its background color used as default color 
-	//	for elements without theit own background color set
-
-	// elem, COLOR, BCKCOLOR, OPACITY, BOPACITY, FONTFAMILY, FONTSIZE, features
-	__ReadElem(s, Web, 
-		"#ffffff", "#a03020", -100, -100, 
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif", 
-		"13px", 0, /* normal */
-		false, 0, 0
-		);
-				/* normal */
-				// elem, 
-				// color, bckcolor, opacity, bOpacity, 
-				// fontfamily, 
-				// fontsize, features, 
-				//  borderon, borderwidth, bordercolor
-				// shhoriz, shvert, shblur, shcolor, shused
-				// used, top stop & color, middle: stop & color, bottom stop & color
-	__ReadElemWGradient(s, Menu, 
-		"#ffffff", config.Web.background.name, -100, -100, 
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"13px", (int)_CFont::fBold,
-		false, 1, "890222",
-		0, 0, 0, "",false,
-		true, 0, "a90329", 40, "890222", 100, "6D0019");
-		
-// elem, color, bckcolor, opacity, bOpacity, fontfamily, fontsize, features, SHHORIZ, SHVERT, SHBLUR, SHCOLOR, SHUSED
-	__ReadElemWShadow(s, Lang, 
-		"#dddd00", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"8pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, GalleryTitle, 
-		"#dddddd", config.Web.background.name, -100, -100,
-		"\"Rage Italic\",Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"14pt", (int)_CFont::fBold,
-		false, 0, 0,
-		10, 10, 10, "#000000", false);
-	__ReadElemWShadow(s, SmallGalleryTitle, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"8pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, GalleryDesc, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"10pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, AlbumTitle, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"16pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, AlbumDesc, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"8pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, Section, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Papyrus", 
-		"24pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, ImageTitle, 
-		"#ddd", config.Web.background.name, -100, -100,
-		"\"Rage Italic\", Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"12pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-	__ReadElemWShadow(s, ImageDesc, 
-		"#ffffff", config.Web.background.name, -100, -100,
-		"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif",
-		"8pt", (int)_CFont::fBold,
-		false, 0, 0,
-		0, 0, 0, "", false);
-
-	__ReadWaterMark(s, waterMark, false, "Watermark", "11", 0, 0, 0xffffff, -1, -1, 100, "", 16, QFont::Bold, false);
-
-	// "" as default means -> use global defaults if there are such but do not display them
 	// directories
-	__ConfigReadStr(s, dsSrc, "");			// no default
-	__ConfigReadStr(s, dsGallery, "");		// no default
-	__ConfigReadStr(s, dsGRoot, "");		// 'falconG'
-	__ConfigReadStr(s, dsAlbumDir, "");		// 'albums'
-	__ConfigReadBool(s, bOvrImages, true);  // overwrite images or ask?
+	dsSrc.Read(s);
+	dsGallery.Read(s);
+	dsGRoot.Read(s);
+	dsAlbumDir.Read(s);
 
-	__ConfigReadStr(s, sGalleryTitle, "Andreas Falco Photography");
-	__ConfigReadStr(s, sGalleryLanguages, "");
-	__ConfigReadStr(s, sUplink, "");		// no defaults
-	__ConfigReadStr(s, iconUplink, "up-icon.png");		// no defaults
-	__ConfigReadStr(s, sMainPage, "");		// no defaults
-	__ConfigReadStr(s, sDescription, "");	// no defaults
-	__ConfigReadStr(s, sKeywords, "");		// no defaults
-	__ConfigReadStr(s, sServerAddress, ""); // no default
-	__ConfigReadStr(s, sMailTo, "");		// send user emails here
-	__ConfigReadStr(s, sAbout, "");			// about page
-	__ConfigReadStr(s, sBaseName, "");		// 'album'
+	sBaseName.Read(s);
+	sMailTo.Read(s);
+	sAbout.Read(s);
+	sGalleryTitle.Read(s);
+	sGalleryLanguages.Read(s);
+	sUplink.Read(s);
+	iconUplink.Read(s);
+	sMainPage.Read(s);
+	sDescription.Read(s);
+	sKeywords.Read(s);
+											// sepcial data
+	bAddTitlesToAll.Read(s);
+	bAddDescriptionsToAll.Read(s);
+	bLowerCaseImageExtensions.Read(s);
+	bMenuToContact.Read(s);
+	bMenuToAbout.Read(s);
+	bMenuToDescriptions.Read(s);
+	bMenuToToggleCaptions.Read(s);
 
-		// sepcial data
-//	__ConfigReadBool(s, bGenerateAll, false);				// unconditional save web pages - not stored
-//	__ConfigReadBool(s, bButImages, false);					// unconditional save web pages
-	__ConfigReadBool(s, bAddTitlesToAll, false);			// only process changed/deleted/new images
-	__ConfigReadBool(s, bAddDescriptionsToAll, false);		// only process changed/deleted/new images
-	__ConfigReadBool(s, bLowerCaseImageExtensions, true);	// convert extension
-//	__ConfigReadBool(s, bReadJAlbum, true);
-	__ConfigReadBool(s, bMenuToContact, true);
-	__ConfigReadBool(s, bMenuToAbout, true);
-	__ConfigReadBool(s, bMenuToDescriptions, true);
-	__ConfigReadBool(s, bMenuToToggleCaptions, true);
+	bRightClickProtected.Read(s);
+	bCanDownload.Read(s);
+	bForceSSL.Read(s);
+	bOvrImages.Read(s);
+	bSourceRelativePerSign.Read(s);
+	bFacebookLink.Read(s);
 
-	__ConfigReadBool(s, bSourceRelativePerSign, true);
-	__ConfigReadBool(s, bRightClickProtected, false);
-	__ConfigReadBool(s, bCanDownload, false);		// images download allowed
-	__ConfigReadBool(s, bForceSSL, true);			// permanent transfer to SSL
-	__ConfigReadBool(s, bFacebookLink, true);
+	dsImageDir.Read(s);
+	dsCssDir.Read(s);
+	dsFontDir.Read(s);
+	sDefFonts.Read(s);
+				// images
+	imageWidth.Read(s);
+	imageHeight.Read(s);
+	imageSizesLinked.Read(s);
+	thumbWidth.Read(s);
+	thumbHeight.Read(s);
+	doNotEnlarge.Read(s);
+	bCropThumbnails.Read(s);
+	bDistrortThumbnails.Read(s);
+	// image decoration
+	imageBorder.Read(s);
 
-	__ConfigReadStr(s, dsImageDir, "");		// img
-	__ConfigReadStr(s, dsCssDir , "");		// css
-	__ConfigReadStr(s, dsFontDir, "");		// font
-	__ConfigReadStr(s, sDefFonts, "");		// defFonts
-		// images
-	__ConfigReadInt(s, imageWidth, 1920);
-	__ConfigReadInt(s, imageHeight, 1080);
-	__ConfigReadInt(s, thumbWidth, 600);
-	__ConfigReadInt(s, thumbHeight, 400);
-	__ConfigReadInt(s, imageSizesLinked, true);
-	__ConfigReadBool(s, doNotEnlarge, true);
-	__ConfigReadBool(s, bCropThumbnails, false);
-	__ConfigReadBool(s, bDistrortThumbnails, false);
-		// image decoration
-	__ConfigReadBorder(s, imageBorder, true, 2, QString("eaa41e"));
-		// icons
-	__ConfigReadBool(s, iconToTopOn, true);
-	__ConfigReadBool(s, iconInfoOn, true);
+	iconToTopOn.Read(s);
+	iconInfoOn.Read(s);
+			// Google Analytycs
+	googleAnalyticsOn.Read(s);
+	googleAnalTrackingCode.Read(s);
+			// latest uploads
+	generateLatestUploads.Read(s);
+	newUploadInterval.Read(s);
+	nLatestCount.Read(s);
+	styleIndex.Read(s);
+
+	sServerAddress.Read(s);
+
+	Web.Read(s);		// sets common colors and fonts, which may be modified later
+						// on read
+	Menu.ColorsAndFontsFrom(Web);
+	Lang.ColorsAndFontsFrom(Web);
+	SmallGalleryTitle.ColorsAndFontsFrom(Web);
+	GalleryTitle.ColorsAndFontsFrom(Web);
+	GalleryDesc.ColorsAndFontsFrom(Web);
+	AlbumTitle.ColorsAndFontsFrom(Web);
+	AlbumDesc.ColorsAndFontsFrom(Web);
+	Section.ColorsAndFontsFrom(Web);
+	ImageTitle.ColorsAndFontsFrom(Web);
+	ImageDesc.ColorsAndFontsFrom(Web);
+
+
+	Menu.Read(s);
+	Lang.Read(s);
+	SmallGalleryTitle.Read(s);
+	GalleryTitle.Read(s);
+	GalleryDesc.Read(s);
+	AlbumTitle.Read(s);
+	AlbumDesc.Read(s);
+	Section.Read(s);
+	ImageTitle.Read(s);
+	ImageDesc.Read(s);
 				// 	Watermarks
-		// Google Analytycs
-	__ConfigReadBool(s, googleAnalyticsOn, false);
-	__ConfigReadStr(s, googleAnalTrackingCode, "");
-	// latest uploads
-	__ConfigReadBool(s, generateLatestUploads, true);
-	__ConfigReadInt(s, newUploadInterval, 14);		// days
-	__ConfigReadInt(s, nLatestCount, 10);	// days
-	__ConfigReadInt(s, styleIndex, 0);	// 	default style
-	changed = false;
+	waterMark.Read(s);
+	// Debug
+	bDebugging.Read(s);
+
 	configSave = *this;
 }
 
-
-static void __ElemColorChanged(QSettings &s, _CElem &elem)
+/*=============================================================
+* TASK: writes changed configuration settings
+* EXPECTS: sIniName: name of file to write into
+* RETURNS: nothing
+* REMARKS: - does not modify the 'changed' flags
+*		   - synchronize it with Read
+*------------------------------------------------------------*/
+void CONFIG::_WriteIni(QString sIniName)
 {
-	if (elem.color.changed) 
-	{	
-		s.beginGroup("color");	
-		s.setValue("name", elem.color.name); 
-		s.setValue("opacity", elem.color.opacity);	
-		s.endGroup();	
-	} 
-	if (elem.background.changed)
-	{
-		s.beginGroup("background");
-			s.setValue("name", elem.background.name);
-			s.setValue("opacity", elem.background.opacity);
-		s.endGroup();
-	}
-	if(elem.font.changed)
-	{
-		s.beginGroup("font");	
-			s.setValue("family", elem.font.family); 
-			s.setValue("size", elem.font.sizestr); 
-			s.setValue("features", elem.font.features);  
-		s.endGroup();				   
-	}
+	QSettings s(sIniName, QSettings::IniFormat);
+	s.setIniCodec("UTF-8");
+
+	// directories
+	dsSrc.Write(s);
+	dsGallery.Write(s);
+	dsGRoot.Write(s);
+	dsAlbumDir.Write(s);
+
+	sBaseName.Write(s);
+	sMailTo.Write(s);
+	sAbout.Write(s);
+	sGalleryTitle.Write(s);
+	sGalleryLanguages.Write(s);
+	sUplink.Write(s);
+	iconUplink.Write(s);
+	sMainPage.Write(s);
+	sDescription.Write(s);
+	sKeywords.Write(s);
+											// sepcial data
+	bAddTitlesToAll.Write(s);
+	bAddDescriptionsToAll.Write(s);
+	bLowerCaseImageExtensions.Write(s);
+	bMenuToContact.Write(s);
+	bMenuToAbout.Write(s);
+	bMenuToDescriptions.Write(s);
+	bMenuToToggleCaptions.Write(s);
+
+	bRightClickProtected.Write(s);
+	bCanDownload.Write(s);
+	bForceSSL.Write(s);
+	bOvrImages.Write(s);
+	bSourceRelativePerSign.Write(s);
+	bFacebookLink.Write(s);
+
+	dsImageDir.Write(s);
+	dsCssDir.Write(s);
+	dsFontDir.Write(s);
+	sDefFonts.Write(s);
+				// images
+	imageWidth.Write(s);
+	imageHeight.Write(s);
+	imageSizesLinked.Write(s);
+	thumbWidth.Write(s);
+	thumbHeight.Write(s);
+	doNotEnlarge.Write(s);
+	bCropThumbnails.Write(s);
+	bDistrortThumbnails.Write(s);
+	// image decoration
+	imageBorder.Write(s);
+	
+	iconToTopOn.Write(s);
+	iconInfoOn.Write(s);
+			// Google Analytycs
+	googleAnalyticsOn.Write(s);
+	googleAnalTrackingCode.Write(s);
+			// latest uploads
+	generateLatestUploads.Write(s);
+	newUploadInterval.Write(s);
+	nLatestCount.Write(s);
+	styleIndex.Write(s);
+	
+	sServerAddress.Write(s);
+
+	Web.Write(s);
+	Menu.Write(s);
+	Lang.Write(s);
+	SmallGalleryTitle.Write(s);
+	GalleryTitle.Write(s);
+	GalleryDesc.Write(s);
+	AlbumTitle.Write(s);
+	AlbumDesc.Write(s);
+	Section.Write(s);
+	ImageTitle.Write(s);
+	ImageDesc.Write(s);
+				// 	Watermarks
+	waterMark.Write(s);
+
+	if (__bClearChangedFlag)
+		ClearChanged();
 }
-
-static void __ElemShadowChanged(QSettings &s, _CElem &elem)
-{
-	s.beginGroup("shadow");	
-		s.setValue("horiz", elem.shadow.values[0]); 
-		s.setValue("vert", elem.shadow.values[1]); 
-		s.setValue("blur", elem.shadow.values[2]); 
-		s.setValue("color", elem.shadow.color); 
-		s.setValue("use", elem.shadow.use);
-	s.endGroup();	
-}
-
-static void __ElemGradientChanged(QSettings &s, _CElem &elem)
-{
-	if (!elem.gradient.changed)
-		return;
-
-	s.beginGroup("gradient");
-	if (elem.gradient.used)
-	{
-		s.setValue("topstop", elem.gradient.gs[0].percent);
-		s.setValue("topcolor", elem.gradient.gs[0].color);
-		s.setValue("middlestop", elem.gradient.gs[1].percent);
-		s.setValue("middlecolor", elem.gradient.gs[1].color);
-		s.setValue("bottomstop", elem.gradient.gs[2].percent);
-		s.setValue("bottomcolor", elem.gradient.gs[2].color);
-		s.setValue("used", true);
-	}
-	else
-	{
-		s.remove("topstop");
-		s.remove("topcolor");
-		s.remove("middlestop");
-		s.remove("middlecolor");
-		s.remove("bottomstop");
-		s.remove("bottomcolor");
-		s.setValue("used", false);
-	}
-	s.endGroup();
-}
-
-static void __ElemBorderChanged(QSettings &s, _CElem &elem)
-{
-	if (elem.border.changed)
-	{
-		s.beginGroup("border");
-			s.setValue("used", elem.border.used); 
-			s.setValue("width", elem.border.width.val); 
-			s.setValue("color", elem.border.color.name); 
-		s.endGroup();
-	}
-}
-
-static void __ConfigWriteBorder(QSettings &s, _CBorder &border)
-{
-	if (border.changed || border.color.changed)
-	{
-		s.beginGroup(border.nameStr);
-		s.setValue("used",  border.used);
-		s.setValue("width", border.width.val);
-		s.setValue("color", border.color.name);
-		s.endGroup();
-	}
-}
-
-static inline void __ConfigWriteInt(QSettings &s, _CInt name) 
-{
-	if (name.changed)
-	{
-		s.setValue(name.nameStr, name.val);
-		if (__bClearChangedFlag)
-			name.changed = false;
-	}
-}
-static inline void __ConfigWriteStr(QSettings &s, _CString name)
-{
-	if (name.changed)
-	{
-		s.setValue(name.nameStr, name.str);
-		if (__bClearChangedFlag)
-			name.changed = false;
-	}
-}
-static inline void __ConfigWriteBool(QSettings &s, _CBool name)
-{
-	if (name.changed)
-	{
-		s.setValue(name.nameStr, name.set);
-		if (__bClearChangedFlag)
-			name.changed = false;
-	}
-}
-
-static void __ConfigWriteElem(QSettings &s, _CElem &elem)
-{
-	s.beginGroup(elem.nameStr);
-		__ElemColorChanged(s, elem);
-		__ElemBorderChanged(s, elem);
-	s.endGroup();
-}
-
-static void __ConfigWriteElemShadow(QSettings &s, _CElem &elem)
-{
-	__ConfigWriteElem(s,elem);
-	if (elem.shadow.useEver && elem.shadow.changed)
-	{
-		s.beginGroup(elem.nameStr);
-			__ElemShadowChanged(s, elem);
-		s.endGroup();
-	}
-}
-
-static void __ConfigWriteElemGradient(QSettings &s, _CElem &elem)
-{
-	__ConfigWriteElemShadow(s,elem);
-	if ((elem.gradient.useEver && elem.gradient.changed) || elem.border.changed)
-	{
-		s.beginGroup(elem.nameStr);
-			__ElemGradientChanged(s, elem);
-			if (elem.border.changed || elem.border.color.changed)
-				__ElemBorderChanged(s, elem);
-		s.endGroup();
-	}
-}
-
-/*============================================================================
-* TASK: read configuration settings for watermark
-* EXPECTS: s - open settings
-*		   wm =watermark
-*	RETURNS: nothing
-* REMARKS:
-*---------------------------------------------------------------------------*/
-static inline void __WriteWaterMark(QSettings &s, _CWaterMark &elem)
-{
-	QString sOrigin;
-	s.beginGroup(elem.nameStr);
-		s.setValue("used",elem.used);
-		s.setValue("text",elem.wm.text);
-
-		s.setValue("origin", elem.wm.origin); // low 4 bits: vertical, high 4 bits : horizontal
-
-		s.setValue("mx",elem.wm.marginX);
-		s.setValue("my",elem.wm.marginY);
-		s.setValue("color",elem.wm.color);
-		s.setValue("background",elem.wm.background);
-		s.setValue("shadow",elem.wm.shadowColor);
-		s.setValue("opacity",elem.wm.opacity);
-
-		s.setValue("family", elem.wm.font.family());
-		s.setValue("size", elem.wm.font.pointSize());
-		s.setValue("weight", elem.wm.font.weight());
-		s.setValue("italic", elem.wm.font.italic());
-	s.endGroup();
-}
-
-
 /*============================================================================
   * TASK: writes changed configuration settings
   * EXPECTS: nothing
@@ -1323,102 +1152,11 @@ void CONFIG::Write()			// synchronize with Read!
 	_WriteIni(falconG_ini);		// last used data into there as well
 
 	QString p, n;
-	SeparateFileNamePath(dsSrc.str, p, n);
-//	QString s = NameForConfig()
+	SeparateFileNamePath(dsSrc.ToString(), p, n);
 
 	__bClearChangedFlag = true;				// mark all changes as saved
-	_WriteIni(dsSrc.str + n + ".ini");
+	_WriteIni(dsSrc.ToString() + n + ".ini");
 	__bClearChangedFlag = false;
 
-	changed = false;   // sets changed of all variables false too
-}
-
-/*=============================================================
-* TASK: writes changed configuration settings
-* EXPECTS: sIniName: name of file to write into
-* RETURNS: nothing
-* REMARKS: - does not modify the 'changed' flags
-*		   - synchronize it with Read
-*------------------------------------------------------------*/
-void CONFIG::_WriteIni(QString sIniName)
-{
-	QSettings s(sIniName, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
-
-	// directories
-	__ConfigWriteStr(s, dsSrc);
-	__ConfigWriteStr(s, dsGallery);
-	__ConfigWriteStr(s, dsGRoot);
-	__ConfigWriteStr(s, dsAlbumDir);
-
-	__ConfigWriteStr(s, sServerAddress);
-	__ConfigWriteStr(s, sBaseName);		// 'album'
-	__ConfigWriteStr(s, sMailTo);			// send user emails here
-	__ConfigWriteStr(s, sAbout);			// about page
-	__ConfigWriteStr(s, sGalleryTitle);
-	__ConfigWriteStr(s, sGalleryLanguages);	// hu,en
-	__ConfigWriteStr(s, sUplink);
-	__ConfigWriteStr(s, iconUplink);
-	__ConfigWriteStr(s, sMainPage);
-	__ConfigWriteStr(s, sDescription);
-	__ConfigWriteStr(s, sKeywords);
-
-											// sepcial data
-//	__ConfigWriteBool(s, bGenerateAll);		// images download allowed not stored
-//	__ConfigWriteBool(s, bButImages);		// images download allowed
-	__ConfigWriteBool(s, bAddTitlesToAll);		// images download allowed
-	__ConfigWriteBool(s, bAddDescriptionsToAll);		// images download allowed
-	__ConfigWriteBool(s, bLowerCaseImageExtensions);	// convert extension
-//	__ConfigWriteBool(s, bReadJAlbum);
-	__ConfigWriteBool(s, bMenuToContact);
-	__ConfigWriteBool(s, bMenuToAbout);
-	__ConfigWriteBool(s, bMenuToDescriptions);
-	__ConfigWriteBool(s, bMenuToToggleCaptions);
-
-	__ConfigWriteBool(s, bRightClickProtected);
-	__ConfigWriteBool(s, bCanDownload);		// images download allowed
-	__ConfigWriteBool(s, bForceSSL);			// permanent transfer to SSL
-	__ConfigWriteBool(s, bOvrImages);  // overwrite images or ask?
-	__ConfigWriteBool(s, bSourceRelativePerSign);
-	__ConfigWriteBool(s, bFacebookLink);
-
-	__ConfigWriteStr(s, dsImageDir);	// img
-	__ConfigWriteStr(s, dsCssDir);		// css
-	__ConfigWriteStr(s, dsFontDir);		// font
-	__ConfigWriteStr(s, sDefFonts);		// defFonts
-	
-	__ConfigWriteElem(s, Web);				// page
-	__ConfigWriteElemGradient(s, Menu);				// buttons
-	__ConfigWriteElemShadow(s, SmallGalleryTitle);		// "andreas falco photography"
-	__ConfigWriteElemShadow(s, GalleryTitle);		// "andreas falco photography"
-	__ConfigWriteElemShadow(s, GalleryDesc);		// "andreas falco photography"
-	__ConfigWriteElemShadow(s, AlbumTitle);		// "Hungary"
-	__ConfigWriteElemShadow(s, AlbumDesc);			// "Hungary"
-	__ConfigWriteElemShadow(s, Section);			// "Images" or "Albums"
-	__ConfigWriteElemShadow(s, ImageTitle);		// not the image itself, just the texts!
-	__ConfigWriteElemShadow(s, ImageDesc);			// 
-				// images
-	__ConfigWriteInt(s, imageWidth);
-	__ConfigWriteInt(s, imageHeight);
-	__ConfigWriteInt(s, imageSizesLinked);
-	__ConfigWriteInt(s, thumbWidth);
-	__ConfigWriteInt(s, thumbHeight);
-	__ConfigWriteBool(s, doNotEnlarge);
-	__ConfigWriteBool(s, bCropThumbnails);
-	__ConfigWriteBool(s, bDistrortThumbnails);
-	// image decoration
-	__ConfigWriteBorder(s, imageBorder);
-	
-	__ConfigWriteBool(s, iconToTopOn);
-	__ConfigWriteBool(s, iconInfoOn);
-				// 	Watermarks
-	__WriteWaterMark(s, waterMark);
-			// Google Analytycs
-	__ConfigWriteBool(s, googleAnalyticsOn);
-	__ConfigWriteStr(s, googleAnalTrackingCode);
-			// latest uploads
-	__ConfigWriteBool(s, generateLatestUploads);
-	__ConfigWriteInt(s, newUploadInterval);		// days
-	__ConfigWriteInt(s, nLatestCount);			// days
-	__ConfigWriteInt(s, styleIndex);			// 0,1,2,3
+	ClearChanged();
 }

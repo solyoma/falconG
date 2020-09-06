@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QApplication>
 #include <QtCore>
 #include <QString>
 #include <QTextCodec>
@@ -1023,6 +1024,7 @@ Album& AlbumMap::Find(ID_t id)
 	return contains(id) ? (*this)[id] : invalid;
 }
 
+/************************** Albumgenerator *************************/
 /*============================================================================
   * TASK:	 add a new image from structure to image map
   * EXPECTS:  imagePath: path name relative to source directory
@@ -1561,23 +1563,23 @@ bool AlbumGenerator::Read()
 
 	bool result = false;
 
-	bool _justChanges = ((albumgen.AlbumCount() == 0 || albumgen.ImageCount() == 0)); // else full creation
+	bool _justChanges = (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
 
 	if (!_justChanges)
 	{
 		_imageMap.clear();
 		_textMap.clear();
 		_albumMap.clear();
-	}
-
 	// add default image when no image is found This is the only one with id == 0
 	// the file 'NoImage.jpg' must be put into the 'res' directory
-	Image im;
-	im.exists = true;
-	im.name = "NoImage.jpg";
-	im.ID = 0;
-	im.ssize = im.osize = QSize(800, 800);
-	_imageMap[0] = im;
+		Image im;
+		im.exists = true;
+		im.name = "NoImage.jpg";
+		im.ID = 0;
+		im.ssize = im.osize = QSize(800, 800);
+		_imageMap[0] = im;
+	}
+
 
 	QString s = CONFIGS_USED::NameForConfig(".struct");
 	_structChanged = 0;
@@ -2471,7 +2473,7 @@ int AlbumGenerator::_DoCopyJs()
 {
 	QString src = config.dsApplication.ToString() + "js/",
 		dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
-	QDir dir(src);  // res in actual progam directory
+	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
 	for (QFileInfo &fi : list)
 		QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
@@ -2514,13 +2516,13 @@ enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
 *--------------------------------------------------------------------------*/
 QString AlbumGenerator::_ShadowToString(QString s, _CElem &elem)
 {
-	if (!elem.shadow.use)
+	if (!elem.shadow.Use())
 		return QString();
 
 	s += QString().setNum(elem.shadow.Horiz()) + "px " + QString().setNum(elem.shadow.Vert()) + "px";
 	if (elem.shadow.Blur())
 		s += " " + QString().setNum(elem.shadow.Blur());
-	s += " " + elem.shadow.color + ";\n";
+	s += " " + elem.shadow.Color() + ";\n";
 	return s;
 }
 
@@ -2564,7 +2566,7 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 *--------------------------------------------------------------------------*/
 QString AlbumGenerator::_ElemColorCssToString(QString selector, _CElem &elem, int what)
 {
-	if (elem.color.name.isEmpty())
+	if (elem.color.Name().isEmpty())
 		return QString();
 
 	selector += "{\n";
@@ -2572,7 +2574,7 @@ QString AlbumGenerator::_ElemColorCssToString(QString selector, _CElem &elem, in
 		selector += " color:" + ColorToStr(elem.color) + ";\n";
 	if (what & wBackground)
 		selector +=" background-color:" + ColorToStr(elem.background) + ";\n";
-	if (elem.shadow.IsSet())
+	if (elem.shadow.Use())
 		selector += _ShadowToString(" text-shadow:", elem);
 	if ((what & wNoClosingBrace) == 0)
 		selector +="}\n\n";
@@ -2624,8 +2626,8 @@ QString AlbumGenerator::_MenuColorCSSToString()
 	else
 		s += " color:" + ColorToStr(config.Menu.color) + ";\n background-color:" + ColorToStr(config.Menu.background) + ";\n";
 	if(config.Menu.border.used)
-		s += " border: 1px solid " + config.Menu.border.color.name + ";";
-	if (config.Menu.shadow.use)
+		s += " border: 1px solid " + config.Menu.border.color + ";";
+	if (config.Menu.shadow.Use())
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
 			_ShadowToString(" -moz-box-shadow", config.Menu) +
 			_ShadowToString(" box-shadow", config.Menu);
@@ -2640,8 +2642,8 @@ QString AlbumGenerator::_MenuColorCSSToString()
 			 ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
 
 	if (config.Menu.border.used)
-		s += " border: 1px solid " + config.Menu.border.color.name + ";";
-	if (config.Menu.shadow.use)
+		s += " border: 1px solid " + config.Menu.border.color + ";";
+	if (config.Menu.shadow.Use())
 		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
 			_ShadowToString(" -moz-box-shadow", config.Menu) +
 			_ShadowToString(" box-shadow", config.Menu);
@@ -2689,12 +2691,11 @@ QString AlbumGenerator::_ColorCSSToString()
 		"}\n" +
 
 		// block for menu buttons
-		_MenuColorCSSToString() + 
+		_MenuColorCSSToString(); 
 		// end of menu button
 
-		_ElemColorCssToString("#images, .folders", config.images, wColor);
 	if (config.imageBorder.used)
-		s += "section div.thumb img{\n 	border:" + QString().setNum(config.imageBorder.width) + "px solid " + config.imageBorder.color.name + ";\n}\n";
+		s += "section div.thumb img{\n 	border:" + QString().setNum(config.imageBorder.width) + "px solid " + config.imageBorder.color + ";\n}\n";
 // DEBUG
 //	QMessageBox(QMessageBox::Information, "falconG - info", s, QMessageBox::Ok, frmMain).exec();
 
@@ -2708,21 +2709,21 @@ QString AlbumGenerator::_ColorCSSToString()
 *--------------------------------------------------------------------------*/
 QString _FontToCss(_CElem & elem)
 {
-	QString s = "	font-size:" + elem.font.sizestr + ";\n"
-		"	font-family:" + elem.font.family + ";\n";
+	QString s = "	font-size:" + elem.font.SizeStr() + ";\n"
+				"	font-family:" + elem.font.Family() + ";\n";
 
-	if (elem.font.features & _CFont::fBold)
+	if (elem.font.Bold() )
 		s += "	font-weight:bold;\n";
-	if (elem.font.features & _CFont::fItalic)
+	if (elem.font.Italic())
 		s += "	font-style:italic;\n";
 
-	if (elem.font.features & (_CFont::fUnderline | _CFont::fStrikethrough))
+	if (elem.font.Features() & (_CFont::fUnderline | _CFont::fStrikethrough))
 		s += "	text-decoration:";
-	if (elem.font.features & _CFont::fUnderline)
+	if (elem.font.Underline())
 		s += "underline";
-	if (elem.font.features & _CFont::fStrikethrough)
+	if (elem.font.StrikeThrough())
 		s += " strikethrough";
-	if (elem.font.features & (_CFont::fUnderline | _CFont::fStrikethrough))
+	if (elem.font.Features() & (_CFont::fUnderline | _CFont::fStrikethrough))
 		s += ";\n";
 	return s;
 }
@@ -2746,9 +2747,9 @@ QString AlbumGenerator::_CssToString()
 		// usage example: h1 {font-family: 'RieslingRegular', Arial, sans-serif;}
 		// universal selector to include padding and border in box size
 		"*, *::before, *::after {\n"
-		"  box-sizing:border-box;\n"
-		"  padding:0;\n"
-		"  margin:0\n;"
+		"	box-sizing:border-box;\n"
+		"	padding:0;\n"
+		"	margin:0\n;"
 		"}\n\n"
 		"html,\n"
 		"body{\n"
@@ -2768,32 +2769,43 @@ QString AlbumGenerator::_CssToString()
 		+ _FontToCss(config.GalleryTitle) +
 		"	text-align: center;\n"
 		"}\n"
-		"\n"
-		// about
-		".about{\n"
-		"	margin:auto;\n"
-		"	width:400px;\n"
-		"}\n"
+		"\n";
 
-		// a.title
-		"a.title{\n"
-		+ _FontToCss(config.GalleryTitle) +
-		"}\n"
-		"\n"
-		// a, a:visited
-		"a, a:visited{\n"
-		"	text-decoration: none;\n"
-		"}\n"
-		"\n"
-		// a[name = \"images\"], a[name = \"galleries\"]
-		"a[name=\"images\"], a[name=\"galleries\"]{\n"
-		+ _FontToCss(config.Section) +
-		"	text-align:center;\n"
-		"	padding:1em 0 1em 0;\n"
-		"}\n"
-		"\n"
+		 if(config.GalleryTitle.font.IsFirstLineDifferent())
+			 s += "h2.album-title::first-line {\n" 
+				  "	font-size:" + config.GalleryTitle.font.FirstLineSize() + "\n"
+				  "}\n\n";
+
+		// about
+	s += ".about{\n"
+			"	margin:auto;\n"
+			"	width:400px;\n"
+			"}\n"
+
+			// a.title
+			"a.title{\n"
+			+ _FontToCss(config.GalleryTitle) +
+			"}\n"
+			"\n"
+			// a, a:visited
+			"a, a:visited{\n"
+			"	text-decoration: none;\n"
+			"}\n"
+			"\n"
+			// a[name = \"images\"], a[name = \"galleries\"]
+			"a[name=\"images\"], a[name=\"galleries\"]{\n"
+			+ _FontToCss(config.Section) +
+			"	text-align:center;\n"
+			"	padding:1em 0 1em 0;\n"
+			"}\n"
+			"\n";
+	if(config.Section.font.IsFirstLineDifferent())
+		s += "a[name = \"images\"]::first-line, a[name=\"galleries\"]::first-line {\n"
+		"	font-size:" + config.Section.font.FirstLineSize() + "\n"
+		"}\n\n";
+
 		// p
-		"p{\n"
+	s += "p{\n"
 		"	font-size: 13px;\n"
 		"}\n"
 		"\n"
@@ -3243,7 +3255,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 	if (ext.isEmpty())
 		ext = ".html";
 	if (path.isEmpty())
-		base = config.dsGRoot.str + name;
+		base = config.dsGRoot.ToString() + name;
 	else
 		base = (config.dsGRoot + path).ToString() + name;
 	if (multipleLanguages)
@@ -3869,7 +3881,7 @@ int AlbumGenerator::_CreateHomePage()
 		s, path, fn, ext;
 	SeparateFileNamePath(name, path, fn, &ext);
 
-	if (name == config.sUplink.str)		// uplink  default name is empty
+	if (name == config.sUplink.ToString())		// uplink  default name is empty
 		s = QStringLiteral("_") + name;
 	else
 		s = name;
@@ -3938,7 +3950,7 @@ int AlbumGenerator::_DoPages()
 	_remDsp.Init(_albumMap.size() * Languages::Count());
 
 
-	QString uplink = config.sUplink.str;	 // points to embedding page, relative to html 
+	QString uplink = config.sUplink.ToString();	 // points to embedding page, relative to html 
 											 // directory on server (inside e.g. public_html)
 											 // e.g. single language: 
 											 //		index.html corresponds to https://your.site.com/index.html 
@@ -4102,14 +4114,14 @@ void AlbumStructWriterThread::run()
 			// mutex is locked and will bw unlocked when function returns
 
 	QString p, n;
-	SeparateFileNamePath(config.dsSrc.str, p, n);
+	SeparateFileNamePath(config.dsSrc.ToString(), p, n);
 
 /*
     QString s = QString(config.dsSrc.ToString()) + "gallery.struct",
 		stmp = QString(config.dsSrc.ToString()) + "gallery.tmp";
  */
-	sStructPath	= config.dsSrc.str + n + QString(".struct"),
-	sStructTmp	= config.dsSrc.str + n + QString(".tmp");
+	sStructPath	= config.dsSrc.ToString() + n + QString(".struct"),
+	sStructTmp	= config.dsSrc.ToString() + n + QString(".tmp");
 	QFile f(sStructTmp);
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
@@ -4292,7 +4304,7 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 QString IABase::ShortPathName()
 {
 	QString s = path + name;
-	if (s.left(config.dsSrc.str.length()) == config.dsSrc.str)
-		s = s.mid(config.dsSrc.str.length());
+	if (s.left(config.dsSrc.ToString().length()) == config.dsSrc.ToString())
+		s = s.mid(config.dsSrc.ToString().length());
 	return s;
 }

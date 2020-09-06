@@ -16,7 +16,7 @@ class StyleHandler
 	StyleRules	_rules;
 
 	QString _ssr;		// style sheet read
-	int _pos;			// in _ss under processing
+	int _pos;			// in _ssr under processing
 	QChar _NextCh() 
 	{ 
 		if(!_pos || _ssr[_pos-1] == ';' || _ssr[_pos-1] == '{')	// cut spaces between elements
@@ -41,7 +41,7 @@ public:
 	void ReadFromSettings(QSettings &s);
 
 	void Set(const QString &css);						// _ssr from CSS string
-	QString StyleSheet() const;							// create stylesheet text
+	QString StyleSheet();							// create stylesheet text
 	bool Exists(const QString selector, const QString nameOfRule) const;	// group contains object name
 	bool Exists(const QString baseSelector, const QString objectName, const QString nameOfRule) const;	
 
