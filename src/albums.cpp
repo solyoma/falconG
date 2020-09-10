@@ -54,7 +54,8 @@ _CDirStr	__DestDir,		// generate gallery into _RootDir inside this
 			__ImageDir,		// all images. image name with date (?)
 			__ThumbDir,		// all images. image name with date (?)
 			__FontDir,		// some of used fonts
-			__ResourceDir;
+			__JsDir,		// falconG.js
+			__ResourceDir;	// icons
 
 /*============================================================================
 * TASK:
@@ -72,6 +73,8 @@ static void __SetBaseDirs()
 	__ImageDir = __RootDir + config.dsImageDir;		// contains all images
 	__ThumbDir = __RootDir + config.dsThumbDir;		// contains all thumbnails
 	__FontDir = __RootDir + config.dsFontDir;		// some of used fonts
+	__ResourceDir = __RootDir + _CDirStr("res/", "dirstr");	// icons
+	__JsDir = __RootDir + _CDirStr("js/", "dirstr");			// falconG.js
 }
 
 /*============================================================================
@@ -1638,7 +1641,7 @@ static bool __CreateDir(_CDirStr sdir, bool &ask) // only create if needed
 
 	if (b && __CancelCreate(sdir.ToString()))
 		return false;
-	return QDir().mkdir(sdir.ToString());
+	return folder.mkdir(sdir.ToString());
 }
 
 /*============================================================================
@@ -1667,30 +1670,28 @@ bool AlbumGenerator::_CreateDirectories()
 
 	__SetBaseDirs();
 
-	_CDirStr res;
-	res = "res";
-	__ResourceDir = __RootDir + res;				// afalco.js, solyoma.js
-
-	ask |= QDir::isAbsolutePath(config.dsGRoot.ToString());
+	ask |= QDir::isAbsolutePath(__RootDir.ToString());
 	if (!__CreateDir(__RootDir, ask))
 		return false;
-	ask |= QDir::isAbsolutePath(config.dsAlbumDir.ToString());
+	ask |= QDir::isAbsolutePath(__AlbumDir.ToString());
 	if (!__CreateDir(__AlbumDir, ask))
 		return false;
-	ask |= QDir::isAbsolutePath(config.dsCssDir.ToString());
-	if (!__CreateDir(__RootDir + config.dsCssDir, ask))
+	ask |= QDir::isAbsolutePath(__CssDir.ToString());
+	if (!__CreateDir(__CssDir, ask))
 		return false;
-	ask |= QDir::isAbsolutePath(config.dsImageDir.ToString());
-	if (!__CreateDir(__RootDir + config.dsImageDir, ask))
+	ask |= QDir::isAbsolutePath(__ImageDir.ToString());
+	if (!__CreateDir(__ImageDir, ask))
 		return false;
-	ask |= QDir::isAbsolutePath(config.dsThumbDir.ToString());
-	if (!__CreateDir(__RootDir + config.dsThumbDir, ask))
+	ask |= QDir::isAbsolutePath(__ThumbDir.ToString());
+	if (!__CreateDir(__ThumbDir, ask))
 		return false;
-	ask |= QDir::isAbsolutePath(config.dsFontDir.ToString());
-	if (!__CreateDir(__RootDir + config.dsFontDir, ask))
+	ask |= QDir::isAbsolutePath(__FontDir.ToString());
+	if (!__CreateDir(__FontDir, ask))
 		return false;
 	ask = false;
-	if (!__CreateDir(__RootDir + res, ask))
+	if (!__CreateDir(__ResourceDir, ask))
+		return false;
+	if (!__CreateDir(__JsDir, ask))
 		return false;
 	return true;
 }
@@ -2466,13 +2467,12 @@ bool AlbumGenerator::_ReadFromGallery()
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing file
-* REMARKS: the file 'up-icon.png' and 'left-icon.png' are not copied,
-*			but created from icon images in the res directory of falconG
+* REMARKS:  - directory 'js' exists
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
 {
 	QString src = config.dsApplication.ToString() + "js/",
-		dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
+			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
 	for (QFileInfo &fi : list)
@@ -2485,8 +2485,9 @@ int AlbumGenerator::_DoCopyJs()
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing file
-* REMARKS: the file 'up-icon.png' and 'left-icon.png' are not copied, 
-*			but created from icon images in the res directory of falconG
+* REMARKS:  - directory 'res' exists
+*			- the file 'up-icon.png' and 'left-icon.png' are not copied, 
+*			  but created from icon images in the res directory of falconG
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyRes()
 {
@@ -2727,6 +2728,15 @@ QString _FontToCss(_CElem & elem)
 		s += ";\n";
 	return s;
 }
+
+QString _FontForElem(_CElem elem, QString cssItemName, QString trailing) // config.GalleryTitle, ".falconG{\n", "margin-left: 10px;\n}\n\n")
+{
+	QString s = cssItemName + "\n\t" + _FontToCss(elem) + "\n}\n\n";
+	if (elem.font.IsFirstLineDifferent())
+		s += cssItemName + "::first-line {\n\tfont-size:" + elem.font.FirstLineSize() + ";\n}\n\n";
+	return s;
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -2758,58 +2768,36 @@ QString AlbumGenerator::_CssToString()
 		"   overflow: auto;\n"
 		"}\n"
 		"\n"
-		// .falconG
-		".falconG{\n"
+	// .falconG
+		+ _FontForElem(config.GalleryTitle, ".falconG", "margin-left: 10px;")
+	// h2
+		+ _FontForElem(config.AlbumTitle, "h2.album-title", "text-align: center;") + 
+	// about
+		".about{\n"
+		"	margin:auto;\n"
+		"	width:400px;\n"
+		"}\n"
+
+	// a.title
+		"a.title{\n"
 		+ _FontToCss(config.GalleryTitle) +
-		"	margin-left: 10px;\n"
 		"}\n"
 		"\n"
-		// h2
-		"h2.album-title{\n" // only for gallery title else have overriding class
-		+ _FontToCss(config.GalleryTitle) +
-		"	text-align: center;\n"
+	// a, a:visited
+		"a, a:visited{\n"
+		"	text-decoration: none;\n"
 		"}\n"
-		"\n";
-
-		 if(config.GalleryTitle.font.IsFirstLineDifferent())
-			 s += "h2.album-title::first-line {\n" 
-				  "	font-size:" + config.GalleryTitle.font.FirstLineSize() + "\n"
-				  "}\n\n";
-
-		// about
-	s += ".about{\n"
-			"	margin:auto;\n"
-			"	width:400px;\n"
-			"}\n"
-
-			// a.title
-			"a.title{\n"
-			+ _FontToCss(config.GalleryTitle) +
-			"}\n"
-			"\n"
-			// a, a:visited
-			"a, a:visited{\n"
-			"	text-decoration: none;\n"
-			"}\n"
-			"\n"
-			// a[name = \"images\"], a[name = \"galleries\"]
-			"a[name=\"images\"], a[name=\"galleries\"]{\n"
-			+ _FontToCss(config.Section) +
-			"	text-align:center;\n"
-			"	padding:1em 0 1em 0;\n"
-			"}\n"
-			"\n";
-	if(config.Section.font.IsFirstLineDifferent())
-		s += "a[name = \"images\"]::first-line, a[name=\"galleries\"]::first-line {\n"
-		"	font-size:" + config.Section.font.FirstLineSize() + "\n"
-		"}\n\n";
-
-		// p
-	s += "p{\n"
+		"\n"
+	// a[name = \"images\"], a[name = \"galleries\"]
+		+ _FontForElem(config.Section, "a[name=\"images\"], a[name=\"galleries\"]", 
+						"text-align:center;\n"
+						"	padding:1em 0 1em 0;") + 
+	// p
+		"p{\n"
 		"	font-size: 13px;\n"
 		"}\n"
 		"\n"
-		// div.menu-line a
+	// div.menu-line a
 		"div.menu-line a{\n"
 		+ _FontToCss(config.Menu) +
 		"	line-height: 18px;\n"
@@ -2826,7 +2814,7 @@ QString AlbumGenerator::_CssToString()
 		"	box-shadow: 0;\n"
 		"}\n"
 		"\n"
-		// a.facebook
+	// a.facebook
 		"a.facebook{\n"
 		"	display: inline-block;\n"
 		"	border: 1px solid #00266d;\n"
@@ -2851,33 +2839,27 @@ QString AlbumGenerator::_CssToString()
 		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
 		"}\n"
 		"\n"
-		// <header>
+	// <header>
 		"header{\n"
 		+ _FontToCss(config.Web) +
 		"	text-align: left;\n"
 		"	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);\n"
 		"}\n"
 		"\n"
-		// <footer>
+	// <footer>
 		"footer{\n"
 		+ _FontToCss(config.Web) +
 		"	text-align: center;\n"
 		"	margin:auto;\n"
 		"}\n"
 		"\n"
-		// Album title
-		".album-title{\n"
-		+ _FontToCss(config.AlbumTitle) +
-		"}\n"
-		// album-desc
-		".album-desc{\n"
-		+ _FontToCss(config.AlbumDesc) +
-		"	margin:auto;\n"
-		"	width:100%;\n"
-		"   text-align:center;\n"
-		"}\n"
-		"\n"
-		// <main>
+	// Album title
+		+ _FontForElem(config.AlbumTitle, ".album-title", QString() )
+	// album-desc
+		+_FontForElem(config.AlbumDesc, ".album-desc", "margin:auto;\n"
+													"	width:100%;\n"
+													"   text-align:center;")+
+	// <main>
 		"	/* --- main section --*/\n"
 		"main{\n"
 		"	display: flex;\n"
@@ -2910,7 +2892,7 @@ QString AlbumGenerator::_CssToString()
 		"	min-width:" + QString().setNum(config .thumbWidth)  + ";\n"
 		"	min-height:" + QString().setNum(config.thumbHeight) + ";\n"
 		"}\n"
-// .desc	  
+	// .desc	  
 		".desc{\n"
 		"	display:none;\n"
 		"	hyphens: auto;\n"
@@ -2919,12 +2901,12 @@ QString AlbumGenerator::_CssToString()
 		"	-ms-hyphens: auto;\n"
 		"}\n"
 		"\n"
-// p.album-title
+	// p.album-title
 		"p.album-title{\n"
 		"	padding-left:10px;\n"
 		"}\n"
 		"\n"
-// .desc p
+	// .desc p
 		".desc p{\n"
 		"	font-size: 12pt;\n"
 		"	line-height: 12pt;\n"
@@ -2933,7 +2915,7 @@ QString AlbumGenerator::_CssToString()
 		"	margin:auto;\n"
 		"}\n"
 		"\n"
-// section div.thumb
+	// section div.thumb
 		"section div.thumb{\n";
 		s += "	display:-webkit-flex;\n"
 			"	display:-ms-flexbox;\n"

@@ -480,8 +480,9 @@ void FalconG::_PopulateFromConfig()
 
 	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
 	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
-
+	--_busy;
 	ui.edtServerAddress->setText(config.sServerAddress);
+	++_busy;
 	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
 	ui.edtUplink->setText(config.sUplink);
 	ui.btnUplink->setIcon(QIcon(config.dsApplication.ToString() + "res/" + config.iconUplink));

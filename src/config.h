@@ -22,10 +22,12 @@ std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QStri
 template <class T> struct _CFG_ITEM
 {
 	QString itemName;	// in settings
-	T	v0,			// original value
-		v,			// actual value	read from settings file
-		vd;			// default value
-	_CFG_ITEM(QString namestr, T vd) : itemName(namestr), v0(vd), v(vd), vd(vd) {}
+	T	vd,			// default value
+		v0,			// original value
+		v;			// actual value	read from settings file
+
+		// vd must be first otherwise problems with actual declarations
+	_CFG_ITEM(T vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
 
 	virtual bool Changed() const 
 	{ 
@@ -76,7 +78,8 @@ protected:
 struct _CString : public _CFG_ITEM<QString>
 {
 
-	_CString(QString namestr = "cstring", QString vd=QString()) : _CFG_ITEM(namestr, vd) {}
+	_CString(QString vd, QString namestr) : _CFG_ITEM(vd, namestr) {}
+	_CString() : _CFG_ITEM(QString(), "cstring") {}
 
 	QString &operator=(const QString s);
 	QString& operator=(const _CString& s) { _CFG_ITEM::operator=(s);  return v; };
@@ -92,7 +95,8 @@ struct _CString : public _CFG_ITEM<QString>
 
 struct _CDirStr : public _CString	 // always ends with '/'
 {
-	_CDirStr(QString namestr="cdirstr", QString vd=QString()) : _CString(namestr, vd) {  }
+	_CDirStr(QString vd, QString namestr="cdirstr") : _CString(vd, namestr) {  }
+	_CDirStr() : _CString("/", "cdirstr") {}
 
 	operator QString() = delete;
 
@@ -118,7 +122,8 @@ private:
 
 struct _CBool : public _CFG_ITEM<bool>
 {
-	_CBool(QString namestr="cbool", bool def=false) : _CFG_ITEM(namestr, def) {}
+	_CBool(bool def, QString namestr="cbool") : _CFG_ITEM(def, namestr) {}
+	_CBool() : _CFG_ITEM(false, "cbool") {}
 
 	bool &operator=(const bool s);
 	operator bool() const { return v; }
@@ -130,7 +135,8 @@ struct _CBool : public _CFG_ITEM<bool>
 
 struct _CInt : _CFG_ITEM<int>
 {
-	_CInt(QString namestr="cint", int vd=0) : _CFG_ITEM(namestr, vd) {}
+	_CInt(int vd, QString namestr="cint") : _CFG_ITEM(vd, namestr) {}
+	_CInt() : _CFG_ITEM(0, "cint") {}
 
 	int &operator=(const int s);
 	operator int() const { return v; }
@@ -163,8 +169,12 @@ struct _CColor : _CFG_ITEM<QString>
 	// v is always in the form '#xxx' or '#AAxxxxxx' or '#xxxxxx|opacity' or
 	//	'#AAxxxxxx|opacity' where x and A are any hexadecimal digit (A: alpha)
 	//	opacity may be missing and when it does 100% is assumed
-	_CColor(QString namestr = "ccolor", QString name = "#000000") : _CFG_ITEM(namestr, name) 
-	{ 
+	_CColor(QString colorName, QString namestr = "ccolor") : _CFG_ITEM(colorName, namestr)
+	{					
+		_Setup();  
+	}
+	_CColor() :_CFG_ITEM("#000000", "ccolor")
+	{					
 		_Setup();  
 	}
 
@@ -209,7 +219,8 @@ struct _CFont : _CFG_ITEM<QString>
 {
 	enum feature: unsigned short { fBold=1, fItalic=2, fUnderline=4, fStrikethrough=8};
 
-	_CFont(QString namestr = "cfont", QString vd = "\"Tms Rmn\",\"Times New Roman\", Arial|10pt|0|0|10pt") : _CFG_ITEM(namestr, vd) { _Setup();  }
+	_CFont(QString vd, QString namestr = "cfont") : _CFG_ITEM(vd, namestr) { _Setup();  }
+	_CFont() : _CFG_ITEM("\"Tms Rmn\",Times, Helvetica|10|0", "cfont") { _Setup(); }
 
 	QString Family() const { return _details[0]; }
 	int Features() const { return _details[2].toInt(); }
@@ -249,7 +260,8 @@ class _CShadow : public _CFG_ITEM<QString>
 	void _Setup() override;	// from 'v' to _details
 	void _Prepare() override;	// from _details to 'v'
 public:
-	_CShadow(QString nameStr = "cshadow", QString vd = "0|0|0|0|#000000") : _CFG_ITEM(nameStr, vd) {  _Setup();  }
+	_CShadow(QString vd, QString nameStr = "cshadow") : _CFG_ITEM(vd, nameStr) {  _Setup();  }
+	_CShadow() : _CFG_ITEM("0|0|0|0|#000000","cshadoe") {  _Setup();  }	 // default  = "0|0|0|0|#000000"
 
 	void Set(int which, int value);
 	void Set(int horiz, int vert, int spread, QString clr, bool used);
@@ -292,7 +304,8 @@ struct _CGradient : public _CFG_ITEM<QString>
 	_CGradientStop gs[3];   // top, middle, bottom;
 	bool used = false;		// same as the checkbox state
 
-	_CGradient(QString namestr="cgradient", QString vd="#000000") : _CFG_ITEM(namestr, vd) { _Setup(); }
+	_CGradient(QString vd, QString namestr="cgradient") : _CFG_ITEM(vd, namestr) { _Setup(); }
+	_CGradient() : _CFG_ITEM(QString(), "cgradient") { _Setup(); }
 
 	// border color is its parent's border.color
 	void Set(int which, int pc, QString clr);
@@ -315,7 +328,8 @@ struct _CBorder : public _CFG_ITEM<QString>
 	int width;
 	bool used;
 
-	_CBorder(QString namestr="cborder", QString vd="0|#000000|0") : _CFG_ITEM(namestr, vd) { _Setup(); }
+	_CBorder(QString vd, QString namestr="cborder") : _CFG_ITEM(vd, namestr) { _Setup(); }
+	_CBorder() : _CFG_ITEM("0|#000000|0", "cborder") { _Setup(); }
 
 	_CBorder& operator=(bool on) { used = on; _Prepare(); return *this; }
 	_CBorder &operator=(int w)		{ width = w; _Prepare(); return *this; }
@@ -333,15 +347,17 @@ private:
 
 struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 {											// name is the elem name
-	_CColor color = { "color","#000000" }, 
-		background = { "background", "#ffffff" };
-	_CFont font = {"font","\"Monotype Corsiva\",Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif|12pt|0"};
-	_CShadow shadow = {"shadow","0"};
-	_CGradient gradient = {"gradient", "0"};
-	_CBorder border = {"border","0|#890222|1"};
+	_CColor color = { "#000000" ,"color"}, 
+		background = {  "#ffffff" ,"background"};
+	_CFont font = {"\"Monotype Corsiva\",Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif|12pt|0","font"};
+	_CShadow shadow = {"0","shadow"};
+	_CGradient gradient = { "0","gradient"};
+	_CBorder border = {"0|#890222|1","border"};
 
-	_CElem(QString namestr="celem", bool vd=false, bool bShadow=false, bool bGradient=false) : 
-		_CFG_ITEM(namestr, vd), _bMayShadow(bShadow), _bMayGradient(bGradient) { }
+	_CElem(bool vd, QString namestr="celem", bool bShadow=false, bool bGradient=false) : 
+		_CFG_ITEM(vd, namestr), _bMayShadow(bShadow), _bMayGradient(bGradient) { }
+	_CElem() : 
+		_CFG_ITEM(false, "celem"), _bMayShadow(false), _bMayGradient(false) { }
 	bool Changed() const override;
 	void ClearChanged() override;
 
@@ -363,7 +379,8 @@ struct _CWaterMark : public _CFG_ITEM<bool>		  // v used for changed
 
 	bool Changed() const override { return v; }
 
-	_CWaterMark(QString namestr = "watermark", bool vd = false) : _CFG_ITEM(namestr, vd) { }
+	_CWaterMark(bool vd, QString namestr = "watermark") : _CFG_ITEM(vd, namestr) { }
+	_CWaterMark() : _CFG_ITEM(false, "watermark") { }
 	_CWaterMark &operator=(const _CWaterMark &cwm);
 
 	virtual void Write(QSettings& s, QString group = QString()) override;	// into settings, but only if changed
@@ -452,72 +469,72 @@ public:
 	// Gallery page
 					// local directories
 	_CDirStr dsApplication;		// home directory for the application (needed for copying resources from here)
-	_CDirStr dsSrc = {"dsSrc", ""};				// source directory (jalbum gallery root contains the actual falconG,ini)
-	_CDirStr dsGallery = { "dsGallery","" };			// destination directory on local machine (corresponds to 'public_html' on server)
+	_CDirStr dsSrc = { "","dsSrc"};				// source directory (jalbum gallery root contains the actual falconG,ini)
+	_CDirStr dsGallery = { "" ,"dsGallery"};			// destination directory on local machine (corresponds to 'public_html' on server)
 
 					// remote directories
-	_CDirStr dsGRoot = { "dsgRoot","" };			// name of root directory on server (in public_html or in dsGallery)
-	_CDirStr dsAlbumDir = {"dsAlbumDir","albums/"};		// (path) name of album directory (usually inside dsGRoot)
-	_CDirStr dsCssDir = {"dsCssDir","css/"};
-	_CDirStr dsFontDir = {"dsFontDir","fonts/"};
-	_CDirStr dsImageDir = {"dsImageDir","imgs/"};		// images on server AND or destination
-	_CDirStr dsThumbDir = {"dsThumbDir","thumbs/"};		// thumbnail directory on server AND or destination
+	_CDirStr dsGRoot = { "" ,"dsgRoot"};			// name of root directory on server (in public_html or in dsGallery)
+	_CDirStr dsAlbumDir = {"albums/","dsAlbumDir"};		// (path) name of album directory (usually inside dsGRoot)
+	_CDirStr dsCssDir = {"css/","dsCssDir"};
+	_CDirStr dsFontDir = {"fonts/","dsFontDir"};
+	_CDirStr dsImageDir = {"imgs/","dsImageDir"};		// images on server AND or destination
+	_CDirStr dsThumbDir = {"thumbs/","dsThumbDir"};		// thumbnail directory on server AND or destination
 
 	
-	_CBool bAddTitlesToAll = {"bAddTitlesToAll",false};		// into gallery.struct
-	_CBool bAddDescriptionsToAll = {"bAddDescriptionsToAll",false}; // into gallery.struct
-	_CBool bLowerCaseImageExtensions = {"bLowerCaseImageExtensions",true}; // convert all image extensions to lowercase
-	_CBool bReadJAlbum = {"bReadJAlbum",false};			// do not process gallery.struct, read from JAlbum structure
-	_CBool bReadFromGallery = {"bReadFromGallery",false};	// read back from HTML files in gallery (you loose original names and paths!
+	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
+	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
+	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
+	_CBool bReadJAlbum = {false,"bReadJAlbum"};			// do not process gallery.struct, read from JAlbum structure
+	_CBool bReadFromGallery = {false,"bReadFromGallery"};	// read back from HTML files in gallery (you loose original names and paths!
 		// next two bools will not be read from or saved into the configuration file
-	_CBool bGenerateAll = {"bGenerateAll",false};		// must regenerate all pages regardless of status?
-	_CBool bButImages = {"bButImages",false};			// used with 'generate All'
+	_CBool bGenerateAll = {false,"bGenerateAll"};		// must regenerate all pages regardless of status?
+	_CBool bButImages = {false,"bButImages"};			// used with 'generate All'
 
-	_CString sUplink = {"sUplink",""};			// path name of index.html file on server this gallery is embedded into.
+	_CString sUplink = {"","sUplink"};			// path name of index.html file on server this gallery is embedded into.
 								// this page if set should have links into dsGRoot for all languages
 								// If given the main page;s uplink points here, otherwise no uplink on main page(s)
-	_CString iconUplink = {"iconUplink","up-icon.png"};		// name of the icon file in the 'res' sub-directory
-	_CString  sMainPage = {" sMainPage","index.html"};		// name of the root file in the system The gallery root 
+	_CString iconUplink = {"up-icon.png","iconUplink"};		// name of the icon file in the 'res' sub-directory
+	_CString  sMainPage = {"index.html"," sMainPage"};		// name of the root file in the system The gallery root 
 								// (default index.html or index1en.html, index1hu.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
 								// The Home menu will link here (Example: index.html - home link: /<dsGRoot>/index.html)
-	_CString sDescription = {"sDescription",""};		// page description: appears in we bsearch results
-	_CString sKeywords = {"sKeywords",""};			// comma separated list of keywords
+	_CString sDescription = {"","sDescription"};		// page description: appears in we bsearch results
+	_CString sKeywords = {"","sKeywords"};			// comma separated list of keywords
 
-	_CBool bCanDownload = {"bCanDownload",false};		// images from the server (.htaccess)
-	_CBool bForceSSL = {"bForceSSL", false};			// using .htaccess
-	_CBool bRightClickProtected = {"bRightClickProtected",true}; // right click protection on
-	_CBool bMenuToContact = {"bMenuToContact",false};		// show menu button for 'Contact' page
-	_CBool bMenuToAbout = {"bMenuToAbout",false};		// show menu button for 'About' page?
-	_CBool bMenuToDescriptions = {"bMenuToDescriptions",true};   // toggles image/album description visibility. If bMenuToToggleCaptions is false it also turns on/off captions and the icons
-	_CBool bMenuToToggleCaptions = {"bMenuToToggleCaptions",false}; // show captions at all? (see above)
+	_CBool bCanDownload = {false,"bCanDownload"};		// images from the server (.htaccess)
+	_CBool bForceSSL = { false,"bForceSSL"};			// using .htaccess
+	_CBool bRightClickProtected = {true,"bRightClickProtected"}; // right click protection on
+	_CBool bMenuToContact = {false,"bMenuToContact"};		// show menu button for 'Contact' page
+	_CBool bMenuToAbout = {false,"bMenuToAbout"};		// show menu button for 'About' page?
+	_CBool bMenuToDescriptions = {true,"bMenuToDescriptions"};   // toggles image/album description visibility. If bMenuToToggleCaptions is false it also turns on/off captions and the icons
+	_CBool bMenuToToggleCaptions = {false,"bMenuToToggleCaptions"}; // show captions at all? (see above)
 
-	_CString sServerAddress = {"sServerAddress",""};	// server address:
+	_CString sServerAddress = {"","sServerAddress"};	// server address:
 	// special
 
-	_CString sDefFonts = {"sDefFonts","Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif"};			// default font names
-	_CString sBaseName = {"sBaseName","album"};			// default base name
-	_CString sMailTo = {"sMailTo",""};			// send user emails here no defaults
-	_CString sAbout = {"sAbout",""};			// address of about page, either relative to dsGRoot or any URI
-	_CBool bOvrImages = {"bOvrImages",true};			// overwrite images (default: true)
-	_CBool bSourceRelativePerSign = {"bSourceRelativePerSign",true}; // when true add source gallery to paths starting with '/'
+	_CString sDefFonts = {"Constantia,Palatino,\"Palatino Linotype\",\"Palatino LT STD\",Georgia,serif","sDefFonts"};			// default font names
+	_CString sBaseName = {"album","sBaseName"};			// default base name
+	_CString sMailTo = {"","sMailTo"};			// send user emails here no defaults
+	_CString sAbout = {"","sAbout"};			// address of about page, either relative to dsGRoot or any URI
+	_CBool bOvrImages = {true,"bOvrImages"};			// overwrite images (default: true)
+	_CBool bSourceRelativePerSign = {true,"bSourceRelativePerSign"}; // when true add source gallery to paths starting with '/'
 
 		 		// latest uploads
-	_CBool generateLatestUploads = {"generateLatestUploads", false};	// or not
-	_CInt newUploadInterval = {"newUploadInterval", 10};		// date period of images calculated from the latest to include into latest images
-	_CInt nLatestCount = {"nLatestCount", 10};				// max this many images in the latest upload gallery
+	_CBool generateLatestUploads = { false,"generateLatestUploads"};	// or not
+	_CInt newUploadInterval = { 10,"newUploadInterval"};		// date period of images calculated from the latest to include into latest images
+	_CInt nLatestCount = { 10,"nLatestCount"};				// max this many images in the latest upload gallery
 				// Google Analytycs
-	_CBool googleAnalyticsOn = {"googleAnalyticsOn",false};
-	_CString googleAnalTrackingCode = {"googleAnalTrackingCode",""};
+	_CBool googleAnalyticsOn = {false,"googleAnalyticsOn"};
+	_CString googleAnalTrackingCode = {"","googleAnalTrackingCode"};
 
-	_CString sGalleryTitle = {"sGalleryTitle","Andreas Falco Photography"};
-	_CString sGalleryDesc = {"sGalleryDesc",""};
-	_CString sGalleryLanguages = {"sGalleryLanguages",""};	// empty or a series of language abbreviations. Example: hu,en. 
+	_CString sGalleryTitle = {"Andreas Falco Photography","sGalleryTitle"};
+	_CString sGalleryDesc = {"","sGalleryDesc"};
+	_CString sGalleryLanguages = {"","sGalleryLanguages"};	// empty or a series of language abbreviations. Example: hu,en. 
 								// Order important, either files '<abbrev>.txt' must exist 
 								// (in either the program directory or in the source gallery directory)
 								// or in the '.struct' file
 
-	_CBool bFacebookLink = {"bFacebookLink", false};
+	_CBool bFacebookLink = { false,"bFacebookLink"};
 
 // Design page 
 #define _DFLT_ false
@@ -525,40 +542,40 @@ public:
 #define _NOSH_ false
 #define _GRAD_ true
 #define _NGRD_ false
-	_CElem Web = {"Web",_DFLT_, _NOSH_, _NGRD_};		// page
-	_CElem Lang = {"Lang",_DFLT_, _NOSH_, _NGRD_};		// language link button
-	_CElem Menu = {"Menu",_DFLT_, _SHDW_, _GRAD_};		// menu buttons
+	_CElem Web = { _DFLT_,"Web", _NOSH_, _NGRD_};		// page
+	_CElem Lang = { _DFLT_,"Lang", _NOSH_, _NGRD_};		// language link button
+	_CElem Menu = { _DFLT_,"Menu", _SHDW_, _GRAD_};		// menu buttons
 	// special handling : include shadows
-	_CElem GalleryTitle = {"GalleryTitle",_DFLT_, _SHDW_, _NGRD_};		// "andreas falco photography"
-	_CElem SmallGalleryTitle = {"SmallGalleryTitle",_DFLT_, _SHDW_, _NGRD_};	// "andreas falco photography"
-	_CElem GalleryDesc = {"GalleryDesc",_DFLT_, _SHDW_, _NGRD_};			// "andreas falco photography"
-	_CElem AlbumTitle = {"AlbumTitle",_DFLT_, _SHDW_, _NGRD_};			// "Hungary"
-	_CElem AlbumDesc = {"AlbumDesc",_DFLT_, _SHDW_, _NGRD_};			// "Hungary"
-	_CElem Section = {"Section",_DFLT_, _SHDW_, _NGRD_};				// "Images" or "Albums"
-	_CElem ImageTitle = {"ImageTitle",_DFLT_, _SHDW_, _NGRD_};			// not the image itself, just the texts!
-	_CElem ImageDesc = {"ImageDesc",_DFLT_, _SHDW_, _NGRD_};		
+	_CElem GalleryTitle = {_DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		// "andreas falco photography"
+	_CElem SmallGalleryTitle = {_DFLT_,"SmallGalleryTitle", _SHDW_, _NGRD_};	// "andreas falco photography"
+	_CElem GalleryDesc = {_DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			// "andreas falco photography"
+	_CElem AlbumTitle = {_DFLT_,"AlbumTitle", _SHDW_, _NGRD_};			// "Hungary"
+	_CElem AlbumDesc = {_DFLT_,"AlbumDesc", _SHDW_, _NGRD_};			// "Hungary"
+	_CElem Section = {_DFLT_,"Section", _SHDW_, _NGRD_};				// "Images" or "Albums"
+	_CElem ImageTitle = {_DFLT_, "ImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
+	_CElem ImageDesc = { _DFLT_, "ImageDesc", _SHDW_, _NGRD_};
 	// 
 				// image page
-	_CInt imageWidth = {"imageWidth",1920};
-	_CInt imageHeight = {"imageHeight",1080};
-	_CInt thumbWidth = {"thumbWidth",600};
-	_CInt thumbHeight = {"thumbHeight",400};
-	_CInt imageSizesLinked = {"imageSizesLinked",true};
-	_CBool doNotEnlarge = {"doNotEnlarge", true};		// default: true
-	_CBool bCropThumbnails = { "bCropThumbnails", false };	// default: false exclusive with bDistortThumbnails
-	_CBool bDistrortThumbnails = {"bDistrortThumbnails",false}; // default: false eclusive with bCropThumbnails
+	_CInt imageWidth = {1920, "imageWidth"};
+	_CInt imageHeight = {1080, "imageHeight"};
+	_CInt thumbWidth = {600, "thumbWidth"};
+	_CInt thumbHeight = {400, "thumbHeight"};
+	_CInt imageSizesLinked = {true, "imageSizesLinked"};
+	_CBool doNotEnlarge = {true, "doNotEnlarge"};		// default: true
+	_CBool bCropThumbnails = { false , "bCropThumbnails"};	// default: false exclusive with bDistortThumbnails
+	_CBool bDistrortThumbnails = {false, "bDistrortThumbnails"}; // default: false eclusive with bCropThumbnails
 				// image decoration
-	_CBool iconToTopOn = {"iconToTopOn",false};
-	_CBool iconInfoOn = {"iconInfoOn", false};
-	_CBorder imageBorder = {"imageBorder","0|EAA41E|2"};
+	_CBool iconToTopOn = {false, "iconToTopOn"};
+	_CBool iconInfoOn = {false, "iconInfoOn"};
+	_CBorder imageBorder = {"0|EAA41E|2", "imageBorder"};
 				// 	Watermarks
-	_CWaterMark waterMark = {"waterMark",""};
+	_CWaterMark waterMark = {"", "waterMark"};
 
 	// Options page
-	_CInt styleIndex = {"styleIndex",0};
+	_CInt styleIndex = {0, "styleIndex"};
 
 	// Debug
-	_CBool bDebugging = {"bDebugging",false};
+	_CBool bDebugging = {false, "bDebugging"};
 #undef _DFLT_ 
 #undef _SHDW_ 
 #undef _NOSH_ 
