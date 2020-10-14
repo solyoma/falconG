@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QtWidgets>
+#include "enums.h"
 #include "deletableitems.h"
 
 const int BAD_IMAGE_SIZE = 64;
@@ -111,13 +112,6 @@ class ThumbnailWidget : public QListView {
 Q_OBJECT
 
 public:
-    enum UserRoles {
-        FileNameRole = Qt::UserRole + 1,		 // file name w.o. path, e.g. 12345.jpg
-		FilePathRole,							 // path of file ending in '/'
-        SortRole,
-        LoadedRole
-    };
-
     ThumbnailWidget(QWidget *parent, int thumbsize = THUMBNAIL_SIZE);
 
     void loadPrepare();

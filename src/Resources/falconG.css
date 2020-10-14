@@ -1,0 +1,375 @@
+@import url("https://fonts.googleapis.com/css?family=Mansalva|Tangerine|Meddon|Playfair"); /*--- script Font --*/
+@import url("https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway"); /*--- Heading Font --*/
+
+*, *::before, *::after {
+	box-sizing:border-box;
+	padding:0;
+	margin:0;
+}
+/* default values */
+:root {
+	--color: #d6e0f7;
+	
+    --base-color: #8f8f8f;
+    --transparent:rgba(0,0,0,0);
+    --main-background: #1e1f25;
+	--menu-color: #ffd460;
+	--menu-border-color: #947622;
+    --menu-gradient: linear-gradient(rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+    --menu-border: 1px solid rgb(151, 118, 68);
+    --menu-border-radius: 5px;
+    --header-color:#a6d1ff;
+    --small-title-color:#a07b00;
+    --gallery-title-color:#f07b3f;
+    --gallery-desc-color:#ffd460;
+    --section-color:#f07b3f;
+    --desc-color:#ddd;
+    --title-color:#ffd460;
+    --lightbox-color:#f07b3f;
+    --footer-color:#ddd;
+    
+    /* fonts */
+    --serif-fonts:Playfair,serif;
+    --sans-serif-fonts:Verdana, ,sans-serif;
+    --script-font:Meddon,Tangerine,cursive;
+}
+
+html,
+body,
+main{
+    color:var(--base-color);
+    background-color:var(--main-background);
+	height: 100% ;
+	width: 100%;
+	overflow: auto;
+}
+
+ a, a:visited{
+	text-decoration: none;
+}
+/*
+p{
+	font-size: 13px;
+}
+*/
+/* area only used for editing */
+.area {
+    margin: 10px 10px 10px 10px;
+}
+
+.falconG {
+	display:inline-block;
+    color:var(--small-title-color);
+	font-size:10pt;
+	font-family:var(--serif-fonts);
+	font-weight:bold;
+	font-style:italic;
+}
+
+.falconG::first-line {
+	font-size:14pt;
+}
+
+header{
+    color:var(--header-color);
+	font-size:12pt;
+	font-family:var(--script-fonts),var(--serif-fonts);
+	text-align: left;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+	cursor:pointer;				/* only for design! */
+}
+
+nav {
+	display: inline-block;
+	position: sticky;
+	position: -webkit-sticky;
+	top: 10px;
+	margin-bottom: 1rem;
+}
+
+.menu-item {
+    color:var(--menu-color);
+	font-size:10pt;
+	font-family:var(--serif-fonts);
+	font-weight:bold;
+	line-height: 18px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	display: inline-block;
+	margin: 2px 3px 2px 2px;
+	padding: 4px 10px 3px;
+	border-width:1px 2px 3px 4px; 
+	border-style:solid;
+	border-color:#ffaa00
+}
+
+.menu-item:hover {
+	color:rgba(45,64,89,0.8);
+    background-color:var(--menu-color);
+    border: 1px solid var(--menu-border-color);
+}
+
+/* up icon */
+.menu-item#uplink {
+	background: url("file:///res/up-icon-sample.png");
+	background-size:14px;
+	background-repeat:no-repeat;
+	background-position: center;
+}
+
+/* if it is in one declaration then can I set it individually from javascript? */
+.menu-item#uplink, .menu-item#about, .menu-item#desc, .menu-item#captions, .manu-items#contact {
+	display:inline-block;
+}
+
+.langs{
+	color:#dddd00;
+	font-size: 8pt;
+	border:0;
+	box-shadow: 0;
+}
+
+/* --- main section --*/
+main{
+	display: flex;
+	flex-direction: column;
+	flex-wrap:wrap;
+	width: 100% ;
+}
+/* --- end main section --*/
+/* small gallery title */
+.fgsection {
+	font-family:var(--script-font);
+	color:var(--base-color);
+	font-size:34pt;
+	text-align:center;
+	margin: 20px 0 20px 0;
+	cursor:pointer;				/* only for design! */
+}
+
+.fgsection::first-line {
+	font-size:34pt;
+	cursor:pointer;				/* only for design! */
+}
+
+.gallery-title {
+    color:var(--lightbox-color);
+	font-size:20pt;
+	font-family:var(--script-font);
+	font-weight:bold;
+	text-align:center;
+	cursor:pointer;				/* only for design! */
+}
+
+/* valtozott */
+.gallery-title::first-line {
+	font-size:36pt;
+	cursor:pointer;				/* only for design! */
+}
+
+.gallery-desc {
+    color:var(--base-color);
+    margin:auto;
+    text-align:center;
+    margin: 20px 0 20px 0;
+	cursor:pointer;				/* only for design! */
+}
+
+.gallery-desc::first-line {
+	font-size:24pt;
+}
+
+section {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	max-width: 100% ;
+}
+
+.title {
+    color:var(--base-color);
+	font-size:18pt;
+	font-family:var(--script-fonts),var(--serif-fonts);
+	font-weight:bold;
+    margin:0 0 20px 0;
+}
+
+.title::first-line {
+	font-size:24pt;
+	cursor:pointer;				/* only for design! */
+}
+
+.title:hover{
+	font-weight: 700;
+	font-style: italic;
+}
+
+
+.desc {
+    color:#ccc;
+	display:block;				/* csak a debug miatt, marad none */
+	hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+	font-family:var(--sans-serif-fonts);
+	font-size:10pt;
+	font-weight:bold;
+	text-align: center;
+	padding-top:10px;
+	cursor:pointer;				/* only for design! */
+}
+
+footer{
+    color:var(--footer-color);
+	font-size:12pt;
+	font-family:var(--script-fonts),var(--serif-fonts);
+	text-align: center;
+	margin:auto;
+	cursor:pointer;				/* only for design! */
+	font-style:italic;
+}
+
+section {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+    align-items:baseline;
+	max-width: 100% ;
+}
+
+
+		/* ---- img----- */
+.img-container {
+	display:flex;
+	flex-direction: column;
+	justify-content:center;
+	align-items:center;
+	position: relative;
+	padding:0 1px;
+}
+
+.img-container > div {
+	position:relative;
+}
+
+.img-container img {
+	margin:auto;
+	max-width:99vw;
+	border:1px solid var(--base-color);
+	padding:1px;
+}
+
+[data-src] {
+	min-width:600;
+	min-height:400;
+}	
+
+.desc p {
+	font-size: 12pt;
+	line-height: 12pt;
+	text-align: center;
+	max-width:90%;
+	margin:auto;
+}	
+
+.thumb{
+	display: inline-block;
+	padding: 1px;
+	margin: 0 2;
+	border: 1px solid #ffd460;
+	padding:1px;
+}	
+
+.thumb::after {
+	position:absolute;
+	bottom:0px;
+	left:50%;
+	content:"falconG Watermark";
+	color: rgba(255,255,255,0.5);
+}
+
+/* Lightbox */
+.lightbox {
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    position: fixed;
+    z-index: 20;
+    padding-top: 30px;
+    box-sizing: border-box;
+	overflow:auto;
+}
+
+#lb-flex {
+    display: flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width: 100%;
+    height: 100%;
+}
+
+.lightbox img {
+    display: block;
+    cursor:pointer;
+}
+  
+.lightbox-caption {
+    color:var(--lightbox-color);
+    margin: 15px auto;
+    width: 50%;
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    font-weight: 700;
+}
+/* /lightbox */
+
+
+		 	/* -- media queries ***/
+@media only screen and (orientation: landscape) {
+	.img-container img {
+		max-height: 95vh; 
+	}
+}
+
+@media only screen and (min-width:700px) {
+	.img-container img {
+		max-width:99vw;
+		height:400px;
+	}
+
+	p{
+		font-size:12pt
+	}
+
+	.album-desc {
+		width:50vw;
+		text-align:center;
+		margin: auto;
+	}
+}
+
+	/* large screens */
+@media only screen and (min-width:1200px) {
+	.img-container
+	{
+		max-width:99vw;
+		flex-direction:column;
+		padding:0 1px;
+	}
+
+	.desc {
+		max-width:600px;
+		margin:auto;
+	}
+
+	.gallery-desc {
+		width:800px;
+		text-align:center;
+		margin:auto;
+	}
+}

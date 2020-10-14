@@ -372,7 +372,7 @@ class AlbumGenerator : public QObject
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
 	void _TitleFromPath(QString path, LangConstList &ltl);
-	QString _ShadowToString(QString s, _CElem &elem);
+	QString _ShadowToString(int whichShadow, _CElem &elem); //0:text, 1:box
 	QString _ElemColorCssToString(QString selector, _CElem &elem, int what);
 	QString _GradientCssToString(_CElem &elem, bool invert = false);
 	QString _MenuColorCSSToString();

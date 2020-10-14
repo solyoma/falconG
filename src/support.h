@@ -15,6 +15,9 @@
 //#include <QSet>
 #include <time.h>
 
+#include "enums.h"
+using namespace Enums;
+
 const QString versionStr = "# falconG Gallery Structure file ";
 
 // versions: 1.0 - text ID not saved, collision saved using an '*' followed by the collision number
@@ -31,7 +34,6 @@ const int majorStructVersion = 1,
 class FileReader
 {
 public:		//	       0		     1				2			         4            8		      16              24=16+8 	        32					   64
-	enum FrfFlags { frfNormal, frfAllLines, frfEmptyLines = 2, frfCommentLines= 4, frfLtrim = 8, frfRtrim = 8, frfTrim = 12, frfNoWhiteSpaceLines = 32, frfNeedUtf8 = 64 };
 	QFlags<FrfFlags> flags;
 private:
 	QFile _f;
@@ -55,7 +57,7 @@ private:
 							// and the white spaces before that are discarded
 public:
 	explicit FileReader(const QString s, QFlags<FrfFlags> flags);
-	FileReader(const QString s, int flags = frfTrim) : FileReader(s, QFlags<FileReader::FrfFlags>(flags)) {}
+	FileReader(const QString s, int flags = frfTrim) : FileReader(s, QFlags<FrfFlags>(flags)) {}
 	~FileReader() { delete[] _bytes; }
 	void SetFlags(int flg) { _flags = flg; }
 	bool Ok() const { return _ok; }
@@ -84,19 +86,59 @@ public:
 struct WaterMark
 {
 	QString text;
-	int origin = 0+0;	// 0,1,2: index of vertical 0,0x10,0x20 - index of horizontal
+	int origin = 0+0;	// 0,1,2: index of vertical	(top,center,bottom)
+						// 0,0x10,0x20 - index of horizontal  (left, center,m right)
 	int marginX = 0, // measured from nearest horizontal image edge 
 		marginY = 0; // measured from nearest vert. image edge
-	int color = 0xffffff,		// rgb
-		background = -1, // rgb -1: not used
-		shadowColor = -1,// color (rgb) -1: not used
-		opacity = 0;	// in percent
+
+	unsigned colorWOpacity = 0xffffffff,		// AARRGGBB
+		background = 0;			 
+	bool useBackground = false;	
+
+	bool shadowOn = false;
+	int shadowHoriz, shadowVert,
+		shadowBlur,
+		shadowColor = -1; // color (rgb) -1: not used
+
 	QFont font;
 	QImage *mark = nullptr;		// watermark text
+	QString ColorToStr() const
+	{
+		return QString("argb(%1,%2,%3,%4)").arg( (colorWOpacity >> 16) & 0xFF).arg((colorWOpacity >> 8) & 0xFF).arg(colorWOpacity & 0xFF).arg(Opacity());
+	}
+	QString XMarginName(bool & centered, bool used)	// used ? active text else inactive one
+	{
+		switch (origin & 0xF0)
+		{
+			case 0x0:	centered = false; return used? "margin-left:" : "margin-right:"; break;
+			case 0x10:  centered = true; return used?  "margin-left:" : "margin-right:"; break;
+			case 0x20:  centered = false; return used? "margin-right:": "margin-left:"; break;
+			default: return QString();
+		}
+	}
+	QString YMarginName(bool & centered, bool used)
+	{
+		switch (origin & 0xF)
+		{
+			case 0: centered = false; return used ? "margin-top:" :		"margin-bottom:"; break;
+			case 1: centered = false; return used ? "margin-top:" :		"margin-bottom:"; break;
+			case 2: centered = false; return used ? "margin-bottom:" :	"margin-top:"; break;
+			default: return QString();
+		}
+	}
+	QString OffsetXToStr() const { return (origin & 0xF0) == 0x10 ? "50%" : QString().setNum(marginX);  }
+	QString OffsetYToStr() const { return (origin & 0xF) == 1 ? "50%" : QString().setNum(marginY);  }
+
+	unsigned Color() const { return colorWOpacity & 0xFFFFFF; } 
+	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) / 255.0;  }		// 0..1
 	void SetFont(QFont & qfont) { font = qfont; SetupMark(); }
 	void SetText(QString  qs) { text = qs; SetupMark(); }
-	void SetColor(int ccolor) { color = ccolor; SetupMark();}
-	void SetColor(QString scolor) { color = scolor.toInt(nullptr, 16); SetupMark(); }
+	void SetColor(int ccolorWOpacity) { colorWOpacity = ccolorWOpacity; SetupMark();}
+	void SetColor(QString scolorWOpacity) { colorWOpacity = scolorWOpacity.toInt(nullptr, 16); SetupMark(); }
+	void SetOpacity(int val) 
+	{
+		colorWOpacity = (((int) (val * 255.0 / 100.0)) << 24) + (qRed(colorWOpacity) << 16) , (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
+	}
 
 	bool operator!=(const WaterMark &wm)
 	{
@@ -104,10 +146,9 @@ struct WaterMark
 			|| (origin != wm.origin)
 			|| (marginX != wm.marginX)
 			|| (marginY != wm.marginY)
-			|| (color != wm.color)
+			|| (colorWOpacity != wm.colorWOpacity)
 			|| (background != wm.background)
 			|| (shadowColor != wm.shadowColor)
-			|| (opacity != wm.opacity)
 			|| (font != wm.font);
 	}
 
@@ -122,7 +163,7 @@ struct WaterMark
 		mark->fill(qRgba(0, 0, 0, 0) );	// transparent image
 		QPainter painter(mark);
 		painter.setFont(font);
-		QColor c(qRed(color), qGreen(color), qBlue(color), opacity / 100.0 * 255);
+		QColor c(qRed(colorWOpacity), qGreen(colorWOpacity), qBlue(colorWOpacity), Opacity() );
 		QPen pen(c);
 		painter.setPen(pen);
 
@@ -160,7 +201,6 @@ struct ImageConverter
 {			  // if 'dontEnlarge' flag is set only shrinks image, but 
 			  //	thumbnails may be enlarged
 			  // dontResize may be used  for some images
-	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
 	QString name;
 	int flags;
 	// TODO: bool keepAspectRatio = true;	// otherwise CROP image

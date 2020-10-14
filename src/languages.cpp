@@ -1,4 +1,6 @@
 #include <QMainWindow>
+#include "enums.h"
+using namespace Enums;
 #include "support.h"
 #include "languages.h"
 #include "config.h"
@@ -52,7 +54,7 @@ LangConstList Languages::falconG;		// "created by falconG"
 *--------------------------------------------------------------------------*/
 int Languages::_Read(QString name)
 {
-	FileReader reader(name, FileReader::frfNeedUtf8 | FileReader::frfTrim);
+	FileReader reader(name, frfNeedUtf8 | frfTrim);
 	QString line = reader.ReadLine();
 	if (line != "falconG Language file")
 		return 0;

@@ -1173,7 +1173,7 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
 	if(path[path.length()-1] != '/') 
 		path += '/';
 
-	FileReader fr(path + "albumfiles.txt", FileReader::frfTrim);
+	FileReader fr(path + "albumfiles.txt", frfTrim);
 	if (!fr.Ok())
 		return false;
 	QString line;
@@ -1309,7 +1309,7 @@ bool AlbumGenerator::_ReadCommentFile(Album &ab)
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
-	FileReader fr(path + "comments.properties", FileReader::frfTrim);
+	FileReader fr(path + "comments.properties", frfTrim);
 	if (!fr.Ok())
 		return false;
 	QString	line,		// <ianame>=<texts>
@@ -1358,7 +1358,7 @@ bool AlbumGenerator::_ReadMetaFile(Album &ab)
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
-	FileReader fr(path + "meta.properties", FileReader::frfTrim);
+	FileReader fr(path + "meta.properties", frfTrim);
 	if (!fr.Ok())
 		return false;
 
@@ -1419,7 +1419,7 @@ bool AlbumGenerator::_ReadMetaFile(Album &ab)
 void AlbumGenerator::_ReadInfoFile(Album &ab, QString & path, QString name)
 {
 	QString line;
-	FileReader reader(path + ".jalbum/" + name, FileReader::frfNeedUtf8 | FileReader::frfTrim);  // name of .info file
+	FileReader reader(path + ".jalbum/" + name, frfNeedUtf8 | frfTrim);  // name of .info file
 
 	LangConstList ltl(Languages::Count());			// set default title here
 
@@ -2506,24 +2506,33 @@ int AlbumGenerator::_DoCopyRes()
 	return 0;	
 }
 
-enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
+
 /*===========================================================================
 * TASK: write shadow parameter
-* EXPECTS:	s			- name of shadow (e.g. "text-shadow, -moz-box-shadow)
+* EXPECTS:	which		- text or box shadow is required<
 *			elem		- name from CONFIG
 * GLOBALS: config,
-* RETURNS: none
+* RETURNS: s
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString AlbumGenerator::_ShadowToString(QString s, _CElem &elem)
+QString AlbumGenerator::_ShadowToString(int which, _CElem &elem)
 {
-	if (!elem.shadow.Use())
-		return QString();
+	QString s;	//  	-name of shadow(e.g. "text-shadow, -moz-box-shadow)
 
-	s += QString().setNum(elem.shadow.Horiz()) + "px " + QString().setNum(elem.shadow.Vert()) + "px";
-	if (elem.shadow.Blur())
-		s += " " + QString().setNum(elem.shadow.Blur());
-	s += " " + elem.shadow.Color() + ";\n";
+	auto _SetOneShadow = [&](_CShadow shadow){
+		s += QString().setNum(shadow.Horiz()) + "px " + QString().setNum(shadow.Vert()) + "px";
+		if (shadow.Blur())
+			s += " " + QString().setNum(shadow.Blur());
+		s += " " + shadow.Color() + ";\n";
+	};
+
+
+	if (!elem.shadow1[which].Used())
+		return s;
+
+	_SetOneShadow(elem.shadow1[which]);
+	if(elem.shadow2[which].Used() && (elem.shadow2[which].Horiz() || elem.shadow2[which].Vert()) )
+			_SetOneShadow(elem.shadow2[which]);
 	return s;
 }
 
@@ -2575,8 +2584,15 @@ QString AlbumGenerator::_ElemColorCssToString(QString selector, _CElem &elem, in
 		selector += " color:" + ColorToStr(elem.color) + ";\n";
 	if (what & wBackground)
 		selector +=" background-color:" + ColorToStr(elem.background) + ";\n";
-	if (elem.shadow.Use())
-		selector += _ShadowToString(" text-shadow:", elem);
+	if (elem.shadow1[0].Used())
+		selector += "	text-shadow:" + _ShadowToString(0, elem) + ";\n";
+	if (elem.shadow2[0].Used())
+	{
+		QString s = _ShadowToString(1, elem) + ";\n";
+		selector += "	box-shadow:" +s ;
+		selector += "	-webkit-box-shadow:" + s;
+		selector += "	-moz-box-shadow:" + s;
+	}
 	if ((what & wNoClosingBrace) == 0)
 		selector +="}\n\n";
 	return selector;
@@ -2626,12 +2642,12 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += " background:" + _GradientCssToString(config.Menu);
 	else
 		s += " color:" + ColorToStr(config.Menu.color) + ";\n background-color:" + ColorToStr(config.Menu.background) + ";\n";
-	if(config.Menu.border.used)
-		s += " border: 1px solid " + config.Menu.border.color + ";";
-	if (config.Menu.shadow.Use())
-		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
-			_ShadowToString(" -moz-box-shadow", config.Menu) +
-			_ShadowToString(" box-shadow", config.Menu);
+	if(config.Menu.border.Used())
+		s += " border: 1px solid " + config.Menu.border.ColorStr() + ";";
+	if (config.Menu.shadow1[1].Used())
+		s += "	-webkit-box-shadow" + _ShadowToString(1, config.Menu) + ";\n" + 
+			 "	-moz-box-shadow"    + _ShadowToString(1, config.Menu) + ";\n" +
+			 "	box-shadow" + _ShadowToString(1, config.Menu) + ";\n";
 	s += "\n}\n"
 		// state: Down
 		// menu button pressed: change color order
@@ -2642,12 +2658,8 @@ QString AlbumGenerator::_MenuColorCSSToString()
 		s += "	color:" + ColorToStr(config.Menu.background) + 
 			 ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
 
-	if (config.Menu.border.used)
-		s += " border: 1px solid " + config.Menu.border.color + ";";
-	if (config.Menu.shadow.Use())
-		s += _ShadowToString(" -webkit-box-shadow", config.Menu) +
-			_ShadowToString(" -moz-box-shadow", config.Menu) +
-			_ShadowToString(" box-shadow", config.Menu);
+	if (config.Menu.border.Used())
+		s += " border: 1px solid " + config.Menu.border.ColorStr() + ";";
 	s += "\n}\n\n";
 
 	s +=	"div.menu-line a.langs{\n"
@@ -2669,34 +2681,37 @@ QString AlbumGenerator::_ColorCSSToString()
 	QString s;
 
 	s = "/* Header Style  first for mobile then for tablet and desktop*/\n" +
-		_ElemColorCssToString("html,\nbody,main", config.Web, wBackground) +
+		_ElemColorCssToString("html,\nbody,\nmain", config.Web, wBackground) +
 		_ElemColorCssToString(".falconG", config.SmallGalleryTitle, wColor) +
 		".about{\n"
 		"	color:#ddd;\n"
 		"	margin:auto;\n"
 		"	}\n"
 		+
-		_ElemColorCssToString("h2.album-title", config.GalleryTitle, wColor) +
-		_ElemColorCssToString(".album-title,a:visited.album-title", config.AlbumTitle, wColor) +
-		_ElemColorCssToString(".album-desc", config.AlbumDesc, wColor) +
-		_ElemColorCssToString("h2.desc", config.AlbumDesc, wColor) +
+		_ElemColorCssToString("h2.gallery-title", config.GalleryTitle, wColor) +
+		_ElemColorCssToString(".gallery-title,a:visited.gallery-title", config.GalleryTitle, wColor) +
+		_ElemColorCssToString(".album-desc", config.GalleryDesc, wColor) +
+		_ElemColorCssToString("h2.desc", config.GalleryDesc, wColor) +
 		_ElemColorCssToString("a, a:visited", config.Menu, wColor) +
 //		_ElemColorCssToString("a.langs", config.Lang, wColor) +
 		_ElemColorCssToString("a[name=\"images\"],a[name=\"galleries\"]", config.Section, wColor) +
-		_ElemColorCssToString(".folders p", config.AlbumDesc, wColor) +
+		_ElemColorCssToString(".folders p", config.Section, wColor) +
 		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
 		_ElemColorCssToString("footer", config.ImageDesc, wColor) + 
 
 		".lightbox .caption {\n"+
-		"   color:" + ColorToStr(config.AlbumTitle.color) + ";\n"
+		"   color:" + ColorToStr(config.GalleryTitle.color) + ";\n"
 		"}\n" +
 
 		// block for menu buttons
 		_MenuColorCSSToString(); 
 		// end of menu button
 
-	if (config.imageBorder.used)
-		s += "section div.thumb img{\n 	border:" + QString().setNum(config.imageBorder.width) + "px solid " + config.imageBorder.color + ";\n}\n";
+	if (config.imageBorder.Used())
+		s += "section div.thumb img {\n" +
+			config.imageBorder.ForStyleSheet() +
+			";\n}\n\n";
+		
 // DEBUG
 //	QMessageBox(QMessageBox::Information, "falconG - info", s, QMessageBox::Ok, frmMain).exec();
 
@@ -2718,22 +2733,22 @@ QString _FontToCss(_CElem & elem)
 	if (elem.font.Italic())
 		s += "	font-style:italic;\n";
 
-	if (elem.font.Features() & (_CFont::fUnderline | _CFont::fStrikethrough))
+	if (elem.decoration.IsTextDecorationLine() )
 		s += "	text-decoration:";
-	if (elem.font.Underline())
+	if (elem.decoration.IsUnderline())
 		s += "underline";
-	if (elem.font.StrikeThrough())
+	if (elem.decoration.IsLineThrough())
 		s += " strikethrough";
-	if (elem.font.Features() & (_CFont::fUnderline | _CFont::fStrikethrough))
+	if (elem.font.Features() & (tdUnderline | tdLinethrough))
 		s += ";\n";
 	return s;
 }
 
 QString _FontForElem(_CElem elem, QString cssItemName, QString trailing) // config.GalleryTitle, ".falconG{\n", "margin-left: 10px;\n}\n\n")
 {
-	QString s = cssItemName + "\n\t" + _FontToCss(elem) + "\n}\n\n";
+	QString s = cssItemName + " {\n" + _FontToCss(elem) + "\n}\n\n";
 	if (elem.font.IsFirstLineDifferent())
-		s += cssItemName + "::first-line {\n\tfont-size:" + elem.font.FirstLineSize() + ";\n}\n\n";
+		s += cssItemName + "::first-line {\n\tfont-size:" + elem.font.FirstLineFontSizeStr() + ";\n}\n\n";
 	return s;
 }
 
@@ -2759,7 +2774,7 @@ QString AlbumGenerator::_CssToString()
 		"*, *::before, *::after {\n"
 		"	box-sizing:border-box;\n"
 		"	padding:0;\n"
-		"	margin:0\n;"
+		"	margin:0;\n"
 		"}\n\n"
 		"html,\n"
 		"body{\n"
@@ -2771,7 +2786,7 @@ QString AlbumGenerator::_CssToString()
 	// .falconG
 		+ _FontForElem(config.GalleryTitle, ".falconG", "margin-left: 10px;")
 	// h2
-		+ _FontForElem(config.AlbumTitle, "h2.album-title", "text-align: center;") + 
+		+ _FontForElem(config.GalleryTitle, "h2.gallery-title", "text-align: center;") + 
 	// about
 		".about{\n"
 		"	margin:auto;\n"
@@ -2779,7 +2794,7 @@ QString AlbumGenerator::_CssToString()
 		"}\n"
 
 	// a.title
-		"a.title{\n"
+		"a.title {\n"
 		+ _FontToCss(config.GalleryTitle) +
 		"}\n"
 		"\n"
@@ -2854,9 +2869,9 @@ QString AlbumGenerator::_CssToString()
 		"}\n"
 		"\n"
 	// Album title
-		+ _FontForElem(config.AlbumTitle, ".album-title", QString() )
+		+ _FontForElem(config.GalleryTitle, ".gallery-title", QString() )
 	// album-desc
-		+_FontForElem(config.AlbumDesc, ".album-desc", "margin:auto;\n"
+		+_FontForElem(config.GalleryDesc, ".album-desc", "margin:auto;\n"
 													"	width:100%;\n"
 													"   text-align:center;")+
 	// <main>
@@ -2901,13 +2916,13 @@ QString AlbumGenerator::_CssToString()
 		"	-ms-hyphens: auto;\n"
 		"}\n"
 		"\n"
-	// p.album-title
-		"p.album-title{\n"
+	// p.gallery-title
+		"p.gallery-title{\n"
 		"	padding-left:10px;\n"
 		"}\n"
 		"\n"
 	// .desc p
-		".desc p{\n"
+		".desc p {\n"
 		"	font-size: 12pt;\n"
 		"	line-height: 12pt;\n"
 		"	text-align: center;\n"
@@ -3053,7 +3068,7 @@ QString AlbumGenerator::_CssToString()
 		"		margin:auto;\n"
 		"		width:600px;\n"
 		"  	}\n"
-		"	.album-desc{\n"
+		"	.album-desc {\n"
 		"		width:50vw;\n"
 		"	}\n"
 		"}\n"
@@ -3072,14 +3087,15 @@ QString AlbumGenerator::_CssToString()
 		"	}\n"
 		"\n"
 		"	.desc p {\n"
-		"		max-width:600px;" // set as .img.height x 1.5
-		"		margin:auto;"
+		"		max-width:600px;\n" // set as .img.height x 1.5
+		"		margin:auto;\n"
+		"	}\n\n"
 		// about
-		"   .about{\n"
+		"	.about {\n"
 		"		margin:auto;\n"
 		"		width:800px;\n"
-		"	}\n"
-		"	.album-desc{\n"
+		"	}\n\n"
+		"	.album-desc {\n"
 		"		width:800px;\n"
 		"	}\n"
 		"}\n";
@@ -3270,15 +3286,13 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 		return;
 		// facebook link
 	QString updir = (ID == 1 ? "" : "../");
+	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
 
-	_ofs << "\n<div class = \"fb-like\"  style=\"float:right\"; data-href=\"" << linkName		// https://andreasfalco.com/albums/album1234.html\" 
-		<< "\"\ndata-layout=\"box_count\"\n"
-		"data-action=\"share\"\n"
-		"data-size=\"small\"\n"
-		"data-show-faces=\"true\"\n"
-		"data-share=\"true\"></div>\n";
-		//	"<span class=\"fb-share-button\" style=\"float:right; color:white\" data-href=\"" << linkName
-		//<< "<img src=\"" << updir << "res/facebook.png\" width=\"24px\" height=\"24px\" valign=\"center\">" << Languages::share[_actLanguage] << "</a>\n</span>\n";
+	_ofs << R"(<div class="fb-share-button" data-href="https://andreasfalco.com" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=)"
+		<< url.toEncoded()
+		<< R"(%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">)"
+		<< Languages::share[_actLanguage]
+		<< "</a></div>)";
 }
 /*============================================================================
   * TASK:
@@ -3289,16 +3303,12 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
  *--------------------------------------------------------------------------*/
 QString AlbumGenerator::_IncludeFacebookLibrary()
 {
-	return QString("<!--get facebooks js code-->\n"
-		"<div id = \"fb-root\"></div>\n"
-		"<script>(function(d,s,id) {\n"
-		"var js, fjs=d.getElementsByTagName(s)[0];\n"
-		"if (d.getElementById(id)) return;\n"
-		"js=d.createElement(s); js.id=id;\n"
-		"js.src='https://connect.facebook.net/" + Languages::countryCode[_actLanguage] + "/sdk.js#xfbml=1&version=v3.1';\n"
-		"fjs.parentNode.insertBefore(js, fjs);\n"
-		"}(document,'script','facebook-jssdk'));\n"
-		"</script>\n");
+	return QString(
+R"(<!--get facebooks js code-->
+	<script async defer crossorigin = "anonymous"
+			src = "https://connect.facebook.net/)") + Languages::countryCode[_actLanguage] + QString(
+R"(/sdk.js#xfbml=1 & version=v8.0" nonce = "ouGJwYtd">
+</script > )");
 }
 
 
@@ -3365,7 +3375,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	_WriteFacebookLink(album.LinkName(_actLanguage, true), album.ID);
 	_ofs << "<br><br><br>\n";
 	if(album.titleID)
-		_ofs << "<h2 class=\"album-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
+		_ofs << "<h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
 	if (album.descID)
 		_ofs << "<p class=\"album-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
 
@@ -3373,7 +3383,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
     <div id="lightbox" class="lightbox">
 	  <div id="lb-flex">
 		<img id="lightbox-img" onclick="LightBoxFadeOut()">
-		<p id="lightbox-caption" class="caption"></p>
+		<p id="lightbox-caption" class="lightbox-caption"></p>
 	  </div>
 	</ div>
 			  )X";
@@ -3510,7 +3520,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-				"        <a class=\"album-title\" href=\"" + sAlbumDir;
+				"        <a class=\"gallery-title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
 	else
@@ -3518,7 +3528,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	if (pImage && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "</a>\n";
+		<< "</a>\n     </links>";
 	/*
 		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img data-src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showCaptions[_actLanguage] +
 								"\" alt=\"" + Languages::showCaptions[_actLanguage] + "\"></a></div>\n"
@@ -3542,7 +3552,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
  *-------------------------------------------------------*/
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
-	int doProcess = ImageConverter::prImage | ImageConverter::prThumb;	// suppose both image and thumb changed
+	int doProcess = prImage | prThumb;	// suppose both image and thumb changed
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
@@ -3599,11 +3609,11 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		int64_t	fiSize = fiSrc.size();
 
 		if (config.bGenerateAll && config.bButImages)
-			doProcess -= ImageConverter::prImage;			// then do not process
+			doProcess -= prImage;			// then do not process
 		else
 		{
 			if ( !im.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
-				doProcess -= ImageConverter::prImage;			// then do not process
+				doProcess -= prImage;			// then do not process
 		}
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
@@ -3617,7 +3627,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
 		if (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer))
-			doProcess -= ImageConverter::prThumb;			// then do not process
+			doProcess -= prThumb;			// then do not process
 // DEBUG
 		//else
 		//	doProcess = doProcess;
@@ -3640,8 +3650,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		WaterMark *pwm = nullptr;
 		if (config.waterMark.used)
 			pwm = &config.waterMark.wm;
-		converter.flags = doProcess + (im.dontResize ? ImageConverter::dontResize : 0) + 
-							(config.doNotEnlarge ? ImageConverter::dontEnlarge : 0);
+		converter.flags = doProcess + (im.dontResize ? dontResize : 0) + 
+							(config.doNotEnlarge ? dontEnlarge : 0);
 
 		imgReader.thumbSize = im.tsize;
 		imgReader.imgSize = im.size;

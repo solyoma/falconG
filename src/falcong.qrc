@@ -1,16 +1,22 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>Resources/up-icon-sample.png</file>
     <file>Resources/blue-checked.png</file>
     <file>Resources/movedown-icon.png</file>
     <file>Resources/moveup-icon.png</file>
     <file>Resources/open-folder-with-document.png</file>
     <file>Resources/left-icon.png</file>
-    <file>res/empty_image.png</file>
-    <file>Resources/Lazise_02596-Edit.png</file>
     <file>Resources/content-icon.png</file>
     <file>Resources/nav-icon.png</file>
     <file>Resources/up-icon.png</file>
     <file>Resources/broken-link.png</file>
     <file>Resources/link.png</file>
+  </qresource>
+  <qresource prefix="Preview">
+    <file>Resources/falconG.js</file>
+    <file>Resources/Lazise_02596-Edit.png</file>
+    <file>Resources/NoImage.jpg</file>
+    <file>Resources/falconG.css</file>
+    <file>Resources/index.html</file>
   </qresource>
 </RCC>

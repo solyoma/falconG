@@ -216,9 +216,9 @@ int &_CInt::operator=(const int i)
 // --------------------------- _CColor ------------------------------
 
 /*===========================================================================
- * TASK: assign a QString to a CColor and modify opacity
- * EXPECTS: str - QString: formats xxx or xxxxxx or #xxx or #xxxxxx, where all
- *				 x's are any hexadecimaL DIGIT
+ * TASK: assign a QString to a _CColor and modify opacity
+ * EXPECTS: str - QString: formats RGB or RRGGBB or #RGB or #RRGGBB, where
+ *				 R,G,B are any hexadecimaL digit
  *		   opac - opacity in percent 0..100
  * GLOBALS: config
  * RETURNS: nothing
@@ -233,9 +233,8 @@ void _CColor::Set(QString str, int opac)
 		return;
 
 	_colorName = str; 
-	if (_opacity != opac)
-		_opacity = opac;
-	_Prepare();
+	_opacity = opac;
+	_Prepare();		// setup 'v'
 }
 
 /*===========================================================================
@@ -254,8 +253,7 @@ QString _CColor::operator=(QString s)
 	if (!_ColorStringValid(s))
 		return QString();
 	// here s starts with '#'
-	if (_colorName.toLower() != s.toLower())
-		_colorName = s.toLower();
+	_colorName = s.toLower();
 	_Prepare();
 
 	return _colorName;
@@ -286,14 +284,16 @@ _CColor& _CColor::operator=(_CColor c)
  *-------------------------------------------------------*/
 bool _CColor::_ColorStringValid(QString &s)
 {
+	s = s.toLower();
 	if (s.length() > 0 && s[0] != '#')
 		s = QChar('#') + s;
-	if (s.length() != 4 && s.length() != 7)
+
+	if (s.length() != 4 && s.length() != 7 && s.length() != 9)	// #RGB, #RRGGBB or #AARRGGBB
 		return false;
-	int n;
+	char n;
 	for (int i = 1; i < s.length(); ++i)
 	{
-		n = s[i].toLower().unicode();
+		n = s[i].unicode();
 		if (n < '0' || (n > '9' && (n < 'a' || n > 'f')))
 			return false;
 	}
@@ -334,13 +334,24 @@ void _CFont::SetFamily(QString fam)
 	_Prepare();
 }
 
-void _CFont::SetFeature(int feat, bool single)
+void _CFont::SetFeature(Style feat, FeatureOp op)
 {
-	if (single)
-		feat = Features() | feat;
+	int fs = _details[2].toInt(),
+		f = (int) feat;
 
-	_details[2] = QString().setNum(feat);
+	if (op == foClearAll || op == foClearOthersAndSet)
+		fs = 0;
+	else if (op == foUnset)
+		fs &= f;
+	if (op == foSet)
+		fs |= f;
+
+	_details[2] = QString().setNum(fs);
 	_Prepare();
+}
+void _CFont::SetFeature(Style feat, bool on)
+{
+	SetFeature(feat, on ? foSet: foUnset);
 }
 
 void _CFont::SetSize(int pt)
@@ -362,8 +373,8 @@ void _CFont::SetDifferentFirstLine(bool set, QString size)
 }
 
 void _CFont::_Prepare()
-{				  // only add first line size if used or different then line size
-	int n = _details[3] == "1" && _details[1] != _details[4] ? 5 : 4;
+{				  // only add first line size if used or different from font size
+	int n = _details[3] == "1" && _details[1] != _details[4] ? 5 : 3;
 	v = _details[0];
 	for (int i = 1; i < n; ++i)
 		v += "|" + _details[i];
@@ -374,10 +385,10 @@ void _CFont::_Setup()
 	_details = v.split(QChar('|'));		   
 	switch (_details.size())		// No breaks!
 	{								// element 0 is family
-		case 1: _details.push_back("10pt");
-		case 2: _details.push_back("0");
-		case 3: _details.push_back("0");
-		case 4: _details.push_back("10pt");
+		case 1: _details.push_back("10pt");	  // font-size string with unit
+		case 2: _details.push_back("0");	  // style (bold:'1', italic:'2', bold & italic: '3')
+		case 3: _details.push_back("0");	  // first line is different?
+		case 4: _details.push_back("10pt");	  // font-size::first-line
 		default:
 			break;
 	}
@@ -420,9 +431,7 @@ void _CShadow::_Prepare()
 {
 	v.clear();
 
-	v = _details[0];
-	for (int i = 1; i < _details.size(); ++i)
-		v += "|" + _details[i];
+	v = _details.join("|");
 }
 
 /*===========================================================================
@@ -435,13 +444,13 @@ void _CShadow::_Prepare()
  * RETURNS: nothing
  * REMARKS:
  --------------------------------------------------------------------------*/
-void _CShadow::Set(int which, int val)	// which: 1: horiz, 2: vert, 3:blur !
+void _CShadow::Set(ShadowPart which, int val)	// which: 1: horiz, 2: vert, 3:blur !
 {
-	if(which < 3)		// these always exist
+	if((int)which < 3)		// these always exist
 		_details[which] = QString().setNum(val);
 	else   // 3 or 4   : blur or color may or may not exist
 	{
-		if (which == _ixBlur)
+		if ( (int) which == _ixBlur)
 			_details[_ixBlur] = QString().setNum(val);
 		else 
 			_details[_ixColor] = QString("#%1").arg(_CInt::IntToHexString(val, 6));
@@ -492,14 +501,14 @@ bool _CGradientStop::Set(int pc, QString clr)
 
 /*===========================================================================
  * TASK:  set parameters of a vertical gradient stop 
- * EXPECTS:	which - 0..2 - which of the 3 stops
+ * EXPECTS:	which - gsStart, gsMiddle, gsStop (0,1,2) - which of the 3 stops
  *			pc - coordinate in percent relative to top
  *			clr - color QString for stop, format is #xxx or #xxxxxx
  * GLOBALS: config
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
  *--------------------------------------------------------------------------*/
-void _CGradient::Set(int which, int pc, QString clr) 
+void _CGradient::Set(GradStop which, int pc, QString clr) 
 { 
 	gs[which].Set(pc, clr); 
 	if (!_internal)
@@ -526,23 +535,49 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 		_Prepare();
 }
 
-void _CGradient::_Setup()
+QString _CGradient::ForStyleSheet() const
 {
-	QStringList qsl = v.split(QChar('|'));	// <used = 1>|<positionTop(%)>|<color Top>|<positionMiddle(%)>|<color Middle>|<positionBottom(%)>|<color bottom>
+	if (!used) 
+		return QString();
+	return QString("background-image:linear-gradient(%1,%2%,%3,%4%,%5,%6%)").arg(gs[0].color).arg(gs[0].percent)
+														      .arg(gs[1].color).arg(gs[1].percent)
+														      .arg(gs[2].color).arg(gs[2].percent);
+}
+
+QString _CGradient::ForQtStyleSheet(bool invert) const
+{
+	if (!used) 
+		return QString();
+	int n0, n1, n2;
+	if (invert)
+		n0 = 2, n1 = 1, n2 = 0;
+	else
+		n0 = 0, n1 = 1, n2 = 2;
+	return QString("qlineargradient(x1:0, y1:0, x2:0,y2:1,,stop:%1 %2,Stop:%3 %4, stop:%5 %6)").arg(gs[n0].percent/100.0).arg(gs[n0].color)
+														      .arg(gs[n1].percent/100.0).arg(gs[n1].color)
+														      .arg(gs[n2].percent/100.0).arg(gs[n2].color);
+
+}
+
+void _CGradient::_Setup()	// what was read from settings into v
+{
+	QStringList qsl = v.split(QChar('|'));		//	<used>|<p Top>|<c Top>|<p Middle>|<c Middle>|<p Bottom>|<c bottom>
+												// u: used 0,1, p = position (%), c = color
+
 							// index in qsl		  0			    1			   2			  3			        4				   5				6				
 	_internal = true;
 	used = qsl[0].toInt();
-	for (int i = 1; i < 7; i += 2)
+	for (int i = 1; i < qsl.size(); i += 2)
 	{
 		if (i + 1 < qsl.size())
-			Set(i / 2, qsl[i].toInt(), qsl[i + 1]);
+			Set( (i-1)/2, qsl[i].toInt(), qsl[i + 1]);		// (i-1)/2 = 0,1,2
 		else
-			Set(i / 2, 0, "#000000");
+			Set( (i-1)/2, 0, "#000000");
 	}
 	_internal = false;
 }
 
-void _CGradient::_Prepare()
+void _CGradient::_Prepare()		// to store in settings
 {
 	v = QString("%1|%2|%3|%4|%5|%6").arg(used)
 									.arg(gs[0].percent).arg(gs[0].color)
@@ -551,26 +586,134 @@ void _CGradient::_Prepare()
 }
 
 
+// -------------------------------------------------------------------------------------
+
+
+
+/*========================================================
+ * TASK:	Sets border styles
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - uses 'v' which may be shorter than 8 elements
+ *			- return border-width:, border-style, border-color 
+ *				and border-radius
+ *			- may not use the shorthand as it only works if no
+ *			  radius is given
+ *-------------------------------------------------------*/
+QString _CBorder::ForStyleSheet()		// w. radius
+{
+	if(!Used())
+		return QString();
+
+	QString res = QString("border-width:%1px").arg(_widths[1]); 
+	for (int i = 2; i < _sizeWidths; ++i)
+		res += QString(" %1px").arg(_widths[i]);
+	res += "\nborder-style:" + Style() + "\nborder-color:" +_colorName; // style + color (TODO: separate colors for all sides
+	if (_radius)
+		 res += "\nborder-radius:" + config.Menu.border.Radius() + "px";
+
+	return res;
+}
+
+void _CBorder::_CountWidths()
+{
+	bool
+		b12 = _widths[1] == _widths[2],				// top = right?
+		b13 = _widths[1] == _widths[3],				// top = bottom?
+		b24 = _widths[2] == _widths[4];				// right = left?
+	if (b13 && b24)					// then either just top-left and bottom-right is given
+		if (b12)						// or all equal (notice: ',' and not ';')
+			_sizeWidths += 1;
+		else
+			_sizeWidths += 2;	// <used 0 or 1>|<top+bottom>|<right+left>|style|<color>[<border radius>]
+	else
+		_sizeWidths += 4;
+}
+
 void _CBorder::_Setup()
 {
 	QStringList qsl = v.split(QChar('|'));
-	used = qsl[0].at(0) == '1';
-	color = qsl[1];
-	if (color.at(0) != '#')
-		color = "#" + color;
-	width = qsl[2].toInt();
+	// create as dor this: <used 0 or 1>|top|right|bottom|left|style|<color>[|<radius in pixels>]
+	_used = qsl[0].toInt();
+	int n = _IndexOfColor(qsl);
+	_colorName = qsl[n];
+	_styleIndex = qsl[n - 1].toInt(0);
+	_radius = n + 1 < qsl.size() ? qsl[n + 1].toInt() : 0;
+	_widths[1] = qsl[1].toInt(0);
+	switch (n)
+	{
+		case 3: // <used 0 or 1>|<width>|style|<color>[<border radius>] -> insert 3 fields befre the 2nd
+			_widths[2] = _widths[1];
+			_widths[3] = _widths[1];
+			_widths[4] = _widths[1];
+			break;
+		case 4: // <used 0 or 1> | top | right | style | <color>[| <radius in pixels>]
+			_widths[3] = _widths[1];
+			_widths[4] = _widths[2];
+			break;
+		case 6:
+		default: break;		// nothing to inser
+	}
 }
 
+
+/*========================================================
+ * TASK: prepare value to save in ini file
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - only stores element that are needed, so it
+ *				may reduce the string
+ *-------------------------------------------------------*/
 void _CBorder::_Prepare()
 {
-	v = QString("%1|%1|%1").arg(used ? 1 : 0).arg(color).arg(width);
+	switch (_sizeWidths)
+	{
+		case 1:		v = QString("%1|%2|%3|%4").arg(_used).arg(_widths[1]).arg(_styleIndex).arg(_colorName); break;
+		case 2:		v = QString("%1|%2|%3|%4|%5").arg(_used).arg(_widths[1]).arg(_widths[2]).arg(_styleIndex).arg(_colorName); break;
+		default:	// case 4:
+					v = QString("%1|%2|%3|%4|%5|%6|%7").arg(_used).arg(_widths[1]).arg(_widths[2]).arg(_widths[3]).arg(_widths[4]).arg(_styleIndex).arg(_colorName); break;
+	}
+	if (_radius)
+		v += QString().setNum(_radius);
+}
+
+// -------------------------------------------------------------------------------------
+
+QString _CElem::ForStyleSheet()				// w.o. different first line for font
+{											// because it must go to a different css class
+	QString qs = color.ForStyleSheet(false);
+	auto _AddWithLF = [&](const QString s)
+	{
+		if (!s.isEmpty())
+			qs += s + "\n";
+	};
+	if (ClassName() != "WEB" && background.v != config.Web.background.v)
+		_AddWithLF(background.ForStyleSheet(true));
+
+	_AddWithLF(gradient.ForStyleSheet());
+	_AddWithLF(font.ForStyleSheet());
+	_AddWithLF(decoration.ForStyleSheet());
+	_AddWithLF(alignment.ForStyleSheet());
+	_AddWithLF(shadow1[0].ForStyleSheet(true,0));	// first shadow for text (right + down) 
+	_AddWithLF(shadow2[0].ForStyleSheet(true,1));	// 2nd shadow for text
+	_AddWithLF(shadow1[1].ForStyleSheet(false,0));	// 2nd shadow (left + up) 
+	_AddWithLF(shadow2[1].ForStyleSheet(false,1));
+	_AddWithLF(border.ForStyleSheet());
+
+	return qs;
 }
 
 bool _CElem::Changed() const
 {
 	bool res = color.Changed() | background.Changed() | font.Changed();
 	if(_bMayShadow)
-	 	res |= shadow.Changed() | border.Changed();
+	 	res |=  shadow1[0].Changed() | 
+				shadow2[0].Changed() | 
+				shadow1[1].Changed() | 
+				shadow2[1].Changed() | 
+				border.Changed();
 	if(_bMayGradient)	 
 		res |= gradient.Changed() ;
 	return res;
@@ -581,7 +724,10 @@ void _CElem::ClearChanged()
 	color.ClearChanged();
 	background.ClearChanged();
 	font.ClearChanged();
-	shadow.ClearChanged();
+	shadow1[0].ClearChanged();
+	shadow2[0].ClearChanged();
+	shadow1[1].ClearChanged();
+	shadow2[1].ClearChanged();
 	gradient.ClearChanged();
 	border.ClearChanged();
 }
@@ -608,7 +754,10 @@ void _CElem::Write(QSettings& s, QString group)
 		font.Write(s);
 		if(_bMayShadow)
 		{	
-			shadow.Write(s);
+			shadow1[0].Write(s);
+			shadow2[0].Write(s);
+			shadow1[1].Write(s);
+			shadow2[1].Write(s);
 			border.Write(s);
 		}
 		if(_bMayGradient)
@@ -629,7 +778,10 @@ void _CElem::Read(QSettings& s, QString group)
 		font.Read(s);
 		if (_bMayShadow)
 		{
-			shadow.Read(s);
+			shadow1[0].Read(s);
+			shadow2[0].Read(s);
+			shadow1[1].Read(s);
+			shadow2[1].Read(s);
 			border.Read(s);
 		}
 		if(_bMayGradient)
@@ -669,10 +821,9 @@ void _CWaterMark::Write(QSettings& s, QString group)
 
 		s.setValue("mx", wm.marginX);
 		s.setValue("my", wm.marginY);
-		s.setValue("color", wm.color);
+		s.setValue("color", wm.colorWOpacity);
 		s.setValue("background", wm.background);
 		s.setValue("shadow", wm.shadowColor);
-		s.setValue("opacity", wm.opacity);
 
 		s.setValue("family", wm.font.family());
 		s.setValue("size", wm.font.pointSize());
@@ -699,10 +850,9 @@ void _CWaterMark::Read(QSettings& s, QString group)
 
 		wm.marginX = s.value("mx", 0).toInt();
 		wm.marginY = s.value("my", 0).toInt();
-		wm.color = s.value("color", 0xffffff).toInt();
-		wm.background = s.value("background", -1).toInt();
-		wm.shadowColor = s.value("shadow", -1).toInt();
-		wm.opacity = s.value("opacity", 100).toInt();
+		wm.colorWOpacity = s.value("color", 0xffffff).toInt();
+		wm.background = s.value("background", 0).toInt();
+		wm.shadowColor = s.value("shadow", 0).toInt();
 		wm.font.setFamily(s.value("family", "").toString());
 		wm.font.setPointSize(s.value("size", 16).toInt());
 		wm.font.setWeight(s.value("weight", QFont::Bold).toInt());
@@ -713,7 +863,35 @@ void _CWaterMark::Read(QSettings& s, QString group)
 	if (!group.isEmpty())
 		s.endGroup();
 }
+// ********************************* Background Image ********************
 
+void _CBackgroundImage::Write(QSettings& s, QString group)
+{
+	if (!group.isEmpty())
+		s.beginGroup(group);
+
+	s.beginGroup(itemName);
+		s.setValue("mode", v);
+		s.setValue("img", fileName);
+	s.endGroup();
+	if (!group.isEmpty())
+		s.endGroup();
+	v = v0;
+}
+void _CBackgroundImage::Read(QSettings& s, QString group)
+{
+	if (!group.isEmpty())
+		s.beginGroup(group);
+	s.beginGroup(itemName);
+		v = s.value("mode", hNotUsed).toInt();
+		fileName = s.value("img", QString()).toString();
+	s.endGroup();
+	if (!group.isEmpty())
+		s.endGroup();
+}
+
+
+//*********************************** CONFIG *****************************
 // not needed
 void CONFIG::ClearChanged()
 {
@@ -761,11 +939,7 @@ void CONFIG::ClearChanged()
 	SmallGalleryTitle.ClearChanged();
 	GalleryTitle.ClearChanged();
 	GalleryDesc.ClearChanged();
-	AlbumTitle.ClearChanged();
-	AlbumDesc.ClearChanged();
 	Section.ClearChanged();
-	ImageTitle.ClearChanged();
-	ImageDesc.ClearChanged();
 				// images
 	imageWidth.ClearChanged();
 	imageHeight.ClearChanged();
@@ -894,11 +1068,7 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	SmallGalleryTitle = cfg.SmallGalleryTitle;		// "andreas falco photography"
 	GalleryDesc = cfg.GalleryDesc;		// "andreas falco photography"
 
-	AlbumTitle = cfg.AlbumTitle;		// "Hungary"
-	AlbumDesc = cfg.AlbumDesc;			// "Hungary"
 	Section = cfg.Section;			// "Images" or "Albums"
-	ImageTitle = cfg.ImageTitle;		// not the image itself, just the texts!
-	ImageDesc = cfg.ImageDesc;			// 
 	waterMark = cfg.waterMark;
 	bFacebookLink = cfg.bFacebookLink;
 	// images
@@ -923,6 +1093,18 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 CONFIG::CONFIG()
 {
 	CONFIGS_USED::parent = this;
+	Header					.parent = &Web;
+	Menu					.parent = &Web;
+	Lang					.parent = &Web;
+	SmallGalleryTitle 		.parent = &Web;
+	GalleryTitle			.parent = &Web;
+	GalleryDesc				.parent = &Web;
+	Section					.parent = &Web;
+	ImageTitle				.parent = &Web;
+	ImageDesc				.parent = &Web;
+	LightboxTitle			.parent = &Web;
+	LightboxDesc			.parent = &Web;
+	Footer					.parent = &Web;
 }
 
 /*============================================================================
@@ -1014,16 +1196,14 @@ void CONFIG::Read()		// synchronize with Write!
 
 	Web.Read(s);		// sets common colors and fonts, which may be modified later
 						// on read
+	backgroundImage.Read(s);
+
 	Menu.ColorsAndFontsFrom(Web);
 	Lang.ColorsAndFontsFrom(Web);
 	SmallGalleryTitle.ColorsAndFontsFrom(Web);
 	GalleryTitle.ColorsAndFontsFrom(Web);
 	GalleryDesc.ColorsAndFontsFrom(Web);
-	AlbumTitle.ColorsAndFontsFrom(Web);
-	AlbumDesc.ColorsAndFontsFrom(Web);
 	Section.ColorsAndFontsFrom(Web);
-	ImageTitle.ColorsAndFontsFrom(Web);
-	ImageDesc.ColorsAndFontsFrom(Web);
 
 
 	Menu.Read(s);
@@ -1031,11 +1211,7 @@ void CONFIG::Read()		// synchronize with Write!
 	SmallGalleryTitle.Read(s);
 	GalleryTitle.Read(s);
 	GalleryDesc.Read(s);
-	AlbumTitle.Read(s);
-	AlbumDesc.Read(s);
 	Section.Read(s);
-	ImageTitle.Read(s);
-	ImageDesc.Read(s);
 				// 	Watermarks
 	waterMark.Read(s);
 	// Debug
@@ -1117,17 +1293,15 @@ void CONFIG::_WriteIni(QString sIniName)
 	
 	sServerAddress.Write(s);
 
+	backgroundImage.Write(s);
+
 	Web.Write(s);
 	Menu.Write(s);
 	Lang.Write(s);
 	SmallGalleryTitle.Write(s);
 	GalleryTitle.Write(s);
 	GalleryDesc.Write(s);
-	AlbumTitle.Write(s);
-	AlbumDesc.Write(s);
 	Section.Write(s);
-	ImageTitle.Write(s);
-	ImageDesc.Write(s);
 				// 	Watermarks
 	waterMark.Write(s);
 

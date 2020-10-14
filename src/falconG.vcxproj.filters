@@ -63,6 +63,9 @@
     <ClCompile Include="languages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="csscreator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -111,6 +114,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="support.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="csscreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
