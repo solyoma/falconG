@@ -115,9 +115,7 @@ QString IntToColorStr(int clr)
 	return QString("#%1%2%3").arg(clr / 65536, 2, 16).arg((clr / 256) & 0xFF, 2, 16).arg(clr & 0xFF, 2, 16);
 }
 
-
 //**************************************** falconG *******************************************
-
 
 /*============================================================================
 * TASK:		construct a FalconG object, read its parameters, set up controls
@@ -138,6 +136,7 @@ FalconG::FalconG(QWidget *parent)
 	ui.sample->setUrl(QStringLiteral("qrc:/Preview/Resources/index.html"));
 
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
+	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
@@ -170,7 +169,8 @@ FalconG::FalconG(QWidget *parent)
 	config.Read();				// to read config from
 
 	frmMain = this;
-	_PopulateFromConfig();	// edit values from config
+
+	_PopulateFromConfig();
 
 	int h = ui.tabEdit->height();
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
@@ -483,7 +483,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 		QString qs = "background-image: res/up-link.png";
 		QFile::remove(qs);
 		icon.pixmap(64,64).save(qs);		// and save into "res" subdirectory
-		_SetCssProperty(&config.Menu, qs);
+		_SetCssProperty(&config.Menu, qs,"#uplink");
 	}
 }
 
@@ -564,11 +564,13 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkUseBorder->setChecked(pElem->border.Used());
 	if (pElem->border.Used())
 	{
-		ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr()+";\n color:"+ config.Web.background.Name()+";}\n"));
-		ui.sbBorderRadius->setValue(pElem->border.Radius().toInt());
+		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
+
+		ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(side)+";\n color:"+ config.Web.background.Name()+";}\n"));
+		ui.sbBorderRadius->setValue(pElem->border.Radius());
 		ui.cbBorder->setCurrentIndex( pElem->border.BorderCnt() == 4 ? 0 : 1);
-		ui.cbBorderStyle->setCurrentText(pElem->border.Style());
-		ui.sbBorderWidth->setValue(pElem->border.Width(sdTop).toInt() );
+		ui.cbBorderStyle->setCurrentText(pElem->border.Style(side));
+		ui.sbBorderWidth->setValue(pElem->border.Width(side));
 	}
 
 	ui.cbPointSizeFirstLine->setCurrentText(pElem->font.FirstLineFontSizeStr());
@@ -718,20 +720,20 @@ void FalconG::_PopulateFromConfig()
 		default: 
 			ui.rbDefaultStyle->setChecked(true);
 			break;
-		case 1:		// dark theme
+		case 1: ui.rbSystemStyle->setChecked(true);
+			break;
+		case 2:		// blue theme
+			ui.rbBlueStyle->setChecked(true);
+			break;
+		case 3:		// dark theme
 			ui.rbDarkStyle->setChecked(true);
 			break;
-		case 2:		// black theme
+		case 4:		// black theme
 			ui.rbBlackStyle->setChecked(true);
-			break;
-		case 3:		// blue theme
-			ui.rbBlueStyle->setChecked(true);
 			break;
 	}
 	ui.toolBox->setCurrentIndex(0);		// global page
 	_GlobalsToUi();	
-	_ActualSampleParamsToUi();
-	_ConfigToSample(); // to sample "WEB page"
 	--_busy;
 }
 
@@ -1057,7 +1059,7 @@ void FalconG::on_edtWmColor_textChanged()
 	StyleHandler handler(ui.btnWmColor->styleSheet());
 	handler.SetItem("QToolButton", "background-color", "#" + ui.edtWmColor->text());
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
-	config.waterMark.wm.SetColor("#" + QString().setNum((int)config.waterMark.wm.Opacity()*255, 16) + ui.edtWmColor->text().mid(1));
+	config.waterMark.wm.SetColor("#" + QString().setNum((int)config.waterMark.wm.Opacity()*100, 16) + ui.edtWmColor->text().mid(1));
 	config.waterMark.v = true;
 	_RunJavaScript(".thumb::after","color: "+config.waterMark.wm.ColorToStr() );
 }
@@ -1501,11 +1503,12 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 	if (_busy)
 		return;
 
-	QString qs = "";
-	if (on)	// border present: set up parameters
-		qs = config.imageBorder.ForStyleSheet();
+	QString qs;
 	config.imageBorder.SetUsed(on);
-
+	if (on)	// border present: set up parameters
+		qs = config.imageBorder.ForStyleSheet(false);
+	else
+		qs = "border:none";
 	config.SetChanged(true);
 	_RunJavaScript(".thumb", qs);
 }
@@ -1766,7 +1769,7 @@ void FalconG::on_chkUseBorder_toggled(bool on)
 
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetUsed(on);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet());
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 	config.SetChanged(true);
 }
 
@@ -2060,7 +2063,7 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 	config.imageBorder.SetWidth(sdAll, val);
 	if (ui.chkImageBorder->isChecked())
 	{	
-		QString sd = config.imageBorder.ForStyleSheet();
+		QString sd = config.imageBorder.ForStyleSheet(false);
 		_RunJavaScript(".thumb", sd);
 	}
 	config.SetChanged(true);
@@ -2135,7 +2138,7 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	BorderSide side = (BorderSide) ui.cbBorder->currentIndex();
 	pElem->border.SetWidth(side, val);
 	config.SetChanged(true);
-	_ElemToSample();
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
 /*============================================================================
@@ -2158,7 +2161,8 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnBorderColor_clicked()
 {
-	QColor qc(config.Menu.border.ColorStr()),
+	BorderSide side = (BorderSide )ui.cbBorder->currentIndex();
+	QColor qc(config.Menu.border.ColorStr(side)),
 			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 	if (qcNew == qc || !qcNew.isValid())
@@ -2166,10 +2170,11 @@ void FalconG::on_btnBorderColor_clicked()
 
 	config.SetChanged(true);
 	_CElem* pElem = _PtrToElement();
-	pElem->border.SetColor(qcNew.name());
+	pElem->border.SetColor(side, qcNew.name());
 	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
 
-	_ElemToSample();
+	QString qs = pElem->border.ForStyleSheet(false);
+	_SetCssProperty(pElem, qs);
 	_EnableButtons();
 }
 
@@ -2309,7 +2314,7 @@ void FalconG::on_btnForeground_clicked()
 		return;
 
 	pElem->color.SetColor(qcNew.name());
-	ui.btnForeground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->color.Name()));
+	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
 
 	config.SetChanged(true);
 	_ElemToSample();
@@ -2498,7 +2503,8 @@ void FalconG::on_btnImageBorderColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qc.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnBorderColor->setStyleSheet(handler.StyleSheet());
-		config.imageBorder.SetColor(qc.name());
+		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
+		config.imageBorder.SetColor(side, qc.name());
 		on_sbImageBorderWidth_valueChanged(ui.sbBorderWidth->value());
 	}
 }
@@ -2683,7 +2689,27 @@ void FalconG::LinkClicked(QString s)
 	QUrl url(s);
 	int a = url.toString(QUrl::DecodeReserved).toInt();
 	ui.cbActualItem->setCurrentIndex(a);
-	ui.toolBox->setCurrentIndex(1);	// to settings
+}
+
+
+/*========================================================
+ * TASK:	signal for web page loaded
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - before switching to page 'Design' the
+ *				web page did not loaded therefore all of 
+ *				our changes are lost
+ *-------------------------------------------------------*/
+void FalconG::WebPageLoaded(bool ready)
+{
+	static bool loaded = false;		// only load once
+	if (loaded)
+		return;
+	loaded = true;
+
+	_ActualSampleParamsToUi();
+	_ConfigToSample(); // to sample "WEB page"
 }
 
 /*=============================================================
@@ -2895,31 +2921,25 @@ void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 
 void FalconG::on_cbBorder_currentIndexChanged(int newIndex)
 {
-	if (_busy)
-		return;
-
 	_CElem* pElem = _PtrToElement();
 	BorderSide side = (BorderSide) newIndex;
-	pElem->border.SetWidth(side, ui.sbBorderWidth->value());
+	if (!_busy)
+		pElem->border.SetWidth(side, ui.sbBorderWidth->value());
 	++_busy;
-   ui.sbBorderWidth->setValue( pElem->border.Width((BorderSide) newIndex).toInt() );
+   ui.sbBorderWidth->setValue( pElem->border.Width((BorderSide) newIndex) );
 	--_busy;
-	_ElemToSample();
-	config.SetChanged(true);
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
 void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
 {
-	if (_busy)
-		return;
-
 	_CElem* pElem = _PtrToElement();
-	pElem->border.SetStyle(ui.cbBorderStyle->currentText());
-	++_busy;
-	ui.sbBorderWidth->setValue(pElem->border.Width((BorderSide)newIndex).toInt());
-	--_busy;
-	config.SetChanged(true);
-	_ElemToSample();
+	if (!_busy)
+	{
+		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
+		pElem->border.SetStyleIndex(side, ui.cbBorderStyle->currentIndex());
+	}
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
 void FalconG::on_chkDebugging_toggled(bool b)
@@ -3022,8 +3042,8 @@ void FalconG::_SetColor(_CElem* pElem)
 {
 	QString qs;
 	if (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color) ) // else clear color
-		qs = pElem->color.Name();
-	_SetCssProperty(pElem,"color:" +  qs);
+		qs = pElem->color.ForStyleSheet(false, false);
+	_SetCssProperty(pElem, qs);
 }
 
 /*========================================================
@@ -3040,10 +3060,10 @@ void FalconG::_SetBackground(_CElem* pElem)
 	auto clearBackground = [&](AlbumElement what) 
 	{
 		_CElem* pe = _PtrToElement(what);
-		_SetCssProperty(pe, "background-color:" +  pe->background.Name());
+		_SetCssProperty(pe, "background-color:");
 	};
 
-	if (_aeActiveElement == aeWebPage)
+	if (pElem->kind == aeWebPage)
 	{
 		if (ui.chkSetAll->isChecked())		// then remove all other background colors
 		{
@@ -3059,17 +3079,17 @@ void FalconG::_SetBackground(_CElem* pElem)
 			clearBackground(aeLightboxDescription);
 			clearBackground(aeFooter);
 		}
-		_SetCssProperty(pElem,"background-color:" + pElem->background.Name());
+		_SetCssProperty(pElem, pElem->background.ForStyleSheet(false, true));
 	}
 	else
-		_SetCssProperty(pElem,"background-color:" + (pElem->parent != nullptr && pElem->parent->background != pElem->background ? pElem->background.Name() : QString()) );
+		_SetCssProperty(pElem,(pElem->parent != nullptr && pElem->parent->background != pElem->background ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
 }
 
 void FalconG::_SetShadow(_CElem* pElem,int what)
 {
 	QString sPropty, sValue;
 	if (ui.chkShadowOn->isChecked())
-		sValue = pElem->shadow1[what].ForStyleSheet(false, what) + pElem->shadow2[what].ForStyleSheet(true,what);
+		sValue = pElem->shadow1[what].ForStyleSheet(false, false, what) + pElem->shadow2[what].ForStyleSheet(false, true, what);
 	_SetCssProperty(pElem, sPropty + sValue);
 }
 
@@ -3077,7 +3097,7 @@ void FalconG::_SetBorder(_CElem* pElem)
 {
 	QString qs;
 	if(pElem == &config.Web || !pElem->parent || pElem->parent->border != pElem->border)
-		 qs = pElem->border.ForStyleSheet();
+		 qs = pElem->border.ForStyleSheet(false);
 	_SetCssProperty(pElem, qs);
 }
 
@@ -3085,7 +3105,7 @@ void FalconG::_SetLinearGradient(_CElem* pElem)
 {
 	QString qs;
 	if(pElem == &config.Web || !pElem->parent || pElem->parent->gradient != pElem->gradient	)
-		 qs = pElem->gradient.ForStyleSheet();
+		 qs = pElem->gradient.ForStyleSheet(false);
 	_SetCssProperty(pElem, qs);
 }
 
@@ -3094,21 +3114,21 @@ void FalconG::_SetFont(_CElem* pElem)
 	QString qs;
 	if (pElem == &config.Web || !pElem->parent || pElem->parent->font != pElem->font)
 	{
-		_SetCssProperty(pElem,  "font-family:" + pElem->font.Family() + ";\n" +
-								"font-size:"   + pElem->font.SizeStr() + ";\n" +
-								"font-weight:" + pElem->font.WeightStr() + ";\n" +
-								"font-style:" + pElem->font.ItalicStr() + ";");
+		_SetCssProperty(pElem,  "font-family:" + pElem->font.Family() + "\n" +
+								"font-size:"   + pElem->font.SizeStr() + "\n" +
+								"font-weight:" + pElem->font.WeightStr() + "\n" +
+								"font-style:" + pElem->font.ItalicStr());
 //		 qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
-//		_SetCssProperty(pElem, "font-size:" + qs, true);	// parent = Web and ::first-line
+//		_SetCssProperty(pElem, "font-size:" + qs, "::first-line");	// parent = Web and ::first-line
 	}
 	else
 	{
-		_SetCssProperty(pElem,	"font-family:;\n"
-								"font-size:;\n"
-								"font-weight:;\n"
-								"font-style:;");
+		_SetCssProperty(pElem,	"font-family:\n"
+								"font-size:\n"
+								"font-weight:\n"
+								"font-style:");
 //		qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
-//		_SetCssProperty(pElem, "font-size", qs, true);	// parent = Web and ::first-line
+//		_SetCssProperty(pElem, "font-size", qs, "::first-line");	// parent = Web and ::first-line
 	}
 }
 
@@ -3189,7 +3209,7 @@ void FalconG::_OpacityChanged(int val, int which)
 	else
 		pElem->background.SetOpacity(val);
 	config.SetChanged(true);
-	_ElemToSample();
+	_SetCssProperty(pElem, which == 1 ? pElem->color.ForStyleSheet(false,false) : pElem->background.ForStyleSheet(false, true));
 }
 
 /*============================================================================
@@ -3345,23 +3365,23 @@ void FalconG::_StyleTheProgram(skinStyle which)
 	_SetLayoutMargins(which);
 
 		// change these for new color set
-							//			   def. system  dark		  black		  blue
-	static QString sBackground[]		= { "", "", "#282828",	"#191919",	"#3b5876" }, // %1  background
-				   sTextColor[]			= { "", "", "#cccccc",	"#e1e1e1",	"#cccccc" }, // %2  foreground
-				   sBorderColor[]		= { "", "", "#4d4d4d",	"#323232",	"#747474" }, // %3  border
-				   sFocusedInput[]		= { "", "", "#f0f0f0",	"#f0f0f0",	"#f0f0f0" }, // %4  focused text
-				   sHoverColor[]		= { "", "", "#383838",	"#282828",	"#8faed2" }, // %5  hover over input
-				   sTabBorder[]			= { "", "", "#9B9B9B",	"#9b9b9b",	"#3b589b" }, // %6
-				   sInputBackground[]	= { "", "", "#454545",	"#323232",	"#1c3a55" }, // %7  editor backgrounds
-				   sSelectedInputBgr[]	= { "", "", "#666666",	"#4a4a4a",	"#3b584a" }, // %8
-				   sFocusedBorder[]		= { "", "", "#c0c0c0",	"#a8a8a8",	"#92b1d5" }, // %9
-				   sDisabledBg[]		= { "", "", "#555555",	"#191919",	"#697a8e" }, // %10
-				   sImageBackground[]	= { "", "", "#111111",  "#000000",  "#12273f" }, // %11
-				   sPressedBg[]			= { "", "", "#555555",  "#323232",  "#555555" }, // %12 button pressed
-				   sDefaultBg[]			= { "", "", "#555555",  "#323232",  "#555555" }, // %13
-				   sProgressBarChunk[]	= { "", "", "#e28308",	"#e28308",	"#e28308" }, // %14
-				   sWarningColor[]		= { "", "", "#f0a91f",	"#f0a91f",	"#f0a91f" }, // %15
-				   sBoldTitleColor[]	= { "", "", "#e28308",	"#e28308",	"#e28308" }	 // %16	 GroupBox title
+							//			   def. system    blue		 dark		  black		 
+	static QString sBackground[]		= { "", "",		"#3b5876", "#282828",	"#191919" }, // %1  background
+				   sTextColor[]			= { "", "",		"#cccccc", "#cccccc",	"#e1e1e1" }, // %2  foreground
+				   sBorderColor[]		= { "", "",		"#747474", "#4d4d4d",	"#323232" }, // %3  border
+				   sFocusedInput[]		= { "", "",		"#f0f0f0", "#f0f0f0",	"#f0f0f0" }, // %4  focused text
+				   sHoverColor[]		= { "", "",		"#8faed2", "#383838",	"#282828" }, // %5  hover over input
+				   sTabBorder[]			= { "", "",		"#3b589b", "#9B9B9B",	"#9b9b9b" }, // %6
+				   sInputBackground[]	= { "", "",		"#1c3a55", "#454545",	"#323232" }, // %7  editor backgrounds
+				   sSelectedInputBgr[]	= { "", "",		"#3b584a", "#666666",	"#4a4a4a" }, // %8
+				   sFocusedBorder[]		= { "", "",		"#92b1d5", "#c0c0c0",	"#a8a8a8" }, // %9
+				   sDisabledBg[]		= { "", "",		"#697a8e", "#555555",	"#191919" }, // %10
+				   sImageBackground[]	= { "", "",		"#12273f", "#111111",	"#000000" }, // %11
+				   sPressedBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %12 button pressed
+				   sDefaultBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %13
+				   sProgressBarChunk[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }, // %14
+				   sWarningColor[]		= { "", "",		"#f0a91f", "#f0a91f",	"#f0a91f" }, // %15
+				   sBoldTitleColor[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }	 // %16	 GroupBox title
 	;
 
 	 // theme style string used only when not the default style is used
@@ -3891,7 +3911,7 @@ void FalconG::_RunJavaScript(QString className, QString value)
 		pos = s.indexOf(':');
 		if (pos <= 0) 
 			return;
-		qs = QString("SetPropertyForClass('" + className + "', '" + s.left(pos) + "', '" + s.mid(pos+1) + "')");
+		qs = QString("SetPropertyForClass('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 		_page.runJavaScript(qs);
 		DEBUG_LOG(qs)
 	};
@@ -3899,11 +3919,11 @@ void FalconG::_RunJavaScript(QString className, QString value)
 		runOneTag(s);
 }
 
-void FalconG::_SetCssProperty(_CElem*pElem, QString value, bool bFirstLine)
+void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 {
 	QString className = pElem->ClassName();
-	if (bFirstLine)
-		className += "::first-line";
+	if (!subSelector.isEmpty())
+		className += subSelector;
 	_RunJavaScript(className, value);
 }
 

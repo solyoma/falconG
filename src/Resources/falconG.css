@@ -9,7 +9,7 @@
 /* default values */
 :root {
 	--color: #d6e0f7;
-	
+	--alma:#a6d1ff;
     --base-color: #8f8f8f;
     --transparent:rgba(0,0,0,0);
     --main-background: #1e1f25;
@@ -85,6 +85,7 @@ nav {
 	position: -webkit-sticky;
 	top: 10px;
 	margin-bottom: 1rem;
+	z-index: 1;
 }
 
 .menu-item {
@@ -99,7 +100,8 @@ nav {
 	padding: 4px 10px 3px;
 	border-width:1px 2px 3px 4px; 
 	border-style:solid;
-	border-color:#ffaa00
+	border-color:#ffaa00;
+	z-index:1;
 }
 
 .menu-item:hover {
@@ -139,7 +141,7 @@ main{
 /* small gallery title */
 .fgsection {
 	font-family:var(--script-font);
-	color:var(--base-color);
+	color:var(--section-color);
 	font-size:34pt;
 	text-align:center;
 	margin: 20px 0 20px 0;
@@ -276,8 +278,10 @@ section {
 	display: inline-block;
 	padding: 1px;
 	margin: 0 2;
-	border: 1px solid #ffd460;
 	padding:1px;
+	border-width:1px;
+	border-style:dotted;
+	border-color:#ffd460;
 }	
 
 .thumb::after {

@@ -125,7 +125,7 @@ private:
 
 			 // set CSS for sample 
 	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
-	void _SetCssProperty(_CElem *pElem, QString value,  bool bFirstLine=false);
+	void _SetCssProperty(_CElem *pElem, QString value,  QString subSelector = QString());
 	void _SetColor(_CElem *pElem);
 	void _SetBackground(_CElem* pElem);		// css 'background' color + url no other properties
 	void _SetShadow(_CElem* pElem,int what);	// what: 0 block-shadow, 1:text-shadow
@@ -158,6 +158,7 @@ private:
 
 private slots:
 	void LinkClicked(QString s);		// from sample page
+	void WebPageLoaded(bool ready);
 
 	void _AlbumStructureSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
 	void _SetProgressBar(int min, int max, int pos, int phase);

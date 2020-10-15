@@ -179,9 +179,9 @@ struct _CColor : _CFG_ITEM<QString>
 	{					
 		_Setup();  // set internal string representation and opacity
 	}
-	_CColor() :_CFG_ITEM("#", "ccolor")		// invalid color
+	_CColor() :_CFG_ITEM("", "ccolor")		// invalid color
 	{					
-		_colorName = "#";
+//		_colorName = "#";
 		_opacity = -1;
 	}
 
@@ -189,8 +189,15 @@ struct _CColor : _CFG_ITEM<QString>
 
 	void Set(QString str, int opac);	  // set _colorName to a 9 or 7 character string in format #AARRGGBB or #RRGGBB
 	void SetColor(QString clr) { _colorName = clr; _Prepare(); }
-	void SetOpacity(int opac) { _opacity = opac; _Prepare(); }
-	int Opacity() const { return _opacity; }			// opacity -1, 0..255 (-1: not used)
+	void SetOpacity(int opac) 
+	{ 
+		if (opac < 0) opac = 0;
+		else if (opac > 100) opac = 100;
+
+		_opacity = opac; 
+		_Prepare(); 
+	}
+	int Opacity() const { return _opacity; }			// opacity -1, 0..100 (-1: not used)
 	QString Name(bool nohash = false) const				// no opacity!
 	{
 		return (nohash ? _colorName.mid(1) : _colorName); 			// nohash:   no '#' at start
@@ -199,20 +206,22 @@ struct _CColor : _CFG_ITEM<QString>
 	QString ToRgba() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/266.0) 
 	{
 		if (_opacity >= 0)
-			return QString("rgba(%1,%2,%3,%4)").arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16)).arg(_colorName.mid(7, 2).toInt(nullptr, 16)).arg((double)_opacity / 255.0);
+			return QString("rgba(%1,%2,%3,%4)").arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16)).arg(_colorName.mid(7, 2).toInt(nullptr, 16)).arg((double)_opacity / 100.0);
 		else if(_colorName.length() == 9)
 			return QString("rgb(%1,%2,%3)").arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16)).arg(_colorName.mid(7, 2).toInt(nullptr, 16));
 		else
 			return QString("rgb(%1,%2,%3)").arg(_colorName.mid(1, 2).toInt(nullptr, 16)).arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16));
 	}
 
-	QString ForStyleSheet(bool isBackground) const
+	QString ForStyleSheet(bool addSemiColon, bool isBackground) const
 	{
 		QString qs = (isBackground ? "background:" : "color:");
-		if (_opacity != 255 && _opacity != -1)
+		if (_opacity != 100 && _opacity != -1)
 			qs += ToRgba();
 		else
 			qs += _colorName;
+		if (addSemiColon)
+			qs = "	" + qs + ";";
 		return qs;
 	}
 
@@ -220,11 +229,13 @@ struct _CColor : _CFG_ITEM<QString>
 	_CColor& operator=(_CColor c);
 
 private:
-	int _opacity;			// 0..255 or -1: not used
+	int _opacity;			// 0..100 (%) or -1: not used
 	QString _colorName;		// starts with a '#' character	and has 4 or 7 characters (no opacity)
 
 	void _NormalizeName()
 	{
+		if (_colorName.isEmpty())
+			return;
 		if (_colorName.at(0) != '#') 
 			_colorName = '#' + _colorName;
 		if (_colorName.length() == 4)		// #RGB ? => #RRGGBB
@@ -246,8 +257,8 @@ private:
 	void _Prepare() override		// v from internal (changed) variables
 	{
 		v = _colorName;										  // name w.o. opacity: #RRGGBB
-		if (v.length() != 9 && _opacity != 255)				  // name with opacity: #AARRGGBB
-			v = "#" + (_opacity >= 0 ? QString("%1").arg(int(_opacity), 2, 16, QChar('0')) : QStringLiteral("--") ) + v.mid(1);
+		if (v.length() != 9 && _opacity != 100)				  // name with opacity: #AARRGGBB but AA only goes from 0to 100
+			v = "#" + (_opacity >= 0 ? QString("%1").arg(_opacity, 2, 16, QChar('0')) : QStringLiteral("") ) + v.mid(1);
 	}
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
 };
@@ -315,10 +326,13 @@ struct _CTextDecoration : _CFG_ITEM<int>
 	QString OverlineStr() const { return v & tdOverline ? "overline" : ""; }
 	QString LineThroughStr() const { return v & tdLinethrough ? "line-through":""; }
 
-	QString ForStyleSheet() const
+	QString ForStyleSheet(bool addSemiColon) const
 	{
-		return "text-decoration-line:" + TextDecorationLineStr()
+		QString qs = "text-decoration-line:" + TextDecorationLineStr()
 			+  (v != tdNone ? "\ntext-decoration-style:" + TextDecorationStyleStr(): QString());
+		if (addSemiColon)
+			qs = "	" + qs + ":";
+		return qs;
 	}
 };
 
@@ -341,7 +355,13 @@ struct _CTextAlign : _CFG_ITEM<int>
 	{
 		return AlignStr((Align)v);
 	}
-	QString ForStyleSheet() const { return v == alNone ? QString() : "	text-align:" + ActAlignStr(); }
+	QString ForStyleSheet(bool addSemiColon) const 
+	{ 
+		QString qs =  v == alNone ? QString() : "	text-align:" + ActAlignStr(); 
+		if(addSemiColon)
+			qs = "	" + qs + ":";
+		return qs;
+	}
 };
 
 struct _CFont : _CFG_ITEM<QString>
@@ -353,7 +373,7 @@ struct _CFont : _CFG_ITEM<QString>
 	int Features() const { return _details[2].toInt(); }
 	int Size() const { return _details[1].toInt(); };
 
-	QString ForStyleSheet() const
+	QString ForStyleSheet(bool addSemiColon) const
 	{
 		QString qs =
 			"font-family:" + Family() + "\n"
@@ -363,7 +383,8 @@ struct _CFont : _CFG_ITEM<QString>
 		   qs += "\nfont-weight:" + WeightStr();
 		if(Italic()	 )
 		   qs += "\nfont-style:italic";
-
+		if (addSemiColon)
+			qs = "	" + qs + ":";
 		return qs;
 	}
 
@@ -420,7 +441,7 @@ public:
 
 	QString Color() const { return _ixColor > 0 ? _details[_ixColor] : QString(); }	// optional color
 	int Blur() const { return _details.size() > 3 && _details[3].at(0).isDigit() ? _details[3].toInt() : 0; }
-	QString ForStyleSheet(bool first_line, int which) const		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
+	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
 	{ 
 		if (!IsSet() || !Used())
 			return QString();
@@ -435,6 +456,8 @@ public:
 			res += " " + _details[_ixBlur] + "px";
 		if (_ixColor)
 			res += " " + _details[_ixColor];
+		if (addSemiColon)
+			res = "	" + res + ":";
 		return res;
 	}
 
@@ -473,7 +496,7 @@ struct _CGradient : public _CFG_ITEM<QString>
 	void Set(GradStop which, int pc, QString clr);
 	void Set(int which, int pc, QString clr) { Set(GradStop(which), pc, clr); }
 	void Set(bool used, int topStop, QString topColor, int middleStop, QString middleColor, int bottomStop, QString bottomcolor, bool chg = true);
-	QString ForStyleSheet() const;
+	QString ForStyleSheet(bool addSemiColon) const;
 	QString ForQtStyleSheet(bool invert = false) const;
 private:
 	bool _internal = false;	// true: do not _Prepare after set
@@ -490,38 +513,48 @@ private:
 
 /*========================================================
  * BORDERs
- *	settings format(size=4 or 5):
- *					<used 0 or 1>|<width>|style|<color>[<border radius>]
- *		OR (size=5 or 6)
- *					<used 0 or 1>|top|right|style|<color>[|<radius in pixels>]
- *		OR (size=7 or 8)
- *					<used 0 or 1>|top|right|bottom|left|style|<color>[|<radius in pixels>]
- * index					0	   1	2		3	4	  5		6		  7
- * internally we always use the same 8 sections and let _Prepare() to create the final string
+ *	settings format: accepts and saves
+ *		<used ?>|top|right|bottom|left|styleT|styleR|styleB|styleL|colorT|colorR|colorB|colorL[|<radius in pixels>]
+ *		  0		   1	2	 3	   4	  5		6		7    8		9	   10	  11	 12		   13
+ *	also accepts
+ *		<used ?>|top-right|bottom-left|styleT-R|styleB-L|colorT-R|colorB-L[|<radius in pixels>]
+ *		  0		   1			2			3	    4		5		 6			7
+ *  and
+ *		<used ?>|width|style|color[|<radius in pixels>]
+ * index	0	   1	2	 3	      4
+ *		  T,R,B,L: indices (0..3)
+ * no other formats acceptable
+ *  internally always uses the longest of these
  *-------------------------------------------------------*/
 struct _CBorder : public _CFG_ITEM<QString>
 {
 	_CBorder(QString vd, QString namestr="cborder") : _CFG_ITEM(vd, namestr) { _Setup(); }
-	_CBorder() : _CFG_ITEM("0|0|0|#000000", "cborder") { _Setup(); }
+	_CBorder() : _CFG_ITEM("0|0|0|0|#000000", "cborder") { _Setup(); }
 
-	QString Width(BorderSide sd) const
+	int Width(BorderSide sd) const
 	{
 		switch (sd)
 		{
 			default:
-			case sdTop:		return _widths[1];
-			case sdRight:	return _widths[2];
-			case sdBottom:	return _widths[3];
-			case sdLeft:	return _widths[4];
+			case sdTop:		return _widths[0];
+			case sdRight:	return _widths[1];
+			case sdBottom:	return _widths[2];
+			case sdLeft:	return _widths[3];
 		}
 	}
-	QString ColorStr() const
+
+	QString ColorStr(BorderSide sd) const
 	{
-		return _colorName;
+		if (sd == sdAll)
+			sd = sdTop;
+		return _colorNames[(int)sd-1];
 	}
-	QString Style()	 const
+
+	QString Style(BorderSide sd)	 const
 	{
-		switch (_styleIndex)
+		if (sd == sdAll)
+			sd = sdTop;
+		switch (_styleIndex[(int)sd-1])
 		{
 			case 0: return "solid";
 			case 1:	return "dotted";
@@ -536,48 +569,61 @@ struct _CBorder : public _CFG_ITEM<QString>
 			
 		}
 	}
-	QString Radius() const 
+
+	int Radius() const 
 	{ 
-		return  QString().setNum(_radius);
+		return  _radius;
 	}
+
 	int BorderCnt() const { return _sizeWidths; }
 	bool Used() const { return _used; }
 	void SetUsed(bool on) { _used = on; _Prepare(); }
 	void SetWidth(BorderSide sd, int width) 
 	{ 
-		QString s = QString("%1").arg(width);
-
 		switch(sd)
 		{
 			case sdAll:		_widths[0] = _widths[1] = _widths[2] = _widths[3] = width; break;
-			case sdTop:		_widths[1] = width; break;
-			case sdRight:	_widths[2] = width; break;
-			case sdBottom:	_widths[3] = width; break;
-			case sdLeft:	_widths[4] = width; break;
+			case sdTop:		_widths[0] = width; break;
+			case sdRight:	_widths[1] = width; break;
+			case sdBottom:	_widths[2] = width; break;
+			case sdLeft:	_widths[3] = width; break;
 			default:;
 		}
 		_CountWidths();
 	}
-	void SetColor(QString color)		// starts with '#'
+	void SetColor(BorderSide sd, QString color)		// starts with '#'
 	{
 		if (color.at(0) != '#')
 			color = "#" + color;
-		_colorName = color;
+		switch (sd)
+		{
+			case sdAll:		_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = color; break;
+			case sdTop:		_colorNames[0] = color; break;
+			case sdRight:	_colorNames[1] = color; break;
+			case sdBottom:	_colorNames[2] = color; break;
+			case sdLeft:	_colorNames[3] = color; break;
+			default:;
+		}
+		_CountWidths();
 		_Prepare();
 	}
-	void SetStyleIndex(int ix)
+	void SetStyleIndex(BorderSide sd, int ix)
 	{
-		_styleIndex = ix;
+		if(sd == sdAll)
+		   _styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix; 
+		else
+			_styleIndex[(int)sd - 1] = ix;
+		_CountWidths();
 		_Prepare();
 	}
 
-	QString ForStyleSheet();		// w. radius, can't be const: uses _Prepare()
+	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
 private:
 	int _used = false;
 	int _sizeWidths;	// 1,2, 4: all sizes are equal, 
 	int _widths[4];		// in px
-	int _styleIndex;
-	QString _colorName;
+	int _styleIndex[4];
+	QString _colorNames[4];
 	int _radius;		// in px
 
 	int _IndexOfColor(QStringList& _details)	const	// use on unprocessed stringlist
@@ -601,10 +647,9 @@ private:
 
 struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 {											// name is the elem name
-	QString ClassName() const { return _className; }	// HTML class name for this element
-
+	AlbumElement kind;
 	_CColor color = { "#000000" ,"color"}, 
-		background = {  "#" ,"background"};	// invalid color
+		background = {  "" ,"background"};	// invalid color
 	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|0","font"};
 	_CTextDecoration decoration = { 0, "decoration" };
 	_CTextAlign alignment = { 0, "alignment" };
@@ -617,17 +662,18 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 
 	_CElem* parent = nullptr;
 
-	_CElem(QString className, bool vd, QString namestr="celem", bool bShadow=false, bool bGradient=false) : 
-		_CFG_ITEM(vd, namestr), _bMayShadow(bShadow), _bMayGradient(bGradient), _className(className) { }
+	_CElem(AlbumElement kind, QString className, bool vd, QString namestr="celem", bool bShadow=false, bool bGradient=false) : 
+		_CFG_ITEM(vd, namestr), kind(kind), _bMayShadow(bShadow), _bMayGradient(bGradient), _className(className) { }
 	_CElem() : 
-		_CFG_ITEM(false, "celem"), _bMayShadow(false), _bMayGradient(false) { }
+		_CFG_ITEM(false, "celem"), kind(aeUndefined), _bMayShadow(false), _bMayGradient(false) { }
 
 	void SetParent(_CElem* p)
 	{
 		parent = p;
 	}
 
-	QString ForStyleSheet();		// internals of class for this element, excluding "first-line", ca't be const
+	QString ClassName() const { return _className; }	// HTML class name for this element
+	QString ForStyleSheet(bool addSemiColon);		// internals of class for this element, excluding "first-line", ca't be const
 	bool Changed() const override;
 	void ClearChanged() override;
 
@@ -842,25 +888,25 @@ public:
 
 	_CBackgroundImage backgroundImage = { _CBackgroundImage::hNotUsed, "backgroundImage" };
 // Design page 
-#define _DFLT_ false
-#define _SHDW_ true
-#define _NOSH_ false
-#define _GRAD_ true
-#define _NGRD_ false
-	_CElem Web = {"body", _DFLT_,"Web", _NOSH_, _NGRD_};		// page
-	_CElem Header = {"header", _DFLT_,"Header", _NOSH_, _NGRD_ };		// header
-	_CElem Menu = {"menu-item", _DFLT_,"Menu", _SHDW_, _GRAD_};		// menu buttons
-	_CElem Lang = {"langs",  _DFLT_,"Lang", _NOSH_, _NGRD_};		// language link button
+#define _DFLT_ false			// default?
+#define _SHDW_ true				// may have shadow?
+#define _NOSH_ false			// may not have shadow
+#define _GRAD_ true				// may have gradient?
+#define _NGRD_ false			// may not have gradient
+	_CElem Web = {aeWebPage, "body", _DFLT_,"Web", _NOSH_, _NGRD_};		// page
+	_CElem Header = {aeHeader, "header", _DFLT_,"Header", _NOSH_, _NGRD_ };		// header
+	_CElem Menu = {aeMenuButtons,"menu-item", _DFLT_,"Menu", _SHDW_, _GRAD_};		// menu buttons
+	_CElem Lang = {aeLangButton,"langs",  _DFLT_,"Lang", _NOSH_, _NGRD_};		// language link button
 	// special handling : include shadows
-	_CElem SmallGalleryTitle = {"falconG", _DFLT_,"SmallGalleryTitle", _SHDW_, _NGRD_};	// "andreas falco photography"
-	_CElem GalleryTitle = {"gallery-title", _DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		// "andreas falco photography"
-	_CElem GalleryDesc = {"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			// "andreas falco photography"
-	_CElem Section = {"section", _DFLT_,"Section", _SHDW_, _NGRD_};				// "Images" or "Albums"
-	_CElem ImageTitle = {"title",_DFLT_, "AlbumOrAlbumOrImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
-	_CElem ImageDesc = {"desc", _DFLT_, "AlbumOrAlbumOrImageDesc", _SHDW_, _NGRD_};
-	_CElem LightboxTitle = {"lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
-	_CElem LightboxDesc = {"lightbox-desc", _DFLT_, "LightboxDesc", _SHDW_, _NGRD_};
-	_CElem Footer = {"footer", _DFLT_, "Footer", _NOSH_, _NGRD_};
+	_CElem SmallGalleryTitle = {aeSmallTitle, "falconG", _DFLT_,"SmallGalleryTitle", _SHDW_, _NGRD_};	// "andreas falco photography"
+	_CElem GalleryTitle = {aeGalleryTitle,"gallery-title", _DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		// "andreas falco photography"
+	_CElem GalleryDesc = {aeGalleryDesc,"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			// "andreas falco photography"
+	_CElem Section = {aeSection,"section", _DFLT_,"Section", _SHDW_, _NGRD_};				// "Images" or "Albums"
+	_CElem ImageTitle = {aeImageTitle, "title",_DFLT_, "AlbumOrImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
+	_CElem ImageDesc = {aeImageDesc, "desc", _DFLT_, "AlbumOrImageDesc", _SHDW_, _NGRD_};
+	_CElem LightboxTitle = {aeLightboxTitle, "lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
+	_CElem LightboxDesc = {aeLightboxDescription, "lightbox-desc", _DFLT_, "LightboxDesc", _SHDW_, _NGRD_};
+	_CElem Footer = {aeFooter, "footer", _DFLT_, "Footer", _NOSH_, _NGRD_};
 	// 
 				// image page
 	_CInt imageWidth = {1920, "imageWidth"};

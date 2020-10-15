@@ -130,14 +130,14 @@ struct WaterMark
 	QString OffsetYToStr() const { return (origin & 0xF) == 1 ? "50%" : QString().setNum(marginY);  }
 
 	unsigned Color() const { return colorWOpacity & 0xFFFFFF; } 
-	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) / 255.0;  }		// 0..1
+	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) /100.0;  }		// 0..100
 	void SetFont(QFont & qfont) { font = qfont; SetupMark(); }
 	void SetText(QString  qs) { text = qs; SetupMark(); }
 	void SetColor(int ccolorWOpacity) { colorWOpacity = ccolorWOpacity; SetupMark();}
 	void SetColor(QString scolorWOpacity) { colorWOpacity = scolorWOpacity.toInt(nullptr, 16); SetupMark(); }
 	void SetOpacity(int val) 
 	{
-		colorWOpacity = (((int) (val * 255.0 / 100.0)) << 24) + (qRed(colorWOpacity) << 16) , (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
+		colorWOpacity = (((int) (val)) << 24) + (qRed(colorWOpacity) << 16) , (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
 	}
 
 	bool operator!=(const WaterMark &wm)
