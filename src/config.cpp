@@ -622,9 +622,9 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 
 	QString res,res2,res3,res4;
 	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(Style(sdTop)).arg(ColorStr(sdTop));
-	res2 = QString("\nborder-right:%1px %2 %3").arg(_widths[sdRight]).arg(Style(sdRight)).arg(ColorStr(sdRight));
-	res3 = QString("\nborder-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(Style(sdBottom)).arg(ColorStr(sdBottom));
-	res4 = QString("\nborder-left:%1px %2 %3").arg(_widths[sdLeft]).arg(Style(sdLeft)).arg(ColorStr(sdLeft));
+	res2 = QString("border-right:%1px %2 %3").arg(_widths[sdRight]).arg(Style(sdRight)).arg(ColorStr(sdRight));
+	res3 = QString("border-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(Style(sdBottom)).arg(ColorStr(sdBottom));
+	res4 = QString("border-left:%1px %2 %3").arg(_widths[sdLeft]).arg(Style(sdLeft)).arg(ColorStr(sdLeft));
 	if (semi)
 	{
 		__AddSemi(res );
@@ -632,12 +632,11 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 		__AddSemi(res3);
 		__AddSemi(res4);
 	}
+	res += "\n" + res2 + "\n"+ res3 + "\n" + res4;
 		
 	if (_radius)
 		 res += QString("\nborder-radius:%1px").arg(config.Menu.border.Radius());
 
-	if (semi)
-		res = "	" + res + ":";
 	return res;
 }
 
@@ -649,11 +648,11 @@ void _CBorder::_CountWidths()
 		b24 = (_widths[1] == _widths[3]) && (_styleIndex[1] == _styleIndex[3]) && (_colorNames[1] == _colorNames[3]);				// right = left?
 	if (b13 && b24)					// then either just top-left and bottom-right is given
 		if (b12)					// or all equal
-			_sizeWidths += 1;	// 1 width, style and color
+			_sizeWidths = 1;	// 1 width, style and color
 		else
-			_sizeWidths += 2;	// 2 widths, styles and colors
+			_sizeWidths = 2;	// 2 widths, styles and colors
 	else
-		_sizeWidths += 4;		// 4 width, style and color
+		_sizeWidths = 4;		// 4 width, style and color
 }
 
 void _CBorder::_Setup()
@@ -700,6 +699,7 @@ void _CBorder::_Setup()
 			_colorNames[3]= qsl[12];
 			break;
 	}
+	_CountWidths();
 }
 
 /*========================================================
@@ -1232,6 +1232,7 @@ void CONFIG::Read()		// synchronize with Write!
 	bDistrortThumbnails.Read(s);
 	// image decoration
 	imageBorder.Read(s);
+	imagePadding.Read(s);
 
 	iconToTopOn.Read(s);
 	iconInfoOn.Read(s);
@@ -1340,6 +1341,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	bDistrortThumbnails.Write(s);
 	// image decoration
 	imageBorder.Write(s);
+	imagePadding.Write(s);
 	
 	iconToTopOn.Write(s);
 	iconInfoOn.Write(s);

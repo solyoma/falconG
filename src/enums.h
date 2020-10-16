@@ -13,7 +13,7 @@ namespace Enums
 	enum FeatureOp { foClearAll, foSet, foUnset, foClearOthersAndSet };
 	enum ShadowPart { spUse, spHoriz, spVert, spBlurR, spSpread, spColorName };  // _CShadow
 	enum GradStop { gsStart, gsMiddle, gsStop };
-	enum BorderSide { sdAll, sdTop, sdRight, sdBottom, sdLeft };  // index	0		1	   2		 3		  4
+	enum BorderSide { sdAll=-1, sdTop, sdRight, sdBottom, sdLeft };  // index	-1, 0		1	   2		 3
 	enum How {		   // _CBackgroundImage
 		hNotUsed,
 		hAuto, 			// background-style	 original size
@@ -35,14 +35,14 @@ namespace Enums
 		aeGalleryDesc,				// 		   decription
 		aeSection,					// albums OR images - color (sectionTextColor) + text shadows() + font
 		aeImageTitle,				// thumbnails title -		album title color (albumTitleColor) + font
-		aeImageDesc,				//			  decription -	color (albumDescColor) + font
+		aeImageDesc,				//			  decription -	color (ImageDescColor) + font
 		aeLightboxTitle,			// lightbox - title
 		aeLightboxDescription,		//			  description
 		aeFooter					// footer
 	};
 
 	enum Changed { fsNothing = 0, fsTitle = 1, fsDescription = 2 }; // which text changed
-	enum skinStyle { stDefault, stSystem, stDark, stBlack, stBlue };
+	enum skinStyle { stDefault, stSystem, stBlue, stDark, stBlack };
 	enum StyleIndex {   // C.f. index.html
 		siColor, siBackground, siBackgroundColor, siBoxShadow, siBorder,
 		siFontFamily, siFontFeatureSettings, siFontSize, siFontStyle,

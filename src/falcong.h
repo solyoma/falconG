@@ -330,6 +330,7 @@ private slots:
 	void on_sbWmOpacity_valueChanged(int val);
 
 	void on_sbBorderWidth_valueChanged(int val);
+	void on_sbBorderRadius_valueChanged(int val);
 };
 
 extern FalconG *frmMain;

@@ -564,11 +564,12 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkUseBorder->setChecked(pElem->border.Used());
 	if (pElem->border.Used())
 	{
-		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
+		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
 
 		ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(side)+";\n color:"+ config.Web.background.Name()+";}\n"));
 		ui.sbBorderRadius->setValue(pElem->border.Radius());
-		ui.cbBorder->setCurrentIndex( pElem->border.BorderCnt() == 4 ? 0 : 1);
+		int cnt = pElem->border.BorderCnt();
+		ui.cbBorder->setCurrentIndex( cnt == 1 ? 0 : 1);
 		ui.cbBorderStyle->setCurrentText(pElem->border.Style(side));
 		ui.sbBorderWidth->setValue(pElem->border.Width(side));
 	}
@@ -604,7 +605,14 @@ void FalconG::_ConfigToSample()
 	_ElemToSample(aeLightboxDescription);
 	_ElemToSample(aeFooter);
 
-	on_chkImageBorder_toggled(config.imageBorder.Used());
+	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
+	ui.btnImageBorderColor->setStyleSheet(qs);
+	// qs = config.imageBorder.ForStyleSheet(false);
+	qs = QString("border:%1px solid %2").arg(config.imageBorder.Width(sdAll)).arg(config.imageBorder.ColorStr(sdAll) );
+	if ( config.imagePadding )
+		qs += QString("\npadding:%1;").arg(config.imagePadding);
+	_RunJavaScript(".thumb", qs);
+	config.SetChanged(true);
 	--_busy;
 }
 
@@ -1505,10 +1513,7 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 
 	QString qs;
 	config.imageBorder.SetUsed(on);
-	if (on)	// border present: set up parameters
-		qs = config.imageBorder.ForStyleSheet(false);
-	else
-		qs = "border:none";
+	qs = config.imageBorder.ForStyleSheet(false);
 	config.SetChanged(true);
 	_RunJavaScript(".thumb", qs);
 }
@@ -2061,11 +2066,8 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 		return;
 
 	config.imageBorder.SetWidth(sdAll, val);
-	if (ui.chkImageBorder->isChecked())
-	{	
-		QString sd = config.imageBorder.ForStyleSheet(false);
-		_RunJavaScript(".thumb", sd);
-	}
+	QString sd = config.imageBorder.ForStyleSheet(false);
+	_RunJavaScript(".thumb", sd);
 	config.SetChanged(true);
 }
 
@@ -2079,12 +2081,11 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
  *-------------------------------------------------------*/
 void FalconG::on_sbImagePadding_valueChanged(int val)
 {
-	if (_busy)
+	if (_busy || config.imagePadding == val )
 		return;
 
-	config.imageBorder.SetWidth(sdAll, val);
-	if (ui.chkImageBorder->isChecked())
-		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
+	config.imagePadding = val;
+	_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
 
 	config.SetChanged(true);
 }
@@ -2135,8 +2136,18 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	if (_busy)
 		return;
 	_CElem* pElem = _PtrToElement();
-	BorderSide side = (BorderSide) ui.cbBorder->currentIndex();
+	BorderSide side = (BorderSide) (ui.cbBorder->currentIndex()-1);
 	pElem->border.SetWidth(side, val);
+	config.SetChanged(true);
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+}
+
+void FalconG::on_sbBorderRadius_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->border.SetRadius(ui.sbBorderRadius->value());
 	config.SetChanged(true);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
@@ -2161,7 +2172,7 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnBorderColor_clicked()
 {
-	BorderSide side = (BorderSide )ui.cbBorder->currentIndex();
+	BorderSide side = (BorderSide )(ui.cbBorder->currentIndex()-1);
 	QColor qc(config.Menu.border.ColorStr(side)),
 			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
@@ -2498,13 +2509,13 @@ void FalconG::on_btnImageBorderColor_clicked()
 
 	QColor qc(handler.GetItem("QToolButton", "background-color")),
 			qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew.isValid())
+	if (qcNew.isValid() && qc != qcNew)
 	{
-		handler.SetItem("QToolButton", "background-color", qc.name());
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
-		ui.btnBorderColor->setStyleSheet(handler.StyleSheet());
-		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
-		config.imageBorder.SetColor(side, qc.name());
+		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
+		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
+		config.imageBorder.SetColor(side, qcNew.name());
 		on_sbImageBorderWidth_valueChanged(ui.sbBorderWidth->value());
 	}
 }
@@ -2922,11 +2933,11 @@ void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 void FalconG::on_cbBorder_currentIndexChanged(int newIndex)
 {
 	_CElem* pElem = _PtrToElement();
-	BorderSide side = (BorderSide) newIndex;
-	if (!_busy)
-		pElem->border.SetWidth(side, ui.sbBorderWidth->value());
+	BorderSide side = (BorderSide) (newIndex -1);
+	//if (!_busy)
+	//	pElem->border.SetWidth(side, ui.sbBorderWidth->value());
 	++_busy;
-   ui.sbBorderWidth->setValue( pElem->border.Width((BorderSide) newIndex) );
+   ui.sbBorderWidth->setValue( pElem->border.Width(side) );
 	--_busy;
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
@@ -2936,7 +2947,7 @@ void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
 	_CElem* pElem = _PtrToElement();
 	if (!_busy)
 	{
-		BorderSide side = (BorderSide)ui.cbBorder->currentIndex();
+		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
 		pElem->border.SetStyleIndex(side, ui.cbBorderStyle->currentIndex());
 	}
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
@@ -3173,6 +3184,14 @@ void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has
 	_RunJavaScript("menu-item#uplink",QString("background-image:")+"url(file:///res/up-icon-sample.png)");
 }
 
+
+/*========================================================
+ * TASK:	only used for falconG and not in production
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
 void FalconG::_SetWatermark()
 {
 			// set text

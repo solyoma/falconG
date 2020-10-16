@@ -36,7 +36,7 @@ R"(
 }
 void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 {
-	QString qs = elem.ForStyleSheet();
+	QString qs = elem.ForStyleSheet(true);
 	if (!qs.isEmpty())
 		_ofs << classStr << qs << "}\n\n";
 	if (elem.font.IsFirstLineDifferent())
@@ -132,12 +132,12 @@ nav {
 	margin: 2px 3px 2px 2px;
 	padding: 4px 10px 3px;
 )";
-	QString qs = config.Menu.ForStyleSheet();
+	QString qs = config.Menu.ForStyleSheet(true);
 	if(!qs.isEmpty())
-		_ofs << qs << ";\n}\n"	// for menus no different first-line accepted
+		_ofs << qs << "\n}\n"	// for menus no different first-line accepted
 			<< "\n.menu-item:hover {\n"
-			<< "	color:" << config.Menu.background.Name()
-			<< ";\n	background-color:" << config.Menu.color.ToRgba() << ";\n}\n";
+			<< config.Menu.background.ForStyleSheet(true, true)
+			<< "\n"<<	config.Menu.color.ForStyleSheet(true, false) << "\n}\n";
 	_ofs << "/* up icon */\n"
 		    ".menu-item#uplink {"
 			"	.background-image: url(\"../res/up-icon.png" << R"(\");
@@ -207,7 +207,7 @@ void CssCreator::_CreateForImages()
 	padding: 1px;
 )";
 	if(config.imageBorder.Used())
-		_ofs << config.imageBorder.ForStyleSheet();
+		_ofs << config.imageBorder.ForStyleSheet(true);
 	_ofs << "}\n\n";
 
 	_ofs << "[data-src] {\n	min-width:" << config.thumbWidth.ToString()

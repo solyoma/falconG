@@ -2643,7 +2643,7 @@ QString AlbumGenerator::_MenuColorCSSToString()
 	else
 		s += " color:" + ColorToStr(config.Menu.color) + ";\n background-color:" + ColorToStr(config.Menu.background) + ";\n";
 	if(config.Menu.border.Used())
-		s += " border: 1px solid " + config.Menu.border.ColorStr() + ";";
+		s += " " + config.Menu.border.ForStyleSheet(true);
 	if (config.Menu.shadow1[1].Used())
 		s += "	-webkit-box-shadow" + _ShadowToString(1, config.Menu) + ";\n" + 
 			 "	-moz-box-shadow"    + _ShadowToString(1, config.Menu) + ";\n" +
@@ -2659,7 +2659,7 @@ QString AlbumGenerator::_MenuColorCSSToString()
 			 ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
 
 	if (config.Menu.border.Used())
-		s += " border: 1px solid " + config.Menu.border.ColorStr() + ";";
+		s += config.Menu.border.ForStyleSheet(true);
 	s += "\n}\n\n";
 
 	s +=	"div.menu-line a.langs{\n"
@@ -2709,8 +2709,8 @@ QString AlbumGenerator::_ColorCSSToString()
 
 	if (config.imageBorder.Used())
 		s += "section div.thumb img {\n" +
-			config.imageBorder.ForStyleSheet() +
-			";\n}\n\n";
+			config.imageBorder.ForStyleSheet(true) +
+			"\n}\n\n";
 		
 // DEBUG
 //	QMessageBox(QMessageBox::Information, "falconG - info", s, QMessageBox::Ok, frmMain).exec();

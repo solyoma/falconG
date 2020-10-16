@@ -547,14 +547,14 @@ struct _CBorder : public _CFG_ITEM<QString>
 	{
 		if (sd == sdAll)
 			sd = sdTop;
-		return _colorNames[(int)sd-1];
+		return _colorNames[(int)sd];
 	}
 
 	QString Style(BorderSide sd)	 const
 	{
 		if (sd == sdAll)
 			sd = sdTop;
-		switch (_styleIndex[(int)sd-1])
+		switch (_styleIndex[(int)sd])
 		{
 			case 0: return "solid";
 			case 1:	return "dotted";
@@ -612,8 +612,13 @@ struct _CBorder : public _CFG_ITEM<QString>
 		if(sd == sdAll)
 		   _styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix; 
 		else
-			_styleIndex[(int)sd - 1] = ix;
+			_styleIndex[(int)sd] = ix;
 		_CountWidths();
+		_Prepare();
+	}
+	void SetRadius(int radius)
+	{
+		_radius = radius;
 		_Prepare();
 	}
 
@@ -921,6 +926,7 @@ public:
 	_CBool iconToTopOn = {false, "iconToTopOn"};
 	_CBool iconInfoOn = {false, "iconInfoOn"};
 	_CBorder imageBorder = {"0|2|1|#EAA41E", "imageBorder"};
+	_CInt imagePadding = { 0, "imagePadding" };
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "waterMark"};
 
