@@ -10,6 +10,7 @@
 #include "languages.h"
 #include "albums.h"
 #include "falcong.h"
+#include "csscreator.h"
 
 #if QT_VERSION < 0x051000
     #define created created
@@ -50,7 +51,7 @@ Album AlbumMap::invalid;
 _CDirStr	__DestDir,		// generate gallery into _RootDir inside this
 			__RootDir,		// .htaccess, constants.php, index.php
 			__AlbumDir,		// all albums
-			__CssDir,		// colors.css, stylefg.css
+			__CssDir,		// falconG.css
 			__ImageDir,		// all images. image name with date (?)
 			__ThumbDir,		// all images. image name with date (?)
 			__FontDir,		// some of used fonts
@@ -69,7 +70,7 @@ static void __SetBaseDirs()
 	//   Directory contains
 	__RootDir = config.dsGallery + config.dsGRoot;	// .htaccess, constants.php, index.php
 	__AlbumDir = __RootDir + config.dsAlbumDir;		// all albums
-	__CssDir = __RootDir + config.dsCssDir;	  		// colors.css, stylefg.css
+	__CssDir = __RootDir + config.dsCssDir;	  		// falconG.css
 	__ImageDir = __RootDir + config.dsImageDir;		// contains all images
 	__ThumbDir = __RootDir + config.dsThumbDir;		// contains all thumbnails
 	__FontDir = __RootDir + config.dsFontDir;		// some of used fonts
@@ -2506,36 +2507,6 @@ int AlbumGenerator::_DoCopyRes()
 	return 0;	
 }
 
-
-/*===========================================================================
-* TASK: write shadow parameter
-* EXPECTS:	which		- text or box shadow is required<
-*			elem		- name from CONFIG
-* GLOBALS: config,
-* RETURNS: s
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_ShadowToString(int which, _CElem &elem)
-{
-	QString s;	//  	-name of shadow(e.g. "text-shadow, -moz-box-shadow)
-
-	auto _SetOneShadow = [&](_CShadow shadow){
-		s += QString().setNum(shadow.Horiz()) + "px " + QString().setNum(shadow.Vert()) + "px";
-		if (shadow.Blur())
-			s += " " + QString().setNum(shadow.Blur());
-		s += " " + shadow.Color() + ";\n";
-	};
-
-
-	if (!elem.shadow1[which].Used())
-		return s;
-
-	_SetOneShadow(elem.shadow1[which]);
-	if(elem.shadow2[which].Used() && (elem.shadow2[which].Horiz() || elem.shadow2[which].Vert()) )
-			_SetOneShadow(elem.shadow2[which]);
-	return s;
-}
-
 /*============================================================================
 * TASK:		Writes whole directory structure into 'gallery.struct' in a separate thread
 * EXPECTS: keep: do not replace backup file with original
@@ -2564,544 +2535,6 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 //	pWriteStructThread->run();
 	return 0;
 }
-
-/*===========================================================================
-* TASK: write color and background css with shadow
-* EXPECTS: selector	- CSS selector
-*			elem		- name from CONFIG
-*			what		- 1: color, 2: background, 3 : both
-* GLOBALS: config
-* RETURNS: none
-* REMARKS: CSS ends with '}\n"
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_ElemColorCssToString(QString selector, _CElem &elem, int what)
-{
-	if (elem.color.Name().isEmpty())
-		return QString();
-
-	selector += "{\n";
-	if (what & wColor)
-		selector += " color:" + ColorToStr(elem.color) + ";\n";
-	if (what & wBackground)
-		selector +=" background-color:" + ColorToStr(elem.background) + ";\n";
-	if (elem.shadow1[0].Used())
-		selector += "	text-shadow:" + _ShadowToString(0, elem) + ";\n";
-	if (elem.shadow2[0].Used())
-	{
-		QString s = _ShadowToString(1, elem) + ";\n";
-		selector += "	box-shadow:" +s ;
-		selector += "	-webkit-box-shadow:" + s;
-		selector += "	-moz-box-shadow:" + s;
-	}
-	if ((what & wNoClosingBrace) == 0)
-		selector +="}\n\n";
-	return selector;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_GradientCssToString(_CElem &elem, bool invert)
-{
-	QString s;
-	if (invert)
-		s ="linear-gradient(#"
-		+ elem.gradient.gs[0].color + " " + QString().setNum(elem.gradient.gs[2].percent) + "%, #"
-		+ elem.gradient.gs[1].color + " " + QString().setNum(elem.gradient.gs[1].percent) + "%, #"
-		+ elem.gradient.gs[2].color + " " + QString().setNum(elem.gradient.gs[0].percent) + "%);";
-	else
-		s ="linear-gradient(#"
-		+ elem.gradient.gs[0].color + " " + QString().setNum(elem.gradient.gs[0].percent) + "%,#"
-		+ elem.gradient.gs[1].color + " " + QString().setNum(elem.gradient.gs[1].percent) + "%,#"
-		+ elem.gradient.gs[2].color + " " + QString().setNum(elem.gradient.gs[2].percent) + "%);\n";
-	return s;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_MenuColorCSSToString()
-{
-	QString s;
-	// state: UP
-	s = "div.menu-line {\n"
-		"	position: -webkit-sticky;\n"	 /* Safari */
-		"   position: sticky;\n"
-		"   top : 10px;\n"
-		"   display:inline-block;\n"
-		"   margin-bottom:1rem;\n"
-		"}\n"
-		"div.menu-line a {\n";
-	if (config.Menu.gradient.used)
-		s += " background:" + _GradientCssToString(config.Menu);
-	else
-		s += " color:" + ColorToStr(config.Menu.color) + ";\n background-color:" + ColorToStr(config.Menu.background) + ";\n";
-	if(config.Menu.border.Used())
-		s += " " + config.Menu.border.ForStyleSheet(true);
-	if (config.Menu.shadow1[1].Used())
-		s += "	-webkit-box-shadow" + _ShadowToString(1, config.Menu) + ";\n" + 
-			 "	-moz-box-shadow"    + _ShadowToString(1, config.Menu) + ";\n" +
-			 "	box-shadow" + _ShadowToString(1, config.Menu) + ";\n";
-	s += "\n}\n"
-		// state: Down
-		// menu button pressed: change color order
-		"div.menu-line a:hover {\n";
-	if (config.Menu.gradient.used)
-		s += " background:" + _GradientCssToString(config.Menu, true);
-	else
-		s += "	color:" + ColorToStr(config.Menu.background) + 
-			 ";\n background-color:" + ColorToStr(config.Menu.color) + ";\n";
-
-	if (config.Menu.border.Used())
-		s += config.Menu.border.ForStyleSheet(true);
-	s += "\n}\n\n";
-
-	s +=	"div.menu-line a.langs{\n"
-			"	color:" + ColorToStr(config.Lang.color) + ";\n"
-			"	background-color:rgba(0,0,0,0.1);\n"
-			"}\n";
-
-	return s;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_ColorCSSToString()
-{
-	QString s;
-
-	s = "/* Header Style  first for mobile then for tablet and desktop*/\n" +
-		_ElemColorCssToString("html,\nbody,\nmain", config.Web, wBackground) +
-		_ElemColorCssToString(".falconG", config.SmallGalleryTitle, wColor) +
-		".about{\n"
-		"	color:#ddd;\n"
-		"	margin:auto;\n"
-		"	}\n"
-		+
-		_ElemColorCssToString("h2.gallery-title", config.GalleryTitle, wColor) +
-		_ElemColorCssToString(".gallery-title,a:visited.gallery-title", config.GalleryTitle, wColor) +
-		_ElemColorCssToString(".album-desc", config.GalleryDesc, wColor) +
-		_ElemColorCssToString("h2.desc", config.GalleryDesc, wColor) +
-		_ElemColorCssToString("a, a:visited", config.Menu, wColor) +
-//		_ElemColorCssToString("a.langs", config.Lang, wColor) +
-		_ElemColorCssToString("a[name=\"images\"],a[name=\"galleries\"]", config.Section, wColor) +
-		_ElemColorCssToString(".folders p", config.Section, wColor) +
-		_ElemColorCssToString("#images p", config.ImageDesc, wColor) +
-		_ElemColorCssToString("footer", config.ImageDesc, wColor) + 
-
-		".lightbox .caption {\n"+
-		"   color:" + ColorToStr(config.GalleryTitle.color) + ";\n"
-		"}\n" +
-
-		// block for menu buttons
-		_MenuColorCSSToString(); 
-		// end of menu button
-
-	if (config.imageBorder.Used())
-		s += "section div.thumb img {\n" +
-			config.imageBorder.ForStyleSheet(true) +
-			"\n}\n\n";
-		
-// DEBUG
-//	QMessageBox(QMessageBox::Information, "falconG - info", s, QMessageBox::Ok, frmMain).exec();
-
-	return s;
-}
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString _FontToCss(_CElem & elem)
-{
-	QString s = "	font-size:" + elem.font.SizeStr() + ";\n"
-				"	font-family:" + elem.font.Family() + ";\n";
-
-	if (elem.font.Bold() )
-		s += "	font-weight:bold;\n";
-	if (elem.font.Italic())
-		s += "	font-style:italic;\n";
-
-	if (elem.decoration.IsTextDecorationLine() )
-		s += "	text-decoration:";
-	if (elem.decoration.IsUnderline())
-		s += "underline";
-	if (elem.decoration.IsLineThrough())
-		s += " strikethrough";
-	if (elem.font.Features() & (tdUnderline | tdLinethrough))
-		s += ";\n";
-	return s;
-}
-
-QString _FontForElem(_CElem elem, QString cssItemName, QString trailing) // config.GalleryTitle, ".falconG{\n", "margin-left: 10px;\n}\n\n")
-{
-	QString s = cssItemName + " {\n" + _FontToCss(elem) + "\n}\n\n";
-	if (elem.font.IsFirstLineDifferent())
-		s += cssItemName + "::first-line {\n\tfont-size:" + elem.font.FirstLineFontSizeStr() + ";\n}\n\n";
-	return s;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-QString AlbumGenerator::_CssToString()
-{
-	QString s =
-		"@import url(\"https://fonts.googleapis.com/css?family=Raleway\"); /*--- Nav Font --*/\n"
-		"@import url(\"https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway\"); /*--- Heading Font --*/\n"
-		// TODO: scan font directory and embed fonts from it into here
-		// e.g. @font-face {
-		//				font-family: 'RieslingRegular';
-		//				src: url('fonts/riesling.eot');
-		//				src: local('Riesling Regular'), local('Riesling'), url('fonts/riesling.ttf') format('truetype');
-		//		}
-		// usage example: h1 {font-family: 'RieslingRegular', Arial, sans-serif;}
-		// universal selector to include padding and border in box size
-		"*, *::before, *::after {\n"
-		"	box-sizing:border-box;\n"
-		"	padding:0;\n"
-		"	margin:0;\n"
-		"}\n\n"
-		"html,\n"
-		"body{\n"
-		"	height: 100% ;\n"
-		"	width: 100%;\n"
-		"   overflow: auto;\n"
-		"}\n"
-		"\n"
-	// .falconG
-		+ _FontForElem(config.GalleryTitle, ".falconG", "margin-left: 10px;")
-	// h2
-		+ _FontForElem(config.GalleryTitle, "h2.gallery-title", "text-align: center;") + 
-	// about
-		".about{\n"
-		"	margin:auto;\n"
-		"	width:400px;\n"
-		"}\n"
-
-	// a.title
-		"a.title {\n"
-		+ _FontToCss(config.GalleryTitle) +
-		"}\n"
-		"\n"
-	// a, a:visited
-		"a, a:visited{\n"
-		"	text-decoration: none;\n"
-		"}\n"
-		"\n"
-	// a[name = \"images\"], a[name = \"galleries\"]
-		+ _FontForElem(config.Section, "a[name=\"images\"], a[name=\"galleries\"]", 
-						"text-align:center;\n"
-						"	padding:1em 0 1em 0;") + 
-	// p
-		"p{\n"
-		"	font-size: 13px;\n"
-		"}\n"
-		"\n"
-	// div.menu-line a
-		"div.menu-line a{\n"
-		+ _FontToCss(config.Menu) +
-		"	line-height: 18px;\n"
-		"	border-radius: 5px;\n"
-		"	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);\n"
-		"	display: inline-block;\n"
-		"	margin: 2px 3px 2px 2px;\n"
-		"	padding: 4px 10px 3px;\n"
-		"}\n"
-		"\n"
-		"div.menu-line a.langs{\n"
-		"	font-size: 8pt;\n"
-		"	border:0;\n"
-		"	box-shadow: 0;\n"
-		"}\n"
-		"\n"
-	// a.facebook
-		"a.facebook{\n"
-		"	display: inline-block;\n"
-		"	border: 1px solid #00266d;\n"
-		"	padding: 4px 10px 3px;\n"
-		"	font-size: 13px;\n"
-		"	line-height: 18px;\n"
-		"	margin: 2px 3px;\n"
-		"	font-weight: 800;\n"
-		"	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-		"	-moz-box-shadow:0px 1px 1px rgba(0,0,0,0.1);\n"
-		"	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);\n"
-		"	color:#fff;\n"
-		"	-webkit-border-radius: 5px;\n"
-		"	-moz-border-radius: 5px;\n"
-		"	border-radius: 5px;\n"
-		"	background-color: #033aa9;\n"
-		"	background: -moz-linear-gradient(top, #033aa9 0%, #022a8f 44%, #00266d 100%);\n"
-		"	background: -webkit-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
-		"	background: -o-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
-		"	background: -ms-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);\n"
-		"	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#033aa9), color-stop(44%,#022a8f), color-stop(100%,#00266d));\n"
-		"	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );\n"
-		"}\n"
-		"\n"
-	// <header>
-		"header{\n"
-		+ _FontToCss(config.Web) +
-		"	text-align: left;\n"
-		"	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);\n"
-		"}\n"
-		"\n"
-	// <footer>
-		"footer{\n"
-		+ _FontToCss(config.Web) +
-		"	text-align: center;\n"
-		"	margin:auto;\n"
-		"}\n"
-		"\n"
-	// Album title
-		+ _FontForElem(config.GalleryTitle, ".gallery-title", QString() )
-	// album-desc
-		+_FontForElem(config.GalleryDesc, ".album-desc", "margin:auto;\n"
-													"	width:100%;\n"
-													"   text-align:center;")+
-	// <main>
-		"	/* --- main section --*/\n"
-		"main{\n"
-		"	display: flex;\n"
-		"	flex-direction: column;\n"
-		"	flex-wrap:wrap;\n"
-		"	width: 100% ;\n"
-		"}\n"
-		"	/* --- end main section --*/\n"
-		"\n"
-		// #images, #folders
-		"#images, .folders{\n"
-		"	display: flex;\n"
-		"	flex-flow: row wrap;\n"
-		"	justify-content: center;\n"
-		"	max-width: 100% ;\n"
-		"}\n"
-		"\n"
-		// .img-container .gallery container
-		"		/* ---- img----- */\n"
-		".img-container, .gallery-container{\n"
-		"	display:flex;\n"
-		"	flex-direction: column;\n"
-		"	padding:0 1px;\n"
-		"   justify-content:center;\n"
-		"   align-items:center;\n"
-		"}\n"
-		"\n"
-		// im dest-src=
-		"[data-src] {\n"
-		"	min-width:" + QString().setNum(config .thumbWidth)  + ";\n"
-		"	min-height:" + QString().setNum(config.thumbHeight) + ";\n"
-		"}\n"
-	// .desc	  
-		".desc{\n"
-		"	display:none;\n"
-		"	hyphens: auto;\n"
-		"	-moz-hyphens: auto;\n"
-		"	-webkit-hyphens: auto;\n"
-		"	-ms-hyphens: auto;\n"
-		"}\n"
-		"\n"
-	// p.gallery-title
-		"p.gallery-title{\n"
-		"	padding-left:10px;\n"
-		"}\n"
-		"\n"
-	// .desc p
-		".desc p {\n"
-		"	font-size: 12pt;\n"
-		"	line-height: 12pt;\n"
-		"	text-align: center;\n"
-		"	max-width:90%;\n"
-		"	margin:auto;\n"
-		"}\n"
-		"\n"
-	// section div.thumb
-		"section div.thumb{\n";
-		s += "	display:-webkit-flex;\n"
-			"	display:-ms-flexbox;\n"
-			"	display:flex; \n"
-			"	justify-content: center;\n"
-			"	flex-wrap: wrap;\n"
-			"	flex-direction: row;\n"
-			"	padding: 1px;\n"
-			"	margin: 0 2;\n"
-			"}\n"
-			"\n"
-	// .img-container img
-	// .gallery-container img
-			".img-container img,\n"
-			" .gallery-container img {\n"
-			"	margin:auto;\n"
-			"	max-width:99vw;\n"
-	// image border is set in _ColorCSSToString()
-			"}\n"
-			"\n"
-	// div.links
-			"div.links{\n"
-			"	display:flex;\n"
-			"	width:100% ;\n"
-			"	justify-content:center;\n"
-			"	margin: auto;\n"
-			"	margin-bottom: 10px;\n"
-			"	padding-bottom: 5px;\n"
-			"}\n"
-			"\n"
-	// div.links a, .showhide
-			"div.links a, .showhide{\n"
-			"	text-decoration:none;\n"
-			"	font-family:\"Playfair Display\", sans-serif, Arial;\n"
-			"	font-weight:bold;\n"
-			"	cursor:pointer;\n"
-			"}\n"
-			"\n"
-			"div.links a:hover, .showhide:hover{\n"
-			"	font-weight: 700;\n"
-			"   font-style: italic;\n"
-			"}\n"
-			"\n";
-		// light boc
-		s += R"CSS(
-.lightbox {
-    display: none;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    position: fixed;
-    z-index: 20;
-    padding-top: 30px;
-    box-sizing: border-box;
-	overflow:auto;
-  }
-
-#lb-flex {
-    display: flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    width: 100%;
-    height: 100%;
-}
-  
-.lightbox img {
-    display: block;
-    cursor:pointer;
-}
-  
-.lightbox .caption {
-    margin: 15px auto;
-    width: 50%;
-    text-align: center;
-    font-size: 1.5rem;
-    line-height: 1.5;
-    font-weight: 700;
-}
-		 )CSS";
-
-// ---- media queries
-  s+=
-		"	/* -- media queries ***/\n"
-		"@media only screen and (orientation: landscape) {\n"
-		"	.img-container img,\n"
-		"	.gallery_container img {\n";
-	if (config.bDistrortThumbnails)
-		s += "		width:" + QString().setNum(config.thumbWidth) + "px;\n";
-	s += "		max-height: 95vh; \n	}\n";
-
-	s +="}\n"
-		"\n"
-// Screens wider than 700 px
-		"@media only screen and (min-width:700px) {\n"
-		"	.img-container, .gallery-container{\n"
-		"		max-width:100vw;\n"
-		"		padding:0 3px;\n"
-		"	}\n";
-	//s += "    .lightbox img	{\n"
-	//	"	      max-width:99vw;\n"
-	//	"     }\n";
-	
-	if (config.bCropThumbnails || config.bDistrortThumbnails)
-	{
-// div.thumb > 700px
-		s += "	div.thumb {\n"
-			 "		max-width:" + QString().setNum(config.thumbWidth) + "px;\n";
-
-		if (config.bCropThumbnails)
-			s += "		overflow:hidden;\n";
-
-		s += "	}\n";
-	}
-
-	s +=
-		"\n"
-		"	.img-container img,\n"
-		"	.gallery_container img {\n"
-		"		max-width:99vw;\n"
-		"		height:"+ QString().setNum(config.thumbHeight) + "px;\n"
-		"	}\n"
-		"\n"
-		"	div.links{\n"
-		"		padding-bottom: 10px;\n"
-		"	}\n"
-		"\n" 
-		"	p{\n"
-		"		font-size:12pt\n"
-		"	}\n"
-		// about
-		"   .about{\n"
-		"		margin:auto;\n"
-		"		width:600px;\n"
-		"  	}\n"
-		"	.album-desc {\n"
-		"		width:50vw;\n"
-		"	}\n"
-		"}\n"
-		"\n"
-// Screens wider than 1200 px
-		"	/* large screens */\n"
-		"@media only screen and (min-width:1200px) {\n"
-		"	.img-container, .gallery-container\n"
-		"	{\n"
-		"		max-width:99vw;\n"
-		"		flex-direction:column;\n"
-		"		padding:0 1px;\n"
-		"	}\n"
-		"	div.links{\n"
-		"		padding-bottom: 30px;\n"
-		"	}\n"
-		"\n"
-		"	.desc p {\n"
-		"		max-width:600px;\n" // set as .img.height x 1.5
-		"		margin:auto;\n"
-		"	}\n\n"
-		// about
-		"	.about {\n"
-		"		margin:auto;\n"
-		"		width:800px;\n"
-		"	}\n\n"
-		"	.album-desc {\n"
-		"		width:800px;\n"
-		"	}\n"
-		"}\n";
-	return s;
-}
-
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3155,46 +2588,24 @@ QString AlbumGenerator::_GoogleAnaliticsOn()
 }
 
 /*============================================================================
-* TASK:		Creates colors.css		-  from design parameters
-* EXPECTS:	config fields are set
-* GLOBALS:	'config'
-* RETURNS: 0: OK, 4: error writing file
-* REMARKS:
-*--------------------------------------------------------------------------*/
-int AlbumGenerator::_DoColorsCss()
-{
-	// generate new colors.css
-	QFile fcssC(QString(__CssDir.ToString()) + "tmpcolor.css");
-	if(!fcssC.open(QIODevice::WriteOnly | QIODevice::Truncate))
-		return 4;
-
-	_ofs.setDevice(&fcssC);
-	_ofs << _ColorCSSToString();
-	fcssC.close();
-
-	BackupAndRename(QString(__CssDir.ToString()) + "colors.css", QString(__CssDir.ToString()) + "tmpcolor.css");
-	return 0;
-}
-
-/*============================================================================
 * TASK:		falconG.css		-  from all parameters
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 8: error writing file
 * REMARKS:
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_DoStyleFG()
+int AlbumGenerator::_SaveFalconGCss()
 {
 	// generate new falconG.css into temporary files
-	QFile fcssG(QString(__CssDir.ToString()) + "tmpfg.css");
-	if (!fcssG.open(QIODevice::WriteOnly | QIODevice::Truncate))
+	CssCreator cssCreator;
+	QString tmpName = QString(__CssDir.ToString()) + "tmpfg.css";
+	cssCreator.Create(tmpName);
+	tmpName = BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", tmpName);
+	if (!tmpName.isEmpty())
+	{
+		QMessageBox::warning(nullptr, tr("falconG Warning"), tmpName, QMessageBox::Ok);
 		return 8;
-
-	_ofs.setDevice(&fcssG);
-	_ofs << _CssToString();
-	fcssG.close();
-
-	BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", QString(__CssDir.ToString()) + "tmpfg.css");
+	}
 	return 0;
 }
 
@@ -3225,8 +2636,7 @@ QString AlbumGenerator::_PageHeaderToString(ID_t id)
 		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "/>\n");
 	if (!config.sKeywords.IsEmpty())
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "/>\n");
-	s += QString(sCssLink + "colors.css\">\n" +
-		sCssLink + "falconG.css\">\n" + 
+	s += QString(sCssLink + "falconG.css\">\n" + 
 		"<script type=\"text/javascript\"  src=\"" + supdir + "js/falconG.js\"></script>"	);
 
 	s += QString("</head>\n");
@@ -4008,8 +3418,7 @@ int AlbumGenerator::_DoHtAccess()
 /*============================================================================
 * TASK:		Creates album in directory 'config.dsGallery
 *			- constants.php		-  from all parameters		(Error code 1)
-*			- colors.css		-  from design parameters	(error code 2)
-*			- stylesa.css		-  from all parameters		(error code 4)
+*			- falconG.css		-  from all parameters		(error code 4)
 *			- index.php			- 							(error code 8)
 *									contains album index -> album name table
 *			- all html files	-							(error code 16)
@@ -4039,9 +3448,7 @@ int AlbumGenerator::Write()
 	if (_processing)
 		i |= _DoHtAccess();			// 0 | 2
 	if (_processing)
-		i |= _DoColorsCss();		// 0 | 4
-	if (_processing)
-		i |= _DoStyleFG();			// 0 | 8
+		i |= _SaveFalconGCss();			// 0 | 8
 	if (_processing)
 		i |= _DoPages();			// 0 | 16
 	if (_processing)
@@ -4060,11 +3467,10 @@ int AlbumGenerator::Write()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void AlbumGenerator::SaveStyleSheets()
+int AlbumGenerator::SaveStyleSheets()
 {
 	__SetBaseDirs();
-	albumgen._DoColorsCss();
-	albumgen._DoStyleFG();
+	return albumgen._SaveFalconGCss();
 }
 
 /*============================================================================

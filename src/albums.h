@@ -357,7 +357,7 @@ class AlbumGenerator : public QObject
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
 
-	AlbumStructWriterThread *pWriteStructThread;		// write structure in separate thread
+	AlbumStructWriterThread *pWriteStructThread=nullptr;		// write structure in separate thread
 	bool _structWritten = true;
 	bool _mustRecreateAllAlbums = false;				// set to true when signaled from FalconG class that uplink etc changed
 	bool _keepPreviousBackup = false; // rename temporary file ?
@@ -372,12 +372,6 @@ class AlbumGenerator : public QObject
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
 	void _TitleFromPath(QString path, LangConstList &ltl);
-	QString _ShadowToString(int whichShadow, _CElem &elem); //0:text, 1:box
-	QString _ElemColorCssToString(QString selector, _CElem &elem, int what);
-	QString _GradientCssToString(_CElem &elem, bool invert = false);
-	QString _MenuColorCSSToString();
-	QString _ColorCSSToString();
-	QString _CssToString();
 	QString _HtaccessToString();
 	QString _GoogleAnaliticsOn();
 	QString _PageHeaderToString(ID_t id);
@@ -412,8 +406,7 @@ class AlbumGenerator : public QObject
 
 	int _DoCopyRes();	// copy directory 'res', modify png colors
 	int _DoCopyJs();	// copy directory 'js'
-	int _DoColorsCss();
-	int _DoStyleFG();
+	int _SaveFalconGCss();
 	int _DoPages();
 	int _DoLatest();
 	int _DoHtAccess();
@@ -436,7 +429,7 @@ public:
 	int WriteDirStruct(bool keep=false);		
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
-	void SaveStyleSheets();
+	int SaveStyleSheets();
 	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);

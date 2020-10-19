@@ -45,19 +45,20 @@ main{
 }
 
  a, a:visited{
-	text-decoration: none;
-}
-/*
-p{
-	font-size: 13px;
-}
-*/
-/* area only used for editing */
-.area {
-    margin: 10px 10px 10px 10px;
-}
-
-.falconG {
+	 text-decoration: none;
+	}
+	/*
+	p{
+		font-size: 13px;
+	}
+	*/
+	/* area only used for editing */
+	.area {
+		margin: 10px 10px 10px 10px;
+	}
+	
+	/* small gallery title */
+	.falconG {
 	display:inline-block;
     color:var(--small-title-color);
 	font-size:10pt;
@@ -138,7 +139,6 @@ main{
 	width: 100% ;
 }
 /* --- end main section --*/
-/* small gallery title */
 .fgsection {
 	font-family:var(--script-font);
 	color:var(--section-color);
@@ -247,7 +247,6 @@ section {
 	justify-content:center;
 	align-items:center;
 	position: relative;
-	padding:0 1px;
 }
 
 .img-container > div {
@@ -257,8 +256,7 @@ section {
 .img-container img {
 	margin:auto;
 	max-width:99vw;
-	border:1px solid var(--base-color);
-	padding:1px;
+	display:block;
 }
 
 [data-src] {
@@ -278,10 +276,8 @@ section {
 	display: inline-block;
 	padding: 1px;
 	margin: 0 2;
-	padding:1px;
-	border-width:1px;
-	border-style:dotted;
-	border-color:#ffd460;
+/*	padding:2px; */
+	border:1px dashed #ffd460;
 }	
 
 .thumb::after {

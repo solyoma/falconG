@@ -1,10 +1,15 @@
 #include "config.h"
 
 
-// helper	prepends a tab and adds a semicolon after the string
-void __AddSemi(QString& s)
+// helper	prepends a tab and adds a semicolon and LF after the string
+void __AddSemi(QString& s, bool addSemicolon)
 {
-	s = "	" + s + ";";
+	if (!s.isEmpty())
+	{
+		if (addSemicolon)
+			s = "	" + s + ";";
+		s += "\n";
+	}
 }
 
 
@@ -625,19 +630,26 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 	res2 = QString("border-right:%1px %2 %3").arg(_widths[sdRight]).arg(Style(sdRight)).arg(ColorStr(sdRight));
 	res3 = QString("border-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(Style(sdBottom)).arg(ColorStr(sdBottom));
 	res4 = QString("border-left:%1px %2 %3").arg(_widths[sdLeft]).arg(Style(sdLeft)).arg(ColorStr(sdLeft));
-	if (semi)
-	{
-		__AddSemi(res );
-		__AddSemi(res2);
-		__AddSemi(res3);
-		__AddSemi(res4);
-	}
-	res += "\n" + res2 + "\n"+ res3 + "\n" + res4;
+	__AddSemi(res , semi);
+	__AddSemi(res2, semi);
+	__AddSemi(res3, semi);
+	__AddSemi(res4, semi);
+	res += res2 + res3 + res4;
 		
 	if (_radius)
 		 res += QString("\nborder-radius:%1px").arg(config.Menu.border.Radius());
 
 	return res;
+}
+
+QString _CBorder::ForStyleSheetShort() const
+{
+	if (!Used())
+		return QString("border:none");
+
+	if (_sizeWidths > 1)
+		return ForStyleSheet(false);
+	return QString("border:%1px %2 %3").arg(_widths[0]).arg( Style(sdAll) ).arg(_colorNames[0]);
 }
 
 void _CBorder::_CountWidths()
@@ -733,26 +745,27 @@ void _CBorder::_Prepare()
 
 // -------------------------------------------------------------------------------------
 
+QString _CElem::ColorsForStyleSheet(bool addSemicolon)
+{
+	return color.ForStyleSheet(addSemicolon, false) + 
+			color.ForStyleSheet(addSemicolon, true);
+}
+
 QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font with possibli semicolon
 {											// because it must go to a different css class
 	QString qs = color.ForStyleSheet(semi, false);
-	auto _AddWithLF = [&](const QString s)
-	{
-		if (!s.isEmpty())
-			qs += s + "\n";
-	};
 	if (ClassName() != "WEB" && background.v != config.Web.background.v)
-		_AddWithLF(background.ForStyleSheet(semi, true));
+		background.ForStyleSheet(semi, true);
 
-	_AddWithLF(gradient.ForStyleSheet(semi));
-	_AddWithLF(font.ForStyleSheet(semi));
-	_AddWithLF(decoration.ForStyleSheet(semi));
-	_AddWithLF(alignment.ForStyleSheet(semi));
-	_AddWithLF(shadow1[0].ForStyleSheet(semi, true,0));	// first shadow for text (right + down) 
-	_AddWithLF(shadow2[0].ForStyleSheet(semi, true,1));	// 2nd shadow for text
-	_AddWithLF(shadow1[1].ForStyleSheet(semi, false,0));	// 2nd shadow (left + up) 
-	_AddWithLF(shadow2[1].ForStyleSheet(semi, false,1));
-	_AddWithLF(border.ForStyleSheet(semi));
+	gradient.ForStyleSheet(semi);
+	font.ForStyleSheet(semi);
+	decoration.ForStyleSheet(semi);
+	alignment.ForStyleSheet(semi);
+	shadow1[0].ForStyleSheet(semi, true,0);	// first shadow for text (right + down) 
+	shadow2[0].ForStyleSheet(semi, true,1);	// 2nd shadow for text
+	shadow1[1].ForStyleSheet(semi, false,0);	// 2nd shadow (left + up) 
+	shadow2[1].ForStyleSheet(semi, false,1);
+	border.ForStyleSheet(semi);
 
 	return qs;
 }
@@ -916,6 +929,33 @@ void _CWaterMark::Read(QSettings& s, QString group)
 		s.endGroup();
 }
 // ********************************* Background Image ********************
+
+QString _CBackgroundImage::ForStyleSheet(bool addSemicolon)
+{
+	if(v == (int)hNotUsed)
+		return QString();
+		// ------- background image -----
+
+	QString qsS = "auto",			// background-size
+			qsR = "no-repeat";		// background-repeat
+
+	if (config.backgroundImage.fileName.isEmpty())
+		return QString();
+
+	switch (config.backgroundImage.v)
+	{
+		case hAuto:		break;
+		case hCover:	qsS = "cover"; break;
+		case hContain:	qsS = "contain"; break;
+		case hTile:		qsR = "repeat"; break;
+	}
+
+	QString qs = QString("background-image: %1;\n"
+				   "background-size: %2;\n"
+				   "background-repeat: %3;\n").arg(fileName).arg(qsS).arg(qsR);
+	__AddSemi(qs, addSemicolon);
+	return qs;
+}
 
 void _CBackgroundImage::Write(QSettings& s, QString group)
 {

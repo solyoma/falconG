@@ -391,7 +391,7 @@ struct _CFont : _CFG_ITEM<QString>
 	QString FirstLineClassStr(const QString what)
 	{
 		if(IsFirstLineDifferent() )
-			return what + "::first-line:" + FirstLineFontSizeStr();
+			return what + "::first-line {\n	font-size:" + FirstLineFontSizeStr() + ";\n}\n\n";
 		return QString();
 	}
 
@@ -623,6 +623,7 @@ struct _CBorder : public _CFG_ITEM<QString>
 	}
 
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
+	QString ForStyleSheetShort() const;	// if  kind is sdAll simplified, else the same as the normal one
 private:
 	int _used = false;
 	int _sizeWidths;	// 1,2, 4: all sizes are equal, 
@@ -678,7 +679,8 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	}
 
 	QString ClassName() const { return _className; }	// HTML class name for this element
-	QString ForStyleSheet(bool addSemiColon);		// internals of class for this element, excluding "first-line", ca't be const
+	QString ColorsForStyleSheet(bool addSemicolon);
+	QString ForStyleSheet(bool addSemicolon);		// internals of class for this element, excluding "first-line", ca't be const
 	bool Changed() const override;
 	void ClearChanged() override;
 
@@ -727,16 +729,11 @@ struct _CWaterMark : public _CFG_ITEM<bool>		  // v used for changed
 //--------------------------------------------------------------------------------------------
 struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum
 {
-	enum How { hNotUsed, 
-				hAuto, 			// background-style	 original size
-				hCover,			//				whole visibel screen (might stretch or crop)
-				hContain,		//				whole image is inside
-				hTile			// background-repeat: repeat (default!)
-			};		
 	QString fileName;
 
-	_CBackgroundImage(int how, QString  nameStr="backgroundImagw") : _CFG_ITEM(how, nameStr) {}
+	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImagw") : _CFG_ITEM((int)how, nameStr) {}
 
+	QString ForStyleSheet(bool addSemicolon);
 	virtual void Write(QSettings& s, QString group = QString()) override;	// into settings, but only if changed
 	virtual void Read(QSettings& s, QString group = QString()) override;
 };
@@ -891,7 +888,7 @@ public:
 
 	_CBool bFacebookLink = { false,"bFacebookLink"};
 
-	_CBackgroundImage backgroundImage = { _CBackgroundImage::hNotUsed, "backgroundImage" };
+	_CBackgroundImage backgroundImage = { hNotUsed, "backgroundImage" };
 // Design page 
 #define _DFLT_ false			// default?
 #define _SHDW_ true				// may have shadow?
@@ -912,6 +909,11 @@ public:
 	_CElem LightboxTitle = {aeLightboxTitle, "lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
 	_CElem LightboxDesc = {aeLightboxDescription, "lightbox-desc", _DFLT_, "LightboxDesc", _SHDW_, _NGRD_};
 	_CElem Footer = {aeFooter, "footer", _DFLT_, "Footer", _NOSH_, _NGRD_};
+#undef _DFLT_ 
+#undef _SHDW_ 
+#undef _NOSH_ 
+#undef _GRAD_ 
+#undef _NGRD_ 
 	// 
 				// image page
 	_CInt imageWidth = {1920, "imageWidth"};
@@ -935,11 +937,6 @@ public:
 
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
-#undef _DFLT_ 
-#undef _SHDW_ 
-#undef _NOSH_ 
-#undef _GRAD_ 
-#undef _NGRD_ 
 
 		// calculated values	not saved not even included in the backup
 	QString homeLink;		// actual home link for given langyage hierarchy

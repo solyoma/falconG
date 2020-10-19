@@ -174,6 +174,8 @@ FalconG::FalconG(QWidget *parent)
 
 	int h = ui.tabEdit->height();
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
+
+	_EnableButtons();
 }
 
 /*============================================================================
@@ -608,11 +610,8 @@ void FalconG::_ConfigToSample()
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	// qs = config.imageBorder.ForStyleSheet(false);
-	qs = QString("border:%1px solid %2").arg(config.imageBorder.Width(sdAll)).arg(config.imageBorder.ColorStr(sdAll) );
-	if ( config.imagePadding )
-		qs += QString("\npadding:%1;").arg(config.imagePadding);
+	qs = config.imageBorder.ForStyleSheetShort();
 	_RunJavaScript(".thumb", qs);
-	config.SetChanged(true);
 	--_busy;
 }
 
@@ -2066,8 +2065,9 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 		return;
 
 	config.imageBorder.SetWidth(sdAll, val);
-	QString sd = config.imageBorder.ForStyleSheet(false);
-	_RunJavaScript(".thumb", sd);
+	QString qs = config.imageBorder.ForStyleSheetShort();
+	qs = config.imageBorder.ForStyleSheetShort();
+	_RunJavaScript(".thumb", qs);
 	config.SetChanged(true);
 }
 
@@ -2085,7 +2085,10 @@ void FalconG::on_sbImagePadding_valueChanged(int val)
 		return;
 
 	config.imagePadding = val;
-	_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
+	if (!config.imageBorder.Used())
+		_RunJavaScript(".thumb",QString("padding:"));
+	else	
+		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
 
 	config.SetChanged(true);
 }
@@ -2714,7 +2717,7 @@ void FalconG::LinkClicked(QString s)
  *-------------------------------------------------------*/
 void FalconG::WebPageLoaded(bool ready)
 {
-	static bool loaded = false;		// only load once
+	static bool loaded = false;		// only check load once
 	if (loaded)
 		return;
 	loaded = true;
@@ -3638,13 +3641,15 @@ void FalconG::_SetIconColor(QIcon &icon, _CElem & elem)
  *--------------------------------------------------------------------------*/
 void FalconG::on_btnSaveStyleSheet_clicked()
 {
-	albumgen.SaveStyleSheets();
-	QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
-	QMessageBox(QMessageBox::Information, 
-				QString("falconG"),
-				QString(QMainWindow::tr("Style sheets 'falconG.css' and 'colors.css' are saved\ninto %1").arg(s)),
-				QMessageBox::Ok,
-				this).exec();
+	if (albumgen.SaveStyleSheets() == 0)
+	{
+		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
+		QMessageBox(QMessageBox::Information,
+					QString("falconG"),
+					QString(QMainWindow::tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)),
+					QMessageBox::Ok,
+					this).exec();
+	}
 }
 
 

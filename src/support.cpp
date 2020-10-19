@@ -512,22 +512,34 @@ QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
 {
 	QFile ft(name), f(tmpName);
 	QString qsErr;
+	bool brv, brt, brn;
+	bool bx = ft.exists();
 	if (keepBackup)
 	{
-		if( (ft.exists() && ! ft.remove() ) || !f.rename(name) )
+
+		brt = bx ? ft.remove() : true;
+		brn = f.rename(name);
+//		if( (ft.exists() && ! ft.remove() ) || !f.rename(name) )
+		if( (bx &&  !brt) ||  !brn)
 		{
 			qsErr = QMainWindow::tr("Either can't delete \n'%1'\n"
 								 " or can't rename '%2' to '%1'\n"
-								 "Modified file remain named as \n'%2'").arg(name).arg(tmpName);
+								 "Modified file remains named as \n'%2'").arg(name).arg(tmpName);
 		}
 	}
 	else
-	{
-		ft.remove(name + "~");
-		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))
+	{	
+		if (bx)
+		{
+			brv = ft.remove(name + "~");
+			brt = ft.rename(name + "~");
+		}
+		brn = f.rename(name);
+//		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))
+		if( (bx && !brt) || !brn)
 		{
 			qsErr = QMainWindow::tr("Can't create backup file\n'%1~'\n"
-								 "New file\n'%2'\nwas not renamed").arg(name).arg(tmpName);
+								 "Temporary file\n'%2'\nwas not renamed").arg(name).arg(tmpName);
 		}
 	}
 	//if (bErr)

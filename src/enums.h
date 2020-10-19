@@ -14,7 +14,7 @@ namespace Enums
 	enum ShadowPart { spUse, spHoriz, spVert, spBlurR, spSpread, spColorName };  // _CShadow
 	enum GradStop { gsStart, gsMiddle, gsStop };
 	enum BorderSide { sdAll=-1, sdTop, sdRight, sdBottom, sdLeft };  // index	-1, 0		1	   2		 3
-	enum How {		   // _CBackgroundImage
+	enum BackgroundImageSizing {
 		hNotUsed,
 		hAuto, 			// background-style	 original size
 		hCover,			//				whole visibel screen (might stretch or crop)
