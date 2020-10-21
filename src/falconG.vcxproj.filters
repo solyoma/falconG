@@ -66,6 +66,9 @@
     <ClCompile Include="csscreator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="structwriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="thumbnailWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="structwriter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

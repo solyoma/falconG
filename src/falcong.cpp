@@ -358,7 +358,7 @@ void FalconG::on_btnGenerate_clicked()
 
 		--_running;
 		if(_phase != -1)
-			ui.tabFalconG->setCurrentIndex(3);	// show 'Edit' page
+			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
 
 		albumgen.SetRecrateAlbumFlag(config.bGenerateAll);	// not until relevant changes
 	}
@@ -615,6 +615,11 @@ void FalconG::_ConfigToSample()
 	--_busy;
 }
 
+void FalconG::_SetConfigChanged(bool on)
+{
+	ui.btnSaveConfig->setEnabled(config.SetChanged(on));
+}
+
 /*============================================================================
 * TASK:		set all saved data into global controls	+ interface elements
 * EXPECTS:	'config' is set up
@@ -768,7 +773,7 @@ void FalconG::on_edtTrackingCode_textChanged()
 		return;
 
 	config.googleAnalTrackingCode = ui.edtTrackingCode->text();
-	ui.btnSaveConfig->setEnabled( config.SetChanged(config.googleAnalTrackingCode.Changed()) );
+	 _SetConfigChanged(config.googleAnalTrackingCode.Changed());
 }
 
 /*============================================================================
@@ -783,7 +788,7 @@ void FalconG::on_edtDestGallery_textChanged()
 		return;
 
 	config.dsGallery = ui.edtDestGallery->text();
-	config.SetChanged(config.dsGallery.Changed());
+	_SetConfigChanged(config.dsGallery.Changed());
 	_EnableButtons();
 }
 
@@ -793,7 +798,7 @@ void FalconG::on_edtFontDir_textChanged()
 		return;
 
 	config.dsFontDir = ui.edtFontDir->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(config.dsFontDir.Changed()) );
+	_SetConfigChanged(config.dsFontDir.Changed());
 }
 
 /*============================================================================
@@ -842,7 +847,7 @@ void FalconG::on_edtDescription_textChanged()
 	if (_busy)
 		return;
 	config.sDescription = ui.edtDescription->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 
@@ -858,7 +863,7 @@ void FalconG::on_edtKeywords_textChanged()
 	if (_busy)
 		return;
 	config.sKeywords = ui.edtKeywords->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -873,7 +878,7 @@ void FalconG::on_edtAlbumDir_textChanged()
 		return;
 	++_busy;
 	config.dsAlbumDir = ui.edtAlbumDir->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 	--_busy;
 }
 
@@ -889,7 +894,7 @@ void FalconG::on_edtAbout_textChanged()
 		return;
 
 	config.sAbout = ui.edtAbout->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -904,7 +909,7 @@ void FalconG::on_edtGalleryRoot_textChanged()
 		return;
 
 	config.dsGRoot = ui. edtGalleryRoot->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -919,7 +924,7 @@ void FalconG::on_edtImg_textChanged()
 		return;
 
 	config.dsImageDir = ui. edtImg->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -935,7 +940,7 @@ void FalconG::on_edtServerAddress_textChanged()
 		return;
 
 	config.sServerAddress = ui. edtServerAddress->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -950,7 +955,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
 		return;
 
 	config.sGalleryTitle = ui.edtGalleryTitle->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -963,7 +968,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
 void FalconG::on_edtGalleryLanguages_textChanged()
 {
 	config.sGalleryLanguages = ui.edtGalleryLanguages->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -978,7 +983,7 @@ void FalconG::on_edtUplink_textChanged()
 		return;
 
 	config.sUplink = ui. edtUplink->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -993,7 +998,7 @@ void FalconG::on_edtMainPage_textChanged()
 		return;
 
 	config.sMainPage = ui.edtMainPage->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1008,7 +1013,7 @@ void FalconG::on_edtEmailTo_textChanged()
 		return;
 
 	config.sMailTo = ui.edtEmailTo->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 void FalconG::on_edtThumb_textChanged()
@@ -1019,7 +1024,7 @@ void FalconG::on_edtThumb_textChanged()
 	++_busy;
 	config.dsThumbDir = ui.edtThumb->text();
 	--_busy;
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 void FalconG::on_edtBaseName_textChanged()
@@ -1028,7 +1033,7 @@ void FalconG::on_edtBaseName_textChanged()
 		return;
 
 	config.dsGRoot = ui.edtGalleryRoot->text();
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1047,7 +1052,7 @@ void FalconG::on_edtWatermark_textChanged()
 	else
 		ui.lblWmSample->setText(config.waterMark.wm.text);
 	
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1058,7 +1063,7 @@ void FalconG::on_edtWatermark_textChanged()
  *--------------------------------------------------------------------------*/
 void FalconG::on_edtWmColor_textChanged()
 {
-	ui.btnSaveConfig->setEnabled(config.waterMark.v = true);
+	_SetConfigChanged(config.waterMark.v = true);
 
 	if (_busy)
 		return;
@@ -1094,7 +1099,7 @@ void FalconG::UpdaetWatermarkMargins(int mx, int my)
 		_RunJavaScript(".thumb::after", wm.YMarginName(centered, false)+"");
 		_RunJavaScript(".thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
 	}
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 void FalconG::on_edtWmHorizMargin_textChanged()
 {
@@ -1321,7 +1326,7 @@ void FalconG::on_chkAddDescToAll_toggled(bool on)
 	if (_busy)
 		return;
 	config.bAddDescriptionsToAll = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 
 	_EnableButtons();
 }
@@ -1337,7 +1342,7 @@ void FalconG::on_chkReadJAlbum_toggled(bool on)
 	if (_busy)
 		return;
 	config.bReadJAlbum = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1354,7 +1359,7 @@ void FalconG::on_chkReadFromGallery_toggled(bool on )
 	if (_busy)
 		return;
 	config.bReadFromGallery = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1370,7 +1375,7 @@ void FalconG::on_chkRightClickProtected_toggled(bool b)
 	if (_busy)
 		return;
 	config.bRightClickProtected = b;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1386,7 +1391,7 @@ void FalconG::on_chkCanDownload_toggled(bool b)
 	if (_busy)
 		return;
 	config.bCanDownload = b;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1402,7 +1407,7 @@ void FalconG::on_chkForceSSL_toggled(bool b)
 	if (_busy)
 		return;
 	config.bForceSSL = b;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1418,7 +1423,7 @@ void FalconG::on_chkUseGoogleAnalytics_toggled(bool b)
 	if (_busy)
 		return;
 	config.googleAnalyticsOn = b; // ui.chkUseGoogleAnalytics->isChecked();
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1435,7 +1440,7 @@ void FalconG::on_chkSetLatest_toggled(bool on)
 	
 	if (_busy)
 		return;
-	ui.btnSaveConfig->setEnabled(config.SetChanged(true));
+	_SetConfigChanged(true);
 	_EnableButtons();
 }
 
@@ -1456,7 +1461,12 @@ void FalconG::on_cbPointSize_currentTextChanged(const QString & txt)
 
 	QString text = txt;
 	_PtrToElement()->font.SetSize(txt);
-	config.SetChanged(true);
+	if (!ui.chkDifferentFirstLine->isChecked())
+	{
+		ui.cbPointSizeFirstLine->setCurrentText(txt);
+		_PtrToElement()->font.SetDifferentFirstLine(true, txt);
+	}
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1465,7 +1475,7 @@ void FalconG::on_chkDifferentFirstLine_toggled(bool b)
 	if (_busy)
 		return;
 	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1478,7 +1488,7 @@ void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
 	QString qsClass;
 	pElem = _PtrToElement();
 	pElem->font.SetDifferentFirstLine(pElem->font.IsFirstLineDifferent(), txt);	// do not change first line font size
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1495,7 +1505,7 @@ void FalconG::on_edtFontFamily_textChanged()
 	_CElem *pElem;
 	pElem = _PtrToElement();
 	pElem->font.SetFamily(ui.edtFontFamily->text());
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1513,7 +1523,7 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 	QString qs;
 	config.imageBorder.SetUsed(on);
 	qs = config.imageBorder.ForStyleSheet(false);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_RunJavaScript(".thumb", qs);
 }
 
@@ -1527,7 +1537,7 @@ void FalconG::on_chkIconText_toggled(bool)
 {
 	if (_busy)
 		return;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1541,7 +1551,7 @@ void FalconG::on_chkIconTop_toggled(bool)
 {
 	if (_busy)
 		return;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1556,7 +1566,7 @@ void FalconG::on_chkBold_toggled(bool on)
 	if (_busy)
 		return;
 	_PtrToElement()->font.SetFeature(fBold, on);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1571,7 +1581,7 @@ void FalconG::on_chkItalic_toggled(bool on)
 	if (_busy)
 		return;
 	_PtrToElement()->font.SetFeature(fItalic, on);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1589,7 +1599,7 @@ void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 		return;
 	_PtrToElement()->decoration.SetDecoration(decoration, on);
 	ui.gbDecorationStyle->setEnabled(ui.chkTdUnderline->isChecked() || ui.chkTdOverline->isChecked() || ui.chkTdLinethrough->isChecked());
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();	// clear decorations if neither checkbox is checked
 }
 
@@ -1614,7 +1624,7 @@ void FalconG::on_chkUseWM_toggled(bool on)
 	if (_busy)
 		return;
 	config.waterMark.used = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1630,7 +1640,7 @@ void FalconG::on_chkOvrImages_toggled(bool on)
 	if (_busy)
 		return;
 	config.bOvrImages = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	
 	_EnableButtons();
 }
@@ -1646,7 +1656,7 @@ void FalconG::on_chkDoNotEnlarge_toggled(bool on)
 	if (_busy)
 		return;
 	config.doNotEnlarge = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 
 	_EnableButtons();
 }
@@ -1662,7 +1672,7 @@ void FalconG::on_chkCropThumbnails_toggled(bool b)
 	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
 	ui.sbThumbnailWidth->setEnabled(config.bDistrortThumbnails || b);
 	--_busy;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 void FalconG::on_chkDistortThumbnails_toggled(bool b)
@@ -1676,7 +1686,7 @@ void FalconG::on_chkDistortThumbnails_toggled(bool b)
 	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
 	ui.sbThumbnailWidth->setEnabled(b || config.bCropThumbnails);
 	--_busy;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1690,7 +1700,7 @@ void FalconG::on_chkSourceRelativePerSign_toggled(bool on)
 	if (_busy)
 		return;
 	config.bSourceRelativePerSign = on;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_EnableButtons();
 }
 
@@ -1707,7 +1717,7 @@ void FalconG::on_chkTextOpacity_toggled(bool on)
 	ui.sbTextOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
 	pElem->color.SetOpacity(on ? ui.sbTextOpacity->value()*2.55 : -1);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1724,7 +1734,7 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 	ui.sbBackgroundOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
 	pElem->background.SetOpacity(on ? ui.sbBackgroundOpacity->value()*2.55 : -1);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1774,7 +1784,7 @@ void FalconG::on_chkUseBorder_toggled(bool on)
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetUsed(on);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1789,7 +1799,7 @@ void FalconG::on_chkMenuToContact_toggled(bool on)
 		return;
 	config.bMenuToContact = on;
 	_RunJavaScript(".menu-item#contact",QString("display:")+ (on ? "inline-block" : "none"));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1804,7 +1814,7 @@ void FalconG::on_chkMenuToAbout_toggled(bool on)
 		return;
 	config.bMenuToAbout = on;
 	_RunJavaScript(".menu-item#about",QString("display") + (on? "inline-block" : "none"));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1819,7 +1829,7 @@ void FalconG::on_chkMenuToDescriptions_toggled(bool on)
 		return;
 	config.bMenuToDescriptions = on;
 	_RunJavaScript(".menu-item#desc",QString("display") + (on? "inline-block" : "none") );
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1834,7 +1844,7 @@ void FalconG::on_chkMenuToToggleCaptions_toggled(bool on)
 		return;
 	config.bMenuToToggleCaptions = on;
 	_RunJavaScript(".menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1848,7 +1858,7 @@ void FalconG::on_sbNewDays_valueChanged(int val)
 	if (_busy)
 		return;
 	config.newUploadInterval = val;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1862,7 +1872,7 @@ void FalconG::on_sbLatestCount_valueChanged(int val)
 	if (_busy)
 		return;
 	config.nLatestCount = val;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -1980,7 +1990,7 @@ void FalconG::on_sbGradStartPos_valueChanged(int val)
 	_CElem* pElem = _PtrToElement();
 	pElem->gradient.Set(gsStart, val, pElem->gradient.Color(gsStart));
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -1995,7 +2005,7 @@ void FalconG::on_sbGradMiddlePos_valueChanged(int val)
 	_CElem* pElem = _PtrToElement();
 	pElem->gradient.Set(gsMiddle, val, pElem->gradient.Color(gsMiddle));
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2010,7 +2020,7 @@ void FalconG::on_sbGradStopPos_valueChanged(int val)
 	_CElem* pElem = _PtrToElement();
 	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2023,7 +2033,7 @@ void FalconG::on_sbGradStopPos_valueChanged(int val)
 void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 {
 	config.waterMark.wm.shadowHoriz = val;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2036,7 +2046,7 @@ void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 void FalconG::on_sbWmShadowVert_valueChanged(int val)
 {
 	config.waterMark.wm.shadowVert = val;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2049,7 +2059,7 @@ void FalconG::on_sbWmShadowVert_valueChanged(int val)
 void FalconG::on_sbWmShadowBlur_valueChanged(int val)
 {
 	config.waterMark.wm.shadowBlur = val;
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2068,7 +2078,7 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 	QString qs = config.imageBorder.ForStyleSheetShort();
 	qs = config.imageBorder.ForStyleSheetShort();
 	_RunJavaScript(".thumb", qs);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 
@@ -2090,7 +2100,7 @@ void FalconG::on_sbImagePadding_valueChanged(int val)
 	else	
 		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -2130,7 +2140,7 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 	if (_busy)
 		return;
 	config.waterMark.wm.SetOpacity(val);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_RunJavaScript(".thumb::after","color:"+ config.waterMark.wm.ColorToStr());
 }
 
@@ -2141,7 +2151,7 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	_CElem* pElem = _PtrToElement();
 	BorderSide side = (BorderSide) (ui.cbBorder->currentIndex()-1);
 	pElem->border.SetWidth(side, val);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
@@ -2151,7 +2161,7 @@ void FalconG::on_sbBorderRadius_valueChanged(int val)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetRadius(ui.sbBorderRadius->value());
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
@@ -2182,7 +2192,7 @@ void FalconG::on_btnBorderColor_clicked()
 	if (qcNew == qc || !qcNew.isValid())
 		return;
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetColor(side, qcNew.name());
 	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
@@ -2330,7 +2340,7 @@ void FalconG::on_btnForeground_clicked()
 	pElem->color.SetColor(qcNew.name());
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2355,7 +2365,7 @@ void FalconG::on_btnBackground_clicked()
 
 	pElem->background.SetColor(qcNew.name());
 	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2375,7 +2385,7 @@ void FalconG::on_btnPageColor_clicked()
 
 	config.Web.color.SetColor(qcNew.name());
 	ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	AlbumElement ae = _aeActiveElement;
 	_aeActiveElement = aeWebPage;
 	_ElemToSample();
@@ -2403,7 +2413,7 @@ void FalconG::on_btnPageBackground_clicked()
 
 	config.Web.background.SetColor(qcNew.name());
 	ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 
 	AlbumElement ae = _aeActiveElement;
 	_aeActiveElement = aeWebPage;
@@ -2452,7 +2462,7 @@ void FalconG::on_btnGradStartColor_clicked()
 	pElem->gradient.Set(gsStart, ui.sbGradStartPos->value(), qcNew.name());
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2474,7 +2484,7 @@ void FalconG::on_btnGradMiddleColor_clicked()
 	pElem->gradient.Set(gsMiddle, ui.sbGradMiddlePos->value(), qcNew.name());
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2496,7 +2506,7 @@ void FalconG::on_btnGradStopColor_clicked()
 	pElem->gradient.Set(gsStop, ui.sbGradStopPos->value(), qcNew.name());
 	_SetWidgetGradientQt(ui.lblGradient, pElem);
 
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_ElemToSample();
 }
 
@@ -2541,7 +2551,7 @@ void FalconG::on_btnShadowColor_clicked()
 	if (qc != qcNew)
 	{
 		ui.btnShadowColor->setStyleSheet("QToolButton {\nbackground-color:" + qc.name() + ";\n}\n");
-		config.SetChanged(true);
+		_SetConfigChanged(true);
 	}
 	_ElemToSample();
 }
@@ -3096,7 +3106,7 @@ void FalconG::_SetBackground(_CElem* pElem)
 		_SetCssProperty(pElem, pElem->background.ForStyleSheet(false, true));
 	}
 	else
-		_SetCssProperty(pElem,(pElem->parent != nullptr && pElem->parent->background != pElem->background ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
+		_SetCssProperty(pElem,( (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
 }
 
 void FalconG::_SetShadow(_CElem* pElem,int what)
@@ -3230,7 +3240,7 @@ void FalconG::_OpacityChanged(int val, int which)
 		pElem->color.SetOpacity(val);
 	else
 		pElem->background.SetOpacity(val);
-	config.SetChanged(true);
+	_SetConfigChanged(true);
 	_SetCssProperty(pElem, which == 1 ? pElem->color.ForStyleSheet(false,false) : pElem->background.ForStyleSheet(false, true));
 }
 

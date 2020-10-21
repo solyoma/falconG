@@ -1,4 +1,7 @@
 #pragma once
+#ifndef _ALBUMS_H
+	#define _ALBUMS_H
+
 #include <QDateTime>
 #include <QString>
 #include <QStringList>
@@ -23,6 +26,13 @@
 #include "crc32.h"
 #include "stylehandler.h"
 #include "languages.h"
+
+const QString TITLE_TAG = "Title-";	// used in 'struct' files
+const QString DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
+const QString THUMBNAIL_TAG = "Icon";	// "album icon"
+//const QString SAVED_IMAGE_DESCRIPTIONS = "images.desc";
+//const QString TEMP_SAVED_IMAGE_DESCRIPTIONS = "images.tmp";
+
 
 using QString=QString;
 using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
@@ -374,7 +384,7 @@ class AlbumGenerator : public QObject
 	void _TitleFromPath(QString path, LangConstList &ltl);
 	QString _HtaccessToString();
 	QString _GoogleAnaliticsOn();
-	QString _PageHeaderToString(ID_t id);
+	QString _PageHeadToString(ID_t id);
 
 	bool _CreateDirectories();	// from data in config
 
@@ -394,13 +404,13 @@ class AlbumGenerator : public QObject
 					// write gallery files
 	void _WriteFacebookLink(QString linkName, ID_t ID);
 	QString _IncludeFacebookLibrary();
-	void _OutputMenuLine(Album &album, QString uplink);
+	void _OutputNav(Album &album, QString uplink);
 	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
 	int _WriteGalleryContainer(Album &album, bool thisIsAnAlbum, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into image directory
-	int __CreatePageInner(QFile &f, Album &album, int language, QString uplink, int &processedCount);
+	int _CreateOneHtmlAlbum(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateHomePage();
 
@@ -437,6 +447,7 @@ public:
 	int AlbumCount() const { return _albumMap.size(); }
 	int ImageCount() const { return _imageMap.size(); }
 	int TextCount() const { return _textMap.size(); }
+	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
 	// careful: these are not const so that their elements could be modified
 	Album &AlbumRoot()  { return _root; }
 	ImageMap &Images() { return _imageMap; }
@@ -456,31 +467,6 @@ public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }
 };
 
-//------------------------------------------
-// Thread to write album structure (simplest: no message loop inside thread)
-class AlbumStructWriterThread : public QThread
-{
-	Q_OBJECT
-
-	QMutex _albumMapStructIsBeingWritten;
-
-	TextMap &_textMap;		// all texts for all albums and inmages
-	AlbumMap &_albumMap;	// all source albums
-	ImageMap &_imageMap;	// all images for all albums
-	Album _root;			// top level album (first in '_albumMap', ID = 1)
-	QTextStream _ofs;
-
-	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
-	void _WriteStructAlbums(Album& album, QString indent);
-
-
-// DEBUG	void run() override;  // the actual writing
-signals:
-	void resultReady(QString s);
-public:
-	void run() override;  // the actual writing
-	AlbumStructWriterThread(AlbumGenerator&generator, QObject *parent = Q_NULLPTR);
-};
-//------------------------------------------
 extern AlbumGenerator albumgen;
 //------------------------------------------
+#endif

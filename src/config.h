@@ -16,7 +16,11 @@ std::enable_if_t< std::is_same_v<int, T>, int> Value(QSettings& s, QString name,
 template <class T>
 std::enable_if_t< std::is_same_v<double, T>, double> Value(QSettings& s, QString name, T def) { return s.value(name, def).toDouble(); }
 template <class T>
-std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QString name, T def) { return s.value(name, def).toString(); }
+std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QString name, T def) 
+{ 
+//	return s.value(name, def).toString();  - this returns empty string for input lines like "Playfair, Georgia,serif|10pt|0|0"
+	return s.value(name, def).toStringList().join(',');
+}
 
 // base class template for all config itemss. Based on functions Value() above.
 
@@ -213,17 +217,7 @@ struct _CColor : _CFG_ITEM<QString>
 			return QString("rgb(%1,%2,%3)").arg(_colorName.mid(1, 2).toInt(nullptr, 16)).arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16));
 	}
 
-	QString ForStyleSheet(bool addSemiColon, bool isBackground) const
-	{
-		QString qs = (isBackground ? "background:" : "color:");
-		if (_opacity != 100 && _opacity != -1)
-			qs += ToRgba();
-		else
-			qs += _colorName;
-		if (addSemiColon)
-			qs = "	" + qs + ";";
-		return qs;
-	}
+	QString ForStyleSheet(bool addSemiColon, bool isBackground) const;
 
 	QString operator=(QString s);
 	_CColor& operator=(_CColor c);
@@ -326,14 +320,7 @@ struct _CTextDecoration : _CFG_ITEM<int>
 	QString OverlineStr() const { return v & tdOverline ? "overline" : ""; }
 	QString LineThroughStr() const { return v & tdLinethrough ? "line-through":""; }
 
-	QString ForStyleSheet(bool addSemiColon) const
-	{
-		QString qs = "text-decoration-line:" + TextDecorationLineStr()
-			+  (v != tdNone ? "\ntext-decoration-style:" + TextDecorationStyleStr(): QString());
-		if (addSemiColon)
-			qs = "	" + qs + ":";
-		return qs;
-	}
+	QString ForStyleSheet(bool addSemiColon) const;
 };
 
 struct _CTextAlign : _CFG_ITEM<int>
@@ -355,13 +342,7 @@ struct _CTextAlign : _CFG_ITEM<int>
 	{
 		return AlignStr((Align)v);
 	}
-	QString ForStyleSheet(bool addSemiColon) const 
-	{ 
-		QString qs =  v == alNone ? QString() : "	text-align:" + ActAlignStr(); 
-		if(addSemiColon)
-			qs = "	" + qs + ":";
-		return qs;
-	}
+	QString ForStyleSheet(bool addSemiColon) const;
 };
 
 struct _CFont : _CFG_ITEM<QString>
@@ -373,20 +354,7 @@ struct _CFont : _CFG_ITEM<QString>
 	int Features() const { return _details[2].toInt(); }
 	int Size() const { return _details[1].toInt(); };
 
-	QString ForStyleSheet(bool addSemiColon) const
-	{
-		QString qs =
-			"font-family:" + Family() + "\n"
-			"font-size:" + SizeStr()  + "\n"
-			"line-height:" + SizeStr();
-		if(Bold() )
-		   qs += "\nfont-weight:" + WeightStr();
-		if(Italic()	 )
-		   qs += "\nfont-style:italic";
-		if (addSemiColon)
-			qs = "	" + qs + ":";
-		return qs;
-	}
+	QString ForStyleSheet(bool addSemiColon) const;
 
 	QString FirstLineClassStr(const QString what)
 	{
@@ -419,7 +387,7 @@ protected:
 								// index:     0			   1		  2				 3			   4
 	void _Prepare() override;	// from _details to 'v'
 private:
-	QStringList _details; 		// [0] family, [1] size str, [2] features, [3]
+	QStringList _details; 		// see format above
 };
 
 //--------------------------------------------------------------------------------------------
@@ -441,25 +409,7 @@ public:
 
 	QString Color() const { return _ixColor > 0 ? _details[_ixColor] : QString(); }	// optional color
 	int Blur() const { return _details.size() > 3 && _details[3].at(0).isDigit() ? _details[3].toInt() : 0; }
-	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
-	{ 
-		if (!IsSet() || !Used())
-			return QString();
-
-		QString res;
-		if (first_line)
-			res = which ? "text-shadow:" : "box-shadow:";
-		else
-			res = ", ";
-		res += _details[1] + "px " + _details[2] + "px"; 
-		if (_ixBlur)
-			res += " " + _details[_ixBlur] + "px";
-		if (_ixColor)
-			res += " " + _details[_ixColor];
-		if (addSemiColon)
-			res = "	" + res + ":";
-		return res;
-	}
+	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const;		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
 
 	bool IsSet() const { return _details.size(); }
 	bool Used()	const { return _details[0].at(0) == '1' && (Horiz() + Vert()); }
@@ -779,7 +729,8 @@ public:
 	bool Changed() const		{ return _changed; }
 	bool SetChanged(bool chg) 
 	{ 
-		_changed |= chg; return _changed; 
+		_changed |= chg; 
+		return _changed; 
 	}
 	void ClearChanged();
 

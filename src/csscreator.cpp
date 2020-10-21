@@ -15,7 +15,7 @@ void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 {
 	QString qs = elem.ForStyleSheet(true);
 	if (!qs.isEmpty())
-		_ofs << classStr << qs << "\n}\n\n";
+		_ofs << classStr << qs << "}\n\n";
 	if (elem.font.IsFirstLineDifferent())
 		_ofs << elem.font.FirstLineClassStr(elem.ClassName());
 }
@@ -31,9 +31,16 @@ void CssCreator::_CreateGlobals()
 {
 	QString s = config.sGoogleFonts;
 	if (!s.isEmpty())
-	{
-		s.replace(QRegularExpression("[ \t]*,+[ \t]*"), "|");
-		s = "@import url(\"https://fonts.googleapis.com/css?family=" + s + "\")\n";
+	{	// replace all spaces and commas NOT inside quotes
+		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
+		// regualr expression for this with lookahead feature:
+		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
+		// simpler and much faster one (not working, why?):
+		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
+//		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
+		s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"),"|");
+//		s.replace(QRegularExpression("(?=([^\"\\\\]*(\\.|\"([^\"\\\\]*\\\\.)*[^\"\\]*\"))*[^\"]*$)"),"|");
+		s = "@import url(\"https://fonts.googleapis.com/css?family=" + s + "\");\n";
 	}
 	_ofs << s;
 
@@ -42,23 +49,25 @@ void CssCreator::_CreateGlobals()
 	{
 		if (s.right(1) != '/')
 			s += "/";
+/*
+* TODO
 		QString qs = config.sDefFonts.ToString();
 		if (!qs.isEmpty())
 		{
 			qs.replace(QRegularExpression("[ \t]*,[ \t]*"), "|");
-			_ofs << "@font-face(" << s + qs + "\")\n\n";
+			_ofs << "@font-face(" << s + qs + "\");\n\n";
 		}
+*/
 	}
 
 	_ofs << 
 		// universal selector to include padding and border in box size
-		R"(*, *::before, *::after {"
+		R"(*, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
 	margin:0;
 }
-html,
-body{
+html, body, main {
 	height: 100% ;
 	width: 100%;
 	overflow: auto;)";
@@ -70,12 +79,18 @@ body{
 a, a.visited {
 	text-decoration:none;
 }
-body {
-)"
-	<< config.backgroundImage.ForStyleSheet(true)
-	<< R"(
-}
+)";
 
+	s = config.backgroundImage.ForStyleSheet(true);
+
+	if (!s.isEmpty())
+	{
+		_ofs << "body {\n"
+			<< s << "}\n\n";
+
+	}
+
+	_ofs << R"(
 main{
 	display: flex;
 	flex-direction: column;
@@ -88,7 +103,7 @@ section {
 	flex-flow: row wrap;
 	justify-content: center;
 	align-items:baseline;
-	max-width: 100% ;
+	max-width: 100%;
 }
 
 )";
@@ -106,22 +121,22 @@ nav {
 	position: -webkit-sticky;
 	display: inline-block;
 	margin-bottom: 1rem;
-	z-index:1;
 }
 
 .menu-item {
 	display: inline-block;
 	margin: 2px 3px 2px 2px;
 	padding: 4px 10px 3px;
+	z-index:1;
 )";
 	QString qs = config.Menu.ForStyleSheet(true);
 	if(!qs.isEmpty())
-		_ofs << qs << "\n}\n"	// for menus no different first-line accepted
+		_ofs << qs << "}\n"	// for menus no different first-line accepted
 			<< "\n.menu-item:hover {\n"
 			<< config.Menu.background.ForStyleSheet(true, true)
-			<< "\n"<<	config.Menu.color.ForStyleSheet(true, false) << "\n}\n";
-	_ofs << R"("/* up icon */"
-.menu-item#uplink {"
+			<< config.Menu.color.ForStyleSheet(true, false) << "}\n";
+	_ofs << R"(/* up icon */
+.menu-item#uplink {
 	background-image: url("../res/up-icon.png");
 	background-size:14px;
 	background-repeat:no-repeat;
@@ -143,7 +158,7 @@ void CssCreator::_CreateForHeader()
 
 void CssCreator::_CreateForSmallTitle()
 {
-	_CssForElement(R"("
+	_CssForElement(R"(
 .falconG{
 	margin-left: 10px;
 	display:inline-block;
@@ -197,12 +212,12 @@ void CssCreator::_CreateForImages()
 )";
 	// image border is used for <a class="thumb">
 	if(config.imageBorder.Used())
-		_ofs << config.imageBorder.ForStyleSheet(true);
+		_ofs << config.imageBorder.ForStyleSheetShort();
 	_ofs << "}\n\n";
 
 	_ofs << "[data-src] {\n	min-width:" << config.thumbWidth.ToString()
-		 << "\n	min-height:" << config.thumbHeight.ToString()
-		 << "\n}\n";
+		 << "px;\n	min-height:" << config.thumbHeight.ToString()
+		 << "px;\n}\n";
 }
 
 void CssCreator::_CreateForImageTitle()
@@ -251,7 +266,7 @@ void CssCreator::_CreateForLightboxTitle()
     height: 100%;
 }
 
-.lightbox-caption {" 
+.lightbox-caption { 
 	display:none;
 )",
 	config.LightboxTitle);

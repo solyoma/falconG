@@ -173,14 +173,14 @@ _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 {
 	QString dir = ToString(), 
 			sub = subdir.ToString();
-	if(dir[dir.length()-1] != '/')
+	if(dir.isEmpty() || dir[dir.length()-1] != '/')
 		dir += '/';
 	if( (sub.length() > 2 && sub[1] == ':') || !config.bSourceRelativePerSign) 
 	{
 		if (QDir::isAbsolutePath(sub))	// then it cannot be my sub directory
 			return *const_cast<_CDirStr *>(&subdir);	// so the result will be it
 	}
-	if(sub[0] == '/')
+	if(!sub.isEmpty() && sub[0] == '/')
 		sub = sub.mid(1);						// cut '/' from beginning
 
 	sub = QDir::cleanPath(dir + sub);	// get rid of ./ ../, etc
@@ -251,6 +251,17 @@ void _CColor::Set(QString str, int opac)
 	_Prepare();		// setup 'v'
 }
 
+QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
+{
+	QString qs = (isBackground ? "background:" : "color:");
+	if (_opacity != 100 && _opacity != -1)
+		qs += ToRgba();
+	else
+		qs += _colorName;
+	__AddSemi(qs, addSemiColon);
+	return qs;
+}
+
 /*===========================================================================
  * TASK: assign a QString to a CColor but do not modify opacity
  * EXPECTS: s - QString: formats xxx or xxxxxx or #xxx or #xxxxxx, where all
@@ -314,7 +325,50 @@ bool _CColor::_ColorStringValid(QString &s)
 	return true;
 }
 
+// --------------------------- _CTextDecoration ------------------------------
+
+QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
+{
+	QString qs, qsTmp;
+	auto addProp = [&](QString name, QString value)
+	{
+		if (!value.isEmpty())
+		{
+			qsTmp = name + ":" + value;
+			__AddSemi(qsTmp, addSemiColon);
+			qs += qsTmp;
+		}
+	};
+	addProp("text-decoration-line", TextDecorationLineStr());
+	if(v != tdNone)
+		addProp("text-decoration-style", TextDecorationStyleStr());
+	return QString();
+}
+
 // --------------------------- _CFont ------------------------------
+
+QString _CFont::ForStyleSheet(bool addSemiColon) const
+{
+	QString qs, qsTmp;
+	auto addProp = [&](QString name, QString value)
+	{
+		if (!value.isEmpty())
+		{
+			qsTmp = name + ":" + value;
+			__AddSemi(qsTmp, addSemiColon);
+			qs += qsTmp;
+		}
+	};
+	addProp("font-family", Family());
+	addProp("font-size", SizeStr());
+	addProp("line-height", SizeStr());
+	if (Bold())
+		addProp("font-weight", WeightStr());
+	if (Italic())
+		addProp("font-style", "italic");
+
+	return qs;
+}
 
 /*===========================================================================
  * TASK: setting font parameters
@@ -356,7 +410,7 @@ void _CFont::SetFeature(Style feat, FeatureOp op)
 	if (op == foClearAll || op == foClearOthersAndSet)
 		fs = 0;
 	else if (op == foUnset)
-		fs &= f;
+		fs &= ~f;
 	if (op == foSet)
 		fs |= f;
 
@@ -498,6 +552,29 @@ void _CShadow::Set(int horiz, int vert, int blur, QString clr, bool used)
 	_Prepare();	// new v
 }
 
+QString _CShadow::ForStyleSheet(bool addSemiColon, bool first_line, int which) const
+{
+	{
+		if (!IsSet() || !Used())
+			return QString();
+
+		QString res;
+		if (first_line)
+			res = which ? "text-shadow:" : "box-shadow:";
+		else
+			res = ", ";
+		res += _details[1] + "px " + _details[2] + "px";
+		if (_ixBlur)
+			res += " " + _details[_ixBlur] + "px";
+		if (_ixColor)
+			res += " " + _details[_ixColor];
+
+		__AddSemi(res, addSemiColon);
+
+		return res;
+	}
+}
+
 /*===========================================================================
  * TASK:  set parameters of a gradient stop (may be vertical or horizontal)
  * EXPECTS:	pc - coordinate in percent relative to top or left
@@ -556,8 +633,7 @@ QString _CGradient::ForStyleSheet(bool semi) const
 	QString qs = QString("background-image:linear-gradient(%1,%2%,%3,%4%,%5,%6%)").arg(gs[0].color).arg(gs[0].percent)
 														      .arg(gs[1].color).arg(gs[1].percent)
 																.arg(gs[2].color).arg(gs[2].percent);
-	if (semi)
-		qs = "	" + qs + ":";
+	__AddSemi(qs, semi);
 	return qs;
 }
 
@@ -623,7 +699,7 @@ void _CGradient::_Prepare()		// to store in settings
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
 	if(!Used())
-		return QString("border:none");
+		return QString();
 
 	QString res,res2,res3,res4;
 	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(Style(sdTop)).arg(ColorStr(sdTop));
@@ -637,7 +713,11 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 	res += res2 + res3 + res4;
 		
 	if (_radius)
-		 res += QString("\nborder-radius:%1px").arg(config.Menu.border.Radius());
+	{
+		res2 = QString("border-radius:%1px").arg(config.Menu.border.Radius());
+		__AddSemi(res2, semi);
+		res += res2;
+	}
 
 	return res;
 }
@@ -645,11 +725,11 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 QString _CBorder::ForStyleSheetShort() const
 {
 	if (!Used())
-		return QString("border:none");
+		return QString("	border:none");
 
 	if (_sizeWidths > 1)
 		return ForStyleSheet(false);
-	return QString("border:%1px %2 %3").arg(_widths[0]).arg( Style(sdAll) ).arg(_colorNames[0]);
+	return QString("	border:%1px %2 %3").arg(_widths[0]).arg( Style(sdAll) ).arg(_colorNames[0]);
 }
 
 void _CBorder::_CountWidths()
@@ -676,7 +756,7 @@ void _CBorder::_Setup()
 		qsl.clear();
 		qsl << "0" << "0" << "0" << "0" << "#000000";
 	}
-	// create as dor this: <used 0 or 1>|top|right|bottom|left|style|<color>[|<radius in pixels>]
+	// create as for this: <used 0 or 1>|top|right|bottom|left|style|<color>[|<radius in pixels>]
 	_used = qsl[0].toInt();
 	switch (siz)
 	{
@@ -748,24 +828,24 @@ void _CBorder::_Prepare()
 QString _CElem::ColorsForStyleSheet(bool addSemicolon)
 {
 	return color.ForStyleSheet(addSemicolon, false) + 
-			color.ForStyleSheet(addSemicolon, true);
+			background.ForStyleSheet(addSemicolon, true);
 }
 
 QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font with possibli semicolon
 {											// because it must go to a different css class
 	QString qs = color.ForStyleSheet(semi, false);
 	if (ClassName() != "WEB" && background.v != config.Web.background.v)
-		background.ForStyleSheet(semi, true);
+		qs += background.ForStyleSheet(semi, true);
 
-	gradient.ForStyleSheet(semi);
-	font.ForStyleSheet(semi);
-	decoration.ForStyleSheet(semi);
-	alignment.ForStyleSheet(semi);
-	shadow1[0].ForStyleSheet(semi, true,0);	// first shadow for text (right + down) 
-	shadow2[0].ForStyleSheet(semi, true,1);	// 2nd shadow for text
-	shadow1[1].ForStyleSheet(semi, false,0);	// 2nd shadow (left + up) 
-	shadow2[1].ForStyleSheet(semi, false,1);
-	border.ForStyleSheet(semi);
+	qs += gradient.ForStyleSheet(semi)
+		 + font.ForStyleSheet(semi)
+		 + decoration.ForStyleSheet(semi)
+		 + alignment.ForStyleSheet(semi)
+		 + shadow1[0].ForStyleSheet(semi, true,0)	// first shadow for text (right + down) 
+		 + shadow2[0].ForStyleSheet(semi, true,1)	// 2nd shadow for text
+		 + shadow1[1].ForStyleSheet(semi, false,0)	// 2nd shadow (left + up) 
+		 + shadow2[1].ForStyleSheet(semi, false,1)
+		 + border.ForStyleSheet(semi);
 
 	return qs;
 }
@@ -817,16 +897,18 @@ void _CElem::Write(QSettings& s, QString group)
 		color.Write(s);
 		background.Write(s);
 		font.Write(s);
+		decoration.Write(s);
+		alignment.Write(s);
 		if(_bMayShadow)
 		{	
 			shadow1[0].Write(s);
 			shadow2[0].Write(s);
 			shadow1[1].Write(s);
 			shadow2[1].Write(s);
-			border.Write(s);
 		}
 		if(_bMayGradient)
 			gradient.Write(s);
+		border.Write(s);
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();
@@ -841,16 +923,18 @@ void _CElem::Read(QSettings& s, QString group)
 		color.Read(s);
 		background.Read(s);
 		font.Read(s);
+		decoration.Read(s);
+		alignment.Read(s);
 		if (_bMayShadow)
 		{
 			shadow1[0].Read(s);
 			shadow2[0].Read(s);
 			shadow1[1].Read(s);
 			shadow2[1].Read(s);
-			border.Read(s);
 		}
 		if(_bMayGradient)
 			gradient.Read(s);
+		border.Read(s);
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();
@@ -1441,4 +1525,11 @@ void CONFIG::Write()			// synchronize with Read!
 	__bClearChangedFlag = false;
 
 	ClearChanged();
+}
+
+QString _CTextAlign::ForStyleSheet(bool addSemiColon) const
+{
+	QString qs = v == alNone ? QString() : "	text-align:" + ActAlignStr();
+	__AddSemi(qs, addSemiColon);
+	return qs;
 }

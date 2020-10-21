@@ -9,16 +9,20 @@ window.addEventListener("resize", ResizeThumbs)
 function SetPropertyForClass(className, propertyName, propValue) 
 {
         var x,i; 
-        if(propertyName.substring(0, 1) == ':')       // first line height
-        {
-            className += propertyName;
-            propertyName = 'font-size'
-        }
+        // if(propertyName.substring(0, 1) == ':')       // first line height
+        // {
+        //     className += propertyName;
+        //     propertyName = 'font-size'
+        // }
+        if(propValue == '')
+            propValue = "unset"     // either 'initial' or 'inherited'
         x = document.getElementsByClassName(className)
         for(i = 0; i < x.length; ++i) 
             x[i].style.setProperty(propertyName, propValue);
 // DEBUG
-console_log('Set '+propertyName + " : "+ propValue+' for '+className)
+//console.log('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
+document.getElementById("DEBUG").innerHTML = 'Set '+propertyName + " : "+ propValue+' for '+ className + '\''
+//alert('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
 }
 
 function ResizeThumbs()

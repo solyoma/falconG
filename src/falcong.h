@@ -142,6 +142,8 @@ private:
 	void _ElemToSample(AlbumElement ae = aeUndefined);	// with no argument uses _aeActElement
 
 	void _ConfigToSample();	// for all elements
+
+	void _SetConfigChanged(bool on);
 	
 	
 	void _OpacityChanged(int val, int which);	// which = 0 -> color, 1: background
