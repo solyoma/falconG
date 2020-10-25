@@ -431,7 +431,7 @@ class AlbumGenerator : public QObject
 	bool _ReadJalbum();	//or if it does not exist loads them from supposedly jalbum directory dsSrc
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
-	void _WriteStructReady(QString );		// slot !
+	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
 public:
 	AlbumGenerator() {};
 	bool Read();	 // reads all albums recursively from Config::dsSrc
@@ -461,7 +461,7 @@ signals:
 //	void SignalImageMapChanged();
 	void SignalAlbumStructChanged();
 	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void SignalToCreateUplinkIcon(QString destPathName);
+	void SignalToCreateIcon(QString destPath, QString destName);
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }

@@ -22,13 +22,16 @@
             <a class="menu-item" id="contact" href="javascript:MenuClick()">Contact</a>
             <a class="menu-item" id="captions" href="javascript:MenuClick()">Captions</a>
             <a class="menu-item" id="desc" href="javascript:MenuClick()">Descriptions</a>
+            <a class="menu-item" id="toAlbums" href="#albums">To Albums</a>
             &nbsp;&nbsp;
             <div class="fb-share-button"
                         data-href="https://andreasfalco.com" 
                         data-layout="button_count" 
                         data-size="small">
                         <a target="_blank" 
-                        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fandreasfalco.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a>
+                            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fandreasfalco.com%2F&amp;src=sdkpreparse" 
+                                class="fb-xfbml-parse-ignore">Share
+                        </a>
             </div>
             <div id="fb-root"></div>
         </nav>
@@ -36,16 +39,21 @@
         <div id="DEBUG">debug debug debug debug</div>
         <!--Header section-->
         <header>
-            <a class="header" href="javascript:HeaderClick()"><span class="falconG">falconG Gallery Generator</span></a>&nbsp; &nbsp;
+            <a class="header" href="javascript:SmallTitleClick()">
+                <span class="falconG">falconG Gallery Generator</span>
+            </a>&nbsp; &nbsp;
             <a class="langs" href="javascript:LangClick()">English</a><br><br><br>
             <h2 class="gallery-title" onclick="GalleryTitleClick()">Gallery</h2>
-            <p class="gallery-desc" onclick="GalleryDescClick()"><b>First line of gallery description</b><br/>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto in sapiente possimus corporis? Ab, voluptate nemo sapiente impedit maxime porro.
+            <p class="gallery-desc" onclick="GalleryDescClick()">Magamról<br>Budapesti fotóamatőr vagyok. Andreas Falco a fotós "művésznevem".
+                <br>Megtalálhatsz még a következő helyeken: <a href="https://plus.google.com/+AndreasFalco/">Google+</a>, <a
+                  href="https://www.flickr.com/photos/andreasfalco/">Flickr</a> or <a
+                  href="https://500px.com/andreasfalco">500px</a>. vagy küldhetsz nekem <a
+                  href="mailto:andreasfalco@andreasfalco.com">email</a>-t!
             </p>
         </header>
         <main id="main">
-    <!--start section albums -->
-            <a name="albums" class="fgsection" href="javascript:SectionClick()">Images</a>
+    <!--start section images -->
+            <a id="images" class="fgsection" href="javascript:SectionClick()">Images</a>
             <section>
                 <div class="img-container">
                     <div id="2237674750" w=1053 h=400>
@@ -63,8 +71,8 @@
                 </div>
             </section>
             
-            <!--the images in this sub gallery-->
-            <a name="images"  class="fgsection" href="javascript:SectionClick()">Albums</a>
+            <!--the albums in this sub gallery-->
+            <a id="albums"  class="fgsection" href="javascript:SectionClick()">Albums</a>
             <section>
                 <div class="img-container">
                     <div id="2237674750" w=1053 h=400>
@@ -74,7 +82,7 @@
                     <a class="title" href="javascript:LinkClick()">Image #2 - First_Line<br>other lines</a>
                 </div>
             </section>
-        <!-- end section Images -->
+        <!-- end section albums -->
 
         </main> <!-- end of main section -->
         <!-- footer section with social media links -->

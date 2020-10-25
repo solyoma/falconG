@@ -170,7 +170,7 @@ private slots:
 //	void _ImageMapChanged();
 	void _AlbumMapChanged();
 	void _ShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void _CreateUplinkIcon(QString destName);
+	void _CreateUplinkIcon(QString destPath, QString destName);
 	void _SetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
 	void _ThumbNailViewerIsLoading(bool yes);
 	void _TrvCountChanged();
@@ -226,6 +226,7 @@ private slots:
 	void on_cbBaseLanguage_currentIndexChanged(int index);
 	void on_cbLanguage_currentIndexChanged(int index);
 
+	void on_chkFacebook_toggled(bool);
 	void on_chkDebugging_toggled(bool);
 	void on_chkDifferentFirstLine_toggled(bool b);
 	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);

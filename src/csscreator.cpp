@@ -76,7 +76,7 @@ html, body, main {
 		<< R"(
 }
 		
-a, a.visited {
+a, a:visited {
 	text-decoration:none;
 }
 )";
@@ -116,18 +116,18 @@ void CssCreator::_CreateForMenuButtons()
 	   %3:var(--serif-fonts), %4: font-size*/
 	_ofs << R"(
 nav {
-	margin:10px;
+	display: inline-block;
 	position: sticky;
 	position: -webkit-sticky;
-	display: inline-block;
+	top:10px;
 	margin-bottom: 1rem;
+	z-index: 1;
 }
 
 .menu-item {
 	display: inline-block;
 	margin: 2px 3px 2px 2px;
 	padding: 4px 10px 3px;
-	z-index:1;
 )";
 	QString qs = config.Menu.ForStyleSheet(true);
 	if(!qs.isEmpty())
@@ -181,7 +181,8 @@ void CssCreator::_CreateForSection()
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: center;
-	max-width: 100 %;
+	align-items:baseline;
+	max-width: 100%;
 )", config.Section);
 }
 

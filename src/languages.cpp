@@ -14,14 +14,14 @@ LangConstList Languages::Albums;		// album section in HTML files
 LangConstList Languages::toAlbums;		// jump to album section
 LangConstList Languages::toTop;			// top of page
 LangConstList Languages::upOneLevel;	// jump to parent
-LangConstList Languages::toHomePage;		// 'Kezdõlapra'
-LangConstList Languages::toAboutPage;		// 'Rólam'
-LangConstList Languages::toContact;		// á'Kapcsolat'
-LangConstList Languages::showCaptions;    // 'Képcímek'
-LangConstList Languages::showDescriptions;    // 'Képleírások'
+LangConstList Languages::toHomePage;	// 'Kezdõlapra'
+LangConstList Languages::toAboutPage;	// 'Rólam'
+LangConstList Languages::toContact;		// 'Kapcsolat'
+LangConstList Languages::showCaptions;  // 'Képcímek'
+LangConstList Languages::showDescriptions;  // 'Képleírások'
 LangConstList Languages::share;			// 'Megosztás'
-LangConstList Languages::latestTitle;		// 'Kedvcsinálónak'
-LangConstList Languages::latestDesc;		// 'Ebbe a könyvtárba...'
+LangConstList Languages::latestTitle;	// 'Kedvcsinálónak'
+LangConstList Languages::latestDesc;	// 'Ebbe a könyvtárba...'
 LangConstList Languages::countryCode;	// "en_US", "hu_HU", etc
 LangConstList Languages::countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
 LangConstList Languages::falconG;		// "created by falconG"

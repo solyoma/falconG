@@ -37,24 +37,19 @@
 
 html,
 body,
-main{
-    color:var(--base-color);
-    background-color:var(--main-background);
+main {
 	height: 100% ;
 	width: 100%;
 	overflow: auto;
+    color:var(--base-color);
+    background-color:var(--main-background);
 }
 
- a, a:visited{
-	 text-decoration: none;
-	}
-	/*
-	p{
-		font-size: 13px;
-	}
-	*/
-	/* area only used for editing */
-	.area {
+a, a:visited {
+	text-decoration: none;
+}
+
+.area {
 		margin: 10px 10px 10px 10px;
 	}
 	
@@ -72,7 +67,7 @@ main{
 	font-size:12pt;
 }
 
-header{
+header {
     color:var(--header-color);
 	font-size:12pt;
 	font-family:var(--script-fonts),var(--serif-fonts);
@@ -114,7 +109,7 @@ nav {
 
 /* up icon */
 .menu-item#uplink {
-	background: url("file:///res/up-icon-sample.png");
+	background-image: url("file:///res/up-icon-sample.png");
 	background-size:14px;
 	background-repeat:no-repeat;
 	background-position: center;
@@ -125,7 +120,7 @@ nav {
 	display:inline-block;
 }
 
-.langs{
+.langs {
 	color:#dddd00;
 	font-size: 8pt;
 	border:0;
@@ -139,13 +134,21 @@ main{
 	flex-wrap:wrap;
 	width: 100% ;
 }
+
+section {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	align-items:baseline;
+	max-width: 100% ;
+}
 /* --- end main section --*/
 .fgsection {
 	font-family:var(--script-font);
 	color:var(--section-color);
 	font-size:34pt;
 	text-align:center;
-	margin: 20px 0 20px 0;
+	max-width: 100%;
 	cursor:pointer;				/* only for design! */
 }
 
@@ -155,9 +158,9 @@ main{
 }
 
 .gallery-title {
-    color:var(--lightbox-color);
-	font-size:20pt;
+	color:var(--lightbox-color);
 	font-family:var(--script-font);
+	font-size:20pt;
 	font-weight:bold;
 	text-align:center;
 	cursor:pointer;				/* only for design! */
@@ -170,10 +173,11 @@ main{
 }
 
 .gallery-desc {
-    color:var(--base-color);
-    margin:auto;
+	color:var(--base-color);
     text-align:center;
-    margin: 20px 0 20px 0;
+    margin:auto;
+	margin: 20px 0 20px 0;
+	font-size:12pt;
 	cursor:pointer;				/* only for design! */
 }
 
@@ -181,15 +185,48 @@ main{
 	font-size:24pt;
 }
 
-section {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: center;
-	max-width: 100% ;
+/* ---- img----- */
+.img-container {
+	display:flex;
+	flex-direction: column;
+	justify-content:center;
+	align-items:center;
+	position: relative;
 }
 
+.img-container > div {
+	position:relative;
+}
+
+.img-container img {
+	display:block;
+	margin:auto;
+	max-width:99vw;
+}
+
+.thumb{
+	display: inline-block;
+	padding: 1px;
+	margin: 0 2;
+	/*	padding:2px; */
+	border:1px dashed #ffd460;
+}	
+
+.thumb::after {
+	position:absolute;
+	bottom:0px;
+	left:50%;
+	content:"falconG Watermark";
+	color: rgba(255,255,255,0.5);
+}
+
+[data-src] {
+	min-width:600;
+	min-height:400;
+}	
+
 .title {
-    color:var(--base-color);
+	color:var(--base-color);
 	font-size:18pt;
 	font-family:var(--script-fonts),var(--serif-fonts);
 	font-weight:bold;
@@ -231,7 +268,7 @@ footer{
 	cursor:pointer;				/* only for design! */
 	font-style:italic;
 }
-
+/*
 section {
 	display: flex;
 	flex-flow: row wrap;
@@ -239,31 +276,7 @@ section {
     align-items:baseline;
 	max-width: 100% ;
 }
-
-
-		/* ---- img----- */
-.img-container {
-	display:flex;
-	flex-direction: column;
-	justify-content:center;
-	align-items:center;
-	position: relative;
-}
-
-.img-container > div {
-	position:relative;
-}
-
-.img-container img {
-	margin:auto;
-	max-width:99vw;
-	display:block;
-}
-
-[data-src] {
-	min-width:600;
-	min-height:400;
-}	
+*/
 
 .desc p {
 	font-size: 12pt;
@@ -273,21 +286,6 @@ section {
 	margin:auto;
 }	
 
-.thumb{
-	display: inline-block;
-	padding: 1px;
-	margin: 0 2;
-/*	padding:2px; */
-	border:1px dashed #ffd460;
-}	
-
-.thumb::after {
-	position:absolute;
-	bottom:0px;
-	left:50%;
-	content:"falconG Watermark";
-	color: rgba(255,255,255,0.5);
-}
 
 /* Lightbox */
 .lightbox {
@@ -347,7 +345,7 @@ section {
 		font-size:12pt
 	}
 
-	.album-desc {
+	.gallery-desc {
 		width:50vw;
 		text-align:center;
 		margin: auto;

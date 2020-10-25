@@ -21,9 +21,6 @@ QString ImageMap::lastUsedImagePath;
 
 //******************************************************
 AlbumGenerator	albumgen;		// global
-static QString	sStructPath,	// path of .struct file
-				sStructTmp;		// these are accessed from 
-								// two threads, but no conflict exists
 
 //******************************************************
 /////////////////////////
@@ -2461,8 +2458,8 @@ int AlbumGenerator::_DoCopyRes()
 		if(fi.fileName() != QString("left-icon.png") && fi.fileName() != QString("up-icon.png"))
 			QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
 	}
-	emit SignalToCreateUplinkIcon(dest + "left-icon.png");
-	emit SignalToCreateUplinkIcon(dest + "up-icon.png");
+	emit SignalToCreateIcon(dest + "left-icon.png");
+	emit SignalToCreateIcon(dest + "up-icon.png");
 	return 0;	
 }
 
@@ -2633,7 +2630,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 		<< url.toEncoded()
 		<< R"(%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">)"
 		<< Languages::share[_actLanguage]
-		<< "</a></div>)";
+		<< "</a></div>\n<div id=\"fb-root\"></div>";
 }
 /*============================================================================
   * TASK:
@@ -2833,6 +2830,8 @@ int AlbumGenerator::_ProcessImages()
 	return 0;
 }
 
+//----------------------------------------------------------------------------------
+
 QString AlbumGenerator::_PageHeadToString(ID_t id)
 {
 	QString supdir = (id == 1 ? "" : "../"),
@@ -2880,10 +2879,10 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 
 	auto outputMenuLine = [&](QString id, QString href, QString text, QString hint=QString())
 	{
-		_ofs << "	<a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
+		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
 	};
 	// menu buttons
-	_ofs << "<nav>\n";
+	_ofs << "   <nav>\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
 		outputMenuLine("uplink", uplink, "&nbsp;", "back to previous page");
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
@@ -2898,23 +2897,15 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (config.bMenuToToggleCaptions && album.TitleCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
-		outputMenuLine("toAlbums", "#folders", Languages::toAlbums[_actLanguage]);								  // to albums
+		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (config.generateLatestUploads)
 		outputMenuLine("latest", config.dsGRoot.ToString() + "latest_" + Languages::abbrev[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
-	_ofs << "</nav>\n";
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
-	_ofs << R"(&nbsp; &nbsp;
-<div class = "fb-share-button"
-	data-href = "https://andreasfalco.com"
-	data-layout = "button_count"
-	data-size = "small">
-	<a target = "_blank"
-		href = "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fandreasfalco.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a>
-</div>
-<br>
-)";
-
+	_ofs << "&nbsp;&nbsp;";
+	_WriteFacebookLink(album.LinkName(_actLanguage, true), 1);	// only when required
+	
+	_ofs << "</nav>\n";
 }
 
 /*============================================================================
@@ -2930,21 +2921,19 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 int AlbumGenerator::_WriteHeaderSection(Album &album)
 {
 
-	_ofs << "<header>\n"
-		    "<a href=\""<< album.SiteLink(_actLanguage) << "\">"
-				"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
-			"</a>&nbsp; &nbsp;";
-	// _actLanguage switch texts
+	_ofs << "   <header>\n"
+		"    <a href=\"" << album.SiteLink(_actLanguage) << "\">"
+		"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
+		"</a>&nbsp; &nbsp;";
+// _actLanguage switch texts
 	for (int i = 0; i < Languages::Count(); ++i)
 		if (i != _actLanguage)
-			_ofs << "<a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << Languages::names[i] << "</a>&nbsp;&nbsp\n";
-	// facebook link
-	_WriteFacebookLink(album.LinkName(_actLanguage, true), album.ID);
-	_ofs << "<br><br><br>\n";
-	if(album.titleID)
-		_ofs << "<h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
+			_ofs << "     <a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << Languages::names[i] << "</a>&nbsp;&nbsp\n";
+	_ofs << "     <br><br><br>\n";
+	if (album.titleID)
+		_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
 	if (album.descID)
-		_ofs << "<p class=\"album-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
+		_ofs << "     <p class=\"gallery-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
 
 	_ofs << R"X(
     <div id="lightbox" class="lightbox">
@@ -2952,7 +2941,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 		<img id="lightbox-img" onclick="LightBoxFadeOut()">
 		<p id="lightbox-caption" class="lightbox-caption"></p>
 	  </div>
-	</ div>
+	</div>
 			  )X";
 	_ofs << "</header>\n";
 	return 0;
@@ -3031,8 +3020,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	}
 
 
-	_ofs << "   <section class=\"img-container\">\n"
-		"     <div class=\"thumb\"";
+	_ofs << "   <div class=\"img-container\">\n"
+		"     <div";
 	if (pImage)
 		_ofs << " id=\"" << pImage->ID << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
 	_ofs << ">";
@@ -3048,7 +3037,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 			sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
 		}
 	}
-	_ofs << "\n       <a href=\"";
+	_ofs << "\n       <a class=\"thumb\" href=\"";
 
 	if (itIsAnAlbum)
 	{
@@ -3062,7 +3051,6 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		sThumbnailPath = sThumbnailDir + ((album.images.size() > 0 ? pImage->LinkName() : QString()));
 		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')\">";		// image in the image directory
 	}
-
 
 	// the first 3 images will always be loaded immediately
 	_ofs << (i > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
@@ -3080,14 +3068,14 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
     //  -------------------------- description
 	if(!desc.isEmpty() )
 		_ofs << "     <div class=\"desc\">\n"
-		"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
+				"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
 			 << desc << "</p>\n"
-		"     </div>\n";
+				"     </div>\n";
 	//  -------------------------- end of description
 
 	//  -------------------------- links with  album/image title
 	_ofs << "     <div class=\"links\">\n"		
-				"        <a class=\"gallery-title\" href=\"" + sAlbumDir;
+			"        <a class=\"title\" href=\"" + sAlbumDir;
 	if (itIsAnAlbum)
 		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
 	else
@@ -3095,14 +3083,14 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	if (pImage && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "</a>\n     </links>";
+		<< "</a>\n     </div>";
 	/*
 		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img data-src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showDescriptions[_actLanguage] +
 								"\" alt=\"" + Languages::showDescriptions[_actLanguage] + "\"></a></div>\n"
 			"     </div>\n";											 
     */
 	// -----------------------------end of div links
-	_ofs << "   </section>\n";
+	_ofs << "   </div>\n";
 
 	return 0;
 }
@@ -3135,23 +3123,24 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	_ofs.setCodec("UTF-8");
 
 	_ofs << _PageHeadToString(album.ID)
-		 << "<body onload = \"falconGLoad()\" onbeforeunload=\"BeforeUnload()\"";
+		 << " <body onload = \"falconGLoad()\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
-	_ofs << ">\n";
+	_ofs << ">\n"
+			"  <div class=\"area\">";
 
 	_OutputNav(album, uplink);	/* sticky menu line*/
 	_WriteHeaderSection(album);
 
 	_ofs << "<!-- Main section -->\n"
-		"<main id=\"main\">\n";
+		"   <main id=\"main\">\n";
 
 	// get number of images and sub-albums
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "<a id=\"images\">" << Languages::Images[_actLanguage] << "</a>\n"
-			<< "<section class=\"fgsection\">\n";
+			<< "<a id=\"images\"> class=\"fgsection\"" << Languages::Images[_actLanguage] << "</a>\n"
+			<< "<section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.images.size(); ++i)
 			//			if (album.excluded.indexOf(album.images[i]) < 0)
@@ -3160,9 +3149,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	}
 	if (album.SubAlbumCount() > 0)
 	{
-		_ofs << "\n<!--start section albums -->\n"
-			<< "<a id=\"galleries\"  id = \"folders\">" << Languages::Albums[_actLanguage] << "</a>\n"
-			"<section class=\"fgsection\">\n";
+		_ofs << "<!--start section albums -->\n"
+			<< "<a id=\"albums\" class=\"fgsection\">" << Languages::Albums[_actLanguage] << "</a>\n"
+			"<section>\n";
 
 		for (int i = 0; _processing && i < album.albums.size(); ++i)
 			//			if (album.excluded.indexOf(album.albums[i]) < 0)
@@ -3172,11 +3161,13 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (_processing)		// else leave tha page unfinished
 	{
 		// main section is finished
-		_ofs << "\n</main> <!-- end of main section -->\n";
+		_ofs << "\n   </main> <!-- end of main section -->\n";
 		// footer section
 		_WriteFooterSection(album);
 		// end html
-		_ofs << "</body>\n</html>\n";
+		_ofs <<	"  </div>\n"		// end of div 'area'
+				" </body>\n"
+				"</html>\n";
 		_ofs.flush();
 		f.close();
 	}
@@ -3454,13 +3445,14 @@ int AlbumGenerator::SaveStyleSheets()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void AlbumGenerator::_WriteStructReady(QString s)
+void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString sStructTmp)
 {
 	if (!s.isEmpty())		// then error message
 	{
 		QMessageBox(QMessageBox::Warning, "falconG - Generate", s, QMessageBox::Close, frmMain).exec();
 		return;
 	}
+
 	_structWritten = true;
 	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
 	if(!s.isEmpty())

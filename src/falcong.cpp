@@ -151,7 +151,7 @@ FalconG::FalconG(QWidget *parent)
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
-	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,	this, &FalconG::_CreateUplinkIcon);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,	this, &FalconG::_CreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SetDirectoryCountTo);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailWidget::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
@@ -482,8 +482,9 @@ void FalconG::_ElemToSample(AlbumElement ae)
 	if (ae == aeMenuButtons)
 	{
 		QIcon icon = _SetUplinkIcon();		// from resources
-		QString qs = "background-image: res/up-link.png";
+		QString qs = "res/up-link.png";
 		QFile::remove(qs);
+		qs = "background-image: " + qs;
 		icon.pixmap(64,64).save(qs);		// and save into "res" subdirectory
 		_SetCssProperty(&config.Menu, qs,"#uplink");
 	}
@@ -2966,6 +2967,11 @@ void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
+void FalconG::on_chkFacebook_toggled(bool on)
+{
+	config.bFacebookLink.v = on;
+}
+
 void FalconG::on_chkDebugging_toggled(bool b)
 {
 	config.bDebugging = b;
@@ -3850,12 +3856,20 @@ void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool sp
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::_CreateUplinkIcon(QString destName)
+void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
 {
-	QString src = "res/up-link-sample.png";
+	QString src = "res/"+destName;
 	QPixmap pm(src) ;
-	QFile::remove(destName);
-	pm.save(destName);
+	if (pm.isNull())
+	{
+		QMessageBox::warning(this, tr("falconG"), QString(tr("Warning\nCan't read icon\n'%1'")).arg(src));
+		return;
+	}
+	QFile::remove(destPath + destName);
+	QIcon icon(pm);
+	_SetIconColor(icon, config.Menu);
+
+	pm.save(destPath + destName);
 }
 
 
@@ -3894,7 +3908,6 @@ void FalconG::_TnvSelectionChanged(QString s)
 {
 	_selection.newImage = s.isEmpty() ? ID_t(-1) : s.left(s.lastIndexOf('.')).toULongLong();
 	_GetTextsForEditing(wctSelection);
-
 }
 
 /*============================================================================
