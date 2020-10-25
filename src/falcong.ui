@@ -1559,8 +1559,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>100</width>
+                    <height>30</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -1907,22 +1907,7 @@ original file name.</string>
                      <property name="title">
                       <string>Text Style</string>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_9" rowstretch="0,0,0,0,0,0,0,2">
-                      <property name="leftMargin">
-                       <number>1</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>1</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>1</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>1</number>
-                      </property>
-                      <property name="spacing">
-                       <number>1</number>
-                      </property>
+                     <layout class="QGridLayout" name="gridLayout_9">
                       <item row="0" column="0">
                        <widget class="QLabel" name="label_69">
                         <property name="font">
@@ -1936,69 +1921,6 @@ original file name.</string>
                         </property>
                         <property name="text">
                          <string>Decoration</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="QCheckBox" name="chkTdLinethrough">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Line-through</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="2">
-                       <widget class="QRadioButton" name="rbtextCenter">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Center</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="3">
-                       <widget class="QRadioButton" name="rbTextRight">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Right</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QRadioButton" name="rbTextLeft">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Left</string>
                         </property>
                        </widget>
                       </item>
@@ -2032,7 +1954,22 @@ original file name.</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="0" colspan="4">
+                      <item row="0" column="3">
+                       <widget class="QCheckBox" name="chkTdLinethrough">
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Line-through</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0" colspan="4">
                        <widget class="QGroupBox" name="gbDecorationStyle">
                         <property name="enabled">
                          <bool>false</bool>
@@ -2152,23 +2089,98 @@ original file name.</string>
                         </layout>
                        </widget>
                       </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="label_66">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <italic>true</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Alignment:</string>
-                        </property>
+                      <item row="2" column="0" colspan="4">
+                       <widget class="QWidget" name="widget_8" native="true">
+                        <layout class="QHBoxLayout" name="horizontalLayout">
+                         <item>
+                          <widget class="QLabel" name="label_66">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <italic>true</italic>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Alignment:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextAlignNone">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>None</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextLeft">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Left</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextCenter">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Center</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextRight">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Right</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
-                      <item row="7" column="0" colspan="4">
+                      <item row="3" column="0" colspan="4">
                        <widget class="QGroupBox" name="gbTextShadow">
                         <property name="minimumSize">
                          <size>
@@ -3676,8 +3688,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>288</width>
+                    <height>124</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4250,7 +4262,7 @@ is required.</string>
                     <rect>
                      <x>0</x>
                      <y>10</y>
-                     <width>363</width>
+                     <width>421</width>
                      <height>432</height>
                     </rect>
                    </property>
@@ -4350,113 +4362,6 @@ is required.</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="0" colspan="5">
-                     <widget class="QGroupBox" name="gbWatermarkFont">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
-                      <property name="title">
-                       <string>Font</string>
-                      </property>
-                      <layout class="QGridLayout" name="gbWatermarkFontLayout">
-                       <item row="0" column="6">
-                        <widget class="QToolButton" name="btnWmColor">
-                         <property name="styleSheet">
-                          <string notr="true">QToolButton {background-color:#fff}</string>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <spacer name="horizontalSpacer_5">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item row="0" column="0">
-                        <widget class="QToolButton" name="btnSelectWmFont">
-                         <property name="text">
-                          <string>Font</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="4">
-                        <widget class="QLabel" name="label_29">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Color</string>
-                         </property>
-                         <property name="buddy">
-                          <cstring>edtWmColor</cstring>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="5">
-                        <widget class="QLineEdit" name="edtWmColor">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>#FFFFFF</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="2" colspan="2">
-                        <widget class="QLabel" name="lblWaterMarkFont">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
                     <item row="3" column="0" colspan="5">
                      <widget class="QGroupBox" name="gbVerticalPosition">
                       <property name="font">
@@ -4470,7 +4375,7 @@ is required.</string>
                       <property name="title">
                        <string>Vertical position</string>
                       </property>
-                      <layout class="QGridLayout" name="gridLayout_11" rowstretch="1,1">
+                      <layout class="QGridLayout" name="gridLayout_11" rowstretch="1,0">
                        <item row="0" column="0">
                         <widget class="QComboBox" name="cbWmVPosition">
                          <property name="font">
@@ -4504,6 +4409,21 @@ is required.</string>
                          </item>
                         </widget>
                        </item>
+                       <item row="1" column="2">
+                        <widget class="QLabel" name="label_8">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>px</string>
+                         </property>
+                        </widget>
+                       </item>
                        <item row="0" column="1">
                         <widget class="QLabel" name="label_6">
                          <property name="font">
@@ -4528,21 +4448,6 @@ is required.</string>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="2">
-                        <widget class="QLabel" name="label_8">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>px</string>
                          </property>
                         </widget>
                        </item>
@@ -4831,6 +4736,119 @@ is required.</string>
                       <property name="text">
                        <string>Watermark text sample</string>
                       </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0" colspan="5">
+                     <widget class="QGroupBox" name="gbWatermarkFont">
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="title">
+                       <string>Font</string>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_3">
+                       <item>
+                        <widget class="QToolButton" name="btnSelectWmFont">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>4</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>Font</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="lblWaterMarkFont">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="label_29">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Color</string>
+                         </property>
+                         <property name="buddy">
+                          <cstring>edtWmColor</cstring>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="edtWmColor">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>#FFFFFF</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QToolButton" name="btnWmColor">
+                         <property name="styleSheet">
+                          <string notr="true">QToolButton {background-color:#fff}</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
                    </layout>

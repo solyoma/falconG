@@ -79,6 +79,10 @@ html, body, main {
 a, a:visited {
 	text-decoration:none;
 }
+
+.area {
+	margin:0 6px;
+}
 )";
 
 	s = config.backgroundImage.ForStyleSheet(true);
@@ -159,7 +163,7 @@ void CssCreator::_CreateForHeader()
 void CssCreator::_CreateForSmallTitle()
 {
 	_CssForElement(R"(
-.falconG{
+.falconG {
 	margin-left: 10px;
 	display:inline-block;
 )", 	config.SmallGalleryTitle);
@@ -177,13 +181,19 @@ void CssCreator::_CreateForGalleryDesc()
 
 void CssCreator::_CreateForSection()
 {
-	_CssForElement(R"(section{
+	_ofs << R"(section {
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: center;
 	align-items:baseline;
 	max-width: 100%;
-)", config.Section);
+}
+
+)";
+	_CssForElement(QString(R"(.fgsection {
+	margin: auto;
+	padding:%1;
+)").arg(config.Section.font.SizeStr()), config.Section);
 }
 
 void CssCreator::_CreateForImages()
@@ -195,7 +205,9 @@ void CssCreator::_CreateForImages()
 	justify-content:center;
 	align-items:center;
 	position: relative;
-	padding:0 1px; /* ??? */
+	padding:)"
+		<< config.ImageTitle.font.SizeStr() 
+		<< R"(
 }
 
 .img-container > div {
@@ -304,7 +316,6 @@ void CssCreator::_CreateMediaQueries()
 
 	.gallery-desc {
 		width:50vw;
-		text-align:center;
 		margin: auto;
 	}
 }
@@ -325,7 +336,6 @@ void CssCreator::_CreateMediaQueries()
 
 	.gallery-desc {
 		width:800px;
-		text-align:center;
 		margin:auto;
 	}
 }

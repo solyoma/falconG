@@ -96,7 +96,7 @@ void CONFIGS_USED::Write()
  * REMARKS: - if there was a last used directory read from it
  *				else read from program directory
  *-------------------------------------------------------*/
-QString CONFIGS_USED::NameForConfig(QString sExt)
+QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 {
 	QString sDefault;
 	if (sExt == ".ini")
@@ -114,7 +114,7 @@ QString CONFIGS_USED::NameForConfig(QString sExt)
 	else
 		sIniName = s + n + sExt;	 // = <path w.o. last folder name from 'falcong.ini'>/<folder>/<folder>.ini
 
-	if (!QFile::exists(sIniName))	 
+	if(!forSave && !QFile::exists(sIniName))	 
 	{
 		sIniName = s + sDefault;
 		if (!QFile::exists(sIniName))
@@ -1304,13 +1304,14 @@ CONFIG::CONFIG()
 void CONFIG::Read()		// synchronize with Write!
 {
 
-	QString sIniName = CONFIGS_USED::NameForConfig(".ini");
+	QString sIniName = CONFIGS_USED::NameForConfig(false, ".ini");
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
 
 	// directories
 	dsSrc.Read(s);
+	dsGallery.Read(s);
 	dsGallery.Read(s);
 	dsGRoot.Read(s);
 	dsAlbumDir.Read(s);
@@ -1324,6 +1325,8 @@ void CONFIG::Read()		// synchronize with Write!
 	iconUplink.Read(s);
 	sMainPage.Read(s);
 	sDescription.Read(s);
+	sGoogleFonts.Read(s);
+	sDefFonts.Read(s);
 	sKeywords.Read(s);
 											// sepcial data
 	bAddTitlesToAll.Read(s);
@@ -1433,6 +1436,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	iconUplink.Write(s);
 	sMainPage.Write(s);
 	sDescription.Write(s);
+	sGoogleFonts.Write(s);
+	sDefFonts.Write(s);
 	sKeywords.Write(s);
 											// sepcial data
 	bAddTitlesToAll.Write(s);

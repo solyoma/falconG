@@ -1541,7 +1541,7 @@ bool AlbumGenerator::Read()
 	}
 
 
-	QString s = CONFIGS_USED::NameForConfig(".struct");
+	QString s = CONFIGS_USED::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
 	if(!config.bReadJAlbum && QFileInfo::exists(s))
@@ -2458,8 +2458,8 @@ int AlbumGenerator::_DoCopyRes()
 		if(fi.fileName() != QString("left-icon.png") && fi.fileName() != QString("up-icon.png"))
 			QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
 	}
-	emit SignalToCreateIcon(dest + "left-icon.png");
-	emit SignalToCreateIcon(dest + "up-icon.png");
+	emit SignalToCreateIcon(dest, "left-icon.png");
+	emit SignalToCreateIcon(dest, "up-icon.png");
 	return 0;	
 }
 
@@ -2609,44 +2609,6 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 		base = path + base;
 	}
 	return base + ext;
-}
-/*============================================================================
-  * TASK:	emit facebook link 	when required
-  * EXPECTS: linkNam - name to link to e.g. https://your.site/directory
-  *			ID	- different handlig for root album
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS: 
- *--------------------------------------------------------------------------*/
-void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
-{
-	if (!config.bFacebookLink)
-		return;
-		// facebook link
-	QString updir = (ID == 1 ? "" : "../");
-	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
-
-	_ofs << R"(<div class="fb-share-button" data-href="https://andreasfalco.com" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=)"
-		<< url.toEncoded()
-		<< R"(%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">)"
-		<< Languages::share[_actLanguage]
-		<< "</a></div>\n<div id=\"fb-root\"></div>";
-}
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-QString AlbumGenerator::_IncludeFacebookLibrary()
-{
-	return QString(
-R"(<!--get facebooks js code-->
-	<script async defer crossorigin = "anonymous"
-			src = "https://connect.facebook.net/)") + Languages::countryCode[_actLanguage] + QString(
-R"(/sdk.js#xfbml=1 & version=v8.0" nonce = "ouGJwYtd">
-</script > )");
 }
 
 /*========================================================
@@ -2832,6 +2794,52 @@ int AlbumGenerator::_ProcessImages()
 
 //----------------------------------------------------------------------------------
 
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString AlbumGenerator::_IncludeFacebookLibrary()
+{
+/*
+    <script async defer crossorigin="anonymous" 
+            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0" nonce="ouGJwYtd">
+    </script>
+*/
+	return QString(
+		R"(<!--get facebooks js code-->
+	<script async defer crossorigin = "anonymous"
+			src = "https://connect.facebook.net/)") + Languages::countryCode[_actLanguage] + 
+					QString( R"(/sdk.js#xfbml=1&version=v8.0" nonce = "ouGJwYtd">
+	</script> )");
+}
+
+/*============================================================================
+  * TASK:	emit facebook link 	when required
+  * EXPECTS: linkNam - name to link to e.g. https://your.site/directory
+  *			ID	- different handlig for root album
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
+{
+	if (!config.bFacebookLink)
+		return;
+		// facebook link
+	QString updir = (ID == 1 ? "" : "../");
+	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
+
+	_ofs << R"(<div class="fb-share-button" data-href="https://andreasfalco.com" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=)"
+		<< url.toEncoded()
+		<< R"(%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">)"
+		<< Languages::share[_actLanguage]
+		<< "</a></div>\n<div id=\"fb-root\"></div>";
+}
+
+
 QString AlbumGenerator::_PageHeadToString(ID_t id)
 {
 	QString supdir = (id == 1 ? "" : "../"),
@@ -2854,11 +2862,11 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 	if (!config.sKeywords.IsEmpty())
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "/>\n");
 
-	if (config.bFacebookLink)
-		s += _IncludeFacebookLibrary();
-
 	s += QString(sCssLink + "falconG.css\">\n" + 
 		"<script type=\"text/javascript\"  src=\"" + supdir + "js/falconG.js\"></script>"	);
+
+	if (config.bFacebookLink)
+		s += _IncludeFacebookLibrary();
 
 	s += QString("\n</head>\n");
 
@@ -2931,7 +2939,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 			_ofs << "     <a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << Languages::names[i] << "</a>&nbsp;&nbsp\n";
 	_ofs << "     <br><br><br>\n";
 	if (album.titleID)
-		_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2>\n";
+		_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2><br><br>\n";
 	if (album.descID)
 		_ofs << "     <p class=\"gallery-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
 
@@ -3127,7 +3135,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"
-			"  <div class=\"area\">";
+			"  <div class=\"area\">\n";
 
 	_OutputNav(album, uplink);	/* sticky menu line*/
 	_WriteHeaderSection(album);

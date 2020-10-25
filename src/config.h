@@ -707,7 +707,7 @@ struct CONFIGS_USED
 	static void Read();	// the last directories used
 	static void Write();
 
-	static QString NameForConfig(QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
+	static QString NameForConfig(bool forSave, QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
 //-------------------------
@@ -805,7 +805,7 @@ public:
 
 	_CBool bCanDownload = {false,"bCanDownload"};		// images from the server (.htaccess)
 	_CBool bForceSSL = { false,"bForceSSL"};			// using .htaccess
-	_CBool bRightClickProtected = {true,"bRightClickProtected"}; // right click protection on
+	_CBool bRightClickProtected = {false,"bRightClickProtected"}; // right click protection on
 	_CBool bMenuToContact = {false,"bMenuToContact"};		// show menu button for 'Contact' page
 	_CBool bMenuToAbout = {false,"bMenuToAbout"};		// show menu button for 'About' page?
 	_CBool bMenuToDescriptions = {true,"bMenuToDescriptions"};   // toggles image/album description visibility. If bMenuToToggleCaptions is false it also turns on/off captions and the icons
@@ -814,8 +814,8 @@ public:
 	_CString sServerAddress = {"","sServerAddress"};	// server address:
 	// special
 
-	_CString sGoogleFonts = { "Mansalva Tangerine Meddon Playfair","sDefFonts"};		// default font names "https://fonts.googleapis.com/css?family="+these names separated with a pipe character
-	_CString sDefFonts = { "Tms Rmn \"Times New Roman\" Serif","sDefFonts"};			// default serif font names
+	_CString sGoogleFonts = { "","sGoogleFonts"};		// default font names "https://fonts.googleapis.com/css?family="+these names separated with a pipe character
+	_CString sDefFonts = { "","sDefFonts"};			// default serif font names
 	_CString sBaseName = {"album","sBaseName"};			// default base name
 	_CString sMailTo = {"","sMailTo"};			// send user emails here no defaults
 	_CString sAbout = {"","sAbout"};			// address of about page, either relative to dsGRoot or any URI

@@ -138,6 +138,7 @@ private:
 	void _SetPageBackground(_CElem* pElem);	// possibly for all elements
 	void _SetIcon();			// re-color it for the page
 	void _SetWatermark();
+	void _UpdaetWatermarkMargins(int mx, int my);
 
 	void _ElemToSample(AlbumElement ae = aeUndefined);	// with no argument uses _aeActElement
 
@@ -179,6 +180,8 @@ private slots:
 	void _TnvNewThumbs();		// previous seingle selection is the new thumbnail for actual album
 	void _SaveChangedTitleDescription();
 
+	void _TextDecorationToConfig(Decoration dec, bool on);
+	void _TextAlignToConfig(Align align, bool on);
 // auto connected slots
 private slots:
 	void on_toolBox_currentChanged(int newIndex);
@@ -253,7 +256,6 @@ private slots:
 	void on_chkIconTop_toggled(bool);
 	void on_chkBold_toggled(bool);
 	void on_chkItalic_toggled(bool);
-	void _TextDecorationToConfig(Decoration dec, bool on);
 	void on_chkTdLinethrough_toggled(bool);
 	void on_chkTdUnderline_toggled(bool);
 	void on_chkTdOverline_toggled(bool);
@@ -262,6 +264,11 @@ private slots:
 	void on_rbTdDashed_toggled(bool);
 	void on_rbTdDouble_toggled(bool);
 	void on_rbTdWavy_toggled(bool);
+	void on_rbTextAlignNone_toggled(bool);
+	void on_rbTextLeft_toggled(bool);
+	void on_rbTextCenter_toggled(bool);
+	void on_rbTextRight_toggled(bool);
+
 	void on_chkUseWM_toggled(bool);				// watermark
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkDoNotEnlarge_toggled(bool);
@@ -276,6 +283,7 @@ private slots:
 	void on_edtAlbumDir_textChanged();
 	void on_edtAbout_textChanged();
 	void on_edtBaseName_textChanged();
+	void on_edtDefaultFonts_textChanged();
 	void on_edtDestGallery_textChanged();
 	void on_edtFontDir_textChanged();
 	void on_edtGalleryRoot_textChanged();
@@ -284,6 +292,7 @@ private slots:
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtGalleryLanguages_textChanged();
+	void on_edtGoogleFonts_textChanged();
 	void on_edtSourceGallery_textChanged();
 	void on_edtDescription_textChanged();
 	void on_edtKeywords_textChanged();
@@ -307,7 +316,6 @@ private slots:
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height
 	void on_sbThumbnailWidth_valueChanged(int w);				// image width
 	void on_edtWmColor_textChanged();
-	void UpdaetWatermarkMargins(int mx, int my);
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
 	void on_sbNewDays_valueChanged(int val);

@@ -477,6 +477,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 	_SetShadow(pElem, 1);	// box
 	_SetLinearGradient(pElem);
 	_SetBorder(pElem);
+	_SetTextAlign(pElem);
 
 	// menus: set uplink icon
 	if (ae == aeMenuButtons)
@@ -563,6 +564,14 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkTdLinethrough->setChecked(pElem->decoration.IsLineThrough());
 	ui.chkDifferentFirstLine->setChecked(pElem->font.IsFirstLineDifferent());
 
+	switch (pElem->alignment.v)
+	{
+		case alNone:  ui.rbTextAlignNone->setChecked(true); break;
+		case alLeft: ui.rbTextLeft->setChecked(true); break;
+		case alCenter: ui.rbTextCenter->setChecked(true); break;
+		case alRight: ui.rbTextRight->setChecked(true); break;
+	}
+
 		// border
 	ui.chkUseBorder->setChecked(pElem->border.Used());
 	if (pElem->border.Used())
@@ -633,19 +642,23 @@ void FalconG::_PopulateFromConfig()
 
 	++_busy;
 
-	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
-	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
-	ui.edtServerAddress->setText(config.sServerAddress);
-	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
-	ui.edtUplink->setText(config.sUplink);
-
-	ui.edtDescription->setText(config.sDescription);
-	ui.edtKeywords->setText(config.sKeywords);
-
-	ui.edtGalleryTitle->setText(config.sGalleryTitle);
-	ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
-	ui.edtEmailTo->setText(config.sMailTo);
 	ui.edtAbout->setText(config.sAbout);
+	ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
+	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
+	ui.edtDescription->setText(config.sDescription);
+	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
+	ui.edtEmailTo->setText(config.sMailTo);
+	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
+	ui.edtGalleryTitle->setText(config.sGalleryTitle);
+	ui.edtGoogleFonts->setText(config.sGoogleFonts.ToString());
+	ui.edtKeywords->setText(config.sKeywords);
+	ui.edtServerAddress->setText(config.sServerAddress);
+	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
+	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
+	ui.edtUplink->setText(config.sUplink);
+	ui.edtWmColor->setText(QString().setNum(config.waterMark.wm.Color(), 16));
+	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
+	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
 
 	if (!config.dsAlbumDir.IsEmpty() && ui.edtAlbumDir->placeholderText() != config.dsAlbumDir.ToString())
 		ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
@@ -658,51 +671,58 @@ void FalconG::_PopulateFromConfig()
 	if (!config.dsThumbDir.IsEmpty() && ui.edtThumb->placeholderText() != config.dsThumbDir.ToString())
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
-	ui.chkFacebook->setChecked(config.bFacebookLink);
-	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
-	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
-	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
+	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
+	ui.chkButImages->setChecked(config.bButImages);
+	ui.chkCanDownload->setChecked(config.bCanDownload);
+
+// not saved/restored:
+//	ui.chkDebugging->setChecked(config.bDebugging);
 	--_busy;
 	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
 	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
 	++_busy;
-
-//	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);
-	ui.chkMenuToContact->setChecked(config.bMenuToContact);
+    
+	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
+	ui.chkFacebook->setChecked(config.bFacebookLink);
+	ui.chkGenerateAll->setChecked(config.bGenerateAll);
+	ui.chkForceSSL->setChecked(config.bForceSSL);
+	ui.chkImageBorder->setChecked(config.imageBorder.Used());
+	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
+	ui.chkMenuToContact->setChecked(config.bMenuToContact);
 	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
 	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
-	ui.chkGenerateAll->setChecked(config.bGenerateAll);
-	ui.chkButImages->setChecked(config.bButImages);
-
-	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
-
-	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
 	ui.chkOvrImages->setChecked(config.bOvrImages);
-
-	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
-	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
-	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
-
+// not saved/restored:
+//	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
+//	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);	  
+	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.generateLatestUploads);
+	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
+	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
+	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
+	ui.chkUseWM->setChecked(config.waterMark.used);
+
+	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
+	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
+	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
+	ui.btnLink->setChecked(config.imageSizesLinked);
+	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
+	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
+
 	ui.sbNewDays->setValue(config.newUploadInterval);
 
-	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
-	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
 
 	ui.sbImageWidth->setValue(config.imageWidth);
 	ui.sbImageHeight->setValue(config.imageHeight);
 	ui.sbThumbnailWidth->setValue(config .thumbWidth);
 	ui.sbThumbnailHeight->setValue(config.thumbHeight);
-	ui.btnLink->setChecked(config.imageSizesLinked);
-	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 
 	int h = config.imageHeight ? config.imageHeight : 1;
 	_aspect = (double)config.imageWidth / h;
 
 							// Watermark
-	ui.chkUseWM->setChecked(config.waterMark.used);
 	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity());
 
 	ui.edtWatermark->setText(config.waterMark.wm.text);
@@ -712,12 +732,6 @@ void FalconG::_PopulateFromConfig()
 	h = (config.waterMark.wm.origin & 0xF0) >> 4; // horizontal position
 	ui.cbWmHPosition->setCurrentIndex(h);
 	
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
-
-	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
-	ui.edtWmColor->setText(QString().setNum(config.waterMark.wm.Color(), 16));
-	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
 
 	ui.lblWaterMarkFont->setText(QString("%1 (%2,%3)").arg(config.waterMark.wm.font.family()).arg(config.waterMark.wm.font.pointSize()).arg(config.waterMark.wm.font.italic()));
 	if (!config.waterMark.wm.text.isEmpty())
@@ -725,7 +739,6 @@ void FalconG::_PopulateFromConfig()
 
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
-	ui.chkImageBorder->setChecked(config.imageBorder.Used());
 
 	switch (config.styleIndex)
 	{
@@ -972,6 +985,14 @@ void FalconG::on_edtGalleryLanguages_textChanged()
 	_SetConfigChanged(true);
 }
 
+void FalconG::on_edtGoogleFonts_textChanged()
+{
+	if (_busy)
+		return;
+	config.sGoogleFonts = ui.edtGoogleFonts->text();
+	_SetConfigChanged(true);
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -1037,6 +1058,14 @@ void FalconG::on_edtBaseName_textChanged()
 	_SetConfigChanged(true);
 }
 
+void FalconG::on_edtDefaultFonts_textChanged()
+{
+	if (_busy)
+		return;
+	config.sDefFonts = ui.edtDefaultFonts->text();
+	_SetConfigChanged(true);
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -1064,10 +1093,10 @@ void FalconG::on_edtWatermark_textChanged()
  *--------------------------------------------------------------------------*/
 void FalconG::on_edtWmColor_textChanged()
 {
-	_SetConfigChanged(config.waterMark.v = true);
-
 	if (_busy)
 		return;
+
+	_SetConfigChanged(config.waterMark.v = true);
 
 	StyleHandler handler(ui.btnWmColor->styleSheet());
 	handler.SetItem("QToolButton", "background-color", "#" + ui.edtWmColor->text());
@@ -1084,7 +1113,7 @@ void FalconG::on_edtWmColor_textChanged()
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::UpdaetWatermarkMargins(int mx, int my)
+void FalconG::_UpdaetWatermarkMargins(int mx, int my)
 {
 	WaterMark& wm = config.waterMark.wm;
 	bool centered;
@@ -1106,7 +1135,7 @@ void FalconG::on_edtWmHorizMargin_textChanged()
 {
 	if (_busy)
 		return;
-	UpdaetWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
+	_UpdaetWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
 }
 
 /*============================================================================
@@ -1119,7 +1148,7 @@ void FalconG::on_edtWmVertMargin_textChanged()
 {
 	if (_busy)
 		return;
-	UpdaetWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
+	_UpdaetWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
 }
 
 /*============================================================================
@@ -1587,6 +1616,16 @@ void FalconG::on_chkItalic_toggled(bool on)
 }
 
 
+void FalconG::_TextAlignToConfig(Align align, bool on)
+{
+	if (_busy)
+		return;
+	if(on)
+		_PtrToElement()->alignment.v = align;
+	_SetConfigChanged(true);
+	_ElemToSample();	// clear decorations if neither checkbox is checked
+}
+
 /*========================================================
  * TASK:	set text decorations
  * PARAMS:
@@ -1612,6 +1651,10 @@ void FalconG::on_rbTdDotted_toggled(bool on) { _TextDecorationToConfig(tdDotted,
 void FalconG::on_rbTdDashed_toggled (bool on) { _TextDecorationToConfig(tdDashed, on); }
 void FalconG::on_rbTdDouble_toggled (bool on) { _TextDecorationToConfig(tdDouble, on); }
 void FalconG::on_rbTdWavy_toggled   (bool on) { _TextDecorationToConfig(tdWavy, on); }
+void FalconG::on_rbTextAlignNone_toggled  (bool on) { _TextAlignToConfig(alNone, on); }
+void FalconG::on_rbTextLeft_toggled  (bool on) { _TextAlignToConfig(alLeft, on); }
+void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
+void FalconG::on_rbTextRight_toggled( bool on) { _TextAlignToConfig(alRight, on); }
 
 
 /*============================================================================
@@ -2284,7 +2327,7 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 void FalconG::on_btnSaveConfig_clicked()
 {
 	config.Write();
-	QString s	 = CONFIGS_USED::NameForConfig(".ini");
+	QString s	 = CONFIGS_USED::NameForConfig(true, ".ini");
 	QMessageBox(QMessageBox::Information,
 		QString("falconG"),
 		QString(QMainWindow::tr("Configuration file '%1' is saved").arg(s)),
@@ -3166,11 +3209,11 @@ void FalconG::_SetDecoration(_CElem* pElem)
 {
 	QString qs;
 	if (!pElem->decoration.IsTextDecorationLine())
-		return;
+		_SetCssProperty(pElem, "text-decoration-line:;");
 	else if (pElem == &config.Web || !pElem->parent || pElem->parent->decoration != pElem->decoration)
 	{
 		_SetCssProperty(pElem, "text-decoration-line:"   +  pElem->decoration.TextDecorationLineStr() + ";\n" + 
-								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + ";\n");
+								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + ";");
 	}
 	else
 	{
@@ -3868,7 +3911,7 @@ void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
 	QFile::remove(destPath + destName);
 	QIcon icon(pm);
 	_SetIconColor(icon, config.Menu);
-
+	pm = icon.pixmap(64,64);
 	pm.save(destPath + destName);
 }
 
