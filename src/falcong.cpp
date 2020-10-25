@@ -268,7 +268,7 @@ void FalconG::on_btnSourceHistory_clicked()
 
 			_PopulateFromConfig();	// edit values from config
 
-			QString s = ui.edtSourceGallery->text();
+			QString s = ui.edtSourceGallery->text().trimmed();
 			if (ui.edtSourceGallery->text().isEmpty())
 			{
 				++_busy;
@@ -400,7 +400,7 @@ void FalconG::_EnableButtons()
 
 	if (bEnable1)
 	{
-		QDir qd(ui.edtSourceGallery->text());
+		QDir qd(ui.edtSourceGallery->text().trimmed());
 		bEnable1 &= qd.exists();
 	}
 
@@ -786,7 +786,7 @@ void FalconG::on_edtTrackingCode_textChanged()
 	if (_busy)
 		return;
 
-	config.googleAnalTrackingCode = ui.edtTrackingCode->text();
+	config.googleAnalTrackingCode = ui.edtTrackingCode->text().trimmed();
 	 _SetConfigChanged(config.googleAnalTrackingCode.Changed());
 }
 
@@ -801,7 +801,7 @@ void FalconG::on_edtDestGallery_textChanged()
 	if (_busy)
 		return;
 
-	config.dsGallery = ui.edtDestGallery->text();
+	config.dsGallery = ui.edtDestGallery->text().trimmed();
 	_SetConfigChanged(config.dsGallery.Changed());
 	_EnableButtons();
 }
@@ -811,7 +811,7 @@ void FalconG::on_edtFontDir_textChanged()
 	if (_busy)
 		return;
 
-	config.dsFontDir = ui.edtFontDir->text();
+	config.dsFontDir = ui.edtFontDir->text().trimmed();
 	_SetConfigChanged(config.dsFontDir.Changed());
 }
 
@@ -827,7 +827,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 	if (_busy)
 		return;
 
-	QString scr = QDir::cleanPath(ui.edtSourceGallery->text()) + "/";
+	QString scr = QDir::cleanPath(ui.edtSourceGallery->text().trimmed()) + "/";
 	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != scr)
 	{
 		config.dsSrc = scr;
@@ -860,7 +860,7 @@ void FalconG::on_edtDescription_textChanged()
 {
 	if (_busy)
 		return;
-	config.sDescription = ui.edtDescription->text();
+	config.sDescription = ui.edtDescription->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -876,7 +876,7 @@ void FalconG::on_edtKeywords_textChanged()
 {
 	if (_busy)
 		return;
-	config.sKeywords = ui.edtKeywords->text();
+	config.sKeywords = ui.edtKeywords->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -891,7 +891,7 @@ void FalconG::on_edtAlbumDir_textChanged()
 	if (_busy)
 		return;
 	++_busy;
-	config.dsAlbumDir = ui.edtAlbumDir->text();
+	config.dsAlbumDir = ui.edtAlbumDir->text().trimmed();
 	_SetConfigChanged(true);
 	--_busy;
 }
@@ -907,7 +907,7 @@ void FalconG::on_edtAbout_textChanged()
 	if (_busy)
 		return;
 
-	config.sAbout = ui.edtAbout->text();
+	config.sAbout = ui.edtAbout->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -922,7 +922,7 @@ void FalconG::on_edtGalleryRoot_textChanged()
 	if (_busy)
 		return;
 
-	config.dsGRoot = ui. edtGalleryRoot->text();
+	config.dsGRoot = ui. edtGalleryRoot->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -937,7 +937,7 @@ void FalconG::on_edtImg_textChanged()
 	if (_busy)
 		return;
 
-	config.dsImageDir = ui. edtImg->text();
+	config.dsImageDir = ui. edtImg->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -953,7 +953,7 @@ void FalconG::on_edtServerAddress_textChanged()
 	if (_busy)
 		return;
 
-	config.sServerAddress = ui. edtServerAddress->text();
+	config.sServerAddress = ui. edtServerAddress->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -968,7 +968,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
 	if (_busy)
 		return;
 
-	config.sGalleryTitle = ui.edtGalleryTitle->text();
+	config.sGalleryTitle = ui.edtGalleryTitle->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -981,7 +981,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
  *--------------------------------------------------------------------------*/
 void FalconG::on_edtGalleryLanguages_textChanged()
 {
-	config.sGalleryLanguages = ui.edtGalleryLanguages->text();
+	config.sGalleryLanguages = ui.edtGalleryLanguages->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -989,7 +989,7 @@ void FalconG::on_edtGoogleFonts_textChanged()
 {
 	if (_busy)
 		return;
-	config.sGoogleFonts = ui.edtGoogleFonts->text();
+	config.sGoogleFonts = ui.edtGoogleFonts->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -1004,7 +1004,7 @@ void FalconG::on_edtUplink_textChanged()
 	if (_busy)
 		return;
 
-	config.sUplink = ui. edtUplink->text();
+	config.sUplink = ui. edtUplink->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -1019,7 +1019,7 @@ void FalconG::on_edtMainPage_textChanged()
 	if (_busy)
 		return;
 
-	config.sMainPage = ui.edtMainPage->text();
+	config.sMainPage = ui.edtMainPage->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -1034,7 +1034,7 @@ void FalconG::on_edtEmailTo_textChanged()
 	if (_busy)
 		return;
 
-	config.sMailTo = ui.edtEmailTo->text();
+	config.sMailTo = ui.edtEmailTo->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -1044,7 +1044,7 @@ void FalconG::on_edtThumb_textChanged()
 		return;
 	
 	++_busy;
-	config.dsThumbDir = ui.edtThumb->text();
+	config.dsThumbDir = ui.edtThumb->text().trimmed();
 	--_busy;
 	_SetConfigChanged(true);
 }
@@ -1054,7 +1054,7 @@ void FalconG::on_edtBaseName_textChanged()
 	if (_busy)
 		return;
 
-	config.dsGRoot = ui.edtGalleryRoot->text();
+	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -1062,7 +1062,7 @@ void FalconG::on_edtDefaultFonts_textChanged()
 {
 	if (_busy)
 		return;
-	config.sDefFonts = ui.edtDefaultFonts->text();
+	config.sDefFonts = ui.edtDefaultFonts->text().trimmed();
 	_SetConfigChanged(true);
 }
 

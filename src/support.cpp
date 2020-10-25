@@ -553,20 +553,25 @@ QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
 /* --------------------------------- helper functions -----------------------*/
 /*============================================================================
 * TASK:		 separates an absolute or relative path file or directory path 
-*			 into its components
-* EXPECTS:	fullName -  file or directory path (IN) Directories must end in '/'
-*			path     -  file or parent directory path (OUT) empty or ends with '/'
-*			name	 -  (OUT) if pext is null name with extension, otherwise 
-*						just the name w.o. extension
-*			pext	 - null pointer or pointer to extension variable (OUT)
+*			 into its components. For directories (fullName ends with '/'
+*			 sets the name to be the directory name and the path its parent
+*			 directory
+* EXPECTS:	fullName -  (IN) file or directory path 
+*							Directory names must end with '/'
+*			path     -  (OUT) file or parent directory path,
+*							empty or ends with '/'
+*			name	 -  (OUT) if pext is null name with extension, 
+*						otherwise just the name w.o. extension
+*			pext	 -  (IN) null pointer or pointer to extension variable
+*						*pext used when not nullptr(OUT)
 * GLOBALS:
-* REATURNS: number of parts created: 
-*						1 just name, 
+* RETURNS: number of parts created: 
+*						1: just name, 
 *						2: path and name or name and extension
 *						3: all three parts
-* REMARKS:	path and *pext (when not nullptr) may be empty, name always 
-*			has a value
-*			for directoy names: the ending '/' is stripped of the name
+* REMARKS:	- path and *pext (when pext is not nullptr) may be empty,
+*				name always has a value
+*			- for directoy names: the ending '/' is stripped of the name
 *--------------------------------------------------------------------------*/
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext)
 {

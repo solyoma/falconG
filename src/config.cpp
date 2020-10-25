@@ -1,5 +1,6 @@
 #include "config.h"
 
+bool savelItemsAlways;	// global !
 
 // helper	prepends a tab and adds a semicolon and LF after the string
 void __AddSemi(QString& s, bool addSemicolon)
@@ -88,13 +89,21 @@ void CONFIGS_USED::Write()
 
 
 /*========================================================
- * TASK: Reads configuration from ini or struct files
- * PARAMS:	sExt - extension (.ini or .struct)
+ * TASK: Determines file name of configuration from ini
+*				 or struct files
+ * PARAMS:	forSave - name required for save or read
+			sExt - extension (.ini or .struct)
  *					defaults: 'falconG.ini' and 'gallery.struct'
- * GLOBALS:
+ * GLOBALS: lastConfigs, indexOfLastUsed
  * RETURNS:	full path name of config file
- * REMARKS: - if there was a last used directory read from it
- *				else read from program directory
+ * REMARKS: - If a directory path is taken from 'lastConfig'
+ *				returns a name of this directory without its
+ *				path followed by the extension sExt inside
+ *				the original directory
+ *				Example: directory name: '/in/this/dir/'
+ *				File name '/in/this/dir/dir.ini'
+ *			- With no last used directory returns the
+ *				default names with no directory path
  *-------------------------------------------------------*/
 QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 {
@@ -105,7 +114,10 @@ QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 		sDefault = "gallery.struct";
 
 	QString sIniName, p, n, s;				  // if there was a last used directory read from it
-	s = indexOfLastUsed >= 0 && indexOfLastUsed < lastConfigs.size() ? lastConfigs[indexOfLastUsed] : sDefault;
+	if (indexOfLastUsed < 0 || indexOfLastUsed >= lastConfigs.size())
+		return sDefault;
+
+	s = lastConfigs[indexOfLastUsed];
 	SeparateFileNamePath(s, p, n);	// cuts '/' from name
 	if (s[s.length() - 1] != '/')
 		s += "/";
@@ -1268,7 +1280,8 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 *---------------------------------------------------------------------------*/
 CONFIG::CONFIG()
 {
-	CONFIGS_USED::parent = this;
+	if(CONFIGS_USED::parent == nullptr)
+			CONFIGS_USED::parent = this;
 	Header					.parent = &Web;
 	Menu					.parent = &Web;
 	Lang					.parent = &Web;
@@ -1406,6 +1419,15 @@ void CONFIG::Read()		// synchronize with Write!
 	// Debug
 	bDebugging.Read(s);
 
+	if (CONFIGS_USED::indexOfLastUsed >= 0 && dsSrc.IsEmpty())
+		dsSrc.v = CONFIGS_USED::lastConfigs[CONFIGS_USED::indexOfLastUsed];
+	QString qs = CONFIGS_USED::NameForConfig(true, ".ini");
+	if(!QFile::exists(qs))
+	{
+		savelItemsAlways = true;		// when the new file is created there are no 
+		config._WriteIni(qs);					// already written peopwerties
+		savelItemsAlways = false;
+	}
 	configSave = *this;
 }
 

@@ -22,6 +22,8 @@ std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QStri
 	return s.value(name, def).toStringList().join(',');
 }
 
+// sometimes we must save even unchanged values
+extern bool savelItemsAlways;
 // base class template for all config itemss. Based on functions Value() above.
 
 template <class T> struct _CFG_ITEM
@@ -46,7 +48,7 @@ template <class T> struct _CFG_ITEM
 
 	virtual void Write(QSettings& s, QString group = QString() )	// into settings, but only if changed
 	{
-		if (v != v0)		// changed
+		if (savelItemsAlways || v != v0)		// changed
 		{
 			if(!group.isEmpty())
 				s.beginGroup(group);
@@ -251,7 +253,7 @@ private:
 	void _Prepare() override		// v from internal (changed) variables
 	{
 		v = _colorName;										  // name w.o. opacity: #RRGGBB
-		if (v.length() != 9 && _opacity != 100)				  // name with opacity: #AARRGGBB but AA only goes from 0to 100
+		if (v.length() != 9 && _opacity != 100)				  // name with opacity: #AARRGGBB but AA only goes from 0 to 100(0x64)
 			v = "#" + (_opacity >= 0 ? QString("%1").arg(_opacity, 2, 16, QChar('0')) : QStringLiteral("") ) + v.mid(1);
 	}
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
@@ -609,10 +611,10 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|0","font"};
 	_CTextDecoration decoration = { 0, "decoration" };
 	_CTextAlign alignment = { 0, "alignment" };
-	_CShadow shadow1[2] = { {"0","text-shadow1"},	// index 0: text shadow, 1: box-shadow
-							{"0","box-shadow1"} },
-		     shadow2[2] = { {"0","text-shadow2"},
-							{"0","box-shadow2"} };
+	_CShadow shadow1[2] = { {"0|0|0|0|#000000","text-shadow1"},	// index 0: text shadow, 1: box-shadow
+							{"0|0|0|0|#000000","box-shadow1"} },
+		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},
+							{"0|0|0|0|#000000","box-shadow2"} };
 	_CGradient gradient = { "0","gradient"};
 	_CBorder border = {"0|2|1|#890222","border"};
 
@@ -833,9 +835,10 @@ public:
 	_CString sGalleryTitle = {"Andreas Falco Photography","sGalleryTitle"};
 	_CString sGalleryDesc = {"","sGalleryDesc"};
 	_CString sGalleryLanguages = {"","sGalleryLanguages"};	// empty or a series of language abbreviations. Example: hu,en. 
-								// Order important, either files '<abbrev>.txt' must exist 
-								// (in either the program directory or in the source gallery directory)
-								// or in the '.struct' file
+								// Order important, 
+								// All files for all abbreviations (e.g. 'en.lang') must exist 
+								// Places: in the program directory, the source gallery directory or after the  
+								// "[Language count:" line in the '.struct' file.
 
 	_CBool bFacebookLink = { false,"bFacebookLink"};
 
