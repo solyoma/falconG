@@ -153,6 +153,7 @@ private:
 	void _SetLayoutMargins(skinStyle which);
 	void _StyleTheProgram(skinStyle which);
 
+	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
 
 //	void _GetProperty(StyleIndex index);
@@ -217,6 +218,8 @@ private slots:
 	void on_btnResetDesign_clicked();
 	void on_btnDisplayHint_clicked();
 	void on_btnPreview_clicked();
+
+	void on_btnGoToGoogleFontsPage_clicked();
 
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 
@@ -292,7 +295,7 @@ private slots:
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtGalleryLanguages_textChanged();
-	void on_edtGoogleFonts_textChanged();
+	void on_edtGoogleFonts_editingFinished();
 	void on_edtSourceGallery_textChanged();
 	void on_edtDescription_textChanged();
 	void on_edtKeywords_textChanged();

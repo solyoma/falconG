@@ -9,15 +9,22 @@ window.addEventListener("resize", ResizeThumbs)
 function SetPropertyForClass(className, propertyName, propValue) 
 {
         var x,i; 
-        if(propertyName.substring(0, 1) == ':')       // first line height
-        {
-            className += propertyName;
-            propertyName = 'font-size'
-        }
+        // if(propertyName.substring(0, 1) == ':')       // first line height
+        // {
+        //     className += propertyName;
+        //     propertyName = 'font-size'
+        // }
+        if(propValue == '')
+            propValue = "unset"     // either 'initial' or 'inherited'
         x = document.getElementsByClassName(className)
         for(i = 0; i < x.length; ++i) 
             x[i].style.setProperty(propertyName, propValue);
+// DEBUG
+//console.log('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
+document.getElementById("DEBUG").innerHTML = 'Set '+propertyName + " : "+ propValue+' for '+ className + '\''
+//alert('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
 }
+
 function ResizeThumbs()
 {
     const thumbs = document.querySelectorAll(".thumb");
@@ -220,11 +227,12 @@ const ELEM = {
 	AE_GALLERY_TITLE		: 5,
 	AE_GALLERY_DESC 		: 6,
 	AE_SECTION              : 7,
-	AE_ALBUM_TITLE			: 8,
-	AE_ALBUM_DESC			: 9,
-	AE_LIGHTBOX_TITLE       : 10,
-	AE_LIGHTBOX_DESCRIPTION : 11,
-	AE_FOOTER				: 12
+    AE_THUMB                : 8,
+	AE_IMAGE_TITLE			: 9,
+	AE_IMAGE_DESC			: 10,
+	AE_LIGHTBOX_TITLE       : 11,
+	AE_LIGHTBOX_DESCRIPTION : 12,
+    AE_FOOTER				: 13
 };
 
 
@@ -236,8 +244,9 @@ function SmallTitleClick()         {document.location.href = ELEM.AE_SMALL_GALLE
 function GalleryTitleClick()       {document.location.href = ELEM.AE_GALLERY_TITLE }
 function GalleryDescClick()        {document.location.href = ELEM.AE_GALLERY_DESC }
 function SectionClick()            {document.location.href = ELEM.AE_SECTION }
-function LinkClick()               {document.location.href = ELEM.AE_ALBUM_TITLE }
-function DescClick()               {document.location.href = ELEM.AE_ALBUM_DESC }
+function ThumbClick()              {document.location.href = ELEM.AE_THUMB } 
+function LinkClick()               {document.location.href = ELEM.AE_IMAGE_TITLE }
+function DescClick()               {document.location.href = ELEM.AE_IMAGE_DESC }
 // lightbox title (10) and description (11) only from combo box
 //                                                             ELEM.AE_LIGHTBOX_TITLE      
 //                                                             ELEM.AE_LIGHTBOX_DESCRIPTION

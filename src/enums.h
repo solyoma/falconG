@@ -34,6 +34,7 @@ namespace Enums
 		aeGalleryTitle,				// gallery title * color (nGalleryTitleColor) + font
 		aeGalleryDesc,				// 		   decription
 		aeSection,					// albums OR images - color (sectionTextColor) + text shadows() + font
+		aeThumb,					// thumbnail image
 		aeImageTitle,				// thumbnails title -		album title color (albumTitleColor) + font
 		aeImageDesc,				//			  decription -	color (ImageDescColor) + font
 		aeLightboxTitle,			// lightbox - title

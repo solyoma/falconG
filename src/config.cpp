@@ -1556,7 +1556,7 @@ void CONFIG::Write()			// synchronize with Read!
 
 QString _CTextAlign::ForStyleSheet(bool addSemiColon) const
 {
-	QString qs = v == alNone ? QString() : "	text-align:" + ActAlignStr();
+	QString qs = v == alNone ? QString() : "text-align:" + ActAlignStr();
 	__AddSemi(qs, addSemiColon);
 	return qs;
 }

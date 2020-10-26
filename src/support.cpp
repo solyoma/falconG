@@ -512,7 +512,7 @@ QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
 {
 	QFile ft(name), f(tmpName);
 	QString qsErr;
-	bool brv, brt, brn;
+	bool brv, brt=true, brn;
 	bool bx = ft.exists();
 	if (keepBackup)
 	{

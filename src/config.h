@@ -855,9 +855,10 @@ public:
 	_CElem Lang = {aeLangButton,"langs",  _DFLT_,"Lang", _NOSH_, _NGRD_};		// language link button
 	// special handling : include shadows
 	_CElem SmallGalleryTitle = {aeSmallTitle, "falconG", _DFLT_,"SmallGalleryTitle", _SHDW_, _NGRD_};	// "andreas falco photography"
-	_CElem GalleryTitle = {aeGalleryTitle,"gallery-title", _DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		// "andreas falco photography"
-	_CElem GalleryDesc = {aeGalleryDesc,"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			// "andreas falco photography"
-	_CElem Section = {aeSection,"section", _DFLT_,"Section", _SHDW_, _NGRD_};				// "Images" or "Albums"
+	_CElem GalleryTitle = {aeGalleryTitle,"gallery-title", _DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		
+	_CElem GalleryDesc = {aeGalleryDesc,"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			
+	_CElem Section = {aeSection,"fgsection", _DFLT_,"Section", _SHDW_, _NGRD_};							// "Images" or "Albums"
+	_CElem Thumb = { aeThumb, "thumb", _DFLT_, "Thumb", _NOSH_, _NGRD_ };									// thumb
 	_CElem ImageTitle = {aeImageTitle, "title",_DFLT_, "AlbumOrImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
 	_CElem ImageDesc = {aeImageDesc, "desc", _DFLT_, "AlbumOrImageDesc", _SHDW_, _NGRD_};
 	_CElem LightboxTitle = {aeLightboxTitle, "lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!

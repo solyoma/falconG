@@ -1037,13 +1037,6 @@ Iinside gallery root if no absolute or relative path is given.</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
-                <widget class="QLineEdit" name="edtGoogleFonts">
-                 <property name="placeholderText">
-                  <string>comma separated font names w.o. URL</string>
-                 </property>
-                </widget>
-               </item>
                <item row="4" column="0">
                 <widget class="QLabel" name="label_44">
                  <property name="font">
@@ -1150,6 +1143,50 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  <property name="placeholderText">
                   <string>album</string>
                  </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QWidget" name="widget_9" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLineEdit" name="edtGoogleFonts">
+                    <property name="placeholderText">
+                     <string>comma separated font names w.o. URL</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="btnGoToGoogleFontsPage">
+                    <property name="toolTip">
+                     <string>Opens the Google fonts WEB page</string>
+                    </property>
+                    <property name="text">
+                     <string>F</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
@@ -1268,13 +1305,6 @@ original file name.</string>
            </size>
           </property>
           <layout class="QGridLayout" name="gridLayout_18">
-           <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="lblProgressTitle">
-             <property name="text">
-              <string>Reading albums and images</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="3" colspan="2">
             <widget class="QLabel" name="lblProgressDesc">
              <property name="text">
@@ -1282,10 +1312,45 @@ original file name.</string>
              </property>
             </widget>
            </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="lblProgressTitle">
+             <property name="text">
+              <string>Reading albums and images</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="lblProgress">
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>0/0</string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lblRemainingTimeTitle">
              <property name="text">
               <string>Elapsed / remaining time:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_43">
+             <property name="text">
+              <string>Images/sec:</string>
              </property>
             </widget>
            </item>
@@ -1308,20 +1373,6 @@ original file name.</string>
               </size>
              </property>
             </spacer>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLabel" name="label_43">
-             <property name="text">
-              <string>Images/sec:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="4">
-            <widget class="QLabel" name="lblImagesPerSec">
-             <property name="text">
-              <string>999</string>
-             </property>
-            </widget>
            </item>
            <item row="1" column="0" colspan="3">
             <widget class="QProgressBar" name="progressBar">
@@ -1348,24 +1399,10 @@ original file name.</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
-            <widget class="QLabel" name="lblProgress">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
+           <item row="2" column="4">
+            <widget class="QLabel" name="lblImagesPerSec">
              <property name="text">
-              <string>0/0</string>
+              <string>999</string>
              </property>
             </widget>
            </item>
@@ -1480,6 +1517,11 @@ original file name.</string>
                 <item>
                  <property name="text">
                   <string>Section (albums, images) Title</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Thumbnail image</string>
                  </property>
                 </item>
                 <item>
@@ -4250,8 +4292,8 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>100</width>
+                    <height>30</height>
                    </rect>
                   </property>
                   <attribute name="label">

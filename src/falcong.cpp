@@ -4,6 +4,8 @@
 #include <QColorDialog>
 #include <QDirIterator>
 #include <QListView>
+#include <QDesktopServices>
+#include <QUrl>
 
 #include "support.h"
 #include "config.h"
@@ -133,7 +135,7 @@ FalconG::FalconG(QWidget *parent)
 	ui.pnlProgress->setVisible(false);
 
 	ui.sample->setPage(&_page);
-	ui.sample->setUrl(QStringLiteral("qrc:/Preview/Resources/index.html"));
+	ui.sample->load(QUrl(QStringLiteral("file:///Resources/index.html")));
 
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
@@ -423,6 +425,7 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae)
 		case aeGalleryTitle:			 return &config.GalleryTitle;
 		case aeGalleryDesc:				 return &config.GalleryDesc;
 		case aeSection:					 return &config.Section;
+		case aeThumb:					 return &config.Thumb;
 		case aeImageTitle:				 return &config.ImageTitle;
 		case aeImageDesc:				 return &config.ImageDesc;
 		case aeLightboxTitle:			 return &config.LightboxTitle;
@@ -482,7 +485,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 	// menus: set uplink icon
 	if (ae == aeMenuButtons)
 	{
-		QIcon icon = _SetUplinkIcon();		// from resources
+		QIcon icon = _SetUplinkIcon();		// from file (see around line# 2297)
 		QString qs = "res/up-link.png";
 		QFile::remove(qs);
 		qs = "background-image: " + qs;
@@ -650,7 +653,9 @@ void FalconG::_PopulateFromConfig()
 	ui.edtEmailTo->setText(config.sMailTo);
 	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
 	ui.edtGalleryTitle->setText(config.sGalleryTitle);
-	ui.edtGoogleFonts->setText(config.sGoogleFonts.ToString());
+	QString s = config.sGoogleFonts.ToString();
+	s.replace('|', ',');
+	ui.edtGoogleFonts->setText(s);
 	ui.edtKeywords->setText(config.sKeywords);
 	ui.edtServerAddress->setText(config.sServerAddress);
 	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
@@ -985,12 +990,22 @@ void FalconG::on_edtGalleryLanguages_textChanged()
 	_SetConfigChanged(true);
 }
 
-void FalconG::on_edtGoogleFonts_textChanged()
+void FalconG::on_edtGoogleFonts_editingFinished()
 {
 	if (_busy)
 		return;
-	config.sGoogleFonts = ui.edtGoogleFonts->text().trimmed();
+	QString s = ui.edtGoogleFonts->text().trimmed();
+// replace all spaces and commas NOT inside quotes
+		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
+		// regualr expression for this with lookahead feature:
+		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
+		// simpler and much faster one (not working, why?):
+		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
+//		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
+	s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"), "|");
+	config.sGoogleFonts = s;
 	_SetConfigChanged(true);
+	_ModifyGoogleFontImport();
 }
 
 /*============================================================================
@@ -2291,7 +2306,7 @@ void FalconG::on_btnBorderColor_clicked()
 QIcon FalconG::_SetUplinkIcon(QString iconName)
 {
 	if (iconName.isEmpty() )
-		iconName = "qrc:/icons/Resources/up-icon.png";
+		iconName = "Resources/up-icon.png";
 	QIcon icon(iconName);
 	_lastUsedMenuForegroundColor = Qt::white;
 	_SetIconColor(icon, config.Menu);
@@ -2327,10 +2342,12 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 void FalconG::on_btnSaveConfig_clicked()
 {
 	config.Write();
-	QString s	 = CONFIGS_USED::NameForConfig(true, ".ini");
+	QString s	 = CONFIGS_USED::NameForConfig(true, ".ini"),
+			sp = s.left(s.lastIndexOf('/'));	// path
+	s = s.mid(s.lastIndexOf('/') + 1);			// name
 	QMessageBox(QMessageBox::Information,
 		QString("falconG"),
-		QString(QMainWindow::tr("Configuration file '%1' is saved").arg(s)),
+		QString(QMainWindow::tr("Saved configuration\n'%1'\n into folder \n'%2'").arg(s).arg(sp)),
 		QMessageBox::Ok,
 		this).exec();
 }
@@ -2626,6 +2643,36 @@ void FalconG::on_btnDisplayHint_clicked()
 				 "A clear indication is a background mismatch between the color of the "
 				 "<span style=\" font - style:italic;\">Gallery title</span> area on the top and the "
 				 "main page area below it.</p></body></html>", QMessageBox::Ok, this).exec();
+}
+
+void FalconG::_ModifyGoogleFontImport()
+{
+	static QString name = "Resources/falconG.css",
+		tmpName = name + ".tmp";
+	QFile in(name),
+		out(tmpName);
+	in.open(QIODevice::ReadOnly),
+		out.open(QIODevice::WriteOnly);
+
+	QTextStream ifs(&in), ofs(&out);
+	QString line = ifs.readLine(),	// first line may be the font import line
+			savedLine;
+
+	if (line.left(7) != "@import")	// did not start with font import: save line for after inserting @import later
+		savedLine = line;
+
+	line = QString("@import url(\"https://fonts.googleapis.com/css?family=" + config.sGoogleFonts.ToString() + "\"");
+	ofs << line << "\n";
+	// TODO put fonts directory handling here
+	if (!savedLine.isEmpty())
+		ofs << savedLine << "\n";
+	while (!(line = ifs.readLine()).isEmpty())
+		ofs << line << "\n";
+	in.close();
+	out.close();
+	BackupAndRename(name, tmpName);
+	// reload page
+	_page.triggerAction(QWebEnginePage::Reload);
 }
 
 /*============================================================================
@@ -2978,12 +3025,18 @@ void FalconG::on_btnPreview_clicked()
 	}
 }
 
+void FalconG::on_btnGoToGoogleFontsPage_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://fonts.google.com/"));
+}
+
 void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 {
 	_aeActiveElement = (AlbumElement)newIndex;
 	ui.gbGradient->setEnabled(newIndex);
 	ui.gbBorder->setEnabled(newIndex);
-	ui.toolBox->setCurrentIndex(newIndex ? 1 : 0);	// to settings
+	int page = newIndex == aeThumb ? 2 : newIndex ? 1 : 0;
+	ui.toolBox->setCurrentIndex(page);	// to settings
 	_ActualSampleParamsToUi();
 }
 
@@ -3209,16 +3262,16 @@ void FalconG::_SetDecoration(_CElem* pElem)
 {
 	QString qs;
 	if (!pElem->decoration.IsTextDecorationLine())
-		_SetCssProperty(pElem, "text-decoration-line:;");
+		_SetCssProperty(pElem, "text-decoration-line:");
 	else if (pElem == &config.Web || !pElem->parent || pElem->parent->decoration != pElem->decoration)
 	{
-		_SetCssProperty(pElem, "text-decoration-line:"   +  pElem->decoration.TextDecorationLineStr() + ";\n" + 
-								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + ";");
+		_SetCssProperty(pElem, "text-decoration-line:"   +  pElem->decoration.TextDecorationLineStr() + "\n" + 
+								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + "");
 	}
 	else
 	{
-		_SetCssProperty(pElem,	"text-decoration-line:;\n"
-								"text-decoration-style:;");
+		_SetCssProperty(pElem,	"text-decoration-line:\n"
+								"text-decoration-style:");
 	}
 
 }
@@ -4003,7 +4056,7 @@ void FalconG::_RunJavaScript(QString className, QString value)
 			return;
 		qs = QString("SetPropertyForClass('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 		_page.runJavaScript(qs);
-		DEBUG_LOG(qs)
+//		DEBUG_LOG(qs)
 	};
 	for (auto s : qsl)
 		runOneTag(s);

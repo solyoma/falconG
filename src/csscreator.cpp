@@ -31,17 +31,7 @@ void CssCreator::_CreateGlobals()
 {
 	QString s = config.sGoogleFonts;
 	if (!s.isEmpty())
-	{	// replace all spaces and commas NOT inside quotes
-		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
-		// regualr expression for this with lookahead feature:
-		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
-		// simpler and much faster one (not working, why?):
-		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
-//		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
-		s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"),"|");
-//		s.replace(QRegularExpression("(?=([^\"\\\\]*(\\.|\"([^\"\\\\]*\\\\.)*[^\"\\]*\"))*[^\"]*$)"),"|");
 		s = "@import url(\"https://fonts.googleapis.com/css?family=" + s + "\");\n";
-	}
 	_ofs << s;
 
 	s = config.dsFontDir.ToString();
@@ -111,7 +101,6 @@ section {
 }
 
 )";
-
 }
 
 void CssCreator::_CreateForMenuButtons()
@@ -181,15 +170,6 @@ void CssCreator::_CreateForGalleryDesc()
 
 void CssCreator::_CreateForSection()
 {
-	_ofs << R"(section {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: center;
-	align-items:baseline;
-	max-width: 100%;
-}
-
-)";
 	_CssForElement(QString(R"(.fgsection {
 	margin: auto;
 	padding:%1;
@@ -205,9 +185,6 @@ void CssCreator::_CreateForImages()
 	justify-content:center;
 	align-items:center;
 	position: relative;
-	padding:)"
-		<< config.ImageTitle.font.SizeStr() 
-		<< R"(
 }
 
 .img-container > div {
@@ -235,6 +212,11 @@ void CssCreator::_CreateForImages()
 
 void CssCreator::_CreateForImageTitle()
 {
+	_ofs << R"(.links {
+	margin-bottom:)"
+		<< config.ImageTitle.font.SizeStr()
+		<< "\n}\n\n";
+
 	_CssForElement(QString(".title:hover{\n"
 				   "	font-weight: ") + (config.ImageTitle.font.Bold() ? "normal;\n":"700;\n")+
 				   "    font-style: " + (config.ImageTitle.font.Italic() ? "normal;\n":"italic;\n")+
@@ -297,7 +279,7 @@ void CssCreator::_CreateForFooter()
 
 void CssCreator::_CreateMediaQueries()
 {
-	_ofs << R"(		 	/* -- media queries *** /
+	_ofs << R"(		 	/* -- media queries ***/
 @media only screen and (orientation: landscape) {
 	.img-container img {
 		max-height: 95vh; 
@@ -320,7 +302,7 @@ void CssCreator::_CreateMediaQueries()
 	}
 }
 
-	/* large screens * /
+	/* large screens */
 @media only screen and (min-width:1200px) {
 	.img-container
 	{
