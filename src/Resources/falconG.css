@@ -1,133 +1,25 @@
-@import url("https://fonts.googleapis.com/css?family=Mansalva|Tangerine|Meddon|Playfair"); /*--- script Font --*/
-@import url("https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway"); /*--- Heading Font --*/
-
+@import url("https://fonts.googleapis.com/css?family=Mansalva,Tangerine,Meddon,Playfair");
 *, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
 	margin:0;
 }
-/* default values */
-:root {
-	--dummy:#aaffff;
-	--color: #d6e0f7;
-	--alma:#a6d1ff;
-    --base-color: #8f8f8f;
-    --transparent:rgba(0,0,0,0);
-    --main-background: #1e1f25;
-	--menu-color: #ffd460;
-	--menu-border-color: #947622;
-    --menu-gradient: linear-gradient(rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
-    --menu-border: 1px solid rgb(151, 118, 68);
-    --menu-border-radius: 5px;
-    --header-color:#a6d1ff;
-    --small-title-color:#a07b00;
-    --gallery-title-color:#f07b3f;
-    --gallery-desc-color:#ffd460;
-    --section-color:#f07b3f;
-    --desc-color:#ddd;
-    --title-color:#ffd460;
-    --lightbox-color:#f07b3f;
-    --footer-color:#ddd;
-    
-    /* fonts */
-    --serif-fonts:Playfair,serif;
-    --sans-serif-fonts:Verdana, ,sans-serif;
-    --script-font:Meddon,Tangerine,cursive;
-}
-
-html,
-body,
-main {
+html, body, main {
 	height: 100% ;
 	width: 100%;
-	overflow: auto;
-    color:var(--base-color);
-    background-color:var(--main-background);
-}
+	color:#8f8f8f;
+	background:#1e1f25;
 
+}
+		
 a, a:visited {
-	text-decoration: none;
+	text-decoration:none;
 }
 
 .area {
-		margin: 10px 10px 10px 10px;
-	}
-	
-	/* small gallery title */
-.falconG {
-	display:inline-block;
-    color:var(--small-title-color);
-	font-size:12pt;
-	font-family:var(--serif-fonts);
-	font-weight:bold;
-	font-style:italic;
+	margin:0 6px;
 }
 
-.falconG::first-line {
-	font-size:12pt;
-}
-
-header {
-    color:var(--header-color);
-	font-size:12pt;
-	font-family:var(--script-fonts),var(--serif-fonts);
-	text-align: left;
-	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-	cursor:pointer;				/* only for design! */
-}
-
-nav {
-	display: inline-block;
-	position: sticky;
-	position: -webkit-sticky;
-	top: 10px;
-	margin-bottom: 1rem;
-	z-index: 1;
-}
-
-.menu-item {
-	display: inline-block;
-	margin: 2px 3px 2px 2px;
-	padding: 4px 10px 3px;
-    color:var(--menu-color);
-	z-index:1;
-	font-size:10pt;
-	font-family:var(--serif-fonts);
-	font-weight:bold;
-	line-height: 18px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-	border-width:1px 2px 3px 4px; 
-	border-style:solid;
-	border-color:#ffaa00;
-}
-
-.menu-item:hover {
-	color:rgba(45,64,89,0.8);
-    background-color:var(--menu-color);
-    border: 1px solid var(--menu-border-color);
-}
-
-/* up icon */
-.menu-item#uplink {
-	background-image: url("file:///res/up-icon-sample.png");
-	background-size:14px;
-	background-repeat:no-repeat;
-	background-position: center;
-}
-
-/* if it is in one declaration then can I set it individually from javascript? */
-.menu-item#uplink, .menu-item#about, .menu-item#desc, .menu-item#captions, .manu-items#contact {
-	display:inline-block;
-}
-
-.langs {
-	color:#dddd00;
-	font-size: 8pt;
-	border:0;
-	box-shadow: 0;
-}
-
-/* --- main section --*/
 main{
 	display: flex;
 	flex-direction: column;
@@ -140,52 +32,100 @@ section {
 	flex-flow: row wrap;
 	justify-content: center;
 	align-items:baseline;
-	max-width: 100% ;
-}
-/* --- end main section --*/
-.fgsection {
-	font-family:var(--script-font);
-	color:var(--section-color);
-	font-size:34pt;
-	text-align:center;
 	max-width: 100%;
-	cursor:pointer;				/* only for design! */
 }
 
-.fgsection::first-line {
-	font-size:34pt;
-	cursor:pointer;				/* only for design! */
+
+nav {
+	display: inline-block;
+	position: sticky;
+	position: -webkit-sticky;
+	top:10px;
+	margin-bottom: 1rem;
+	z-index: 1;
+}
+
+.menu-item {
+	display: inline-block;
+	margin: 2px 3px 2px 2px;
+	padding: 4px 10px 3px;
+	color:#ffaa00;
+	background:rgba(107,135,0,0.1);
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border-top:1px solid #ffaa00;
+	border-right:1px solid #ffaa00;
+	border-bottom:1px solid #ffaa00;
+	border-left:1px solid #ffaa00;
+	border-radius:15px;
+}
+
+.menu-item:hover {
+	background:rgba(107,135,0,0.1);
+	color:#ffaa00;
+}
+/* up icon */
+.menu-item#uplink {
+	background-image: url("up-icon.png");
+	background-size:14px;
+	background-repeat:no-repeat;
+	background-position: center;
+}
+
+.langs {
+	color:#ffff00;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	font-style:italic;
+}
+
+header {
+	color:#000000;
+	background:rgba(0,0,0,0);
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+}
+
+
+.falconG {
+	margin-left: 10px;
+	display:inline-block;
+	color:#a36d00;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
 }
 
 .gallery-title {
-	color:var(--lightbox-color);
-	font-family:var(--script-font);
-	font-size:20pt;
-	font-weight:bold;
+	color:#ffffff;
+	font-family:playfair;
+	font-size:24pt;
+	line-height:24pt;
 	text-align:center;
-	cursor:pointer;				/* only for design! */
-}
-
-/* valtozott */
-.gallery-title::first-line {
-	font-size:36pt;
-	cursor:pointer;				/* only for design! */
 }
 
 .gallery-desc {
-	color:var(--base-color);
-    text-align:center;
-    margin:auto;
-	margin: 20px 0 20px 0;
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
-	cursor:pointer;				/* only for design! */
+	line-height:12pt;
+	text-align:center;
 }
 
-.gallery-desc::first-line {
+.fgsection {
+	margin: auto;
+	padding:24pt;
+	color:#ffaa00;
+	font-family:Mansalva;
 	font-size:24pt;
+	line-height:24pt;
+	text-align:center;
 }
 
-/* ---- img----- */
+		/* ---- img----- */
 .img-container {
 	display:flex;
 	flex-direction: column;
@@ -199,93 +139,47 @@ section {
 }
 
 .img-container img {
-	display:block;
+	display:block;			/* get rid of bottom space */
 	margin:auto;
 	max-width:99vw;
 }
 
-.thumb{
+.thumb {
 	display: inline-block;
-	padding: 1px;
-	margin: 0 2;
-	/*	padding:2px; */
-	border:1px dashed #ffd460;
-}	
-
-.thumb::after {
-	position:absolute;
-	bottom:0px;
-	left:50%;
-	content:"falconG Watermark";
-	color: rgba(255,255,255,0.5);
 }
 
 [data-src] {
-	min-width:600;
-	min-height:400;
-}	
-
-.title {
-	color:var(--base-color);
-	font-size:18pt;
-	font-family:var(--script-fonts),var(--serif-fonts);
-	font-weight:bold;
-    margin:0 0 20px 0;
+	min-width:600px;
+	min-height:400px;
 }
-
-.title::first-line {
-	font-size:24pt;
-	cursor:pointer;				/* only for design! */
+.links {
+	margin-bottom:22pt
 }
 
 .title:hover{
 	font-weight: 700;
-	font-style: italic;
+    font-style: italic;
 }
 
+.title {
+	color:#ffaa00;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:22pt;
+	line-height:22pt;
+	text-align:center;
+}
 
 .desc {
-    color:#ccc;
-	display:block;				/* csak a debug miatt, marad none */
 	hyphens: auto;
 	-moz-hyphens: auto;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
-	font-family:var(--sans-serif-fonts);
-	font-size:10pt;
-	font-weight:bold;
-	text-align: center;
-	padding-top:10px;
-	cursor:pointer;				/* only for design! */
-}
-
-footer{
-    color:var(--footer-color);
+	color:#d38d00;
+	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
-	font-family:var(--script-fonts),var(--serif-fonts);
-	text-align: center;
-	margin:auto;
-	cursor:pointer;				/* only for design! */
-	font-style:italic;
+	line-height:12pt;
+	text-align:center;
 }
-/*
-section {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: center;
-    align-items:baseline;
-	max-width: 100% ;
-}
-*/
-
-.desc p {
-	font-size: 12pt;
-	line-height: 12pt;
-	text-align: center;
-	max-width:90%;
-	margin:auto;
-}	
-
 
 /* Lightbox */
 .lightbox {
@@ -311,22 +205,28 @@ section {
     height: 100%;
 }
 
-.lightbox img {
-    display: block;
-    cursor:pointer;
+.lightbox-caption { 
+	display:none;
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
 }
-  
-.lightbox-caption {
-    color:var(--lightbox-color);
-    margin: 15px auto;
-    width: 50%;
-    text-align: center;
-    font-size: 1.5rem;
-    line-height: 1.5;
-    font-weight: 700;
-}
-/* /lightbox */
 
+.lightbox-desc {
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+}
+
+.footer {
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	text-align:center;
+}
 
 		 	/* -- media queries ***/
 @media only screen and (orientation: landscape) {
@@ -342,12 +242,11 @@ section {
 	}
 
 	p{
-		font-size:12pt
+		font-size:12pt;
 	}
 
 	.gallery-desc {
 		width:50vw;
-		text-align:center;
 		margin: auto;
 	}
 }
@@ -368,7 +267,6 @@ section {
 
 	.gallery-desc {
 		width:800px;
-		text-align:center;
 		margin:auto;
 	}
 }

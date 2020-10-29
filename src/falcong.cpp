@@ -14,6 +14,7 @@
 #include "falcong.h"
 #include "structEdit.h"
 #include "sourcehistory.h"
+#include "csscreator.h"
 
 
 #define DEBUG_LOG(qs) \
@@ -119,6 +120,44 @@ QString IntToColorStr(int clr)
 
 //**************************************** falconG *******************************************
 
+
+
+/*========================================================
+ * TASK:	copies file from resource to HD
+ * PARAMS:	refPath path in resource data 
+ *			name file name to copy
+ *			overwrite - existing files?
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - existing files kept
+			- QFile::copy() can't copy from resource
+ *-------------------------------------------------------*/
+static bool _CopyResourceFileToProgramDir(QString resPath, QString name, bool overwrite=false
+)
+{
+	resPath += name;
+	if (!QFile::exists(name))
+	{
+		//QResource res()
+		QFile f(resPath);
+		if (!f.open(QIODevice::ReadOnly))
+			goto ERR;
+		QByteArray ba = f.read(128 * 1024);
+		f.close();
+		f.setFileName(name);
+		if (f.open(QIODevice::WriteOnly) )
+		{
+			if (f.write(ba) < 0)
+				goto ERR;
+			return true;
+		}
+	}
+	return true;	// not copied
+ERR:
+	QMessageBox::critical(nullptr, "falconG", "Can't copy resource'"+name+"' to program folder\nPlease make sure the folder is writeable!\n\nExiting");
+	exit(1);
+}
+
 /*============================================================================
 * TASK:		construct a FalconG object, read its parameters, set up controls
 *			and sample web page
@@ -131,11 +170,19 @@ FalconG::FalconG(QWidget *parent)
 {
 	config.dsApplication = QDir::current().absolutePath(); // before anybody changes the current directory
 
+	QString resPath = QStringLiteral(":/Preview/Resources/");
+	_CopyResourceFileToProgramDir(resPath, "index.html");
+	_CopyResourceFileToProgramDir(resPath, "falconG.css");
+	_CopyResourceFileToProgramDir(resPath, "falconG.js");
+	_CopyResourceFileToProgramDir(resPath, "placeholder.png");
+	_CopyResourceFileToProgramDir(resPath, "NoImage.jpg");
+	_CopyResourceFileToProgramDir(":/icons/Resources/", "up-icon.png");
+
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
 
 	ui.sample->setPage(&_page);
-	ui.sample->load(QUrl(QStringLiteral("file:///Resources/index.html")));
+	_page.load(QUrl(QStringLiteral("file:///index.html")));
 
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
@@ -166,7 +213,6 @@ FalconG::FalconG(QWidget *parent)
 
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
-
 	CONFIGS_USED::Read();		// to get last used configuration
 	config.Read();				// to read config from
 
@@ -311,6 +357,8 @@ void FalconG::on_btnGenerate_clicked()
 	}
 	else
 	{
+		CssCreator cssCreator;
+		cssCreator.Create("falocnG.css", true);	// program library setting cursors too
 		CONFIGS_USED::Write();
 		albumgen.SetRecrateAlbumFlag(config.bGenerateAll || config.Changed());
 
@@ -448,6 +496,16 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae)
 //	return s;
 //}
 
+
+void FalconG::_SaveLinkIcon()
+{
+		QIcon icon = _SetUplinkIcon();		// from file (see around line# 2297)
+		QString qs = "res/up-link.png";
+		QFile::remove(qs);
+		qs = "background-image: " + qs;
+		icon.pixmap(64,64).save(qs);		// and save into "res" subdirectory
+}
+
 /*========================================================
  * TASK:	sets all characteristics of sample element
  *			from the actual given _CElem in confog
@@ -484,13 +542,9 @@ void FalconG::_ElemToSample(AlbumElement ae)
 
 	// menus: set uplink icon
 	if (ae == aeMenuButtons)
-	{
-		QIcon icon = _SetUplinkIcon();		// from file (see around line# 2297)
-		QString qs = "res/up-link.png";
-		QFile::remove(qs);
-		qs = "background-image: " + qs;
-		icon.pixmap(64,64).save(qs);		// and save into "res" subdirectory
-		_SetCssProperty(&config.Menu, qs,"#uplink");
+	{	_SaveLinkIcon();
+
+		_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\"", "#uplink");
 	}
 }
 
@@ -654,7 +708,7 @@ void FalconG::_PopulateFromConfig()
 	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
 	ui.edtGalleryTitle->setText(config.sGalleryTitle);
 	QString s = config.sGoogleFonts.ToString();
-	s.replace('|', ',');
+	s.replace('|', ',');s.replace('+', ' ');
 	ui.edtGoogleFonts->setText(s);
 	ui.edtKeywords->setText(config.sKeywords);
 	ui.edtServerAddress->setText(config.sServerAddress);
@@ -744,6 +798,8 @@ void FalconG::_PopulateFromConfig()
 
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
+
+	_SettingUpFontsCombo();
 
 	switch (config.styleIndex)
 	{
@@ -1002,10 +1058,21 @@ void FalconG::on_edtGoogleFonts_editingFinished()
 		// simpler and much faster one (not working, why?):
 		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
 //		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
-	s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"), "|");
-	config.sGoogleFonts = s;
-	_SetConfigChanged(true);
-	_ModifyGoogleFontImport();
+//	QStringList qsl = s.split(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"));
+	QStringList qsl = s.split(QRegularExpression(R"([,;] *)"));
+//	s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"), "|");
+	for (auto &qs : qsl)
+	{
+		qs.replace(' ', '+');
+		qs.remove('"');
+	}
+	s = qsl.join('|');
+	if (config.sGoogleFonts != s)
+	{
+		config.sGoogleFonts = s;
+		_SetConfigChanged(true);
+		_ModifyGoogleFontImport();
+	}
 }
 
 /*============================================================================
@@ -2287,9 +2354,10 @@ void FalconG::on_btnBorderColor_clicked()
 
 
 /*========================================================
- * TASK:	sets the uplink icon from a file set in 
- *			config	in the correct color to the uplink
- *			menu web button
+ * TASK:	sets the uplink icon from resource
+ *			colors it as set inconfig	for the uplink
+ *			menu web button and returns the rec-colored icon
+ *			to be saved
  * PARAMS:	iconName - path name of icon or empty
  *				when empty uses icon from resources
  * GLOBALS:	config
@@ -2306,7 +2374,7 @@ void FalconG::on_btnBorderColor_clicked()
 QIcon FalconG::_SetUplinkIcon(QString iconName)
 {
 	if (iconName.isEmpty() )
-		iconName = "Resources/up-icon.png";
+		iconName = ":/icons/Resources/up-icon.png";
 	QIcon icon(iconName);
 	_lastUsedMenuForegroundColor = Qt::white;
 	_SetIconColor(icon, config.Menu);
@@ -2647,32 +2715,61 @@ void FalconG::on_btnDisplayHint_clicked()
 
 void FalconG::_ModifyGoogleFontImport()
 {
-	static QString name = "Resources/falconG.css",
+	static QString name = "falconG.css",
 		tmpName = name + ".tmp";
 	QFile in(name),
 		out(tmpName);
 	in.open(QIODevice::ReadOnly),
 		out.open(QIODevice::WriteOnly);
 
-	QTextStream ifs(&in), ofs(&out);
-	QString line = ifs.readLine(),	// first line may be the font import line
+	QTextStream infs(&in), outfs(&out);
+	QString line = infs.readLine(),	// first line may be the font import line
 			savedLine;
 
 	if (line.left(7) != "@import")	// did not start with font import: save line for after inserting @import later
 		savedLine = line;
-
-	line = QString("@import url(\"https://fonts.googleapis.com/css?family=" + config.sGoogleFonts.ToString() + "\"");
-	ofs << line << "\n";
+    
+	line = config.sGoogleFonts.ToString();
+	line.replace('"', "'");
+	line = QString("@import url('https://fonts.googleapis.com/css?family=" + line + "&display=swap');");
+	outfs << line << "\n";
 	// TODO put fonts directory handling here
 	if (!savedLine.isEmpty())
-		ofs << savedLine << "\n";
-	while (!(line = ifs.readLine()).isEmpty())
-		ofs << line << "\n";
+		outfs << savedLine << "\n";
+	while (!infs.atEnd())
+	{
+		line = infs.readLine();
+		outfs << line << "\n";
+	}
 	in.close();
 	out.close();
 	BackupAndRename(name, tmpName);
 	// reload page
 	_page.triggerAction(QWebEnginePage::Reload);
+	_PopulateFromConfig();
+}
+
+
+/*========================================================
+ * TASK:	set up cbFonts from fonts in 
+ *			config.sGoogleFonts and config.sDefFonts
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_SettingUpFontsCombo()
+{
+	QStringList qsl = config.sDefFonts.ToString().split('|') + config.sGoogleFonts.ToString().split('|');
+	qsl.sort(Qt::CaseInsensitive);
+	ui.cbFonts->clear();
+	for (auto s : qsl)
+	{
+		s.replace('+', ' ');
+		ui.cbFonts->addItem(s);
+	}
+
+	ui.cbFonts->setEnabled(qsl.size());
 }
 
 /*============================================================================
@@ -2932,6 +3029,15 @@ void FalconG::on_cbLanguage_currentIndexChanged(int index)
 {
 	_GetTextsForEditing(wctLangCombo);	// saves changes then get text for the other language
 	_selection.edtLang = index;
+}
+
+void FalconG::on_cbFonts_currentIndexChanged(int index)
+{
+	if (_busy || index < 0)
+		return;
+	QString s = ui.cbFonts->currentText();
+	ui.edtFontFamily->setText(s);
+	//ui.cbFonts->setCurrentIndex(-1);
 }
 
 /*=============================================================

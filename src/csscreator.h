@@ -11,6 +11,7 @@ class CssCreator
 {
 	QFile _f;
 	QTextStream _ofs;
+	bool _forFalconG;
 
 	bool _Open(QString name);
 	void _Close() { if(_f.isOpen() ) _f.close(); }
@@ -38,6 +39,6 @@ class CssCreator
 public:
 	CssCreator() {}
 
-	bool Create(QString cssFileName);
+	bool Create(QString cssFileName, bool forFalconG = false);
 };
 

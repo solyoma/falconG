@@ -140,6 +140,7 @@ private:
 	void _SetWatermark();
 	void _UpdaetWatermarkMargins(int mx, int my);
 
+	void _SaveLinkIcon();
 	void _ElemToSample(AlbumElement ae = aeUndefined);	// with no argument uses _aeActElement
 
 	void _ConfigToSample();	// for all elements
@@ -154,6 +155,7 @@ private:
 	void _StyleTheProgram(skinStyle which);
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
+	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
 
 //	void _GetProperty(StyleIndex index);
@@ -231,6 +233,7 @@ private slots:
 					// edit text on structure page
 	void on_cbBaseLanguage_currentIndexChanged(int index);
 	void on_cbLanguage_currentIndexChanged(int index);
+	void on_cbFonts_currentIndexChanged(int index);
 
 	void on_chkFacebook_toggled(bool);
 	void on_chkDebugging_toggled(bool);

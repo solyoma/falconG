@@ -1172,7 +1172,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                   <item>
                    <widget class="QLineEdit" name="edtGoogleFonts">
                     <property name="placeholderText">
-                     <string>comma separated font names w.o. URL</string>
+                     <string>comma separated font names (possibly with ':wght@&lt;wight&gt;') w.o. URL</string>
                     </property>
                    </widget>
                   </item>
@@ -2921,8 +2921,8 @@ original file name.</string>
                       <string>Font</string>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_17">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_27">
+                      <item row="2" column="0">
+                       <widget class="QCheckBox" name="chkBold">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -2932,49 +2932,7 @@ original file name.</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>Family</string>
-                        </property>
-                        <property name="buddy">
-                         <cstring>edtFontFamily</cstring>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1" colspan="2">
-                       <widget class="QLineEdit" name="edtFontFamily">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>24</height>
-                         </size>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="placeholderText">
-                         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_28">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Point si&amp;ze:</string>
-                        </property>
-                        <property name="buddy">
-                         <cstring>cbPointSize</cstring>
+                         <string>Bold</string>
                         </property>
                        </widget>
                       </item>
@@ -3085,8 +3043,23 @@ original file name.</string>
                         </item>
                        </widget>
                       </item>
-                      <item row="1" column="2">
-                       <widget class="QCheckBox" name="chkDifferentFirstLine">
+                      <item row="0" column="3" colspan="3">
+                       <widget class="QComboBox" name="cbFonts">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="toolTip">
+                         <string>If you gave any default font names or 
+google font names you can select it 
+using thjis combo box</string>
+                        </property>
+                        <property name="placeholderText">
+                         <string>Select specified font</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_27">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -3096,11 +3069,14 @@ original file name.</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>&amp;Different 1st:</string>
+                         <string>Family</string>
+                        </property>
+                        <property name="buddy">
+                         <cstring>edtFontFamily</cstring>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="3">
+                      <item row="1" column="5">
                        <widget class="QComboBox" name="cbPointSizeFirstLine">
                         <property name="minimumSize">
                          <size>
@@ -3207,8 +3183,8 @@ original file name.</string>
                         </item>
                        </widget>
                       </item>
-                      <item row="2" column="0">
-                       <widget class="QCheckBox" name="chkBold">
+                      <item row="1" column="3">
+                       <widget class="QCheckBox" name="chkDifferentFirstLine">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -3218,9 +3194,40 @@ original file name.</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>Bold</string>
+                         <string>&amp;Different 1st:</string>
                         </property>
                        </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_28">
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Point si&amp;ze:</string>
+                        </property>
+                        <property name="buddy">
+                         <cstring>cbPointSize</cstring>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <spacer name="horizontalSpacer_10">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
                       </item>
                       <item row="2" column="1">
                        <widget class="QCheckBox" name="chkItalic">
@@ -3234,6 +3241,27 @@ original file name.</string>
                         </property>
                         <property name="text">
                          <string>Italic</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1" colspan="2">
+                       <widget class="QLineEdit" name="edtFontFamily">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>24</height>
+                         </size>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="placeholderText">
+                         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
                         </property>
                        </widget>
                       </item>
@@ -4292,8 +4320,8 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -5710,7 +5738,7 @@ regardless if they were already OK.</string>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>tabFalconG</tabstop>
+  <tabstop>btnSourceHistory</tabstop>
   <tabstop>edtSourceGallery</tabstop>
   <tabstop>btnBrowseSource</tabstop>
   <tabstop>chkSourceRelativePerSign</tabstop>
@@ -5725,9 +5753,9 @@ regardless if they were already OK.</string>
   <tabstop>edtGalleryTitle</tabstop>
   <tabstop>edtGalleryLanguages</tabstop>
   <tabstop>edtEmailTo</tabstop>
+  <tabstop>chkMenuToAbout</tabstop>
   <tabstop>edtAbout</tabstop>
   <tabstop>edtBackImage</tabstop>
-  <tabstop>chkMenuToAbout</tabstop>
   <tabstop>sbNewDays</tabstop>
   <tabstop>sbLatestCount</tabstop>
   <tabstop>chkSetLatest</tabstop>
@@ -5744,14 +5772,16 @@ regardless if they were already OK.</string>
   <tabstop>edtImg</tabstop>
   <tabstop>edtThumb</tabstop>
   <tabstop>edtAlbumDir</tabstop>
+  <tabstop>edtGoogleFonts</tabstop>
+  <tabstop>btnGoToGoogleFontsPage</tabstop>
   <tabstop>edtFontDir</tabstop>
   <tabstop>edtDefaultFonts</tabstop>
   <tabstop>edtBaseName</tabstop>
   <tabstop>chkReadFromGallery</tabstop>
-  <tabstop>chkDebugging</tabstop>
   <tabstop>chkOvrImages</tabstop>
   <tabstop>chkAddTitlesToAll</tabstop>
   <tabstop>chkReadJAlbum</tabstop>
+  <tabstop>chkDebugging</tabstop>
   <tabstop>chkLowerCaseImageExtensions</tabstop>
   <tabstop>chkAddDescToAll</tabstop>
   <tabstop>btnGenerate</tabstop>
@@ -5762,28 +5792,67 @@ regardless if they were already OK.</string>
   <tabstop>btnSaveConfig</tabstop>
   <tabstop>btnExit</tabstop>
   <tabstop>cbActualItem</tabstop>
+  <tabstop>btnPageColor</tabstop>
+  <tabstop>btnPageBackground</tabstop>
+  <tabstop>chkSetAll</tabstop>
+  <tabstop>btnSelectUplinkIcon</tabstop>
+  <tabstop>chkIconTop</tabstop>
+  <tabstop>chkIconText</tabstop>
+  <tabstop>edtBckImageName</tabstop>
+  <tabstop>rbNoBackgroundImage</tabstop>
+  <tabstop>rbCenterBckImage</tabstop>
+  <tabstop>rbCoverBckImage</tabstop>
+  <tabstop>rbTileBckImage</tabstop>
   <tabstop>btnForeground</tabstop>
   <tabstop>sbTextOpacity</tabstop>
   <tabstop>chkTextOpacity</tabstop>
   <tabstop>btnBackground</tabstop>
   <tabstop>sbBackgroundOpacity</tabstop>
   <tabstop>chkBackgroundOpacity</tabstop>
-  <tabstop>sbShadowHoriz1</tabstop>
-  <tabstop>sbShadowBlur1</tabstop>
-  <tabstop>chkShadowOn</tabstop>
-  <tabstop>edtFontFamily</tabstop>
-  <tabstop>cbPointSize</tabstop>
-  <tabstop>chkDifferentFirstLine</tabstop>
   <tabstop>cbPointSizeFirstLine</tabstop>
   <tabstop>chkBold</tabstop>
-  <tabstop>chkItalic</tabstop>
+  <tabstop>chkTdUnderline</tabstop>
+  <tabstop>chkTdOverline</tabstop>
+  <tabstop>chkTdLinethrough</tabstop>
+  <tabstop>rbTdSolid</tabstop>
+  <tabstop>rbTdDotted</tabstop>
+  <tabstop>rbTdDashed</tabstop>
+  <tabstop>rbTdDouble</tabstop>
+  <tabstop>rbTdWavy</tabstop>
+  <tabstop>rbTdInitial</tabstop>
+  <tabstop>rbTextAlignNone</tabstop>
+  <tabstop>rbTextLeft</tabstop>
+  <tabstop>rbTextCenter</tabstop>
+  <tabstop>rbTextRight</tabstop>
+  <tabstop>rbTextShadow</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>chkShadowOn</tabstop>
+  <tabstop>sbShadowHoriz1</tabstop>
+  <tabstop>sbShadowVert1</tabstop>
+  <tabstop>sbShadowBlur1</tabstop>
+  <tabstop>sbShadowSpread1</tabstop>
+  <tabstop>sbShadowHoriz2</tabstop>
+  <tabstop>sbShadowVert2</tabstop>
+  <tabstop>sbShadowBlur2</tabstop>
+  <tabstop>sbShadowSpread2</tabstop>
+  <tabstop>btnShadowColor</tabstop>
   <tabstop>chkUseGradient</tabstop>
+  <tabstop>btnGradStartColor</tabstop>
   <tabstop>sbGradStartPos</tabstop>
+  <tabstop>btnGradMiddleColor</tabstop>
   <tabstop>sbGradMiddlePos</tabstop>
+  <tabstop>btnGradStopColor</tabstop>
   <tabstop>sbGradStopPos</tabstop>
+  <tabstop>chkUseBorder</tabstop>
+  <tabstop>btnBorderColor</tabstop>
+  <tabstop>cbBorder</tabstop>
+  <tabstop>sbBorderWidth</tabstop>
+  <tabstop>cbBorderStyle</tabstop>
+  <tabstop>sbBorderRadius</tabstop>
   <tabstop>chkImageBorder</tabstop>
+  <tabstop>sbImageBorderWidth</tabstop>
+  <tabstop>sbImagePadding</tabstop>
   <tabstop>btnImageBorderColor</tabstop>
-  <tabstop>rbCoverBckImage</tabstop>
   <tabstop>sbImageWidth</tabstop>
   <tabstop>btnLink</tabstop>
   <tabstop>sbImageHeight</tabstop>
@@ -5792,38 +5861,40 @@ regardless if they were already OK.</string>
   <tabstop>chkCropThumbnails</tabstop>
   <tabstop>chkDoNotEnlarge</tabstop>
   <tabstop>chkDistortThumbnails</tabstop>
-  <tabstop>cbWmVPosition</tabstop>
-  <tabstop>btnSaveChangedDescription</tabstop>
-  <tabstop>rbDarkStyle</tabstop>
-  <tabstop>edtWmVertMargin</tabstop>
-  <tabstop>cbWmHPosition</tabstop>
-  <tabstop>edtWmHorizMargin</tabstop>
+  <tabstop>chkUseWM</tabstop>
+  <tabstop>sbWmOpacity</tabstop>
+  <tabstop>edtWatermark</tabstop>
   <tabstop>btnSelectWmFont</tabstop>
   <tabstop>edtWmColor</tabstop>
   <tabstop>btnWmColor</tabstop>
+  <tabstop>cbWmVPosition</tabstop>
+  <tabstop>edtWmVertMargin</tabstop>
+  <tabstop>cbWmHPosition</tabstop>
+  <tabstop>edtWmHorizMargin</tabstop>
+  <tabstop>sbWmShadowHoriz</tabstop>
+  <tabstop>sbWmShadowVert</tabstop>
+  <tabstop>sbWmShadowBlur</tabstop>
+  <tabstop>btnWmShadowColor</tabstop>
   <tabstop>btnDisplayHint</tabstop>
   <tabstop>btnResetDesign</tabstop>
-  <tabstop>btnSourceHistory</tabstop>
   <tabstop>trvAlbums</tabstop>
-  <tabstop>cbBaseLanguage</tabstop>
   <tabstop>tnvImages</tabstop>
-  <tabstop>edtBaseTitle</tabstop>
+  <tabstop>cbBaseLanguage</tabstop>
   <tabstop>cbLanguage</tabstop>
-  <tabstop>chkSetAll</tabstop>
-  <tabstop>btnSelectUplinkIcon</tabstop>
-  <tabstop>chkChangeTitleEverywhere</tabstop>
-  <tabstop>btnPageBackground</tabstop>
   <tabstop>btnSaveChangedTitle</tabstop>
+  <tabstop>chkChangeTitleEverywhere</tabstop>
+  <tabstop>edtBaseTitle</tabstop>
   <tabstop>edtTitleText</tabstop>
-  <tabstop>btnPageColor</tabstop>
-  <tabstop>edtBckImageName</tabstop>
-  <tabstop>rbDefaultStyle</tabstop>
-  <tabstop>rbBlueStyle</tabstop>
-  <tabstop>edtDescriptionText</tabstop>
-  <tabstop>chkChangeDescriptionEverywhere</tabstop>
-  <tabstop>rbTileBckImage</tabstop>
   <tabstop>edtBaseDescription</tabstop>
+  <tabstop>edtDescriptionText</tabstop>
+  <tabstop>btnSaveChangedDescription</tabstop>
+  <tabstop>chkChangeDescriptionEverywhere</tabstop>
+  <tabstop>rbDefaultStyle</tabstop>
+  <tabstop>rbSystemStyle</tabstop>
+  <tabstop>rbBlueStyle</tabstop>
+  <tabstop>rbDarkStyle</tabstop>
   <tabstop>rbBlackStyle</tabstop>
+  <tabstop>tabFalconG</tabstop>
  </tabstops>
  <resources>
   <include location="falcong.qrc"/>

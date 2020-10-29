@@ -2832,7 +2832,9 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 	QString updir = (ID == 1 ? "" : "../");
 	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
 
-	_ofs << R"(<div class="fb-share-button" data-href="https://andreasfalco.com" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=)"
+	_ofs << R"(<div class="fb-share-button" data-href=")"
+		<< url.toEncoded()
+		<< R"(" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=)"
 		<< url.toEncoded()
 		<< R"(%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">)"
 		<< Languages::share[_actLanguage]
@@ -3147,7 +3149,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "<a id=\"images\"> class=\"fgsection\"" << Languages::Images[_actLanguage] << "</a>\n"
+			<< "<a id=\"images\" class=\"fgsection\">" << Languages::Images[_actLanguage] << "</a>\n"
 			<< "<section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.images.size(); ++i)

@@ -1,6 +1,5 @@
 <RCC>
   <qresource prefix="/icons">
-    <file>Resources/up-icon-sample.png</file>
     <file>Resources/blue-checked.png</file>
     <file>Resources/movedown-icon.png</file>
     <file>Resources/moveup-icon.png</file>
@@ -14,8 +13,8 @@
   </qresource>
   <qresource prefix="Preview">
     <file>Resources/falconG.js</file>
-    <file>Resources/Lazise_02596-Edit.png</file>
     <file>Resources/NoImage.jpg</file>
+    <file>Resources/placeholder.png</file>
     <file>Resources/falconG.css</file>
     <file>Resources/index.html</file>
   </qresource>

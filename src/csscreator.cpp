@@ -31,7 +31,7 @@ void CssCreator::_CreateGlobals()
 {
 	QString s = config.sGoogleFonts;
 	if (!s.isEmpty())
-		s = "@import url(\"https://fonts.googleapis.com/css?family=" + s + "\");\n";
+		s = "@import url('https://fonts.googleapis.com/css?family=" + s + "&display=swap');\n";
 	_ofs << s;
 
 	s = config.dsFontDir.ToString();
@@ -57,13 +57,13 @@ void CssCreator::_CreateGlobals()
 	padding:0;
 	margin:0;
 }
-html, body, main {
-	height: 100% ;
-	width: 100%;
-	overflow: auto;)";
 
+html, body, main {
+)";
 	_ofs << config.Web.ColorsForStyleSheet(true)
 		<< R"(
+	height: 100%;
+	width: 100%;
 }
 		
 a, a:visited {
@@ -141,39 +141,60 @@ nav {
 
 void CssCreator::_CreateForLangButton()
 {
-	_CssForElement(".langs {\n",config.Lang); 
+	QString s = ".langs {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+	_CssForElement(s ,config.Lang); 
 }
 
 void CssCreator::_CreateForHeader()
 {
-	_CssForElement("header {\n", config.Header);
+	QString s = "header {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+
+	_CssForElement(s, config.Header);
 }
 
 void CssCreator::_CreateForSmallTitle()
 {
-	_CssForElement(R"(
+	QString s = R"(
 .falconG {
 	margin-left: 10px;
 	display:inline-block;
-)", 	config.SmallGalleryTitle);
+)";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+
+	_CssForElement(s, 	config.SmallGalleryTitle);
 }
 
 void CssCreator::_CreateForGalleryTitle()
 {
-	_CssForElement(".gallery-title {\n", config.GalleryTitle);
+	QString s = ".gallery-title {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+	_CssForElement(s, config.GalleryTitle);
 }
 
 void CssCreator::_CreateForGalleryDesc()
 {
-	_CssForElement(".gallery-desc {\n", config.GalleryDesc);
+	QString s = ".gallery-desc {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+	_CssForElement(s, config.GalleryDesc);
 }
 
 void CssCreator::_CreateForSection()
 {
-	_CssForElement(QString(R"(.fgsection {
+	QString s = QString(R"(.fgsection {
 	margin: auto;
 	padding:%1;
-)").arg(config.Section.font.SizeStr()), config.Section);
+)").arg(config.Section.font.SizeStr());
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+
+	_CssForElement(s, config.Section);
 }
 
 void CssCreator::_CreateForImages()
@@ -212,27 +233,28 @@ void CssCreator::_CreateForImages()
 
 void CssCreator::_CreateForImageTitle()
 {
-	_ofs << R"(.links {
-	margin-bottom:)"
-		<< config.ImageTitle.font.SizeStr()
-		<< "\n}\n\n";
-
-	_CssForElement(QString(".title:hover{\n"
+	QString s =	QString(".title:hover{\n"
 				   "	font-weight: ") + (config.ImageTitle.font.Bold() ? "normal;\n":"700;\n")+
 				   "    font-style: " + (config.ImageTitle.font.Italic() ? "normal;\n":"italic;\n")+
 				   "}\n\n"
-				   ".title {\n", config.ImageTitle);
+				   ".title {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+
+	_CssForElement(s, config.ImageTitle);
 }
 
 void CssCreator::_CreateForImageDesc()
 {
-	_CssForElement(R"(.desc {
+	QString s = R"(.desc {
 	hyphens: auto;
 	-moz-hyphens: auto;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
-)",
-	config.ImageDesc );
+)";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+	_CssForElement(s, config.ImageDesc );
 }
 
 void CssCreator::_CreateForLightboxTitle()
@@ -274,7 +296,10 @@ void CssCreator::_CreateForLightboxDescription()
 
 void CssCreator::_CreateForFooter()
 {
-	_CssForElement( ".footer {\n",config.Footer);
+	QString s = ".footer {\n";
+	if (_forFalconG)
+		s += "    cursor:pointer;\n";
+	_CssForElement( s,config.Footer);
 }
 
 void CssCreator::_CreateMediaQueries()
@@ -345,11 +370,12 @@ void CssCreator::_Create()
 }
 
 
-bool CssCreator::Create(QString name)
+bool CssCreator::Create(QString name, bool forFalconG)
 {
 	if (!_Open(name))
 		return false;
 
+	_forFalconG = forFalconG;
 	_Create();
 	_Close();
 
