@@ -5611,10 +5611,10 @@ is required.</string>
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>0</height>
+        <height>41</height>
        </size>
       </property>
-      <layout class="QHBoxLayout" name="pnlButtonsLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
         <widget class="QPushButton" name="btnGenerate">
          <property name="enabled">
@@ -5692,6 +5692,17 @@ regardless if they were already OK.</string>
          </property>
          <property name="shortcut">
           <string>Ctrl+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkCleanUp">
+         <property name="toolTip">
+          <string>removes helper files created in 
+program directory (html,css,js,...)</string>
+         </property>
+         <property name="text">
+          <string>Clean up &amp;&amp;</string>
          </property>
         </widget>
        </item>

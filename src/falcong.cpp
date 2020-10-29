@@ -252,6 +252,17 @@ void FalconG::closeEvent(QCloseEvent * event)
 		event->ignore();
 	}
 
+	if (ui.chkCleanUp->isChecked())		// files will be re-created at next start
+	{
+		QFile::remove( "index.html");
+		QFile::remove( "falconG.css");
+		QFile::remove( "falconG.css~");
+		QFile::remove( "falconG.js");
+		QFile::remove( "placeholder.png");
+		QFile::remove( "NoImage.jpg");
+		QFile::remove( "up-icon.png");
+	}
+
 	if(_edited)
 	{
 		int res;
@@ -357,8 +368,12 @@ void FalconG::on_btnGenerate_clicked()
 	}
 	else
 	{
-		CssCreator cssCreator;
-		cssCreator.Create("falocnG.css", true);	// program library setting cursors too
+		if (config.Changed())
+		{
+			CssCreator cssCreator;
+			cssCreator.Create("falocnG.css", true);	// program library setting cursors too
+		}
+
 		CONFIGS_USED::Write();
 		albumgen.SetRecrateAlbumFlag(config.bGenerateAll || config.Changed());
 
