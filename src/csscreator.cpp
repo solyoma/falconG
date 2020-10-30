@@ -142,8 +142,6 @@ nav {
 void CssCreator::_CreateForLangButton()
 {
 	QString s = ".langs {\n";
-	if (_forFalconG)
-		s += "    cursor:pointer;\n";
 	_CssForElement(s ,config.Lang); 
 }
 
@@ -191,8 +189,6 @@ void CssCreator::_CreateForSection()
 	margin: auto;
 	padding:%1;
 )").arg(config.Section.font.SizeStr());
-	if (_forFalconG)
-		s += "    cursor:pointer;\n";
 
 	_CssForElement(s, config.Section);
 }
@@ -223,7 +219,7 @@ void CssCreator::_CreateForImages()
 )";
 	// image border is used for <a class="thumb">
 	if(config.imageBorder.Used())
-		_ofs << config.imageBorder.ForStyleSheetShort();
+		_ofs << config.imageBorder.ForStyleSheetShort(true);
 	_ofs << "}\n\n";
 
 	_ofs << "[data-src] {\n	min-width:" << config.thumbWidth.ToString()

@@ -218,6 +218,8 @@ FalconG::FalconG(QWidget *parent)
 
 	frmMain = this;
 
+	_ModifyGoogleFontImport();
+
 	_PopulateFromConfig();
 
 	int h = ui.tabEdit->height();
@@ -622,9 +624,10 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.sbShadowBlur2->setValue(pElem->shadow2[which].Blur());
 
 	ui.chkTextOpacity->setChecked(pElem->color.Opacity() > 0);
-	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() > 0);
 	ui.sbTextOpacity->setValue(pElem->color.Opacity() < 0 ? 100: pElem->color.Opacity());
 	ui.sbTextOpacity->setEnabled(ui.chkTextOpacity->isChecked());
+
+	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() > 0);
 	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity() < 0 ? 100 : pElem->background.Opacity());
 	ui.sbBackgroundOpacity->setEnabled(ui.chkBackgroundOpacity->isChecked());
 
@@ -633,6 +636,7 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkBold->setChecked(pElem->font.Bold());
 	ui.chkItalic->setChecked(pElem->font.Italic());
 	ui.chkTdUnderline->setChecked(pElem->decoration.IsUnderline());
+	ui.chkTdOverline->setChecked(pElem->decoration.IsOverline());
 	ui.chkTdLinethrough->setChecked(pElem->decoration.IsLineThrough());
 	ui.chkDifferentFirstLine->setChecked(pElem->font.IsFirstLineDifferent());
 
@@ -691,9 +695,8 @@ void FalconG::_ConfigToSample()
 
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
-	// qs = config.imageBorder.ForStyleSheet(false);
-	qs = config.imageBorder.ForStyleSheetShort();
-	_RunJavaScript(".thumb", qs);
+	qs = config.imageBorder.ForStyleSheetShort(false);
+	_RunJavaScript("thumb", qs);
 	--_busy;
 }
 
@@ -1200,7 +1203,7 @@ void FalconG::on_edtWmColor_textChanged()
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
 	config.waterMark.wm.SetColor("#" + QString().setNum((int)config.waterMark.wm.Opacity()*100, 16) + ui.edtWmColor->text().mid(1));
 	config.waterMark.v = true;
-	_RunJavaScript(".thumb::after","color: "+config.waterMark.wm.ColorToStr() );
+	_RunJavaScript("thumb::after","color: "+config.waterMark.wm.ColorToStr() );
 }
 
 
@@ -1217,14 +1220,14 @@ void FalconG::_UpdaetWatermarkMargins(int mx, int my)
 	if (mx >= 0)
 	{
 		wm.marginX = mx;	// set active and clear inactive
-		_RunJavaScript(".thumb::after", wm.XMarginName(centered, false)+"");
-		_RunJavaScript(".thumb::after", wm.XMarginName(centered, true)+ wm.OffsetXToStr() );
+		_RunJavaScript("thumb::after", wm.XMarginName(centered, false)+"");
+		_RunJavaScript("thumb::after", wm.XMarginName(centered, true)+ wm.OffsetXToStr() );
 	}
 	if (my >= 0)
 	{
 		wm.marginY = mx;	// set active and clear inactive
-		_RunJavaScript(".thumb::after", wm.YMarginName(centered, false)+"");
-		_RunJavaScript(".thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
+		_RunJavaScript("thumb::after", wm.YMarginName(centered, false)+"");
+		_RunJavaScript("thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
 	}
 	_SetConfigChanged(true);
 }
@@ -1633,7 +1636,7 @@ void FalconG::on_edtFontFamily_textChanged()
 	pElem = _PtrToElement();
 	pElem->font.SetFamily(ui.edtFontFamily->text());
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetFont(pElem);
 }
 
 /*============================================================================
@@ -1649,9 +1652,9 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 
 	QString qs;
 	config.imageBorder.SetUsed(on);
-	qs = config.imageBorder.ForStyleSheet(false);
+	qs = config.imageBorder.ForStyleSheetShort(false);
 	_SetConfigChanged(true);
-	_RunJavaScript(".thumb", qs);
+	_RunJavaScript("thumb", qs);
 }
 
 /*============================================================================
@@ -1692,9 +1695,10 @@ void FalconG::on_chkBold_toggled(bool on)
 {
 	if (_busy)
 		return;
-	_PtrToElement()->font.SetFeature(fBold, on);
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetFeature(fBold, on);
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetFont(pElem);
 }
 
 /*============================================================================
@@ -1707,9 +1711,10 @@ void FalconG::on_chkItalic_toggled(bool on)
 {
 	if (_busy)
 		return;
-	_PtrToElement()->font.SetFeature(fItalic, on);
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetFeature(fItalic, on);
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetFont(pElem);
 }
 
 
@@ -1717,15 +1722,17 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 {
 	if (_busy)
 		return;
+	_CElem* pElem = _PtrToElement();
 	if(on)
-		_PtrToElement()->alignment.v = align;
+		pElem->alignment.v = align;
 	_SetConfigChanged(true);
-	_ElemToSample();	// clear decorations if neither checkbox is checked
+	_SetTextAlign(pElem);	// clear decorations if neither checkbox is checked
 }
 
 /*========================================================
  * TASK:	set text decorations
- * PARAMS:
+ * PARAMS:	   decoration - enum (td...)
+ *			   on - turn on or off
  * GLOBALS:
  * RETURNS:
  * REMARKS: -
@@ -1734,10 +1741,22 @@ void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 {
 	if (_busy)
 		return;
-	_PtrToElement()->decoration.SetDecoration(decoration, on);
-	ui.gbDecorationStyle->setEnabled(ui.chkTdUnderline->isChecked() || ui.chkTdOverline->isChecked() || ui.chkTdLinethrough->isChecked());
+	_CElem* pElem = _PtrToElement();
+	pElem->decoration.SetDecoration(decoration, on);
+	on |= ui.chkTdUnderline->isChecked() || ui.chkTdOverline->isChecked() || ui.chkTdLinethrough->isChecked();
+	ui.gbDecorationStyle->setEnabled(on);
+	if (on)
+	{
+		ui.rbTdSolid->setEnabled(on);
+		ui.rbTdDotted->setEnabled(on);
+		ui.rbTdDashed->setEnabled(on);
+		ui.rbTdDouble->setEnabled(on);
+		ui.rbTdWavy->setEnabled(on);
+		ui.rbTdInitial->setEnabled(on);
+	}
+
+	_SetDecoration(pElem);	// clear decorations if neither checkbox is checked
 	_SetConfigChanged(true);
-	_ElemToSample();	// clear decorations if neither checkbox is checked
 }
 
 void FalconG::on_chkTdLinethrough_toggled(bool on) { 	_TextDecorationToConfig(tdLinethrough, on); }
@@ -1939,7 +1958,7 @@ void FalconG::on_chkMenuToContact_toggled(bool on)
 	if (_busy)
 		return;
 	config.bMenuToContact = on;
-	_RunJavaScript(".menu-item#contact",QString("display:")+ (on ? "inline-block" : "none"));
+	_RunJavaScript("menu-item#contact",QString("display:")+ (on ? "inline-block" : "none"));
 	_SetConfigChanged(true);
 }
 
@@ -1954,7 +1973,7 @@ void FalconG::on_chkMenuToAbout_toggled(bool on)
 	if (_busy)
 		return;
 	config.bMenuToAbout = on;
-	_RunJavaScript(".menu-item#about",QString("display") + (on? "inline-block" : "none"));
+	_RunJavaScript("menu-item#about",QString("display") + (on? "inline-block" : "none"));
 	_SetConfigChanged(true);
 }
 
@@ -1969,7 +1988,7 @@ void FalconG::on_chkMenuToDescriptions_toggled(bool on)
 	if (_busy)
 		return;
 	config.bMenuToDescriptions = on;
-	_RunJavaScript(".menu-item#desc",QString("display") + (on? "inline-block" : "none") );
+	_RunJavaScript("menu-item#desc",QString("display") + (on? "inline-block" : "none") );
 	_SetConfigChanged(true);
 }
 
@@ -1984,7 +2003,7 @@ void FalconG::on_chkMenuToToggleCaptions_toggled(bool on)
 	if (_busy)
 		return;
 	config.bMenuToToggleCaptions = on;
-	_RunJavaScript(".menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
+	_RunJavaScript("menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
 	_SetConfigChanged(true);
 }
 
@@ -2216,9 +2235,8 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 		return;
 
 	config.imageBorder.SetWidth(sdAll, val);
-	QString qs = config.imageBorder.ForStyleSheetShort();
-	qs = config.imageBorder.ForStyleSheetShort();
-	_RunJavaScript(".thumb", qs);
+	QString qs = config.imageBorder.ForStyleSheetShort(false);
+	_RunJavaScript("thumb", qs);
 	_SetConfigChanged(true);
 }
 
@@ -2237,9 +2255,9 @@ void FalconG::on_sbImagePadding_valueChanged(int val)
 
 	config.imagePadding = val;
 	if (!config.imageBorder.Used())
-		_RunJavaScript(".thumb",QString("padding:"));
+		_RunJavaScript("thumb",QString("padding:"));
 	else	
-		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
+		_RunJavaScript("thumb",QString("padding: %1px").arg(val));
 
 	_SetConfigChanged(true);
 }
@@ -2282,7 +2300,7 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 		return;
 	config.waterMark.wm.SetOpacity(val);
 	_SetConfigChanged(true);
-	_RunJavaScript(".thumb::after","color:"+ config.waterMark.wm.ColorToStr());
+	_RunJavaScript("thumb::after","color:"+ config.waterMark.wm.ColorToStr());
 }
 
 void FalconG::on_sbBorderWidth_valueChanged(int val)
@@ -2728,6 +2746,17 @@ void FalconG::on_btnDisplayHint_clicked()
 				 "main page area below it.</p></body></html>", QMessageBox::Ok, this).exec();
 }
 
+
+/*========================================================
+ * TASK:	modifies the @import in the css file to include
+ *			the actual Google fonts and default fonts
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - keeps a backup of the original css
+ *			- if no Google fonts and no default fonts 
+ *				is given removes teh @import line
+ *-------------------------------------------------------*/
 void FalconG::_ModifyGoogleFontImport()
 {
 	static QString name = "falconG.css",
@@ -2745,10 +2774,17 @@ void FalconG::_ModifyGoogleFontImport()
 		savedLine = line;
     
 	line = config.sGoogleFonts.ToString();
-	line.replace('"', "'");
-	line = QString("@import url('https://fonts.googleapis.com/css?family=" + line + "&display=swap');");
-	outfs << line << "\n";
+	if (!line.isEmpty())
+	{
+		line.replace('"', "'");
+		line = QString("@import url('https://fonts.googleapis.com/css?family=" + line + "&display=swap');");
+		outfs << line << "\n";
+	}
+	line = config.sDefFonts.ToString();
+	if (!line.isEmpty())
+	{
 	// TODO put fonts directory handling here
+	}
 	if (!savedLine.isEmpty())
 		outfs << savedLine << "\n";
 	while (!infs.atEnd())
@@ -3431,21 +3467,21 @@ void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has
 void FalconG::_SetWatermark()
 {
 			// set text
-	_RunJavaScript(".thumb::after","content:" + config.waterMark.wm.text);
+	_RunJavaScript("thumb::after","content:" + config.waterMark.wm.text);
 			// set offsets
 	bool  centered;
 	WaterMark &wm = config.waterMark.wm;
 	QString qs = wm.XMarginName(centered, false);		// X offset  -clear unused property
-	_RunJavaScript(".thumb::after", qs +  wm.OffsetXToStr());
+	_RunJavaScript("thumb::after", qs +  wm.OffsetXToStr());
 	qs = wm.XMarginName(centered, true);				// set used property												   
-	_RunJavaScript(".thumb::after",qs + wm.OffsetXToStr());
+	_RunJavaScript("thumb::after",qs + wm.OffsetXToStr());
 
 	qs = wm.YMarginName(centered, false);				// Y offset clear unused property
-	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
+	_RunJavaScript("thumb::after",qs + wm.OffsetYToStr());
 	qs = wm.YMarginName(centered, true);				// set used property												   
-	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
+	_RunJavaScript("thumb::after",qs + wm.OffsetYToStr());
 			// set color
-	_RunJavaScript(".thumb::after","color:" + wm.ColorToStr());
+	_RunJavaScript("thumb::after","color:" + wm.ColorToStr());
 }
 
 
@@ -3630,13 +3666,14 @@ void FalconG::_StyleTheProgram(skinStyle which)
 				   sInputBackground[]	= { "", "",		"#1c3a55", "#454545",	"#323232" }, // %7  editor backgrounds
 				   sSelectedInputBgr[]	= { "", "",		"#3b584a", "#666666",	"#4a4a4a" }, // %8
 				   sFocusedBorder[]		= { "", "",		"#92b1d5", "#c0c0c0",	"#a8a8a8" }, // %9
-				   sDisabledBg[]		= { "", "",		"#697a8e", "#555555",	"#191919" }, // %10
-				   sImageBackground[]	= { "", "",		"#12273f", "#111111",	"#000000" }, // %11
-				   sPressedBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %12 button pressed
-				   sDefaultBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %13
-				   sProgressBarChunk[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }, // %14
-				   sWarningColor[]		= { "", "",		"#f0a91f", "#f0a91f",	"#f0a91f" }, // %15
-				   sBoldTitleColor[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }	 // %16	 GroupBox title
+				   sDisabledFg[]		= { "", "",		"#999999", "#999999",	"#999999" }, // %10
+				   sDisabledBg[]		= { "", "",		"#697a8e", "#555555",	"#191919" }, // %11
+				   sImageBackground[]	= { "", "",		"#12273f", "#111111",	"#000000" }, // %12
+				   sPressedBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %13 button pressed
+				   sDefaultBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %14
+				   sProgressBarChunk[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }, // %15
+				   sWarningColor[]		= { "", "",		"#f0a91f", "#f0a91f",	"#f0a91f" }, // %16
+				   sBoldTitleColor[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }	 // %17	 GroupBox title
 	;
 
 	 // theme style string used only when not the default style is used
@@ -3777,29 +3814,38 @@ QSpinBox:focus {
 QTextEdit:read-only, 
 QLineEdit:read-only, 
 QPushButton:disabled,
-QToolButton:disabled {
-	background:%10;                 /* %10 read only and disabled */
+QToolButton:disabled,
+QRadioVutton:disabled,
+QCheckBox:disabled,
+QSpinBox;disabled {
+	color:%10;
+	background:%11;                 /* %11 read only and disabled */
+}
+
+QLineEdit.disabled {
+	color:%10;
+	background:%11;                 /* %11 read only and disabled */
 }
 
 #lblBckImage,
 #groupBox_6 {
-	background-color:%11;           /* %11 sample area background and background image backround*/
+	background-color:%12;           /* %12 sample area background and background image backround*/
 }
 QPushButton:pressed,
 QToolButton:pressed {
-	background-color:%12;           /* %12 button backgrounds */
+	background-color:%13;           /* %13 button backgrounds */
 }
 
 QPusButton:default {
-    background-color:%13;           /* %13 button backgrounds */
+    background-color:%14;           /* %14 button backgrounds */
 }
 
 QProgressBar::chunk{
-	background-color:%14;          /* %14 signal actual elem*/
+	background-color:%15;          /* %15 signal actual elem*/
 }
 
-#lblActualElem {                        /* %15 signal actual elem*/
-	color:%15;
+#lblActualElem {                        /* %16 signal actual elem*/
+	color:%16;
 }
 )END"
 	};
@@ -3817,13 +3863,14 @@ QProgressBar::chunk{
 			.arg(sInputBackground[which])	// %7
 			.arg(sSelectedInputBgr[which])	// %8 
 			.arg(sFocusedBorder[which])		// %9 
-			.arg(sDisabledBg[which])		// %10
-			.arg(sImageBackground[which])	// %11
-			.arg(sPressedBg[which])			// %12
-			.arg(sDefaultBg[which])			// %13
-			.arg(sProgressBarChunk[which])	// %14
-			.arg(sWarningColor[which])		// %15
-			.arg(sBoldTitleColor[which])	// %16
+			.arg(sDisabledFg[which])		// %10
+			.arg(sDisabledBg[which])		// %11
+			.arg(sImageBackground[which])	// %12
+			.arg(sPressedBg[which])			// %13
+			.arg(sDefaultBg[which])			// %14
+			.arg(sProgressBarChunk[which])	// %15
+			.arg(sWarningColor[which])		// %16
+//			.arg(sBoldTitleColor[which])	// %17
 			;
 
 		if (which == stBlue)		// blue

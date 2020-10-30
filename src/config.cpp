@@ -373,7 +373,7 @@ QString _CFont::ForStyleSheet(bool addSemiColon) const
 	};
 	addProp("font-family", Family());
 	addProp("font-size", SizeStr());
-	addProp("line-height", SizeStr());
+	addProp("line-height", LineHeightStr());
 	if (Bold())
 		addProp("font-weight", WeightStr());
 	if (Italic())
@@ -454,7 +454,7 @@ void _CFont::SetDifferentFirstLine(bool set, QString size)
 
 void _CFont::_Prepare()
 {				  // only add first line size if used or different from font size
-	int n = _details[3] == "1" && _details[1] != _details[4] ? 5 : 3;
+	int n = _details[4] == "1" && _details[1] != _details[5] ? 6 : 4;
 	v = _details[0];
 	for (int i = 1; i < n; ++i)
 		v += "|" + _details[i];
@@ -466,9 +466,10 @@ void _CFont::_Setup()
 	switch (_details.size())		// No breaks!
 	{								// element 0 is family
 		case 1: _details.push_back("10pt");	  // font-size string with unit
-		case 2: _details.push_back("0");	  // style (bold:'1', italic:'2', bold & italic: '3')
-		case 3: _details.push_back("0");	  // first line is different?
-		case 4: _details.push_back("10pt");	  // font-size::first-line
+		case 2: _details.push_back(_details[1]);	// line-height default: same as font-size
+		case 3: _details.push_back("0");	  // style (bold:'1', italic:'2', bold & italic: '3')
+		case 4: _details.push_back("0");	  // first line is different?
+		case 5: _details.push_back("10pt");	  // font-size::first-line
 		default:
 			break;
 	}
@@ -703,7 +704,7 @@ void _CGradient::_Prepare()		// to store in settings
  * RETURNS:
  * REMARKS: - returns border-top:, border-right, border-bottom
  *				border-left and border-radius
- *			- can't use different styles and colors for 
+ *			- can't use different colors for 
  *				each side
  *			- may not use the shorthand as it only works if no
  *			  radius is given
@@ -734,18 +735,19 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 	return res;
 }
 
-QString _CBorder::ForStyleSheetShort() const
+QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 {
 	if (!Used())
 		return QString("	border:none");
 
 	if (_sizeWidths > 1)
-		return ForStyleSheet(false);
+		return ForStyleSheet(semicolonAtLineEnds);
 	return QString("	border:%1px %2 %3").arg(_widths[0]).arg( Style(sdAll) ).arg(_colorNames[0]);
 }
 
 void _CBorder::_CountWidths()
 {
+	_sizeWidths = 1;
 	bool
 		b12 = (_widths[0] == _widths[1]) && (_styleIndex[0] == _styleIndex[2]) && (_colorNames[0] == _colorNames[1]),				// top = right?
 		b13 = (_widths[0] == _widths[2]) && (_styleIndex[0] == _styleIndex[2]) && (_colorNames[0] == _colorNames[2]),				// top = bottom?

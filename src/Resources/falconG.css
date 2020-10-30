@@ -1,15 +1,16 @@
 @import url("https://fonts.googleapis.com/css?family=Mansalva,Tangerine,Meddon,Playfair");
+
 *, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
 	margin:0;
 }
+
 html, body, main {
 	height: 100% ;
 	width: 100%;
 	color:#8f8f8f;
 	background:#1e1f25;
-
 }
 		
 a, a:visited {
@@ -105,6 +106,7 @@ header {
 	font-size:24pt;
 	line-height:24pt;
 	text-align:center;
+    cursor:pointer;
 }
 
 .gallery-desc {
@@ -113,6 +115,7 @@ header {
 	font-size:12pt;
 	line-height:12pt;
 	text-align:center;
+    cursor:pointer;
 }
 
 .fgsection {
@@ -179,6 +182,7 @@ header {
 	font-size:12pt;
 	line-height:12pt;
 	text-align:center;
+    cursor:pointer;
 }
 
 /* Lightbox */
@@ -226,6 +230,7 @@ header {
 	font-size:12pt;
 	line-height:12pt;
 	text-align:center;
+    cursor:pointer;    
 }
 
 		 	/* -- media queries ***/

@@ -353,7 +353,7 @@ struct _CFont : _CFG_ITEM<QString>
 	_CFont() : _CFG_ITEM("\"Tms Rmn\",Times, Helvetica|10|0", "cfont") { _Setup(); }
 
 	QString Family() const { return _details[0]; }
-	int Features() const { return _details[2].toInt(); }
+	int Features() const { return _details[3].toInt(); }
 	int Size() const { return _details[1].toInt(); };
 
 	QString ForStyleSheet(bool addSemiColon) const;
@@ -365,14 +365,15 @@ struct _CFont : _CFG_ITEM<QString>
 		return QString();
 	}
 
-	bool Bold() const { return _details[2].toInt() & fBold; }
-	bool Italic() const { return _details[2].toInt() & fItalic; }
+	bool Bold() const { return _details[3].toInt() & fBold; }
+	bool Italic() const { return _details[3].toInt() & fItalic; }
 
+	QString LineHeightStr() const { return _details[2]; }
 	QString SizeStr() const { return _details[1]; }
 	QString ItalicStr() const { return Italic() ? "italic" : ""; }
 	QString WeightStr() const { return Bold() ? "900" : "normal"; }
-	QString FirstLineFontSizeStr() const { return _details[4]; }
-	bool IsFirstLineDifferent() const { return _details[3] == "1"; }
+	QString FirstLineFontSizeStr() const { return _details[5]; }
+	bool IsFirstLineDifferent() const { return _details[4] == "1"; }
 
 	void Set(QString fam, QString siz, int feat, QString sFsSize = QString());
 	void SetFamily(QString fam);
@@ -385,8 +386,8 @@ struct _CFont : _CFG_ITEM<QString>
 	void ClearFeatures();
 
 protected:
-	void _Setup() override;		// format: <family(ies)>|<size>|<featurnumber>[|<diffFirstLine>|<firstSize>]
-								// index:     0			   1		  2				 3			   4
+	void _Setup() override;		// format: <family(ies)>|<size>|<line height>|<featurnumber>[|<diffFirstLine>|<firstSize>]
+								// index:     0			   1		  2				 3			   4             5
 	void _Prepare() override;	// from _details to 'v'
 private:
 	QStringList _details; 		// see format above
@@ -575,7 +576,7 @@ struct _CBorder : public _CFG_ITEM<QString>
 	}
 
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
-	QString ForStyleSheetShort() const;	// if  kind is sdAll simplified, else the same as the normal one
+	QString ForStyleSheetShort(bool semicolonAtLineEnds) const;	// if  kind is sdAll simplified, else the same as the normal one
 private:
 	int _used = false;
 	int _sizeWidths;	// 1,2, 4: all sizes are equal, 
@@ -608,7 +609,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	AlbumElement kind;
 	_CColor color = { "#000000" ,"color"}, 
 		background = {  "" ,"background"};	// invalid color
-	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|0","font"};
+	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|12pt|0","font"};
 	_CTextDecoration decoration = { 0, "decoration" };
 	_CTextAlign alignment = { 0, "alignment" };
 	_CShadow shadow1[2] = { {"0|0|0|0|#000000","text-shadow1"},	// index 0: text shadow, 1: box-shadow

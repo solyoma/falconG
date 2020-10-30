@@ -15,7 +15,7 @@ function SetPropertyForClass(className, propertyName, propValue) {
         x[i].style.setProperty(propertyName, propValue);
     // DEBUG
     //console.log('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
-    document.getElementById("DEBUG").innerHTML = 'Set ' + propertyName + " : " + propValue + ' for ' + className + '\''
+    document.getElementById("DEBUG").innerHTML = 'Set ' + propertyName + " : " + propValue + ' into ' + x.length + ' element(s) for \'' + className + '\'.'
 }
 
 function ResizeThumbs() {
