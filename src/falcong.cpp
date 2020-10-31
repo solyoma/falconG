@@ -19,10 +19,10 @@
 
 #define DEBUG_LOG(qs) \
 {							 \
-QFile f("debug.log");		 \
-f.open(QIODevice::Append);	 \
-QTextStream ofs(&f);		 \
-ofs << qs << "\n";			 \
+	QFile f("debug.log");		 \
+	f.open(QIODevice::Append);	 \
+	QTextStream ofsdbg(&f);		 \
+	ofsdbg << qs << "\n";			 \
 }
 
 
@@ -3709,7 +3709,7 @@ void FalconG::_StyleTheProgram(skinStyle which)
 				   sImageBackground[]	= { "", "",		"#12273f", "#111111",	"#000000" }, // %12
 				   sPressedBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %13 button pressed
 				   sDefaultBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %14
-				   sProgressBarChunk[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }, // %15
+				   sProgressBarChunk[]	= { "", "",		"#feb60e", "#feb60e",	"#feb60e" }, // %15
 				   sWarningColor[]		= { "", "",		"#f0a91f", "#f0a91f",	"#f0a91f" }, // %16
 				   sBoldTitleColor[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }	 // %17	 GroupBox title
 	;
@@ -3725,7 +3725,7 @@ void FalconG::_StyleTheProgram(skinStyle which)
 /* ------------------- geometry ------------------*/        
 
 QTabWidget::tab-bar {
-    left: 5px; /* move to the right by 5px */
+    left: 5px;
 }
 QTabBar::tab {
     border-top-left-radius: 4px;
@@ -3734,7 +3734,7 @@ QTabBar::tab {
 	padding: 2px;
 }        
 QTabBar::tab:!selected {
-    margin-top: 2px; /* make non-selected tabs look smaller */
+    margin-top: 2px; 
 }
 
 QToolTip {
@@ -3745,8 +3745,10 @@ QProgressBar,
 QPushButton:flat {
 	border:0;
 }
+
 QProgressBar::chunk{
 	width: 10px;
+	background-color:%15;
 }
 
 QToolButton {
@@ -3798,7 +3800,7 @@ QSpinBox,
 QPushButton,
 QTreeView, 
 QListView {
-    border: 2px solid %3;          /* %3 border color */	
+    border: 2px solid %3;
 }
 
 #btnImage {
@@ -3814,7 +3816,7 @@ QTabBar::tab,
 QTextEdit:focus, 
 QLineEdit:focus,
 QSpinBox:focus {
-    color:%4;                      /* %4  focused */
+    color:%4;
 }
 
 #menuWidget {
@@ -3824,29 +3826,29 @@ QTabBar::tab:selected,
 QTabBar::tab:hover,
 QPushButton:hover,
 QToolButton:hover {
-	background-color:%5;          /* %5 background hover + TAB selected*/
+	background-color:%5;
 }
 QTabBar::tab:selected {
-	border-color:%6;              /* %6 border of selected TAB */
-    border-bottom-color:%1;       /* %1 same as panel background*/
+	border-color:%6;
+    border-bottom-color:%1;
 }
 
 QToolButton,
 QTextEdit, 
 QLineEdit,
 QSpinBox {
-	background-color:%7;           /* %7 input background */
+	background-color:%7;
 }
 QTextEdit, 
 QLineEdit,
 QSpinBox {
-	selection-background-color:%8; /* %8 selected text in inputs*/
+	selection-background-color:%8;
 }
 
 QTextEdit:focus, 
 QLineEdit:focus,
 QSpinBox:focus {
-	border-color:%9;               /* %9 border of focused */
+	border-color:%9;
 }
 
 QTextEdit:read-only, 
@@ -3857,32 +3859,28 @@ QRadioVutton:disabled,
 QCheckBox:disabled,
 QSpinBox;disabled {
 	color:%10;
-	background:%11;                 /* %11 read only and disabled */
+	background:%11;
 }
 
 QLineEdit.disabled {
 	color:%10;
-	background:%11;                 /* %11 read only and disabled */
+	background:%11;
 }
 
 #lblBckImage,
 #groupBox_6 {
-	background-color:%12;           /* %12 sample area background and background image backround*/
+	background-color:%12;
 }
 QPushButton:pressed,
 QToolButton:pressed {
-	background-color:%13;           /* %13 button backgrounds */
+	background-color:%13;
 }
 
 QPusButton:default {
-    background-color:%14;           /* %14 button backgrounds */
+    background-color:%14;
 }
 
-QProgressBar::chunk{
-	background-color:%15;          /* %15 signal actual elem*/
-}
-
-#lblActualElem {                        /* %16 signal actual elem*/
+#lblActualElem {
 	color:%16;
 }
 )END"
@@ -3912,11 +3910,16 @@ QProgressBar::chunk{
 			;
 
 		if (which == stBlue)		// blue
-			ss += "QCheckBox::indicator:checked{"
-				  "	  image: url(:/icons/Resources/blue-checked.png);"
-			      "}";
+			ss += QString( R"(QCheckBox::indicator:checked {
+	background-image: url(:/icons/Resources/blue-checked.png);
+}
+
+QCheckBox::indicator:unchecked {
+	background-image: url(:/icons/Resources/blue-unchecked.png);
+}
+)");
 // DEBUG
-//			DEBUG_LOG(ss)
+			DEBUG_LOG(ss)
 
 		frmMain->setStyleSheet(ss);
 

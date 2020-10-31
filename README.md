@@ -2,8 +2,6 @@
 Hierarchical, multi language, multi platform photo gallery creator
     written in C++ and Qt5
 
-*This is a Work In Progress*, most, but not all features are working yet!
-
 **falconG** is a graphical program which can be compiled and 
 run on any operating system (Windows, OS-X, Linux, etc) to 
 create WEB galleries. It is easy to use and completely free!
@@ -61,3 +59,8 @@ Album Generation
 
  
 See example gallery at https://andreasfalco.com
+
+*This is a Work In Progress*.
+All features not marked with 'TODO' are working. However 
+to add new albums and images you need to edit the
+generated gallery structure (\*.struct) file.
