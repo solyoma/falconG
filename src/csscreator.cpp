@@ -220,7 +220,7 @@ void CssCreator::_CreateForImages()
 	// image border is used for <a class="thumb">
 	if(config.imageBorder.Used())
 		_ofs << config.imageBorder.ForStyleSheetShort(true);
-	_ofs << "}\n\n";
+	_ofs << "\n}\n\n";
 
 	_ofs << "[data-src] {\n	min-width:" << config.thumbWidth.ToString()
 		 << "px;\n	min-height:" << config.thumbHeight.ToString()

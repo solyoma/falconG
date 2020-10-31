@@ -1627,8 +1627,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -2079,27 +2079,6 @@ original file name.</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="2">
-                          <widget class="QRadioButton" name="rbTdInitial">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>default</string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="0" column="0">
                           <widget class="QRadioButton" name="rbTdSolid">
                            <property name="enabled">
@@ -2117,7 +2096,7 @@ original file name.</string>
                             <string>solid</string>
                            </property>
                            <property name="checked">
-                            <bool>false</bool>
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -2950,8 +2929,8 @@ original file name.</string>
                       <string>Font</string>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_17">
-                      <item row="2" column="0">
-                       <widget class="QCheckBox" name="chkBold">
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_27">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -2961,7 +2940,64 @@ original file name.</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>Bold</string>
+                         <string>Family</string>
+                        </property>
+                        <property name="buddy">
+                         <cstring>edtFontFamily</cstring>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1" colspan="3">
+                       <widget class="QLineEdit" name="edtFontFamily">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>24</height>
+                         </size>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="placeholderText">
+                         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="4" colspan="2">
+                       <widget class="QComboBox" name="cbFonts">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="toolTip">
+                         <string>If you gave any default font names or 
+google font names you can select it 
+using thjis combo box</string>
+                        </property>
+                        <property name="placeholderText">
+                         <string>Select specified font</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_28">
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Si&amp;ze:</string>
+                        </property>
+                        <property name="buddy">
+                         <cstring>cbPointSize</cstring>
                         </property>
                        </widget>
                       </item>
@@ -3072,23 +3108,8 @@ original file name.</string>
                         </item>
                        </widget>
                       </item>
-                      <item row="0" column="3" colspan="3">
-                       <widget class="QComboBox" name="cbFonts">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
-                        <property name="toolTip">
-                         <string>If you gave any default font names or 
-google font names you can select it 
-using thjis combo box</string>
-                        </property>
-                        <property name="placeholderText">
-                         <string>Select specified font</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_27">
+                      <item row="1" column="2">
+                       <widget class="QLabel" name="label_32">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -3098,10 +3119,22 @@ using thjis combo box</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>Family</string>
+                         <string>Line height:</string>
                         </property>
-                        <property name="buddy">
-                         <cstring>edtFontFamily</cstring>
+                       </widget>
+                      </item>
+                      <item row="1" column="4">
+                       <widget class="QCheckBox" name="chkDifferentFirstLine">
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>10</pointsize>
+                          <weight>50</weight>
+                          <bold>false</bold>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>&amp;Different 1st:</string>
                         </property>
                        </widget>
                       </item>
@@ -3212,8 +3245,8 @@ using thjis combo box</string>
                         </item>
                        </widget>
                       </item>
-                      <item row="1" column="3">
-                       <widget class="QCheckBox" name="chkDifferentFirstLine">
+                      <item row="2" column="0">
+                       <widget class="QCheckBox" name="chkBold">
                         <property name="font">
                          <font>
                           <family>Arial</family>
@@ -3223,40 +3256,9 @@ using thjis combo box</string>
                          </font>
                         </property>
                         <property name="text">
-                         <string>&amp;Different 1st:</string>
+                         <string>Bold</string>
                         </property>
                        </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_28">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Point si&amp;ze:</string>
-                        </property>
-                        <property name="buddy">
-                         <cstring>cbPointSize</cstring>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <spacer name="horizontalSpacer_10">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
                       </item>
                       <item row="2" column="1">
                        <widget class="QCheckBox" name="chkItalic">
@@ -3273,25 +3275,94 @@ using thjis combo box</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="1" colspan="2">
-                       <widget class="QLineEdit" name="edtFontFamily">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>24</height>
-                         </size>
+                      <item row="1" column="3">
+                       <widget class="QComboBox" name="cbLineHeight">
+                        <property name="editable">
+                         <bool>true</bool>
                         </property>
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
+                        <property name="currentIndex">
+                         <number>12</number>
                         </property>
-                        <property name="placeholderText">
-                         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
-                        </property>
+                        <item>
+                         <property name="text">
+                          <string>8pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>9pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>10pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>11pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>12pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>14pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>16pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>18pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>20pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>22pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>24pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>26pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>28pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>36pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>48pt</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>72pt</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                      </layout>
@@ -3965,8 +4036,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4349,8 +4420,8 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4992,6 +5063,17 @@ is required.</string>
                   </size>
                  </property>
                 </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnReload">
+                 <property name="toolTip">
+                  <string>reload the WEB page shown in the editor
+Use if you changed the CSS or HTML file.</string>
+                 </property>
+                 <property name="text">
+                  <string>Reload Page</string>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="btnResetDesign">
@@ -5858,7 +5940,6 @@ program directory (html,css,js,...)</string>
   <tabstop>rbTdDashed</tabstop>
   <tabstop>rbTdDouble</tabstop>
   <tabstop>rbTdWavy</tabstop>
-  <tabstop>rbTdInitial</tabstop>
   <tabstop>rbTextAlignNone</tabstop>
   <tabstop>rbTextLeft</tabstop>
   <tabstop>rbTextCenter</tabstop>

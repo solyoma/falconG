@@ -271,13 +271,26 @@ struct _CTextDecoration : _CFG_ITEM<int>
 	
 	_CTextDecoration(int vd=0, QString nameStr = "decoration") : _CFG_ITEM(vd, nameStr) {}
 
-	void SetDecoration(Decoration d, bool on) { v = (v & ~d) | (on ? (int)d : 0); }
+	void SetDecoration(Decoration d, bool on) 
+	{ 
+		v = (v & ~d) | (on ? (int)d : 0); 
+	}
 
 	bool IsTextDecorationLine() { return v & (tdUnderline | tdOverline | tdLinethrough); }
 	bool IsUnderline() const { return v & tdUnderline; }
 	bool IsOverline() const { return v & tdOverline; }
 	bool IsLineThrough() const { return v & tdLinethrough; }
 
+	QString TextDecorationLineStr() const
+	{
+		if( (v & (int)(tdUnderline | tdOverline | tdLinethrough)) == 0)
+			return "none";
+
+		return DecorationStr(tdUnderline) + 
+			   DecorationStr(tdLinethrough) + 
+			   DecorationStr(tdOverline)
+			;
+	}
 	QString DecorationStr(Decoration deco) const
 	{
 	   if(v & (int)deco)
@@ -288,35 +301,20 @@ struct _CTextDecoration : _CFG_ITEM<int>
 			   case tdLinethrough:			return "line-through ";
 			   case tdOverline:				return "overline ";
 			   case tdSolid:				return "solid ";
-			   case tdDotted:				return "Dotted ";
-			   case tdDashed:				return "Dashed ";
-			   case tdDouble:				return "Double ";
-			   case tdWavy:					return "Wavy ";
+			   case tdDotted:				return "dotted ";
+			   case tdDashed:				return "dashed ";
+			   case tdDouble:				return "double ";
+			   case tdWavy:					return "wavy ";
 			   default: break;
 		   }
 	   return QString();
-	}
-	QString TextDecorationLineStr() const
-	{
-		if( (v & (int)(tdUnderline | tdOverline | tdLinethrough)) == 0)
-			return "none";
-
-		return DecorationStr(tdUnderline) + 
-			   DecorationStr(tdLinethrough) + 
-			   DecorationStr(tdOverline) +
-			   DecorationStr(tdSolid) +
-			   DecorationStr(tdDotted) +
-			   DecorationStr(tdDashed) +
-			   DecorationStr(tdDouble) +
-			   DecorationStr(tdWavy)
-			;
 	}
 	QString TextDecorationStyleStr() const
 	{
 		if (!v)
 			return QString();
 
-		return DecorationStr(tdSolid) + DecorationStr(tdDotted) + DecorationStr(tdDouble) + DecorationStr(tdWavy);	// only one of these must be set!
+		return DecorationStr(tdSolid) + DecorationStr(tdDotted) + DecorationStr(tdDouble) + DecorationStr(tdWavy) + DecorationStr(tdDashed);	// only one of these must be set!
 	}
 	QString UnderlineStr() const { return v & tdUnderline ? "underline" : ""; }
 	QString OverlineStr() const { return v & tdOverline ? "overline" : ""; }
@@ -352,9 +350,9 @@ struct _CFont : _CFG_ITEM<QString>
 	_CFont(QString vd, QString namestr = "cfont") : _CFG_ITEM(vd, namestr) { _Setup();  }
 	_CFont() : _CFG_ITEM("\"Tms Rmn\",Times, Helvetica|10|0", "cfont") { _Setup(); }
 
-	QString Family() const { return _details[0]; }
-	int Features() const { return _details[3].toInt(); }
-	int Size() const { return _details[1].toInt(); };
+	QString Family() const { return _details[fFam]; }
+	int Features() const { return _details[fFeat].toInt(); }
+	int Size() const { return _details[fSiz].toInt(); };
 
 	QString ForStyleSheet(bool addSemiColon) const;
 
@@ -365,22 +363,23 @@ struct _CFont : _CFG_ITEM<QString>
 		return QString();
 	}
 
-	bool Bold() const { return _details[3].toInt() & fBold; }
-	bool Italic() const { return _details[3].toInt() & fItalic; }
+	bool Bold() const { return _details[fFeat].toInt() & fBold; }
+	bool Italic() const { return _details[fFeat].toInt() & fItalic; }
 
-	QString LineHeightStr() const { return _details[2]; }
-	QString SizeStr() const { return _details[1]; }
+	QString LineHeightStr() const { return _details[fLineH]; }
+	QString SizeStr() const { return _details[fSiz]; }
 	QString ItalicStr() const { return Italic() ? "italic" : ""; }
 	QString WeightStr() const { return Bold() ? "900" : "normal"; }
-	QString FirstLineFontSizeStr() const { return _details[5]; }
-	bool IsFirstLineDifferent() const { return _details[4] == "1"; }
+	QString FirstLineFontSizeStr() const { return _details[fFirstS]; }
+	bool IsFirstLineDifferent() const { return _details[fDiffF] == "1"; }
 
-	void Set(QString fam, QString siz, int feat, QString sFsSize = QString());
+	void Set(QString fam, QString siz, QString slh, int feat, QString sFsSize = QString());
 	void SetFamily(QString fam);
 	void SetFeature(Style feat, FeatureOp op);
 	void SetFeature(Style feat,  bool on);
 	void SetSize(int pt);
 	void SetSize(QString s);
+	void SetLineHeight(QString qslh);
 	void SetDifferentFirstLine(bool set, QString size = QString());
 	
 	void ClearFeatures();
@@ -390,6 +389,7 @@ protected:
 								// index:     0			   1		  2				 3			   4             5
 	void _Prepare() override;	// from _details to 'v'
 private:
+	enum _what {fFam, fSiz,fLineH,fFeat, fDiffF, fFirstS};
 	QStringList _details; 		// see format above
 };
 
@@ -859,7 +859,7 @@ public:
 	_CElem GalleryTitle = {aeGalleryTitle,"gallery-title", _DFLT_,"GalleryTitle", _SHDW_, _NGRD_};		
 	_CElem GalleryDesc = {aeGalleryDesc,"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			
 	_CElem Section = {aeSection,"fgsection", _DFLT_,"Section", _SHDW_, _NGRD_};							// "Images" or "Albums"
-	_CElem Thumb = { aeThumb, "thumb", _DFLT_, "Thumb", _NOSH_, _NGRD_ };									// thumb
+	_CElem Thumb = { aeThumb, "thumb", _DFLT_, "Thumb", _NOSH_, _NGRD_ };								// thumb: only a placeholder not saved into ini
 	_CElem ImageTitle = {aeImageTitle, "title",_DFLT_, "AlbumOrImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
 	_CElem ImageDesc = {aeImageDesc, "desc", _DFLT_, "AlbumOrImageDesc", _SHDW_, _NGRD_};
 	_CElem LightboxTitle = {aeLightboxTitle, "lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!

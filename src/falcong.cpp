@@ -222,6 +222,8 @@ FalconG::FalconG(QWidget *parent)
 
 	_PopulateFromConfig();
 
+	config.ClearChanged();
+
 	int h = ui.tabEdit->height();
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
 
@@ -252,6 +254,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 			"An operation is in progress.\n Please stop it before exiting.",
 			QMessageBox::Ok, this).exec();
 		event->ignore();
+		return;
 	}
 
 	if (ui.chkCleanUp->isChecked())		// files will be re-created at next start
@@ -287,7 +290,11 @@ void FalconG::closeEvent(QCloseEvent * event)
 			"There are unsaved changes in the configuration\nDo you want to save them?",
 			QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, this).exec();
 		if (res == QMessageBox::Save)
+		{
+			CssCreator cssCreator;
+			cssCreator.Create("falocnG.css", true);	// program library setting cursors too
 			config.Write();
+		}
 		else if (res == QMessageBox::Cancel)
 			event->ignore();
 	}
@@ -593,6 +600,9 @@ void FalconG::_ActualSampleParamsToUi()
 {
 	_CElem* pElem = _PtrToElement();
 
+	if (pElem->kind == aeThumb)		// set in _PopulateFromConfig and no need to update it
+		return;
+
 	++_busy;
 
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
@@ -633,6 +643,7 @@ void FalconG::_ActualSampleParamsToUi()
 
 	ui.edtFontFamily->setText(pElem->font.Family());
 	ui.cbPointSize->setCurrentText(pElem->font.SizeStr());
+	ui.cbLineHeight->setCurrentText(pElem->font.LineHeightStr());
 	ui.chkBold->setChecked(pElem->font.Bold());
 	ui.chkItalic->setChecked(pElem->font.Italic());
 	ui.chkTdUnderline->setChecked(pElem->decoration.IsUnderline());
@@ -713,8 +724,6 @@ void FalconG::_SetConfigChanged(bool on)
 *--------------------------------------------------------------------------*/
 void FalconG::_PopulateFromConfig()
 {
-	config.ClearChanged();
-
 	++_busy;
 
 	ui.edtAbout->setText(config.sAbout);
@@ -788,9 +797,8 @@ void FalconG::_PopulateFromConfig()
 	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
 	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
 
-	ui.sbNewDays->setValue(config.newUploadInterval);
-
-
+	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
+	ui.sbImagePadding->setValue(config.imagePadding);
 	ui.sbImageWidth->setValue(config.imageWidth);
 	ui.sbImageHeight->setValue(config.imageHeight);
 	ui.sbThumbnailWidth->setValue(config .thumbWidth);
@@ -799,6 +807,7 @@ void FalconG::_PopulateFromConfig()
 	int h = config.imageHeight ? config.imageHeight : 1;
 	_aspect = (double)config.imageWidth / h;
 
+	ui.sbNewDays->setValue(config.newUploadInterval);
 							// Watermark
 	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity());
 
@@ -1090,6 +1099,7 @@ void FalconG::on_edtGoogleFonts_editingFinished()
 		config.sGoogleFonts = s;
 		_SetConfigChanged(true);
 		_ModifyGoogleFontImport();
+		_PopulateFromConfig();
 	}
 }
 
@@ -1752,7 +1762,6 @@ void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 		ui.rbTdDashed->setEnabled(on);
 		ui.rbTdDouble->setEnabled(on);
 		ui.rbTdWavy->setEnabled(on);
-		ui.rbTdInitial->setEnabled(on);
 	}
 
 	_SetDecoration(pElem);	// clear decorations if neither checkbox is checked
@@ -2434,6 +2443,20 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 	}
 }
 
+
+/*========================================================
+ * TASK:	When the css or html changes 
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_btnReload_clicked()
+{
+	_page.triggerAction(QWebEnginePage::Reload);
+	_PopulateFromConfig();
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -2443,6 +2466,10 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 void FalconG::on_btnSaveConfig_clicked()
 {
 	config.Write();
+
+	CssCreator creator;
+	creator.Create("falconG.css", true);
+
 	QString s	 = CONFIGS_USED::NameForConfig(true, ".ini"),
 			sp = s.left(s.lastIndexOf('/'));	// path
 	s = s.mid(s.lastIndexOf('/') + 1);			// name
@@ -2689,9 +2716,9 @@ void FalconG::on_btnImageBorderColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
-		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
+		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.imageBorder.SetColor(side, qcNew.name());
-		on_sbImageBorderWidth_valueChanged(ui.sbBorderWidth->value());
+		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
 	}
 }
 
@@ -2797,7 +2824,6 @@ void FalconG::_ModifyGoogleFontImport()
 	BackupAndRename(name, tmpName);
 	// reload page
 	_page.triggerAction(QWebEnginePage::Reload);
-	_PopulateFromConfig();
 }
 
 
@@ -3089,6 +3115,16 @@ void FalconG::on_cbFonts_currentIndexChanged(int index)
 	QString s = ui.cbFonts->currentText();
 	ui.edtFontFamily->setText(s);
 	//ui.cbFonts->setCurrentIndex(-1);
+}
+
+void FalconG::on_cbLineHeight_currentIndexChanged(int index)
+{
+	if (_busy || index < 0)
+		return;
+	_CElem* pElem = _PtrToElement(_aeActiveElement);
+	pElem->font.SetLineHeight(ui.cbLineHeight->currentText());
+	_SetFont(pElem);	
+
 }
 
 /*=============================================================
@@ -3400,7 +3436,8 @@ void FalconG::_SetFont(_CElem* pElem)
 		_SetCssProperty(pElem,  "font-family:" + pElem->font.Family() + "\n" +
 								"font-size:"   + pElem->font.SizeStr() + "\n" +
 								"font-weight:" + pElem->font.WeightStr() + "\n" +
-								"font-style:" + pElem->font.ItalicStr());
+								"font-style:" + pElem->font.ItalicStr() + "\n" + 
+								"line-height:" + pElem->font.LineHeightStr());
 //		 qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
 //		_SetCssProperty(pElem, "font-size:" + qs, "::first-line");	// parent = Web and ::first-line
 	}
@@ -3409,7 +3446,8 @@ void FalconG::_SetFont(_CElem* pElem)
 		_SetCssProperty(pElem,	"font-family:\n"
 								"font-size:\n"
 								"font-weight:\n"
-								"font-style:");
+								"font-style:\n"
+								"line-height:");
 //		qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
 //		_SetCssProperty(pElem, "font-size", qs, "::first-line");	// parent = Web and ::first-line
 	}
@@ -3420,7 +3458,7 @@ void FalconG::_SetDecoration(_CElem* pElem)
 	QString qs;
 	if (!pElem->decoration.IsTextDecorationLine())
 		_SetCssProperty(pElem, "text-decoration-line:");
-	else if (pElem == &config.Web || !pElem->parent || pElem->parent->decoration != pElem->decoration)
+	else if (pElem == &config.Web || !pElem->parent || pElem->parent == &config.Web || pElem->parent->decoration != pElem->decoration)
 	{
 		_SetCssProperty(pElem, "text-decoration-line:"   +  pElem->decoration.TextDecorationLineStr() + "\n" + 
 								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + "");

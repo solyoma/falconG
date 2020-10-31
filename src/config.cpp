@@ -392,31 +392,32 @@ QString _CFont::ForStyleSheet(bool addSemiColon) const
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
  *--------------------------------------------------------------------------*/
-void _CFont::Set(QString fam, QString siz, int feat, QString sFsSize)
+void _CFont::Set(QString fam, QString siz, QString slh, int feat, QString sFsSize)
 {
 	_details.clear();
 	_details.push_back(fam);
 	_details.push_back(siz);
+	_details.push_back(slh);
 	_details.push_back(QString().setNum(feat) );
 	_details.push_back("0");			// default: no different first line
-	_details.push_back(_details[1]);	// first line same as others
+	_details.push_back(_details[fSiz]);	// first line same as others
 	if(!sFsSize.isEmpty())	
 	{
-		_details[3] = "1";	// different first line
-		_details[4] = sFsSize;
+		_details[fDiffF] = "1";	// different first line
+		_details[fFirstS] = sFsSize;
 	}
 
 	_Prepare();
 }
 void _CFont::SetFamily(QString fam)
 {
-	_details[0] = fam;
+	_details[fFam] = fam;
 	_Prepare();
 }
 
 void _CFont::SetFeature(Style feat, FeatureOp op)
 {
-	int fs = _details[2].toInt(),
+	int fs = _details[fFeat].toInt(),
 		f = (int) feat;
 
 	if (op == foClearAll || op == foClearOthersAndSet)
@@ -426,7 +427,7 @@ void _CFont::SetFeature(Style feat, FeatureOp op)
 	if (op == foSet)
 		fs |= f;
 
-	_details[2] = QString().setNum(fs);
+	_details[fFeat] = QString().setNum(fs);
 	_Prepare();
 }
 void _CFont::SetFeature(Style feat, bool on)
@@ -441,21 +442,27 @@ void _CFont::SetSize(int pt)
 
 void _CFont::SetSize(QString s)
 {
-	_details[1] = s;
+	_details[fSiz] = s;
+	_Prepare();
+}
+
+void _CFont::SetLineHeight(QString qslh)
+{
+	_details[fLineH] = qslh;
 	_Prepare();
 }
 
 void _CFont::SetDifferentFirstLine(bool set, QString size)
 {
-	_details[3] = set ? "1" : "0";
+	_details[4] = set ? "1" : "0";
 	if (!size.isEmpty())
-		_details[4] = size;
+		_details[fFirstS] = size;
 }
 
 void _CFont::_Prepare()
 {				  // only add first line size if used or different from font size
-	int n = _details[4] == "1" && _details[1] != _details[5] ? 6 : 4;
-	v = _details[0];
+	int n = _details[fDiffF] == "1" && _details[fSiz] != _details[fFirstS] ? 6 : 4;
+	v = _details[fFam];
 	for (int i = 1; i < n; ++i)
 		v += "|" + _details[i];
 }
@@ -737,12 +744,17 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 
 QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 {
+	QString res;
 	if (!Used())
-		return QString("	border:none");
-
-	if (_sizeWidths > 1)
-		return ForStyleSheet(semicolonAtLineEnds);
-	return QString("	border:%1px %2 %3").arg(_widths[0]).arg( Style(sdAll) ).arg(_colorNames[0]);
+		res = QString("border:none");
+	else
+	{
+		if (_sizeWidths > 1)
+			return ForStyleSheet(semicolonAtLineEnds);
+		res = QString("border:%1px %2 %3").arg(_widths[0]).arg(Style(sdAll)).arg(_colorNames[0]);
+	}
+	__AddSemi(res, semicolonAtLineEnds);
+	return res;
 }
 
 void _CBorder::_CountWidths()
@@ -1318,7 +1330,6 @@ CONFIG::CONFIG()
  *---------------------------------------------------------------------------*/
 void CONFIG::Read()		// synchronize with Write!
 {
-
 	QString sIniName = CONFIGS_USED::NameForConfig(false, ".ini");
 
 	QSettings s(sIniName, QSettings::IniFormat);

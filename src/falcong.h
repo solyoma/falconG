@@ -203,6 +203,7 @@ private slots:
 	void on_btnImageBorderColor_clicked();
 	void on_btnSelectUplinkIcon_clicked();
 
+	void on_btnReload_clicked();
 	void on_btnSaveConfig_clicked();
 
 	void on_btnBrowseSource_clicked();
@@ -234,6 +235,7 @@ private slots:
 	void on_cbBaseLanguage_currentIndexChanged(int index);
 	void on_cbLanguage_currentIndexChanged(int index);
 	void on_cbFonts_currentIndexChanged(int index);
+	void on_cbLineHeight_currentIndexChanged(int index);
 
 	void on_chkFacebook_toggled(bool);
 	void on_chkDebugging_toggled(bool);
