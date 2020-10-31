@@ -613,7 +613,7 @@ void FalconG::_ActualSampleParamsToUi()
 		ui.btnBackground->setStyleSheet(__ToolButtonBckStyleSheet(config.Web.background.Name()));	// sets btnBackground's color
 	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() != -1);
 
-	_EnableGradient(false);					// disable gradient buttons
+//	_EnableGradient(false);					// disable gradient buttons for background
 
 	ui.chkUseGradient->setChecked(pElem->gradient.used);	// re-enable gradient buttons when checked
 
@@ -661,17 +661,14 @@ void FalconG::_ActualSampleParamsToUi()
 
 		// border
 	ui.chkUseBorder->setChecked(pElem->border.Used());
-	if (pElem->border.Used())
-	{
-		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
+	BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
 
-		ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(side)+";\n color:"+ config.Web.background.Name()+";}\n"));
-		ui.sbBorderRadius->setValue(pElem->border.Radius());
-		int cnt = pElem->border.BorderCnt();
-		ui.cbBorder->setCurrentIndex( cnt == 1 ? 0 : 1);
-		ui.cbBorderStyle->setCurrentText(pElem->border.Style(side));
-		ui.sbBorderWidth->setValue(pElem->border.Width(side));
-	}
+	ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(side)+";\n color:"+ config.Web.background.Name()+";}\n"));
+	ui.sbBorderRadius->setValue(pElem->border.Radius());
+	int cnt = pElem->border.BorderCnt();
+	ui.cbBorder->setCurrentIndex( cnt == 1 ? 0 : 1);
+	ui.cbBorderStyle->setCurrentText(pElem->border.Style(side));
+	ui.sbBorderWidth->setValue(pElem->border.Width(side));
 
 	ui.cbPointSizeFirstLine->setCurrentText(pElem->font.FirstLineFontSizeStr());
 
@@ -1918,7 +1915,22 @@ void FalconG::on_chkUseGradient_toggled(bool on)
 	if (_busy)
 		return;
 	_CElem* pElem = _PtrToElement();
+	if (on && pElem->gradient.v.length() < 2)	// had no gradient (v is empty or "0")
+	{
+		QString qs = ui.lblGradient->styleSheet();
+		// format: "qlineargradient(x1:0, y1:0, x2:0,y2:1,,stop:%1 color1,Stop:%2 color2, stop:%3 color3)"
+		int pos = 0, pos1;
+		int percent;
+		for (int i = 0; i < 3 && pos >= 0; ++i, pos = pos1 + 7)
+		{
+			pos = qs.indexOf("stop", pos) + 5;	// to first position %
+			pos1 = qs.indexOf(" ", pos) + 1;	// to color
+			percent = qs.mid(pos, pos1 - pos - 1).toFloat() * 100.0;	// 0.4 #abcdef
+			pElem->gradient.Set((GradStop)i, percent, qs.mid(pos1, 7));
+		}
+	}
 	pElem->gradient.used = on;
+
 	_ElemToSample();
 }
 
@@ -2353,15 +2365,15 @@ void FalconG::on_sbBorderRadius_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnBorderColor_clicked()
 {
+	_CElem* pElem = _PtrToElement();
 	BorderSide side = (BorderSide )(ui.cbBorder->currentIndex()-1);
-	QColor qc(config.Menu.border.ColorStr(side)),
+	QColor qc(pElem->border.ColorStr(side)),
 			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 	if (qcNew == qc || !qcNew.isValid())
 		return;
 
 	_SetConfigChanged(true);
-	_CElem* pElem = _PtrToElement();
 	pElem->border.SetColor(side, qcNew.name());
 	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
 
@@ -2824,6 +2836,7 @@ void FalconG::_ModifyGoogleFontImport()
 	BackupAndRename(name, tmpName);
 	// reload page
 	_page.triggerAction(QWebEnginePage::Reload);
+	ui.cbActualItem->setCurrentIndex(0);
 }
 
 
@@ -3423,7 +3436,7 @@ void FalconG::_SetBorder(_CElem* pElem)
 void FalconG::_SetLinearGradient(_CElem* pElem)
 {
 	QString qs;
-	if(pElem == &config.Web || !pElem->parent || pElem->parent->gradient != pElem->gradient	)
+	if( pElem != &config.Web && (!pElem->parent || pElem->parent->gradient != pElem->gradient)	)
 		 qs = pElem->gradient.ForStyleSheet(false);
 	_SetCssProperty(pElem, qs);
 }
@@ -3911,15 +3924,15 @@ QPusButton:default {
 
 		if (which == stBlue)		// blue
 			ss += QString( R"(QCheckBox::indicator:checked {
-	background-image: url(:/icons/Resources/blue-checked.png);
+	background-image: url(res/blue-checked.png);
 }
 
 QCheckBox::indicator:unchecked {
-	background-image: url(:/icons/Resources/blue-unchecked.png);
+	background-image: url(res/blue-unchecked.png);
 }
 )");
 // DEBUG
-			DEBUG_LOG(ss)
+//			DEBUG_LOG(ss)
 
 		frmMain->setStyleSheet(ss);
 
@@ -4273,6 +4286,9 @@ void FalconG::_RunJavaScript(QString className, QString value)
 
 void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 {
+	if (value.isEmpty())
+		return;
+
 	QString className = pElem->ClassName();
 	if (!subSelector.isEmpty())
 		className += subSelector;

@@ -12,7 +12,7 @@ namespace Enums
 	enum Style : unsigned short { fNone = 0, fBold = 1, fItalic = 2, };	// _CtextStyle
 	enum FeatureOp { foClearAll, foSet, foUnset, foClearOthersAndSet };
 	enum ShadowPart { spUse, spHoriz, spVert, spBlurR, spSpread, spColorName };  // _CShadow
-	enum GradStop { gsStart, gsMiddle, gsStop };
+	enum GradStop { gsStart, gsMiddle, gsStop };   // 0, 1, 2
 	enum BorderSide { sdAll=-1, sdTop, sdRight, sdBottom, sdLeft };  // index	-1, 0		1	   2		 3
 	enum BackgroundImageSizing {
 		hNotUsed,

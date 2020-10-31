@@ -715,7 +715,7 @@
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Series of 2 lower case letter language abbreviations separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files  in the program directory or in the&lt;br/&gt;actual gallery source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;2 letter abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language texts it finds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
-                <string>hu,Magyarul,;en,English,;</string>
+                <string> &quot;hu,en&quot; to use hu.lang and en.lang</string>
                </property>
               </widget>
              </item>
@@ -1627,8 +1627,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -3858,8 +3858,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>288</width>
+                    <height>124</height>
                    </rect>
                   </property>
                   <attribute name="label">

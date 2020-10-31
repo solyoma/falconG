@@ -719,7 +719,7 @@ void _CGradient::_Prepare()		// to store in settings
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
 	if(!Used())
-		return QString();
+		return QString("border:none");
 
 	QString res,res2,res3,res4;
 	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(Style(sdTop)).arg(ColorStr(sdTop));
