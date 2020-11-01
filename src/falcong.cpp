@@ -220,7 +220,7 @@ FalconG::FalconG(QWidget *parent)
 
 	_ModifyGoogleFontImport();
 
-	_PopulateFromConfig();
+	_ConfigToUI();
 
 	config.ClearChanged();
 
@@ -334,7 +334,7 @@ void FalconG::on_btnSourceHistory_clicked()
 			CONFIGS_USED::indexOfLastUsed = SourceHistory::Selected();
 			config.Read();
 
-			_PopulateFromConfig();	// edit values from config
+			_ConfigToUI();	// edit values from config
 
 			QString s = ui.edtSourceGallery->text().trimmed();
 			if (ui.edtSourceGallery->text().isEmpty())
@@ -600,7 +600,7 @@ void FalconG::_ActualSampleParamsToUi()
 {
 	_CElem* pElem = _PtrToElement();
 
-	if (pElem->kind == aeThumb)		// set in _PopulateFromConfig and no need to update it
+	if (pElem->kind == aeThumb)		// set in _ConfigToUI and no need to update it
 		return;
 
 	++_busy;
@@ -713,16 +713,44 @@ void FalconG::_SetConfigChanged(bool on)
 	ui.btnSaveConfig->setEnabled(config.SetChanged(on));
 }
 
-/*============================================================================
-* TASK:		set all saved data into global controls	+ interface elements
-* EXPECTS:	'config' is set up
-* GLOBALS:	'config'
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::_PopulateFromConfig()
+
+/*========================================================
+ * TASK:	set up controls on Design and Watermark page
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_DesignToUi()
 {
 	++_busy;
 
+	ui.edtWmColor->setText(QString().setNum(config.waterMark.wm.Color(), 16));
+	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
+	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
+
+	ui.chkImageBorder->setChecked(config.imageBorder.Used());
+	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
+	ui.chkUseWM->setChecked(config.waterMark.used);
+
+	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
+	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
+	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
+	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
+	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
+
+	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
+	ui.sbImagePadding->setValue(config.imagePadding);
+
+	_SettingUpFontsCombo();
+	_GlobalsToUi();	
+
+	--_busy;
+}
+
+void FalconG::_OtherToUi()
+{
+	++_busy;
 	ui.edtAbout->setText(config.sAbout);
 	ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
 	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
@@ -739,10 +767,6 @@ void FalconG::_PopulateFromConfig()
 	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
 	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
 	ui.edtUplink->setText(config.sUplink);
-	ui.edtWmColor->setText(QString().setNum(config.waterMark.wm.Color(), 16));
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
-
 	if (!config.dsAlbumDir.IsEmpty() && ui.edtAlbumDir->placeholderText() != config.dsAlbumDir.ToString())
 		ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
 	if (!config.sBaseName.IsEmpty() && ui.edtBaseName->placeholderText() != config.sBaseName.ToString())
@@ -754,61 +778,42 @@ void FalconG::_PopulateFromConfig()
 	if (!config.dsThumbDir.IsEmpty() && ui.edtThumb->placeholderText() != config.dsThumbDir.ToString())
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
+	ui.edtWatermark->setText(config.waterMark.wm.text);
+
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkButImages->setChecked(config.bButImages);
 	ui.chkCanDownload->setChecked(config.bCanDownload);
 
-// not saved/restored:
-//	ui.chkDebugging->setChecked(config.bDebugging);
-	--_busy;
-	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
-	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
-	++_busy;
-    
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 	ui.chkFacebook->setChecked(config.bFacebookLink);
 	ui.chkGenerateAll->setChecked(config.bGenerateAll);
 	ui.chkForceSSL->setChecked(config.bForceSSL);
-	ui.chkImageBorder->setChecked(config.imageBorder.Used());
-	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
-	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
-	ui.chkMenuToContact->setChecked(config.bMenuToContact);
-	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
-	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
-	ui.chkOvrImages->setChecked(config.bOvrImages);
 // not saved/restored:
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
 //	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);	  
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.generateLatestUploads);
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
+	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
+	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
+	ui.chkMenuToContact->setChecked(config.bMenuToContact);
+	ui.chkMenuToDescriptions->setChecked(config.bMenuToDescriptions);
+	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
+	ui.chkOvrImages->setChecked(config.bOvrImages);
 	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
-	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
-	ui.chkUseWM->setChecked(config.waterMark.used);
-
-	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
-	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
-	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
 	ui.btnLink->setChecked(config.imageSizesLinked);
-	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
-	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
-
-	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
-	ui.sbImagePadding->setValue(config.imagePadding);
-	ui.sbImageWidth->setValue(config.imageWidth);
-	ui.sbImageHeight->setValue(config.imageHeight);
-	ui.sbThumbnailWidth->setValue(config .thumbWidth);
-	ui.sbThumbnailHeight->setValue(config.thumbHeight);
 
 	int h = config.imageHeight ? config.imageHeight : 1;
 	_aspect = (double)config.imageWidth / h;
 
-	ui.sbNewDays->setValue(config.newUploadInterval);
 							// Watermark
 	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity());
-
-	ui.edtWatermark->setText(config.waterMark.wm.text);
+	ui.sbNewDays->setValue(config.newUploadInterval);
+	ui.sbImageWidth->setValue(config.imageWidth);
+	ui.sbImageHeight->setValue(config.imageHeight);
+	ui.sbThumbnailWidth->setValue(config .thumbWidth);
+	ui.sbThumbnailHeight->setValue(config.thumbHeight);
 
 	h = config.waterMark.wm.origin & 0xF;  // vertical position
 	ui.cbWmVPosition->setCurrentIndex(h);
@@ -822,8 +827,6 @@ void FalconG::_PopulateFromConfig()
 
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
-
-	_SettingUpFontsCombo();
 
 	switch (config.styleIndex)
 	{
@@ -843,9 +846,24 @@ void FalconG::_PopulateFromConfig()
 			ui.rbBlackStyle->setChecked(true);
 			break;
 	}
-	ui.toolBox->setCurrentIndex(0);		// global page
-	_GlobalsToUi();	
 	--_busy;
+
+// not saved/restored:
+//	ui.chkDebugging->setChecked(config.bDebugging);
+	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
+	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
+}
+
+/*============================================================================
+* TASK:		set all saved data into global controls	+ interface elements
+* EXPECTS:	'config' is set up
+* GLOBALS:	'config'
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::_ConfigToUI()
+{
+	_OtherToUi();
+	_DesignToUi();
 }
 
 /*============================================================================
@@ -926,7 +944,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 		if (f.exists())
 		{
 			config.Read();
-			_PopulateFromConfig();	// edit values from config
+			_ConfigToUI();	// edit values from config
 
 			_EnableButtons();
 		}
@@ -1096,7 +1114,7 @@ void FalconG::on_edtGoogleFonts_editingFinished()
 		config.sGoogleFonts = s;
 		_SetConfigChanged(true);
 		_ModifyGoogleFontImport();
-		_PopulateFromConfig();
+		_ConfigToUI();
 	}
 }
 
@@ -1915,23 +1933,9 @@ void FalconG::on_chkUseGradient_toggled(bool on)
 	if (_busy)
 		return;
 	_CElem* pElem = _PtrToElement();
-	if (on && pElem->gradient.v.length() < 2)	// had no gradient (v is empty or "0")
-	{
-		QString qs = ui.lblGradient->styleSheet();
-		// format: "qlineargradient(x1:0, y1:0, x2:0,y2:1,,stop:%1 color1,Stop:%2 color2, stop:%3 color3)"
-		int pos = 0, pos1;
-		int percent;
-		for (int i = 0; i < 3 && pos >= 0; ++i, pos = pos1 + 7)
-		{
-			pos = qs.indexOf("stop", pos) + 5;	// to first position %
-			pos1 = qs.indexOf(" ", pos) + 1;	// to color
-			percent = qs.mid(pos, pos1 - pos - 1).toFloat() * 100.0;	// 0.4 #abcdef
-			pElem->gradient.Set((GradStop)i, percent, qs.mid(pos1, 7));
-		}
-	}
 	pElem->gradient.used = on;
 
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2169,10 +2173,11 @@ void FalconG::on_sbShadowSpread2_valueChanged(int val)
 void FalconG::on_sbGradStartPos_valueChanged(int val)
 {
 	_CElem* pElem = _PtrToElement();
+
 	pElem->gradient.Set(gsStart, val, pElem->gradient.Color(gsStart));
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2184,10 +2189,11 @@ void FalconG::on_sbGradStartPos_valueChanged(int val)
 void FalconG::on_sbGradMiddlePos_valueChanged(int val)
 {
 	_CElem* pElem = _PtrToElement();
+
 	pElem->gradient.Set(gsMiddle, val, pElem->gradient.Color(gsMiddle));
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2199,8 +2205,9 @@ void FalconG::on_sbGradMiddlePos_valueChanged(int val)
 void FalconG::on_sbGradStopPos_valueChanged(int val)
 {
 	_CElem* pElem = _PtrToElement();
+	
 	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2466,7 +2473,7 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 void FalconG::on_btnReload_clicked()
 {
 	_page.triggerAction(QWebEnginePage::Reload);
-	_PopulateFromConfig();
+	_ConfigToUI();
 }
 
 /*============================================================================
@@ -2661,10 +2668,10 @@ void FalconG::on_btnGradStartColor_clicked()
 	if (!qcNew.isValid() || qc == qcNew)
 		return;
 	pElem->gradient.Set(gsStart, ui.sbGradStartPos->value(), qcNew.name());
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2683,10 +2690,10 @@ void FalconG::on_btnGradMiddleColor_clicked()
 	if (!qcNew.isValid() || qc == qcNew)
 		return;
 	pElem->gradient.Set(gsMiddle, ui.sbGradMiddlePos->value(), qcNew.name());
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2705,10 +2712,10 @@ void FalconG::on_btnGradStopColor_clicked()
 	if (!qcNew.isValid() || qc == qcNew)
 		return;
 	pElem->gradient.Set(gsStop, ui.sbGradStopPos->value(), qcNew.name());
-	_SetWidgetGradientQt(ui.lblGradient, pElem);
+	_SetGradientLabelColors(pElem);
 
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_SetLinearGradient(pElem);
 }
 
 /*============================================================================
@@ -2766,7 +2773,11 @@ void FalconG::on_btnShadowColor_clicked()
 void FalconG::on_btnResetDesign_clicked()
 {
 	config.RestoreDesign();
-	_PopulateFromConfig();		
+	_DesignToUi();
+
+	_aeActiveElement = aeWebPage;
+	ui.cbActualItem->setCurrentIndex(0);		// global page
+	_ConfigToSample();
 }
 
 /*============================================================================
@@ -3294,9 +3305,12 @@ QString FalconG::_GradientStyleQt(_CElem &elem, bool invert)
 		return elem.gradient.ForQtStyleSheet(invert);
 }
 
-void FalconG::_SetWidgetGradientQt(QWidget* pwidget, _CElem* pElem, bool invert)
+void FalconG::_SetGradientLabelColors(_CElem* pElem, bool invert)
 {
-	pwidget->setStyleSheet(QString("background:%1;").arg(pElem->gradient.ForQtStyleSheet(invert)));
+	ui.lblGradient->setStyleSheet(QString("background:%1;").arg(pElem->gradient.ForQtStyleSheet(invert)));
+	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
+	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
+	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
 }
 
 
@@ -3436,7 +3450,7 @@ void FalconG::_SetBorder(_CElem* pElem)
 void FalconG::_SetLinearGradient(_CElem* pElem)
 {
 	QString qs;
-	if( pElem != &config.Web && (!pElem->parent || pElem->parent->gradient != pElem->gradient)	)
+	if( pElem != &config.Web && (!pElem->parent || pElem->parent == &config.Web) )
 		 qs = pElem->gradient.ForStyleSheet(false);
 	_SetCssProperty(pElem, qs);
 }

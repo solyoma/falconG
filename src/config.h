@@ -74,7 +74,10 @@ template <class T> struct _CFG_ITEM
 		if (!group.isEmpty())
 			s.endGroup();
 	}
-	_CFG_ITEM& operator=( const _CFG_ITEM o) { v = o.v; v0 = o.v0, vd = o.vd; return *this; }
+
+	_CFG_ITEM& operator=(const _CFG_ITEM o) { v = o.v; v0 = o.v0, vd = o.vd; _Setup(); return *this; }
+	_CFG_ITEM& operator=(const T o) { v = o; _Setup(); return *this; }
+
 	virtual bool operator==(const _CFG_ITEM& other) { return v == other.v;  }
 	virtual bool operator!=(const _CFG_ITEM& other) { return !((const T)v == other.v);  }
 protected:
@@ -90,7 +93,7 @@ struct _CString : public _CFG_ITEM<QString>
 	_CString(QString vd, QString namestr) : _CFG_ITEM(vd, namestr) {}
 	_CString() : _CFG_ITEM(QString(), "cstring") {}
 
-	QString &operator=(const QString s);
+	QString& operator=(const QString s);
 	QString& operator=(const _CString& s) { _CFG_ITEM::operator=(s);  return v; };
 //	operator const QString() const { return ToString(); }
 	operator QString() const { return ToString(); }
@@ -134,7 +137,6 @@ struct _CBool : public _CFG_ITEM<bool>
 	_CBool(bool def, QString namestr="cbool") : _CFG_ITEM(def, namestr) {}
 	_CBool() : _CFG_ITEM(false, "cbool") {}
 
-	bool &operator=(const bool s);
 	operator bool() const { return v; }
 	QString ToString() const { return v ? "true" : "false"; }
 };
@@ -147,7 +149,6 @@ struct _CInt : _CFG_ITEM<int>
 	_CInt(int vd, QString namestr="cint") : _CFG_ITEM(vd, namestr) {}
 	_CInt() : _CFG_ITEM(0, "cint") {}
 
-	int &operator=(const int s);
 	operator int() const { return v; }
 	QString ToString() const { return ToString(0);  }
 	QString ToString(int digits) const 
@@ -445,6 +446,7 @@ struct _CGradient : public _CFG_ITEM<QString>
 	_CGradient() : _CFG_ITEM(QString(), "cgradient") { _Setup(); }
 
 	QString Color(GradStop stop) const { return gs[(int)stop].color; }
+
 	// border color is its parent's border.color
 	void Set(GradStop which, int pc, QString clr);
 	void Set(int which, int pc, QString clr) { Set(GradStop(which), pc, clr); }
@@ -616,7 +618,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 							{"0|0|0|0|#000000","box-shadow1"} },
 		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},
 							{"0|0|0|0|#000000","box-shadow2"} };
-	_CGradient gradient = { "0","gradient"};
+	_CGradient gradient = { "0|0|#A90329|40|#890222|100|#6d0019"};
 	_CBorder border = {"0|2|1|#890222","border"};
 
 	_CElem* parent = nullptr;
@@ -642,6 +644,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	virtual void Write(QSettings& s, QString group = QString()) override;
 	virtual void Read(QSettings& s, QString group = QString()) override;
 
+	_CElem& operator=(const _CElem& other);
 	bool operator==(const _CElem& other) 
 	{
 		return  (color		  == other.color	 ) &&

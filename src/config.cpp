@@ -137,8 +137,6 @@ QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 }
 
 
-
-
 /*===========================================================================
  * TASK: assign a QString to a CString
  * EXPECTS: s - QString
@@ -223,10 +221,10 @@ _CDirStr _CDirStr::operator+(const QString subdir)
  * RETURNS: the bool
  * REMARKS: may modify the 'changed' field of global variable 'config'
 *--------------------------------------------------------------------------*/
-bool &_CBool::operator=(const bool s)
-{ 
-	return v = s; 
-}
+//bool &_CBool::operator=(const bool s)
+//{ 
+//	return v = s; 
+//}
 
 /*===========================================================================
  * TASK: assign an into a CInt
@@ -235,10 +233,10 @@ bool &_CBool::operator=(const bool s)
  * RETURNS: the int
  * REMARKS: may modify the 'changed' field of global variable 'config'
 *--------------------------------------------------------------------------*/
-int &_CInt::operator=(const int i)
-{
-	return v = i;
-}
+//int &_CInt::operator=(const int i)
+//{
+//	return v = i;
+//}
 // --------------------------- _CColor ------------------------------
 
 /*===========================================================================
@@ -610,6 +608,7 @@ bool _CGradientStop::Set(int pc, QString clr)
 	return true; 
 }
 
+
 /*===========================================================================
  * TASK:  set parameters of a vertical gradient stop 
  * EXPECTS:	which - gsStart, gsMiddle, gsStop (0,1,2) - which of the 3 stops
@@ -649,26 +648,26 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 QString _CGradient::ForStyleSheet(bool semi) const
 {
 	if (!used) 
-		return QString();
-	QString qs = QString("background-image:linear-gradient(%1,%2%,%3,%4%,%5,%6%)").arg(gs[0].color).arg(gs[0].percent)
-														      .arg(gs[1].color).arg(gs[1].percent)
-																.arg(gs[2].color).arg(gs[2].percent);
+		return QString("background-image:");
+	QString qs = QString("background-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
+								.arg(gs[0].color).arg(gs[0].percent)
+								.arg(gs[1].color).arg(gs[1].percent)
+								.arg(gs[2].color).arg(gs[2].percent);
 	__AddSemi(qs, semi);
 	return qs;
 }
 
 QString _CGradient::ForQtStyleSheet(bool invert) const
 {
-	if (!used) 
-		return QString();
 	int n0, n1, n2;
 	if (invert)
 		n0 = 2, n1 = 1, n2 = 0;
 	else
 		n0 = 0, n1 = 1, n2 = 2;
-	return QString("qlineargradient(x1:0, y1:0, x2:0,y2:1,,stop:%1 %2,Stop:%3 %4, stop:%5 %6)").arg(gs[n0].percent/100.0).arg(gs[n0].color)
-														      .arg(gs[n1].percent/100.0).arg(gs[n1].color)
-														      .arg(gs[n2].percent/100.0).arg(gs[n2].color);
+	return QString("qlineargradient(x1:0, y1:0, x2:0,y2:1,stop:%1 %2,Stop:%3 %4, stop:%5 %6)")
+								.arg(gs[n0].percent/100.0).arg(gs[n0].color)
+								.arg(gs[n1].percent/100.0).arg(gs[n1].color)
+								.arg(gs[n2].percent/100.0).arg(gs[n2].color);
 
 }
 
@@ -677,6 +676,11 @@ void _CGradient::_Setup()	// what was read from settings into v
 	QStringList qsl = v.split(QChar('|'));		//	<used>|<p Top>|<c Top>|<p Middle>|<c Middle>|<p Bottom>|<c bottom>
 												// u: used 0,1, p = position (%), c = color
 
+	if (qsl.size() != 7)		// not set
+	{
+		v = vd = "0|0|#A90329|40|#890222|100|#6d0019";		// default
+		qsl = v.split(QChar('|'));
+	}
 							// index in qsl		  0			    1			   2			  3			        4				   5				6				
 	_internal = true;
 	used = qsl[0].toInt();
@@ -958,12 +962,33 @@ void _CElem::Read(QSettings& s, QString group)
 			shadow1[1].Read(s);
 			shadow2[1].Read(s);
 		}
-		if(_bMayGradient)
+		if (_bMayGradient)
 			gradient.Read(s);
 		border.Read(s);
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();
+}
+
+_CElem& _CElem::operator=(const _CElem& o)
+{
+	v = o.v;
+	v0 = o.v0;
+	vd = o.vd;
+	kind = o.kind;
+	color = o.color;
+	background = o.background;
+	font = o.font;
+	decoration = o.decoration;
+	alignment = o.alignment;
+	shadow1[0] = o.shadow1[0];
+	shadow2[0] = o.shadow2[0];
+	shadow1[1] = o.shadow1[1];
+	shadow2[1] = o.shadow2[1];
+	gradient = o.gradient;
+	border = o.border;
+	parent = o.parent;
+	return *this;
 }
 
 /*===========================================================================
@@ -1261,16 +1286,24 @@ void CONFIG::FromOther(const CONFIG &cfg)
  * REMARKS: 
 *--------------------------------------------------------------------------*/
 void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
-{
-	Web = cfg.Web;				// page
-	Menu = cfg.Menu;				// buttons
+{			// _CElem's
+	Web = cfg.Web;								// page
+	Header = cfg.Header;
+	Menu = cfg.Menu;							// buttons
 	Lang = cfg.Lang;
 											// special handling : include shadows
-	GalleryTitle = cfg.GalleryTitle;		// "andreas falco photography"
 	SmallGalleryTitle = cfg.SmallGalleryTitle;		// "andreas falco photography"
-	GalleryDesc = cfg.GalleryDesc;		// "andreas falco photography"
+	GalleryTitle = cfg.GalleryTitle;		
+	GalleryDesc = cfg.GalleryDesc;		
 
 	Section = cfg.Section;			// "Images" or "Albums"
+	Thumb = cfg.Thumb;
+	ImageTitle = cfg.ImageTitle;
+	ImageDesc = cfg.ImageDesc;
+	LightboxTitle = cfg.LightboxTitle;
+	LightboxDesc = cfg.LightboxDesc;
+	Footer = cfg.Footer;
+	
 	waterMark = cfg.waterMark;
 	bFacebookLink = cfg.bFacebookLink;
 	// images

@@ -108,7 +108,7 @@ private:
 	QTextStream ifs, ofs;
 
 	QString _GradientStyleQt(_CElem &elem, bool invert = false);	// Creates QT stylesheet gradinet string
-	void  _SetWidgetGradientQt(QWidget *pwidget, _CElem *pElem, bool invert = false);	// Creates QT stylesheet gradinet string
+	void  _SetGradientLabelColors(_CElem *pElem, bool invert = false);	// Creates QT stylesheet gradinet string
 	_CElem* _PtrToElement(AlbumElement ae = aeUndefined);
 
 
@@ -119,7 +119,9 @@ private:
 	void _EnableButtons();
 	void _GlobalsToUi();
 	void _ActualSampleParamsToUi();		// using _aeActiveElement
-	void _PopulateFromConfig(); // into fields
+	void _DesignToUi();					// part of config used on design page
+	void _OtherToUi();					// all others
+	void _ConfigToUI(); 
 	bool _CreateAlbumDirs();
 	void _SetOpacityToConfig(_CElem & elem, int which = 3); // 1: text, 2: background, 3 both
 
