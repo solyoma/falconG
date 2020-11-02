@@ -1,7 +1,5 @@
 #include "config.h"
 
-bool savelItemsAlways;	// global !
-
 // helper	prepends a tab and adds a semicolon and LF after the string
 void __AddSemi(QString& s, bool addSemicolon)
 {
@@ -92,7 +90,11 @@ void CONFIGS_USED::Write()
  * TASK: Determines file name of configuration from ini
 *				 or struct files
  * PARAMS:	forSave - name required for save or read
-			sExt - extension (.ini or .struct)
+ *				for read: if file in source directory
+ *							does not exist return default name
+ *				for save: always returns a name in the source
+ *							directory
+ *			sExt - extension (.ini or .struct)
  *					defaults: 'falconG.ini' and 'gallery.struct'
  * GLOBALS: lastConfigs, indexOfLastUsed
  * RETURNS:	full path name of config file
@@ -1363,7 +1365,7 @@ CONFIG::CONFIG()
  *---------------------------------------------------------------------------*/
 void CONFIG::Read()		// synchronize with Write!
 {
-	QString sIniName = CONFIGS_USED::NameForConfig(false, ".ini");
+	QString sIniName = CONFIGS_USED::NameForConfig(false, ".ini"); // false: fallback to default if ini does not exist in source dir.
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
@@ -1469,11 +1471,8 @@ void CONFIG::Read()		// synchronize with Write!
 		dsSrc.v = CONFIGS_USED::lastConfigs[CONFIGS_USED::indexOfLastUsed];
 	QString qs = CONFIGS_USED::NameForConfig(true, ".ini");
 	if(!QFile::exists(qs))
-	{
-		savelItemsAlways = true;		// when the new file is created there are no 
-		config._WriteIni(qs);					// already written peopwerties
-		savelItemsAlways = false;
-	}
+		config._WriteIni(qs);			// already written properties
+
 	configSave = *this;
 }
 

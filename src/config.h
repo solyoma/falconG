@@ -22,8 +22,6 @@ std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QStri
 	return s.value(name, def).toStringList().join(',');
 }
 
-// sometimes we must save even unchanged values
-extern bool savelItemsAlways;
 // base class template for all config itemss. Based on functions Value() above.
 
 template <class T> struct _CFG_ITEM
@@ -46,21 +44,18 @@ template <class T> struct _CFG_ITEM
 		v0 = v;
 	}
 
-	virtual void Write(QSettings& s, QString group = QString() )	// into settings, but only if changed
+	virtual void Write(QSettings& s, QString group = QString() )	// into settings, always
 	{
-		if (savelItemsAlways || v != v0)		// changed
-		{
-			if(!group.isEmpty())
-				s.beginGroup(group);
+		if(!group.isEmpty())
+			s.beginGroup(group);
 
-			if (v == vd)
-				s.remove(itemName);		// from current group!
-			else
-				s.setValue(itemName, v);
+		if (v == vd)
+			s.remove(itemName);		// from current group!
+		else
+			s.setValue(itemName, v);
 
-			if (!group.isEmpty())
-				s.endGroup();
-		}
+		if (!group.isEmpty())
+			s.endGroup();
 	}
 	virtual void Read(QSettings& s, QString group = QString())
 	{
@@ -889,7 +884,7 @@ public:
 	_CBorder imageBorder = {"0|2|1|#EAA41E", "imageBorder"};
 	_CInt imagePadding = { 0, "imagePadding" };
 				// 	Watermarks
-	_CWaterMark waterMark = {"", "waterMark"};
+	_CWaterMark waterMark = {"", "Watermark"};
 
 	// Options page
 	_CInt styleIndex = {0, "styleIndex"};

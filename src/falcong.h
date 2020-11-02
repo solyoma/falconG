@@ -325,7 +325,6 @@ private slots:
 	void on_sbImageWidth_valueChanged(int w);				// image width
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height
 	void on_sbThumbnailWidth_valueChanged(int w);				// image width
-	void on_edtWmColor_textChanged();
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
 	void on_sbNewDays_valueChanged(int val);

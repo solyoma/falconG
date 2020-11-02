@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>997</width>
-    <height>1029</height>
+    <height>1038</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -435,6 +435,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_16">
           <item>
            <widget class="QGroupBox" name="gbGallery">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <family>Arial</family>
@@ -1620,15 +1626,15 @@ original file name.</string>
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="pgGlobal">
                   <property name="geometry">
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>431</width>
+                    <height>704</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -1942,7 +1948,7 @@ original file name.</string>
                     <x>0</x>
                     <y>0</y>
                     <width>431</width>
-                    <height>695</height>
+                    <height>704</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -2235,7 +2241,7 @@ original file name.</string>
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
-                          <height>40</height>
+                          <height>110</height>
                          </size>
                         </property>
                         <property name="font">
@@ -4036,8 +4042,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>431</width>
+                    <height>704</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4420,256 +4426,51 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>431</width>
+                    <height>704</height>
                    </rect>
                   </property>
                   <attribute name="label">
                    <string>Watermark</string>
                   </attribute>
-                  <widget class="QWidget" name="gbWatermark" native="true">
+                  <widget class="QWidget" name="verticalLayoutWidget">
                    <property name="geometry">
                     <rect>
                      <x>0</x>
-                     <y>10</y>
-                     <width>421</width>
-                     <height>432</height>
+                     <y>0</y>
+                     <width>440</width>
+                     <height>457</height>
                     </rect>
                    </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>10</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_21">
-                    <item row="0" column="0" colspan="2">
-                     <widget class="QCheckBox" name="chkUseWM">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
+                   <layout class="QVBoxLayout" name="verticalLayout_3">
+                    <property name="sizeConstraint">
+                     <enum>QLayout::SetMinimumSize</enum>
+                    </property>
+                    <item>
+                     <widget class="QWidget" name="gbWatermark" native="true">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
                       </property>
-                      <property name="text">
-                       <string>use</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2">
-                     <widget class="QLabel" name="label_12">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Opacity   </string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="3">
-                     <widget class="QSpinBox" name="sbWmOpacity">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="suffix">
-                       <string>px</string>
-                      </property>
-                      <property name="maximum">
-                       <number>100</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="label_13">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Text</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1" colspan="4">
-                     <widget class="QLineEdit" name="edtWatermark">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
-                        <height>24</height>
+                        <height>80</height>
                        </size>
                       </property>
                       <property name="font">
                        <font>
                         <family>Arial</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0" colspan="5">
-                     <widget class="QGroupBox" name="gbVerticalPosition">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
                         <weight>75</weight>
                         <bold>true</bold>
                        </font>
-                      </property>
-                      <property name="title">
-                       <string>Vertical position</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_11" rowstretch="1,0">
-                       <item row="0" column="0">
-                        <widget class="QComboBox" name="cbWmVPosition">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="currentText">
-                          <string>Center vertically</string>
-                         </property>
-                         <property name="currentIndex">
-                          <number>1</number>
-                         </property>
-                         <item>
-                          <property name="text">
-                           <string>Top</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Center vertically</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Bottom</string>
-                          </property>
-                         </item>
-                        </widget>
-                       </item>
-                       <item row="1" column="2">
-                        <widget class="QLabel" name="label_8">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>px</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QLabel" name="label_6">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Vert. margin:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="QLineEdit" name="edtWmVertMargin">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="4" column="0" colspan="5">
-                     <widget class="QGroupBox" name="gbHorizontalPosition">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
-                      <property name="title">
-                       <string>Horizontal position</string>
                       </property>
                       <layout class="QGridLayout" name="gridLayout_10">
-                       <item row="0" column="0">
-                        <widget class="QComboBox" name="cbWmHPosition">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="currentIndex">
-                          <number>1</number>
-                         </property>
-                         <item>
-                          <property name="text">
-                           <string>Left</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Center horizontally</string>
-                          </property>
-                         </item>
-                         <item>
-                          <property name="text">
-                           <string>Right</string>
-                          </property>
-                         </item>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QLabel" name="label_49">
+                       <item row="1" column="0">
+                        <widget class="QLabel" name="label_34">
                          <property name="font">
                           <font>
                            <family>Arial</family>
@@ -4679,24 +4480,25 @@ is required.</string>
                           </font>
                          </property>
                          <property name="text">
-                          <string>Horizontal margin</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="QLineEdit" name="edtWmHorizMargin">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
+                          <string>Opacity   </string>
                          </property>
                         </widget>
                        </item>
                        <item row="1" column="2">
-                        <widget class="QLabel" name="label_48">
+                        <spacer name="horizontalSpacer_10">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="QCheckBox" name="chkUseWM">
                          <property name="font">
                           <font>
                            <family>Arial</family>
@@ -4706,36 +4508,368 @@ is required.</string>
                           </font>
                          </property>
                          <property name="text">
-                          <string>px</string>
+                          <string>use</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="3">
+                        <widget class="QLabel" name="label_29">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Color</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="1">
+                        <widget class="QSpinBox" name="sbWmOpacity">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="suffix">
+                          <string>%</string>
+                         </property>
+                         <property name="maximum">
+                          <number>100</number>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <widget class="QLabel" name="label_35">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Text</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="4">
+                        <widget class="QToolButton" name="btnWmColor">
+                         <property name="styleSheet">
+                          <string notr="true">QToolButton {background-color:#fff}</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="1" colspan="4">
+                        <widget class="QLineEdit" name="edtWatermark">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
                          </property>
                         </widget>
                        </item>
                       </layout>
                      </widget>
                     </item>
-                    <item row="5" column="0" colspan="5">
+                    <item>
+                     <widget class="QGroupBox" name="gbWatermarkFont">
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="title">
+                       <string>Font</string>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_3">
+                       <item>
+                        <widget class="QToolButton" name="btnSelectWmFont">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>4</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>A</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="lblWaterMarkFont">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>----------------------------------------------------------------------------------------------</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QGroupBox" name="gbPosition">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>110</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>430</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>10</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="title">
+                       <string>Position</string>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_12">
+                       <item>
+                        <layout class="QGridLayout" name="gridLayout_11" columnstretch="0,0,0">
+                         <item row="2" column="1">
+                          <widget class="QLineEdit" name="edtWmVertMargin">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>50</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QLabel" name="label_12">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Vertical margin:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="2">
+                          <widget class="QLabel" name="label_13">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>px</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="0" colspan="3">
+                          <widget class="QComboBox" name="cbWmVPosition">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="currentText">
+                            <string>Center vertically</string>
+                           </property>
+                           <property name="currentIndex">
+                            <number>1</number>
+                           </property>
+                           <item>
+                            <property name="text">
+                             <string>Top</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>Center vertically</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>Bottom</string>
+                            </property>
+                           </item>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QGridLayout" name="gridLayout_21" columnstretch="0,0,0">
+                         <item row="0" column="0" colspan="3">
+                          <widget class="QComboBox" name="cbWmHPosition">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="currentIndex">
+                            <number>1</number>
+                           </property>
+                           <item>
+                            <property name="text">
+                             <string>Left</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>Center horizontally</string>
+                            </property>
+                           </item>
+                           <item>
+                            <property name="text">
+                             <string>Right</string>
+                            </property>
+                           </item>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_60">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Horizontal margin</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QLineEdit" name="edtWmHorizMargin">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>50</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="2">
+                          <widget class="QLabel" name="label_71">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>px</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QGroupBox" name="gbWmTextShadow">
                       <property name="title">
                        <string>Text Shadow</string>
                       </property>
                       <layout class="QGridLayout" name="gridLayout_8">
-                       <item row="0" column="0">
-                        <widget class="QLabel" name="label_16">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Horizontal</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QSpinBox" name="sbWmShadowHoriz">
+                       <item row="1" column="2">
+                        <widget class="QSpinBox" name="sbWmShadowBlur">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -4788,8 +4922,38 @@ is required.</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="1" column="2">
-                        <widget class="QSpinBox" name="sbWmShadowBlur">
+                       <item row="0" column="2">
+                        <widget class="QLabel" name="label_41">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Blur:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="label_16">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Horizontal</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="QSpinBox" name="sbWmShadowHoriz">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -4812,6 +4976,21 @@ is required.</string>
                          </property>
                          <property name="suffix">
                           <string>px</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_40">
+                         <property name="font">
+                          <font>
+                           <family>Arial</family>
+                           <pointsize>10</pointsize>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Vertical:</string>
                          </property>
                         </widget>
                        </item>
@@ -4839,36 +5018,6 @@ is required.</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="2">
-                        <widget class="QLabel" name="label_41">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Blur:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item row="0" column="1">
-                        <widget class="QLabel" name="label_40">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Vertical:</string>
-                         </property>
-                        </widget>
-                       </item>
                        <item row="0" column="3">
                         <widget class="QLabel" name="label_52">
                          <property name="font">
@@ -4887,7 +5036,7 @@ is required.</string>
                       </layout>
                      </widget>
                     </item>
-                    <item row="6" column="0" colspan="5">
+                    <item>
                      <widget class="QLabel" name="lblWmSample">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -4897,10 +5046,10 @@ is required.</string>
                       </property>
                       <property name="font">
                        <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
+                        <family>Monotype Corsiva</family>
+                        <pointsize>28</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -4908,118 +5057,18 @@ is required.</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="0" colspan="5">
-                     <widget class="QGroupBox" name="gbWatermarkFont">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
+                    <item>
+                     <spacer name="verticalSpacer_4">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
                       </property>
-                      <property name="title">
-                       <string>Font</string>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
                       </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_3">
-                       <item>
-                        <widget class="QToolButton" name="btnSelectWmFont">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                           <horstretch>4</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="text">
-                          <string>Font</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_5">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="lblWaterMarkFont">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_29">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Color</string>
-                         </property>
-                         <property name="buddy">
-                          <cstring>edtWmColor</cstring>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="edtWmColor">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <weight>50</weight>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>#FFFFFF</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QToolButton" name="btnWmColor">
-                         <property name="styleSheet">
-                          <string notr="true">QToolButton {background-color:#fff}</string>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
+                     </spacer>
                     </item>
                    </layout>
                   </widget>
@@ -5621,8 +5670,8 @@ Use if you changed the CSS or HTML file.</string>
           <rect>
            <x>30</x>
            <y>20</y>
-           <width>95</width>
-           <height>116</height>
+           <width>336</width>
+           <height>321</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -5981,20 +6030,6 @@ program directory (html,css,js,...)</string>
   <tabstop>chkCropThumbnails</tabstop>
   <tabstop>chkDoNotEnlarge</tabstop>
   <tabstop>chkDistortThumbnails</tabstop>
-  <tabstop>chkUseWM</tabstop>
-  <tabstop>sbWmOpacity</tabstop>
-  <tabstop>edtWatermark</tabstop>
-  <tabstop>btnSelectWmFont</tabstop>
-  <tabstop>edtWmColor</tabstop>
-  <tabstop>btnWmColor</tabstop>
-  <tabstop>cbWmVPosition</tabstop>
-  <tabstop>edtWmVertMargin</tabstop>
-  <tabstop>cbWmHPosition</tabstop>
-  <tabstop>edtWmHorizMargin</tabstop>
-  <tabstop>sbWmShadowHoriz</tabstop>
-  <tabstop>sbWmShadowVert</tabstop>
-  <tabstop>sbWmShadowBlur</tabstop>
-  <tabstop>btnWmShadowColor</tabstop>
   <tabstop>btnDisplayHint</tabstop>
   <tabstop>btnResetDesign</tabstop>
   <tabstop>trvAlbums</tabstop>

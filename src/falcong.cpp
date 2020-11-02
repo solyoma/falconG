@@ -725,7 +725,10 @@ void FalconG::_DesignToUi()
 {
 	++_busy;
 
-	ui.edtWmColor->setText(QString().setNum(config.waterMark.wm.Color(), 16));
+	StyleHandler handler(ui.btnWmColor->styleSheet());
+	handler.SetItem("QToolButton", "background-color", "#" + config.waterMark.wm.ColorToStr());
+	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
+
 	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
 	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
 
@@ -1209,28 +1212,6 @@ void FalconG::on_edtWatermark_textChanged()
 	
 	_SetConfigChanged(true);
 }
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtWmColor_textChanged()
-{
-	if (_busy)
-		return;
-
-	_SetConfigChanged(config.waterMark.v = true);
-
-	StyleHandler handler(ui.btnWmColor->styleSheet());
-	handler.SetItem("QToolButton", "background-color", "#" + ui.edtWmColor->text());
-	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
-	config.waterMark.wm.SetColor("#" + QString().setNum((int)config.waterMark.wm.Opacity()*100, 16) + ui.edtWmColor->text().mid(1));
-	config.waterMark.v = true;
-	_RunJavaScript("thumb::after","color: "+config.waterMark.wm.ColorToStr() );
-}
-
 
 /*============================================================================
   * TASK:
@@ -3708,8 +3689,7 @@ void FalconG::_SetLayoutMargins(skinStyle which)
 
 	modifyLayout(ui.gbWatermark);
 	modifyLayout(ui.gbWatermarkFont);
-	modifyLayout(ui.gbVerticalPosition);
-	modifyLayout(ui.gbHorizontalPosition);
+	modifyLayout(ui.gbPosition);
 	modifyLayout(ui.gbWmTextShadow);
 
 	modifyLayout(ui.gbSample);
@@ -4036,20 +4016,19 @@ void FalconG::on_btnWmColor_clicked()
 {
 	StyleHandler handler(ui.btnWmColor->styleSheet());
 
-	QColor qc(handler.GetItem("QToolButton", "background-color"));
-	qc = QColorDialog::getColor(qc, this, tr("Select Watermark Color"));
+	QColor qc = config.waterMark.wm.Color() ,
+		qcNew;
+	qcNew = QColorDialog::getColor(qc, this, tr("Select Watermark Color"));
 
-	if (qc.isValid())
+	if (qcNew.isValid() && qcNew != qc)
 	{
 		QString s = qc.name();
 		handler.SetItem("QToolButton", "background-color", s);
-		++_busy;
 		ui.btnWmColor->setStyleSheet(handler.StyleSheet());
 		s = s.mid(1);
-		ui.edtWmColor->setText(s);
 		config.waterMark.wm.SetColor(s);
-		
-		--_busy;
+		_SetConfigChanged(config.waterMark.v = true);
+		_RunJavaScript("thumb::after", "color: " + config.waterMark.wm.ColorToStr());
 	}
 }
 

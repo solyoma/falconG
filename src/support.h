@@ -91,7 +91,7 @@ struct WaterMark
 	int marginX = 0, // measured from nearest horizontal image edge 
 		marginY = 0; // measured from nearest vert. image edge
 
-	unsigned colorWOpacity = 0xffffffff,		// AARRGGBB
+	unsigned colorWOpacity = 0x00ffffff,		// AARRGGBB
 		background = 0;			 
 	bool useBackground = false;	
 
@@ -130,7 +130,7 @@ struct WaterMark
 	QString OffsetYToStr() const { return (origin & 0xF) == 1 ? "50%" : QString().setNum(marginY);  }
 
 	unsigned Color() const { return colorWOpacity & 0xFFFFFF; } 
-	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) /100.0;  }		// 0..100
+	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) / 100.0;  }		// 0..100
 	void SetFont(QFont & qfont) { font = qfont; SetupMark(); }
 	void SetText(QString  qs) { text = qs; SetupMark(); }
 	void SetColor(int ccolorWOpacity) { colorWOpacity = ccolorWOpacity; SetupMark();}
