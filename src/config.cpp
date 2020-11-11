@@ -266,7 +266,7 @@ void _CColor::Set(QString str, int opac)
 QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
 {
 	QString qs = (isBackground ? "background-color:" : "color:");
-	if (_opacity != 100 && _opacity != -1)
+	if (_opacity != 100 && _opacity > 0)
 		qs += ToRgba();
 	else
 		qs += _colorName;
@@ -650,7 +650,7 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 QString _CGradient::ForStyleSheet(bool semi) const
 {
 	if (!used) 
-		return QString("background-image:");
+		return QString();
 	QString qs = QString("background-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
 								.arg(gs[0].color).arg(gs[0].percent)
 								.arg(gs[1].color).arg(gs[1].percent)
@@ -724,8 +724,12 @@ void _CGradient::_Prepare()		// to store in settings
  *-------------------------------------------------------*/
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
-	if(!Used())
-		return QString("border:none");
+	if (!Used())
+	{
+		QString qs = "border:none";
+		__AddSemi(qs,semi);
+		return qs;
+	}
 
 	QString res,res2,res3,res4;
 	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(Style(sdTop)).arg(ColorStr(sdTop));
@@ -752,7 +756,7 @@ QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 {
 	QString res;
 	if (!Used())
-		res = QString("border:none");
+		res = "border:none";
 	else
 	{
 		if (_sizeWidths > 1)
@@ -863,10 +867,10 @@ QString _CElem::ColorsForStyleSheet(bool addSemicolon)
 			background.ForStyleSheet(addSemicolon, true);
 }
 
-QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font with possibli semicolon
-{											// because it must go to a different css class
+QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font with possibly semicolon
+{											// because that must go to a different css class
 	QString qs = color.ForStyleSheet(semi, false);
-	if (ClassName() != "WEB" && background.v != config.Web.background.v)
+	if (ClassName() != "WEB" && !background.Name().isEmpty() && background.v != config.Web.background.v)
 		qs += background.ForStyleSheet(semi, true);
 
 	qs += gradient.ForStyleSheet(semi)

@@ -61,8 +61,7 @@ void CssCreator::_CreateGlobals()
 html, body, main {
 )";
 	_ofs << config.Web.ColorsForStyleSheet(true)
-		<< R"(
-	height: 100%;
+		<< R"(	height: 100%;
 	width: 100%;
 }
 		

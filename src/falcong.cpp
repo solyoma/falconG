@@ -29,50 +29,6 @@
 FalconG *frmMain = nullptr;
 
 /*------------------------------------- macros ------------------------------------*/
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//static QString __ColorStyle(_CElem &elem)
-//{
-//	return QString("\n color: ") + ColorToStr(elem.color)
-//		+ ";\n background-color: " + ColorToStr(elem.background) + ';';
-//}
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//static QString __InvertColor(_CColor c)
-//{
-//	int i = ~c.Name(true).toInt(0, 16);
-//	// DEBUG	qs = QString("#%1").arg((i & 0xFFFFFF), 0, 16);
-//	return QString("#%1").arg((i & 0xFFFFFF), 0, 16);
-//}
-
-/*=============================================================
- * TASK:
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-//static QString __ContrastColorString(QString sc)
-//{
-//	QColor qc = QColor(sc);
-//	if (qc.isValid())
-//	{
-//		if (qc.red() + qc.green() + qc.blue() > 3*128)
-//			return "#000";
-//		else
-//			return "#fff";
-//	}
-//	else
-//		return "#000";
-//}
 
 // DBUG
 void ShowStyleOf(QWidget *pq) 
@@ -83,15 +39,6 @@ void ShowStyleOf(QWidget *pq)
 	msgb.exec();
 }
 // /DEBUG
-
-//*************** helper *******************
-//static bool IsValidColor(QString str)
-//{
-//	if (str[0] != '#')
-//		str = '#' + str;
-//	QColor color(str);
-//	return color.isValid();
-//}
 
 /*============================================================================
 * TASK: format color QString into rgba when opacity is used, use original
@@ -172,7 +119,7 @@ FalconG::FalconG(QWidget *parent)
 
 	QString resPath = QStringLiteral(":/Preview/Resources/");
 	_CopyResourceFileToProgramDir(resPath, "index.html");
-	_CopyResourceFileToProgramDir(resPath, "falconG.css");
+//	_CopyResourceFileToProgramDir(resPath, "falconG.css");
 	_CopyResourceFileToProgramDir(resPath, "falconG.js");
 	_CopyResourceFileToProgramDir(resPath, "placeholder.png");
 	_CopyResourceFileToProgramDir(resPath, "NoImage.jpg");
@@ -181,11 +128,11 @@ FalconG::FalconG(QWidget *parent)
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
 
+	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
+	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 	ui.sample->setPage(&_page);
 	_page.load(QUrl(QStringLiteral("file:///index.html")));
 
-	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
-	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
@@ -292,7 +239,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 		if (res == QMessageBox::Save)
 		{
 			CssCreator cssCreator;
-			cssCreator.Create("falocnG.css", true);	// program library setting cursors too
+			cssCreator.Create("falconG.css", true);	// program library setting cursors too
 			config.Write();
 		}
 		else if (res == QMessageBox::Cancel)
@@ -380,7 +327,7 @@ void FalconG::on_btnGenerate_clicked()
 		if (config.Changed())
 		{
 			CssCreator cssCreator;
-			cssCreator.Create("falocnG.css", true);	// program library setting cursors too
+			cssCreator.Create("falconG.css", true);	// program library setting cursors too
 		}
 
 		CONFIGS_USED::Write();
@@ -726,7 +673,7 @@ void FalconG::_DesignToUi()
 	++_busy;
 
 	StyleHandler handler(ui.btnWmColor->styleSheet());
-	handler.SetItem("QToolButton", "background-color", "#" + config.waterMark.wm.ColorToStr());
+	handler.SetItem("QToolButton", "background-color", config.waterMark.wm.ColorToStr());
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
 
 	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
@@ -739,8 +686,9 @@ void FalconG::_DesignToUi()
 	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
 	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
 	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
-	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color()));
-	ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
+	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color(),8,16,QChar('0')));
+	if(config.waterMark.wm.shadowColor >= 0)
+		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
 
 	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
 	ui.sbImagePadding->setValue(config.imagePadding);
@@ -2579,7 +2527,7 @@ void FalconG::on_btnPageColor_clicked()
 		}
 		AlbumElement ae = _aeActiveElement;
 		_aeActiveElement = aeWebPage;
-		_ElemToSample();
+		_SetPageColor(_PtrToElement());
 		_aeActiveElement = ae;
 	}
 // DEBUG
@@ -2611,7 +2559,7 @@ void FalconG::on_btnPageBackground_clicked()
 		}
 		AlbumElement ae = _aeActiveElement;
 		_aeActiveElement = aeWebPage;
-		_ElemToSample();
+		_SetPageBackground(_PtrToElement());
 		_aeActiveElement = ae;
 	}
 }
@@ -3405,7 +3353,8 @@ void FalconG::_SetColor(_CElem* pElem)
  *-------------------------------------------------------*/
 void FalconG::_SetBackground(_CElem* pElem)
 {
-	_SetCssProperty(pElem,( (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
+	bool b = (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent;
+	_SetCssProperty(pElem,b ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") );
 }
 
 void FalconG::_SetShadow(_CElem* pElem,int what)
@@ -3490,9 +3439,12 @@ void FalconG::_SetPageColor(_CElem* pElem)
 
 void FalconG::_SetPageBackground(_CElem* pElem)
 {
+	QString wbc = config.Web.background.Name();
+
 	auto clearBackground = [&](AlbumElement what)
 	{
 		_CElem* pe = _PtrToElement(what);
+		pe->background.Set(wbc, -100);
 		_SetCssProperty(pe, "background-color:");
 	};
 
@@ -3501,19 +3453,19 @@ void FalconG::_SetPageBackground(_CElem* pElem)
 		clearBackground(aeHeader);
 		clearBackground(aeMenuButtons);
 		clearBackground(aeLangButton);
+		clearBackground(aeSmallTitle);
 		clearBackground(aeGalleryTitle);
 		clearBackground(aeGalleryDesc);
 		clearBackground(aeSection);
-		clearBackground(aeGalleryTitle);
-		clearBackground(aeGalleryDesc);
+		clearBackground(aeImageTitle);
+		clearBackground(aeImageDesc);
 		clearBackground(aeLightboxTitle);
 		clearBackground(aeLightboxDescription);
 		clearBackground(aeFooter);
 	}
-	_SetCssProperty(pElem, pElem->background.ForStyleSheet(false, true));
-	//}
-	//else
-	//	_SetCssProperty(pElem,"background-color:" + pElem->background.Name());
+	QString qs = pElem->background.ForStyleSheet(false, true);
+	_RunJavaScript("body", qs);
+	_RunJavaScript("main", qs);
 }
 
 void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has the same name
@@ -4290,7 +4242,7 @@ void FalconG::_RunJavaScript(QString className, QString value)
 			return;
 		qs = QString("SetPropertyForClass('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 		_page.runJavaScript(qs);
-//		DEBUG_LOG(qs)
+		DEBUG_LOG(qs)
 	};
 	for (auto s : qsl)
 		runOneTag(s);

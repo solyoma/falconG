@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Mansalva,Tangerine,Meddon,Playfair");
-
+@import url('https://fonts.googleapis.com/css?family=Mansalva|Tangerine|Meddon|Playfair|Sniglet|Baumans|Red+Hat+Display&display=swap');
 *, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
@@ -7,10 +6,10 @@
 }
 
 html, body, main {
-	height: 100% ;
-	width: 100%;
 	color:#8f8f8f;
-	background:#1e1f25;
+	background-color:#002a00;
+	height: 100%;
+	width: 100%;
 }
 		
 a, a:visited {
@@ -50,25 +49,24 @@ nav {
 	display: inline-block;
 	margin: 2px 3px 2px 2px;
 	padding: 4px 10px 3px;
-	color:#ffaa00;
-	background:rgba(107,135,0,0.1);
+	color:#008600;
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
-	border-top:1px solid #ffaa00;
-	border-right:1px solid #ffaa00;
-	border-bottom:1px solid #ffaa00;
-	border-left:1px solid #ffaa00;
+	border-top:1px solid #008600;
+	border-right:1px solid #008600;
+	border-bottom:1px solid #008600;
+	border-left:1px solid #008600;
 	border-radius:15px;
 }
 
 .menu-item:hover {
-	background:rgba(107,135,0,0.1);
-	color:#ffaa00;
+	background-color:#002a00;
+	color:#008600;
 }
 /* up icon */
 .menu-item#uplink {
-	background-image: url("up-icon.png");
+	background-image: url("../res/up-icon.png");
 	background-size:14px;
 	background-repeat:no-repeat;
 	background-position: center;
@@ -76,56 +74,67 @@ nav {
 
 .langs {
 	color:#ffff00;
-	font-family:"Tms Rmn",Times,serif;
-	font-size:12pt;
-	line-height:12pt;
-	font-style:italic;
+	font-family:Monotype Corsiva,Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif;
+	font-size:14pt;
+	line-height:1;
+	font-weight:900;
+	border:none;
 }
 
 header {
+    cursor:pointer;
 	color:#000000;
-	background:rgba(0,0,0,0);
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
+	border:none;
 }
 
 
 .falconG {
 	margin-left: 10px;
 	display:inline-block;
-	color:#a36d00;
+    cursor:pointer;
+	color:#00bd00;
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
+	border:none;
 }
 
 .gallery-title {
-	color:#ffffff;
-	font-family:playfair;
-	font-size:24pt;
-	line-height:24pt;
-	text-align:center;
     cursor:pointer;
+	color:#d6d6d6;
+	font-family:Baumans;
+	font-size:28pt;
+	line-height:36pt;
+	text-align:center;
+	border:none;
 }
 
 .gallery-desc {
-	color:#8f8f8f;
+    cursor:pointer;
+	color:#b5b5b5;
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
 	text-align:center;
-    cursor:pointer;
+	border:none;
 }
 
 .fgsection {
 	margin: auto;
 	padding:24pt;
-	color:#ffaa00;
-	font-family:Mansalva;
+	color:#00b800;
+	font-family:"Tms Rmn",Times,serif;
 	font-size:24pt;
-	line-height:24pt;
+	line-height:12pt;
 	text-align:center;
+	border:none;
+}
+
+fgsection::first-line {
+	font-size:36pt;
 }
 
 		/* ---- img----- */
@@ -149,27 +158,27 @@ header {
 
 .thumb {
 	display: inline-block;
+
 }
 
 [data-src] {
 	min-width:600px;
 	min-height:400px;
 }
-.links {
-	margin-bottom:22pt
-}
-
 .title:hover{
-	font-weight: 700;
+	font-weight: normal;
     font-style: italic;
 }
 
 .title {
-	color:#ffaa00;
-	font-family:"Tms Rmn",Times,serif;
-	font-size:22pt;
-	line-height:22pt;
+    cursor:pointer;
+	color:#ffaa7f;
+	font-family:Monotype Corsiva,Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif;
+	font-size:20pt;
+	line-height:1;
+	font-weight:900;
 	text-align:center;
+	border:none;
 }
 
 .desc {
@@ -177,12 +186,14 @@ header {
 	-moz-hyphens: auto;
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
-	color:#d38d00;
-	font-family:"Tms Rmn",Times,serif;
-	font-size:12pt;
-	line-height:12pt;
-	text-align:center;
     cursor:pointer;
+	color:#c6c6c6;
+	font-family:Baumans;
+	font-size:14pt;
+	line-height:1;
+	font-weight:900;
+	text-align:center;
+	border:none;
 }
 
 /* Lightbox */
@@ -215,6 +226,7 @@ header {
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
+	border:none;
 }
 
 .lightbox-desc {
@@ -222,15 +234,17 @@ header {
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
+	border:none;
 }
 
 .footer {
+    cursor:pointer;
 	color:#8f8f8f;
 	font-family:"Tms Rmn",Times,serif;
 	font-size:12pt;
 	line-height:12pt;
 	text-align:center;
-    cursor:pointer;    
+	border:none;
 }
 
 		 	/* -- media queries ***/
