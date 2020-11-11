@@ -143,6 +143,7 @@ struct _CInt : _CFG_ITEM<int>
 {
 	_CInt(int vd, QString namestr="cint") : _CFG_ITEM(vd, namestr) {}
 	_CInt() : _CFG_ITEM(0, "cint") {}
+	_CInt& operator=(int vn) { v = vn; return *this; }
 
 	operator int() const { return v; }
 	QString ToString() const { return ToString(0);  }

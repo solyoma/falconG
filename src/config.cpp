@@ -265,7 +265,7 @@ void _CColor::Set(QString str, int opac)
 
 QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
 {
-	QString qs = (isBackground ? "background:" : "color:");
+	QString qs = (isBackground ? "background-color:" : "color:");
 	if (_opacity != 100 && _opacity != -1)
 		qs += ToRgba();
 	else

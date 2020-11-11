@@ -2569,16 +2569,19 @@ void FalconG::on_btnPageColor_clicked()
 	QColor qc(config.Web.color.Name()),
 		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-
-	config.Web.color.SetColor(qcNew.name());
-	ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
-	_SetConfigChanged(true);
-	AlbumElement ae = _aeActiveElement;
-	_aeActiveElement = aeWebPage;
-	_ElemToSample();
-	_aeActiveElement = ae;
+	if(qcNew.isValid() )
+	{
+		if (qc != qcNew)
+		{
+			config.Web.color.SetColor(qcNew.name());
+			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
+			_SetConfigChanged(true);
+		}
+		AlbumElement ae = _aeActiveElement;
+		_aeActiveElement = aeWebPage;
+		_ElemToSample();
+		_aeActiveElement = ae;
+	}
 // DEBUG
 //	ShowStyleOf(ui.btnPageColor);
 }
@@ -2597,17 +2600,20 @@ void FalconG::on_btnPageBackground_clicked()
 	QColor qc(config.Web.background.Name()),
 		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
+	if (qcNew.isValid())
+	{
+		if (qc != qcNew)
+		{
 
-	config.Web.background.SetColor(qcNew.name());
-	ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
-	_SetConfigChanged(true);
-
-	AlbumElement ae = _aeActiveElement;
-	_aeActiveElement = aeWebPage;
-	_ElemToSample();
-	_aeActiveElement = ae;
+			config.Web.background.SetColor(qcNew.name());
+			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
+			_SetConfigChanged(true);
+		}
+		AlbumElement ae = _aeActiveElement;
+		_aeActiveElement = aeWebPage;
+		_ElemToSample();
+		_aeActiveElement = ae;
+	}
 }
 
 
@@ -3181,27 +3187,42 @@ void FalconG::on_edtDescriptionText_textChanged()
 void FalconG::on_rbDefaultStyle_toggled(bool on)
 {
 	if (on)
+	{
 		frmMain->_StyleTheProgram(stDefault);
+		_SetConfigChanged(true);
+	}
 }
 void FalconG::on_rbSystemStyle_toggled(bool on)
 {
 	if (on)
+	{
 		frmMain->_StyleTheProgram(stSystem);
+		_SetConfigChanged(true);
+	}
 }
 void FalconG::on_rbDarkStyle_toggled(bool on)
 {
 	if (on)
+	{
 		frmMain->_StyleTheProgram(stDark);
+		_SetConfigChanged(true);
+	}
 }
 void FalconG::on_rbBlackStyle_toggled(bool on)
 {
 	if (on)
+	{
 		frmMain->_StyleTheProgram(stBlack);
+		_SetConfigChanged(true);
+	}
 }
 void FalconG::on_rbBlueStyle_toggled(bool on)
 {
 	if (on)
+	{
 		frmMain->_StyleTheProgram(stBlue);
+		_SetConfigChanged(true);
+	}
 }
 
 /*============================================================================
@@ -3384,32 +3405,7 @@ void FalconG::_SetColor(_CElem* pElem)
  *-------------------------------------------------------*/
 void FalconG::_SetBackground(_CElem* pElem)
 {
-	auto clearBackground = [&](AlbumElement what) 
-	{
-		_CElem* pe = _PtrToElement(what);
-		_SetCssProperty(pe, "background-color:");
-	};
-
-	if (pElem->kind == aeWebPage)
-	{
-		if (ui.chkSetAll->isChecked())		// then remove all other background colors
-		{
-			clearBackground(aeHeader);
-			clearBackground(aeMenuButtons);
-			clearBackground(aeLangButton);
-			clearBackground(aeGalleryTitle);
-			clearBackground(aeGalleryDesc);
-			clearBackground(aeSection);
-			clearBackground(aeGalleryTitle);
-			clearBackground(aeGalleryDesc);
-			clearBackground(aeLightboxTitle);
-			clearBackground(aeLightboxDescription);
-			clearBackground(aeFooter);
-		}
-		_SetCssProperty(pElem, pElem->background.ForStyleSheet(false, true));
-	}
-	else
-		_SetCssProperty(pElem,( (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
+	_SetCssProperty(pElem,( (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") ) );
 }
 
 void FalconG::_SetShadow(_CElem* pElem,int what)
@@ -3494,7 +3490,30 @@ void FalconG::_SetPageColor(_CElem* pElem)
 
 void FalconG::_SetPageBackground(_CElem* pElem)
 {
-	_SetCssProperty(pElem,"background:" + pElem->background.Name());
+	auto clearBackground = [&](AlbumElement what)
+	{
+		_CElem* pe = _PtrToElement(what);
+		_SetCssProperty(pe, "background-color:");
+	};
+
+	if (ui.chkSetAll->isChecked())		// then remove all other background colors
+	{
+		clearBackground(aeHeader);
+		clearBackground(aeMenuButtons);
+		clearBackground(aeLangButton);
+		clearBackground(aeGalleryTitle);
+		clearBackground(aeGalleryDesc);
+		clearBackground(aeSection);
+		clearBackground(aeGalleryTitle);
+		clearBackground(aeGalleryDesc);
+		clearBackground(aeLightboxTitle);
+		clearBackground(aeLightboxDescription);
+		clearBackground(aeFooter);
+	}
+	_SetCssProperty(pElem, pElem->background.ForStyleSheet(false, true));
+	//}
+	//else
+	//	_SetCssProperty(pElem,"background-color:" + pElem->background.Name());
 }
 
 void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has the same name
