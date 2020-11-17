@@ -3241,6 +3241,7 @@ void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hNotUsed;
+		config.SetChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3250,6 +3251,7 @@ void FalconG::on_rbCenterBckImage_toggled(bool b)
 	if (!_busy && b)
 	{		
 		config.backgroundImage.v = hAuto;
+		config.SetChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3258,6 +3260,7 @@ void FalconG::on_rbCoverBckImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hCover;
+		config.SetChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3266,6 +3269,7 @@ void FalconG::on_rbTileBckImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hTile;
+		config.SetChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }

@@ -58,9 +58,9 @@ void CssCreator::_CreateGlobals()
 	margin:0;
 }
 
-html, body, .main {
+html, main {
 )";
-	_ofs << config.Web.ColorsForStyleSheet(true)
+	_ofs 
 		<< R"(	height: 100%;
 	width: 100%;
 }
@@ -79,8 +79,9 @@ a, a:visited {
 	if (s.at(s.indexOf(':')+1) != ';')		// no image
 	{
 		_ofs << "body {\n"
-			<< s << "}\n\n";
-
+			 << s
+			 << config.Web.ColorsForStyleSheet(true) 
+			 << "}\n\n";
 	}
 
 	_ofs << R"(

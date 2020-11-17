@@ -1123,7 +1123,10 @@ QString _CBackgroundImage::Size(bool addSemicolon) const
 			qs += "cover";
 			break;
 		case hTile:
-			qs += QString("%1% %1%").arg(size);
+			if (size < 100)
+				qs += QString("%1% auto").arg(size);
+			else
+				qs += "auto";
 			break;
 	}
 	__AddSemi(qs, addSemicolon);
