@@ -394,10 +394,10 @@ private:
 
 class _CShadow : public _CFG_ITEM<QString>
 {
-	// format: |<use>|<horiz>|<vert>[|<blur radius-number>][|color name-starts with letter or '#'>]
-	//   index 	  0      1	    2	     3	or	4              3 or 4
+	// format: <use>|<horiz>|<vert>[|<blur radius-number>][|spread in pixels][|color name-starts with letter or '#'>]
+	//   index 	  0      1	    2	      3							4				   5
+	// 'spread is only used for box-shadow!
 	QStringList _details;
-	int _ixColor, _ixBlur;	// indices for blur and color (3 or ,4 order of them is not fixed, and either of them may be missing
 	void _Setup() override;	// from 'v' to _details
 	void _Prepare() override;	// from _details to 'v'
 public:
@@ -405,18 +405,21 @@ public:
 	_CShadow() : _CFG_ITEM("0|0|0|0|#000000","cshadoe") {  _Setup();  }	 // default  = "0|0|0|0|#000000"
 
 	void Set(ShadowPart which, int value);
-	void Set(int horiz, int vert, int spread, QString clr, bool used);
+	void Set(int horiz, int vert, int blur, int spread, QString clr, bool used);
+	void SetBlur(QString sc) { _details[3] = sc; _Prepare(); }
+	void SetSpread(QString sc) { _details[4] = sc; _Prepare(); }
+	void SetColor(QString sc) { _details[5] = sc; _Prepare(); }
 
-	QString Color() const { return _ixColor > 0 ? _details[_ixColor] : QString(); }	// optional color
-	int Blur() const { return _details.size() > 3 && _details[3].at(0).isDigit() ? _details[3].toInt() : 0; }
-	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const;		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
-
-	bool IsSet() const { return _details.size(); }
 	bool Used()	const { return _details[0].at(0) == '1' && (Horiz() + Vert()); }
+	bool IsSet() const { return _details.size(); }
+
 	int Horiz() const { return _details.size() ? _details[1].toInt() : 0; }
 	int Vert() const { return _details.size()  ? _details[2].toInt() : 0; }
-	void SetBlur(QString sc) { _details[_ixColor] = sc; _Prepare(); }
-	void SetColor(QString sc) { _details[_ixColor] = sc; _Prepare(); }
+	int Blur() const { return _details[3].toInt(); }
+	int Spread() const { return _details[4].toInt(); }
+	QString Color() const { return _details[5] == "#000" ?  QString() : _details[5]; }	// optional color
+
+	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const;		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
 };
 
 //--------------------------------------------------------------------------------------------
@@ -679,13 +682,17 @@ struct _CWaterMark : public _CFG_ITEM<bool>		  // v used for changed
 };
 
 //--------------------------------------------------------------------------------------------
-struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum
+struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum 'BackgroundImageSizing'
 {
 	QString fileName;
 
 	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImagw") : _CFG_ITEM((int)how, nameStr) {}
 
-	QString ForStyleSheet(bool addSemicolon);
+	QString Url(bool addSemicolon) const;
+	QString Size(bool addSemicolon) const;
+	QString Position(bool addSemicolon) const;
+	QString Repeat(bool addSemicolon) const;
+	QString ForStyleSheet(bool addSemicolon) const;
 	virtual void Write(QSettings& s, QString group = QString()) override;	// into settings, but only if changed
 	virtual void Read(QSettings& s, QString group = QString()) override;
 };

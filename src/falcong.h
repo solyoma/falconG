@@ -185,6 +185,8 @@ private slots:
 	void _TnvNewThumbs();		// previous seingle selection is the new thumbnail for actual album
 	void _SaveChangedTitleDescription();
 
+	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
+
 	void _TextDecorationToConfig(Decoration dec, bool on);
 	void _TextAlignToConfig(Align align, bool on);
 // auto connected slots
@@ -201,6 +203,7 @@ private slots:
 
 	void on_btnPageColor_clicked();
 	void on_btnPageBackground_clicked();
+	void on_btnOpenBckImage_clicked();
 
 	void on_btnImageBorderColor_clicked();
 	void on_btnSelectUplinkIcon_clicked();
@@ -278,6 +281,7 @@ private slots:
 	void on_rbTextLeft_toggled(bool);
 	void on_rbTextCenter_toggled(bool);
 	void on_rbTextRight_toggled(bool);
+	void on_rbTextShadow_toggled(bool);
 
 	void on_chkUseWM_toggled(bool);				// watermark
 	void on_chkOvrImages_toggled(bool);		// used for image processing
@@ -292,6 +296,7 @@ private slots:
 
 	void on_edtAlbumDir_textChanged();
 	void on_edtAbout_textChanged();
+	void on_edtBckImageName_textChanged();
 	void on_edtBaseName_textChanged();
 	void on_edtDefaultFonts_textChanged();
 	void on_edtDestGallery_textChanged();
@@ -314,12 +319,15 @@ private slots:
 	void on_edtTitleText_textChanged();
 	void on_edtDescriptionText_textChanged();
 
-	// option page
 	void on_rbDefaultStyle_toggled(bool);
 	void on_rbSystemStyle_toggled(bool);
 	void on_rbDarkStyle_toggled(bool);
 	void on_rbBlackStyle_toggled(bool);
 	void on_rbBlueStyle_toggled(bool);
+	void on_rbNoBackgroundImage_toggled(bool);
+	void on_rbCenterBckImage_toggled(bool);
+	void on_rbCoverBckImage_toggled(bool);
+	void on_rbTileBckImage_toggled(bool);
 
 	void on_sbImageHeight_valueChanged(int h);			// image height
 	void on_sbImageWidth_valueChanged(int w);				// image width

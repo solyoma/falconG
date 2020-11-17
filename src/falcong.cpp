@@ -515,7 +515,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 	if (ae == aeMenuButtons)
 	{	_SaveLinkIcon();
 
-		_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\"", "#uplink");
+		_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\")", "#uplink");
 	}
 }
 
@@ -535,9 +535,9 @@ void FalconG::_GlobalsToUi()
 	switch (config.backgroundImage.v)
 	{
 		case hNotUsed: ui.rbNoBackgroundImage->setChecked(true); break;
-		case hAuto:	  ui.rbCenterBckImage->setChecked(true); break;
-		case hCover: ui.rbCoverBckImage->setChecked(true); break;
-		case hTile: ui.rbTileBckImage->setChecked(true); break;
+		case hAuto:	   ui.rbCenterBckImage->setChecked(true); break;
+		case hCover:   ui.rbCoverBckImage->setChecked(true); break;
+		case hTile:    ui.rbTileBckImage->setChecked(true); break;
 	}
 
 	--_busy;
@@ -572,13 +572,7 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkShadowOn->setChecked(b);
 	ui.btnShadowColor->setStyleSheet(  sStyle );
 
-	ui.sbShadowHoriz1->setValue(pElem->shadow1[which].Horiz());
-	ui.sbShadowVert1->setValue (pElem->shadow1[which].Vert());
-	ui.sbShadowBlur1->setValue (pElem->shadow1[which].Blur());
-
-	ui.sbShadowHoriz2->setValue(pElem->shadow2[which].Horiz());
-	ui.sbShadowVert2->setValue(pElem->shadow2[which].Vert());
-	ui.sbShadowBlur2->setValue(pElem->shadow2[which].Blur());
+	_ShadowForElementToUI(pElem, ui.rbTextShadow->isChecked() ? 0 : 1);
 
 	ui.chkTextOpacity->setChecked(pElem->color.Opacity() > 0);
 	ui.sbTextOpacity->setValue(pElem->color.Opacity() < 0 ? 100: pElem->color.Opacity());
@@ -963,6 +957,25 @@ void FalconG::on_edtAbout_textChanged()
 
 	config.sAbout = ui.edtAbout->text().trimmed();
 	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtBckImageName_textChanged()
+{
+	QString name = ui.edtBckImageName->text();
+	if (QFile::exists(name))
+	{
+		QSize size = ui.lblbckImage->size();
+		QImage image(name);
+		QPixmap pm;
+		pm = QPixmap::fromImage(image.scaled(size, Qt::KeepAspectRatio));
+		ui.lblbckImage->setPixmap(pm);
+		config.backgroundImage.fileName = name;	// full path name for generator 
+		config.SetChanged(true);				// file is copied to /res
+		_RunJavaScript("body",config.backgroundImage.ForStyleSheet(false));	// show image
+	}
+	else
+		_RunJavaScript("body,main", QString("background-image:"));	// show image
+
 }
 
 /*============================================================================
@@ -1677,10 +1690,12 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 	if (_busy)
 		return;
 	_CElem* pElem = _PtrToElement();
-	if(on)
+	if (on)
+	{
 		pElem->alignment.v = align;
-	_SetConfigChanged(true);
-	_SetTextAlign(pElem);	// clear decorations if neither checkbox is checked
+		_SetConfigChanged(true);
+		_SetTextAlign(pElem);	// clear decorations if neither checkbox is checked
+	}
 }
 
 /*========================================================
@@ -1724,6 +1739,13 @@ void FalconG::on_rbTextAlignNone_toggled  (bool on) { _TextAlignToConfig(alNone,
 void FalconG::on_rbTextLeft_toggled  (bool on) { _TextAlignToConfig(alLeft, on); }
 void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
 void FalconG::on_rbTextRight_toggled( bool on) { _TextAlignToConfig(alRight, on); }
+
+void FalconG::on_rbTextShadow_toggled(bool b)
+{
+	_CElem* pElem = _PtrToElement();
+	int n = b ? 0 : 1;	// text or box shadow
+	_ShadowForElementToUI(pElem, n);
+}
 
 
 /*============================================================================
@@ -2564,6 +2586,13 @@ void FalconG::on_btnPageBackground_clicked()
 	}
 }
 
+void FalconG::on_btnOpenBckImage_clicked()
+{
+	QString qs = QFileDialog::getOpenFileName(this, tr("falconG - Open Background Image"), QString(), tr("Image files (*.bmp *.gif *.jpg *.png)"));
+	if (!qs.isEmpty())
+		ui.edtBckImageName->setText(qs);
+}
+
 
 /*========================================================
  * TASK: browse for background image
@@ -3173,6 +3202,40 @@ void FalconG::on_rbBlueStyle_toggled(bool on)
 	}
 }
 
+void FalconG::on_rbNoBackgroundImage_toggled(bool b)
+{
+	if (b)
+	{
+		config.backgroundImage.v = hNotUsed;
+		on_edtBckImageName_textChanged();
+	}
+}
+
+void FalconG::on_rbCenterBckImage_toggled(bool b)
+{
+	if (b)
+	{		
+		config.backgroundImage.v = hAuto;
+		on_edtBckImageName_textChanged();
+	}
+}
+void FalconG::on_rbCoverBckImage_toggled(bool b)
+{
+	if (b)
+	{
+		config.backgroundImage.v = hCover;
+		on_edtBckImageName_textChanged();
+	}
+}
+void FalconG::on_rbTileBckImage_toggled(bool b)
+{
+	if (b)
+	{
+		config.backgroundImage.v = hTile;
+		on_edtBckImageName_textChanged();
+	}
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3470,7 +3533,7 @@ void FalconG::_SetPageBackground(_CElem* pElem)
 
 void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has the same name
 {								// but its color will change. Will it be visible without setting it again? And this way? TODO Check???
-	_RunJavaScript("menu-item#uplink",QString("background-image:")+"url(file:///res/up-icon-sample.png)");
+	_RunJavaScript("menu-item#uplink",QString("background-image:")+"url('file:///res/up-icon-sample.png')");
 }
 
 
@@ -4218,6 +4281,32 @@ void FalconG::_SaveChangedTitleDescription()
 	_SaveChangedTexts();
 	ui.btnSaveChangedTitle->setEnabled(false);
 	ui.btnSaveChangedDescription->setEnabled(false);
+}
+
+void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)
+{
+	++_busy;
+	ui.sbShadowSpread1->setEnabled(which);
+	ui.sbShadowSpread2->setEnabled(which);
+
+	if (which)
+	{
+		ui.sbShadowSpread1->setValue(pElem->shadow1[which].Spread());
+		ui.sbShadowSpread2->setValue(pElem->shadow2[which].Spread());
+	}
+
+	ui.chkShadowOn->setChecked(pElem->shadow1[which].Used());
+
+	ui.sbShadowHoriz1->setValue(pElem->shadow1[which].Horiz());
+	ui.sbShadowVert1->setValue(pElem->shadow1[which].Vert());
+	ui.sbShadowBlur1->setValue(pElem->shadow1[which].Blur());
+	ui.sbShadowHoriz2->setValue(pElem->shadow2[which].Horiz());
+	ui.sbShadowVert2->setValue(pElem->shadow2[which].Vert());
+	ui.sbShadowBlur2->setValue(pElem->shadow2[which].Blur());
+
+	ui.btnShadowColor->setStyleSheet(QString("QToolButton {background-color:%1;}}").arg(pElem->shadow1[which].Color()));
+	--_busy;
+
 }
 
 

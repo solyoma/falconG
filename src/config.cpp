@@ -498,51 +498,67 @@ void _CFont::ClearFeatures()
 
 //------------------------------------- _CShadow ------------------------------
 
-void _CShadow::_Setup()
-{
-	_details = v.split(QChar('|'));
-	while (_details.size() < 4)
-		_details.push_back("0");
-	if(_details.size() != 5)
-		_details.push_back("#000000");
 
-	if (_details[3].at(0).isDigit())
-		_ixBlur = 3;
-	else
-		_ixBlur = 4;
-	_ixColor = _ixBlur ^ 7;
+/*========================================================
+ * TASK:	sets up _details from v
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - text shadow does not have a spread, but it 
+ *				still must be given in string if color is set
+ *-------------------------------------------------------*/
+// format: 
+// <use>|<horiz>|<vert>[|<blur>][|spread][|color name starts with '#'>]
+void _CShadow::_Setup()		
+{							
+	_details = v.split(QChar('|'));		// details size is always 6 even when no blur, spread or color is given
+
+	switch (_details.size())			// no 'breaks'!
+	{
+		case 3:
+			_details.push_back("0");	// blur radius
+		case 4:
+			_details.push_back("0");	// shadow spread
+		case 5:
+			_details.push_back("#000");	// color
+		default:
+			break;
+	}
 	_Prepare();
 //	v0 = v;
 }
 
-void _CShadow::_Prepare()
+void _CShadow::_Prepare()	// assumes: always 6 elements
 {
 	v.clear();
-
+	QStringList sl = _details;
+	if (sl[5] == "#000")		// no color was given
+	{
+		sl.pop_back();		
+		if (sl.at(4) == '0')	// no spread
+		{
+			sl.pop_back();
+			if (sl.at(3) == '0')	// no blur
+				sl.pop_back();
+		}
+	}
 	v = _details.join("|");
 }
 
 /*===========================================================================
  * TASK: set top,right,bttom or left shadow
- * EXPECTS: which - 0:   use, 1:horiz, 2: vert, 3 blur
- *		    val   - size of shadow in pixels
- *					but color may also be set as a number (see REMARKS)
- *			_ixBlur and _ixColor are set
+ * EXPECTS: which - what part to set
+ *		    val   - parameter of shadow in pixels or color as integer
  * GLOBALS: config
  * RETURNS: nothing
- * REMARKS:
+ * REMARKS:	synchronize with ShadowPart in enum.h !
  --------------------------------------------------------------------------*/
-void _CShadow::Set(ShadowPart which, int val)	// which: 1: horiz, 2: vert, 3:blur !
+void _CShadow::Set(ShadowPart which, int val)	// which: 1: horiz, 2: vert, 3:blur, 4: spread !
 {
-	if((int)which < 3)		// these always exist
+	if(which == spColorName)
+		_details[5] = QString("#%1").arg(_CInt::IntToHexString(val, 6));
+	else
 		_details[which] = QString().setNum(val);
-	else   // 3 or 4   : blur or color may or may not exist
-	{
-		if ( (int) which == _ixBlur)
-			_details[_ixBlur] = QString().setNum(val);
-		else 
-			_details[_ixColor] = QString("#%1").arg(_CInt::IntToHexString(val, 6));
-	}
 
 	_Prepare();
 }
@@ -553,21 +569,18 @@ void _CShadow::Set(ShadowPart which, int val)	// which: 1: horiz, 2: vert, 3:blu
  * RETURNS: nothing
  * REMARKS: may modify the 'changed' field of global variable 'config'
 *--------------------------------------------------------------------------*/
-void _CShadow::Set(int horiz, int vert, int blur, QString clr, bool used)
+void _CShadow::Set(int horiz, int vert, int blur, int spread, QString clr, bool used)
 {
 	QString oldV = v;
 	_details.clear();
-	_ixBlur = _ixColor = -1;
-
 	_details.push_back(used ? "1" : "0");
 	_details.push_back(QString().setNum(horiz));
 	_details.push_back(QString().setNum(vert));
 	_details.push_back(QString().setNum(blur));
-	_ixBlur = 3;
+	_details.push_back(QString().setNum(spread));
 	if (clr.isEmpty())
-		clr = "#000000";
+		clr = "#000";
 	_details.push_back(clr);
-	_ixColor = 4;
 
 	_Prepare();	// new v
 }
@@ -584,11 +597,15 @@ QString _CShadow::ForStyleSheet(bool addSemiColon, bool first_line, int which) c
 		else
 			res = ", ";
 		res += _details[1] + "px " + _details[2] + "px";
-		if (_ixBlur)
-			res += " " + _details[_ixBlur] + "px";
-		if (_ixColor)
-			res += " " + _details[_ixColor];
-
+		if (which)			// box shadow has optional 'spread', text shadow doesn't
+		{
+			if (_details.at(4) != '0')
+				res += " " + _details[3] + "px" + " " + _details[4] + "px";
+		}
+		else if(_details.at(3) != '0')
+				res += " " + _details[3] + "px" + " " + _details[4] + "px";
+			// always add color as 'Safari' on PC will not display the shadow otherwise (2020.11.16.)
+		res += " " + _details[5];
 		__AddSemi(res, addSemiColon);
 
 		return res;
@@ -1070,32 +1087,87 @@ void _CWaterMark::Read(QSettings& s, QString group)
 		s.endGroup();
 }
 // ********************************* Background Image ********************
-
-QString _CBackgroundImage::ForStyleSheet(bool addSemicolon)
+QString _CBackgroundImage::Url(bool addSemicolon) const
 {
-	if(v == (int)hNotUsed)
-		return QString();
-		// ------- background image -----
-
-	QString qsS = "auto",			// background-size
-			qsR = "no-repeat";		// background-repeat
-
-	if (config.backgroundImage.fileName.isEmpty())
-		return QString();
-
-	switch (config.backgroundImage.v)
+	QString qsN;
+	if(fileName.isEmpty() || v == (int)hNotUsed)
+		qsN =  QString("background-image:");
+	else
 	{
-		case hAuto:		break;
-		case hCover:	qsS = "cover"; break;
-		case hContain:	qsS = "contain"; break;
-		case hTile:		qsR = "repeat"; break;
-	}
 
-	QString qs = QString("background-image: %1;\n"
-				   "background-size: %2;\n"
-				   "background-repeat: %3;\n").arg(fileName).arg(qsS).arg(qsR);
+		if (addSemicolon)	// then for WEb page
+		{					// when image is copied into /res
+			QString p, n;
+			SeparateFileNamePath(fileName, p, n);
+			qsN = QString("background-image: url('/res/%1')").arg(n);
+		}
+		else				// for sample
+			qsN = QString("background-image: url('%1')").arg(fileName);
+	}
+	__AddSemi(qsN, addSemicolon);
+	return qsN;
+}
+
+QString _CBackgroundImage::Size(bool addSemicolon) const
+{
+	QString qs = "background-size:";
+	switch (v)
+	{
+		case hNotUsed:
+			return QString();
+		case hAuto:
+			qs +="auto";
+			break;
+		case hCover:
+			qs += "cover";
+			break;
+		case hTile:
+			qs += "contain";
+			break;
+	}
 	__AddSemi(qs, addSemicolon);
 	return qs;
+}
+QString _CBackgroundImage::Position(bool addSemicolon) const
+{
+	QString qs = "background-position:";
+	switch (v)
+	{
+		case hNotUsed:
+		case hTile:
+			return QString();
+		case hAuto:
+			qs += "center";
+			break;
+		case hCover:
+			qs += "left top";
+			break;
+	}
+	__AddSemi(qs, addSemicolon);
+	return qs;
+}
+QString _CBackgroundImage::Repeat(bool addSemicolon) const
+{
+	QString qs = "background-repeat:";
+	switch (v)
+	{
+		case hNotUsed:
+			return QString();
+		case hAuto:
+		case hCover:	
+			qs += "no-repeat";
+			break;
+		case hTile:
+			qs += "repeat";
+			break;
+	}
+	__AddSemi(qs, addSemicolon);
+	return qs;
+}
+
+QString _CBackgroundImage::ForStyleSheet(bool addSemicolon) const
+{
+	return Url(addSemicolon) + Position(addSemicolon) + Size(addSemicolon);
 }
 
 void _CBackgroundImage::Write(QSettings& s, QString group)

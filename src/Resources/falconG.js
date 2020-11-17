@@ -7,15 +7,32 @@ var showDesc = 0;
 window.addEventListener("resize", ResizeThumbs)
 
 function SetPropertyForClass(className, propertyName, propValue) {
-    var x, i;
-    if (propValue == '')
-        propValue = "unset"     // either 'initial' or 'inherited'
+    let x, i, r;
     x = document.getElementsByClassName(className)
-    for (i = 0; i < x.length; ++i)
-        x[i].style.setProperty(propertyName, propValue);
-    // DEBUG
-    //console.log('Set '+propertyName + " : "+ propValue+' for '+ className + '\'')
-    document.getElementById("DEBUG").innerHTML = 'Set ' + propertyName + " : " + propValue + ' into ' + x.length + ' element(s) for \'' + className + '\'.'
+//    if(typeof x == 'undefined')
+//        console.log("class '" + className + "' is undefined")
+    try {
+        if (propValue == '') {
+            for (i = 0; i < x.length; ++i)
+                r = x[i].style.removeProperty(propertyName);
+        }
+        else {
+            if (propertyName in x[0].style)
+                r = x[0].style.getPropertyValue(propertyName)   // previous value
+            else
+                r = "No '" + propertyName + "' in class '" + className + "'"
+            for (i = 0; i < x.length; ++i)
+                x[i].style.setProperty(propertyName, propValue);
+        }
+        if(propValue != '')
+            console.log(className + '.' +propertyName + ':' + propValue + ", old.: '"+ r+"'")
+        document.getElementById("DEBUG").innerHTML = className + '.' +propertyName + ":" + propValue + ' ['+x.length + ' element(s)]'
+            // DEBUG
+    }
+    catch(err)
+    {
+        console.log('*** EXCEPTION ' + className + '.' +propertyName + ':' + propValue + " err.: '"+ err+"'")
+    }
 }
 
 function ResizeThumbs() {

@@ -2858,6 +2858,7 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 	s += QString("<meta charset=\"UTF-8\">\n"
 		"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
 		"<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">"
+		"<neta name=\"generator\" content=\"falconG\">\n"
 		"<title>" + config.sGalleryTitle + "</title>\n");
 	if (!config.sDescription.IsEmpty())
 		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "/>\n");
@@ -2931,11 +2932,13 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 int AlbumGenerator::_WriteHeaderSection(Album &album)
 {
 
-	_ofs << "   <header>\n"
+	_ofs << "   <div class=\"header\">\n"
 		"    <a href=\"" << album.SiteLink(_actLanguage) << "\">"
 		"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
 		"</a>&nbsp; &nbsp;";
+
 // _actLanguage switch texts
+// TODO: when language count is larger than, say 3 use a combo box for selection
 	for (int i = 0; i < Languages::Count(); ++i)
 		if (i != _actLanguage)
 			_ofs << "     <a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << Languages::names[i] << "</a>&nbsp;&nbsp\n";
@@ -2953,7 +2956,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	  </div>
 	</div>
 			  )X";
-	_ofs << "</header>\n";
+	_ofs << "</div>\n";	 //  header
 	return 0;
 }
 
@@ -3125,12 +3128,12 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (!f.open(QIODevice::WriteOnly))
 		return 16;
 
+	_ofs.setDevice(&f);
+	_ofs.setCodec("UTF-8");
+
 	_remDsp.Update(processedCount);
 	emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
 	emit SignalProgressPos(++processedCount, _albumMap.size() * Languages::Count());
-
-	_ofs.setDevice(&f);
-	_ofs.setCodec("UTF-8");
 
 	_ofs << _PageHeadToString(album.ID)
 		 << " <body onload = \"falconGLoad()\" onbeforeunload=\"BeforeUnload()\"";
@@ -3143,30 +3146,30 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	_WriteHeaderSection(album);
 
 	_ofs << "<!-- Main section -->\n"
-		"   <main id=\"main\">\n";
+		"   <div class=\"main\" id=\"main\">\n";
 
 	// get number of images and sub-albums
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "<a id=\"images\" class=\"fgsection\">" << Languages::Images[_actLanguage] << "</a>\n"
-			<< "<section>\n";
+			<< "    <div id=\"images\" class=\"fgsection\">" << Languages::Images[_actLanguage] << "</div>\n"
+			<< "    <section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.images.size(); ++i)
 			//			if (album.excluded.indexOf(album.images[i]) < 0)
 			_WriteGalleryContainer(album, false, i);
-		_ofs << "</section>\n<!-- end section Images -->\n";
+		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 	if (album.SubAlbumCount() > 0)
 	{
 		_ofs << "<!--start section albums -->\n"
-			<< "<a id=\"albums\" class=\"fgsection\">" << Languages::Albums[_actLanguage] << "</a>\n"
-			"<section>\n";
+			<<	"    <div id=\"albums\" class=\"fgsection\">" << Languages::Albums[_actLanguage] << "</div>\n"
+				"    <section>\n";
 
 		for (int i = 0; _processing && i < album.albums.size(); ++i)
 			//			if (album.excluded.indexOf(album.albums[i]) < 0)
 			_WriteGalleryContainer(album, true, i);
-		_ofs << "</section>\n<!-- end section Albums -->\n";
+		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
 	if (_processing)		// else leave tha page unfinished
 	{

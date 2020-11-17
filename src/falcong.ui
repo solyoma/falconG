@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>997</width>
-    <height>1038</height>
+    <height>1029</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1633,8 +1633,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>16</width>
-                    <height>16</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -1776,7 +1776,7 @@ original file name.</string>
                      <x>0</x>
                      <y>152</y>
                      <width>381</width>
-                     <height>251</height>
+                     <height>301</height>
                     </rect>
                    </property>
                    <property name="sizePolicy">
@@ -1797,32 +1797,7 @@ original file name.</string>
                     <string>Background Image</string>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="label_63">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>URI</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QLineEdit" name="edtBckImageName">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>24</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2" rowspan="2">
+                    <item row="0" column="3" rowspan="2">
                      <widget class="QGroupBox" name="gbBacgroundImagePosition">
                       <property name="title">
                        <string>Position</string>
@@ -1859,7 +1834,22 @@ original file name.</string>
                       </layout>
                      </widget>
                     </item>
-                    <item row="1" column="0" colspan="2">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_63">
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>File:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0" colspan="3">
                      <widget class="QLabel" name="lblbckImage">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1882,6 +1872,53 @@ original file name.</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <widget class="QToolButton" name="btnOpenBckImage">
+                      <property name="toolTip">
+                       <string>Select background image</string>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="edtBckImageName">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>24</height>
+                       </size>
+                      </property>
+                      <property name="placeholderText">
+                       <string>full path name of image file</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0" colspan="4">
+                     <widget class="QSlider" name="hsImageSizeToShow">
+                      <property name="toolTip">
+                       <string>Resizes the image for the preview only.
+On the WEB page the image appears at
+its original size;</string>
+                      </property>
+                      <property name="maximum">
+                       <number>100</number>
+                      </property>
+                      <property name="value">
+                       <number>100</number>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickPosition">
+                       <enum>QSlider::TicksBothSides</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>10</number>
                       </property>
                      </widget>
                     </item>
@@ -1947,8 +1984,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>385</width>
-                    <height>702</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -1981,69 +2018,206 @@ original file name.</string>
                      <property name="title">
                       <string>Text Style</string>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_9">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_69">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <italic>true</italic>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Decoration</string>
-                        </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_12">
+                      <property name="spacing">
+                       <number>2</number>
+                      </property>
+                      <item>
+                       <widget class="QWidget" name="widget_8" native="true">
+                        <layout class="QHBoxLayout" name="horizontalLayout">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="label_66">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <italic>true</italic>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Alignment:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextAlignNone">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>None</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextLeft">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Left</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextCenter">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Center</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QRadioButton" name="rbTextRight">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Right</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
-                      <item row="0" column="1">
-                       <widget class="QCheckBox" name="chkTdUnderline">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Underline</string>
-                        </property>
+                      <item>
+                       <widget class="QWidget" name="widget_10" native="true">
+                        <layout class="QHBoxLayout" name="horizontalLayout_14">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <widget class="QLabel" name="label_69">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <italic>true</italic>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Decoration</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="chkTdUnderline">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Underline</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="chkTdOverline">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>overLine</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QCheckBox" name="chkTdLinethrough">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Line-through</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_5">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
-                      <item row="0" column="2">
-                       <widget class="QCheckBox" name="chkTdOverline">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>overLine</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="QCheckBox" name="chkTdLinethrough">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                          <pointsize>10</pointsize>
-                          <weight>50</weight>
-                          <bold>false</bold>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Line-through</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0" colspan="4">
+                      <item>
                        <widget class="QGroupBox" name="gbDecorationStyle">
                         <property name="enabled">
                          <bool>false</bool>
@@ -2145,98 +2319,7 @@ original file name.</string>
                         </layout>
                        </widget>
                       </item>
-                      <item row="2" column="0" colspan="4">
-                       <widget class="QWidget" name="widget_8" native="true">
-                        <layout class="QHBoxLayout" name="horizontalLayout">
-                         <item>
-                          <widget class="QLabel" name="label_66">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <italic>true</italic>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Alignment:</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QRadioButton" name="rbTextAlignNone">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>None</string>
-                           </property>
-                           <property name="checked">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QRadioButton" name="rbTextLeft">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Left</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QRadioButton" name="rbTextCenter">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Center</string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QRadioButton" name="rbTextRight">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Right</string>
-                           </property>
-                           <property name="checked">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item row="3" column="0" colspan="4">
+                      <item>
                        <widget class="QGroupBox" name="gbTextShadow">
                         <property name="minimumSize">
                          <size>
@@ -2311,6 +2394,9 @@ original file name.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>Horizontal displacement</string>
+                             </property>
                              <property name="suffix">
                               <string>px</string>
                              </property>
@@ -2351,6 +2437,9 @@ original file name.</string>
                                <italic>true</italic>
                                <bold>false</bold>
                               </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Vertical displacement</string>
                              </property>
                              <property name="suffix">
                               <string>px</string>
@@ -2393,6 +2482,9 @@ original file name.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>Blur in pixels</string>
+                             </property>
                              <property name="suffix">
                               <string>px</string>
                              </property>
@@ -2433,6 +2525,9 @@ original file name.</string>
                                <italic>true</italic>
                                <bold>false</bold>
                               </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Spread in pixels</string>
                              </property>
                              <property name="suffix">
                               <string>px</string>
@@ -2491,6 +2586,9 @@ original file name.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>Horizontal displacement</string>
+                             </property>
                              <property name="suffix">
                               <string>px</string>
                              </property>
@@ -2537,6 +2635,9 @@ original file name.</string>
                                <italic>true</italic>
                                <bold>false</bold>
                               </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Vertical displacement</string>
                              </property>
                              <property name="suffix">
                               <string>px</string>
@@ -2585,6 +2686,9 @@ original file name.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>Blur in pixels</string>
+                             </property>
                              <property name="suffix">
                               <string>px</string>
                              </property>
@@ -2626,6 +2730,9 @@ original file name.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>Spread in pixels</string>
+                             </property>
                              <property name="suffix">
                               <string>px</string>
                              </property>
@@ -2634,7 +2741,7 @@ original file name.</string>
                           </layout>
                          </item>
                          <item row="0" column="1">
-                          <widget class="QRadioButton" name="radioButton">
+                          <widget class="QRadioButton" name="rbBoxShadow">
                            <property name="text">
                             <string>Box Shadow</string>
                            </property>
@@ -2677,6 +2784,9 @@ original file name.</string>
                              <bold>false</bold>
                             </font>
                            </property>
+                           <property name="toolTip">
+                            <string>Shaod color. Same for both</string>
+                           </property>
                            <property name="styleSheet">
                             <string notr="true">QToolButton {background-color:#ddd;}</string>
                            </property>
@@ -2688,7 +2798,7 @@ original file name.</string>
                         </layout>
                         <zorder>chkShadowOn</zorder>
                         <zorder>rbTextShadow</zorder>
-                        <zorder>radioButton</zorder>
+                        <zorder>rbBoxShadow</zorder>
                         <zorder>btnShadowColor</zorder>
                        </widget>
                       </item>
@@ -5984,7 +6094,7 @@ program directory (html,css,js,...)</string>
   <tabstop>rbTextCenter</tabstop>
   <tabstop>rbTextRight</tabstop>
   <tabstop>rbTextShadow</tabstop>
-  <tabstop>radioButton</tabstop>
+  <tabstop>rbBoxShadow</tabstop>
   <tabstop>chkShadowOn</tabstop>
   <tabstop>sbShadowHoriz1</tabstop>
   <tabstop>sbShadowVert1</tabstop>

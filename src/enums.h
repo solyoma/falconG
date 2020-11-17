@@ -16,10 +16,10 @@ namespace Enums
 	enum BorderSide { sdAll=-1, sdTop, sdRight, sdBottom, sdLeft };  // index	-1, 0		1	   2		 3
 	enum BackgroundImageSizing {
 		hNotUsed,
-		hAuto, 			// background-style	 original size
-		hCover,			//				whole visibel screen (might stretch or crop)
-		hContain,		//				whole image is inside
-		hTile			// background-repeat: repeat (default!)
+		hAuto, 			//	background-size: auto, background-style	 original size
+		hCover,			//	background-size: cover,		whole visibel screen (might stretch or crop)
+		hContain,		//	background-size: contain,			whole image is inside
+		hTile			//  background-repeat: repeat (default!)
 	};
 	// separate fonts, colors for all these, sync with falconG.js!
 	enum AlbumElement {

@@ -58,7 +58,7 @@ void CssCreator::_CreateGlobals()
 	margin:0;
 }
 
-html, body, main {
+html, body, .main {
 )";
 	_ofs << config.Web.ColorsForStyleSheet(true)
 		<< R"(	height: 100%;
@@ -76,7 +76,7 @@ a, a:visited {
 
 	s = config.backgroundImage.ForStyleSheet(true);
 
-	if (!s.isEmpty())
+	if (s.at(s.indexOf(':')+1) != ';')		// no image
 	{
 		_ofs << "body {\n"
 			<< s << "}\n\n";
@@ -84,7 +84,7 @@ a, a:visited {
 	}
 
 	_ofs << R"(
-main{
+.main{
 	display: flex;
 	flex-direction: column;
 	flex-wrap:wrap;
@@ -146,7 +146,7 @@ void CssCreator::_CreateForLangButton()
 
 void CssCreator::_CreateForHeader()
 {
-	QString s = "header {\n";
+	QString s = ".header {\n";
 	if (_forFalconG)
 		s += "    cursor:pointer;\n";
 
