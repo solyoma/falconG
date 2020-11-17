@@ -17,9 +17,9 @@ namespace Enums
 	enum BackgroundImageSizing {
 		hNotUsed,
 		hAuto, 			//	background-size: auto, background-style	 original size
-		hCover,			//	background-size: cover,		whole visibel screen (might stretch or crop)
+		hCover,			//	background-size: cover,		whole visible screen (might stretch or crop)
 		hContain,		//	background-size: contain,			whole image is inside
-		hTile			//  background-repeat: repeat (default!)
+		hTile			//  background-size: horiz vert, background-repeat: repeat (default!)
 	};
 	// separate fonts, colors for all these, sync with falconG.js!
 	enum AlbumElement {

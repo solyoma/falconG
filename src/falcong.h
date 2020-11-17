@@ -159,6 +159,7 @@ private:
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
+	void _LoadBckImage(QString name);	// from config
 
 //	void _GetProperty(StyleIndex index);
 
@@ -359,6 +360,8 @@ private slots:
 
 	void on_sbBorderWidth_valueChanged(int val);
 	void on_sbBorderRadius_valueChanged(int val);
+
+	void on_hsImageSizeToShow_valueChanged(int val);
 };
 
 extern FalconG *frmMain;

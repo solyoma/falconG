@@ -1089,20 +1089,18 @@ void _CWaterMark::Read(QSettings& s, QString group)
 // ********************************* Background Image ********************
 QString _CBackgroundImage::Url(bool addSemicolon) const
 {
-	QString qsN;
-	if(fileName.isEmpty() || v == (int)hNotUsed)
-		qsN =  QString("background-image:");
-	else
+	QString qsN = QString("background-image:");
+	if(!fileName.isEmpty() && v != (int)hNotUsed)
 	{
 
 		if (addSemicolon)	// then for WEb page
-		{					// when image is copied into /res
+		{					// when image must be copied into /res
 			QString p, n;
 			SeparateFileNamePath(fileName, p, n);
 			qsN = QString("background-image: url('/res/%1')").arg(n);
 		}
 		else				// for sample
-			qsN = QString("background-image: url('%1')").arg(fileName);
+			qsN = QString("background-image: url('file://%1')").arg(fileName);
 	}
 	__AddSemi(qsN, addSemicolon);
 	return qsN;
@@ -1114,15 +1112,18 @@ QString _CBackgroundImage::Size(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-			return QString();
+			break;
 		case hAuto:
 			qs +="auto";
+			break;
+		case hContain:
+			qs += "contain";
 			break;
 		case hCover:
 			qs += "cover";
 			break;
 		case hTile:
-			qs += "contain";
+			qs += QString("%1% %1%").arg(size);
 			break;
 	}
 	__AddSemi(qs, addSemicolon);
@@ -1134,11 +1135,12 @@ QString _CBackgroundImage::Position(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-		case hTile:
-			return QString();
+			break;
 		case hAuto:
 			qs += "center";
 			break;
+		case hTile:
+		case hContain:
 		case hCover:
 			qs += "left top";
 			break;
@@ -1152,7 +1154,7 @@ QString _CBackgroundImage::Repeat(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-			return QString();
+			break;
 		case hAuto:
 		case hCover:	
 			qs += "no-repeat";
@@ -1167,7 +1169,7 @@ QString _CBackgroundImage::Repeat(bool addSemicolon) const
 
 QString _CBackgroundImage::ForStyleSheet(bool addSemicolon) const
 {
-	return Url(addSemicolon) + Position(addSemicolon) + Size(addSemicolon);
+	return Url(addSemicolon) + Position(addSemicolon) + Size(addSemicolon) + Repeat(addSemicolon);
 }
 
 void _CBackgroundImage::Write(QSettings& s, QString group)
@@ -1178,6 +1180,7 @@ void _CBackgroundImage::Write(QSettings& s, QString group)
 	s.beginGroup(itemName);
 		s.setValue("mode", v);
 		s.setValue("img", fileName);
+		s.setValue("size", size);
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();
@@ -1190,6 +1193,7 @@ void _CBackgroundImage::Read(QSettings& s, QString group)
 	s.beginGroup(itemName);
 		v = s.value("mode", hNotUsed).toInt();
 		fileName = s.value("img", QString()).toString();
+		size = s.value("size", 100).toInt();
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();

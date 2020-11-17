@@ -685,6 +685,7 @@ struct _CWaterMark : public _CFG_ITEM<bool>		  // v used for changed
 struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum 'BackgroundImageSizing'
 {
 	QString fileName;
+	int size = 100;			// 1..100 (%)
 
 	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImagw") : _CFG_ITEM((int)how, nameStr) {}
 

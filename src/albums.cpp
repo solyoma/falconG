@@ -2038,19 +2038,19 @@ ID_t AlbumGenerator::_ImageFromStruct(FileReader &reader, int level, Album &albu
 }
 
 /*==========================================================================
-* TASK:		helper - splits an album definition line into 3 fields:
+* TASK:		helper - splits an album definition line into max 3 fields:
 *				name, ID,  and path, some of these may be missing
 * EXPECTS: s : INPUT string of definition w.o. leading spaces
-*				format: 
-*					<relative path name of album> - new album
+*				format can be: 
+*					<relative path name of album> -> new album
 *				or
-*					(A:1) - root album: no name, no path (can be (C:1) too)
+*					(A:1) or (C:1) - root album: no name, no path (C: - changed)
 *				or
-*					<original album name>(A:<ID)><relative path> - exisiting 
-*						possibly unchanged
+*					<original album name>(A:<ID>)<relative path> - 
+*						exisiting album possibly unchanged
 *			    or
-*					<original album name>(C:<ID)><relative path> - existing
-*						defineitely changed
+*					<original album name>(C:<ID>)<relative path> - 
+*						existing album defineitely changed
 *          changed: OUTPUT if the album changed
 *					true when the album is new (given with full path name)
 *						or when the type is set to 'C'
@@ -2077,15 +2077,15 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 		pos = s.indexOf("(", pos0);
 		pos0 = pos + 1;
 	} 
-	while (pos > 0 && s[pos0].unicode() != 'A' && s[pos0].unicode() != 'C' && s[pos+2].unicode() != ':');	// then '(A:<id>)<parent path>' is in file name
+	while (pos > 0 && s.at(pos0).unicode() != 'A' && s.at(pos0).unicode() != 'C' && s[pos+2].unicode() != ':');	// then '(A:<id>)<parent path>' is in file name
 
 	if (pos == 0)			// root album
 	{
-		changed = (s[pos0].unicode() == 'C');
+		changed = (s.at(pos0).unicode() == 'C');
 		return sl;
 	}
 
-	if (pos < 0)			 // new album w.o. ID 
+	if (pos < 0)			 // full (virtual) path name of new album w.o. ID 
 	{
 		sl.push_back(s);
 		changed = true;
@@ -2143,9 +2143,9 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	QStringList sl = __albumMapStructLineToList(reader.l().mid(level), albumDefnitelyChanged);
 	int n = sl.size();		// should 0,1,2 or 3
 							//	0: root album
-							//	1: path name
-							//	2: album name and ID
-							//	3: album name, ID and path
+							//	1: sl[0] = path name (not yet processed)
+							//	2: top level album, sl[0] = album name sl[1] = ID
+							//	3: sub album, sl[0] = album name sl[1] = ID, sl[2]= album path
 	if (n > 3)
 		throw BadStruct(reader.ReadCount(),"Wrong album parameter count");
 
@@ -2200,10 +2200,10 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		else // n==3 -> name, ID and path
 		{
 			album.path = sl[2];	// images are inside this album
-			ImageMap::lastUsedImagePath = album.path + album.name + "/";
+			ImageMap::lastUsedImagePath = album.FullName() + "/";
 		}
 		id = sl[1].toULongLong();
-		if (_albumMap.contains(id))
+		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
 			throw BadStruct(reader.ReadCount(), QString("'%1' - duplicated album ID").arg(id));
 
 

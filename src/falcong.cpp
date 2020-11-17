@@ -539,6 +539,11 @@ void FalconG::_GlobalsToUi()
 		case hCover:   ui.rbCoverBckImage->setChecked(true); break;
 		case hTile:    ui.rbTileBckImage->setChecked(true); break;
 	}
+	_LoadBckImage(config.backgroundImage.fileName);
+	ui.hsImageSizeToShow->setValue(config.backgroundImage.size);
+	if (config.backgroundImage.v != (int)hNotUsed)
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+
 
 	--_busy;
 }
@@ -689,7 +694,6 @@ void FalconG::_DesignToUi()
 
 	_SettingUpFontsCombo();
 	_GlobalsToUi();	
-
 	--_busy;
 }
 
@@ -961,21 +965,23 @@ void FalconG::on_edtAbout_textChanged()
 
 void FalconG::on_edtBckImageName_textChanged()
 {
-	QString name = ui.edtBckImageName->text();
+	if (_busy)
+		return;
+
+	QString name = QDir::fromNativeSeparators( ui.edtBckImageName->text());
+
 	if (QFile::exists(name))
 	{
-		QSize size = ui.lblbckImage->size();
-		QImage image(name);
-		QPixmap pm;
-		pm = QPixmap::fromImage(image.scaled(size, Qt::KeepAspectRatio));
-		ui.lblbckImage->setPixmap(pm);
-		config.backgroundImage.fileName = name;	// full path name for generator 
-		config.SetChanged(true);				// file is copied to /res
-		_RunJavaScript("body",config.backgroundImage.ForStyleSheet(false));	// show image
+		if (name != config.backgroundImage.fileName)		 // read only once
+		{
+			_LoadBckImage(name);
+			config.backgroundImage.fileName = name;	// full path name for generator 
+			config.SetChanged(true);				// file is copied to /res
+		}
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// show image
 	}
 	else
-		_RunJavaScript("body,main", QString("background-image:"));	// show image
-
+		_RunJavaScript("body", QString("background-image:"));	// show image
 }
 
 /*============================================================================
@@ -2303,6 +2309,14 @@ void FalconG::on_sbBorderRadius_valueChanged(int val)
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
+void FalconG::on_hsImageSizeToShow_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	config.backgroundImage.size = val;
+	_RunJavaScript("body", config.backgroundImage.Size(false));
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -2952,6 +2966,23 @@ void FalconG::_GetTextsForEditing(whoChangedTheText who)
 
 
 /*========================================================
+ * TASK:	Load image 'name' into label on UI
+ * PARAMS:	name: path name of file to load
+ * GLOBALS:	ui.lblBckImage, config
+ * RETURNS: none
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_LoadBckImage(QString name)
+{
+	QSize size(308, 227);// = ui.lblbckImage->size(); label size is not the real one when page is loaded
+	QImage image(name);
+	QPixmap pm;
+	pm = QPixmap::fromImage(image.scaled(size, Qt::KeepAspectRatio));
+	ui.lblbckImage->setPixmap(pm);
+}
+
+
+/*========================================================
  * TASK:	slot for link clicked in sample (WebEnginePage)
  * PARAMS:	s -	link name a decimal number string
  * GLOBALS:
@@ -3198,41 +3229,44 @@ void FalconG::on_rbBlueStyle_toggled(bool on)
 	if (on)
 	{
 		frmMain->_StyleTheProgram(stBlue);
-		_SetConfigChanged(true);
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
 
+//****************************************************************************
+
+
 void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 {
-	if (b)
+	if (!_busy && b)
 	{
 		config.backgroundImage.v = hNotUsed;
-		on_edtBckImageName_textChanged();
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
 
 void FalconG::on_rbCenterBckImage_toggled(bool b)
 {
-	if (b)
+	if (!_busy && b)
 	{		
 		config.backgroundImage.v = hAuto;
-		on_edtBckImageName_textChanged();
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
 void FalconG::on_rbCoverBckImage_toggled(bool b)
 {
-	if (b)
+	if (!_busy && b)
 	{
 		config.backgroundImage.v = hCover;
-		on_edtBckImageName_textChanged();
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
 void FalconG::on_rbTileBckImage_toggled(bool b)
 {
-	if (b)
+	if (!_busy && b)
 	{
 		config.backgroundImage.v = hTile;
-		on_edtBckImageName_textChanged();
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
 

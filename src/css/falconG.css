@@ -1,246 +1,202 @@
-@import url("https://fonts.googleapis.com/css?family=Raleway"); /*--- Nav Font --*/
-@import url("https://fonts.googleapis.com/css?family=Playfair+Display:700|Raleway"); /*--- Heading Font --*/
+@import url('https://fonts.googleapis.com/css?family=Mansalva|Tangerine|Meddon|Playfair|Sniglet|Baumans|Red+Hat+Display&display=swap');
 *, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
 	margin:0;
 }
 
-html,
-body{
-	height: 100% ;
+html, body, main {
+	color:#8f8f8f;
+	background-color:#002a00;
+	height: 100%;
 	width: 100%;
-	overflow: auto;
+}
+		
+a, a:visited {
+	text-decoration:none;
 }
 
-.falconG {
-	font-size:10pt;
-	font-family:Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-
+.area {
+	margin:0 6px;
 }
 
-.falconG::first-line {
-	font-size:24pt;
-}
-
-h2.album-title {
-	font-size:20pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-	text-align:center;
-	cursor:pointer;				/* only for design! */
-}
-
-/* valtozott */
-h2.album-title::first-line {
-	font-size:36pt;
-	cursor:pointer;				/* only for design! */
-}
-
-.about{
-	margin:auto;
-	width:400px;
-}
-a.title {
-	font-size:20pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-}
-
-a, a:visited{
-	text-decoration: none;
-}
-
-/* text-align */
-a[name="images"], a[name="galleries"] {
-	font-size:24pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	text-align:center;
-	cursor:pointer;				/* only for design! */
-}
-
-/* uj */
-a[name="images"]::first-line, a[name="galleries"]::first-line {
-	font-size:32pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	cursor:pointer;				/* only for design! */
-}
-
-p{
-	font-size: 13px;
-}
-
-div.menu-line a{
-	font-size:10pt;
-	font-family:Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-	line-height: 18px;
-	border-radius: 5px;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-	display: inline-block;
-	margin: 2px 3px 2px 2px;
-	padding: 4px 10px 3px;
-}
-
-div.menu-line a.langs{
-	font-size: 8pt;
-	border:0;
-	box-shadow: 0;
-}
-
-a.facebook{
-	display: inline-block;
-	border: 1px solid #00266d;
-	padding: 4px 10px 3px;
-	font-size: 13px;
-	line-height: 18px;
-	margin: 2px 3px;
-	font-weight: 800;
-	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow:0px 1px 1px rgba(0,0,0,0.1);
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-	color:#fff;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	background-color: #033aa9;
-	background: -moz-linear-gradient(top, #033aa9 0%, #022a8f 44%, #00266d 100%);
-	background: -webkit-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);
-	background: -o-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);
-	background: -ms-linear-gradient(top, #033aa9 0%,#022a8f 44%,#00266d 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#033aa9), color-stop(44%,#022a8f), color-stop(100%,#00266d));
-	background: linear-gradient(#033aa9 0% ,#022a8f 44% ,#00266d 100% );
-}
-
-header{
-	font-size:12pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	text-align: left;
-	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-	cursor:pointer;				/* only for design! */
-}
-
-footer{
-	font-size:12pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	text-align: center;
-	margin:auto;
-	cursor:pointer;				/* only for design! */
-}
-
-.album-title {
-	font-size:18pt;
-	font-family:"Monotype Corsiva",Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-	font-style:italic;
-	cursor:pointer;				/* only for design! */
-}
-/* normal */
-.album-title::first-line {
-	font-size:24pt;
-	font-style:normal;
-	cursor:pointer;				/* only for design! */
-}
-/* center */
-.album-desc {
-	font-size:10pt;
-	font-family:Constantia,Palatino,"Palatino Linotype","Palatino LT STD",Georgia,serif;
-	font-weight:bold;
-	text-align: center;
-	cursor:pointer;				/* only for design! */
-}
-
-/* --- main section --*/
 main{
 	display: flex;
 	flex-direction: column;
 	flex-wrap:wrap;
 	width: 100% ;
 }
-/* --- end main section --*/
 
-#images, .folders{
+section {
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: center;
-	max-width: 100% ;
-	cursor:pointer;				/* only for design! */
+	align-items:baseline;
+	max-width: 100%;
+}
+
+
+nav {
+	display: inline-block;
+	position: sticky;
+	position: -webkit-sticky;
+	top:10px;
+	margin-bottom: 1rem;
+	z-index: 1;
+}
+
+.menu-item {
+	display: inline-block;
+	margin: 2px 3px 2px 2px;
+	padding: 4px 10px 3px;
+	color:#008600;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border-top:1px solid #008600;
+	border-right:1px solid #008600;
+	border-bottom:1px solid #008600;
+	border-left:1px solid #008600;
+	border-radius:15px;
+}
+
+.menu-item:hover {
+	background-color:#002a00;
+	color:#008600;
+}
+/* up icon */
+.menu-item#uplink {
+	background-image: url("../res/up-icon.png");
+	background-size:14px;
+	background-repeat:no-repeat;
+	background-position: center;
+}
+
+.langs {
+	color:#ffff00;
+	font-family:Monotype Corsiva,Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif;
+	font-size:14pt;
+	line-height:1;
+	font-weight:900;
+	border:none;
+}
+
+header {
+    cursor:pointer;
+	color:#000000;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border:none;
+}
+
+
+.falconG {
+	margin-left: 10px;
+	display:inline-block;
+    cursor:pointer;
+	color:#00bd00;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border:none;
+}
+
+.gallery-title {
+    cursor:pointer;
+	color:#d6d6d6;
+	font-family:Baumans;
+	font-size:28pt;
+	line-height:36pt;
+	text-align:center;
+	border:none;
+}
+
+.gallery-desc {
+    cursor:pointer;
+	color:#b5b5b5;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	text-align:center;
+	border:none;
+}
+
+.fgsection {
+	margin: auto;
+	padding:24pt;
+	color:#00b800;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:24pt;
+	line-height:12pt;
+	text-align:center;
+	border:none;
+}
+
+fgsection::first-line {
+	font-size:36pt;
 }
 
 		/* ---- img----- */
-.img-container, .gallery-container{
+.img-container {
 	display:flex;
 	flex-direction: column;
-	padding:0 1px;
-   justify-content:center;
-   align-items:center;
+	justify-content:center;
+	align-items:center;
+	position: relative;
 }
 
-[data-src] {
-	min-width:600;
-	min-height:400;
+.img-container > div {
+	position:relative;
 }
 
-.desc{
-	display:block;				/* csak a debug miatt, marad none */
-	hyphens: auto;
-	-moz-hyphens: auto;
-	-webkit-hyphens: auto;
-	-ms-hyphens: auto;
-}
-
-p.album-title{
-	padding-left:10px;
-}
-
-.desc p {
-	font-size: 12pt;
-	line-height: 12pt;
-	text-align: center;
-	max-width:90%;
-	margin:auto;
-}
-
-section div.thumb{
-	display:-webkit-flex;
-	display:-ms-flexbox;
-	display:flex; 
-	justify-content: center;
-	flex-wrap: wrap;
-	flex-direction: row;
-	padding: 1px;
-	margin: 0 2;
-}
-
-.img-container img,
- .gallery-container img {
+.img-container img {
+	display:block;			/* get rid of bottom space */
 	margin:auto;
 	max-width:99vw;
 }
 
-div.links{
-	display:flex;
-	width:100% ;
-	justify-content:center;
-	margin: auto;
-	margin-bottom: 10px;
-	padding-bottom: 5px;
+.thumb {
+	display: inline-block;
+
 }
 
-div.links a, .showhide{
-	text-decoration:none;
-	font-family:"Playfair Display", sans-serif, Arial;
-	font-weight:bold;
-	cursor:pointer;
+[data-src] {
+	min-width:600px;
+	min-height:400px;
+}
+.title:hover{
+	font-weight: normal;
+    font-style: italic;
 }
 
-div.links a:hover, .showhide:hover{
-	font-weight: 700;
-   font-style: italic;
+.title {
+    cursor:pointer;
+	color:#ffaa7f;
+	font-family:Monotype Corsiva,Constantia,Palatino,Palatino Linotype,Palatino LT STD,Georgia,serif;
+	font-size:20pt;
+	line-height:1;
+	font-weight:900;
+	text-align:center;
+	border:none;
 }
 
+.desc {
+	hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	-ms-hyphens: auto;
+    cursor:pointer;
+	color:#c6c6c6;
+	font-family:Baumans;
+	font-size:14pt;
+	line-height:1;
+	font-weight:900;
+	text-align:center;
+	border:none;
+}
 
+/* Lightbox */
 .lightbox {
     display: none;
     top: 0;
@@ -253,7 +209,7 @@ div.links a:hover, .showhide:hover{
     padding-top: 30px;
     box-sizing: border-box;
 	overflow:auto;
-  }
+}
 
 #lb-flex {
     display: flex;
@@ -263,79 +219,73 @@ div.links a:hover, .showhide:hover{
     width: 100%;
     height: 100%;
 }
-  
-.lightbox img {
-    display: block;
+
+.lightbox-caption { 
+	display:none;
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border:none;
+}
+
+.lightbox-desc {
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	border:none;
+}
+
+.footer {
     cursor:pointer;
+	color:#8f8f8f;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:12pt;
+	text-align:center;
+	border:none;
 }
-  
-.lightbox .caption {
-    margin: 15px auto;
-    width: 50%;
-    text-align: center;
-    font-size: 1.5rem;
-    line-height: 1.5;
-    font-weight: 700;
-}
+
 		 	/* -- media queries ***/
 @media only screen and (orientation: landscape) {
-	.img-container img,
-	.gallery_container img {
+	.img-container img {
 		max-height: 95vh; 
 	}
 }
 
 @media only screen and (min-width:700px) {
-	.img-container, .gallery-container{
-		max-width:100vw;
-		padding:0 3px;
-	}
-
-	.img-container img,
-	.gallery_container img {
+	.img-container img {
 		max-width:99vw;
 		height:400px;
 	}
 
-	div.links{
-		padding-bottom: 10px;
+	p{
+		font-size:12pt;
 	}
 
-	p{
-		font-size:12pt
-	}
-   .about{
-		margin:auto;
-		width:600px;
-  	}
-	.album-desc {
+	.gallery-desc {
 		width:50vw;
+		margin: auto;
 	}
 }
 
 	/* large screens */
 @media only screen and (min-width:1200px) {
-	.img-container, .gallery-container
+	.img-container
 	{
 		max-width:99vw;
 		flex-direction:column;
 		padding:0 1px;
 	}
-	div.links{
-		padding-bottom: 30px;
-	}
 
-	.desc p {
+	.desc {
 		max-width:600px;
 		margin:auto;
 	}
 
-	.about {
+	.gallery-desc {
+		width:800px;
 		margin:auto;
-		width:800px;
-	}
-
-	.album-desc {
-		width:800px;
 	}
 }
