@@ -119,7 +119,7 @@ FalconG::FalconG(QWidget *parent)
 
 	QString resPath = QStringLiteral(":/Preview/Resources/");
 	_CopyResourceFileToProgramDir(resPath, "index.html");
-//	_CopyResourceFileToProgramDir(resPath, "falconG.css");
+	_CopyResourceFileToProgramDir(resPath, "falconG.css");
 	_CopyResourceFileToProgramDir(resPath, "falconG.js");
 	_CopyResourceFileToProgramDir(resPath, "placeholder.png");
 	_CopyResourceFileToProgramDir(resPath, "NoImage.jpg");
@@ -131,6 +131,7 @@ FalconG::FalconG(QWidget *parent)
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 	ui.sample->setPage(&_page);
+//	_page.load(QUrl(QStringLiteral("qrc:/Preview/Resources/index.html")));
 	_page.load(QUrl(QStringLiteral("file:///index.html")));
 
 
@@ -238,8 +239,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 			QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, this).exec();
 		if (res == QMessageBox::Save)
 		{
-			CssCreator cssCreator;
-			cssCreator.Create("falconG.css", true);	// program library setting cursors too
+			//CssCreator cssCreator;
+			//cssCreator.Create("falconG.css", true);	// program library setting cursors too
 			config.Write();
 		}
 		else if (res == QMessageBox::Cancel)
@@ -256,7 +257,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 void FalconG::on_toolBox_currentChanged(int newIndex)
 {
 	++_busy;
-//	ui.cbActualItem->setCurrentIndex(newIndex);
+	ui.cbActualItem->setCurrentIndex(newIndex);
 	--_busy;
 }
 
@@ -495,21 +496,21 @@ void FalconG::_ElemToSample(AlbumElement ae)
 
 	if (ae == aeWebPage)
 	{
-		_SetPageColor(pElem);
-		_SetPageBackground(pElem);
+		_PageColorToSample();
+		_PagebackgroundToSample();
 	}
 	else
 	{
-		_SetColor(pElem);
-		_SetBackground(pElem);
+		_ColorToSample(pElem);
+		_BackgroundToSample(pElem);
 	}
-	_SetFont(pElem);
-	_SetDecoration(pElem);
-	_SetShadow(pElem, 0);	// text
-	_SetShadow(pElem, 1);	// box
+	_FontToSample(pElem);
+	_DecorationToSample(pElem);
+	_ShadowToSample(pElem, 0);	// text
+	_ShadowToSample(pElem, 1);	// box
 	_SetLinearGradient(pElem);
-	_SetBorder(pElem);
-	_SetTextAlign(pElem);
+	_BorderToSample(pElem);
+	_TextAlignToSample(pElem);
 
 	// menus: set uplink icon
 	if (ae == aeMenuButtons)
@@ -647,10 +648,13 @@ void FalconG::_ConfigToSample()
 	_ElemToSample(aeLightboxDescription);
 	_ElemToSample(aeFooter);
 
+	_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	qs = config.imageBorder.ForStyleSheetShort(false);
 	_RunJavaScript("thumb", qs);
+
 	--_busy;
 }
 
@@ -976,12 +980,13 @@ void FalconG::on_edtBckImageName_textChanged()
 		{
 			_LoadBckImage(name);
 			config.backgroundImage.fileName = name;	// full path name for generator 
-			config.SetChanged(true);				// file is copied to /res
 		}
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// show image
 	}
 	else
 		_RunJavaScript("body", QString("background-image:"));	// show image
+
+	config.SetChanged(true);				// file is copied to /res
 }
 
 /*============================================================================
@@ -1609,7 +1614,7 @@ void FalconG::on_edtFontFamily_textChanged()
 	pElem = _PtrToElement();
 	pElem->font.SetFamily(ui.edtFontFamily->text());
 	_SetConfigChanged(true);
-	_SetFont(pElem);
+	_FontToSample(pElem);
 }
 
 /*============================================================================
@@ -1671,7 +1676,7 @@ void FalconG::on_chkBold_toggled(bool on)
 	_CElem* pElem = _PtrToElement();
 	pElem->font.SetFeature(fBold, on);
 	_SetConfigChanged(true);
-	_SetFont(pElem);
+	_FontToSample(pElem);
 }
 
 /*============================================================================
@@ -1687,7 +1692,7 @@ void FalconG::on_chkItalic_toggled(bool on)
 	_CElem* pElem = _PtrToElement();
 	pElem->font.SetFeature(fItalic, on);
 	_SetConfigChanged(true);
-	_SetFont(pElem);
+	_FontToSample(pElem);
 }
 
 
@@ -1700,7 +1705,7 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 	{
 		pElem->alignment.v = align;
 		_SetConfigChanged(true);
-		_SetTextAlign(pElem);	// clear decorations if neither checkbox is checked
+		_TextAlignToSample(pElem);	// clear decorations if neither checkbox is checked
 	}
 }
 
@@ -1729,7 +1734,7 @@ void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 		ui.rbTdWavy->setEnabled(on);
 	}
 
-	_SetDecoration(pElem);	// clear decorations if neither checkbox is checked
+	_DecorationToSample(pElem);	// clear decorations if neither checkbox is checked
 	_SetConfigChanged(true);
 }
 
@@ -2451,8 +2456,8 @@ void FalconG::on_btnSaveConfig_clicked()
 {
 	config.Write();
 
-	CssCreator creator;
-	creator.Create("falconG.css", true);
+	//CssCreator creator;
+	//creator.Create("falconG.css", true);
 
 	QString s	 = CONFIGS_USED::NameForConfig(true, ".ini"),
 			sp = s.left(s.lastIndexOf('/'));	// path
@@ -2561,10 +2566,10 @@ void FalconG::on_btnPageColor_clicked()
 			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
 			_SetConfigChanged(true);
 		}
-		AlbumElement ae = _aeActiveElement;
-		_aeActiveElement = aeWebPage;
-		_SetPageColor(_PtrToElement());
-		_aeActiveElement = ae;
+		//AlbumElement ae = _aeActiveElement;
+		//_aeActiveElement = aeWebPage;
+		_PageColorToSample();
+		//_aeActiveElement = ae;
 	}
 // DEBUG
 //	ShowStyleOf(ui.btnPageColor);
@@ -2593,10 +2598,10 @@ void FalconG::on_btnPageBackground_clicked()
 			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
 			_SetConfigChanged(true);
 		}
-		AlbumElement ae = _aeActiveElement;
-		_aeActiveElement = aeWebPage;
-		_SetPageBackground(_PtrToElement());
-		_aeActiveElement = ae;
+		//AlbumElement ae = _aeActiveElement;
+		//_aeActiveElement = aeWebPage;
+		_PagebackgroundToSample();
+		//_aeActiveElement = ae;
 	}
 }
 
@@ -3142,7 +3147,7 @@ void FalconG::on_cbLineHeight_currentIndexChanged(int index)
 		return;
 	_CElem* pElem = _PtrToElement(_aeActiveElement);
 	pElem->font.SetLineHeight(ui.cbLineHeight->currentText());
-	_SetFont(pElem);	
+	_FontToSample(pElem);	
 
 }
 
@@ -3435,7 +3440,7 @@ void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
  *				it will not be set
  *-------------------------------------------------------*/
 
-void FalconG::_SetColor(_CElem* pElem)
+void FalconG::_ColorToSample(_CElem* pElem)
 {
 	QString qs;
 	if (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color) ) // else clear color
@@ -3452,13 +3457,13 @@ void FalconG::_SetColor(_CElem* pElem)
  * REMARKS: - the changed parameters must already saved to config
  *			- to clear a parameter set sValue to empty string
  *-------------------------------------------------------*/
-void FalconG::_SetBackground(_CElem* pElem)
+void FalconG::_BackgroundToSample(_CElem* pElem)
 {
 	bool b = (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent;
 	_SetCssProperty(pElem,b ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") );
 }
 
-void FalconG::_SetShadow(_CElem* pElem,int what)
+void FalconG::_ShadowToSample(_CElem* pElem,int what)
 {
 	QString sPropty, sValue;
 	if (ui.chkShadowOn->isChecked())
@@ -3466,7 +3471,7 @@ void FalconG::_SetShadow(_CElem* pElem,int what)
 	_SetCssProperty(pElem, sPropty + sValue);
 }
 
-void FalconG::_SetBorder(_CElem* pElem)
+void FalconG::_BorderToSample(_CElem* pElem)
 {
 	QString qs;
 	if(pElem == &config.Web || !pElem->parent || pElem->parent->border != pElem->border)
@@ -3482,7 +3487,7 @@ void FalconG::_SetLinearGradient(_CElem* pElem)
 	_SetCssProperty(pElem, qs);
 }
 
-void FalconG::_SetFont(_CElem* pElem)
+void FalconG::_FontToSample(_CElem* pElem)
 {
 	QString qs;
 	if (pElem == &config.Web || !pElem->parent || pElem->parent->font != pElem->font)
@@ -3507,7 +3512,7 @@ void FalconG::_SetFont(_CElem* pElem)
 	}
 }
 
-void FalconG::_SetDecoration(_CElem* pElem)
+void FalconG::_DecorationToSample(_CElem* pElem)
 {
 	QString qs;
 	if (!pElem->decoration.IsTextDecorationLine())
@@ -3525,7 +3530,7 @@ void FalconG::_SetDecoration(_CElem* pElem)
 
 }
 
-void FalconG::_SetTextAlign(_CElem* pElem)
+void FalconG::_TextAlignToSample(_CElem* pElem)
 {
 	QString qs;
 	if (pElem == &config.Web || !pElem->parent || pElem->parent->alignment != pElem->alignment)
@@ -3533,12 +3538,12 @@ void FalconG::_SetTextAlign(_CElem* pElem)
 	_SetCssProperty(pElem,"text-align:"+ qs);
 }
 
-void FalconG::_SetPageColor(_CElem* pElem)
+void FalconG::_PageColorToSample()
 {
-	_SetCssProperty(pElem,"color:" + pElem->color.Name());
+	_SetCssProperty(&config.Web,"color:" + config.Web.color.Name());
 }
 
-void FalconG::_SetPageBackground(_CElem* pElem)
+void FalconG::_PagebackgroundToSample()
 {
 	QString wbc = config.Web.background.Name();
 
@@ -3564,9 +3569,8 @@ void FalconG::_SetPageBackground(_CElem* pElem)
 		clearBackground(aeLightboxDescription);
 		clearBackground(aeFooter);
 	}
-	QString qs = pElem->background.ForStyleSheet(false, true);
+	QString qs = config.Web.background.ForStyleSheet(false, true);
 	_RunJavaScript("body", qs);
-	_RunJavaScript("main", qs);
 }
 
 void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has the same name
@@ -4369,7 +4373,7 @@ void FalconG::_RunJavaScript(QString className, QString value)
 			return;
 		qs = QString("SetPropertyForClass('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 		_page.runJavaScript(qs);
-		DEBUG_LOG(qs)
+//		DEBUG_LOG(qs)
 	};
 	for (auto s : qsl)
 		runOneTag(s);

@@ -1097,10 +1097,12 @@ QString _CBackgroundImage::Url(bool addSemicolon) const
 		{					// when image must be copied into /res
 			QString p, n;
 			SeparateFileNamePath(fileName, p, n);
-			qsN = QString("background-image: url('/res/%1')").arg(n);
+			// must ide \" instead of ' because the whole string will be in ''
+			// when _RunJavaScript is called in falconG.cpp
+			qsN = QString("background-image:url(\"/res/%1\")").arg(n);
 		}
 		else				// for sample
-			qsN = QString("background-image: url('file://%1')").arg(fileName);
+			qsN = QString("background-image:url(\"file://%1\")").arg(fileName);
 	}
 	__AddSemi(qsN, addSemicolon);
 	return qsN;
@@ -1187,7 +1189,6 @@ void _CBackgroundImage::Write(QSettings& s, QString group)
 	s.endGroup();
 	if (!group.isEmpty())
 		s.endGroup();
-	v = v0;
 }
 void _CBackgroundImage::Read(QSettings& s, QString group)
 {

@@ -1,37 +1,61 @@
 // Copyright  2008 András Sólyom (alias Andreas Falco)
 // email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com). 
 
-
 var showDesc = 0;
 
-window.addEventListener("resize", ResizeThumbs)
+window.addEventListener("resize", ResizeThumbs);
 
-function SetPropertyForClass(className, propertyName, propValue) {
-    let x, i, r;
-    x = document.getElementsByClassName(className)
-//    if(typeof x == 'undefined')
-//        console.log("class '" + className + "' is undefined")
-    try {
-        if (propValue == '') {
+function DebugProperties(className, obj)
+{
+    let style= getComputedStyle(obj)
+    console.log(className + " => " + style.cssText)
+}
+
+function SetPropertyForClass(className, propertyName, propValue) 
+{
+    let x, i, r, id;
+    try 
+    {
+        if((i=className.indexOf('#')) >= 0) // then a single element
+        {
+            id = className.sucbstring(i+1)
+            className = className.substring(0,i);
+            x = document.getElementById(id);
+            if (propValue == '')  
+                x.removeProperty(propertyName)
+            else
+            x.setProperty(propertyName, propValue);
+            // DEBUG
+            console.log(className + '.' + propertyName + '#'+ id + ':' + propValue + ", old.: '" + r + "'")
+            // /DEBUG
+        }
+
+        x = document.getElementsByClassName(className)
+        if (propValue == '') { 
             for (i = 0; i < x.length; ++i)
                 r = x[i].style.removeProperty(propertyName);
         }
         else {
             if (propertyName in x[0].style)
+            {
                 r = x[0].style.getPropertyValue(propertyName)   // previous value
+                for (i = 0; i < x.length; ++i)
+                    x[i].style.setProperty(propertyName, propValue);
+            }        
             else
                 r = "No '" + propertyName + "' in class '" + className + "'"
-            for (i = 0; i < x.length; ++i)
-                x[i].style.setProperty(propertyName, propValue);
+    // DEBUG
+            console.log(className + '.' + propertyName + ':' + propValue + ", old.: '" + r + "'")
+    // /DEBUG
         }
-        if(propValue != '')
-            console.log(className + '.' +propertyName + ':' + propValue + ", old.: '"+ r+"'")
-        document.getElementById("DEBUG").innerHTML = className + '.' +propertyName + ":" + propValue + ' ['+x.length + ' element(s)]'
-            // DEBUG
+
+//        DebugProperties(className, x[0]);
+    // DEBUG
+    document.getElementById("DEBUG").innerHTML = className + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
+    // /DEBUG
     }
-    catch(err)
-    {
-        console.log('*** EXCEPTION ' + className + '.' +propertyName + ':' + propValue + " err.: '"+ err+"'")
+    catch (err) {
+        console.log('*** EXCEPTION ' + className + '.' + propertyName + ':' + propValue + " err.: '" + err + "'")
     }
 }
 
@@ -134,7 +158,7 @@ function falconGLoad() {
 
 
     var pos = sessionStorage.getItem(window.location.href);
-    if (pos !== undefined && pos > 0)
+    if ( typeof pos !== "undefined" && pos > 0)
         document.body.scrollTo(0, pos);
 }
 

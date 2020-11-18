@@ -128,16 +128,16 @@ private:
 			 // set CSS for sample 
 	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
 	void _SetCssProperty(_CElem *pElem, QString value,  QString subSelector = QString());
-	void _SetColor(_CElem *pElem);
-	void _SetBackground(_CElem* pElem);		// css 'background' color + url no other properties
-	void _SetShadow(_CElem* pElem,int what);	// what: 0 block-shadow, 1:text-shadow
-	void _SetBorder(_CElem* pElem);			// width, style, color or none
+	void _ColorToSample(_CElem *pElem);
+	void _BackgroundToSample(_CElem* pElem);		// css 'background' color + url no other properties
+	void _ShadowToSample(_CElem* pElem,int what);	// what: 0 block-shadow, 1:text-shadow
+	void _BorderToSample(_CElem* pElem);			// width, style, color or none
 	void _SetLinearGradient(_CElem* pElem);
-	void _SetFont(_CElem* pElem);			// all parameters for font
-	void _SetDecoration(_CElem* pElem);
-	void _SetTextAlign(_CElem *pElem);
-	void _SetPageColor(_CElem *pElem);
-	void _SetPageBackground(_CElem* pElem);	// possibly for all elements
+	void _FontToSample(_CElem* pElem);			// all parameters for font
+	void _DecorationToSample(_CElem* pElem);
+	void _TextAlignToSample(_CElem *pElem);
+	void _PageColorToSample();
+	void _PagebackgroundToSample();	// possibly for all elements
 	void _SetIcon();			// re-color it for the page
 	void _SetWatermark();
 	void _UpdaetWatermarkMargins(int mx, int my);
