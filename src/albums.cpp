@@ -2435,7 +2435,8 @@ int AlbumGenerator::_DoCopyJs()
 	int res = 0;
 	QString dname;
 	for (QFileInfo& fi : list)
-		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
+		res |= CopyOneFile(fi.fileName(), dest + fi.fileName()) ? 0: 1;
+//		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
 
 	return res;
 }

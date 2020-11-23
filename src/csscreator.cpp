@@ -52,7 +52,8 @@ void CssCreator::_CreateGlobals()
 
 	_ofs << 
 		// universal selector to include padding and border in box size
-		R"(*, *::before, *::after {
+		R"(
+*, *::before, *::after {
 	box-sizing:border-box;
 	padding:0;
 	margin:0;
@@ -76,7 +77,7 @@ a, a:visited {
 
 	s = config.backgroundImage.ForStyleSheet(true);
 
-	if (s.at(s.indexOf(':')+1) != ';')		// no image
+	if (s.at(s.indexOf(':')+1) == ';')		// no image
 	{
 		_ofs << "body {\n"
 			 << s
