@@ -902,3 +902,12 @@ QString TimeToHMSStr(time_t t)
 		s = QString("%1 s").arg(sec, 0, 10, O);
 	return s;
 }
+
+
+bool CopyOneFile(QString src, QString dest, bool overWrite)
+{
+	if (QFile::exists(dest))
+		if (overWrite)
+			QFile::remove(dest);
+	return QFile::copy(src, dest);	// true:copy OK, false: copy error
+}

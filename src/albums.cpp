@@ -2423,7 +2423,7 @@ bool AlbumGenerator::_ReadFromGallery()
 * TASK:	copies directory 'js'
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
-* RETURNS: 0: OK, 1: error writing file
+* RETURNS: 0: OK, 1: error writing some file
 * REMARKS:  - directory 'js' exists
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
@@ -2432,9 +2432,12 @@ int AlbumGenerator::_DoCopyJs()
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
-	for (QFileInfo &fi : list)
-		QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
-	return 0;
+	int res = 0;
+	QString dname;
+	for (QFileInfo& fi : list)
+		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
+
+	return res;
 }
 
 /*============================================================================
@@ -2456,7 +2459,7 @@ int AlbumGenerator::_DoCopyRes()
 	for (QFileInfo &fi : list)
 	{
 		if(fi.fileName() != QString("left-icon.png") && fi.fileName() != QString("up-icon.png"))
-			QFile::copy(fi.absoluteFilePath(), dest + fi.fileName());
+			CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName());	// overwrite existing
 	}
 	emit SignalToCreateIcon(dest, "left-icon.png");
 	emit SignalToCreateIcon(dest, "up-icon.png");
@@ -3422,7 +3425,7 @@ int AlbumGenerator::Write()
 	if (_processing)
 	{
 		i = _DoCopyRes();			// 0 | 1	modifes 'up-link.png' !
-		i = _DoCopyJs();
+		i |= _DoCopyJs();
 	}
 	if (_processing)
 		i |= _DoHtAccess();			// 0 | 2

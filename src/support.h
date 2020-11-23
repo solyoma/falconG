@@ -261,3 +261,5 @@ QString DecodeLF(QString str, bool toHtml = false);		// string \\n to character 
 QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);
 
 QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);
+
+bool CopyOneFile(QString src, QString dest, bool overWrite = true);
