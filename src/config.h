@@ -611,6 +611,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	_CColor color = { "#000000" ,"color"}, 
 		background = {  "" ,"background"};	// invalid color
 	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|12pt|0","font"};
+	_CInt spaceAfter = { 0, "after"};
 	_CTextDecoration decoration = { 0, "decoration" };
 	_CTextAlign alignment = { 0, "alignment" };
 	_CShadow shadow1[2] = { {"0|0|0|0|#000000","text-shadow1"},	// index 0: text shadow, 1: box-shadow

@@ -15,7 +15,11 @@ void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 {
 	QString qs = elem.ForStyleSheet(true);
 	if (!qs.isEmpty())
+	{
+		if (elem.spaceAfter > 0)
+			qs += QString("margin-bottom:%1px;\n").arg(elem.spaceAfter);
 		_ofs << classStr << qs << "}\n\n";
+	}
 	if (elem.font.IsFirstLineDifferent())
 		_ofs << elem.font.FirstLineClassStr(elem.ClassName());
 }

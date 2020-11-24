@@ -950,6 +950,7 @@ void _CElem::Write(QSettings& s, QString group)
 		color.Write(s);
 		background.Write(s);
 		font.Write(s);
+		spaceAfter.Write(s);
 		decoration.Write(s);
 		alignment.Write(s);
 		if(_bMayShadow)
@@ -976,6 +977,7 @@ void _CElem::Read(QSettings& s, QString group)
 		color.Read(s);
 		background.Read(s);
 		font.Read(s);
+		spaceAfter.Read(s);
 		decoration.Read(s);
 		alignment.Read(s);
 		if (_bMayShadow)

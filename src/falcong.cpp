@@ -522,6 +522,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 		_BackgroundToSample(pElem);
 	}
 	_FontToSample(pElem);
+	_SpaceAfterToSample(pElem);
 	_DecorationToSample(pElem);
 	_ShadowToSample(pElem, 0);	// text
 	_ShadowToSample(pElem, 1);	// box
@@ -604,6 +605,8 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() > 0);
 	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity() < 0 ? 100 : pElem->background.Opacity());
 	ui.sbBackgroundOpacity->setEnabled(ui.chkBackgroundOpacity->isChecked());
+
+	ui.sbSpaceAfter->setValue(pElem->spaceAfter.v);
 
 	ui.edtFontFamily->setText(pElem->font.Family());
 	ui.cbPointSize->setCurrentText(pElem->font.SizeStr());
@@ -712,6 +715,7 @@ void FalconG::_DesignToUi()
 
 	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
 	ui.sbImagePadding->setValue(config.imagePadding);
+	ui.sbSpaceAfter->setValue(0);
 
 	_SettingUpFontsCombo();
 	_GlobalsToUi();	
@@ -2310,6 +2314,16 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 	_RunJavaScript("thumb::after","color:"+ config.waterMark.wm.ColorToStr());
 }
 
+void FalconG::on_sbSpaceAfter_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->spaceAfter = val;
+	_SetConfigChanged(true);
+	_SpaceAfterToSample(pElem);
+}
+
 void FalconG::on_sbBorderWidth_valueChanged(int val)
 {
 	if (_busy)
@@ -3532,6 +3546,12 @@ void FalconG::_FontToSample(_CElem* pElem)
 //		qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
 //		_SetCssProperty(pElem, "font-size", qs, "::first-line");	// parent = Web and ::first-line
 	}
+}
+
+void FalconG::_SpaceAfterToSample(_CElem* pElem)
+{
+	QString qs = "margin-bottom:" + (pElem->spaceAfter ? QString("%1px").arg(pElem->spaceAfter) : QString());
+	_SetCssProperty(pElem, qs);
 }
 
 void FalconG::_DecorationToSample(_CElem* pElem)

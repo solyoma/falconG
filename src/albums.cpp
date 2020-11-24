@@ -3058,23 +3058,23 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	//  -------------------------- end of description
 
 	//  -------------------------- links with  album/image title
-	_ofs << "     <div class=\"links\">\n"		
-			"        <a class=\"title\" href=\"" + sAlbumDir;
+	QString qsLoc = sAlbumDir;	// empty for non root albums/images
 	if (itIsAnAlbum)
-		_ofs << _albumMap[id].NameFromID(id, _actLanguage, false) + "\">";
+		qsLoc += "javascript:LoadAlbum('" + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
-		_ofs << (sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title + "')")  + "\">";
+		qsLoc += sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
+	qsLoc += +"')\">";
+
+	_ofs << "     <div class=\"links\">\n"
+			"        <div class=\"title\" onclick=\""
+		 << qsLoc;		   // closes <div>
+
 	if (pImage && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "</a>\n     </div>";
-	/*
-		    "        <div class=\"showhide\" onclick=\"ShowHide()\"><img data-src=\""+sOneDirUp + "res/content-icon.png\" style=\"height:32px;\" title=\"" + Languages::showDescriptions[_actLanguage] +
-								"\" alt=\"" + Languages::showDescriptions[_actLanguage] + "\"></a></div>\n"
-			"     </div>\n";											 
-    */
-	// -----------------------------end of div links
-	_ofs << "   </div>\n";
+		<< "        </div>\n     </div>";	// for "title" "links"
+	
+	_ofs << "   </div>\n";		// "img-container"
 
 	return 0;
 }

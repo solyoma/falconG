@@ -134,6 +134,7 @@ private:
 	void _BorderToSample(_CElem* pElem);			// width, style, color or none
 	void _SetLinearGradient(_CElem* pElem);
 	void _FontToSample(_CElem* pElem);			// all parameters for font
+	void _SpaceAfterToSample(_CElem* pElem);
 	void _DecorationToSample(_CElem* pElem);
 	void _TextAlignToSample(_CElem *pElem);
 	void _PageColorToSample();
@@ -319,6 +320,8 @@ private slots:
 	void on_edtWatermark_textChanged();
 	void on_edtTitleText_textChanged();
 	void on_edtDescriptionText_textChanged();
+	void on_edtWmHorizMargin_textChanged();
+	void on_edtWmVertMargin_textChanged();
 
 	void on_rbDefaultStyle_toggled(bool);
 	void on_rbSystemStyle_toggled(bool);
@@ -334,8 +337,6 @@ private slots:
 	void on_sbImageWidth_valueChanged(int w);				// image width
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height
 	void on_sbThumbnailWidth_valueChanged(int w);				// image width
-	void on_edtWmHorizMargin_textChanged();
-	void on_edtWmVertMargin_textChanged();
 	void on_sbNewDays_valueChanged(int val);
 	void on_sbLatestCount_valueChanged(int val);
 	void on_sbShadowHoriz1_valueChanged(int val);
@@ -357,6 +358,7 @@ private slots:
 	void on_sbTextOpacity_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbWmOpacity_valueChanged(int val);
+	void on_sbSpaceAfter_valueChanged(int val);
 
 	void on_sbBorderWidth_valueChanged(int val);
 	void on_sbBorderRadius_valueChanged(int val);
