@@ -270,6 +270,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 
 void FalconG::on_toolBox_currentChanged(int newIndex)
 {
+	if (_busy)
+		return;
 	++_busy;
 	ui.cbActualItem->setCurrentIndex(newIndex);
 	--_busy;
@@ -3320,12 +3322,15 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
 
 void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 {
+	if (_busy)
+		return;
+
 	_aeActiveElement = (AlbumElement)newIndex;
 	ui.gbGradient->setEnabled(newIndex);
 	ui.gbBorder->setEnabled(newIndex);
 	int page = newIndex == aeThumb ? 2 : newIndex ? 1 : 0;
 	ui.toolBox->setCurrentIndex(page);	// to settings
-	_ActualSampleParamsToUi();
+//	_ActualSampleParamsToUi();
 }
 
 void FalconG::on_cbBorder_currentIndexChanged(int newIndex)
