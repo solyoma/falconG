@@ -1557,6 +1557,7 @@ void CONFIG::Read()		// synchronize with Write!
 	if(!QFile::exists(qs))
 		config._WriteIni(qs);			// already written properties
 
+	SetChanged(false);
 	configSave = *this;
 }
 

@@ -305,6 +305,7 @@ void FalconG::on_btnSourceHistory_clicked()
 				ui.edtSourceGallery->setText(CONFIGS_USED::lastConfigs.at(CONFIGS_USED::indexOfLastUsed));
 				--_busy;
 			}
+			_ConfigToSample();
 		}
 		if (SourceHistory::Changed())
 			CONFIGS_USED::Write();
