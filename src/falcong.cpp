@@ -71,27 +71,38 @@ QString IntToColorStr(int clr)
 
 /*========================================================
  * TASK:	copies file from resource to HD
- * PARAMS:	refPath path in resource data 
- *			name file name to copy
+ * PARAMS:	resPath   - path in resource data 
+ *			name file - name to copy
  *			overwrite - existing files?
  * GLOBALS:
  * RETURNS:
  * REMARKS: - existing files kept
-			- QFile::copy() can't copy from resource
+ *			- QFile::copy() can't copy from resource
+ *			- files copied into folders inside 'sample'
+ *				folder in program directory
  *-------------------------------------------------------*/
-static bool _CopyResourceFileToProgramDir(QString resPath, QString name, bool overwrite=false
-)
+static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool overwrite=false)
 {
-	resPath += name;
-	if (!QFile::exists(name))
+	QString destDir = "sample/";
+	int pos = name.lastIndexOf('.') + 1;
+	switch (name.at(pos).unicode())
 	{
-		//QResource res()
+		case 'c': destDir = "css/"; break;
+		case 'h': destDir = ""; break;		// html
+		case 'j': destDir = name.at(++pos).unicode() == 's' ? "js/" : "res/"; break;	// .js or .jpg?
+		default: destDir  = "res/"; break;
+	}
+	destDir = "sample/" + destDir;
+
+	resPath += name;
+	if ( ! QFile::exists(destDir + name))
+	{
 		QFile f(resPath);
 		if (!f.open(QIODevice::ReadOnly))
 			goto ERR;
 		QByteArray ba = f.read(128 * 1024);
 		f.close();
-		f.setFileName(name);
+		f.setFileName(destDir + name);
 		if (f.open(QIODevice::WriteOnly) )
 		{
 			if (f.write(ba) < 0)
@@ -101,7 +112,8 @@ static bool _CopyResourceFileToProgramDir(QString resPath, QString name, bool ov
 	}
 	return true;	// not copied
 ERR:
-	QMessageBox::critical(nullptr, "falconG", "Can't copy resource'"+name+"' to program folder\nPlease make sure the folder is writeable!\n\nExiting");
+	QString serr = QObject::tr("Can't copy resource'%1' to folder '%2'\nPlease make sure the folder is writeable!\n\nExiting");
+	QMessageBox::critical(nullptr, "falconG", serr.arg(name).arg(destDir));
 	exit(1);
 }
 
@@ -117,13 +129,23 @@ FalconG::FalconG(QWidget *parent)
 {
 	config.dsApplication = QDir::current().absolutePath(); // before anybody changes the current directory
 
+	// create directories for sample
+	bool ask = false;
+	CreateDir("sample", ask);
+	ask = false;
+	CreateDir("sample/css", ask);
+	ask = false;
+	CreateDir("sample/js", ask);
+	ask = false;
+	CreateDir("sample/res", ask);
+
 	QString resPath = QStringLiteral(":/Preview/Resources/");
-	_CopyResourceFileToProgramDir(resPath, "index.html");
-	_CopyResourceFileToProgramDir(resPath, "falconG.css");
-	_CopyResourceFileToProgramDir(resPath, "falconG.js");
-	_CopyResourceFileToProgramDir(resPath, "placeholder.png");
-	_CopyResourceFileToProgramDir(resPath, "NoImage.jpg");
-	_CopyResourceFileToProgramDir(":/icons/Resources/", "up-icon.png");
+	_CopyResourceFileToSampleDir(resPath, "index.html");
+	_CopyResourceFileToSampleDir(resPath, "falconG.css");
+	_CopyResourceFileToSampleDir(resPath, "falconG.js");
+	_CopyResourceFileToSampleDir(resPath, "placeholder.png");
+	_CopyResourceFileToSampleDir(resPath, "NoImage.jpg");
+	_CopyResourceFileToSampleDir(":/icons/Resources/", "up-icon.png");
 
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
@@ -132,7 +154,7 @@ FalconG::FalconG(QWidget *parent)
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 	ui.sample->setPage(&_page);
 //	_page.load(QUrl(QStringLiteral("qrc:/Preview/Resources/index.html")));
-	_page.load(QUrl(QStringLiteral("file:///index.html")));
+	_page.load(QUrl(QStringLiteral("file:///sample/index.html")));
 
 
 	ui.trvAlbums->setHeaderHidden(true);
@@ -205,16 +227,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 		return;
 	}
 
-	if (ui.chkCleanUp->isChecked())		// files will be re-created at next start
-	{
-		QFile::remove( "index.html");
-		QFile::remove( "falconG.css");
-		QFile::remove( "falconG.css~");
-		QFile::remove( "falconG.js");
-		QFile::remove( "placeholder.png");
-		QFile::remove( "NoImage.jpg");
-		QFile::remove( "up-icon.png");
-	}
+	if (ui.chkCleanUp->isChecked())		// directory will be re-created at next program start
+		RemoveDir(config.dsApplication.ToString()+"sample");
 
 	if(_edited)
 	{
@@ -328,7 +342,7 @@ void FalconG::on_btnGenerate_clicked()
 		if (config.Changed())
 		{
 			CssCreator cssCreator;
-			cssCreator.Create("falconG.css", true);	// program library setting cursors too
+			cssCreator.Create("sample/css/falconG.css", true);	// program library setting cursors too
 		}
 
 		CONFIGS_USED::Write();
@@ -2792,7 +2806,7 @@ void FalconG::on_btnDisplayHint_clicked()
  *-------------------------------------------------------*/
 void FalconG::_ModifyGoogleFontImport()
 {
-	static QString name = "falconG.css",
+	static QString name = "sample/css/falconG.css",
 		tmpName = name + ".tmp";
 	QFile in(name),
 		out(tmpName);
@@ -4245,7 +4259,7 @@ void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool sp
  *--------------------------------------------------------------------------*/
 void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
 {
-	QString src = "res/"+destName;
+	QString src = "sample/res/"+destName;
 	QPixmap pm(src) ;
 	if (pm.isNull())
 	{
@@ -4346,7 +4360,10 @@ void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)
 	ui.sbShadowVert2->setValue(pElem->shadow2[which].Vert());
 	ui.sbShadowBlur2->setValue(pElem->shadow2[which].Blur());
 
-	ui.btnShadowColor->setStyleSheet(QString("QToolButton {background-color:%1;}}").arg(pElem->shadow1[which].Color()));
+	QString qc = pElem->shadow1[which].Color();
+	if (qc.isEmpty())	// not set
+		qc = "#ddd";	
+	ui.btnShadowColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(qc));
 	--_busy;
 
 }

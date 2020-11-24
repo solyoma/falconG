@@ -911,3 +911,90 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 			QFile::remove(dest);
 	return QFile::copy(src, dest);	// true:copy OK, false: copy error
 }
+
+
+/*==========================================================================
+* TASK:		ask if to cancel directory creation
+* EXPECTS: s - name of directory to display in message box
+* RETURNS: true: ok to create, false: cancel create
+* REMARKS: - prepares _root album and recursively processes all levels
+*--------------------------------------------------------------------------*/
+static bool __CancelCreate(QString s)
+{
+	return  QMessageBox(QMessageBox::Question, QMainWindow::tr("falconG"),
+						QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s),
+						QMessageBox::Yes | QMessageBox::Cancel).exec() == QMessageBox::Cancel;
+}
+
+
+/*==========================================================================
+* TASK:		Creates directory and conditionally asks for confirmation
+* EXPECTS: sdir - directory to create
+*			aks	- if directory does not exist then ask permission to proceed?
+* RETURNS:  true: directory either exists or created successfully
+* REMARKS: 	 ask set to true if dir. existed and false when it did not
+*--------------------------------------------------------------------------*/
+bool CreateDir(QString sdir, bool& ask) // only create if needed
+{										// ask - if does not exist ask what to do
+	QDir folder;
+	if (folder.exists(sdir))
+		return ask = true;
+
+	bool b = ask;
+	ask = false;
+
+	if (b && __CancelCreate(sdir))
+		return false;
+	return folder.mkdir(sdir);
+}
+
+/*========================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - https://nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
+ *-------------------------------------------------------*/
+static bool __RemoveFolder(QString name)
+{
+	bool result = true;
+	QDir dir(name);
+
+	if (dir.exists(name)) 
+	{
+		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+			if (info.isDir()) {
+				result = __RemoveFolder(info.absoluteFilePath());
+			}
+			else {
+				result = QFile::remove(info.absoluteFilePath());
+			}
+
+			if (!result) {
+				return result;
+			}
+		}
+		result = dir.rmdir(name);
+	}
+
+	return result;
+}
+
+
+/*========================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - NO NEED: QSir.removeRecursively() does this
+ *				except asking for it
+ *-------------------------------------------------------*/
+bool RemoveDir(QString name, bool ask)
+{
+	if (ask)
+	{
+		if (QMessageBox::question(nullptr, QObject::tr("falconG"), QString(QObject::tr("Really remove %1 and all of its content?")).arg(name)) != QMessageBox::Yes)
+			return false;
+	}
+	return __RemoveFolder(name);
+}

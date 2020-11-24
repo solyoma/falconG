@@ -1568,39 +1568,6 @@ bool AlbumGenerator::Read()
 
 //---------------------- helpers --------------------------
 
-/*==========================================================================
-* TASK:		ask if to cancel directory creation
-* EXPECTS: s - name of directory to display in message box
-* RETURNS: true: ok to create, false: cancel create
-* REMARKS: - prepares _root album and recursively processes all levels
-*--------------------------------------------------------------------------*/
-static bool __CancelCreate(QString s)
-{
-	return  QMessageBox(QMessageBox::Question, QMainWindow::tr("falconG"),
-		QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s),
-		QMessageBox::Yes | QMessageBox::Cancel).exec() == QMessageBox::Cancel;
-}
-/*==========================================================================
-* TASK:		Creates directory and conditionally asks for confirmation
-* EXPECTS: sdir - directory to create
-*			aks	- if directory does not exist then ask permission to proceed?
-* RETURNS:  true: directory either exists or created successfully
-* REMARKS: 	 ask set to true if dir. existed and false qhwn it did not
-*--------------------------------------------------------------------------*/
-static bool __CreateDir(_CDirStr sdir, bool &ask) // only create if needed
-{										// ask - if does not exist ask what to do
-	QDir folder(sdir.ToString());
-	if (folder.exists())
-		return ask = true;
-
-	bool b = ask;
-	ask = false;
-
-	if (b && __CancelCreate(sdir.ToString()))
-		return false;
-	return folder.mkdir(sdir.ToString());
-}
-
 /*============================================================================
 * TASK:	   creates necessary directories
 * EXPECTS:
@@ -1622,33 +1589,33 @@ bool AlbumGenerator::_CreateDirectories()
 	__DestDir = config.dsGallery;		// destination directory the new gallery is
 										// put inside it
 	bool ask = true;
-	if (!__CreateDir(__DestDir, ask))
+	if (!CreateDir(__DestDir.ToString(), ask))
 		return false;
 
 	__SetBaseDirs();
 
 	ask |= QDir::isAbsolutePath(__RootDir.ToString());
-	if (!__CreateDir(__RootDir, ask))
+	if (!CreateDir(__RootDir.ToString(), ask))
 		return false;
 	ask |= QDir::isAbsolutePath(__AlbumDir.ToString());
-	if (!__CreateDir(__AlbumDir, ask))
+	if (!CreateDir(__AlbumDir.ToString(), ask))
 		return false;
 	ask |= QDir::isAbsolutePath(__CssDir.ToString());
-	if (!__CreateDir(__CssDir, ask))
+	if (!CreateDir(__CssDir.ToString(), ask))
 		return false;
 	ask |= QDir::isAbsolutePath(__ImageDir.ToString());
-	if (!__CreateDir(__ImageDir, ask))
+	if (!CreateDir(__ImageDir.ToString(), ask))
 		return false;
 	ask |= QDir::isAbsolutePath(__ThumbDir.ToString());
-	if (!__CreateDir(__ThumbDir, ask))
+	if (!CreateDir(__ThumbDir.ToString(), ask))
 		return false;
 	ask |= QDir::isAbsolutePath(__FontDir.ToString());
-	if (!__CreateDir(__FontDir, ask))
+	if (!CreateDir(__FontDir.ToString(), ask))
 		return false;
 	ask = false;
-	if (!__CreateDir(__ResourceDir, ask))
+	if (!CreateDir(__ResourceDir.ToString(), ask))
 		return false;
-	if (!__CreateDir(__JsDir, ask))
+	if (!CreateDir(__JsDir.ToString(), ask))
 		return false;
 	return true;
 }
@@ -2428,14 +2395,14 @@ bool AlbumGenerator::_ReadFromGallery()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
 {
-	QString src = config.dsApplication.ToString() + "js/",
+	QString src = config.dsApplication.ToString() + "sample/js/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
 	int res = 0;
 	QString dname;
 	for (QFileInfo& fi : list)
-		res |= CopyOneFile(fi.fileName(), dest + fi.fileName()) ? 0: 1;
+		res |= CopyOneFile(src + fi.fileName(), dest + fi.fileName()) ? 0: 1;
 //		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
 
 	return res;
@@ -2453,7 +2420,7 @@ int AlbumGenerator::_DoCopyJs()
 int AlbumGenerator::_DoCopyRes()
 {
 
-	QString src = config.dsApplication.ToString() + "res/",
+	QString src = config.dsApplication.ToString() + "sample/res/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "res/";
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
@@ -2462,7 +2429,7 @@ int AlbumGenerator::_DoCopyRes()
 		if(fi.fileName() != QString("left-icon.png") && fi.fileName() != QString("up-icon.png"))
 			CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName());	// overwrite existing
 	}
-	emit SignalToCreateIcon(dest, "left-icon.png");
+//	emit SignalToCreateIcon(dest, "left-icon.png");
 	emit SignalToCreateIcon(dest, "up-icon.png");
 	return 0;	
 }

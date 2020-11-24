@@ -18,7 +18,7 @@ function SetPropertyForClass(className, propertyName, propValue)
     {
         if((i=className.indexOf('#')) >= 0) // then a single element
         {
-            id = className.sucbstring(i+1)
+            id = className.substring(i+1)
             className = className.substring(0,i);
             x = document.getElementById(id);
             if (propValue == '')  

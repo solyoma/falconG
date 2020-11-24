@@ -1633,8 +1633,8 @@ original file name.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -1984,8 +1984,8 @@ its original size;</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>431</width>
-                    <height>695</height>
+                    <width>392</width>
+                    <height>672</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4152,8 +4152,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4536,8 +4536,8 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -5902,7 +5902,7 @@ regardless if they were already OK.</string>
        <item>
         <widget class="QCheckBox" name="chkButImages">
          <property name="text">
-          <string>but images</string>
+          <string>except images</string>
          </property>
         </widget>
        </item>
