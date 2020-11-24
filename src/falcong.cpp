@@ -3325,12 +3325,14 @@ void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 	if (_busy)
 		return;
 
+	++_busy;
 	_aeActiveElement = (AlbumElement)newIndex;
 	ui.gbGradient->setEnabled(newIndex);
 	ui.gbBorder->setEnabled(newIndex);
 	int page = newIndex == aeThumb ? 2 : newIndex ? 1 : 0;
 	ui.toolBox->setCurrentIndex(page);	// to settings
-//	_ActualSampleParamsToUi();
+	_ActualSampleParamsToUi();
+	--_busy;
 }
 
 void FalconG::on_cbBorder_currentIndexChanged(int newIndex)
