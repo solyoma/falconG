@@ -83,7 +83,7 @@ QString IntToColorStr(int clr)
  *-------------------------------------------------------*/
 static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool overwrite=false)
 {
-	QString destDir = "sample/";
+	QString destDir;
 	int pos = name.lastIndexOf('.') + 1;
 	switch (name.at(pos).unicode())
 	{
@@ -139,13 +139,17 @@ FalconG::FalconG(QWidget *parent)
 	ask = false;
 	CreateDir("sample/res", ask);
 
-	QString resPath = QStringLiteral(":/Preview/Resources/");
-	_CopyResourceFileToSampleDir(resPath, "index.html");
-	_CopyResourceFileToSampleDir(resPath, "falconG.css");
-	_CopyResourceFileToSampleDir(resPath, "falconG.js");
-	_CopyResourceFileToSampleDir(resPath, "placeholder.png");
-	_CopyResourceFileToSampleDir(resPath, "NoImage.jpg");
-	_CopyResourceFileToSampleDir(":/icons/Resources/", "up-icon.png");
+	QString resPPath = QStringLiteral(":/Preview/Resources/"),
+			resIPath = QStringLiteral(":/icons/Resources/");
+	_CopyResourceFileToSampleDir(resPPath, "index.html");
+	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
+	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
+	_CopyResourceFileToSampleDir(resPPath, "placeholder.png");
+	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
+
+	_CopyResourceFileToSampleDir(resIPath, "up-icon.png");
+	_CopyResourceFileToSampleDir(resIPath, "blue-checked.png");
+	_CopyResourceFileToSampleDir(resIPath, "blue-unchecked.png");
 
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
@@ -3841,7 +3845,7 @@ void FalconG::_StyleTheProgram(skinStyle which)
 
 	 // theme style string used only when not the default style is used
 	static QString styles = {
-	R"END(							 
+	R"END(
 * {
 	background-color:%1;       /* %1 background */
 	color:%2;                  /* %2 color */
@@ -3982,7 +3986,7 @@ QPushButton:disabled,
 QToolButton:disabled,
 QRadioVutton:disabled,
 QCheckBox:disabled,
-QSpinBox;disabled {
+QSpinBox:disabled {
 	color:%10;
 	background:%11;
 }
@@ -4036,15 +4040,15 @@ QPusButton:default {
 
 		if (which == stBlue)		// blue
 			ss += QString( R"(QCheckBox::indicator:checked {
-	background-image: url(res/blue-checked.png);
+	background-image: url("res/blue-checked.png");
 }
 
 QCheckBox::indicator:unchecked {
-	background-image: url(res/blue-unchecked.png);
+	background-image: url("res/blue-unchecked.png");
 }
 )");
 // DEBUG
-//			DEBUG_LOG(ss)
+			DEBUG_LOG(ss)
 
 		frmMain->setStyleSheet(ss);
 

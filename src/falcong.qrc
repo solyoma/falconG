@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>Resources/blue-unchecked.png</file>
     <file>Resources/blue-checked.png</file>
     <file>Resources/movedown-icon.png</file>
     <file>Resources/moveup-icon.png</file>
