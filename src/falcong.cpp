@@ -163,8 +163,13 @@ FalconG::FalconG(QWidget *parent)
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 	ui.sample->setPage(&_page);
 //	_page.load(QUrl(QStringLiteral("qrc:/Preview/Resources/index.html")));
+//	_page.load(QUrl(QStringLiteral("file:///sample/index.html")));
+#ifdef __linux__	
+	QString url = "file://" + config.dsApplication.ToString() + "sample/index.html";
+	_page.load(QUrl(url));
+#else
 	_page.load(QUrl(QStringLiteral("file:///sample/index.html")));
-
+#endif
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
@@ -3060,7 +3065,7 @@ void FalconG::LinkClicked(QString s)
 void FalconG::WebPageLoaded(bool ready)
 {
 			// only check load once
-	if (!_isWebPageLoaded)
+	if (_isWebPageLoaded)
 		return;
 	_isWebPageLoaded = true;
 
