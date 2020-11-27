@@ -471,12 +471,12 @@ void _CFont::_Setup()
 {
 	_details = v.split(QChar('|'));		   
 	switch (_details.size())		// No breaks!
-	{								// element 0 is family
-		case 1: _details.push_back("10pt");	  // font-size string with unit
+	{											// element 0 is family
+		case 1: _details.push_back("10pt");	  	// font-size string with unit
 		case 2: _details.push_back(_details[1]);	// line-height default: same as font-size
-		case 3: _details.push_back("0");	  // style (bold:'1', italic:'2', bold & italic: '3')
-		case 4: _details.push_back("0");	  // first line is different?
-		case 5: _details.push_back("10pt");	  // font-size::first-line
+		case 3: _details.push_back("0");	  	// style (bold:'1', italic:'2', bold & italic: '3')
+		case 4: _details.push_back("0");	  	// first line is different?
+		case 5: _details.push_back("10pt");	  	// font-size::first-line
 		default:
 			break;
 	}
@@ -868,8 +868,8 @@ void _CBorder::_Prepare()
 		default:	// case 4:
 					v = QString("%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11|%12").arg(_used)
 									.arg(_widths[0]).arg(_widths[1]).arg(_widths[2]).arg(_widths[3])
-									.arg(_styleIndex[0]).arg(_styleIndex[10]).arg(_styleIndex[2]).arg(_styleIndex[3])
-									.arg(_colorNames[0]).arg(_colorNames[20]).arg(_colorNames[2]).arg(_colorNames[3]); 
+									.arg(_styleIndex[0]).arg(_styleIndex[1]).arg(_styleIndex[2]).arg(_styleIndex[3])
+									.arg(_colorNames[0]).arg(_colorNames[2]).arg(_colorNames[2]).arg(_colorNames[3]); 
 					break;
 	}
 	if (_radius)

@@ -93,6 +93,7 @@ private:
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
+	bool _isWebPageLoaded = false;
 	int _phase = 0;			// processing phase. set by 'SetProgressBar()'
 	AlbumElement _aeActiveElement = aeWebPage;
 	int _directoryCount = 0;

@@ -377,7 +377,6 @@ void FileReader::_readLine()
 	if (!_ok)
 		return;
 
-	int pos, pos1;
 	do
 	{
 		NextLine();		// read in line from file possibly convert it to UTF-8
@@ -389,8 +388,6 @@ void FileReader::_readLine()
 		if (_flags ^ frfCommentLines)		// if comments not allowed
 			_DiscardComment();
 
-		pos = 0;						   // trim line from this
-		pos1 = _line.length() - 1;		   // till this
 		if (_flags & (frfNoWhiteSpaceLines | frfTrim))
 			_Trim();
 		else
@@ -400,7 +397,7 @@ void FileReader::_readLine()
 			if (_flags & frfRtrim)
 				_TrimRight();
 		}
-		if ((_flags & frfEmptyLines))					// then _line is always OK
+		if ((_flags & frfEmptyLines))		// then _line is always OK
 			break;
 	} while (_line.isEmpty() && _ok);
 }
@@ -498,28 +495,29 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 /*============================================================================
 * TASK:		create backup of file 'name' by renaming it to 'name~'
 *			and rename the new file 'tmpName' to original 'name'
-* EXPECTS:	name - name of existing file to be renamed and backed up
-*			tmpName:	name of yet temporary file to be renamed to 'name'
-*			keepBackup: keep existing backup file and simply delete 'name'
-*			before renaming 'tmpFile'. Otherwise an existing backup file 
-*			will be deleted
+* EXPECTS:	name		- name of existing file to be renamed and backed up
+*			tmpName		- name of yet temporary file to be renamed to 'name'
+*			keepPreviousBackup: 
+*						- true: keep existing backup file and simply delete 'name'
+*							before renaming 'tmpFile'. 
+*						  false: an existing 
+*							backup file will be deleted
 * GLOBALS:	none
 * RETURNS:  empty QString when backup and rename was successfull, error message 
 *			on error
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
+QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 {
-	QFile ft(name), f(tmpName);
+	QFile ft(name), ftmp(tmpName);
 	QString qsErr;
-	bool brv, brt=true, brn;
+	bool brt=true, brn;
 	bool bx = ft.exists();
-	if (keepBackup)
+	if (keepPreviousBackup)
 	{
 
 		brt = bx ? ft.remove() : true;
-		brn = f.rename(name);
-//		if( (ft.exists() && ! ft.remove() ) || !f.rename(name) )
+		brn = ftmp.rename(name);
 		if( (bx &&  !brt) ||  !brn)
 		{
 			qsErr = QMainWindow::tr("Either can't delete \n'%1'\n"
@@ -530,11 +528,9 @@ QString BackupAndRename(QString name, QString tmpName, bool keepBackup)
 	else
 	{	
 		if (bx)
-		{
-			brv = ft.remove(name + "~");
 			brt = ft.rename(name + "~");
-		}
-		brn = f.rename(name);
+
+		brn = ftmp.rename(name);
 //		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))
 		if( (bx && !brt) || !brn)
 		{

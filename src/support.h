@@ -137,7 +137,7 @@ struct WaterMark
 	void SetColor(QString scolorWOpacity) { colorWOpacity = scolorWOpacity.toInt(nullptr, 16); SetupMark(); }
 	void SetOpacity(int val) 
 	{
-		colorWOpacity = (((int) (val)) << 24) + (qRed(colorWOpacity) << 16) , (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
+		colorWOpacity = (((int) (val)) << 24) + (qRed(colorWOpacity) << 16) + (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
 	}
 
 	bool operator!=(const WaterMark &wm)

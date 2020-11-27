@@ -1160,21 +1160,19 @@ bool AlbumGenerator::_ReadAlbumFile(Album &ab)
   * TASK: test the sizesof an existing thumbnail against config and see 
   *		  if it must be recreated
   * EXPECTS: thumbPath - full path of thumbnail file
-  *			 img - image data from data base with correct thumbnail size set in it
-  * RETURNS: 'true' :  
-  *				actual size of thumbnail is not the same as the one in data base
-  *			'false' : otherwise
+  *	     img - image data from data base with correct thumbnail size set in it
+  * RETURNS: 'true' : actual size of thumbnail is not the same as the one in data base
+  *	     'false' : otherwise
   * GLOBALS:
-  * REMARKS: - the thumbnail  already a rotated image wjen needed
-  *			 - 
+  * REMARKS: - the thumbnail is already a rotated image when needed
  *--------------------------------------------------------------------------*/
 bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, Image & img)
 {
 	ImageReader reader(thumbPath);
-	QSize 	tsize = config.ThumbSize(),
-			thumbSize = reader.size();		// read thumbnail image dimensions from file
-									// because integer arithmetic the calculated w & H may be different
-									// from that of the converted thumbnail file
+	QSize 	// tsize = config.ThumbSize(),
+			thumbSize = reader.size();	// read thumbnail image dimensions from file
+							// because integer arithmetic the calculated w & H may be different
+							// from that of the converted thumbnail file
 	return abs(thumbSize.width() - img.tsize.width()) > 2 || abs(thumbSize.height() - img.tsize.height()) > 2;
 }
 
@@ -3389,7 +3387,7 @@ int AlbumGenerator::Write()
 		if (_structChanged)		// do not save after read of structure
 			WriteDirStruct();   // all album and image data is read in
 
-	int i;					// returns:
+	int i = 0;					// returns:
 	if (_processing)
 	{
 		i = _DoCopyRes();			// 0 | 1	modifes 'up-link.png' !

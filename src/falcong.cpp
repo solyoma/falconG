@@ -24,6 +24,13 @@
 	QTextStream ofsdbg(&f);		 \
 	ofsdbg << qs << "\n";			 \
 }
+#define DEBUG_LOG_NEW(qs) \
+{							 \
+	QFile f("debug.log");		 \
+	f.open(QIODevice::WriteOnly);	 \
+	QTextStream ofsdbg(&f);		 \
+	ofsdbg << qs << "\n";			 \
+}
 
 
 FalconG *frmMain = nullptr;
@@ -148,8 +155,6 @@ FalconG::FalconG(QWidget *parent)
 	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
 
 	_CopyResourceFileToSampleDir(resIPath, "up-icon.png");
-	_CopyResourceFileToSampleDir(resIPath, "blue-checked.png");
-	_CopyResourceFileToSampleDir(resIPath, "blue-unchecked.png");
 
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
@@ -562,11 +567,12 @@ void FalconG::_GlobalsToUi()
 		case hCover:   ui.rbCoverBckImage->setChecked(true); break;
 		case hTile:    ui.rbTileBckImage->setChecked(true); break;
 	}
-	_LoadBckImage(config.backgroundImage.fileName);
 	ui.hsImageSizeToShow->setValue(config.backgroundImage.size);
 	if (config.backgroundImage.v != (int)hNotUsed)
+	{
+		_LoadBckImage(config.backgroundImage.fileName);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-
+	}
 
 	--_busy;
 }
@@ -782,7 +788,7 @@ void FalconG::_OtherToUi()
 	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
 	ui.btnLink->setChecked(config.imageSizesLinked);
 
-	int h = config.imageHeight ? config.imageHeight : 1;
+	int h = (int)config.imageHeight ? (int)config.imageHeight : 1;
 	_aspect = (double)config.imageWidth / h;
 
 							// Watermark
@@ -3014,6 +3020,8 @@ void FalconG::_GetTextsForEditing(whoChangedTheText who)
  *-------------------------------------------------------*/
 void FalconG::_LoadBckImage(QString name)
 {
+	if (name.isEmpty())
+		return;
 	QSize size(308, 227);// = ui.lblbckImage->size(); label size is not the real one when page is loaded
 	QImage image(name);
 	QPixmap pm;
@@ -3051,10 +3059,10 @@ void FalconG::LinkClicked(QString s)
  *-------------------------------------------------------*/
 void FalconG::WebPageLoaded(bool ready)
 {
-	static bool loaded = false;		// only check load once
-	if (loaded)
+			// only check load once
+	if (!_isWebPageLoaded)
 		return;
-	loaded = true;
+	_isWebPageLoaded = true;
 
 	_ActualSampleParamsToUi();
 	_ConfigToSample(); // to sample "WEB page"
@@ -4039,16 +4047,16 @@ QPusButton:default {
 			;
 
 		if (which == stBlue)		// blue
-			ss += QString( R"(QCheckBox::indicator:checked {
-	background-image: url("res/blue-checked.png");
-}
+				ss += QString( R"(QCheckBox::indicator:checked {
+		image: url(":/icons/Resources/blue-checked.png");
+	}
 
 QCheckBox::indicator:unchecked {
-	background-image: url("res/blue-unchecked.png");
+	image: url(":/icons/Resources/blue-unchecked.png");
 }
 )");
 // DEBUG
-			DEBUG_LOG(ss)
+//			DEBUG_LOG_NEW(ss)
 
 		frmMain->setStyleSheet(ss);
 
@@ -4411,7 +4419,12 @@ void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)
  *-------------------------------------------------------*/
 void FalconG::_RunJavaScript(QString className, QString value)
 {
-	QStringList qsl = value.split('\n');
+	static QStringList __qslRunThese;
+	__qslRunThese = __qslRunThese + value.split('\n');
+
+	if (!_isWebPageLoaded)		// only try to run after page looaded
+		return;
+
 	int pos;
 	QString qs;	 
 
@@ -4424,8 +4437,10 @@ void FalconG::_RunJavaScript(QString className, QString value)
 		_page.runJavaScript(qs);
 //		DEBUG_LOG(qs)
 	};
-	for (auto s : qsl)
+	for (auto s : __qslRunThese)
 		runOneTag(s);
+
+	__qslRunThese.clear();
 }
 
 void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
