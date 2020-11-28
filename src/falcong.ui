@@ -1626,15 +1626,15 @@ original file name.</string>
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="pgGlobal">
                   <property name="geometry">
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -4028,8 +4028,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>288</width>
-                    <height>124</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4206,8 +4206,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>98</width>
-                    <height>28</height>
+                    <width>431</width>
+                    <height>695</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4341,7 +4341,14 @@ so when one changes the other changes too.
                       </property>
                       <property name="icon">
                        <iconset resource="falcong.qrc">
-                        <normaloff>:/icons/Resources/link.png</normaloff>:/icons/Resources/link.png</iconset>
+                        <normaloff>:/icons/Resources/broken-link.png</normaloff>
+                        <normalon>:/icons/Resources/link.png</normalon>:/icons/Resources/broken-link.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>24</width>
+                        <height>24</height>
+                       </size>
                       </property>
                       <property name="checkable">
                        <bool>true</bool>
@@ -4797,6 +4804,9 @@ is required.</string>
                            <weight>50</weight>
                            <bold>false</bold>
                           </font>
+                         </property>
+                         <property name="toolTip">
+                          <string/>
                          </property>
                          <property name="text">
                           <string>----------------------------------------------------------------------------------------------</string>

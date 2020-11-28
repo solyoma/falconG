@@ -3916,6 +3916,8 @@ QRadioButton::indicator,
 QCheckBox::indicator {
 	width: 13px;
 	height: 13px;
+	position: absolute;
+	top:-4px;
 }
 
 QRadioButton, QCheckBox {
