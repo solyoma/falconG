@@ -528,7 +528,10 @@ QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 	else
 	{	
 		if (bx)
+		{
+			QFile::remove(name + "~");
 			brt = ft.rename(name + "~");
+		}
 
 		brn = ftmp.rename(name);
 //		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))

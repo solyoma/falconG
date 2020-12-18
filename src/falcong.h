@@ -16,6 +16,8 @@ using namespace Enums;
 #include "thumbnailWidget.h"
 #include "ui_falcong.h"
 
+#include <memory>
+
 /*------------------------------------- macros ------------------------------------*/
 #define AS_HEX_COLOR_STRING(n) QString("%1").arg(n, 6, 16, QChar('0'))
 #define TO_COLOR_STRING(s,n) s = "#" + AS_HEX_COLOR_STRING(n)
@@ -63,6 +65,100 @@ signals:
 	void LinkClickedSignal(QString);
 };
 
+struct FalconGStyles
+{
+	QString
+		MenuTitle,			// this will appear in the menu bar
+		sBackground,
+		sTextColor,
+		sBorderColor,
+		sFocusedInput,
+		sHoverColor,
+		sTabBorder,
+		sInputBackground,
+		sSelectedInputBgr,
+		sFocusedBorder,
+		sDisabledFg,
+		sDisabledBg,
+		sImageBackground,
+		sPressedBg,
+		sDefaultBg,
+		sProgressBarChunk,
+		sWarningColor,
+		sBoldTitleColor;
+	FalconGStyles() {}
+	FalconGStyles(const char* t,	 // menu title
+				  const char* c0,	 // sBacground
+				  const char* c1,	 // sTextColor	-	foreground
+				  const char* c2,	 // sBorderColor
+				  const char* c3,	 // sFocusedInput
+				  const char* c4,	 // sHoverColor
+				  const char* c5,	 // sTabBorder
+				  const char* c6,	 // sInputBackground - editor backgrounds
+				  const char* c7,	 // sSelectedInputBgr
+				  const char* c8,	 // sFocusedBorder
+				  const char* c9,	 // sDisabledFg
+				  const char* c10,	 // sDisabledBg
+				  const char* c11,	 // sImageBackground
+				  const char* c12,	 // sPressedBg	-	button pressed
+				  const char* c13,	 // sDefaultBg
+				  const char* c14,	 // sProgressBarChunk
+				  const char* c15,	 // sWarningColor
+				  const char* c16	 // sBoldTitleColor - GroupBox title
+									)
+	{
+		MenuTitle			= t;			// this will appear in the menu bar
+		sBackground			= c0;
+		sTextColor			= c1;
+		sBorderColor		= c2;
+		sFocusedInput		= c3;
+		sHoverColor			= c4;
+		sTabBorder			= c5;
+		sInputBackground	= c6;
+		sSelectedInputBgr	= c7;
+		sFocusedBorder		= c8;
+		sDisabledFg			= c9;
+		sDisabledBg			= c10;
+		sImageBackground	= c11;
+		sPressedBg			= c12;
+		sDefaultBg			= c13;
+		sProgressBarChunk	= c14;
+		sWarningColor		= c15;
+		sBoldTitleColor		= c16;
+	}
+};								
+
+
+/*========================================================
+ * Style sheets (skins) for falconG
+ * REMARKS: - default styles (default, system, blue, dark, black)
+ *				are always present
+ *			- styles are read from falconG.sty in program 
+ *				directory
+ *			- if a style there has the same Title as any 
+ *				of the last 3 of the default they will be
+ *				overwritten
+ *			- styles default and system are always the first
+ *				2 styles used, and if not redefined then
+ *				blue, dark and black are the last ones
+ *			- if a style requested which is no longer 
+ *				present, the 'default' style is used instead
+ *-------------------------------------------------------*/
+class FStyleVector : public  QVector<FalconGStyles>
+{
+	static FalconGStyles blue, dark, black;
+public:
+	FStyleVector() 
+	{
+		reserve(5);		// for default, system, blue, dark, black 
+		resize(2);		// default and system
+		operator[](0).MenuTitle = "Default";
+		operator[](1).MenuTitle = "System Colors";
+		operator[](1).sBorderColor = "#747474";
+	}
+	void ReadAndSetupStyles();	// into menu items
+};
+
 
 //---------------
 class FalconG : public QMainWindow
@@ -87,8 +183,10 @@ private:
 	Ui::falconGClass ui;
 
 	WebEnginePage _page;
-	QStringList _styles;
-
+	// style (skin) selection
+	FStyleVector _styles;	// default styles: default, system, blue, dark, black
+	//std::unique_ptr<QSignalMapper> _popupMapper;
+	// ---
 	DesignProperty _whatChanged = dpNone;
 
 	Semaphore	_busy,		// prevent recursive parameter changes
@@ -103,8 +201,6 @@ private:
 	bool _edited = false;		// when image/album text etc modified in program
 								// asks for save at exit
 	QColor _lastUsedMenuForegroundColor = Qt::white;
-
-	QStringList _slStyles;
 
 	QTextStream ifs, ofs;
 
@@ -155,8 +251,8 @@ private:
 	void _OpacityChanged(int val, int which);	// which = 0 -> color, 1: background
 	void _SaveChangedTexts();  // when texts are edited and changed
 
-	void _SetLayoutMargins(skinStyle which);
-	void _StyleTheProgram(skinStyle which);
+	void _SetLayoutMargins(int which);
+	void _StyleTheProgram(int which);
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
@@ -192,6 +288,8 @@ private slots:
 
 	void _TextDecorationToConfig(Decoration dec, bool on);
 	void _TextAlignToConfig(Align align, bool on);
+	void _SlotForContextMenu(const QPoint& pt);
+	void _SlotForStyleChange(int which);
 // auto connected slots
 private slots:
 	void on_toolBox_currentChanged(int newIndex);
@@ -324,11 +422,6 @@ private slots:
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
 
-	void on_rbDefaultStyle_toggled(bool);
-	void on_rbSystemStyle_toggled(bool);
-	void on_rbDarkStyle_toggled(bool);
-	void on_rbBlackStyle_toggled(bool);
-	void on_rbBlueStyle_toggled(bool);
 	void on_rbNoBackgroundImage_toggled(bool);
 	void on_rbCenterBckImage_toggled(bool);
 	void on_rbCoverBckImage_toggled(bool);

@@ -34,6 +34,64 @@
 
 
 FalconG *frmMain = nullptr;
+FalconGStyles FStyleVector::blue("Blue",
+	"#3b5876",
+	"#cccccc",
+	"#747474",
+	"#f0f0f0",
+	"#8faed2",
+	"#3b589b",
+	"#1c3a55",
+	"#3b584a",
+	"#92b1d5",
+	"#999999",
+	"#697a8e",
+	"#12273f",
+	"#555555",
+	"#555555",
+	"#feb60e",
+	"#f0a91f",
+	"#e28308"
+),
+FStyleVector::dark("Dark",
+	"#282828",
+	"#cccccc",
+	"#4d4d4d",
+	"#f0f0f0",
+	"#383838",
+	"#9B9B9B",
+	"#454545",
+	"#666666",
+	"#c0c0c0",
+	"#999999",
+	"#555555",
+	"#111111",
+	"#555555",
+	"#555555",
+	"#feb60e",
+	"#f0a91f",
+	"#e28308"
+), 							   
+FStyleVector::black("Black",
+	"#191919",
+	"#e1e1e1",
+	"#323232",
+	"#f0f0f0",
+	"#282828",
+	"#9b9b9b",
+	"#323232",
+	"#4a4a4a",
+	"#a8a8a8",
+	"#999999",
+	"#191919",
+	"#000000",
+	"#323232",
+	"#323232",
+	"#feb60e",
+	"#f0a91f",
+	"#e28308"
+);
+
 
 /*------------------------------------- macros ------------------------------------*/
 
@@ -161,9 +219,10 @@ FalconG::FalconG(QWidget *parent)
 
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
+
+
 	ui.sample->setPage(&_page);
-//	_page.load(QUrl(QStringLiteral("qrc:/Preview/Resources/index.html")));
-//	_page.load(QUrl(QStringLiteral("file:///sample/index.html")));
+
 #ifdef __linux__	
 	QString url = "file://" + config.dsApplication.ToString() + "sample/index.html";
 	_page.load(QUrl(url));
@@ -193,14 +252,28 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 
+	// read styles
+	_styles.ReadAndSetupStyles();
+
+	// setup style change menus. _SlotForContextMenus sets up a signal mapping for style menus
+	ui.tabGallery->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tabGallery, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+	ui.tabDesign->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tabDesign, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+	ui.tabEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tabEdit, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+
 	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
 
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
 	CONFIGS_USED::Read();		// to get last used configuration
-	config.Read();				// to read config from
 
+	config.Read();				// to read config from
 	frmMain = this;
+	// now that everything is ready
+	_StyleTheProgram(config.styleIndex);
+
 
 	_ModifyGoogleFontImport();
 
@@ -817,24 +890,6 @@ void FalconG::_OtherToUi()
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
 
-	switch (config.styleIndex)
-	{
-		case 0:
-		default: 
-			ui.rbDefaultStyle->setChecked(true);
-			break;
-		case 1: ui.rbSystemStyle->setChecked(true);
-			break;
-		case 2:		// blue theme
-			ui.rbBlueStyle->setChecked(true);
-			break;
-		case 3:		// dark theme
-			ui.rbDarkStyle->setChecked(true);
-			break;
-		case 4:		// black theme
-			ui.rbBlackStyle->setChecked(true);
-			break;
-	}
 	--_busy;
 
 // not saved/restored:
@@ -1743,6 +1798,31 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 		_SetConfigChanged(true);
 		_TextAlignToSample(pElem);	// clear decorations if neither checkbox is checked
 	}
+}
+
+void FalconG::_SlotForContextMenu(const QPoint& pt)
+{
+	std::unique_ptr<QSignalMapper> _popupMapper{ new QSignalMapper(this) };
+	std::unique_ptr<QMenu> menu { new QMenu };
+	menu->setTitle("Options");
+	for (int i = 0; i < _styles.size(); ++i)
+	{
+		QAction *pa = menu->addAction(_styles[i].MenuTitle, _popupMapper.get(), SLOT(map()));
+		if (i == config.styleIndex.v)
+		{
+			pa->setCheckable(true);
+			pa->setChecked(true);
+		}
+		_popupMapper->setMapping(pa, i);
+	}
+	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForStyleChange);
+	menu->exec(this->mapToGlobal(pt));
+}
+
+void FalconG::_SlotForStyleChange(int which)
+{
+	_StyleTheProgram(which);
+	_SetConfigChanged(true);
 }
 
 /*========================================================
@@ -3237,57 +3317,7 @@ void FalconG::on_edtDescriptionText_textChanged()
 	--_busy;
 }
 
-
-/*========================================================
- * TASK:	the three function below change the program style
- * PARAMS:	if the given radio button is checked
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_rbDefaultStyle_toggled(bool on)
-{
-	if (on)
-	{
-		frmMain->_StyleTheProgram(stDefault);
-		_SetConfigChanged(true);
-	}
-}
-void FalconG::on_rbSystemStyle_toggled(bool on)
-{
-	if (on)
-	{
-		frmMain->_StyleTheProgram(stSystem);
-		_SetConfigChanged(true);
-	}
-}
-void FalconG::on_rbDarkStyle_toggled(bool on)
-{
-	if (on)
-	{
-		frmMain->_StyleTheProgram(stDark);
-		_SetConfigChanged(true);
-	}
-}
-void FalconG::on_rbBlackStyle_toggled(bool on)
-{
-	if (on)
-	{
-		frmMain->_StyleTheProgram(stBlack);
-		_SetConfigChanged(true);
-	}
-}
-void FalconG::on_rbBlueStyle_toggled(bool on)
-{
-	if (on)
-	{
-		frmMain->_StyleTheProgram(stBlue);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
-}
-
 //****************************************************************************
-
 
 void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 {
@@ -3342,7 +3372,7 @@ void FalconG::on_btnPreview_clicked()
 	{
 		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),
 						QMainWindow::tr("Cannot open\n'%1'").arg(qs),
-							QMessageBox::Ok, frmMain).exec();
+							QMessageBox::Ok, this).exec();
 	}
 }
 
@@ -3778,7 +3808,7 @@ void FalconG::_SaveChangedTexts()
 	albumgen.WriteDirStruct(true);		// keep previous backup file
 }
 
-void FalconG::_SetLayoutMargins(skinStyle which)
+void FalconG::_SetLayoutMargins(int which)
 {
 	int layoutTop = 9;
 	QMargins margins;
@@ -3790,19 +3820,11 @@ void FalconG::_SetLayoutMargins(skinStyle which)
 		pw->layout()->setContentsMargins(margins);
 	};
 
-	switch (which)
-	{
-		case stDefault:
-		default:
-			layoutTop = 9;
-			break;
-		case stSystem:
-		case stBlue:
-		case stDark:
-		case stBlack:
-			layoutTop = 18;
-			break;
-	}
+	if(which)
+		layoutTop = 18;
+	else
+		layoutTop = 9;
+
 	modifyLayout(ui.gbLocalMachine);
 	modifyLayout(ui.gbServer);
 	modifyLayout(ui.gbAdvanced);
@@ -3831,31 +3853,15 @@ void FalconG::_SetLayoutMargins(skinStyle which)
 
 }
 
-void FalconG::_StyleTheProgram(skinStyle which)
+void FalconG::_StyleTheProgram(int which)
 {
+	if (which >= _styles.size())
+		which = 0;
+
 	_SetLayoutMargins(which);
 
 		// change these for new color set
 							//			   def. system    blue		 dark		  black		 
-	static QString sBackground[]		= { "", "",		"#3b5876", "#282828",	"#191919" }, // %1  background
-				   sTextColor[]			= { "", "",		"#cccccc", "#cccccc",	"#e1e1e1" }, // %2  foreground
-				   sBorderColor[]		= { "", "",		"#747474", "#4d4d4d",	"#323232" }, // %3  border
-				   sFocusedInput[]		= { "", "",		"#f0f0f0", "#f0f0f0",	"#f0f0f0" }, // %4  focused text
-				   sHoverColor[]		= { "", "",		"#8faed2", "#383838",	"#282828" }, // %5  hover over input
-				   sTabBorder[]			= { "", "",		"#3b589b", "#9B9B9B",	"#9b9b9b" }, // %6
-				   sInputBackground[]	= { "", "",		"#1c3a55", "#454545",	"#323232" }, // %7  editor backgrounds
-				   sSelectedInputBgr[]	= { "", "",		"#3b584a", "#666666",	"#4a4a4a" }, // %8
-				   sFocusedBorder[]		= { "", "",		"#92b1d5", "#c0c0c0",	"#a8a8a8" }, // %9
-				   sDisabledFg[]		= { "", "",		"#999999", "#999999",	"#999999" }, // %10
-				   sDisabledBg[]		= { "", "",		"#697a8e", "#555555",	"#191919" }, // %11
-				   sImageBackground[]	= { "", "",		"#12273f", "#111111",	"#000000" }, // %12
-				   sPressedBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %13 button pressed
-				   sDefaultBg[]			= { "", "",		"#555555", "#555555",	"#323232" }, // %14
-				   sProgressBarChunk[]	= { "", "",		"#feb60e", "#feb60e",	"#feb60e" }, // %15
-				   sWarningColor[]		= { "", "",		"#f0a91f", "#f0a91f",	"#f0a91f" }, // %16
-				   sBoldTitleColor[]	= { "", "",		"#e28308", "#e28308",	"#e28308" }	 // %17	 GroupBox title
-	;
-
 	 // theme style string used only when not the default style is used
 	static QString styles = {
 	R"END(
@@ -4029,28 +4035,28 @@ QPusButton:default {
 }
 )END"
 	};
-	config.styleIndex = (int)which;
+	config.styleIndex = which;
 	if (which)
 	{
 		QString ss =
 			QString(styles)
-			.arg(sBackground[which])		// %1 
-			.arg(sTextColor[which])			// %2 
-			.arg(sBorderColor[which])		// %3 
-			.arg(sFocusedInput[which])		// %4 
-			.arg(sHoverColor[which])		// %5 
-			.arg(sTabBorder[which])			// %6 
-			.arg(sInputBackground[which])	// %7
-			.arg(sSelectedInputBgr[which])	// %8 
-			.arg(sFocusedBorder[which])		// %9 
-			.arg(sDisabledFg[which])		// %10
-			.arg(sDisabledBg[which])		// %11
-			.arg(sImageBackground[which])	// %12
-			.arg(sPressedBg[which])			// %13
-			.arg(sDefaultBg[which])			// %14
-			.arg(sProgressBarChunk[which])	// %15
-			.arg(sWarningColor[which])		// %16
-//			.arg(sBoldTitleColor[which])	// %17
+			.arg(_styles[which].sBackground)		// %1 
+			.arg(_styles[which].sTextColor)			// %2 
+			.arg(_styles[which].sBorderColor)		// %3 
+			.arg(_styles[which].sFocusedInput)		// %4 
+			.arg(_styles[which].sHoverColor)		// %5 
+			.arg(_styles[which].sTabBorder)			// %6 
+			.arg(_styles[which].sInputBackground)	// %7
+			.arg(_styles[which].sSelectedInputBgr)	// %8 
+			.arg(_styles[which].sFocusedBorder)		// %9 
+			.arg(_styles[which].sDisabledFg)		// %10
+			.arg(_styles[which].sDisabledBg)		// %11
+			.arg(_styles[which].sImageBackground)	// %12
+			.arg(_styles[which].sPressedBg)			// %13
+			.arg(_styles[which].sDefaultBg)			// %14
+			.arg(_styles[which].sProgressBarChunk)	// %15
+			.arg(_styles[which].sWarningColor)		// %16
+//			.arg(_styles[which].sBoldTitleColor)	// %17
 			;
 
 		if (which == stBlue)		// blue
@@ -4065,7 +4071,7 @@ QCheckBox::indicator:unchecked {
 // DEBUG
 //			DEBUG_LOG_NEW(ss)
 
-		frmMain->setStyleSheet(ss);
+		setStyleSheet(ss);
 
 		//QFile f("style.txt");
 		//f.open(QIODevice::WriteOnly);
@@ -4074,7 +4080,7 @@ QCheckBox::indicator:unchecked {
 
 	}
 	else
-			frmMain->setStyleSheet("");
+		setStyleSheet("");
 
 }
 
@@ -4495,4 +4501,53 @@ void FalconG::_EnableEditTab(bool enable)
 {
 	ui.tabEdit->setEnabled(enable);
 	ui.tnvImages->setEnabled(enable);
+}
+
+// ================================ FStyleVector ============================
+void FStyleVector::ReadAndSetupStyles()
+{
+	bool bl = false, da = false, bk = false;	// blue, dark, black set
+	if (QFile::exists("falconG.fsty")) 
+	{
+		QSettings s("falconG.fsty", QSettings::IniFormat);	// in program directory;
+		QStringList keys = s.childGroups();	// get all top level keys with subkeys
+		FalconGStyles fgst;
+		for (auto k : keys)
+		{
+			s.beginGroup(k);
+			fgst.MenuTitle			= s.value("Title"			, "").toString();			// this will appear in the menu bar
+			fgst.sBackground		= s.value("Background"		, "").toString();
+			fgst.sTextColor			= s.value("TextColor"		, "").toString();
+			fgst.sBorderColor		= s.value("BorderColor"		, "").toString();
+			fgst.sFocusedInput		= s.value("FocusedInput"	, "").toString();
+			fgst.sHoverColor		= s.value("HoverColor"		, "").toString();
+			fgst.sTabBorder			= s.value("TabBorder"		, "").toString();
+			fgst.sInputBackground	= s.value("InputBackground"	, "").toString();
+			fgst.sSelectedInputBgr	= s.value("SelectedInputBgr", "").toString();
+			fgst.sFocusedBorder		= s.value("FocusedBorder"	, "").toString();
+			fgst.sDisabledFg		= s.value("DisabledFg"		, "").toString();
+			fgst.sDisabledBg		= s.value("DisabledBg"		, "").toString();
+			fgst.sImageBackground	= s.value("ImageBackground"	, "").toString();
+			fgst.sPressedBg			= s.value("PressedBg"		, "").toString();
+			fgst.sDefaultBg			= s.value("DefaultBg"		, "").toString();
+			fgst.sProgressBarChunk	= s.value("ProgressBarChunk", "").toString();
+			fgst.sWarningColor		= s.value("WarningColor"	, "").toString();
+			fgst.sBoldTitleColor	= s.value("BoldTitleColor"	, "").toString();
+			s.endGroup();
+			push_back(fgst);
+			if (fgst.MenuTitle == "Blue")
+				bl = true;
+			if (fgst.MenuTitle == "Dark")
+				da = true;
+			if (fgst.MenuTitle == "Black")
+				bk = true;
+		}
+	}
+	// set defaults if not set already
+	if(!bl)
+		push_back(blue);
+	if (!da)
+		push_back(dark);
+	if (!bk)
+		push_back(black);
 }
