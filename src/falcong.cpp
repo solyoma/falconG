@@ -1803,7 +1803,7 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 void FalconG::_SlotForContextMenu(const QPoint& pt)
 {
 	std::unique_ptr<QSignalMapper> _popupMapper{ new QSignalMapper(this) };
-	std::unique_ptr<QMenu> menu { new QMenu };
+	std::unique_ptr<QMenu> menu { new QMenu(this) };
 	menu->setTitle("Options");
 	for (int i = 0; i < _styles.size(); ++i)
 	{
