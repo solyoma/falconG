@@ -1838,10 +1838,12 @@ void FalconG::_SlotForStyleChange(int which)
 
 void FalconG::_EnableColorSchemeButtons()
 {
-	bool b = ui.cbColorScheme->currentText() != _tmpSchemeOrigName || _bSchemeChanged;
+	bool b = (config.styleIndex.v > 1) && (ui.cbColorScheme->currentText() != _tmpSchemeOrigName || _bSchemeChanged);
 	ui.btnApplyColorScheme->setEnabled(b);
 	ui.btnResetColorScheme->setEnabled(b);
+	b = (config.styleIndex - 2) != ui.cbColorScheme->currentIndex();
 	ui.btnDeleteColorScheme->setEnabled(b);
+	ui.btnMoveSchemeUp->setEnabled(ui.cbColorScheme->currentIndex() > 0);
 }
 
 void FalconG::_SlotForSchemeButtonClick(int which)
@@ -2906,12 +2908,6 @@ void FalconG::on_btnShadowColor_clicked()
 	_ElemToSample();
 }
 
-void FalconG::on_btnDeleteColorScheme_clicked()
-{
-	// ????
-
-}
-
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3482,7 +3478,7 @@ void FalconG::on_cbLineHeight_currentIndexChanged(int index)
 }
 void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 {
-	if (newIndex >= 0)
+	if (!_busy && newIndex >= 0)
 	{
 		static const char *bckstr= "background-color:%1";
 		_tmpScheme = _schemes[newIndex+2];	// default and system are not changed
@@ -3505,6 +3501,8 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
  *-------------------------------------------------------*/
 void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
 {
+	if (_busy)
+		return;
 	_EnableColorSchemeButtons();
 	_tmpScheme.MenuTitle = newText;
 	//_tmpSchemeOrigName = _tmpScheme.MenuTitle;
@@ -3613,6 +3611,14 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
 	QDesktopServices::openUrl(QUrl("https://fonts.google.com/"));
 }
 
+
+/*========================================================
+ * TASK:	apply changes to color scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
 void FalconG::on_btnApplyColorScheme_clicked()
 {
 	int i = _schemes.IndexOf(_tmpScheme);
@@ -3622,27 +3628,104 @@ void FalconG::on_btnApplyColorScheme_clicked()
 		_schemes.push_back(_tmpScheme);
 
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-	_schemes.SaveStyles();
+	_schemes.Save();
 	ui.cbColorScheme->addItem(_tmpSchemeOrigName);
 
-	ui.btnApplyColorScheme->setEnabled(false);
-	ui.btnResetColorScheme->setEnabled(false);
-	ui.btnDeleteColorScheme->setEnabled(false);
 	_bSchemeChanged = false;
+	_EnableColorSchemeButtons();
+	_StyleTheProgram(config.styleIndex);
+	config.SaveSchemeIndex();
 }
 
+
+/*========================================================
+ * TASK:	undo change for actual color scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - 
+ *-------------------------------------------------------*/
 void FalconG::on_btnResetColorScheme_clicked()
 {
+	_schemes[config.styleIndex] = _tmpScheme;
+	ui.cbColorScheme->setCurrentText(_tmpSchemeOrigName);
 	_bSchemeChanged = false;
-	// ????
 	_EnableColorSchemeButtons();
+	_StyleTheProgram(config.styleIndex);
+	config.SaveSchemeIndex();
 }
 
-void FalconG::on_btnReorderColorSchemes_clicked()
+
+/*========================================================
+ * TASK:	moves up the actual scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - no need to change in display changes, 
+ *				but need to s change the order of schemes
+ *-------------------------------------------------------*/
+void FalconG::on_btnMoveSchemeUp_clicked()
 {
-	// ??
+	int i = ui.cbColorScheme->currentIndex(), 
+		j = i+2;							  // index in schemes
+
+	if (j == config.styleIndex )
+	{
+		config.styleIndex.v = j - 1;
+		config.SaveSchemeIndex();
+	}
+	else if(j == config.styleIndex+1 )
+	{
+		config.styleIndex.v = j + 1;
+		config.SaveSchemeIndex();
+	}
+
+	FalconGStyles sty = _schemes[j];
+	_schemes.replace(j, _schemes[j - 1]);
+	_schemes.replace(--j, sty);
+
+	++_busy;
+	ui.cbColorScheme->removeItem(i--);
+	ui.cbColorScheme->insertItem(i, _schemes[j].MenuTitle);
+	ui.cbColorScheme->setCurrentIndex(i);
+	--_busy;
+	//_bSchemeChanged = false;
+	//_EnableColorSchemeButtons();
+	_schemes.Save();
 }
 
+
+/*========================================================
+ * TASK:	delete scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - can't possible to delete of actual scheme
+ *			- no undo possible
+ *			- new actual scheme will be the actual (i.e. saved)
+ *			- config.stleIndex may change if it was one after
+ *				the one deleted
+ *-------------------------------------------------------*/
+void FalconG::on_btnDeleteColorScheme_clicked()
+{
+	if (QMessageBox::warning(this, tr("falconG - Warning"), tr("Do you really want to delete this color cheme?"), QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+		return;
+
+	int i = ui.cbColorScheme->currentIndex();
+	if (i > config.styleIndex - 2)
+	{
+		config.styleIndex.v = config.styleIndex.v - 1;
+		config.SaveSchemeIndex();
+	}
+	ui.cbColorScheme->removeItem(i);
+	_schemes.remove(i + 2);
+	ui.cbColorScheme->setCurrentIndex(i == _schemes.size() - 2 ? --i : i);
+	_schemes.Save();
+	_EnableColorSchemeButtons();
+	_bSchemeChanged = false;
+}
+
+//***************************************************************************
 void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 {
 	if (_busy)
@@ -4221,7 +4304,7 @@ QListView {
 
 /* ------------------ colors --------------------*/
 QGroupBox::title {
-	color:%16
+	color:%17
 }
 
 QTabBar::tab,
@@ -4304,22 +4387,22 @@ QPusButton:default {
 		QString ss =
 			QString(styles)
 			.arg(_schemes[which].sBackground)		// %1 
-			.arg(_schemes[which].sTextColor)			// %2 
+			.arg(_schemes[which].sTextColor)		// %2 
 			.arg(_schemes[which].sBorderColor)		// %3 
 			.arg(_schemes[which].sFocusedInput)		// %4 
 			.arg(_schemes[which].sHoverColor)		// %5 
-			.arg(_schemes[which].sTabBorder)			// %6 
+			.arg(_schemes[which].sTabBorder)		// %6 
 			.arg(_schemes[which].sInputBackground)	// %7
 			.arg(_schemes[which].sSelectedInputBgr)	// %8 
-			.arg(_schemes[which].sFocusedBorder)		// %9 
+			.arg(_schemes[which].sFocusedBorder)	// %9 
 			.arg(_schemes[which].sDisabledFg)		// %10
 			.arg(_schemes[which].sDisabledBg)		// %11
 			.arg(_schemes[which].sImageBackground)	// %12
-			.arg(_schemes[which].sPressedBg)			// %13
-			.arg(_schemes[which].sDefaultBg)			// %14
+			.arg(_schemes[which].sPressedBg)		// %13
+			.arg(_schemes[which].sDefaultBg)		// %14
 			.arg(_schemes[which].sProgressBarChunk)	// %15
 			.arg(_schemes[which].sWarningColor)		// %16
-//			.arg(_schemes[which].sBoldTitleColor)	// %17
+			.arg(_schemes[which].sBoldTitleColor)	// %17
 			;
 
 		if (which == stBlue)		// blue
@@ -4815,7 +4898,7 @@ void FStyleVector::ReadAndSetupStyles()
 		push_back(black);
 }
 
-void FStyleVector::SaveStyles()
+void FStyleVector::Save()
 {
 	if (QFile::exists("falconG.fsty"))
 		QFile::remove("falconG.fsty");

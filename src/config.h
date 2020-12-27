@@ -736,6 +736,7 @@ public:
 
 	void Read();
 	void Write();
+	void SaveSchemeIndex();
 
 	bool Changed() const		{ return _changed; }
 	bool SetChanged(bool chg) 

@@ -5830,7 +5830,7 @@ Use if you changed the CSS or HTML file.</string>
         <item>
          <widget class="QLabel" name="label_8">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on any other page but this to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may even define your own style!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on any other page but this to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -5894,7 +5894,7 @@ Use if you changed the CSS or HTML file.</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_15">
                  <item>
-                  <widget class="QPushButton" name="btnReorderColorSchemes">
+                  <widget class="QPushButton" name="btnMoveSchemeUp">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
@@ -5907,7 +5907,7 @@ Use if you changed the CSS or HTML file.</string>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Reorder schemes...</string>
+                    <string>Move Scheme Up</string>
                    </property>
                   </widget>
                  </item>
@@ -5961,9 +5961,9 @@ Use if you changed the CSS or HTML file.</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="btnDeleteColorScheme">
+                  <widget class="QToolButton" name="btnDeleteColorScheme">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="font">
                     <font>
@@ -5974,7 +5974,11 @@ Use if you changed the CSS or HTML file.</string>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Delete Scheme</string>
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="falcong.qrc">
+                     <normaloff>:/icons/Resources/delete.png</normaloff>:/icons/Resources/delete.png</iconset>
                    </property>
                   </widget>
                  </item>

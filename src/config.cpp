@@ -1686,6 +1686,31 @@ void CONFIG::Write()			// synchronize with Read!
 	ClearChanged();
 }
 
+
+/*========================================================
+ * TASK:		save actual style index and do not ask
+ *				the user about it.
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void CONFIG::SaveSchemeIndex()
+{
+	QString p, n;
+	SeparateFileNamePath(dsSrc.ToString(), p, n);
+
+	QSettings s(falconG_ini, QSettings::IniFormat),
+		      s1(dsSrc.ToString() + n + ".ini", QSettings::IniFormat);
+	
+	s.setIniCodec("UTF-8");
+	styleIndex.Write(s);
+
+	s1.setIniCodec("UTF-8");
+	styleIndex.Write(s1);
+
+}
+
 QString _CTextAlign::ForStyleSheet(bool addSemiColon) const
 {
 	QString qs = v == alNone ? QString() : "text-align:" + ActAlignStr();

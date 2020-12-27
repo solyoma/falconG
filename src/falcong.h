@@ -184,7 +184,7 @@ public:
 		operator[](1).sBorderColor = "#747474";
 	}
 	void ReadAndSetupStyles();	// into menu items
-	void SaveStyles();			// into "falconG.fsty"
+	void Save();			// into "falconG.fsty"
 	int IndexOf(FalconGStyles& fgst);
 };
 
@@ -336,8 +336,6 @@ private slots:
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
 
-	void on_cbPointSize_currentTextChanged(const QString& txt);
-
 	void on_btnPageColor_clicked();
 	void on_btnPageBackground_clicked();
 	void on_btnOpenBckImage_clicked();
@@ -368,12 +366,15 @@ private slots:
 
 	void on_btnApplyColorScheme_clicked();
 	void on_btnResetColorScheme_clicked();
-	void on_btnReorderColorSchemes_clicked();
+	void on_btnMoveSchemeUp_clicked();
 
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 
 	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// solid, dashed, etc
+
+	void on_cbColorScheme_currentIndexChanged(int newIndex);
+	void on_cbColorScheme_currentTextChanged(const QString& newText);
 					//  watermark
 	void on_cbWmVPosition_currentIndexChanged(int index);
 	void on_cbWmHPosition_currentIndexChanged(int index);
@@ -383,8 +384,7 @@ private slots:
 	void on_cbFonts_currentIndexChanged(int index);
 	void on_cbLineHeight_currentIndexChanged(int index);
 
-	void on_cbColorScheme_currentIndexChanged(int newIndex);
-	void on_cbColorScheme_currentTextChanged(const QString& newText);
+	void on_cbPointSize_currentTextChanged(const QString& txt);
 
 	void on_chkFacebook_toggled(bool);
 	void on_chkDebugging_toggled(bool);

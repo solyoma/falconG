@@ -57,7 +57,11 @@ QString StyleHandler::_GetGroup()
 		_rules.clear();
 	}
 	else					// no group just elements
+	{
 		_pos = lookBack;
+		ch = _NextCh();
+		--_pos;	// need the first letter too
+	}
 
 	bool b = ch.isNull();
 	while (!b)	//true-> finished with this elem
