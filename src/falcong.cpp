@@ -7,6 +7,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+#include <string>
+
 #include "support.h"
 #include "config.h"
 #include "stylehandler.h"
@@ -253,7 +255,7 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 
 	// read styles
-	_styles.ReadAndSetupStyles();
+	_schemes.ReadAndSetupStyles();
 
 	// setup style change menus. _SlotForContextMenus sets up a signal mapping for style menus
 	ui.tabGallery->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -270,10 +272,15 @@ FalconG::FalconG(QWidget *parent)
 	CONFIGS_USED::Read();		// to get last used configuration
 
 	config.Read();				// to read config from
+
+	_tmpScheme = _schemes[config.styleIndex.v];
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+
 	frmMain = this;
 	// now that everything is ready
 	_StyleTheProgram(config.styleIndex);
-
+	_AddSchemeButtons();
+	on_cbColorScheme_currentIndexChanged(0);
 
 	_ModifyGoogleFontImport();
 
@@ -1803,11 +1810,15 @@ void FalconG::_TextAlignToConfig(Align align, bool on)
 void FalconG::_SlotForContextMenu(const QPoint& pt)
 {
 	std::unique_ptr<QSignalMapper> _popupMapper{ new QSignalMapper(this) };
-	std::unique_ptr<QMenu> menu { new QMenu(this) };
-	menu->setTitle("Options");
-	for (int i = 0; i < _styles.size(); ++i)
+//	std::unique_ptr<QMenu> menu { new QMenu(this) };
+	QMenu menu(this);
+	QAction* pa = new QAction(tr("Styles"),this);
+	pa->setEnabled(false);
+	menu.addAction(pa);
+	menu.addSeparator();
+	for (int i = 0; i < _schemes.size(); ++i)
 	{
-		QAction *pa = menu->addAction(_styles[i].MenuTitle, _popupMapper.get(), SLOT(map()));
+		pa = menu.addAction(_schemes[i].MenuTitle, _popupMapper.get(), SLOT(map()));
 		if (i == config.styleIndex.v)
 		{
 			pa->setCheckable(true);
@@ -1816,13 +1827,35 @@ void FalconG::_SlotForContextMenu(const QPoint& pt)
 		_popupMapper->setMapping(pa, i);
 	}
 	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForStyleChange);
-	menu->exec(this->mapToGlobal(pt));
+	menu.exec(this->mapToGlobal(pt));
 }
 
 void FalconG::_SlotForStyleChange(int which)
 {
 	_StyleTheProgram(which);
 	_SetConfigChanged(true);
+}
+
+void FalconG::_EnableColorSchemeButtons()
+{
+	bool b = ui.cbColorScheme->currentText() != _tmpSchemeOrigName || _bSchemeChanged;
+	ui.btnApplyColorScheme->setEnabled(b);
+	ui.btnResetColorScheme->setEnabled(b);
+	ui.btnDeleteColorScheme->setEnabled(b);
+}
+
+void FalconG::_SlotForSchemeButtonClick(int which)
+{
+	StyleHandler sh( (*_pSchemeButtons[which]).styleSheet());
+	QColor qc = sh.GetItem("", "background-color");
+	QColor qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew == qc || !qcNew.isValid())
+		return;
+	sh.SetItem("", "background-color", qcNew.name());
+	_pSchemeButtons[which]->setStyleSheet(sh.StyleSheet());
+	_bSchemeChanged |= true;	// might have been changed already
+	_tmpScheme[which] = qcNew.name();
+	_EnableColorSchemeButtons();
 }
 
 /*========================================================
@@ -2873,6 +2906,12 @@ void FalconG::on_btnShadowColor_clicked()
 	_ElemToSample();
 }
 
+void FalconG::on_btnDeleteColorScheme_clicked()
+{
+	// ????
+
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3114,6 +3153,169 @@ void FalconG::_LoadBckImage(QString name)
 	ui.lblbckImage->setPixmap(pm);
 }
 
+void FalconG::_ResetScheme()
+{
+}
+
+void FalconG::_AddSchemeButtons()
+{
+	_pSchemeMapper = new QSignalMapper(this);
+
+	// add defined schemes to combo box
+	for (int i = 2; i < _schemes.size(); ++i)				// do not add default and system!
+		ui.cbColorScheme->addItem(_schemes[i].MenuTitle);
+	// add buttons to layout
+
+	QFont font;
+//	font.setFamily(QString::fromUtf8("Arial"));
+	font.setPointSize(8);
+	font.setBold(false);
+	font.setWeight(50);
+
+	QLabel *plabel = new QLabel(tr("Background color"));
+	plabel->setFont(font);
+
+	QFormLayout* pLayout = reinterpret_cast<QFormLayout*>(ui.gbColorScheme->layout() );
+	int i = 0;
+	QPushButton* pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+
+	plabel = new QLabel(tr("Foreground (Text) color") );
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Border color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Focused Input color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Hover color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Tab Border color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Input Background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Selected Background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Focused Border color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Disabled Foreground"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Disabled Background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Image Background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Button Pressed Bg"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Default Background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Progressbar Chunk color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Warning color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(pButton , i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Groupbox Title Color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton );
+	_pSchemeMapper->setMapping(_pSchemeButtons[i], i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+
+	connect(_pSchemeMapper, &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeButtonClick);
+}
+
 
 /*========================================================
  * TASK:	slot for link clicked in sample (WebEnginePage)
@@ -3278,6 +3480,36 @@ void FalconG::on_cbLineHeight_currentIndexChanged(int index)
 	_FontToSample(pElem);	
 
 }
+void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
+{
+	if (newIndex >= 0)
+	{
+		static const char *bckstr= "background-color:%1";
+		_tmpScheme = _schemes[newIndex+2];	// default and system are not changed
+		_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+		for (int i = 0; i < _pSchemeButtons.size(); ++i)
+			_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
+	}
+}
+
+
+/*========================================================
+ * TASK:	enable buttons to signal there are new data to be added
+ * PARAMS:	newText: changed text
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - if the title of the source text is not the same
+ *				as the original (already existing) title: then  
+ *				there were changes which can be applied or
+ *				taken back
+ *-------------------------------------------------------*/
+void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
+{
+	_EnableColorSchemeButtons();
+	_tmpScheme.MenuTitle = newText;
+	//_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+}
+
 
 /*=============================================================
 * TASK:	 title text for language 2 is changed
@@ -3379,6 +3611,36 @@ void FalconG::on_btnPreview_clicked()
 void FalconG::on_btnGoToGoogleFontsPage_clicked()
 {
 	QDesktopServices::openUrl(QUrl("https://fonts.google.com/"));
+}
+
+void FalconG::on_btnApplyColorScheme_clicked()
+{
+	int i = _schemes.IndexOf(_tmpScheme);
+	if (i >= 0)
+		_schemes[i] = _tmpScheme;
+	else
+		_schemes.push_back(_tmpScheme);
+
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+	_schemes.SaveStyles();
+	ui.cbColorScheme->addItem(_tmpSchemeOrigName);
+
+	ui.btnApplyColorScheme->setEnabled(false);
+	ui.btnResetColorScheme->setEnabled(false);
+	ui.btnDeleteColorScheme->setEnabled(false);
+	_bSchemeChanged = false;
+}
+
+void FalconG::on_btnResetColorScheme_clicked()
+{
+	_bSchemeChanged = false;
+	// ????
+	_EnableColorSchemeButtons();
+}
+
+void FalconG::on_btnReorderColorSchemes_clicked()
+{
+	// ??
 }
 
 void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
@@ -3855,7 +4117,7 @@ void FalconG::_SetLayoutMargins(int which)
 
 void FalconG::_StyleTheProgram(int which)
 {
-	if (which >= _styles.size())
+	if (which >= _schemes.size())
 		which = 0;
 
 	_SetLayoutMargins(which);
@@ -4007,7 +4269,8 @@ QPushButton:disabled,
 QToolButton:disabled,
 QRadioVutton:disabled,
 QCheckBox:disabled,
-QSpinBox:disabled {
+QSpinBox:disabled,
+QMenu:disabled {
 	color:%10;
 	background:%11;
 }
@@ -4040,23 +4303,23 @@ QPusButton:default {
 	{
 		QString ss =
 			QString(styles)
-			.arg(_styles[which].sBackground)		// %1 
-			.arg(_styles[which].sTextColor)			// %2 
-			.arg(_styles[which].sBorderColor)		// %3 
-			.arg(_styles[which].sFocusedInput)		// %4 
-			.arg(_styles[which].sHoverColor)		// %5 
-			.arg(_styles[which].sTabBorder)			// %6 
-			.arg(_styles[which].sInputBackground)	// %7
-			.arg(_styles[which].sSelectedInputBgr)	// %8 
-			.arg(_styles[which].sFocusedBorder)		// %9 
-			.arg(_styles[which].sDisabledFg)		// %10
-			.arg(_styles[which].sDisabledBg)		// %11
-			.arg(_styles[which].sImageBackground)	// %12
-			.arg(_styles[which].sPressedBg)			// %13
-			.arg(_styles[which].sDefaultBg)			// %14
-			.arg(_styles[which].sProgressBarChunk)	// %15
-			.arg(_styles[which].sWarningColor)		// %16
-//			.arg(_styles[which].sBoldTitleColor)	// %17
+			.arg(_schemes[which].sBackground)		// %1 
+			.arg(_schemes[which].sTextColor)			// %2 
+			.arg(_schemes[which].sBorderColor)		// %3 
+			.arg(_schemes[which].sFocusedInput)		// %4 
+			.arg(_schemes[which].sHoverColor)		// %5 
+			.arg(_schemes[which].sTabBorder)			// %6 
+			.arg(_schemes[which].sInputBackground)	// %7
+			.arg(_schemes[which].sSelectedInputBgr)	// %8 
+			.arg(_schemes[which].sFocusedBorder)		// %9 
+			.arg(_schemes[which].sDisabledFg)		// %10
+			.arg(_schemes[which].sDisabledBg)		// %11
+			.arg(_schemes[which].sImageBackground)	// %12
+			.arg(_schemes[which].sPressedBg)			// %13
+			.arg(_schemes[which].sDefaultBg)			// %14
+			.arg(_schemes[which].sProgressBarChunk)	// %15
+			.arg(_schemes[which].sWarningColor)		// %16
+//			.arg(_schemes[which].sBoldTitleColor)	// %17
 			;
 
 		if (which == stBlue)		// blue
@@ -4550,4 +4813,45 @@ void FStyleVector::ReadAndSetupStyles()
 		push_back(dark);
 	if (!bk)
 		push_back(black);
+}
+
+void FStyleVector::SaveStyles()
+{
+	if (QFile::exists("falconG.fsty"))
+		QFile::remove("falconG.fsty");
+
+	QSettings s("falconG.fsty", QSettings::IniFormat);	// in program directory;
+	for (int i = 2; i <  size(); ++i)	// do not save default and system
+	{
+		char st[] = "0"; st[0] += i-1;
+		FalconGStyles& fgst = operator[](i);
+		s.beginGroup(st);
+			s.setValue("Title",fgst.MenuTitle);			// this will appear in the menu bar
+			s.setValue("Background",fgst.sBackground);
+			s.setValue("TextColor",fgst.sTextColor);
+			s.setValue("BorderColor",fgst.sBorderColor);
+			s.setValue("FocusedInput",fgst.sFocusedInput);
+			s.setValue("HoverColor",fgst.sHoverColor);
+			s.setValue("TabBorder",fgst.sTabBorder);
+			s.setValue("InputBackground",fgst.sInputBackground);
+			s.setValue("SelectedInputBgr",fgst.sSelectedInputBgr);
+			s.setValue("FocusedBorder",fgst.sFocusedBorder);
+			s.setValue("DisabledFg",fgst.sDisabledFg);
+			s.setValue("DisabledBg",fgst.sDisabledBg);
+			s.setValue("ImageBackground",fgst.sImageBackground);
+			s.setValue("PressedBg",fgst.sPressedBg);
+			s.setValue("DefaultBg",fgst.sDefaultBg);
+			s.setValue("ProgressBarChunk",fgst.sProgressBarChunk);
+			s.setValue("WarningColor",fgst.sWarningColor);
+			s.setValue("BoldTitleColor",fgst.sBoldTitleColor);
+		s.endGroup();
+	}
+}
+
+int FStyleVector::IndexOf(FalconGStyles& fgst)
+{
+	for (int i = 2; i < size(); ++i)
+		if (operator[](i).MenuTitle == fgst.MenuTitle)
+			return i;
+	return -1;
 }

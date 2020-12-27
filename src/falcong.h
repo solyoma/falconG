@@ -86,7 +86,33 @@ struct FalconGStyles
 		sProgressBarChunk,
 		sWarningColor,
 		sBoldTitleColor;
-	FalconGStyles() {}
+	QString& operator[](int index) 
+	{ 
+		switch (index)
+		{
+			case 0:		  return sBackground;
+			case 1:		  return sTextColor;
+			case 2:		  return sBorderColor;
+			case 3:		  return sFocusedInput;
+			case 4:		  return sHoverColor;
+			case 5:		  return sTabBorder;
+			case 6:		  return sInputBackground;
+			case 7:		  return sSelectedInputBgr;
+			case 8:		  return sFocusedBorder;
+			case 9:		  return sDisabledFg;
+			case 10:	  return sDisabledBg;
+			case 11:	  return sImageBackground;
+			case 12:	  return sPressedBg;
+			case 13:	  return sDefaultBg;
+			case 14:	  return sProgressBarChunk;
+			case 15:	  return sWarningColor;
+			default: 
+			case 16:	  return sBoldTitleColor;
+		}
+	}
+	FalconGStyles() 
+	{
+	}
 	FalconGStyles(const char* t,	 // menu title
 				  const char* c0,	 // sBacground
 				  const char* c1,	 // sTextColor	-	foreground
@@ -126,6 +152,7 @@ struct FalconGStyles
 		sWarningColor		= c15;
 		sBoldTitleColor		= c16;
 	}
+
 };								
 
 
@@ -157,6 +184,8 @@ public:
 		operator[](1).sBorderColor = "#747474";
 	}
 	void ReadAndSetupStyles();	// into menu items
+	void SaveStyles();			// into "falconG.fsty"
+	int IndexOf(FalconGStyles& fgst);
 };
 
 
@@ -184,7 +213,12 @@ private:
 
 	WebEnginePage _page;
 	// style (skin) selection
-	FStyleVector _styles;	// default styles: default, system, blue, dark, black
+	FStyleVector _schemes;		// default styles: default, system, blue, dark, black
+	bool _bSchemeChanged = false;
+	FalconGStyles _tmpScheme;	// used for editing
+	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
+	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
+	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
 	DesignProperty _whatChanged = dpNone;
@@ -259,9 +293,9 @@ private:
 	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
 	void _LoadBckImage(QString name);	// from config
 
-//	void _GetProperty(StyleIndex index);
-
-//	bool eventFilter(QObject *o, QEvent *e) override;
+	void _AddSchemeButtons();
+	void _ResetScheme();			 //	use _tmpScheme
+	void _EnableColorSchemeButtons();
 
 private slots:
 	void LinkClicked(QString s);		// from sample page
@@ -272,7 +306,7 @@ private slots:
 	void _SetProgressBarPos(int cnt1, int cnt2);
 	void _SetupLanguagesToUI();
 	void _EnableEditTab(bool on);
-//	void _ImageMapChanged();
+
 	void _AlbumMapChanged();
 	void _ShowRemainingTime(time_t actual, time_t total, int count, bool speed);
 	void _CreateUplinkIcon(QString destPath, QString destName);
@@ -290,9 +324,11 @@ private slots:
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
 	void _SlotForStyleChange(int which);
+	void _SlotForSchemeButtonClick(int which);
 // auto connected slots
 private slots:
 	void on_toolBox_currentChanged(int newIndex);
+	void on_btnDeleteColorScheme_clicked();
 	void on_btnSourceHistory_clicked();
 	void on_btnGenerate_clicked();
 	void on_btnSaveStyleSheet_clicked();
@@ -330,6 +366,10 @@ private slots:
 
 	void on_btnGoToGoogleFontsPage_clicked();
 
+	void on_btnApplyColorScheme_clicked();
+	void on_btnResetColorScheme_clicked();
+	void on_btnReorderColorSchemes_clicked();
+
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 
 	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
@@ -343,11 +383,13 @@ private slots:
 	void on_cbFonts_currentIndexChanged(int index);
 	void on_cbLineHeight_currentIndexChanged(int index);
 
+	void on_cbColorScheme_currentIndexChanged(int newIndex);
+	void on_cbColorScheme_currentTextChanged(const QString& newText);
+
 	void on_chkFacebook_toggled(bool);
 	void on_chkDebugging_toggled(bool);
 	void on_chkDifferentFirstLine_toggled(bool b);
 	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
-	void on_edtFontFamily_textChanged();
 	void on_chkGenerateAll_toggled(bool);
 	void on_chkButImages_toggled(bool);
 	void on_chkAddTitlesToAll_toggled(bool);
@@ -373,17 +415,6 @@ private slots:
 	void on_chkTdLinethrough_toggled(bool);
 	void on_chkTdUnderline_toggled(bool);
 	void on_chkTdOverline_toggled(bool);
-	void on_rbTdSolid_toggled(bool);
-	void on_rbTdDotted_toggled(bool);
-	void on_rbTdDashed_toggled(bool);
-	void on_rbTdDouble_toggled(bool);
-	void on_rbTdWavy_toggled(bool);
-	void on_rbTextAlignNone_toggled(bool);
-	void on_rbTextLeft_toggled(bool);
-	void on_rbTextCenter_toggled(bool);
-	void on_rbTextRight_toggled(bool);
-	void on_rbTextShadow_toggled(bool);
-
 	void on_chkUseWM_toggled(bool);				// watermark
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkDoNotEnlarge_toggled(bool);
@@ -395,6 +426,7 @@ private slots:
 	void on_chkMenuToDescriptions_toggled(bool);
 	void on_chkMenuToToggleCaptions_toggled(bool);
 
+	void on_edtFontFamily_textChanged();
 	void on_edtAlbumDir_textChanged();
 	void on_edtAbout_textChanged();
 	void on_edtBckImageName_textChanged();
@@ -426,6 +458,16 @@ private slots:
 	void on_rbCenterBckImage_toggled(bool);
 	void on_rbCoverBckImage_toggled(bool);
 	void on_rbTileBckImage_toggled(bool);
+	void on_rbTdSolid_toggled(bool);
+	void on_rbTdDotted_toggled(bool);
+	void on_rbTdDashed_toggled(bool);
+	void on_rbTdDouble_toggled(bool);
+	void on_rbTdWavy_toggled(bool);
+	void on_rbTextAlignNone_toggled(bool);
+	void on_rbTextLeft_toggled(bool);
+	void on_rbTextCenter_toggled(bool);
+	void on_rbTextRight_toggled(bool);
+	void on_rbTextShadow_toggled(bool);
 
 	void on_sbImageHeight_valueChanged(int h);			// image height
 	void on_sbImageWidth_valueChanged(int w);				// image width
