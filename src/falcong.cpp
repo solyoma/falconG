@@ -36,7 +36,7 @@
 
 
 FalconG *frmMain = nullptr;
-FalconGStyles FStyleVector::blue("Blue",
+FalconGScheme FSchemeVector::blue("Blue",
 	"#3b5876",
 	"#cccccc",
 	"#747474",
@@ -55,7 +55,7 @@ FalconGStyles FStyleVector::blue("Blue",
 	"#f0a91f",
 	"#e28308"
 ),
-FStyleVector::dark("Dark",
+FSchemeVector::dark("Dark",
 	"#282828",
 	"#cccccc",
 	"#4d4d4d",
@@ -74,7 +74,7 @@ FStyleVector::dark("Dark",
 	"#f0a91f",
 	"#e28308"
 ), 							   
-FStyleVector::black("Black",
+FSchemeVector::black("Black",
 	"#191919",
 	"#e1e1e1",
 	"#323232",
@@ -264,6 +264,9 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.tabDesign, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
 	ui.tabEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.tabEdit, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+
+	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
+	connect(_pCbColorSchemeEdit, &QLineEdit::editingFinished, this, &FalconG::_SlotForSchemeComboEditingFinished);
 
 	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
 
@@ -1838,7 +1841,7 @@ void FalconG::_SlotForStyleChange(int which)
 
 void FalconG::_EnableColorSchemeButtons()
 {
-	bool b = (config.styleIndex.v > 1) && (ui.cbColorScheme->currentText() != _tmpSchemeOrigName || _bSchemeChanged);
+	bool b = (config.styleIndex.v > 1) && _bSchemeChanged;
 	ui.btnApplyColorScheme->setEnabled(b);
 	ui.btnResetColorScheme->setEnabled(b);
 	b = (config.styleIndex - 2) != ui.cbColorScheme->currentIndex();
@@ -1855,6 +1858,8 @@ void FalconG::_SlotForSchemeButtonClick(int which)
 		return;
 	sh.SetItem("", "background-color", qcNew.name());
 	_pSchemeButtons[which]->setStyleSheet(sh.StyleSheet());
+	if (!which)
+		ui.pnlColorScheme->setStyleSheet("background-color:" + qcNew.name());
 	_bSchemeChanged |= true;	// might have been changed already
 	_tmpScheme[which] = qcNew.name();
 	_EnableColorSchemeButtons();
@@ -3153,6 +3158,23 @@ void FalconG::_ResetScheme()
 {
 }
 
+
+/*========================================================
+ * TASK:	Add all sacheme color selection buttons to 
+ *			editor
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - to add a form layout to the widget in the
+ *				Designer, there must be something already 
+ *				on the widget, so I added two QLabels with
+ *				no text and set the layout to form layout
+ *			- Had I given the widget an explicit layout,
+ *				to make that layout cover the whole widget
+ *				I should have given a layout to the widget.
+ *				(in that case it should have been used here
+ *				 instead of ui.pnlColorScheme->layout() )
+ *-------------------------------------------------------*/
 void FalconG::_AddSchemeButtons()
 {
 	_pSchemeMapper = new QSignalMapper(this);
@@ -3171,7 +3193,7 @@ void FalconG::_AddSchemeButtons()
 	QLabel *plabel = new QLabel(tr("Background color"));
 	plabel->setFont(font);
 
-	QFormLayout* pLayout = reinterpret_cast<QFormLayout*>(ui.gbColorScheme->layout() );
+	QFormLayout* pLayout = reinterpret_cast<QFormLayout*>(ui.pnlColorScheme->layout() );
 	int i = 0;
 	QPushButton* pButton = new QPushButton("");
 	_pSchemeButtons.push_back(pButton);
@@ -3476,15 +3498,46 @@ void FalconG::on_cbLineHeight_currentIndexChanged(int index)
 	_FontToSample(pElem);	
 
 }
+
+
+/*========================================================
+ * TASK:	when scheme is changed but not yet applied asks
+ *				for apply
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_AskForApply()
+{
+	if (_bSchemeChanged)
+	{
+		if (QMessageBox::warning(this, tr("falconG - color scheme changed"), tr("Changes were not applied.\nDo you want to apply changes>"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+			on_btnApplyColorScheme_clicked();
+	}
+}
+
+
+/*========================================================
+ * TASK:	when the index changes sets up _tmpScheme
+ *			and color buttons
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
 void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 {
 	if (!_busy && newIndex >= 0)
 	{
+		_AskForApply();
 		static const char *bckstr= "background-color:%1";
 		_tmpScheme = _schemes[newIndex+2];	// default and system are not changed
 		_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+		ui.pnlColorScheme->setStyleSheet(QString("background-color:%1").arg(_tmpScheme.sBackground));
 		for (int i = 0; i < _pSchemeButtons.size(); ++i)
 			_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
+		_EnableColorSchemeButtons();
 	}
 }
 
@@ -3501,11 +3554,28 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
  *-------------------------------------------------------*/
 void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
 {
-	if (_busy)
-		return;
-	_EnableColorSchemeButtons();
-	_tmpScheme.MenuTitle = newText;
-	//_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+	ui.btnApplyColorScheme->setEnabled(_schemes.IndexOf(newText) );
+}
+
+
+/*========================================================
+ * TASK: when the user finishes editing the actual text of
+ *			the scheme combo box creates a new scheme
+ *	
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - called AFTER the currentTextChanged above
+ *-------------------------------------------------------*/
+void FalconG::_SlotForSchemeComboEditingFinished()
+{
+	if (ui.cbColorScheme->lineEdit()->text() != _tmpSchemeOrigName)
+	{
+		_bSchemeChanged = true;
+		_tmpSchemeOrigName = ui.cbColorScheme->lineEdit()->text();
+		_AskForApply();
+		_EnableColorSchemeButtons();
+	}
 }
 
 
@@ -3621,11 +3691,14 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnApplyColorScheme_clicked()
 {
-	int i = _schemes.IndexOf(_tmpScheme);
+	int i = _schemes.IndexOf(ui.cbColorScheme->currentText() );
 	if (i >= 0)
 		_schemes[i] = _tmpScheme;
 	else
+	{
+		_tmpScheme.MenuTitle = _tmpSchemeOrigName;
 		_schemes.push_back(_tmpScheme);
+	}
 
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	_schemes.Save();
@@ -3647,12 +3720,12 @@ void FalconG::on_btnApplyColorScheme_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnResetColorScheme_clicked()
 {
-	_schemes[config.styleIndex] = _tmpScheme;
+	_tmpScheme = _schemes[config.styleIndex];
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	ui.cbColorScheme->setCurrentText(_tmpSchemeOrigName);
 	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
 	_StyleTheProgram(config.styleIndex);
-	config.SaveSchemeIndex();
 }
 
 
@@ -3667,7 +3740,7 @@ void FalconG::on_btnResetColorScheme_clicked()
 void FalconG::on_btnMoveSchemeUp_clicked()
 {
 	int i = ui.cbColorScheme->currentIndex(), 
-		j = i+2;							  // index in schemes
+		j = i+2;							  // index in schemes (default and system can't be changed)
 
 	if (j == config.styleIndex )
 	{
@@ -3680,7 +3753,7 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 		config.SaveSchemeIndex();
 	}
 
-	FalconGStyles sty = _schemes[j];
+	FalconGScheme sty = _schemes[j];
 	_schemes.replace(j, _schemes[j - 1]);
 	_schemes.replace(--j, sty);
 
@@ -3688,6 +3761,10 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	ui.cbColorScheme->removeItem(i--);
 	ui.cbColorScheme->insertItem(i, _schemes[j].MenuTitle);
 	ui.cbColorScheme->setCurrentIndex(i);
+	if (!i)
+		ui.btnMoveSchemeUp->setEnabled(false);
+	config.styleIndex = i;
+	config.SaveSchemeIndex();
 	--_busy;
 	//_bSchemeChanged = false;
 	//_EnableColorSchemeButtons();
@@ -3708,7 +3785,9 @@ void FalconG::on_btnMoveSchemeUp_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
 {
-	if (QMessageBox::warning(this, tr("falconG - Warning"), tr("Do you really want to delete this color cheme?"), QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::warning(this,	tr("falconG - Warning"), 
+									tr("Do you really want to delete this color scheme?"), 
+										QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	int i = ui.cbColorScheme->currentIndex();
@@ -3723,6 +3802,34 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 	_schemes.Save();
 	_EnableColorSchemeButtons();
 	_bSchemeChanged = false;
+}
+
+void FalconG::on_btnGenerateScheme_clicked()
+{
+	QColor qcBase = QColorDialog::getColor(qcBase, this, tr("Select background color."));
+	if (qcBase.isValid())
+	{
+		QColor qc;
+		_tmpScheme.sBackground = qcBase.name();
+/*
+		_tmpScheme.sTextColor = ;
+		_tmpScheme.sBorderColor = ;
+		_tmpScheme.sFocusedInput = ;
+		_tmpScheme.sHoverColor = ;
+		_tmpScheme.sTabBorder = ;
+		_tmpScheme.sInputBackground = ;
+		_tmpScheme.sSelectedInputBgr = ;
+		_tmpScheme.sFocusedBorder = ;
+		_tmpScheme.sDisabledFg = ;
+		_tmpScheme.sDisabledBg = ;
+		_tmpScheme.sImageBackground = ;
+		_tmpScheme.sPressedBg = ;
+		_tmpScheme.sDefaultBg = ;
+		_tmpScheme.sProgressBarChunk = ;
+		_tmpScheme.sWarningColor = ;
+		_tmpScheme.sBoldTitleColor = ;
+*/
+	}
 }
 
 //***************************************************************************
@@ -4849,15 +4956,15 @@ void FalconG::_EnableEditTab(bool enable)
 	ui.tnvImages->setEnabled(enable);
 }
 
-// ================================ FStyleVector ============================
-void FStyleVector::ReadAndSetupStyles()
+// ================================ FSchemeVector ============================
+void FSchemeVector::ReadAndSetupStyles()
 {
 	bool bl = false, da = false, bk = false;	// blue, dark, black set
 	if (QFile::exists("falconG.fsty")) 
 	{
 		QSettings s("falconG.fsty", QSettings::IniFormat);	// in program directory;
 		QStringList keys = s.childGroups();	// get all top level keys with subkeys
-		FalconGStyles fgst;
+		FalconGScheme fgst;
 		for (auto k : keys)
 		{
 			s.beginGroup(k);
@@ -4898,7 +5005,7 @@ void FStyleVector::ReadAndSetupStyles()
 		push_back(black);
 }
 
-void FStyleVector::Save()
+void FSchemeVector::Save()
 {
 	if (QFile::exists("falconG.fsty"))
 		QFile::remove("falconG.fsty");
@@ -4907,7 +5014,7 @@ void FStyleVector::Save()
 	for (int i = 2; i <  size(); ++i)	// do not save default and system
 	{
 		char st[] = "0"; st[0] += i-1;
-		FalconGStyles& fgst = operator[](i);
+		FalconGScheme& fgst = operator[](i);
 		s.beginGroup(st);
 			s.setValue("Title",fgst.MenuTitle);			// this will appear in the menu bar
 			s.setValue("Background",fgst.sBackground);
@@ -4931,10 +5038,15 @@ void FStyleVector::Save()
 	}
 }
 
-int FStyleVector::IndexOf(FalconGStyles& fgst)
+int FSchemeVector::IndexOf(FalconGScheme& fgst)
+{
+	return IndexOf(fgst.MenuTitle);
+}
+
+int FSchemeVector::IndexOf(const QString &title)
 {
 	for (int i = 2; i < size(); ++i)
-		if (operator[](i).MenuTitle == fgst.MenuTitle)
+		if (operator[](i).MenuTitle == title)
 			return i;
 	return -1;
 }

@@ -65,7 +65,7 @@ signals:
 	void LinkClickedSignal(QString);
 };
 
-struct FalconGStyles
+struct FalconGScheme
 {
 	QString
 		MenuTitle,			// this will appear in the menu bar
@@ -110,10 +110,10 @@ struct FalconGStyles
 			case 16:	  return sBoldTitleColor;
 		}
 	}
-	FalconGStyles() 
+	FalconGScheme() 
 	{
 	}
-	FalconGStyles(const char* t,	 // menu title
+	FalconGScheme(const char* t,	 // menu title
 				  const char* c0,	 // sBacground
 				  const char* c1,	 // sTextColor	-	foreground
 				  const char* c2,	 // sBorderColor
@@ -171,11 +171,11 @@ struct FalconGStyles
  *			- if a style requested which is no longer 
  *				present, the 'default' style is used instead
  *-------------------------------------------------------*/
-class FStyleVector : public  QVector<FalconGStyles>
+class FSchemeVector : public  QVector<FalconGScheme>
 {
-	static FalconGStyles blue, dark, black;
+	static FalconGScheme blue, dark, black;
 public:
-	FStyleVector() 
+	FSchemeVector() 
 	{
 		reserve(5);		// for default, system, blue, dark, black 
 		resize(2);		// default and system
@@ -185,7 +185,8 @@ public:
 	}
 	void ReadAndSetupStyles();	// into menu items
 	void Save();			// into "falconG.fsty"
-	int IndexOf(FalconGStyles& fgst);
+	int IndexOf(FalconGScheme& fgst);
+	int IndexOf(const QString &title);
 };
 
 
@@ -200,7 +201,6 @@ public:
 
 	void closeEvent(QCloseEvent *event);
 
-
 	int GetProgressBarPos();
 	int IsRunning() { return _running; }
 	void Stop() { --_running; }
@@ -213,12 +213,13 @@ private:
 
 	WebEnginePage _page;
 	// style (skin) selection
-	FStyleVector _schemes;		// default styles: default, system, blue, dark, black
+	FSchemeVector _schemes;		// default styles: default, system, blue, dark, black
 	bool _bSchemeChanged = false;
-	FalconGStyles _tmpScheme;	// used for editing
+	FalconGScheme _tmpScheme;	// used for editing
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
 	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
+	QLineEdit* _pCbColorSchemeEdit;
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
 	DesignProperty _whatChanged = dpNone;
@@ -281,7 +282,6 @@ private:
 
 	void _SetConfigChanged(bool on);
 	
-	
 	void _OpacityChanged(int val, int which);	// which = 0 -> color, 1: background
 	void _SaveChangedTexts();  // when texts are edited and changed
 
@@ -324,7 +324,11 @@ private slots:
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
 	void _SlotForStyleChange(int which);
+
 	void _SlotForSchemeButtonClick(int which);
+	void _SlotForSchemeComboEditingFinished();
+	void _AskForApply();	// when color scheme changed and not yet applied
+
 // auto connected slots
 private slots:
 	void on_toolBox_currentChanged(int newIndex);
@@ -369,6 +373,10 @@ private slots:
 	void on_btnMoveSchemeUp_clicked();
 
 	void on_cbActualItem_currentIndexChanged(int newIndex);
+
+
+	// generate color scheme
+	void on_btnGenerateScheme_clicked();
 
 	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// solid, dashed, etc
