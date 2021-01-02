@@ -1990,7 +1990,7 @@ its original size;</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>385</width>
+                    <width>392</width>
                     <height>672</height>
                    </rect>
                   </property>
@@ -4212,8 +4212,8 @@ Others: set value and style separately for all 4.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -4603,8 +4603,8 @@ is required.</string>
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>100</width>
-                    <height>30</height>
+                    <width>98</width>
+                    <height>28</height>
                    </rect>
                   </property>
                   <attribute name="label">
@@ -5828,9 +5828,9 @@ Use if you changed the CSS or HTML file.</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,5">
         <item>
-         <widget class="QLabel" name="label_8">
+         <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on any other page but this to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -5842,7 +5842,7 @@ Use if you changed the CSS or HTML file.</string>
              <property name="font">
               <font>
                <family>Arial</family>
-               <pointsize>12</pointsize>
+               <pointsize>8</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -5851,17 +5851,26 @@ Use if you changed the CSS or HTML file.</string>
               <string>Color Scheme Editor</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,1,10">
+              <property name="spacing">
+               <number>2</number>
+              </property>
               <property name="leftMargin">
-               <number>1</number>
+               <number>6</number>
               </property>
               <property name="rightMargin">
-               <number>1</number>
+               <number>6</number>
               </property>
               <property name="bottomMargin">
                <number>1</number>
               </property>
               <item>
                <widget class="QWidget" name="widget_13" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>35</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="1,5,1">
                  <property name="leftMargin">
                   <number>1</number>
@@ -5935,7 +5944,7 @@ Use if you changed the CSS or HTML file.</string>
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>24</height>
+                  <height>35</height>
                  </size>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -6041,9 +6050,21 @@ Use if you changed the CSS or HTML file.</string>
                  </property>
                  <item>
                   <widget class="QWidget" name="pnlColorScheme" native="true">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>550</height>
+                    </size>
+                   </property>
                    <layout class="QFormLayout" name="formLayout_4">
                     <item row="0" column="0">
                      <widget class="QLabel" name="label_49">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>3</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <family>Arial</family>
@@ -6059,6 +6080,12 @@ Use if you changed the CSS or HTML file.</string>
                     </item>
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_72">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>3</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <family>Arial</family>
@@ -6076,7 +6103,7 @@ Use if you changed the CSS or HTML file.</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QWidget" name="widget_21" native="true"/>
+                  <widget class="QWidget" name="pnlSchemeEmulator" native="true"/>
                  </item>
                 </layout>
                </widget>

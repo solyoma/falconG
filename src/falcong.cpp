@@ -264,6 +264,11 @@ FalconG::FalconG(QWidget *parent)
 	connect(ui.tabDesign, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
 	ui.tabEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.tabEdit, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+	ui.lblOptionsHelp->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.lblOptionsHelp, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+	ui.pnlSchemeEmulator->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.pnlSchemeEmulator, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
+
 
 	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
 	connect(_pCbColorSchemeEdit, &QLineEdit::editingFinished, this, &FalconG::_SlotForSchemeComboEditingFinished);
@@ -1830,7 +1835,7 @@ void FalconG::_SlotForContextMenu(const QPoint& pt)
 		_popupMapper->setMapping(pa, i);
 	}
 	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForStyleChange);
-	menu.exec(this->mapToGlobal(pt));
+	menu.exec(reinterpret_cast<QWidget*>(sender())->mapToGlobal(pt));
 }
 
 void FalconG::_SlotForStyleChange(int which)
@@ -3572,7 +3577,7 @@ void FalconG::_SlotForSchemeComboEditingFinished()
 	if (ui.cbColorScheme->lineEdit()->text() != _tmpSchemeOrigName)
 	{
 		_bSchemeChanged = true;
-		_tmpSchemeOrigName = ui.cbColorScheme->lineEdit()->text();
+		_tmpSchemeOrigName = ui.cbColorScheme->currentText();
 		_AskForApply();
 		_EnableColorSchemeButtons();
 	}
@@ -3691,23 +3696,21 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnApplyColorScheme_clicked()
 {
-	int i = _schemes.IndexOf(ui.cbColorScheme->currentText() );
+	int i = _schemes.IndexOf(_tmpSchemeOrigName);
 	if (i >= 0)
 		_schemes[i] = _tmpScheme;
 	else
 	{
 		_tmpScheme.MenuTitle = _tmpSchemeOrigName;
 		_schemes.push_back(_tmpScheme);
+		ui.cbColorScheme->addItem(_tmpSchemeOrigName);
 	}
 
-	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	_schemes.Save();
-	ui.cbColorScheme->addItem(_tmpSchemeOrigName);
 
 	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
 	_StyleTheProgram(config.styleIndex);
-	config.SaveSchemeIndex();
 }
 
 
@@ -3716,11 +3719,11 @@ void FalconG::on_btnApplyColorScheme_clicked()
  * PARAMS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - 
+ * REMARKS: - no reset after apply!
  *-------------------------------------------------------*/
 void FalconG::on_btnResetColorScheme_clicked()
 {
-	_tmpScheme = _schemes[config.styleIndex];
+	_tmpScheme = _schemes[ui.cbColorScheme->currentIndex() + 2];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	ui.cbColorScheme->setCurrentText(_tmpSchemeOrigName);
 	_bSchemeChanged = false;
@@ -3763,11 +3766,7 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	ui.cbColorScheme->setCurrentIndex(i);
 	if (!i)
 		ui.btnMoveSchemeUp->setEnabled(false);
-	config.styleIndex = i;
-	config.SaveSchemeIndex();
 	--_busy;
-	//_bSchemeChanged = false;
-	//_EnableColorSchemeButtons();
 	_schemes.Save();
 }
 

@@ -15,8 +15,8 @@ ImageBackground=#12273f
 PressedBg=#555555
 DefaultBg=#555555
 ProgressBarChunk=#feb60e
-WarningColor=#f0a91f
-BoldTitleColor=#e28308
+WarningColor=#aa0000
+BoldTitleColor=#ffff00
 
 [2]
 Title=Green
@@ -74,26 +74,6 @@ DisabledBg=#191919
 ImageBackground=#000000
 PressedBg=#323232
 DefaultBg=#323232
-ProgressBarChunk=#feb60e
-WarningColor=#f0a91f
-BoldTitleColor=#e28308
-
-[5]
-Title=Blue-ish
-Background=#3b5876
-TextColor=#cccccc
-BorderColor=#747474
-FocusedInput=#f0f0f0
-HoverColor=#8faed2
-TabBorder=#3b589b
-InputBackground=#1c3a55
-SelectedInputBgr=#3b584a
-FocusedBorder=#92b1d5
-DisabledFg=#999999
-DisabledBg=#697a8e
-ImageBackground=#12273f
-PressedBg=#555555
-DefaultBg=#555555
 ProgressBarChunk=#feb60e
 WarningColor=#f0a91f
 BoldTitleColor=#e28308
