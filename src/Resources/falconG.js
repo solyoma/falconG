@@ -8,7 +8,7 @@ window.addEventListener("resize", ResizeThumbs);
 function DebugProperties(className, obj)
 {
     let style= getComputedStyle(obj)
-    console.log(className + " => " + style.cssText)
+ //   console.log(className + " => " + style.cssText)
 }
 
 function SetPropertyForClass(className, propertyName, propValue) 
@@ -26,7 +26,7 @@ function SetPropertyForClass(className, propertyName, propValue)
             else
             x.setProperty(propertyName, propValue);
             // DEBUG
-            console.log(className + '.' + propertyName + '#'+ id + ':' + propValue + ", old.: '" + r + "'")
+//            console.log(className + '.' + propertyName + '#'+ id + ':' + propValue + ", old.: '" + r + "'")
             // /DEBUG
         }
 
@@ -45,7 +45,7 @@ function SetPropertyForClass(className, propertyName, propValue)
             else
                 r = "No '" + propertyName + "' in class '" + className + "'"
     // DEBUG
-            console.log(className + '.' + propertyName + ':' + propValue + ", old.: '" + r + "'")
+//            console.log(className + '.' + propertyName + ':' + propValue + ", old.: '" + r + "'")
     // /DEBUG
         }
 
