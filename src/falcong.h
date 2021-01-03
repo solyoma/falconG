@@ -214,7 +214,8 @@ private:
 	WebEnginePage _page;
 	// style (skin) selection
 	FSchemeVector _schemes;		// default styles: default, system, blue, dark, black
-	bool _bSchemeChanged = false;
+	bool _bSchemeChanged = false,	// any of the colors changed
+		 _bNewSchemeName = false;  // a new name of the scheme is added
 	FalconGScheme _tmpScheme;	// used for editing
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page

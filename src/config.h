@@ -69,7 +69,6 @@ template <class T> struct _CFG_ITEM
 		if (!group.isEmpty())
 			s.endGroup();
 	}
-
 	_CFG_ITEM& operator=(const _CFG_ITEM o) { v = o.v; v0 = o.v0, vd = o.vd; _Setup(); return *this; }
 	_CFG_ITEM& operator=(const T o) { v = o; _Setup(); return *this; }
 

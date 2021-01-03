@@ -281,7 +281,7 @@ FalconG::FalconG(QWidget *parent)
 
 	config.Read();				// to read config from
 
-	_tmpScheme = _schemes[config.styleIndex.v];
+	_tmpScheme = _schemes[config.styleIndex];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 
 	frmMain = this;
@@ -1827,7 +1827,7 @@ void FalconG::_SlotForContextMenu(const QPoint& pt)
 	for (int i = 0; i < _schemes.size(); ++i)
 	{
 		pa = menu.addAction(_schemes[i].MenuTitle, _popupMapper.get(), SLOT(map()));
-		if (i == config.styleIndex.v)
+		if (i == config.styleIndex)
 		{
 			pa->setCheckable(true);
 			pa->setChecked(true);
@@ -1835,7 +1835,7 @@ void FalconG::_SlotForContextMenu(const QPoint& pt)
 		_popupMapper->setMapping(pa, i);
 	}
 	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForStyleChange);
-	menu.exec(reinterpret_cast<QWidget*>(sender())->mapToGlobal(pt));
+	menu.exec(dynamic_cast<QWidget*>(sender())->mapToGlobal(pt));
 }
 
 void FalconG::_SlotForStyleChange(int which)
@@ -1846,10 +1846,10 @@ void FalconG::_SlotForStyleChange(int which)
 
 void FalconG::_EnableColorSchemeButtons()
 {
-	bool b = (config.styleIndex.v > 1) && _bSchemeChanged;
+	bool b = (config.styleIndex > 1) && _bSchemeChanged;
 	ui.btnApplyColorScheme->setEnabled(b);
 	ui.btnResetColorScheme->setEnabled(b);
-	b = (config.styleIndex - 2) != ui.cbColorScheme->currentIndex();
+	b = (config.styleIndex > 2); // - 2) != ui.cbColorScheme->currentIndex();
 	ui.btnDeleteColorScheme->setEnabled(b);
 	ui.btnMoveSchemeUp->setEnabled(ui.cbColorScheme->currentIndex() > 0);
 }
@@ -1864,7 +1864,9 @@ void FalconG::_SlotForSchemeButtonClick(int which)
 	sh.SetItem("", "background-color", qcNew.name());
 	_pSchemeButtons[which]->setStyleSheet(sh.StyleSheet());
 	if (!which)
-		ui.pnlColorScheme->setStyleSheet("background-color:" + qcNew.name());
+		ui.pnlColorScheme->setStyleSheet("background-color:" + qcNew.name()+"; color:"+_tmpScheme.sTextColor);
+	else if(which == 1)
+		ui.pnlColorScheme->setStyleSheet("color:" + qcNew.name()+"; background-color:"+_tmpScheme.sBackground);
 	_bSchemeChanged |= true;	// might have been changed already
 	_tmpScheme[which] = qcNew.name();
 	_EnableColorSchemeButtons();
@@ -3515,11 +3517,12 @@ void FalconG::on_cbLineHeight_currentIndexChanged(int index)
  *-------------------------------------------------------*/
 void FalconG::_AskForApply()
 {
-	if (_bSchemeChanged)
-	{
-		if (QMessageBox::warning(this, tr("falconG - color scheme changed"), tr("Changes were not applied.\nDo you want to apply changes>"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
-			on_btnApplyColorScheme_clicked();
-	}
+	if (_busy )//|| !_bSchemeChanged)
+		return;
+	++_busy;
+	if (QMessageBox::warning(this, tr("falconG - Color scheme changed"), tr("Changes were not applied.\nDo you want to apply changes>"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+		on_btnApplyColorScheme_clicked();
+	--_busy;
 }
 
 
@@ -3533,13 +3536,19 @@ void FalconG::_AskForApply()
  *-------------------------------------------------------*/
 void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 {
-	if (!_busy && newIndex >= 0)
+	if (_busy || newIndex < 0)
+		return;
+	if (newIndex +2 == _schemes.size())	// just the text changed and an ENTER is pressed?
+		on_btnApplyColorScheme_clicked();
+	else
 	{
+		if (_bNewSchemeName || _bSchemeChanged)
 		_AskForApply();
-		static const char *bckstr= "background-color:%1";
+		static const char *bckstr= "background-color:%1",
+						  *bck_txt = "background-color:%1; color:%2";
 		_tmpScheme = _schemes[newIndex+2];	// default and system are not changed
 		_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-		ui.pnlColorScheme->setStyleSheet(QString("background-color:%1").arg(_tmpScheme.sBackground));
+		ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
 		for (int i = 0; i < _pSchemeButtons.size(); ++i)
 			_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
 		_EnableColorSchemeButtons();
@@ -3574,13 +3583,15 @@ void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
  *-------------------------------------------------------*/
 void FalconG::_SlotForSchemeComboEditingFinished()
 {
-	if (ui.cbColorScheme->lineEdit()->text() != _tmpSchemeOrigName)
+	if ( _schemes.IndexOf(ui.cbColorScheme->lineEdit()->text()) < 0 )
 	{
-		_bSchemeChanged = true;
+		_bNewSchemeName = true;
 		_tmpSchemeOrigName = ui.cbColorScheme->currentText();
-		_AskForApply();
+//		_AskForApply();
 		_EnableColorSchemeButtons();
 	}
+	else
+		_bNewSchemeName = false;
 }
 
 
@@ -3696,6 +3707,7 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnApplyColorScheme_clicked()
 {
+	_bSchemeChanged = _bNewSchemeName = false;
 	int i = _schemes.IndexOf(_tmpSchemeOrigName);
 	if (i >= 0)
 		_schemes[i] = _tmpScheme;
@@ -3708,7 +3720,6 @@ void FalconG::on_btnApplyColorScheme_clicked()
 
 	_schemes.Save();
 
-	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
 	_StyleTheProgram(config.styleIndex);
 }
@@ -3745,14 +3756,14 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	int i = ui.cbColorScheme->currentIndex(), 
 		j = i+2;							  // index in schemes (default and system can't be changed)
 
-	if (j == config.styleIndex )
+	if (j == config.styleIndex.v )
 	{
-		config.styleIndex.v = j - 1;
+		config.styleIndex = j - 1;
 		config.SaveSchemeIndex();
 	}
-	else if(j == config.styleIndex+1 )
+	else if(j == config.styleIndex.v+1 )
 	{
-		config.styleIndex.v = j + 1;
+		config.styleIndex = j + 1;
 		config.SaveSchemeIndex();
 	}
 
@@ -3776,11 +3787,12 @@ void FalconG::on_btnMoveSchemeUp_clicked()
  * PARAMS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - can't possible to delete of actual scheme
- *			- no undo possible
- *			- new actual scheme will be the actual (i.e. saved)
- *			- config.stleIndex may change if it was one after
- *				the one deleted
+ * REMARKS: - the new actual scheme will be the actual (i.e. saved)
+ *			- config.styleIndex may change if it was the one or 
+ *				the actual one
+ *			- when the actual selected scheme is deleted
+ *				it still remains active, so you may
+ *				restore it by writing the name into the combo box
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
 {
@@ -3790,9 +3802,9 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 		return;
 
 	int i = ui.cbColorScheme->currentIndex();
-	if (i > config.styleIndex - 2)
+	if (i >= config.styleIndex.v - 2)
 	{
-		config.styleIndex.v = config.styleIndex.v - 1;
+		config.styleIndex = config.styleIndex - 1;
 		config.SaveSchemeIndex();
 	}
 	ui.cbColorScheme->removeItem(i);
@@ -4484,6 +4496,9 @@ QPusButton:default {
 
 #lblActualElem {
 	color:%16;
+}
+#btnDeleteColorScheme {
+	background-color:%9;
 }
 )END"
 	};
