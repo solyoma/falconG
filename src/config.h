@@ -772,6 +772,7 @@ public:
 
 	_CDirStr GalleryRoot() const	{ return _CDirStr(dsGallery) + _CDirStr(dsGRoot); }
 	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
+	_CDirStr VideoDirectory() const { return GalleryRoot() + dsVideoDir; }
 	_CDirStr ThumbnailDirectory() const { return GalleryRoot() + dsThumbDir; }
 	_CDirStr AlbumDirectory() const { return GalleryRoot() + dsAlbumDir; }
 		  // **** Fields of CONFIG ***
@@ -792,6 +793,7 @@ public:
 	_CDirStr dsFontDir = {"fonts/","dsFontDir"};
 	_CDirStr dsImageDir = {"imgs/","dsImageDir"};		// images on server AND or destination
 	_CDirStr dsThumbDir = {"thumbs/","dsThumbDir"};		// thumbnail directory on server AND or destination
+	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
 
 	
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct

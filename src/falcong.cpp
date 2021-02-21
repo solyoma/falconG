@@ -852,6 +852,8 @@ void FalconG::_OtherToUi()
 		ui.edtFontDir->setText(config.dsFontDir.ToString());
 	if (!config.dsImageDir.IsEmpty() && ui.edtImg->placeholderText() != config.dsImageDir.ToString())
 		ui.edtImg->setText(config.dsImageDir.ToString());
+	if (!config.dsVideoDir.IsEmpty() && ui.edtImg->placeholderText() != config.dsVideoDir.ToString())
+		ui.edtVid->setText(config.dsVideoDir.ToString());
 	if (!config.dsThumbDir.IsEmpty() && ui.edtThumb->placeholderText() != config.dsThumbDir.ToString())
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
@@ -1122,6 +1124,15 @@ void FalconG::on_edtImg_textChanged()
 		return;
 
 	config.dsImageDir = ui. edtImg->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtVid_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsVideoDir = ui.edtImg->text().trimmed();
 	_SetConfigChanged(true);
 }
 

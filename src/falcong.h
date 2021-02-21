@@ -446,6 +446,7 @@ private slots:
 	void on_edtGalleryRoot_textChanged();
 	void on_edtEmailTo_textChanged();
 	void on_edtImg_textChanged();
+	void on_edtVid_textChanged();
 	void on_edtServerAddress_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtGalleryLanguages_textChanged();

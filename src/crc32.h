@@ -52,7 +52,13 @@ class CRC32
 
 public:
 	CRC32() { _Init_CRC32_Table();}
-	CRC32(QString str) { QByteArray b; b.append(str); _Init_CRC32_Table(); crc(b); }
+	CRC32(QString str) 
+	{ 
+		QByteArray b; 
+		b.append(str.toUtf8()); 
+		_Init_CRC32_Table(); 
+		crc(b); 
+	}
 	uint32_t crc() const { return _ulCRC;  }
 
 	uint32_t crc(QByteArray &text)

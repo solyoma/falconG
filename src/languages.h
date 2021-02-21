@@ -28,6 +28,7 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 	static LangConstList icons;			// icons to use instead of names
 		// these are read from language definition files '<xxx>.lang in program directory
 	static LangConstList Images;		// image section in HTML files 'Képek'
+	static LangConstList Videos;		// video section in HTML files 'Videók'
 	static LangConstList Albums;		// album section in HTML files 'Albumok'
 	static LangConstList toAlbums;		// Jump to album section
 	static LangConstList toTop;			// title of icon to jump to top of page

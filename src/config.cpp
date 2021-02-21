@@ -1245,6 +1245,7 @@ void CONFIG::ClearChanged()
 	bFacebookLink.ClearChanged();
 
 	dsImageDir.ClearChanged();
+	dsVideoDir.ClearChanged();
 	dsCssDir.ClearChanged();
 	dsFontDir.ClearChanged();
 	sDefFonts.ClearChanged();
@@ -1313,6 +1314,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	dsCssDir = cfg.dsCssDir;
 	dsFontDir = cfg.dsFontDir;
 	dsImageDir = cfg.dsImageDir;
+	dsVideoDir = cfg.dsVideoDir;
 	dsThumbDir = cfg.dsThumbDir;
 
 	sUplink = cfg.sUplink;				// if given uplink in gallery root goes here
@@ -1492,6 +1494,7 @@ void CONFIG::Read()		// synchronize with Write!
 	bFacebookLink.Read(s);
 
 	dsImageDir.Read(s);
+	dsVideoDir.Read(s);
 	dsCssDir.Read(s);
 	dsFontDir.Read(s);
 	sDefFonts.Read(s);
@@ -1610,6 +1613,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	bFacebookLink.Write(s);
 
 	dsImageDir.Write(s);
+	dsVideoDir.Write(s);
 	dsCssDir.Write(s);
 	dsFontDir.Write(s);
 	sDefFonts.Write(s);

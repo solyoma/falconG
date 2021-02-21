@@ -41,7 +41,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 //***************************** class AlbumStructWriterThread ****************
 AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator& generator, QObject* parent) :
-	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), QThread(parent)
+	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), _videoMap(generator.Videos()),QThread(parent)
 {
 }
 
@@ -92,6 +92,7 @@ void AlbumStructWriterThread::run()
 			<< "  name=" << Languages::names[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
 			<< "  images=" << Languages::Images[i] << "\n"
+			<< "  videos=" << Languages::Videos[i] << "\n"
 			<< "  albums=" << Languages::Albums[i] << "\n"
 			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
 			<< "  homePage=" << Languages::toHomePage[i] << "\n"
@@ -136,7 +137,10 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 	QString s;
 	int len = config.dsSrc.Length();
 	Image* pImg;
+	Video* pVid;
 
+	// IMAGES
+	// format: [!!]<name>'('<id>,<width>'x'<height>,<owidth>'x'<oheight>,<date string><file size>')'<dSrc relative or absolute path>
 	for (ID_t id : album.images)
 		if (id && album.excluded.indexOf(id) < 0)		// not excluded
 		{
@@ -147,7 +151,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 			}
 			if (pImg->exists)
 			{
-				if (!pImg->size.width())	// transformed size is 0, ifwe do not processed images
+				if (!pImg->size.width())	// transformed size is 0, if we did not process images
 					pImg->size = pImg->ssize;
 
 				_ofs << indent;
@@ -171,6 +175,38 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
 			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 		}
+	// VIDEOS
+	// format: <name>'(''V'<id>, <date string>,<file size>')'<dSrc relative or absoluth path>
+	for (ID_t id : album.videos)
+		if (id && album.excluded.indexOf(id) < 0)		// not excluded
+		{
+			pVid = &_videoMap[id];
+			if (pVid->changed)
+			{
+				album.changed = true;
+			}
+			if (pVid->exists)
+			{
+
+				_ofs << indent;
+				_ofs << pVid->name << "(V" 										   // field #1
+					<< pVid->ID << ","											   // field #2
+					// ISO 8601 extended format: yyyy-MM-dd for dates
+					<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
+					<< pVid->fileSize << ")";									   // field #4
+				s = pVid->path;
+				if (s.left(len) == config.dsSrc.ToString())
+					s = s.mid(len);
+				_ofs << s << "\n";
+				// field #9
+			}
+			else
+				_ofs << indent << pVid->name << " # is missing\n";
+			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pVid->descID, indent);
+			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pVid->titleID, indent);
+		}
+
+	// ALBUMS
 	for (ID_t id : album.albums)
 		if (id && album.excluded.indexOf(id) < 0)		// not excluded
 			_WriteStructAlbums(_albumMap[id], indent);

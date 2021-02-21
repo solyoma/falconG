@@ -10,6 +10,7 @@ LangConstList Languages::abbrev;		// abbreviations: "hu", "en", etc
 LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
 LangConstList Languages::icons;			// icons to use instead of names
 LangConstList Languages::Images;		// image section in HTML files
+LangConstList Languages::Videos;		// video section in HTML files
 LangConstList Languages::Albums;		// album section in HTML files
 LangConstList Languages::toAlbums;		// jump to album section
 LangConstList Languages::toTop;			// top of page
@@ -66,6 +67,7 @@ int Languages::_Read(QString name)
 	names.push_back(s);
 	icons.push_back(s);
 	Images.push_back(s);
+	Videos.push_back(s);
 	Albums.push_back(s);
 	toAlbums.push_back(s);
 	toHomePage.push_back(s);
@@ -96,6 +98,8 @@ int Languages::_Read(QString name)
 			icons[next] = s;
 		else if (sn == "images")
 			Images[next] = s;
+		else if (sn == "videos")
+			Videos[next] = s;
 		else if (sn == "albums")
 			Albums[next] = s;
 		else if (sn == "toalbums")
@@ -196,6 +200,7 @@ int Languages::Read()
 							"  name	     =<language name to put on language switch menu> e.g.  'to English'\n"
 							"  icon      =<name of icon (.png) file for language> may be left empty\n"
 							"  images    =<text header for the images section of the actual album>\n"
+							"  videos    =<text header for the videos section of the actual album>\n"
 							"  toTop     =<text for up arrow: jump to top of page>"
 							"  upOneLevel=<text for up/left arrow: jump to parent dir>"
 							"  albums    =<text header for the album section of the  actual album>>\n"
@@ -214,7 +219,8 @@ int Languages::Read()
 		abbrev.push_back("en");
 		names.push_back("English");
 		icons.push_back("");
-		Images.push_back("images");
+		Images.push_back("Images");
+		Videos.push_back("Videos");
 		Albums.push_back("Albums");
 		toAlbums.push_back("to Albums");
 		toHomePage.push_back("Home");
@@ -252,6 +258,7 @@ void Languages::Clear(int newsize)
 	names.Prepare(newsize);
 	icons.Prepare(newsize);
 	Images.Prepare(newsize);
+	Videos.Prepare(newsize);
 	Albums.Prepare(newsize);
 	toAlbums.Prepare(newsize);
 	toTop.Prepare(newsize);

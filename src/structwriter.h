@@ -23,6 +23,7 @@ class AlbumStructWriterThread : public QThread
 	TextMap& _textMap;		// all texts for all albums and inmages
 	AlbumMap& _albumMap;	// all source albums
 	ImageMap& _imageMap;	// all images for all albums
+	VideoMap& _videoMap;	// all videos for all albums
 	Album _root;			// top level album (first in '_albumMap', ID = 1)
 	QTextStream _ofs;
 

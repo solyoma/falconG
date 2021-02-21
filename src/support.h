@@ -27,6 +27,7 @@ const QString versionStr = "# falconG Gallery Structure file ";
 const int majorStructVersion = 1,
 		  minorStructVersion = 2;
 
+enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
 
 //******************** text file reader ************
 // file header line(s)
@@ -224,7 +225,7 @@ private:
 QString TimeToHMSStr(time_t t);
 QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
-bool IsImageFile(const QString &name, QFileInfo *fi = nullptr);
+FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi = nullptr);
 QString ToUTF8(QString string);
 QStringList ToUTF8(QStringList &string);
 

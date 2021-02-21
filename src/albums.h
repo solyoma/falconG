@@ -39,8 +39,10 @@ using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leadin
 using IdList = UndeletableItemList<ID_t>;
 
 const ID_t ALBUM_ID_FLAG = 0x8000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
+const ID_t VIDEO_ID_FLAG = 0x4000000000000000ull;	// when set ID is for a video
 const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
 const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
+const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
 
 extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
@@ -200,7 +202,7 @@ struct Image : public IABase
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
 
 	int operator<(const Image &i);		 // uses searchBy
-	bool operator==(const Image &i);
+	bool operator==(const Image& i);
 	double Aspect() 
 	{ 
 		if (_aspect) 
@@ -243,19 +245,85 @@ private:
 	double _aspect = 0;			// for actual image
 								// 0: unset, else if owidth/oheight : aspect ratio >1 => landscape orientation
 };
+//------------------------------------------
+struct Video : IABase			// format: MP4, OOG, WebM
+{
+	// each video file should be accomplished by a JPG file for the thumbnail
+	// of the same name + ".jpg". Example: apple.mp4 and apple.mp4.jpg
+	// If no such file is present a default jpg will be supplied
+	enum Type {vtMp4, vtOgg, vtWebM} type;
+
+	bool changed = false;		// true: video and thumbnail is recreated (dimensions or file size or data changed)
+								// check this and create a new struct file on disk if any image changed
+								// inside any albums. Alse set the album changed flag if any of its
+								// images/thu,bnails, etc changed
+	QString checksum = 0;		// of content not used YET
+	QDate uploadDate;
+	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
+	enum SearchCond : int {
+		byID,		// ID only
+		byBaseID,	// ID for image w. o path: compare names (no path) as well
+		byName,		// just image name
+		byFullName	// full image path
+	};
+
+	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
+	QString LinkName(bool bLCExtension = false) const
+	{
+		if (ID)
+		{
+			int pos = name.lastIndexOf('.');
+			QString s = name.mid(pos);
+			if (bLCExtension)
+				s = s.toLower();
+			return QString().setNum(ID) + s;	// e.g. 12345.mp4
+		}
+		else
+			return name;
+	}
+
+	int operator<(const Video& i);		 // uses searchBy
+	bool operator==(const Video &i);
+
+	IABase& operator=(const IABase& a)
+	{
+		IABase::operator=(a);
+		type = ((Video&)a).type;
+	}
+
+	QString AsString(int width=320, int height=-1) 
+	{ 
+		const char* vs = "<video width=\"%1\" height=\"%2\" controls>/n"
+						 " <source src=\"%3\" type=\"video/%4\">\n"
+						 "</video>";
+		if (height < 0)
+			height = width * 1080 / 1920;
+
+		switch (type)
+		{
+			case vtWebM: return QString(vs).arg(width).arg(height).arg(FullName()).arg("webm");
+			case vtOgg: return QString(vs).arg(width).arg(height).arg(FullName()).arg("ogg");
+			default:
+			case vtMp4: return QString(vs).arg(width).arg(height).arg(FullName()).arg("mp4");
+		}
+	}
+
+};
 
 //------------------------------------------
 struct Album : IABase			// ID == 1 root  (0: invalid)
 {
 	ID_t parent = 0;	// just a single parent is allowed
 	IdList images,		// 'images' and 'albums' inside this album are lists of IDs for faster searches
-		   albums,		// (search images in one and albums in the other)
-		   excluded;	// id's in list are for images and folders excluded from this album
+		   albums,		// (search images in one, albums in the other
+		   videos,		// and videos here)
+		   excluded;	// id's in list are for images and folders and videos excluded from this album
 	ID_t thumbnail = 0;	// image ID	or 0
 
 	bool changed = false;		// set to true when: any text, album thumbnail, images, albums, exluded changed
-	int imageCount = -1;
-	int albumCount = -1;
+	int imageCount = -1;	// these are not equal to the count of the corresponding items
+	int albumCount = -1;	// because items could be excluded from display
+	int videoCount = -1;
 	int titleCount = -1;
 	int descCount  = -1;
 
@@ -268,6 +336,7 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	bool Valid() const { return ID != 0; }
 	void Clear() { images.clear(); albums.clear(); excluded.clear(); }
 	int ImageCount();		// only non-excluded images
+	int VideoCount();		// only non-excluded videos
 	int SubAlbumCount();	// only non excluded albums (removes excluded albums) = count of children
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
@@ -299,8 +368,6 @@ class ImageMap : public QMap<ID_t, Image>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Image invalid;
-	static QString lastUsedImagePath;	// config.dsSrc relative path to image so that we can add 
-										// an image by its name (relative to this path) only
 
 	Image& Find(ID_t id, bool useBase = true);
 	Image& Find(QString FullName);
@@ -309,6 +376,24 @@ public:
 };
 
 //------------------------------------------
+// key contains VIDEO_ID_FLAG
+class VideoMap : public QMap<ID_t, Video>
+{
+	//friend class ALbumGenerator; miert nem volt eleg
+	//ahhoz, hogy ezt lassa:	static Image invalid;
+public:
+	static Video invalid;
+	static QString lastUsedVideoPath;	// config.dsSrc relative path to video so that we can add 
+										// an video by its name (relative to this path) only
+
+	Video& Find(ID_t id, bool useBase = true);
+	Video& Find(QString FullName);
+	ID_t Add(QString image, bool& added);	// returns ID and if added
+	Video& Item(int index);
+};
+
+//------------------------------------------
+// key contains ALBUM_ID_FLAG
 class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
@@ -341,6 +426,45 @@ class AlbumGenerator : public QObject
 
 	Q_OBJECT
 
+public:
+	static QString lastUsedItemPath;	// config.dsSrc relative path to image so that we can add 
+										// an image by its name (relative to this path) only
+
+	AlbumGenerator() {};
+	bool Read();	 // reads all albums recursively from Config::dsSrc
+	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
+	int WriteDirStruct(bool keep=false);		
+	bool StructWritten() const { return _structWritten; }
+	bool StructChanged() const { return _structChanged;  }
+	int SaveStyleSheets();
+	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
+
+	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
+	
+	int AlbumCount() const { return _albumMap.size(); }
+	int ImageCount() const { return _imageMap.size(); }
+	int TextCount() const { return _textMap.size(); }
+	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
+	// careful: these are not const so that their elements could be modified
+	Album &AlbumRoot()  { return _root; }
+	ImageMap &Images() { return _imageMap; }
+	VideoMap& Videos() { return _videoMap; }
+	TextMap &Texts()   { return _textMap;  }
+	AlbumMap &Albums() { return _albumMap; }
+signals:
+	void SignalToSetProgressParams(int min, int max, int pos, int phase);
+	void SignalProgressPos(int cnt1, int cnt2);
+	void SignalSetLanguagesToUI();
+	void SignalToEnableEditTab(bool on);
+//	void SignalImageMapChanged();
+	void SignalAlbumStructChanged();
+	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
+	void SignalToCreateIcon(QString destPath, QString destName);
+	void SetDirectoryCountTo(int cnt);
+public:		// SLOT: connected with new syntax: no need for MOC to use this slot
+	void Cancelled() { _processing = false; }
+
+private:
 	enum {ok, ready, rerr, nosuch} _status=ok; // can read further, no sub directories, read error or empty, no such file/dir
 	struct _RemainingDisplay
 	{
@@ -358,6 +482,7 @@ class AlbumGenerator : public QObject
 	TextMap _textMap;		// all texts for all albums and inmages
 	AlbumMap _albumMap;		// all source albums
 	ImageMap _imageMap;		// all images for all albums
+	VideoMap _videoMap;		// all videos from all albums
 	Album _root;			// top level album (first in '_albumMap', ID = 1)
 	QDate _latestDateLimit; // depends on config.
 // no need: read is fast enough 	bool _structAlreadyInMemory = false;
@@ -366,6 +491,8 @@ class AlbumGenerator : public QObject
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
+
+	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
 
 	AlbumStructWriterThread *pWriteStructThread=nullptr;		// write structure in separate thread
 	bool _structWritten = true;
@@ -376,7 +503,7 @@ class AlbumGenerator : public QObject
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
-	bool MustRecreateImageBasedOnImageDimensions(Image &img);
+//	bool MustRecreateImageBasedOnImageDimensions(Image &img);
 	bool MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	QString& _GetSetImagePath(QString &img);
@@ -398,7 +525,7 @@ class AlbumGenerator : public QObject
 	bool _ReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
 	void _ReadOneLevel(Album &ab);
 	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
-	ID_t _AddImageFromPathInStruct(QString imagePath);
+	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
 	
 					// write gallery files
@@ -408,8 +535,10 @@ class AlbumGenerator : public QObject
 	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(const Album &album);
 	int _WriteGalleryContainer(Album &album, bool thisIsAnAlbum, int i);
+	int _WriteVideoContainer(Album &album, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
-	int _ProcessImages(); // into image directory
+	int _ProcessImages(); // into 'imgs' directory
+	int _ProcessVideos(); // into 'vids' directory
 	int _CreateOneHtmlAlbum(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateHomePage();
@@ -422,7 +551,7 @@ class AlbumGenerator : public QObject
 	int _DoHtAccess();
 				// read 'gallery.struct
 	bool _LanguageFromStruct(FileReader &reader);
-	ID_t _ImageFromStruct(FileReader &reader, int level, Album &album, bool thumbnail);
+	ID_t _ImageOrVideoFromStruct(FileReader &reader, int level, Album &album, bool thumbnail);
 	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
@@ -432,39 +561,6 @@ class AlbumGenerator : public QObject
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
-public:
-	AlbumGenerator() {};
-	bool Read();	 // reads all albums recursively from Config::dsSrc
-	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
-	int WriteDirStruct(bool keep=false);		
-	bool StructWritten() const { return _structWritten; }
-	bool StructChanged() const { return _structChanged;  }
-	int SaveStyleSheets();
-	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
-
-	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
-	
-	int AlbumCount() const { return _albumMap.size(); }
-	int ImageCount() const { return _imageMap.size(); }
-	int TextCount() const { return _textMap.size(); }
-	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
-	// careful: these are not const so that their elements could be modified
-	Album &AlbumRoot()  { return _root; }
-	ImageMap &Images() { return _imageMap; }
-	TextMap &Texts()   { return _textMap;  }
-	AlbumMap &Albums() { return _albumMap; }
-signals:
-	void SignalToSetProgressParams(int min, int max, int pos, int phase);
-	void SignalProgressPos(int cnt1, int cnt2);
-	void SignalSetLanguagesToUI();
-	void SignalToEnableEditTab(bool on);
-//	void SignalImageMapChanged();
-	void SignalAlbumStructChanged();
-	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void SignalToCreateIcon(QString destPath, QString destName);
-	void SetDirectoryCountTo(int cnt);
-public:		// SLOT: connected with new syntax: no need for MOC to use this slot
-	void Cancelled() { _processing = false; }
 };
 
 extern AlbumGenerator albumgen;
