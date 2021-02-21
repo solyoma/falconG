@@ -6,7 +6,7 @@ Hierarchical, multi language, multi platform photo gallery creator
 run on any operating system (Windows, OS-X, Linux, etc) where 
 Qt is running to create WEB galleries. 
 
-## screenshot
+## Screenshots
 ![image](https://user-images.githubusercontent.com/37068759/108631608-e444c680-746a-11eb-87ff-e7c7b14d1bc7.png)
 
 
