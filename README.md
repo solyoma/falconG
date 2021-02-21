@@ -7,7 +7,7 @@ run on any operating system (Windows, OS-X, Linux, etc) where
 Qt is running to create WEB galleries. 
 
 ## screenshot
-![image](https://user-images.githubusercontent.com/37068759/108631311-94b1cb00-7469-11eb-978c-f6328817e001.png)
+![image](https://user-images.githubusercontent.com/37068759/108631608-e444c680-746a-11eb-87ff-e7c7b14d1bc7.png)
 
 
 It is easy to use and completely free!
