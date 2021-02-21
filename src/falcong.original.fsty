@@ -1,0 +1,80 @@
+[1]
+Title               = Blue
+Background			= #3b5876
+TextColor			= #cccccc
+BorderColor		    = #747474
+FocusedInput		= #f0f0f0
+HoverColor			= #8faed2
+TabBorder			= #3b589b
+InputBackground	    = #1c3a55
+SelectedInputBgr	= #3b584a
+FocusedBorder		= #92b1d5
+DisabledFg			= #999999
+DisabledBg			= #697a8e
+ImageBackground	    = #12273f
+PressedBg			= #555555
+DefaultBg			= #555555
+ProgressBarChunk	= #feb60e
+WarningColor		= #f0a91f
+BoldTitleColor		= #e20883
+
+[2]
+Title               = Green
+Background			= #3b7658
+TextColor			= #cccccc
+BorderColor		    = #747474
+FocusedInput		= #f0f0f0
+HoverColor			= #8fd2ae
+TabBorder			= #3b9b58
+InputBackground	    = #1c553a
+SelectedInputBgr	= #3b4a58
+FocusedBorder		= #92d5b1
+DisabledFg			= #999999
+DisabledBg			= #698e7a
+ImageBackground	    = #123f27
+PressedBg			= #555555
+DefaultBg			= #555555
+ProgressBarChunk	= #fe0eb6
+WarningColor		= #f01fa9
+BoldTitleColor		= #e20883
+
+[3]
+Title               = Dark
+Background			= #282828
+TextColor			= #cccccc
+BorderColor		    = #747474
+FocusedInput		= #f0f0f0
+HoverColor			= #383838
+TabBorder			= #9B9B9B
+InputBackground	    = #454545
+SelectedInputBgr	= #666666
+FocusedBorder		= #c0c0c0
+DisabledFg			= #999999
+DisabledBg			= #555555
+ImageBackground	    = #111111
+PressedBg			= #555555
+DefaultBg			= #555555
+ProgressBarChunk	= #feb60e
+WarningColor		= #f0a91f
+BoldTitleColor		= #e28308
+
+
+[4]
+Title               = Black
+Background			= #191919
+TextColor			= #e1e1e1
+BorderColor		    = #323232
+FocusedInput		= #f0f0f0
+HoverColor			= #282828
+TabBorder			= #9b9b9b
+InputBackground	    = #323232
+SelectedInputBgr	= #4a4a4a
+FocusedBorder		= #a8a8a8
+DisabledFg			= #999999
+DisabledBg			= #191919
+ImageBackground	    = #000000
+PressedBg			= #323232
+DefaultBg			= #323232
+ProgressBarChunk	= #feb60e
+WarningColor		= #f0a91f
+BoldTitleColor		= #e28308
