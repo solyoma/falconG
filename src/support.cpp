@@ -620,7 +620,7 @@ FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi)
 		return ftUnknown;
 	int pos = name.lastIndexOf('.');
 	QString s = name.mid(pos).toLower();
-	return (s == ".jpg") || (s == ".jpeg") || (s == ".gif") || (s == ".png") ? ftImage : (s == "*.mp4") || (s == "*.ogg") || (s == "*.webm") ? ftVideo : ftUnknown;
+	return (s == ".jpg") || (s == ".jpeg") || (s == ".gif") || (s == ".png") ? ftImage : (s == ".mp4") || (s == ".ogg") || (s == ".webm") ? ftVideo : ftUnknown;
 }
 
 

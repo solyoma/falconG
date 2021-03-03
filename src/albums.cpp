@@ -754,17 +754,17 @@ int Album::ImageCount()
 *--------------------------------------------------------------------------*/
 int Album::VideoCount()
 {
-	if (albumCount >= 0)
-		return albumCount;
+	if (videoCount >= 0)
+		return videoCount;
 
 	if (excluded.isEmpty())
-		return albumCount = albums.size();
+		return videoCount = videos.size();
 
-	for (int i = albums.size() - 1; i >= 0; --i)
-		if (excluded.indexOf(albums[i]) >= 0)
-			albums.removeAt(i);
+	for (int i = videos.size() - 1; i >= 0; --i)
+		if (excluded.indexOf(videos[i]) >= 0)
+			videos.removeAt(i);
 
-	return albumCount = albums.size();
+	return videoCount = videos.size();
 }
 
 /*============================================================================
@@ -1089,7 +1089,7 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 			ab.albums.push_back(id);	// add to ordered sub-album ID list for this album
 		id += ALBUM_ID_FLAG;			// signal it was an album that was added
 	}
-	else if ((type=IsImageOrVideoFile(s)))
+	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
 	{
 		if (type == ftImage)
 		{
@@ -1929,10 +1929,10 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 *				max 8 constituents (see below):
 * EXPECTS: s : string of definition w.o. leading spaces					Image Video
 * RETURNS: list of 0, 2, 5/6 or 9/10 strings:
-*				file name	-	always present							(#0)	(#0)
+*				file name	- always present							(#0)	(#0)
 *				file type   - image or video, always present			(#1)	(#1)
 *			 this may or may not be present:
-*				file ID		- video IDsstart with the letter V			(#2)	(#2)
+*				file ID		- video ID starts with the letter V			(#2)	(#2)
 *			 if ID is present then for images these are also present	
 *				image width												(#3)
 *				image height											(#4)
@@ -1941,7 +1941,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 *			 and this is present for both images and videos			
 *				image date												(#7)	(#3)
 *				file size - in bytes									(#8)	(#4)
-*			this may be missing *use last path)
+*			this may be missing if so use last path)
 *				folder path for files									(#9)	(#5)
 * REMARKS:  - format of s may be
 *				<abs. or rel path name of file> - not yet processed file
@@ -1990,7 +1990,7 @@ QStringList __imageMapStructLineToList(QString s)
 	if (typ == ftVideo && sl[2][0] == QChar('V'))	// for video files iD starts with 'V'
 		sl[2] = sl[2].mid(1);
 
-	if (sl.size() != 9 || pos == s.length() )   // was s[pos + 1] != '/')
+	if ( (sl.size() != 9 && sl.size() != 5) || pos == s.length() )   // was s[pos + 1] != '/')
 		return sl;
 	sl.push_back(s.mid(pos + 1));		// index #6 or #10 - original path 
 	return sl;
@@ -3262,6 +3262,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 {
+	if (!album.VideoCount())
+		return -1;
 	ID_t id = album.videos[i];
 	QString title, desc, sVideoDir, sVideoPath, sThumbnailDir, sThumbnailPath;
 
@@ -3282,28 +3284,29 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 	Video* pVideo = &_videoMap[id];	// must exist
 	sVideoPath = sVideoDir + ((album.VideoCount() > 0 ? pVideo->LinkName() : QString()));
 	QString sVideoType = sVideoPath.right(3).toLower();
-	_ofs << "   <div class=\"img-container\">\n"
-			"     <div";
+	_ofs << "		<div class=\"img-container\">\n"		//#1
+			"			<div";								//#2
 	if (pVideo)
 		_ofs << " id=\"V" << pVideo->ID << "\" w=" << config.thumbWidth << " h=" << config.thumbHeight;
 	_ofs << ">\n"
-			"		<video width=\"" << config.thumbWidth << "\" height=\"" << config.thumbHeight << "\" controls>\n"
-		 << "			source src=\"" << sVideoPath << "\" type = \"video/" << sVideoType << "\">\n"
-		 << "		</video>";
+			"				<video width=\"" << config.thumbWidth << "\" height=\"" << (int)config.thumbWidth*1080.0/1920.0
+		 << "\" onmouseover = \"this.controls=true\" onmouseout=\"this.controls=false\"";
+	if (!config.bCanDownload)
+		_ofs << "controlsset=\"nodownload\"";
+	_ofs << ">\n"
+		    "					<source src=\"" << sVideoPath << "\" type = \"video/" << sVideoType << "\">\n"
+		 << "				</video>\n";
 
 	title = DecodeLF(_textMap[pVideo->titleID][_actLanguage], true);
 	desc = DecodeLF(_textMap[(pVideo->descID)][_actLanguage], true);
-	_ofs << "		<div class=\"links\">\n"
-		    "			<div class=\"title\""
-		 << "\">";		// video in the video directory
+	_ofs << "					<div class=\"title\">\n";	//#3	// video in the video directory
 	if (pVideo && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pVideo->name).arg(pVideo->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		 << "          </div>\n"
-		    "		</div>";	// for "title" "links"
+		<< "</div>\n"					//#3 // "title"		//#2
+		    "				</div>\n";		// "links"		//#1
 
-	_ofs << "     </div>\n";		
-			"	</div>\n";		// "img-container"
+	_ofs << "		</div>\n";		// "img-container"		//#1
 	return 0;
 }
 
@@ -3355,19 +3358,17 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<< "    <section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.ImageCount(); ++i)
-			//			if (album.excluded.indexOf(album.images[i]) < 0)
 			_WriteGalleryContainer(album, false, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
 	if (album.VideoCount() > 0)
 	{
-		_ofs << "<!--start section videoss -->\n"
-			<< "    <div id=\"videos\" class=\"fgsection\">" << Languages::Videos[_actLanguage] << "</div>\n"
-			"    <section>\n";
+		_ofs << "<!--start section videos -->\n"
+			 << "    <div id=\"videos\" class=\"fgsection\">" << Languages::Videos[_actLanguage] << "</div>\n"
+			    "    <section>\n";
 
 		for (int i = 0; _processing && i < album.VideoCount(); ++i)
-			//			if (album.excluded.indexOf(album.albums[i]) < 0)
 			_WriteVideoContainer(album, i);
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
@@ -3816,7 +3817,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 
 		added = true;
 		vid.ID = id;
-		(*this)[id] = vid;
+		insert(id,vid);
 		return id + VIDEO_ID_FLAG;	// only for checking
 }
 

@@ -285,11 +285,11 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	int operator<(const Video& i);		 // uses searchBy
 	bool operator==(const Video &i);
 
-	IABase& operator=(const IABase& a)
-	{
-		IABase::operator=(a);
-		type = ((Video&)a).type;
-	}
+	//IABase& operator=(const IABase& a)
+	//{
+	//	IABase::operator=(a);
+	//	type = ((Video&)a).type;
+	//}
 
 	QString AsString(int width=320, int height=-1) 
 	{ 
@@ -443,6 +443,7 @@ public:
 	
 	int AlbumCount() const { return _albumMap.size(); }
 	int ImageCount() const { return _imageMap.size(); }
+	int VideoCount() const { return _imageMap.size(); }
 	int TextCount() const { return _textMap.size(); }
 	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
 	// careful: these are not const so that their elements could be modified

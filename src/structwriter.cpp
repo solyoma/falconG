@@ -175,6 +175,11 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
 			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 		}
+	// DEBUG
+//	int n = album.videos.size();
+//	if (n)
+//		n = n;
+	// ?DEBUG
 	// VIDEOS
 	// format: <name>'(''V'<id>, <date string>,<file size>')'<dSrc relative or absoluth path>
 	for (ID_t id : album.videos)

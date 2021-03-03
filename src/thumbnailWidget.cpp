@@ -937,9 +937,15 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	QMenu menu(this);
 	QAction *pact;
 
-	bool b = selectionModel()->selectedIndexes().size() == 1;
+
+	pact = new QAction(tr("Add..."), this);
+	pact->setEnabled(true);
+	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
+	menu.addAction(pact);
+    menu.addSeparator();
 
 	pact = new QAction(tr("Set As Album Thumbnail"), this);
+	bool b = selectionModel()->selectedIndexes().size() == 1;
 	pact->setEnabled(b);
 	if(b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThhumbnail);
@@ -950,18 +956,14 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	pact->setEnabled(b);
 	if (b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
+	menu.addAction(pact);
 
 	pact = new QAction(tr("&Undo Delete"), this);
 	bool undo = _pImages && !_pImages->NothingToUndo();
 	pact->setEnabled(undo);
 	if (undo)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
-
-
-	pact = new QAction(tr("Add..."), this);
-	pact->setEnabled(b);
-	if (b)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
+	menu.addAction(pact);
 
 	menu.addSeparator();
 
@@ -976,6 +978,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	if (b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyOriginalNamesToClipboard);
 	menu.addAction(pact);
+
 
 	menu.exec(pevent->globalPos());
 }
