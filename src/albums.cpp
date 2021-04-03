@@ -665,7 +665,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 
 	added = true;
 	img.ID = id;
-	(*this)[id] = img;
+	insert(id, img);
 	return id;
 }
 
@@ -2888,7 +2888,7 @@ int AlbumGenerator::_ProcessImages()
 /*============================================================================
 * TASK: gets videos from source directories 
 *		Puts all videso in 'vids' directory, plus
-*	 creates a list of the videso processed in the image directory
+*	 creates a list of the videos processed in the image directory
 * EXPECTS:	none,
 *			these are set: _imageMap,_videoMap
 *							_actLanguage - index of actual language
@@ -2903,7 +2903,7 @@ int AlbumGenerator::_ProcessVideos()
 
 	// progress bar
 	emit SignalToSetProgressParams(0, _ItemSize(), 0, 1); // phase = 1
-	std::atomic_int cnt = _imageMap.size();	// count of items copied so far
+	std::atomic_int cnt = TotalCount();	// count of images and videos copied so far
 
 	for (auto im : _videoMap)
 	{
@@ -2999,13 +2999,13 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 
 	s += QString("<meta charset=\"UTF-8\">\n"
 		"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-		"<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">"
-		"<neta name=\"generator\" content=\"falconG\">\n"
+		"<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n"
+		"<meta name=\"generator\" content=\"falconG\">\n"
 		"<title>" + config.sGalleryTitle + "</title>\n");
 	if (!config.sDescription.IsEmpty())
-		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "/>\n");
+		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "\"/>\n");
 	if (!config.sKeywords.IsEmpty())
-		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "/>\n");
+		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "\"/>\n");
 
 	s += QString(sCssLink + "falconG.css\">\n" + 
 		"<script type=\"text/javascript\"  src=\"" + supdir + "js/falconG.js\"></script>"	);

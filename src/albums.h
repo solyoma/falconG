@@ -443,7 +443,8 @@ public:
 	
 	int AlbumCount() const { return _albumMap.size(); }
 	int ImageCount() const { return _imageMap.size(); }
-	int VideoCount() const { return _imageMap.size(); }
+	int VideoCount() const { return _videoMap.size(); }
+	int TotalCount() const { return _albumMap.size() + _videoMap.size(); }
 	int TextCount() const { return _textMap.size(); }
 	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
 	// careful: these are not const so that their elements could be modified
