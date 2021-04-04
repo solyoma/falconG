@@ -154,7 +154,7 @@ void CssCreator::_CreateForHeader()
 {
 	QString s = ".header {\n";
 	if (_forFalconG)
-		s += "    cursor:pointer;\n";
+		s += "	cursor:pointer;\n";
 
 	_CssForElement(s, config.Header);
 }
@@ -236,11 +236,11 @@ void CssCreator::_CreateForImageTitle()
 {
 	QString s =	QString(".title:hover{\n"
 				   "	font-weight: ") + (config.ImageTitle.font.Bold() ? "normal;\n":"700;\n")+
-				   "    font-style: " + (config.ImageTitle.font.Italic() ? "normal;\n":"italic;\n")+
+				   "	font-style: " + (config.ImageTitle.font.Italic() ? "normal;\n":"italic;\n")+
 				   "}\n\n"
 				   ".title {\n";
-	if (_forFalconG)
-		s += "    cursor:pointer;\n";
+//	if (_forFalconG)
+		s += "	cursor:pointer;\n";
 
 	_CssForElement(s, config.ImageTitle);
 }
@@ -262,26 +262,26 @@ void CssCreator::_CreateForLightboxTitle()
 {
 	_CssForElement(R"(/* Lightbox */
 .lightbox {
-    display: none;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    position: fixed;
-    z-index: 20;
-    padding-top: 30px;
-    box-sizing: border-box;
+	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.9);
+	position: fixed;
+	z-index: 20;
+	padding-top: 30px;
+	box-sizing: border-box;
 	overflow:auto;
 }
 
 #lb-flex {
-    display: flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    width: 100%;
-    height: 100%;
+	display: flex;
+	flex-direction:column;
+	align-items:center;
+	justify-content:center;
+	width: 100%;
+	height: 100%;
 }
 
 .lightbox-caption { 

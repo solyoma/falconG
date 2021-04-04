@@ -3116,6 +3116,7 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 		<< QString(Languages::countOfImages[_actLanguage]).arg(album.images.size()).arg(album.albums.size()) << "<br><br>\n"
 		<< Languages::falconG[_actLanguage] << "<br>\n"
 			"</footer>\n";
+
 	return 0;
 }
 
@@ -3232,11 +3233,11 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	//  -------------------------- end of description
 
 	//  -------------------------- links with  album/image title
-	QString qsLoc = sAlbumDir;	// empty for non root albums/images
+	QString qsLoc;		// empty for non root albums/images
 	if (itIsAnAlbum)
-		qsLoc += "javascript:LoadAlbum('" + _albumMap[id].NameFromID(id, _actLanguage, false);
+		qsLoc = "javascript:LoadAlbum('" + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
-		qsLoc += sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
+		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
 
 	_ofs << "     <div class=\"links\">\n"
