@@ -283,6 +283,8 @@ FalconG::FalconG(QWidget *parent)
 
 	config.Read();				// to read config from
 
+	ui.designSplitter->setSizes({ config.splitterLeft, config.splitterRight } );
+
 	_tmpScheme = _schemes[config.styleIndex];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 
@@ -315,7 +317,7 @@ FalconG::~FalconG()
 }
 
 /*============================================================================
-* TASK:		prevent closing when qan operation is running
+* TASK:		prevent closing when an operation is running
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
@@ -347,6 +349,14 @@ void FalconG::closeEvent(QCloseEvent * event)
 			event->ignore();
 			return;
 		}
+	}
+
+	QList<int> splitterSizes = ui.designSplitter->sizes();
+	if (config.splitterLeft = splitterSizes.at(0))
+	{
+		config.splitterLeft = splitterSizes.at(0);
+		config.splitterRight = splitterSizes.at(1);
+		config.SetChanged(true);
 	}
 
 	if (config.Changed())
@@ -2640,6 +2650,9 @@ void FalconG::on_btnReload_clicked()
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnSaveConfig_clicked()
 {
+	QList<int> splitterSizes = ui.designSplitter->sizes();
+	config.splitterLeft = splitterSizes.at(0);
+	config.splitterRight = splitterSizes.at(1);
 	config.Write();
 
 	//CssCreator creator;

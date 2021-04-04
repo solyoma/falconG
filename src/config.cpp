@@ -1551,6 +1551,10 @@ void CONFIG::Read()		// synchronize with Write!
 	LightboxTitle.Read(s);
 	LightboxDesc.Read(s);
 	Footer.Read(s);
+	// splitter
+	splitterLeft.Read(s);
+	splitterRight.Read(s);
+
 				// 	Watermarks
 	waterMark.Read(s);
 	// Debug
@@ -1657,6 +1661,9 @@ void CONFIG::_WriteIni(QString sIniName)
 	LightboxTitle.Write(s);
 	LightboxDesc.Write(s);
 	Footer.Write(s);
+	// splitter
+	splitterLeft.Write(s);
+	splitterRight.Write(s);
 				// 	Watermarks
 	waterMark.Write(s);
 

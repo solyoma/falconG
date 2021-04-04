@@ -898,6 +898,9 @@ public:
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 
+				// design page
+	_CInt splitterLeft = { 493, "spll" };
+	_CInt splitterRight = { 543, "splr" };
 	// Options page
 	_CInt styleIndex = {0, "styleIndex"};
 
