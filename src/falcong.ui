@@ -3530,7 +3530,7 @@ using thjis combo box</string>
                               </font>
                              </property>
                              <property name="text">
-                              <string>&amp;Different 1st lin:</string>
+                              <string>&amp;Different 1st line:</string>
                              </property>
                             </widget>
                            </item>

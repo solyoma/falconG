@@ -724,6 +724,10 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.sbSpaceAfter->setValue(pElem->spaceAfter.v);
 
 	ui.edtFontFamily->setText(pElem->font.Family());
+	int ix = ui.cbFonts->findText(pElem->font.Family());
+	if (ix < 0) ix = 0;	// not found -> empty
+	ui.cbFonts->setCurrentIndex(ix);
+
 	ui.cbPointSize->setCurrentText(pElem->font.SizeStr());
 	ui.cbLineHeight->setCurrentText(pElem->font.LineHeightStr());
 	ui.chkBold->setChecked(pElem->font.Bold());
@@ -1697,11 +1701,12 @@ void FalconG::on_cbPointSize_currentTextChanged(const QString & txt)
 		return;
 
 	QString text = txt;
-	_PtrToElement()->font.SetSize(txt);
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetSize(txt);
 	if (!ui.chkDifferentFirstLine->isChecked())
 	{
 		ui.cbPointSizeFirstLine->setCurrentText(txt);
-		_PtrToElement()->font.SetDifferentFirstLine(true, txt);
+		pElem->font.SetDifferentFirstLine(true, txt);
 	}
 	_SetConfigChanged(true);
 	_ElemToSample();
@@ -2991,6 +2996,9 @@ void FalconG::on_btnDisplayHint_clicked()
  *-------------------------------------------------------*/
 void FalconG::_ModifyGoogleFontImport()
 {
+	CssCreator cssCreator;
+	cssCreator.Create("sample/css/falconG.css", true);	// program library setting cursors too
+#if 0
 	static QString name = "sample/css/falconG.css",
 		tmpName = name + ".tmp";
 	QFile in(name),
@@ -3027,6 +3035,7 @@ void FalconG::_ModifyGoogleFontImport()
 	in.close();
 	out.close();
 	BackupAndRename(name, tmpName);
+#endif
 	// reload page
 	_page.triggerAction(QWebEnginePage::Reload);
 	ui.cbActualItem->setCurrentIndex(0);

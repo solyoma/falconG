@@ -153,7 +153,7 @@ void CssCreator::_CreateForLangButton()
 void CssCreator::_CreateForHeader()
 {
 	QString s = ".header {\n";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "	cursor:pointer;\n";
 
 	_CssForElement(s, config.Header);
@@ -166,7 +166,7 @@ void CssCreator::_CreateForSmallTitle()
 	margin-left: 10px;
 	display:inline-block;
 )";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "    cursor:pointer;\n";
 
 	_CssForElement(s, 	config.SmallGalleryTitle);
@@ -175,7 +175,7 @@ void CssCreator::_CreateForSmallTitle()
 void CssCreator::_CreateForGalleryTitle()
 {
 	QString s = ".gallery-title {\n";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "    cursor:pointer;\n";
 	_CssForElement(s, config.GalleryTitle);
 }
@@ -183,7 +183,7 @@ void CssCreator::_CreateForGalleryTitle()
 void CssCreator::_CreateForGalleryDesc()
 {
 	QString s = ".gallery-desc {\n";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "    cursor:pointer;\n";
 	_CssForElement(s, config.GalleryDesc);
 }
@@ -239,7 +239,7 @@ void CssCreator::_CreateForImageTitle()
 				   "	font-style: " + (config.ImageTitle.font.Italic() ? "normal;\n":"italic;\n")+
 				   "}\n\n"
 				   ".title {\n";
-//	if (_forFalconG)
+//	if (_forSamplePage)
 		s += "	cursor:pointer;\n";
 
 	_CssForElement(s, config.ImageTitle);
@@ -253,7 +253,7 @@ void CssCreator::_CreateForImageDesc()
 	-webkit-hyphens: auto;
 	-ms-hyphens: auto;
 )";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "    cursor:pointer;\n";
 	_CssForElement(s, config.ImageDesc );
 }
@@ -298,7 +298,7 @@ void CssCreator::_CreateForLightboxDescription()
 void CssCreator::_CreateForFooter()
 {
 	QString s = ".footer {\n";
-	if (_forFalconG)
+	if (_forSamplePage)
 		s += "    cursor:pointer;\n";
 	_CssForElement( s,config.Footer);
 }
@@ -371,12 +371,12 @@ void CssCreator::_Create()
 }
 
 
-bool CssCreator::Create(QString name, bool forFalconG)
+bool CssCreator::Create(QString name, bool forSamplePage)
 {
 	if (!_Open(name))
 		return false;
 
-	_forFalconG = forFalconG;
+	_forSamplePage = forSamplePage;
 	_Create();
 	_Close();
 
