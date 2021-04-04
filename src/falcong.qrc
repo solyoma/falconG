@@ -14,6 +14,7 @@
     <file>Resources/link.png</file>
   </qresource>
   <qresource prefix="Preview">
+    <file>Resources/placeholder2.png</file>
     <file>Resources/falconG.js</file>
     <file>Resources/NoImage.jpg</file>
     <file>Resources/placeholder.png</file>

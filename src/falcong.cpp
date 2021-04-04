@@ -165,9 +165,10 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 	if ( ! QFile::exists(destDir + name))
 	{
 		QFile f(resPath);
+		QFileInfo fi(f);
 		if (!f.open(QIODevice::ReadOnly))
 			goto ERR;
-		QByteArray ba = f.read(128 * 1024);
+		QByteArray ba = f.read(fi.size());
 		f.close();
 		f.setFileName(destDir + name);
 		if (f.open(QIODevice::WriteOnly) )
@@ -212,6 +213,7 @@ FalconG::FalconG(QWidget *parent)
 	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder.png");
+	_CopyResourceFileToSampleDir(resPPath, "placeholder2.png");
 	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
 
 	_CopyResourceFileToSampleDir(resIPath, "up-icon.png");
