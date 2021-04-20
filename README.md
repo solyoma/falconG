@@ -1,4 +1,5 @@
 # falconG
+![image](https://user-images.githubusercontent.com/37068759/114211459-f61df280-9960-11eb-8e57-eddca19dcf7e.png)
 Hierarchical, multi language, multi platform photo gallery creator
     written in C++ and Qt 5
 

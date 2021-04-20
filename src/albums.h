@@ -335,9 +335,9 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 
 	bool Valid() const { return ID != 0; }
 	void Clear() { images.clear(); albums.clear(); excluded.clear(); }
-	int ImageCount();		// only non-excluded images
-	int VideoCount();		// only non-excluded videos
-	int SubAlbumCount();	// only non excluded albums (removes excluded albums) = count of children
+	int ImageCount();		// only non-excluded existing images
+	int VideoCount();		// only non-excluded existing videos
+	int SubAlbumCount();	// only non excluded existing albums (removes excluded albums) = count of children
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html

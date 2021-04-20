@@ -963,7 +963,7 @@
                </font>
               </property>
               <property name="title">
-               <string>Advanced (you may leave theese alone)</string>
+               <string>Advanced (you may leave these alone)</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_17">
                <item row="0" column="0">
@@ -1769,8 +1769,8 @@ original file name.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2120,8 +2120,8 @@ its original size;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>423</width>
-                         <height>707</height>
+                         <width>392</width>
+                         <height>672</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4342,8 +4342,8 @@ Others: set value and style separately for all 4.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4733,8 +4733,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

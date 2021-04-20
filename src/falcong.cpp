@@ -192,8 +192,7 @@ ERR:
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-FalconG::FalconG(QWidget *parent)
-	: QMainWindow(parent)
+FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 {
 	config.dsApplication = QDir::current().absolutePath(); // before anybody changes the current directory
 

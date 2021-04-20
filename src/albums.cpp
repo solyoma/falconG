@@ -736,12 +736,12 @@ int Album::ImageCount()
 	if (imageCount >= 0)
 		return imageCount;
 
-	if (excluded.isEmpty())
-		return imageCount = images.size();
-
-	for (int i = images.size() -1; i >= 0; --i)	// from end to start
-		if (excluded.indexOf(images[i]) >= 0)
-			images.removeAt(i);
+	if (!excluded.isEmpty())
+	{
+		for (int i = images.size() - 1; i >= 0; --i)	// from end to start
+			if (excluded.indexOf(images[i]) >= 0)
+				images.removeAt(i);
+	}
 	return imageCount = images.size();
 }
 
@@ -757,13 +757,12 @@ int Album::VideoCount()
 	if (videoCount >= 0)
 		return videoCount;
 
-	if (excluded.isEmpty())
-		return videoCount = videos.size();
-
-	for (int i = videos.size() - 1; i >= 0; --i)
-		if (excluded.indexOf(videos[i]) >= 0)
-			videos.removeAt(i);
-
+	if (!excluded.isEmpty())
+	{
+		for (int i = videos.size() - 1; i >= 0; --i)
+			if (excluded.indexOf(videos[i]) >= 0)
+				videos.removeAt(i);
+	}
 	return videoCount = videos.size();
 }
 
@@ -779,13 +778,12 @@ int Album::SubAlbumCount()
 	if (albumCount >= 0)
 		return albumCount;
 
-	if (excluded.isEmpty())
-		return albumCount = albums.size();
-
-	for (int i = albums.size()-1; i >= 0; --i)
-		if (excluded.indexOf(albums[i]) >= 0)
-			albums.removeAt(i);
-
+	if (!excluded.isEmpty())
+	{
+		for (int i = albums.size() - 1; i >= 0; --i)
+			if (excluded.indexOf(albums[i]) >= 0)
+				albums.removeAt(i);
+	}
 	return albumCount = albums.size();
 }
 
@@ -2730,6 +2728,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 	if (!srcExists)	// then must check if it is changed
 	{
+		im.exists = false;
 		if (dstExists)						// source file was deleted
 		{
 			QFile::remove(dst);				// delete
@@ -2864,7 +2863,7 @@ int AlbumGenerator::_ProcessImages()
 	if (config.waterMark.used)
 		config.waterMark.wm.SetupMark();
 
-	for (auto im : _imageMap)
+	for (auto &im : _imageMap)
 	{
 		if (!_processing)		// stopped?
 		{
@@ -3042,7 +3041,12 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 //		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
 	outputMenuLine("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
 	if (config.bMenuToAbout)
-		outputMenuLine("about", updir + Languages::FileNameForLanguage(config.sAbout, _actLanguage), Languages::toAboutPage[_actLanguage]);
+	{
+		QString s = config.sAbout;
+		if (s.isEmpty())
+			s = "about.html";
+		outputMenuLine("about", updir + Languages::FileNameForLanguage(s, _actLanguage), Languages::toAboutPage[_actLanguage]);
+	}
 	if (config.bMenuToContact)
 		outputMenuLine("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
@@ -3110,10 +3114,22 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_WriteFooterSection(const Album & album)
 {
-		// TODO
+		
+	int cntImages = 0, cntAlbums = 0, cntVideos = 0;
+
+	for (auto iid : album.images)
+		if (_imageMap[iid].exists)
+			++cntImages;
+	for (auto iid : album.videos)
+		if (_videoMap[iid].exists)
+			++cntVideos;
+	for (auto iid : album.albums)
+		if (_albumMap[iid].exists)
+			++cntAlbums;
+
 	_ofs << " <!-- footer section with social media links -->\n"
 		"<footer class = \"footer\">\n"
-		<< QString(Languages::countOfImages[_actLanguage]).arg(album.images.size()).arg(album.albums.size()) << "<br><br>\n"
+		<< QString(Languages::countOfImages[_actLanguage]).arg(cntImages).arg(cntAlbums) << "<br><br>\n"
 		<< Languages::falconG[_actLanguage] << "<br>\n"
 			"</footer>\n";
 
@@ -3126,6 +3142,7 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 *			itIsAnAlbum - if false then images are written
 *			i			- index in ID list for images or albums (when itIsAnAlbum is true)
 * GLOBALS: config, Languages
+* RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
 * REMARKS:  - root albums (ID == 1) are written into gallery root, others
 *			  are put into directory 'albums' 
 *			- common for images and albums as both have thumbnail
@@ -3138,6 +3155,9 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
+	if (itIsAnAlbum && !album.exists)
+		return -1;
+
 	if (album.ID == 1)
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
@@ -3171,7 +3191,14 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 			pImage = &_imageMap[0];
 	}
 	else
+	{
 		pImage = &_imageMap[id];
+		if (!pImage->exists)
+		{
+			album.excluded.append(id);
+			return -2;
+		}
+	}
 
 	if (pImage)
 	{
@@ -3235,7 +3262,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	//  -------------------------- links with  album/image title
 	QString qsLoc;		// empty for non root albums/images
 	if (itIsAnAlbum)
-		qsLoc = "javascript:LoadAlbum('" + _albumMap[id].NameFromID(id, _actLanguage, false);
+		qsLoc = "javascript:LoadAlbum('" + sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
@@ -3440,7 +3467,6 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		_CreateOneHtmlAlbum(f, album, language, uplink, processedCount);
 
 	if (_processing) 		// create sub albums
-
 	{
 		if (album.SubAlbumCount() >0)
 		{
