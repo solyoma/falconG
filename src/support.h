@@ -177,7 +177,7 @@ struct ImageReader : public QImageReader
 {
 	QSize thumbSize = { 0, 0 },	// these must be set before processing thumbnails
 		  imgSize;
-	QImage img;			// read scaled image into this
+	QImage img;					// read scaled image into this
 	bool isReady = false;
 	bool read() 
 	{ 
@@ -186,7 +186,7 @@ struct ImageReader : public QImageReader
 	bool canRead() { return (isReady ? true : QImageReader::canRead()); }
 	ImageReader(QIODevice *device, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(device, format) 
 	{
-		setAutoTransform(true);  // auto rotate, flip and mirror during read()when portrait orientation is set in EXIF
+		setAutoTransform(true);  // auto rotate, flip and mirror during read() when portrait orientation is set in EXIF
 	}
 	ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader()
 	{

@@ -557,7 +557,7 @@ QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 	{
 		_ofs << LinkName() << " ("
 			<< fileSize << ","
-			<< size.width() << "x" << size.height() << ","
+			<< rsize.width() << "x" << rsize.height() << ","
 			<< osize.width() << "x" << osize.height() << ","
 			// ISO 8601 extended format: either yyyy-MM-dd for dates or 
 			<< uploadDate.toString(Qt::ISODate)
@@ -824,11 +824,15 @@ int Album::DescCount()
 	if (descCount >= 0)
 		return descCount;
 
+	descCount = 0;			// otherwise albums with a single description could not have a menu button
 	for (auto a : albums)
 		if (albumgen.Albums()[a].descID)
 			++descCount;
 	for (auto a : images)
 		if (albumgen.Images()[a].descID)
+			++descCount;
+	for (auto a : videos)
+		if (albumgen.Videos()[a].descID)
 			++descCount;
 	return descCount;
 }
@@ -1576,7 +1580,7 @@ bool AlbumGenerator::Read()
 		im.exists = true;
 		im.name = "NoImage.jpg";
 		im.ID = 0;
-		im.ssize = im.osize = QSize(800, 800);
+		im.dsize = im.osize = QSize(800, 800);
 		_imageMap[0] = im;
 	}
 
@@ -1957,7 +1961,7 @@ QStringList __imageMapStructLineToList(QString s)
 	QStringList sl;
 	int pos0 = 0, 
 		pos = s.lastIndexOf('(');	// either the opening for file parameters after the file name
-									// or, ehen no such parameters) inside the file name
+									// or, when no such parameters) inside the file name
 	FileTypeImageVideo typ;
 
 	auto typeStr = [&]() { return typ == ftImage ? "Image" : "Video"; };
@@ -1968,6 +1972,8 @@ QStringList __imageMapStructLineToList(QString s)
 		typ = IsImageOrVideoFile(s);// so check full name
 		if (typ == ftUnknown)	// this is an unknown file type
 			return sl;
+		else 
+			pos = s.length();
 	}
 	
 	sl.push_back(s.mid(0, pos));	// index #0 - file name
@@ -2058,7 +2064,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 			img.SetResizeType();	// handle starting '!!'
 
 			img.ID = id;
-			img.ssize = QSize(sl[3].toInt(), sl[4].toInt());	// scaled size from .struct file
+			img.dsize = QSize(sl[3].toInt(), sl[4].toInt());	// scaled size from .struct file
 			img.osize = QSize(sl[5].toInt(), sl[6].toInt());	// original size - " -
 
 	// calculated when asked for		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
@@ -2705,55 +2711,75 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 /*========================================================
  * TASK:	Process one image and thumbnail using
  *			converters
- * PARAMS:	im - actual Image (may be modified)
+ * PARAMS:	im - actual source image 
  *			converter - common converter for images
  *			thumbConverter - same for thumbnails
  * GLOBALS:
  * RETURNS:	nothing
- * REMARKS: -
+ * REMARKS:	- 
+ *			- im may have its dimensions read from structure
+ *				file, but it also be a new image w.o. any
+ *				size data read in
+ *			- im may contain an image different from a
+ *				previous process. It may be new, it may be
+ *				of a different size or a newr date than the
+ *				processed one, whose name is <im.ID>.jpg
  *-------------------------------------------------------*/
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
-	int doProcess = prImage | prThumb;	// suppose both image and thumb changed
+	int doProcess = prImage | prThumb;	// suppose both image and thumb must be created 
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-			dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions),
-			thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
+			dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions), // e.g. imgs/123456789.jpg
+			thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
 
 	QFileInfo fiSrc(src), fiThumb(thumbName), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),
 		dstExists = fiDest.exists(dst),
 		thumbExists = fiThumb.exists();
 
-	if (!srcExists)	// then must check if it is changed
+	if (!srcExists)	// then it might have been removed
 	{
 		im.exists = false;
-		if (dstExists)						// source file was deleted
+		if (dstExists)	// source file was deleted,remove destination image
 		{
-			QFile::remove(dst);				// delete
+			QFile::remove(dst);				
 			if (thumbExists)
-				QFile::remove(thumbName);
+				QFile::remove(thumbName);	// and thumbnail
 		}
 		return;
 	}
 
+	QSize dstSize;		// real dimensions of existing destination 
+						// image or empty if no such image exists
+	if (dstExists)
+	{
+		QImageReader destReader(dst, QByteArray("jpg"));
+		dstSize = destReader.size();
+	}
 	ImageReader imgReader(src, im.dontResize);			// constructor opens file, but doesn`t read image! 'autoTransform' is set to true
 	QSize imgSize = imgReader.size();					// size read from file (autoTransform affects only read() and not this size())
+
 	QImageIOHandler::Transformations tr = imgReader.transformation(); // from file
 	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+	{
 		imgSize.transpose();
+		if (!dstSize.isEmpty())
+			dstSize.transpose();
+	}
 
-	im.GetResizedDimensions();
+	if (im.osize.isEmpty())	// no structure file or image is not processed yet
+		im.osize = imgSize;	// then set original size from existing image
+
+	im.GetResizedDimensions(dstSize);	// into 'size' and set 'bSizeDifferent'
 
 	if (imgSize.width() != im.osize.width() || imgSize.height() != im.osize. height())	// source changed rel. to data base: must re-create everything
 	{
 		im.osize = imgSize;
 
-		im.GetResizedDimensions();		// must recalculate, 
-
-		im.bSizeDifferent = true;		// but it is sure changed
-
+		im.GetResizedDimensions(dstSize);// must recalculate, 
+		im.bSizeDifferent = true;		// this signals	dest. image changed
 		im.SetNewDimensions();			// process to these sizes
 	}
 
@@ -2762,7 +2788,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 //		QString gsDate = dtSrc.toString();
 // /DEBUG
 
-	if (dstExists)		// then test if the source image was modified (width = 0: only added by name)
+	if (dstExists)		// then test if it should be re-created (width = 0: only added by name)
 	{					// and if not then do not process it
 		QDateTime dtDestCreated = fiDest.lastModified();	   // created() => birthTime() since Qt 5.10
 // DEBUG
@@ -2817,7 +2843,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 							(config.doNotEnlarge ? dontEnlarge : 0);
 
 		imgReader.thumbSize = im.tsize;
-		imgReader.imgSize = im.size;
+		imgReader.imgSize = im.rsize;
 		converter.Process(imgReader, dst, thumbName, pwm);
 		//im.owidth = converter.oSize.width();
 		//im.oheight = converter.oSize.height();
@@ -3151,6 +3177,8 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int i)
 {
 	IdList &idList = (itIsAnAlbum ? album.albums : album.images);
+	if (idList.isEmpty())
+		return itIsAnAlbum ? -1 : -2;
 	ID_t id = idList[i];  
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 

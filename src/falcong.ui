@@ -1315,18 +1315,14 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           </property>
           <item row="0" column="0">
            <widget class="QCheckBox" name="chkReadFromGallery">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By checking this option and pressing 'Generate' &lt;/p&gt;&lt;p&gt;you loose all the  changes you made to image and album &lt;/p&gt;&lt;p&gt;titles and descriptions!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This setting will not be saved in the configuration.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you have an existing gallery in the folder&lt;/p&gt;&lt;p&gt;'Generate gallery into' and want to create the&lt;/p&gt;&lt;p&gt;.struct file in the source folder. That structure file&lt;/p&gt;&lt;p&gt;will not contain the original image names, and supposes&lt;/p&gt;&lt;p&gt;that the image files and albums of same names as in&lt;/p&gt;&lt;p&gt;the html files are present in the source directory.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Pressing 'Generate'  when this option is checked&lt;/p&gt;&lt;p&gt;you loose all data in the .struct file!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This setting will not be saved in the configuration.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Read From Gallery</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="chkReadJAlbum">
-            <property name="text">
-             <string>Read from directories/JAlbum</string>
+             <string>Create structure from existing HTML gallery</string>
             </property>
            </widget>
           </item>
@@ -1383,17 +1379,32 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="3">
            <widget class="QCheckBox" name="chkDebugging">
             <property name="contextMenuPolicy">
              <enum>Qt::DefaultContextMenu</enum>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;If checked each photo will have a title containing the original file name.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
             <property name="styleSheet">
-             <string notr="true">if selected each photo will have a title with the
-original file name.</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>&amp;Debugging</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="chkReadJAlbum">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create or overwrite existing .struct file using&lt;/p&gt;&lt;p&gt;data from the source directory tree. &lt;/p&gt;&lt;p&gt;If that data contains files from a JAlbum Version &amp;lt; 12,&lt;/p&gt;&lt;p&gt;that will be used to get image and album descriptions and titles.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If no .struct file is present in the source directory then&lt;/p&gt;&lt;p&gt;that directory will automatically be processed as if&lt;/p&gt;&lt;p&gt;this option were selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Read from directories/JAlbum</string>
             </property>
            </widget>
           </item>
@@ -1769,8 +1780,8 @@ original file name.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2120,8 +2131,8 @@ its original size;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
-                         <height>672</height>
+                         <width>476</width>
+                         <height>707</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4342,8 +4353,8 @@ Others: set value and style separately for all 4.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4733,8 +4744,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -6445,8 +6456,6 @@ program directory (html,css,js,...)</string>
   <tabstop>chkReadFromGallery</tabstop>
   <tabstop>chkOvrImages</tabstop>
   <tabstop>chkAddTitlesToAll</tabstop>
-  <tabstop>chkReadJAlbum</tabstop>
-  <tabstop>chkDebugging</tabstop>
   <tabstop>chkLowerCaseImageExtensions</tabstop>
   <tabstop>chkAddDescToAll</tabstop>
   <tabstop>btnGenerate</tabstop>

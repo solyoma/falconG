@@ -16,7 +16,7 @@ PressedBg=#555555
 DefaultBg=#555555
 ProgressBarChunk=#feb60e
 WarningColor=#aa0000
-BoldTitleColor=#ffff00
+BoldTitleColor=#d6cf85
 
 [2]
 Title=Green

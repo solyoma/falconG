@@ -152,19 +152,23 @@ void FileReader::_Trim()
 }
 
 /*============================================================================
-* TASK:	reads a *line delimiter* (LF or CR+LF) delimited UTF-8 encoded 
+* TASK:	buffered read of a delimited UTF-8 encoded 
 *		character string into '_line' from '_f' until EOF on the stream.
-*		If the last character before the line delimiter is a backslash the line
-*		does not ends at the delimiter, but it is a continuation line.
-*		Continuation lines are concatenated _line
+*		line delimiter is either LF or CR+LF. 
+*		If the last character before the line delimiter is a backslash the
+*		logical line does not ends at the delimiter, but continued in the
+*		next physical line.	Continuation lines are concatenated into _line
+*		with a single space separating the two parts.
 *		
-* EXPECTS:  last read line may be overwritten
-* GLOBALS:  _bpos - position in buffer to start of next line
-*           _bsize - size of data in buffer
-*			_bytesRead - from file
+* EXPECTS:  
+* GLOBALS:  _bytes	- input buffer it may contain more than one line
+*           _bsize	- size of data in buffer '_bytes'
+*			_bpos	- actual cursor position in buffer 
+*			_bytesRead - count read from file
+*			_line	- one line from _bytes or maybe from previous buffer
 * RETURNS: nothing (_line and _ok are set)
 * REMARKS:	- concatenates input lines ending in a backslash character
-*			  with the next line
+*			  with the next line using a single space between them
 *			- result in _line is always Utf8, even if they were in the local
 *				encoding
 *			- at end of file or on read error _ok is set to false
@@ -172,6 +176,7 @@ void FileReader::_Trim()
 *				buffer. If this character is an LF then the buffer ends with EOL 
 *				otherwise the line continues in the next bufferfull of characters
 *			- the character combination 'backslash + EOL' character is discarded
+*				from _line
 *--------------------------------------------------------------------------*/
 void FileReader::_readBinaryLine()
 {
@@ -179,20 +184,22 @@ void FileReader::_readBinaryLine()
 	if (!_ok)
 		return;
 
-	static char __lastCharRead = 0;		   // can be any character BS or CR
+	static char __lastCharRead = 0;		   // can be any character including BS, LF or CR
 	static bool __backslashAtEnd = false;  // partial line ended with a BS
 										   // next partial line may start with CR or LF
 
 	const char CR = '\r', LF = '\n', BS = '\\';
 	bool EOL = false;	
 
-	QByteArray ba;		// holds characters to be converted to string
-						// never contains line continuation string BS+LF or BS+CR+LF
-	char ch;
+	QByteArray ba;		// internal buffer: holds characters to be converted to string
+
+	char ch = 0;
+	// loop to read a complete line into 'ba'
 	do
 	{
-		if (!_bsize)		// must read new data into buffer
-		{					
+		if (!_bsize)		// buffer is empty or all data in it were already used up
+		{					// so wee need to read new data into '_bytes'
+			_bpos = 0;	// new _bytes buffer read
 			_bsize = _BUFFER_SIZE;
 			if (_bytesRead + _bsize > _fileSize)
 				_bsize = _fileSize - _bytesRead;
@@ -210,32 +217,40 @@ void FileReader::_readBinaryLine()
 			// .  . CR				-  line will end with an LF	here  (EOL == false)
 			// . CR LF	or .  . LF	-  line already ended (EOL == true)
 
-			// EOL == false and the buffer ended with
+			// EOL == false and the previous buffer ended with (| signals end of buffer)
 			// . \  CR |			   (__backslashAtEnd == false)
 			// . \  LF +-------------  line will continue here (__backslashAtEnd == false)
 			// \ CR LF | 			   (__backslashAtEnd == false)
 			// .  .  \ |			   (__backslashAtEnd == true)
 			// .  .  . |			   (__backslashAtEnd == false)
 
-			_bpos = 0;
-
-			if (__backslashAtEnd)	// check for continuation characters
+			// modify _bpos if new buffer starts with an EOL character (CR or LF)
+			if (__backslashAtEnd)	// of previous data in 'ba'. Check for continuation characters in this new data
 			{
-				if (_bytes[0] == LF)
+				if (_bytes[0] == LF)	// there is previous data ending with either CR (windows) or ordinary character (Macs,linux)
 					_bpos = 1;
-				else if (_bytes[0] == CR)
-					_bpos = 2;			  // MUST be LF (old Macs < OS X does not work)
-				else
-					ba += BS;			// other characters: keep the \'
+				else if (_bytes[0] == CR)  // MUST be a CR + LF combination (old Macs < OS X used CR as line end character, for them this does not work)
+					_bpos = 2;			  
+				else 
+					ba += BS;			// other characters (e.g. '\\'|'n'): keep the \'
 				EOL = false;
+				// check if continuation line starts with spaces and previous part ended with it
+				// and leave a single space here
+				if (_bytes[_bpos] == ' ')
+				{
+					while (_bpos < _bsize && _bytes[_bpos] == ' ')
+						++_bpos;
+					if (ch != ' ')
+						--_bpos;
+				}
 			}
-			else if (__lastCharRead == CR && _bytes[0] == LF) // line ends here
+			else if (__lastCharRead == CR && _bytes[0] == LF) // previous line ends here
 			{
-				_bpos = 1;	// in this case  current line starts at position 1
+				_bpos = 1;	// in this case  next line starts at position 1
 				EOL = true;
 			}
 
-			__lastCharRead = _bytes[_bsize - 1];	// store last character read
+			__lastCharRead = _bytes[_bsize - 1];	// store last character read into '_bytes'
 			__backslashAtEnd = false;
 
 			if (EOL)
@@ -243,56 +258,90 @@ void FileReader::_readBinaryLine()
 		}
 
 		// not EOL
-		int epos = _bpos;
+		int epos = _bpos;	// actual check position
 
 		// search for line end position up to the last byte
 		// for continuation line checks (BS+CR+LF or BS+LF inside - no problem)
 		while (!EOL && _bpos < _bsize)
-		{					// get end of line or one line section
+		{		// get to end of line or end of one line section
+				// or end of buffer
 			while (epos < _bsize && _bytes[epos] != CR && _bytes[epos] != LF)
 				++epos;
+
 			// if CR or LF found we must check 2 or 3 characters starting from 
 			//			'epos'  
+			//	'|' character denotes end of buffer
 			//	'.' means  any character except BS,CR.LF
 
 			// when epos < _bsize -1, then CR or LF at epos
 			// ('v' character denotes epos)
+			//		epos
 			//	      v			EOL   string ends at     _bpos after
 			//----------------------------------------------------------
 			//   .   CR  LF		yes	   epos					epos+2
 			//   .   LF  .		yes	   epos					epos+1
-			//   BS  CR  LF     no	   epos-1				epos+2
-			//   BS  LF  .		no	   epos-1				epos+1
+			//   BS  CR  LF     no	   does not end			epos+2
+			//   BS  LF  .		no	   does not end			epos+1
+			//   .   |			no	   does not end			  0
+			//   BS  |			no	   does not end			  0
 
-			// when at buffer end ('|' character denotes end of buffer)
-			//	#	buffer | next buffer
+			if (epos == _bsize)	// end of buffer and no CR or LF found
+			{
+				ch = _bytes[epos - 1];
+				_bytes[epos - 1] = 0;
+				ba += (_bytes + _bpos);
+				if (ch == BS)
+					__backslashAtEnd = true;
+				else
+					ba += ch;
+				_bsize = 0;		// read new buffer of data into '_bytes'
+				continue;
+			}
+
+			// when at buffer end ('epos'==_bsize-1) 
+			//	#	_bytes | next buffer
 			//	1		  .| .			=>concatenate with next buffer
-			//	2	   . LF| .           => EOL found
-			//	3	  BS LF| .           =>concatenate with next buffer
-			//	4	     CR|LF			=>EOL found, skip firstc character in next buffer
+			//	2	   . LF| .          => EOL found
+			//	3	  BS LF| .          =>concatenate with next buffer
+			//	4	     CR|LF			=>EOL found, skip first character in next buffer
 			//	5	  BS CR|LF			=>concatenate with next buffer and skip first character there
-			//  6        BS|.			=>concatenate with next buffer 
+			//  6        BS|.			=>BS character in line
+			//  7        BS|LF			=>concatenate with next buffer and skip first character there
+			//  8        BS|CR LF		=>concatenate with next buffer and skip first 2 characters there
 
-			//  #						    1	         2          3		   4          5           6
-			// end of string segment at  _bsize-1	 _bsize-1	 _bsize-2	_bsize-1   _bsize-2	   _bsize-1
-			// epos at this point        _bsize-1	 _bsize-1	 _bsize-1	_bsize-1   _bsize-1    _bsize-1
-			// epos after handling        _bsize	  _bsize	  _bsize	 _bsize		_bsize     _bsize
-			// EOL -"-				        no      	yes			no		   yes		  no        no
+			//  # in table above:		    1	         2          3		   4          5           6	           7	           8
+			// end of string segment at  _bsize-1	 _bsize-1	 _bsize-2	_bsize-1   _bsize-2	   _bsize-1	    _bsize-1		_bsize-1
+			// at epos at this point        any			LF			LF		   CR		  CR		  BS	     BS				   BS
+			// epos after handling        _bsize	  _bsize	  _bsize	 _bsize		_bsize     _bsize	    _bsize			_bsize
+			// EOL -"-				        no      	yes			no		   yes		  no        no		     no				   no
 
 			ch = _bytes[epos];
-			if (epos < _bsize - 1)	// inside the buffer  => epos <= _bsize-2 and CR or LF found at _bytes[epos]
+			if (epos <= _bsize - 2)	// inside the buffer  and CR or LF found at _bytes[epos]
 			{
+				char chlast = epos > 1 ? _bytes[epos - 2] : ' ';	// if there was a BS this is the last character before it
+
 				if (epos > 0 && _bytes[epos - 1] == BS) // BS+LF or BS+CR+LF
-					_bytes[epos - 1] = 0;		// end of string
+				{
+					_bytes[epos - 1] = 0;		// end of string section
+					__backslashAtEnd = true;	// temporary use
+				}
 				else // no backslash before CR or LF: EOL 
 				{
 					_bytes[epos] = 0;
 					EOL = true;
 				}
-				++epos;	// either after LF or to LF after CR
-				if (ch == CR)
-					++epos;			// after the LF
-				ba += (_bytes + _bpos);		// concatenate with buffer 
+				++epos;			// next character after LF or CR 
+				if (ch == CR)	// CR+LF pair
+					++epos;		// after the LF this may set epos to be _bsize
+				ba += (_bytes + _bpos);		// concatenate with buffer ending with a 0 byte
+				if (!EOL && __backslashAtEnd)	// then drop more than one space
+				{
+					while (epos < _bsize && _bytes[epos] == ' ')
+						++epos;
+					if (chlast != ' ')
+						--epos;
+					__backslashAtEnd = false;	
+				}
 				_bpos = epos;
 			}
 			else		  // end of buffer (epos == _bsize-1) -> to last character (__lastCharRead)
@@ -370,6 +419,8 @@ void FileReader::_readBinaryLine()
 *					not set: keep those lines intact
 *				frfNeedUtf8 - convert lines to UTF-8 when needed
 *			- sets _ok to false at EOF but there may be a partial line read in
+*			- lines ending in a backslash '\' are concatenated with text on next line
+*				with only a single space separating them
 *--------------------------------------------------------------------------*/
 void FileReader::_readLine()
 {

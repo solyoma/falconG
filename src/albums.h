@@ -142,28 +142,30 @@ struct Image : public IABase
 								// in the precessed line (!!notresized(...)this/image/)
 	QDate uploadDate;
 	int64_t fileSize=0;			// of source file, set together with 'exists' (if file does not exist fileSize is 0)
-	QSize	osize = { 0, 0 },	// original dimensions read from struct file or set from file,
-			ssize = { 0, 0 },	// transformed size read from .struct file
-			size = { 0, 0 },	// image to be resized to this size
+	QSize	osize = { 0, 0 },	// original dimensions read from struct file,
+			dsize = { 0, 0 },	// transformed size read either from .struct file or from destination file if it exists
+			rsize = { 0, 0 },	// image to be resized to this size
 			tsize;				// thumbnail size. Determined externally
 
 	bool	bSizeDifferent;		// from width and height
 
-	void GetResizedDimensions()
-	{
-		size = osize;
-		QSize csize = config.ImageSize();
+	void GetResizedDimensions(QSize &destSize)	// 'destSize' is size of existing destination image or 0,0
+	{							// if destination image does not exist or a wrong size
+		rsize = osize;			// recalculate destination size into 'rsize' 
+		QSize csize = config.ImageSize();	// required destination image dimensions
 
-		if (!dontResize && 
-				( 				// too big
-					(size.width() > csize.width() || size.height() > csize.height()) ||
-								// to small and enlargement is allowed
-					(!config.doNotEnlarge && size.width() < csize.width() && size.height() < csize.height())
+		if (!dontResize &&		// can resize and
+				( 				// original size is too big
+					(osize.width() > csize.width() || osize.height() > csize.height()) ||
+								// original size is to small and enlargement is allowed
+					(!config.doNotEnlarge && osize.width() < csize.width() && osize.height() < csize.height())
 				)
-			)
-			   size.scale(csize, Qt::KeepAspectRatio);
-
-		bSizeDifferent = (abs(size.width() - ssize.width()) > 2) || (abs(size.height() - ssize.height()) > 2);
+		)
+			rsize.scale(csize, Qt::KeepAspectRatio);	// calculate destination size
+			// and compare it with previous size (if any given)
+			// dsize can be 0,0 if no destination image exists or specified
+		QSize dSize = dsize.isEmpty() ? destSize : dsize;
+		bSizeDifferent = (abs(rsize.width() - dSize.width()) > 2) || (abs(rsize.height() - dSize.height()) > 2);
 
 		SetThumbSize();
 		//if (tsize.width() > ctsize.width())	// crop thumbnail from image
@@ -188,9 +190,9 @@ struct Image : public IABase
 
 	void SetNewDimensions()
 	{
-		if (size.width() == 0)
-			GetResizedDimensions();
-		ssize = size;
+		if (dsize.width() == 0)	   // image did not exist
+			GetResizedDimensions(dsize);
+		dsize = rsize;
 	}
 
 	enum SearchCond : int { byID,		// ID only

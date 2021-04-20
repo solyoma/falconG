@@ -151,15 +151,15 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 			}
 			if (pImg->exists)
 			{
-				if (!pImg->size.width())	// transformed size is 0, if we did not process images
-					pImg->size = pImg->ssize;
+				if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
+					pImg->rsize = pImg->dsize;
 
 				_ofs << indent;
 				if (pImg->dontResize)
 					_ofs << "!!";
 				_ofs << pImg->name << "(" 										   // field #1
 					<< pImg->ID << ","											   // field #2
-					<< pImg->size.width() << "x" << pImg->size.height() << ","	   // field #3 - #4
+					<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","	   // field #3 - #4
 					<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
