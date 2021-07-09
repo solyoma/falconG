@@ -274,7 +274,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
 	connect(_pCbColorSchemeEdit, &QLineEdit::editingFinished, this, &FalconG::_SlotForSchemeComboEditingFinished);
 
-	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+	CONFIGS_USED::GetHomePath();
+	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat);	// in program directory
 
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
@@ -351,7 +352,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 
 	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (config.splitterLeft = splitterSizes.at(0))
+	if (config.splitterLeft != splitterSizes.at(0))
 	{
 		config.splitterLeft = splitterSizes.at(0);
 		config.splitterRight = splitterSizes.at(1);
@@ -376,7 +377,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	else
 		CONFIGS_USED::Write();						// save data in program directory
 
-	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat);	// in program directory
 	s.setValue("wgeometry", saveGeometry());
 	s.setValue("wstate", saveState());
 }

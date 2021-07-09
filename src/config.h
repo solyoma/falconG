@@ -711,12 +711,14 @@ class CONFIG;
 struct CONFIGS_USED
 {
 	static CONFIG *parent;
+	static QString _homePath;
 	static int maxSavedConfigs;		// max this many last configuration directories are stored
 	static int indexOfLastUsed;		// this was the last one used
 	static QStringList lastConfigs; // these are the (source) directories
 	static void Read();	// the last directories used
 	static void Write();
 
+	static void GetHomePath();		// in users's home directory
 	static QString NameForConfig(bool forSave, QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
@@ -737,7 +739,11 @@ public:
 	void Write();
 	void SaveSchemeIndex();
 
-	bool Changed() const		{ return _changed; }
+	bool Changed() const		
+	{ 
+		return _changed; 
+	}
+
 	bool SetChanged(bool chg) 
 	{ 
 		_changed |= chg; 

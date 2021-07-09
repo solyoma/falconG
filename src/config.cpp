@@ -12,6 +12,8 @@ void __AddSemi(QString& s, bool addSemicolon)
 }
 
 
+QString CONFIGS_USED::_homePath;
+
 int CONFIGS_USED::maxSavedConfigs;		// last 10 configuration directory is stored
 QStringList CONFIGS_USED::lastConfigs;
 
@@ -29,7 +31,7 @@ CONFIG config,		// must be here because _Changed uses it
 void CONFIGS_USED::Read()
 {
 	lastConfigs.clear();
-	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 
 	s.beginGroup("config_save"); //--------------------------------
 
@@ -75,7 +77,7 @@ void CONFIGS_USED::Write()
 		}
 	}
 
-	QSettings s(falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 	s.beginGroup("config_save");
 	s.setValue("maxSaveConfigs", maxSavedConfigs);
 	s.setValue("numSaveConfigs", lastConfigs.size());
@@ -85,6 +87,18 @@ void CONFIGS_USED::Write()
 	s.endGroup();
 }
 
+
+void CONFIGS_USED::GetHomePath()
+{
+	_homePath = QDir::homePath() +
+#if defined (Q_OS_Linux)   || defined (Q_OS_Darwin) || defined(__linux__)
+		"/.falconG/";
+#elif defined(Q_OS_WIN)
+		"/Appdata/Local/FalconG/";
+#endif
+	if (!QDir(_homePath).exists())
+		QDir(_homePath).mkdir(_homePath);
+}
 
 /*========================================================
  * TASK: Determines file name of configuration from ini
@@ -109,11 +123,11 @@ void CONFIGS_USED::Write()
  *-------------------------------------------------------*/
 QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 {
-	QString sDefault;
+	QString sDefault = _homePath;	// set before calling this in Read()
 	if (sExt == ".ini")
-		sDefault = falconG_ini;
+		sDefault += falconG_ini;
 	else
-		sDefault = "gallery.struct";
+		sDefault += "gallery.struct";
 
 	QString sIniName, p, n, s;				  // if there was a last used directory read from it
 	if (indexOfLastUsed < 0 || indexOfLastUsed >= lastConfigs.size())
@@ -124,7 +138,7 @@ QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
 	if (s[s.length() - 1] != '/')
 		s += "/";
 	if (n.isEmpty())
-		sIniName = sDefault;		 //	 'falconG.ini' (in program folder)
+		sIniName = sDefault;		 //	 'falconG.ini' (in user's folder)
 	else
 		sIniName = s + n + sExt;	 // = <path w.o. last folder name from 'falcong.ini'>/<folder>/<folder>.ini
 
@@ -1711,7 +1725,7 @@ void CONFIG::SaveSchemeIndex()
 	QString p, n;
 	SeparateFileNamePath(dsSrc.ToString(), p, n);
 
-	QSettings s(falconG_ini, QSettings::IniFormat),
+	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat),
 		      s1(dsSrc.ToString() + n + ".ini", QSettings::IniFormat);
 	
 	s.setIniCodec("UTF-8");
