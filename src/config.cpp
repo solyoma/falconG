@@ -35,7 +35,7 @@ void CONFIGS_USED::Read()
 
 	maxSavedConfigs = s.value("maxSaveConfigs", 10).toInt();
 	int numSaveConfigs = s.value("numSaveConfigs", 0).toInt();
-	indexOfLastUsed = s.value("indexOfLastUsed", 0).toInt();
+	indexOfLastUsed = s.value("indexOfLastUsed", -1).toInt();
 	QString str;
 	for (int i = 0; i < numSaveConfigs; ++i)
 	{
