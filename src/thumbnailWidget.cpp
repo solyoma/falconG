@@ -1,7 +1,7 @@
 /*
  * part of the code is taken from Ofer Kashayov's <oferkv@live.com>
  * free Phototonic image viewer
- * Mu code is marged with SA in the remarks of the function descriptions
+ * My code is marked with SA in the remarks of the function descriptions
  * Ofer Kashayov's originla copyright notice:
  *  Copyright (C) 2013-2014 Ofer Kashayov <oferkv@live.com>
  *  This file is part of Phototonic Image Viewer.
@@ -856,7 +856,8 @@ void ThumbnailWidget::addThumb(int which)
     thumbItem->setData(thumbsDir, FilePathRole);
 	thumbItem->setData(thumbNames[which], FileNameRole);
 	thumbItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    thumbItem->setData(thumbNames[which] + " \n(" + originalPaths[which] + ")", Qt::DisplayRole);
+    thumbItem->setData(thumbNames[which], Qt::DisplayRole);
+    thumbItem->setData(originalPaths[which], Qt::ToolTipRole);
     thumbItem->setSizeHint(hintSize);
 
     thumbReader.setFileName(imageFullPath);

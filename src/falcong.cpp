@@ -4572,7 +4572,9 @@ QCheckBox::indicator:unchecked {
 // DEBUG
 //			DEBUG_LOG_NEW(ss)
 
-		setStyleSheet(ss);
+		// setStyleSheet(ss);	 // sometimes this does not cascade down to dialogs
+		// use this instead:
+		((QApplication*)(QApplication::instance()))->setStyleSheet(ss);
 
 		//QFile f("style.txt");
 		//f.open(QIODevice::WriteOnly);
