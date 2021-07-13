@@ -204,11 +204,11 @@ struct WaterMark
 		
 		// DEBUG
 
-		/*QFile fdbg("debug-watermark.txt");
+		QFile fdbg("debug-watermark.txt");
 		fdbg.open(QIODevice::WriteOnly);
 		QTextStream odbg(&fdbg);
 		odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
-		*/mark->save("debug_watermark.png");
+		mark->save("debug_watermark.png");
 	}
 };
 

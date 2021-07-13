@@ -1,0 +1,1 @@
+Font: Monotype Corsiva, 28pt, rgba:#ccffffff, penw:1
