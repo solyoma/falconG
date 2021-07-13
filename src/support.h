@@ -144,6 +144,7 @@ struct WaterMark
 	void SetFont(QFont & qfont) 
 	{
 		font = qfont;
+		font.setStyleHint(QFont::AnyStyle, QFont::PreferAntialias);
 		SetupMark();
 	}
 	void SetText(QString  qs)
