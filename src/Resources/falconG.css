@@ -163,10 +163,23 @@ fgsection::first-line {
 	max-width:99vw;
 }
 
-.thumb {
+.thumb{
 	display: inline-block;
-	cursor: pointer;
+	padding: 1px;
+	margin: 0 2;
+	/*	padding:2px; */
+	border:1px dashed #ffd460;
+    cursor:pointer;
+}	
+
+.thumb::after {
+	position:absolute;
+	bottom:0px;
+	left:50%;
+	content:"falconG Watermark";
+	color: rgba(255,255,255,0.5);
 }
+
 
 [data-src] {
 	min-width:600px;

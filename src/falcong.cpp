@@ -927,6 +927,8 @@ void FalconG::_OtherToUi()
 
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
+	h = config.imageQuality;
+	ui.cbImageQuality->setCurrentIndex(h ? 11 - h : 0);
 
 	--_busy;
 
@@ -3612,6 +3614,13 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
 {
 	ui.btnApplyColorScheme->setEnabled(_schemes.IndexOf(newText) );
+}
+
+void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
+{
+	if (_busy)
+		return;
+	config.imageQuality = newIndex ? (11 - newIndex)*10 : 0;
 }
 
 

@@ -900,6 +900,7 @@ public:
 				// image page
 	_CInt imageWidth = {1920, "imageWidth"};
 	_CInt imageHeight = {1080, "imageHeight"};
+	_CInt imageQuality = { 0, "imageQuality" };	// same as original
 	_CInt thumbWidth = {600, "thumbWidth"};
 	_CInt thumbHeight = {400, "thumbHeight"};
 	_CInt imageSizesLinked = {true, "imageSizesLinked"};

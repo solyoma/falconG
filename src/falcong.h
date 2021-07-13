@@ -384,6 +384,8 @@ private slots:
 
 	void on_cbColorScheme_currentIndexChanged(int newIndex);
 	void on_cbColorScheme_currentTextChanged(const QString& newText);
+					// image
+	void on_cbImageQuality_currentIndexChanged(int newIndex);
 					//  watermark
 	void on_cbWmVPosition_currentIndexChanged(int index);
 	void on_cbWmHPosition_currentIndexChanged(int index);

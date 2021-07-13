@@ -1515,6 +1515,7 @@ void CONFIG::Read()		// synchronize with Write!
 				// images
 	imageWidth.Read(s);
 	imageHeight.Read(s);
+	imageQuality.Read(s);
 	imageSizesLinked.Read(s);
 	thumbWidth.Read(s);
 	thumbHeight.Read(s);
@@ -1638,6 +1639,7 @@ void CONFIG::_WriteIni(QString sIniName)
 				// images
 	imageWidth.Write(s);
 	imageHeight.Write(s);
+	imageQuality.Write(s);
 	imageSizesLinked.Write(s);
 	thumbWidth.Write(s);
 	thumbHeight.Write(s);

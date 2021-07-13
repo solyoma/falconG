@@ -853,7 +853,11 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 	if(flags & prImage)
 	{
 		QImageWriter imageWriter(dest);
-		imageWriter.setQuality(imgReader.quality());
+		int quality = imgReader.quality();
+		if (config.imageQuality > 0)
+			quality = config.imageQuality;
+
+		imageWriter.setQuality(quality);
 		imageWriter.setFormat(imgReader.format());
 
 		if (!imageWriter.write(imgReader.img))

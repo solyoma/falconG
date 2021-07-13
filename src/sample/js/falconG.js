@@ -208,7 +208,7 @@ function LightBoxFadeOut() {
 }
 
 function LoadAlbum(album) {
-    window.location.href=album;
+    window.location.href="albums/"+album;
 }
 
 function ShowImage(img, caption) {

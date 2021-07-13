@@ -2799,7 +2799,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 		if (config.bGenerateAll && config.bButImages)
 			doProcess -= prImage;			// then do not process
-		else
+		else if(!config.bGenerateAll)
 		{
 			if ( !im.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
 				doProcess -= prImage;			// then do not process
@@ -2815,7 +2815,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer))
+		if (!config.bGenerateAll && (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)) )
 			doProcess -= prThumb;			// then do not process
 // DEBUG
 		//else

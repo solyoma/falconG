@@ -204,11 +204,11 @@ struct WaterMark
 		
 		// DEBUG
 
-		//QFile fdbg("debug-watermark.txt");
-		//fdbg.open(QIODevice::WriteOnly);
-		//QTextStream odbg(&fdbg);
-		//odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
-		//mark->save("debug_watermark.png");
+		QFile fdbg("debug-watermark.txt");
+		fdbg.open(QIODevice::WriteOnly);
+		QTextStream odbg(&fdbg);
+		odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
+		mark->save("debug_watermark.png");
 	}
 };
 
@@ -233,7 +233,7 @@ struct ImageReader : public QImageReader
 		setAutoTransform(true);  // auto rotate, flip and mirror during read() when portrait orientation is set in EXIF
 		setFileName(fileName);	 // creates and opens a read only QFile
 		setFormat(format);		 // e.g. "jpg" (same as "JPG"), empty: cycle through supported formats until one found
-		setQuality(100);		 // for jpeg only
+		// setQuality(100);		 // for jpeg As I do not read scaled maybe no need to set?
 	}
 };
 
