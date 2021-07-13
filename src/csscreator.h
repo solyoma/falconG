@@ -39,6 +39,6 @@ class CssCreator
 public:
 	CssCreator() {}
 
-	bool Create(QString cssFileName, bool forSamplePage = false);
+	bool Create(QString cssFileName, bool forSamplePage);
 };
 

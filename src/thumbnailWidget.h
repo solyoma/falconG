@@ -54,7 +54,7 @@ public:
 	}
 };
 
-#if 0
+#if 1
 /*=============================================================
  * my thumb model
  *------------------------------------------------------------*/
@@ -106,9 +106,11 @@ using ThumbnailWidgetModel = QStandardItemModel;
 #endif
  /*=============================================================
  * my list view that shows icons
+ * REMARKS:	In a QListView 'index' gives the 0 based index of the icon
  *------------------------------------------------------------*/
 
-class ThumbnailWidget : public QListView {
+class ThumbnailWidget : public QListView 
+{
 Q_OBJECT
 
 public:
@@ -118,25 +120,31 @@ public:
     void reLoad();
     void loadFileList();
     bool setCurrentIndexByName(QString &fileName);
-    bool setCurrentIndexByRow(int row);
-    void setCurrentRow(int row);
+    bool setCurrentIndexByItem(int itemIndex);	   
+    void setCurrentItem(int itemIndex);
 	void setTitle();
     void setNeedToScroll(bool needToScroll);
     void selectCurrentIndex();
-    void addThumb(int index);		// names are in string lists
+    void addThumb(int itemIndex);		// names are in string lists
+	void InsertSpaceAt(int here);		// into the model
+	void RemoveSpace();					// from where it was set
     void abort();
-    void selectThumbByRow(int row);
-    int getNextRow();
-    int getPrevRow();
-    int getLastRow();
-    int getRandomRow();
-    int getCurrentRow();
+    void selectThumbByItem(int itemIndex);
+    int getNextItem();
+    int getPrevItem();
+    int getLastItem();
+    int getRandomItem();
+    int getCurrentItem();
 
     QStringList getSelectedThumbsList();
 
     QString getSingleSelectionFilename();
 
 	void SetImageList(IdList *pidl);
+
+	// DEBUG
+	QLabel* pDragDropLabel = nullptr;
+
 	QString thumbsDir;	// prepend to image file paths, must end with '/'
 	QStringList thumbNames;			// list of name of image files in 'dir'
 	QStringList originalPaths;		// for every element of thumbNames
@@ -147,6 +155,7 @@ private:
     QStringList *_fileFilters;
     ThumbnailWidgetModel *_thumbnailWidgetModel;
 	QModelIndex _dragStartIndex;				// started drag from here
+	int _spacerPos = -1;						// put a spacer at this position
     QDir::SortFlags _thumbsSortFlags;
     int _thumbSize;
     QString _filterString;
@@ -155,7 +164,7 @@ private:
 
 //    QFileInfo thumbFileInfo;
     QImage _emptyImg;		// put all thumbnails into this
-    int _currentRow;
+    int _currentItem;
     QModelIndex _currentIndex;
     bool _isAbortThumbsLoading;
     bool _isNeedToScroll;
@@ -170,7 +179,7 @@ private:
     int _getFirstVisibleThumb();
     int _getLastVisibleThumb();
     void _updateThumbsCount();
-	bool _IsAllowedToDrop(const QMimeData *event);
+	bool _IsAllowedToDrop(const QDropEvent *event);
 
 signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
@@ -199,6 +208,7 @@ public slots:
 	void DeleteSelected();
 	void UndoDelete();
 	void AddImages();
+	void AddFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
 	void SetAsAlbumThhumbnail();

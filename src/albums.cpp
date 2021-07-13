@@ -2652,7 +2652,7 @@ int AlbumGenerator::_SaveFalconGCss()
 	// generate new falconG.css into temporary files
 	CssCreator cssCreator;
 	QString tmpName = QString(__CssDir.ToString()) + "tmpfg.css";
-	cssCreator.Create(tmpName);
+	cssCreator.Create(tmpName,false);
 	tmpName = BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", tmpName);
 	if (!tmpName.isEmpty())
 	{

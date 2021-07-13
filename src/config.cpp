@@ -1089,7 +1089,7 @@ void _CWaterMark::Read(QSettings& s, QString group)
 
 		wm.marginX = s.value("mx", 0).toInt();
 		wm.marginY = s.value("my", 0).toInt();
-		wm.colorWOpacity = s.value("color", 0xffffff).toInt();
+		wm.colorWOpacity = s.value("color", 0xffffffff).toInt();
 		wm.background = s.value("background", 0).toInt();
 		wm.shadowColor = s.value("shadow", 0).toInt();
 		wm.font.setFamily(s.value("family", "").toString());

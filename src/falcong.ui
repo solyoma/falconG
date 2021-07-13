@@ -1773,15 +1773,15 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>1</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="pgGlobal">
                        <property name="geometry">
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>476</width>
+                         <height>707</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -4744,8 +4744,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>476</width>
+                         <height>707</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4880,6 +4880,9 @@ is required.</string>
                             </item>
                             <item row="1" column="4">
                              <widget class="QToolButton" name="btnWmColor">
+                              <property name="cursor">
+                               <cursorShape>PointingHandCursor</cursorShape>
+                              </property>
                               <property name="styleSheet">
                                <string notr="true">QToolButton {background-color:#fff}</string>
                               </property>
@@ -4908,6 +4911,40 @@ is required.</string>
                             </item>
                            </layout>
                           </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="lblWmSample">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <family>Monotype Corsiva</family>
+                             <pointsize>28</pointsize>
+                             <weight>75</weight>
+                             <bold>true</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Watermark text sample</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="verticalSpacer_4">
+                           <property name="orientation">
+                            <enum>Qt::Vertical</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>20</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                          </spacer>
                          </item>
                          <item>
                           <widget class="QGroupBox" name="gbWatermarkFont">
@@ -5331,6 +5368,9 @@ is required.</string>
                                 <bold>false</bold>
                                </font>
                               </property>
+                              <property name="cursor">
+                               <cursorShape>PointingHandCursor</cursorShape>
+                              </property>
                               <property name="styleSheet">
                                <string notr="true">QToolButton {background-color:#ddd}</string>
                               </property>
@@ -5356,40 +5396,6 @@ is required.</string>
                             </item>
                            </layout>
                           </widget>
-                         </item>
-                         <item>
-                          <widget class="QLabel" name="lblWmSample">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <family>Monotype Corsiva</family>
-                             <pointsize>28</pointsize>
-                             <weight>75</weight>
-                             <bold>true</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Watermark text sample</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="verticalSpacer_4">
-                           <property name="orientation">
-                            <enum>Qt::Vertical</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>20</width>
-                             <height>40</height>
-                            </size>
-                           </property>
-                          </spacer>
                          </item>
                         </layout>
                        </widget>

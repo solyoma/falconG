@@ -33,7 +33,7 @@
   *------------------------------------------------------------*/
 ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(parent), _thumbSize(thumbsize)
 {
-    _currentRow = 0;
+    _currentItem = 0;
 
     setViewMode(QListView::IconMode);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -134,33 +134,33 @@ void ThumbnailWidget::SetImageList(IdList * pidl)
 }
 
 /*=============================================================
- * TASK:	move '_currentRow' to next thumbnail
+ * TASK:	move '_currentItem' to next thumbnail
  * EXPECTS:
  * GLOBALS:
  * RETURNS:	new row or -1 when no more rows
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getNextRow()
+int ThumbnailWidget::getNextItem()
 {
-    if (_currentRow == _thumbnailWidgetModel->rowCount() - 1) 
+    if (_currentItem == _thumbnailWidgetModel->rowCount() - 1) 
         return -1;
 
-    return _currentRow + 1;
+    return _currentItem + 1;
 }
 
 /*=============================================================
-* TASK:	move '_currentRow' to previous thumbnail
+* TASK:	move '_currentItem' to previous thumbnail
 * EXPECTS:
 * GLOBALS:
 * RETURNS:	new row or -1 when no previous row
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::getPrevRow()
+int ThumbnailWidget::getPrevItem()
 {
-    if (_currentRow == 0) 
+    if (_currentItem == 0) 
         return -1;
 
-    return _currentRow - 1;
+    return _currentItem - 1;
 }
 
 /*=============================================================
@@ -170,7 +170,7 @@ int ThumbnailWidget::getPrevRow()
  * RETURNS: image count -1
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getLastRow()
+int ThumbnailWidget::getLastItem()
 {
     return _thumbnailWidgetModel->rowCount() - 1;
 }
@@ -182,7 +182,7 @@ int ThumbnailWidget::getLastRow()
 * RETURNS: ordinal of random thumbnail
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::getRandomRow()
+int ThumbnailWidget::getRandomItem()
 {
     return QRandomGenerator::global()->generate() % (_thumbnailWidgetModel->rowCount());
 }
@@ -194,17 +194,17 @@ int ThumbnailWidget::getRandomRow()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getCurrentRow()
+int ThumbnailWidget::getCurrentItem()
 {
-    return _currentRow;
+    return _currentItem;
 }
 
-void ThumbnailWidget::setCurrentRow(int row) 
+void ThumbnailWidget::setCurrentItem(int index) 
 {
-    if (row >= 0) 
-        _currentRow = row;
+    if (index >= 0) 
+        _currentItem = index;
     else
-        _currentRow = 0;
+        _currentItem = 0;
 }
 
 /*=============================================================
@@ -217,9 +217,9 @@ void ThumbnailWidget::setCurrentRow(int row)
  *------------------------------------------------------------*/
 void ThumbnailWidget::setTitle()
 {
-    title = _thumbnailWidgetModel->item(_currentRow)->data(Qt::DisplayRole).toString()
+    title = _thumbnailWidgetModel->item(_currentItem)->data(Qt::DisplayRole).toString()
                     + " - ["
-                    + QString::number(_currentRow + 1)
+                    + QString::number(_currentItem + 1)
                     + "/"
                     + QString::number(_thumbnailWidgetModel->rowCount())
                     + "]";
@@ -240,7 +240,7 @@ bool ThumbnailWidget::setCurrentIndexByName(QString &fileName)
     if (indexList.size()) 
 	{
         _currentIndex = indexList[0];
-        setCurrentRow(_currentIndex.row());
+        setCurrentItem(_currentIndex.row());
         return true;
     }
 
@@ -254,13 +254,13 @@ bool ThumbnailWidget::setCurrentIndexByName(QString &fileName)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailWidget::setCurrentIndexByRow(int row)
+bool ThumbnailWidget::setCurrentIndexByItem(int row)
 {
 	QModelIndex idx = _thumbnailWidgetModel->indexFromItem(_thumbnailWidgetModel->item(row));
 	if (idx.isValid()) 
 	{
 		_currentIndex = idx;
-		setCurrentRow(idx.row());
+		setCurrentItem(idx.row());
 		return true;
 	}
 
@@ -282,7 +282,7 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 	{
 		int current_row = indexesList.first().row();
 		QString thumbFullPath = _thumbnailWidgetModel->item(current_row)->data(FileNameRole).toString();
-		setCurrentRow(current_row);
+		setCurrentItem(current_row);
 		//  do something
 		emit SingleSelection(thumbFullPath);
 	}
@@ -401,6 +401,18 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
 	drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::MoveAction);
 }
 
+QString __DropActionToStr(Qt::DropAction action)
+{
+    QString qs = "Accepted actions are: ";
+    if (action == Qt::IgnoreAction)	 qs += " IgnoreAction";
+    if ((action & Qt::CopyAction) == Qt::CopyAction)	qs += " CopyAction";
+    if ((action & Qt::MoveAction) == Qt::MoveAction)	qs += " MoveAction";
+    if ((action & Qt::LinkAction) == Qt::LinkAction)	qs += " LinkAction";
+    if ((action & Qt::TargetMoveAction) == Qt::TargetMoveAction) qs += " TargetMoveAction";
+
+    return qs;
+}
+
 /*=============================================================
  * TASK:	 sent when dragging is in progress
  * EXPECTS: either a list of file names or a mime data of type 
@@ -411,33 +423,30 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
  *------------------------------------------------------------*/
 void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
 {
-	if (_IsAllowedToDrop(event->mimeData()) )
+	if (_IsAllowedToDrop(event) )
 	{
 // DEBUG
-#if 0
+#if 1
 		Qt::DropAction action = event->proposedAction();
-		static QLabel *pLabel = nullptr;
-		if (pLabel)
+// DEBUG
+        if (pDragDropLabel)
 		{
-			delete pLabel;
-			pLabel = nullptr;
+			delete pDragDropLabel;
+            pDragDropLabel = nullptr;
 		}
-		QString qs = "Accepted actions are: ";
-		if(action == Qt::IgnoreAction)	  qs += " IgnoreAction";
-		if((action & Qt::CopyAction) == Qt::CopyAction)	qs += " CopyAction";
-		if((action & Qt::MoveAction) == Qt::MoveAction)	qs += " MoveAction";
-		if((action & Qt::LinkAction) == Qt::LinkAction)	qs += " LinkAction";
-		if((action & Qt::TargetMoveAction) == Qt::TargetMoveAction) qs += " TargetMoveAction";
-		
-		pLabel = new QLabel(qs, this, Qt::ToolTip);
-		pLabel->setVisible(true);
+// /DEBUG
+// DEBUG
+        QString qs = __DropActionToStr(action);
+        pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
+		pDragDropLabel->setVisible(true);
+// /DEBUG
 #endif
 		event->acceptProposedAction();
 	}
 }
 
 /*=============================================================
- * TASK:	signals when dareg leaves the area
+ * TASK:	signals when drag leaves the area
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -445,7 +454,14 @@ void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
 {
-//	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(-1);
+// DEBUG
+    if (pDragDropLabel)
+    {
+        delete pDragDropLabel;
+        pDragDropLabel = nullptr;
+    }
+// /DEBUG
+    //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(-1);
 //	QListView::dragLeaveEvent(event);
 }
 
@@ -458,24 +474,30 @@ void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 {
-	if (!_IsAllowedToDrop(event->mimeData()))
+	if (!_IsAllowedToDrop(event))
 		return;
 
 	QModelIndex index = indexAt(event->pos());
 // DEBUG
-#if 0
-	int row = index.row();
+#if 1
 //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(row);
-	static QLabel *pLabel = nullptr;
-	if (pLabel)
+// DEBUG
+    if (pDragDropLabel)
 	{
-		delete pLabel;
-		pLabel = nullptr;
+		delete pDragDropLabel;
+        pDragDropLabel = nullptr;
 	}
-	QString qs = QString("mouse: %1,%2, row:%3, col:%4").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column());
+// /DEBUG
+// 
+	int row = index.row();
+//	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
 //	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailWidgetModel *>(model())->DummyPosition());
-	pLabel = new QLabel(qs, this, Qt::ToolTip);
-	pLabel->setVisible(true);
+// DEBUG
+    Qt::DropAction action = event->proposedAction();
+    QString qs = __DropActionToStr(action) + QString(" r:%1").arg(row);
+    pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
+    pDragDropLabel->setVisible(true);
+    // /DEBUG
 #endif
 // /DEBUG
 	//if (row >= 0)
@@ -504,20 +526,25 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailWidget::dropEvent(QDropEvent * event)
 {
-	if (!_IsAllowedToDrop(event->mimeData()))
+	if (!_IsAllowedToDrop(event))
 		return;
 
 	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData *>(event->mimeData());
 	if (mimeData->thumbList.isEmpty())
 		return;
-
+// DEBUG
+    if (pDragDropLabel)
+        delete pDragDropLabel;
+    pDragDropLabel = nullptr;
+// /DEBUG
 	// get drop position
 	QModelIndex index = indexAt(event->pos());
 	if (_dragFromHereInProgress)	// then remove from old spot
 	{
-	// 
-	}
-	// put files at new spot
+
+    }
+
+    // put files at new spot
 
 }
 
@@ -628,7 +655,7 @@ void ThumbnailWidget::loadFileList()
 
 /*
 	if (thumbNames.size() && selectionModel()->selectedIndexes().size() == 0) 
-        selectThumbByRow(0);
+        selectThumbByItem(0);
 */
 	_isBusy = false;
 	emit SignalStatusChanged(statusStr);
@@ -708,7 +735,7 @@ void ThumbnailWidget::_initThumbs()
 	}
 
 	if (thumbNames.size() && selectionModel()->selectedIndexes().size() == 0)
-		selectThumbByRow(0);
+		selectThumbByItem(0);
 
 	emit SignalStatusChanged(statusStr);
 	emit SignalTitleChanged(title);
@@ -718,7 +745,7 @@ void ThumbnailWidget::_initThumbs()
  * TASK:	emit a signal tha image count changed
  * EXPECTS:
  * GLOBALS:
- * RETURNS:
+ * RETURNS:                                                                                                                                                                                                           6666666666666
  * REMARKS:
  *------------------------------------------------------------*/
 void ThumbnailWidget::_updateThumbsCount()
@@ -738,10 +765,11 @@ void ThumbnailWidget::_updateThumbsCount()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailWidget::_IsAllowedToDrop(const QMimeData *mimeData)
+bool ThumbnailWidget::_IsAllowedToDrop(const QDropEvent *event)
 {
- return mimeData->hasUrls() ||
-		mimeData->hasFormat("application/x-thumb");
+     return (indexAt(event->pos()).row() >= 0) && 
+            (event->mimeData()->hasUrls() ||
+		    event->mimeData()->hasFormat("application/x-thumb"));
 }
 
 /*=============================================================
@@ -751,9 +779,9 @@ bool ThumbnailWidget::_IsAllowedToDrop(const QMimeData *mimeData)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::selectThumbByRow(int row)
+void ThumbnailWidget::selectThumbByItem(int row)
 {
-    setCurrentIndexByRow(row);
+    setCurrentIndexByItem(row);
     selectCurrentIndex();
 }
 
@@ -769,7 +797,7 @@ void ThumbnailWidget::loadThumbsRange()
     static bool isInProgress = false;
     QImageReader thumbReader;
     static QSize currentThumbSize;
-    static int _currentRowCount;
+    static int _currentItemCount;
     static QString imageFileName;
     QImage thumb;
     int currThumb;
@@ -783,14 +811,14 @@ void ThumbnailWidget::loadThumbsRange()
     }
 
     isInProgress = true;
-    _currentRowCount = _thumbnailWidgetModel->rowCount();
+    _currentItemCount = _thumbnailWidgetModel->rowCount();
 
     for (_scrolledForward ? currThumb = _thumbsRangeFirst : currThumb = _thumbsRangeLast;
          (_scrolledForward ? currThumb <= _thumbsRangeLast : currThumb >= _thumbsRangeFirst);
          _scrolledForward ? ++currThumb : --currThumb) 
 	{
 
-        if (_isAbortThumbsLoading || _thumbnailWidgetModel->rowCount() != _currentRowCount || currThumb < 0)
+        if (_isAbortThumbsLoading || _thumbnailWidgetModel->rowCount() != _currentItemCount || currThumb < 0)
             break;
 
         if (_thumbnailWidgetModel->item(currThumb)->data(LoadedRole).toBool())
@@ -835,6 +863,9 @@ void ThumbnailWidget::loadThumbsRange()
  *			rows
  * EXPECTS:	which - ordinal of data for thumbnail in
  *					thumbNames[] and originalPaths[]
+ * 
+ *          spacer - if not 0 insert an transparent thumbnail to
+ *                  with no  title or hint the list
  * GLOBALS:
  * RETURNS:	nothing
  * REMARKS:	- sets 
@@ -883,6 +914,34 @@ void ThumbnailWidget::addThumb(int which)
 
     _thumbnailWidgetModel->appendRow(thumbItem);
 }
+
+
+/*========================================================
+ * TASK:
+ * PARAMS:  here - insert space before this item index (row)
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void ThumbnailWidget::InsertSpaceAt(int here)
+{
+    _spacerPos = here;
+}
+
+
+/*========================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void ThumbnailWidget::RemoveSpace()
+{
+    _spacerPos = -1;
+}
+
+
 
 /*=============================================================
  * TASK:	modifies scrollbar position for wheel events
@@ -939,10 +998,16 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	QAction *pact;
 
 
-	pact = new QAction(tr("Add..."), this);
+	pact = new QAction(tr("Add Images.."), this);
 	pact->setEnabled(true);
 	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
 	menu.addAction(pact);
+
+	pact = new QAction(tr("Add Folder.."), this);
+	pact->setEnabled(true);
+	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
+	menu.addAction(pact);
+
     menu.addSeparator();
 
 	pact = new QAction(tr("Set As Album Thumbnail"), this);
@@ -1028,6 +1093,18 @@ void ThumbnailWidget::UndoDelete()
  * REMARKS:
  *------------------------------------------------------------*/
 void ThumbnailWidget::AddImages()
+{
+}
+
+/*=============================================================
+ * TASK:   Display dialog box to add one folder into this 
+ *          album
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailWidget::AddFolder()
 {
 }
 

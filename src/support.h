@@ -83,7 +83,7 @@ public:
 	operator int() const { return _cnt; }
 };
 
-//*****************************************																			//---------------------
+//*****************************************
 struct WaterMark
 {
 	QString text;
@@ -103,11 +103,17 @@ struct WaterMark
 
 	QFont font;
 	QImage *mark = nullptr;		// watermark text
-	QString ColorToStr() const
+	QString ColorToCss() const
 	{
-		return QString("argb(%1,%2,%3,%4)").arg( (colorWOpacity >> 16) & 0xFF).arg((colorWOpacity >> 8) & 0xFF).arg(colorWOpacity & 0xFF).arg(Opacity());
+		return QString("rgba(%1,%2,%3,%4)").arg( (colorWOpacity >> 16) & 0xFF).arg((colorWOpacity >> 8) & 0xFF).arg(colorWOpacity & 0xFF).arg(Opacity(false)/255.0);
 	}
-	QString XMarginName(bool & centered, bool used)	// used ? active text else inactive one
+	QColor BorderColor() const
+	{
+		unsigned c = colorWOpacity & 0xffffff;
+		return (QColor(QString("#%1").arg(c, 6, 16, QChar(0))).value() < 170 ? "white" : "black");
+	}
+
+	QString XMarginName(bool & centered, bool used)	const // used ? active text else inactive one
 	{
 		switch (origin & 0xF0)
 		{
@@ -117,7 +123,7 @@ struct WaterMark
 			default: return QString();
 		}
 	}
-	QString YMarginName(bool & centered, bool used)
+	QString YMarginName(bool & centered, bool used) const
 	{
 		switch (origin & 0xF)
 		{
@@ -131,14 +137,36 @@ struct WaterMark
 	QString OffsetYToStr() const { return (origin & 0xF) == 1 ? "50%" : QString().setNum(marginY);  }
 
 	unsigned Color() const { return colorWOpacity & 0xFFFFFF; } 
-	double Opacity() const { return ((colorWOpacity >> 24) & 0xFF) / 100.0;  }		// 0..100
-	void SetFont(QFont & qfont) { font = qfont; SetupMark(); }
-	void SetText(QString  qs) { text = qs; SetupMark(); }
-	void SetColor(int ccolorWOpacity) { colorWOpacity = ccolorWOpacity; SetupMark();}
-	void SetColor(QString scolorWOpacity) { colorWOpacity = scolorWOpacity.toInt(nullptr, 16); SetupMark(); }
-	void SetOpacity(int val) 
+	double Opacity(bool percent) const		// 0..255 (!percent) or 0..100 (percent)
+	{ 
+		return ((colorWOpacity >> 24) & 0xFF) * (percent ? 100.0/255.0 : 1.0);  
+	}
+	void SetFont(QFont & qfont) 
 	{
+		font = qfont;
+		SetupMark();
+	}
+	void SetText(QString  qs)
+	{
+		text = qs; 
+		SetupMark();
+	}
+	void SetColor(int ccolorWOpacity) 
+	{ 
+		colorWOpacity = ccolorWOpacity; 
+		SetupMark();
+	}
+	void SetColor(QString scolorWOpacity)
+	{
+		colorWOpacity = scolorWOpacity.toInt(nullptr, 16); 
+		SetupMark();
+	}
+	void SetOpacity(int val, bool percent) // val is in percent (0..100) or not(0..255)?
+	{
+		if (percent)
+			val *= 2.55;
 		colorWOpacity = (((int) (val)) << 24) + (qRed(colorWOpacity) << 16) + (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
+		SetupMark();
 	}
 
 	bool operator!=(const WaterMark &wm)
@@ -164,11 +192,22 @@ struct WaterMark
 		mark->fill(qRgba(0, 0, 0, 0) );	// transparent image
 		QPainter painter(mark);
 		painter.setFont(font);
-		QColor c(qRed(colorWOpacity), qGreen(colorWOpacity), qBlue(colorWOpacity), Opacity() );
+		QColor c(qRed(colorWOpacity), qGreen(colorWOpacity), qBlue(colorWOpacity), Opacity(false) );
+		// Debug 
+		//QColor c(0xff,0,0,128);
+		//QString n = c.rgba();
 		QPen pen(c);
 		painter.setPen(pen);
 
 		painter.drawText(0, 0, markWidth, markHeight, Qt::AlignCenter, text);
+		
+		// DEBUG
+
+		//QFile fdbg("debug-watermark.txt");
+		//fdbg.open(QIODevice::WriteOnly);
+		//QTextStream odbg(&fdbg);
+		//odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
+		//mark->save("debug_watermark.png");
 	}
 };
 

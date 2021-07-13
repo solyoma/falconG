@@ -191,15 +191,25 @@ struct _CColor : _CFG_ITEM<QString>
 
 	void Set(QString str, int opac);	  // set _colorName to a 9 or 7 character string in format #AARRGGBB or #RRGGBB
 	void SetColor(QString clr) { _colorName = clr; _Prepare(); }
-	void SetOpacity(int opac) 
+	void SetOpacity(int opac, bool percent) 
 	{ 
 		if (opac < 0) opac = 0;
-		else if (opac > 100) opac = 100;
+		else
+		{
+			int limit = percent ? 100 : 255;
+			if (opac > limit) opac = limit;
 
-		_opacity = opac; 
+			_opacity = opac * (percent ? 2.55 : 1);
+		}
 		_Prepare(); 
 	}
-	int Opacity() const { return _opacity; }			// opacity -1, 0..100 (-1: not used)
+	int Opacity(bool percent) const 			// opacity -1, 0..100 (-1: not used)
+	{ 
+		if(percent)
+			return _opacity; 
+		else
+			return _opacity; 
+	}
 	QString Name(bool nohash = false) const				// no opacity!
 	{
 		return (nohash ? _colorName.mid(1) : _colorName); 			// nohash:   no '#' at start

@@ -336,7 +336,7 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	bool operator==(const Album &i);
 
 	bool Valid() const { return ID != 0; }
-	void Clear() { images.clear(); albums.clear(); excluded.clear(); }
+	void Clear() { images.clear(); albums.clear(); videos.clear(); excluded.clear(); }
 	int ImageCount();		// only non-excluded existing images
 	int VideoCount();		// only non-excluded existing videos
 	int SubAlbumCount();	// only non excluded existing albums (removes excluded albums) = count of children
@@ -483,7 +483,7 @@ private:
 	bool _processing = false;
 
 	QString _upLink;		// to parent page if there's one
-	TextMap _textMap;		// all texts for all albums and inmages
+	TextMap _textMap;		// all texts for all albums and images
 	AlbumMap _albumMap;		// all source albums
 	ImageMap _imageMap;		// all images for all albums
 	VideoMap _videoMap;		// all videos from all albums

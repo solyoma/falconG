@@ -108,15 +108,15 @@ void ShowStyleOf(QWidget *pq)
 // /DEBUG
 
 /*============================================================================
-* TASK: format color QString into rgba when opacity is used, use original
+* TASK: format color QString into CSS rgba() when opacity is used, use original
 *		 hex color QString if not. 
 * EXPECTS: color - to transform
 * RETURNS: color string starting w. '#'
 *----------------------------------------------------------------------------*/
-QString ColorToStr(_CColor color)
+QString ColorToCss(_CColor color)
 {
 	QString c = color.Name();	// c starts with '#'
-	int opacity = color.Opacity();
+	int opacity = color.Opacity(true);	// in percent
 	if (opacity > 0)	// color name format: #AABBCC
 		return QString("rgba(%1,%2,%3,%4)").arg(c.mid(1, 2).toInt(nullptr, 16)).arg(c.mid(1+2, 2).toInt(nullptr, 16)).arg(c.mid(1+4, 2).toInt(nullptr, 16)).arg((double)opacity / 100.0);
 
@@ -376,6 +376,9 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 	else
 		CONFIGS_USED::Write();						// save data in program directory
+
+	CssCreator cssCreator;
+	cssCreator.Create("sample/css/falconG.css", true);	// program library
 
 	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat);	// in program directory
 	s.setValue("wgeometry", saveGeometry());
@@ -692,12 +695,12 @@ void FalconG::_ActualSampleParamsToUi()
 	++_busy;
 
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
-	ui.chkTextOpacity->setChecked(pElem->color.Opacity() != -1);
+	ui.chkTextOpacity->setChecked(pElem->color.Opacity(false) != -1);
 	if(pElem->background.Valid())
 		ui.btnBackground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->background.Name()));	// sets btnBackground's color
 	else // invalid: set from background
 		ui.btnBackground->setStyleSheet(__ToolButtonBckStyleSheet(config.Web.background.Name()));	// sets btnBackground's color
-	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() != -1);
+	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity(false) != -1);
 
 //	_EnableGradient(false);					// disable gradient buttons for background
 
@@ -713,12 +716,12 @@ void FalconG::_ActualSampleParamsToUi()
 
 	_ShadowForElementToUI(pElem, ui.rbTextShadow->isChecked() ? 0 : 1);
 
-	ui.chkTextOpacity->setChecked(pElem->color.Opacity() > 0);
-	ui.sbTextOpacity->setValue(pElem->color.Opacity() < 0 ? 100: pElem->color.Opacity());
+	ui.chkTextOpacity->setChecked(pElem->color.Opacity(false) > 0);
+	ui.sbTextOpacity->setValue(pElem->color.Opacity(false) < 0 ? 100: pElem->color.Opacity(true));
 	ui.sbTextOpacity->setEnabled(ui.chkTextOpacity->isChecked());
 
-	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity() > 0);
-	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity() < 0 ? 100 : pElem->background.Opacity());
+	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity(false) > 0);
+	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity(false) < 0 ? 100 : pElem->background.Opacity(true));
 	ui.sbBackgroundOpacity->setEnabled(ui.chkBackgroundOpacity->isChecked());
 
 	ui.sbSpaceAfter->setValue(pElem->spaceAfter.v);
@@ -792,7 +795,7 @@ void FalconG::_ConfigToSample()
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("thumb", qs);
+	_RunJavaScript(".thumb", qs);
 
 	--_busy;
 }
@@ -813,12 +816,17 @@ void FalconG::_SetConfigChanged(bool on)
 void FalconG::_DesignToUi()
 {
 	++_busy;
-
+				// WaterMark
 	StyleHandler handler(ui.btnWmColor->styleSheet());
-	handler.SetItem("QToolButton", "background-color", config.waterMark.wm.ColorToStr());
+	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.wm.Color()).name());
+	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.wm.BorderColor().name()) );
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
-
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginX));
+	ui.sbWmOpacity->setValue( (int)(config.waterMark.wm.Opacity(true)));
+	//ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color(),8,16,QChar('0')));
+	if(config.waterMark.wm.shadowColor >= 0)
+		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
+		// others
+	ui.edtWmHorizMargin->setText(QString().setNum(config.waterMark.wm.marginX));
 	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
 
 	ui.chkImageBorder->setChecked(config.imageBorder.Used());
@@ -828,9 +836,6 @@ void FalconG::_DesignToUi()
 	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
 	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
 	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
-	ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color(),8,16,QChar('0')));
-	if(config.waterMark.wm.shadowColor >= 0)
-		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
 
 	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
 	ui.sbImagePadding->setValue(config.imagePadding);
@@ -903,7 +908,7 @@ void FalconG::_OtherToUi()
 	_aspect = (double)config.imageWidth / h;
 
 							// Watermark
-	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity());
+	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity(true));
 	ui.sbNewDays->setValue(config.newUploadInterval);
 	ui.sbImageWidth->setValue(config.imageWidth);
 	ui.sbImageHeight->setValue(config.imageHeight);
@@ -1320,33 +1325,35 @@ void FalconG::on_edtWatermark_textChanged()
 
 /*============================================================================
   * TASK:
-  * EXPECTS:mx, my new margines. -1 : do not set
+  * EXPECTS:mx, my new margines.  -1 : do not set this margin
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::_UpdaetWatermarkMargins(int mx, int my)
+void FalconG::_UpdateWatermarkMargins(int mx, int my)
 {
 	WaterMark& wm = config.waterMark.wm;
 	bool centered;
 	if (mx >= 0)
 	{
 		wm.marginX = mx;	// set active and clear inactive
-		_RunJavaScript("thumb::after", wm.XMarginName(centered, false)+"");
-		_RunJavaScript("thumb::after", wm.XMarginName(centered, true)+ wm.OffsetXToStr() );
+		_RunJavaScript(".thumb::after", wm.XMarginName(centered, false)+"");
+		_RunJavaScript(".thumb::after", wm.XMarginName(centered, true)+ wm.OffsetXToStr() );
 	}
 	if (my >= 0)
 	{
-		wm.marginY = mx;	// set active and clear inactive
-		_RunJavaScript("thumb::after", wm.YMarginName(centered, false)+"");
-		_RunJavaScript("thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
+		wm.marginY = my;	// set active and clear inactive
+		_RunJavaScript(".thumb::after", wm.YMarginName(centered, false)+"");
+		_RunJavaScript(".thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
 	}
+	config.waterMark.wm = wm;
+
 	_SetConfigChanged(true);
 }
 void FalconG::on_edtWmHorizMargin_textChanged()
 {
 	if (_busy)
 		return;
-	_UpdaetWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
+	_UpdateWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
 }
 
 /*============================================================================
@@ -1359,7 +1366,7 @@ void FalconG::on_edtWmVertMargin_textChanged()
 {
 	if (_busy)
 		return;
-	_UpdaetWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
+	_UpdateWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
 }
 
 /*============================================================================
@@ -1766,7 +1773,7 @@ void FalconG::on_chkImageBorder_toggled(bool on)
 	config.imageBorder.SetUsed(on);
 	qs = config.imageBorder.ForStyleSheetShort(false);
 	_SetConfigChanged(true);
-	_RunJavaScript("thumb", qs);
+	_RunJavaScript(".thumb", qs);
 }
 
 /*============================================================================
@@ -2053,7 +2060,7 @@ void FalconG::on_chkTextOpacity_toggled(bool on)
 		return;
 	ui.sbTextOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	pElem->color.SetOpacity(on ? ui.sbTextOpacity->value()*2.55 : -1);
+	pElem->color.SetOpacity(on ? ui.sbTextOpacity->value()*2.55 : -1, false);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2070,7 +2077,7 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 		return;
 	ui.sbBackgroundOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	pElem->background.SetOpacity(on ? ui.sbBackgroundOpacity->value()*2.55 : -1);
+	pElem->background.SetOpacity(on ? ui.sbBackgroundOpacity->value()*2.55 : -1, false);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2417,7 +2424,7 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 
 	config.imageBorder.SetWidth(sdAll, val);
 	QString qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("thumb", qs);
+	_RunJavaScript(".thumb", qs);
 	_SetConfigChanged(true);
 }
 
@@ -2436,9 +2443,9 @@ void FalconG::on_sbImagePadding_valueChanged(int val)
 
 	config.imagePadding = val;
 	if (!config.imageBorder.Used())
-		_RunJavaScript("thumb",QString("padding:"));
+		_RunJavaScript(".thumb",QString("padding:"));
 	else	
-		_RunJavaScript("thumb",QString("padding: %1px").arg(val));
+		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
 
 	_SetConfigChanged(true);
 }
@@ -2479,9 +2486,10 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	config.waterMark.wm.SetOpacity(val);
+	config.waterMark.wm.SetOpacity(val, true);
+	_SetWatermark();
 	_SetConfigChanged(true);
-	_RunJavaScript("thumb::after","color:"+ config.waterMark.wm.ColorToStr());
+	_RunJavaScript(".thumb::after","color"+ config.waterMark.wm.ColorToCss());
 }
 
 void FalconG::on_sbSpaceAfter_valueChanged(int val)
@@ -4000,13 +4008,13 @@ void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
 	int val;
 	if (which & 2)
 	{
-		val = (ui.chkBackgroundOpacity->isChecked() ? 1 : -1)*ui.sbBackgroundOpacity->value();
-		elem.background.SetOpacity(val);
+		val = (ui.chkBackgroundOpacity->isChecked() ? 1 : -1)*ui.sbBackgroundOpacity->value(); // in %
+		elem.background.SetOpacity(val, true);
 	}
 	if((which & 1) == 0 )
 	{
-		val = (ui.chkTextOpacity->isChecked() ? 1 : -1)*ui.sbTextOpacity->value();
-		elem.color.SetOpacity(val);
+		val = (ui.chkTextOpacity->isChecked() ? 1 : -1)*ui.sbTextOpacity->value(); // in %
+		elem.color.SetOpacity(val, true);
 	}
 }
 
@@ -4176,21 +4184,22 @@ void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has
 void FalconG::_SetWatermark()
 {
 			// set text
-	_RunJavaScript("thumb::after","content:" + config.waterMark.wm.text);
+	WaterMark &wm = config.waterMark.wm;
+	_RunJavaScript(".thumb::after","content:" + wm.text);
 			// set offsets
 	bool  centered;
-	WaterMark &wm = config.waterMark.wm;
-	QString qs = wm.XMarginName(centered, false);		// X offset  -clear unused property
-	_RunJavaScript("thumb::after", qs +  wm.OffsetXToStr());
+	QString 
+	qs = wm.XMarginName(centered, false);		// X offset  -clear unused property
+	_RunJavaScript(".thumb::after", qs +  wm.OffsetXToStr());
 	qs = wm.XMarginName(centered, true);				// set used property												   
-	_RunJavaScript("thumb::after",qs + wm.OffsetXToStr());
+	_RunJavaScript(".thumb::after",qs + wm.OffsetXToStr());
 
 	qs = wm.YMarginName(centered, false);				// Y offset clear unused property
-	_RunJavaScript("thumb::after",qs + wm.OffsetYToStr());
+	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
 	qs = wm.YMarginName(centered, true);				// set used property												   
-	_RunJavaScript("thumb::after",qs + wm.OffsetYToStr());
+	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
 			// set color
-	_RunJavaScript("thumb::after","color:" + wm.ColorToStr());
+	_RunJavaScript(".thumb::after","color:" + wm.ColorToCss());
 }
 
 
@@ -4205,9 +4214,9 @@ void FalconG::_OpacityChanged(int val, int which)
 {
 	_CElem* pElem = _PtrToElement();
 	if (which == 1)
-		pElem->color.SetOpacity(val);
+		pElem->color.SetOpacity(val,true);
 	else
-		pElem->background.SetOpacity(val);
+		pElem->background.SetOpacity(val, true);
 	_SetConfigChanged(true);
 	_SetCssProperty(pElem, which == 1 ? pElem->color.ForStyleSheet(false,false) : pElem->background.ForStyleSheet(false, true));
 }
@@ -4663,19 +4672,19 @@ void FalconG::on_btnWmColor_clicked()
 {
 	StyleHandler handler(ui.btnWmColor->styleSheet());
 
-	QColor qc = config.waterMark.wm.Color() ,
-		qcNew;
+	QColor  qc = config.waterMark.wm.Color() ,
+			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Watermark Color"));
 
 	if (qcNew.isValid() && qcNew != qc)
 	{
-		QString s = qc.name();
+		QString s = qcNew.name();
 		handler.SetItem("QToolButton", "background-color", s);
 		ui.btnWmColor->setStyleSheet(handler.StyleSheet());
-		s = s.mid(1);
+		s = s.mid(1);	 // skip '#'
 		config.waterMark.wm.SetColor(s);
 		_SetConfigChanged(config.waterMark.v = true);
-		_RunJavaScript("thumb::after", "color: " + config.waterMark.wm.ColorToStr());
+		_RunJavaScript(".thumb::after", "color: " + config.waterMark.wm.ColorToCss());
 	}
 }
 

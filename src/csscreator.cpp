@@ -216,16 +216,61 @@ void CssCreator::_CreateForImages()
 .img-container img {
 	display:block;			/* get rid of bottom space */
 	margin:auto;
-	max-width:99vw;
+	max-width:90vw;
 }
 
 .thumb {
 	display: inline-block;
 )";
+	WaterMark& wm = config.waterMark.wm;
+	if (_forSamplePage)
+	{
+		_ofs << "\tpadding: 1px;\n"
+				"\tmargin: 0 2;\n"
+				"\tborder:1px dashed #ffd460;\n"
+				"\tcursor:pointer;\n";
+	}
 	// image border is used for <a class="thumb">
 	if(config.imageBorder.Used())
 		_ofs << config.imageBorder.ForStyleSheetShort(true);
-	_ofs << "\n}\n\n";
+	_ofs << "\n}\n\n";	// close '.thumb'
+
+	if (_forSamplePage)
+	{	
+		//QString wmutf8;	// replace non utf8 © with utf-8 version?
+		//for (auto i = 0; i < wm.text.length(); ++i)
+		//	if()
+		_ofs << ".thumb::after {\n"
+				"\tposition:absolute;\n";
+		_ofs << "\tcontent:\"" << wm.text << "\";\n"
+				"\tcolor:"	 << wm.ColorToCss() << ";\n";
+	
+		int x0 = 0, y0 = 0;		// origin on image for watermark
+		int w = config.thumbWidth, h = config.thumbHeight;
+		if (config.waterMark.used && !wm.mark)
+			wm.SetupMark();
+		if (wm.mark)
+		{
+			switch (wm.origin & 0xF0)
+			{
+				case 0x00: x0 = wm.marginX; break;
+				case 0x10: x0 = (w - wm.mark->width()) / 2; break;
+				case 0x20: x0 = w - wm.marginX - wm.mark->width(); break;
+			}
+			switch (wm.origin & 0x0F)
+			{
+				case 0x0: y0 = wm.marginY; break;
+				case 0x1: y0 = (h - wm.mark->height()) / 2; break;
+				case 0x2: y0 = h - wm.marginY - wm.mark->height(); break;
+			}
+			_ofs << "\ttop:" << y0 << "px;\n"
+				"\tleft:" << x0 << "px;\n"
+				"\tfont-height:" << wm.font.pointSize() << "pt;\n"
+				"\tfont-family:" << wm.font.family();
+		}
+		_ofs	 << ";\n}\n\n";	// close .thumb::after
+	}
+
 
 	_ofs << "[data-src] {\n	min-width:" << config.thumbWidth.ToString()
 		 << "px;\n	min-height:" << config.thumbHeight.ToString()

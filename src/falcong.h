@@ -22,7 +22,7 @@ using namespace Enums;
 #define AS_HEX_COLOR_STRING(n) QString("%1").arg(n, 6, 16, QChar('0'))
 #define TO_COLOR_STRING(s,n) s = "#" + AS_HEX_COLOR_STRING(n)
 
-QString ColorToStr(_CColor color);
+QString ColorToCss(_CColor color);
 QString IntToColorStr(int clr);
 
 typedef UsageCount Semaphore;
@@ -274,7 +274,7 @@ private:
 	void _PagebackgroundToSample();	// possibly for all elements
 	void _SetIcon();			// re-color it for the page
 	void _SetWatermark();
-	void _UpdaetWatermarkMargins(int mx, int my);
+	void _UpdateWatermarkMargins(int mx, int my);
 
 	void _SaveLinkIcon();
 	void _ElemToSample(AlbumElement ae = aeUndefined);	// with no argument uses _aeActElement

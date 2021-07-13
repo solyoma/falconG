@@ -887,7 +887,8 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 /*============================================================================
 * TASK:		add a watermark to the image '_pimg' points to
 * EXPECTS: 	wm is a filled in watermark structure with valid mark image
-*			_pImg points to existing image
+*			_pImg points to existing image into which the watermark will
+*			be printed
 *			width, height, etc are set up
 * GLOBALS:
 * REMARKS:
