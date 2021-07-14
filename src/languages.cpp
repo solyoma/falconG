@@ -181,10 +181,10 @@ int Languages::Read()
 							"Do you want to cancel or continue with English as the single language?\n\n"
 							"To avoid this message either create language files and put them into the\n"
 							"    a) source\n"
-							"    b) destination directory or\n"
+							"    b) destination or\n"
 							"    c) program directory\n"
 							"or write the language texts into the '.struct' file\n\n"
-							"A language file is a UTF-8 coded text file starting with line:\n"
+							"A language file is a UTF-8 encoded text file starting with the line:\n"
 							"  'falconG Language file'\n"
 							"followed by definitions of the fixed texts used in the albums (language text\n"
 							" blocks).\n"
@@ -208,11 +208,13 @@ int Languages::Read()
 							"  about     =<text for the 'About' button>\n"
 							"  contact   =<text for the 'contact' button\n"
 							"  share     =<text for the facebook share button>"
+							"  captions  =<text for the captions toggle menu>\n"
+							"  descriptions  =<text for the descriptionss toggle menu>\n"
 							"  latestTitle=<title for album latest.html>"
 							"  latestDesc=<description for album latest.html>\n"
-							"  countryCode	=<like en_US>\n"
-							"  countOfImages=% 1 image(s) and %2 sub-album(s) in this album\n"
-							"  falconG   =<copyright message. Please do not remove or change. just translate"
+							"  countryCode	=<like 'en_US'>\n"
+							"  countOfImages=% 1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
+							"  falconG   =<copyright message. Please do not remove or change this. just translate>\n"
 			),
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
@@ -230,6 +232,8 @@ int Languages::Read()
 		toContact.push_back("Contact");
 		showDescriptions.push_back("Captions");
 		share.push_back("Share");
+		showCaptions.push_back("Captions");
+		showDescriptions.push_back("Descriptions");
 		latestTitle.push_back("Latest uploads");
 		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
 		countryCode.push_back("en_US");

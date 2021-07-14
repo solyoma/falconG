@@ -928,7 +928,7 @@ void FalconG::_OtherToUi()
 	ui.lblWmSample->setFont(config.waterMark.wm.font);
 
 	h = config.imageQuality;
-	ui.cbImageQuality->setCurrentIndex(h ? 11 - h : 0);
+	ui.cbImageQuality->setCurrentIndex(h ? 11 - h/10 : 0);
 
 	--_busy;
 

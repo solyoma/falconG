@@ -32,7 +32,7 @@ template <class T> struct _CFG_ITEM
 		v;			// actual value	read from settings file
 
 		// vd must be first otherwise problems with actual declarations
-	_CFG_ITEM(T vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
+	explicit _CFG_ITEM(T vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
 
 	virtual bool Changed() const 
 	{ 
@@ -69,8 +69,18 @@ template <class T> struct _CFG_ITEM
 		if (!group.isEmpty())
 			s.endGroup();
 	}
-	_CFG_ITEM& operator=(const _CFG_ITEM o) { v = o.v; v0 = o.v0, vd = o.vd; _Setup(); return *this; }
-	_CFG_ITEM& operator=(const T o) { v = o; _Setup(); return *this; }
+	_CFG_ITEM& operator=(const T o) 
+	{ 
+		v = o; 
+		_Setup(); 
+		return *this; 
+	}
+	_CFG_ITEM& operator=(const _CFG_ITEM o) 
+	{ 
+		v = o.v; v0 = o.v0, vd = o.vd; 
+		_Setup(); 
+		return *this; 
+	}
 
 	virtual bool operator==(const _CFG_ITEM& other) { return v == other.v;  }
 	virtual bool operator!=(const _CFG_ITEM& other) { return !((const T)v == other.v);  }
@@ -125,15 +135,84 @@ private:
 
 //--------------------------------------------------------------------------------------------
 
-
-struct _CBool : public _CFG_ITEM<bool>
+struct _CBool
 {
-	_CBool(bool def, QString namestr="cbool") : _CFG_ITEM(def, namestr) {}
-	_CBool() : _CFG_ITEM(false, "cbool") {}
+	QString itemName;	// in settings
+	bool vd,			// default value
+		 v0,			// original value
+		 v;			// actual value	read from settings file
+
+		// vd must be first otherwise problems with actual declarations
+	_CBool(bool vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
+
+	_CBool() : _CBool(false, "cbool") {}
 
 	operator bool() const { return v; }
 	QString ToString() const { return v ? "true" : "false"; }
+
+	virtual bool Changed() const
+	{
+		return v != v0;
+	}
+
+	virtual void ClearChanged()
+	{
+		v0 = v;
+	}
+
+	virtual void Write(QSettings& s, QString group = QString())	// into settings, always
+	{
+		if (!group.isEmpty())
+			s.beginGroup(group);
+
+		if (v == vd)
+			s.remove(itemName);		// from current group!
+		else
+			s.setValue(itemName, v);
+
+		if (!group.isEmpty())
+			s.endGroup();
+	}
+	virtual void Read(QSettings& s, QString group = QString())
+	{
+		if (!group.isEmpty())
+			s.beginGroup(group);
+
+		v = Value(s, itemName, vd);
+		_Setup();	// may modify 'v'
+		v0 = v;
+
+		if (!group.isEmpty())
+			s.endGroup();
+	}
+	_CBool& operator=(const bool o)
+	{
+		v = o;
+		_Setup();
+		return *this;
+	}
+	_CBool& operator=(const _CBool o)
+	{
+		v = o.v; v0 = o.v0, vd = o.vd;
+		_Setup();
+		return *this;
+	}
+
+	virtual bool operator==(const _CBool& other) { return v == other.v; }
+	virtual bool operator!=(const _CBool& other) { return !((const bool )v == other.v); }
+protected:
+	virtual void _Setup() {}		// preprocess after read from settings  v and v0 when created
+	virtual void _Prepare() {}		// preprocess before write to settings
 };
+
+//struct _CBool : public _CFG_ITEM<bool>
+//{
+//	_CBool(bool def, QString namestr="cbool") : _CFG_ITEM(def, namestr) {}
+//	_CBool() : _CFG_ITEM(false, "cbool") {}
+//
+//	operator bool() const { return v; }
+//	QString ToString() const { return v ? "true" : "false"; }
+//};
 
 //--------------------------------------------------------------------------------------------
 
@@ -833,7 +912,7 @@ public:
 	_CString sKeywords = {"","sKeywords"};			// comma separated list of keywords
 
 	_CBool bCanDownload = {false,"bCanDownload"};		// images from the server (.htaccess)
-	_CBool bForceSSL = { false,"bForceSSL"};			// using .htaccess
+	_CBool bForceSSL = { true,"bForceSSL"};			// using .htaccess
 	_CBool bRightClickProtected = {false,"bRightClickProtected"}; // right click protection on
 	_CBool bMenuToContact = {false,"bMenuToContact"};		// show menu button for 'Contact' page
 	_CBool bMenuToAbout = {false,"bMenuToAbout"};		// show menu button for 'About' page?
@@ -916,7 +995,7 @@ public:
 	_CWaterMark waterMark = {"", "Watermark"};
 
 				// design page
-	_CInt splitterLeft = { 493, "spll" };
+	_CInt splitterLeft =  { 493, "spll" };
 	_CInt splitterRight = { 543, "splr" };
 	// Options page
 	_CInt styleIndex = {0, "styleIndex"};

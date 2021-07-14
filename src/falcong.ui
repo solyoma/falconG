@@ -479,6 +479,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds menu tu turn image descriptions on and off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Menu to toggle descriptionss</string>
                </property>
@@ -524,6 +527,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Try to protect page from downloads using the right mouse button (or Ctrl+click on Macs).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: this only protects from the average users!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Right click protection</string>
                </property>
@@ -539,7 +545,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>Text for the link to the server</string>
+                <string/>
                </property>
                <property name="placeholderText">
                 <string>Andreas Falco Photography</string>
@@ -589,6 +595,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Request the pages to be safe to access.&lt;/p&gt;&lt;p&gt;Without it links will not be not be protected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
                 <string>Force secure (HTTPS) access</string>
                </property>
@@ -605,6 +614,9 @@
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter your email address here and check the '&lt;span style=&quot; font-style:italic;&quot;&gt;Menu to Contacts&lt;/span&gt;' box below.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
                 <string>Your Name &lt;and@email.address&gt;</string>
@@ -651,8 +663,11 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds a &lt;span style=&quot; font-style:italic;&quot;&gt;Contact &lt;/span&gt; menu which opens mail to the value &lt;/p&gt;&lt;p&gt;in the user mail address field above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="text">
-                <string>Menu to 'Contact' page</string>
+                <string>Menu to Contact by email</string>
                </property>
               </widget>
              </item>
@@ -679,8 +694,11 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>Adds menu tu turn image captions on and off.</string>
+               </property>
                <property name="text">
-                <string>Captions</string>
+                <string>Menu to toggle Captions</string>
                </property>
               </widget>
              </item>
@@ -692,6 +710,9 @@
                  <weight>50</weight>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a link to like the albums on &lt;span style=&quot; text-decoration: underline;&quot;&gt;facebook.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>Like on Facebook link</string>
@@ -736,7 +757,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Series of 2 lower case letter language abbreviations separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files  in the program directory or in the&lt;br/&gt;actual gallery source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;2 letter abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language texts it finds.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of  language abbreviations (2 lower case letters) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;2 letter abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
                 <string> &quot;hu,en&quot; to use hu.lang and en.lang</string>
@@ -1064,6 +1085,9 @@ Iinside gallery root if no absolute or relative path is given.</string>
                </item>
                <item row="1" column="1">
                 <widget class="QLineEdit" name="edtVid">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Iinside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
                  <property name="placeholderText">
                   <string>vids</string>
                  </property>
@@ -1108,6 +1132,9 @@ Iinside gallery root if no absolute or relative path is given.</string>
                    <bold>false</bold>
                   </font>
                  </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all albums. &lt;/p&gt;&lt;p&gt;Iinside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
                  <property name="placeholderText">
                   <string>albums</string>
                  </property>
@@ -1140,7 +1167,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All albums are referred as &amp;lt;base link name&amp;gt;&amp;lt;index number&amp;gt;&lt;/p&gt;&lt;p&gt;not by their albuml name, which may contain any UTF-8 characters.&lt;/p&gt;&lt;p&gt;Example: the album &lt;span style=&quot; font-style:italic;&quot;&gt;'Őrség&amp;quot;&lt;/span&gt; may be referred as&lt;span style=&quot; font-style:italic;&quot;&gt; album123456.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All albums are referred as &amp;lt;base link name&amp;gt;&amp;lt;index number&amp;gt; &lt;br/&gt;not by their album name, which may contain any UTF-8 characters.&lt;/p&gt;&lt;p&gt;Example: the album &lt;span style=&quot; font-style:italic;&quot;&gt;'Őrség&amp;quot;&lt;/span&gt; may be referred as&lt;span style=&quot; font-style:italic;&quot;&gt; album123456.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>album</string>
@@ -1200,8 +1227,11 @@ Iinside gallery root if no absolute or relative path is given.</string>
                   </property>
                   <item>
                    <widget class="QLineEdit" name="edtGoogleFonts">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) enclose it into quotes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="placeholderText">
-                     <string>comma separated font names (possibly with ':wght@&lt;wight&gt;') w.o. URL</string>
+                     <string>comma separated font names on Google</string>
                     </property>
                    </widget>
                   </item>
@@ -2132,7 +2162,7 @@ its original size;</string>
                          <x>0</x>
                          <y>0</y>
                          <width>385</width>
-                         <height>720</height>
+                         <height>672</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4269,6 +4299,76 @@ Others: set value and style separately for all 4.</string>
                              </property>
                             </widget>
                            </item>
+                           <item row="5" column="1" colspan="3">
+                            <widget class="QComboBox" name="cbImageQuality">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the quality of the images on the server.&lt;/p&gt;&lt;p&gt;The smaller the number the smaller the file size but &lt;/p&gt;&lt;p&gt;the more artifact will be present in the result.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;A huge space reduction is achieved, with a small&lt;/p&gt;&lt;p&gt;quality loss with a quality of 80%.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
+                             <item>
+                              <property name="text">
+                               <string>Same as original</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>100% - best</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>90%</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>80% - high</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>70%</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>60%</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>50% - medium</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>40%</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>30% - low</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>20%</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>10% - abysmal</string>
+                              </property>
+                             </item>
+                            </widget>
+                           </item>
                            <item row="0" column="2" colspan="2">
                             <widget class="QLabel" name="label_3">
                              <property name="font">
@@ -4281,6 +4381,21 @@ Others: set value and style separately for all 4.</string>
                              </property>
                              <property name="text">
                               <string>Height</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="0">
+                            <widget class="QLabel" name="label_73">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Image Quality:</string>
                              </property>
                             </widget>
                            </item>
@@ -4317,7 +4432,7 @@ Others: set value and style separately for all 4.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="5" column="0" colspan="3">
+                           <item row="7" column="0" colspan="3">
                             <widget class="QCheckBox" name="chkCropThumbnails">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4351,7 +4466,7 @@ is required..</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="5" column="3" colspan="2">
+                           <item row="7" column="3" colspan="2">
                             <widget class="QCheckBox" name="chkDoNotEnlarge">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4463,7 +4578,7 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="6" column="0" colspan="4">
+                           <item row="8" column="0" colspan="4">
                             <widget class="QCheckBox" name="chkDistortThumbnails">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4492,6 +4607,19 @@ is required.</string>
                               <string>Modify aspect ratio for thumbnails</string>
                              </property>
                             </widget>
+                           </item>
+                           <item row="6" column="0">
+                            <spacer name="verticalSpacer_5">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                            </spacer>
                            </item>
                            <item row="1" column="4" rowspan="2">
                             <spacer name="horizontalSpacer_6">
@@ -4542,87 +4670,18 @@ is required.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="0">
-                            <widget class="QLabel" name="label_73">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
+                           <item row="4" column="1">
+                            <spacer name="verticalSpacer_6">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
                              </property>
-                             <property name="text">
-                              <string>Image Quality:</string>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
                              </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="1" colspan="3">
-                            <widget class="QComboBox" name="cbImageQuality">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>Same as original</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>100% - best</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>90%</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>80% - high</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>70%</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>60%</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>50% - medium</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>40%</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>30% - low</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>20%</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>10% - abysmal</string>
-                              </property>
-                             </item>
-                            </widget>
+                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -4797,8 +4856,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>372</width>
+                         <height>737</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -6369,7 +6428,7 @@ regardless if they were already OK.</string>
        <item>
         <widget class="QCheckBox" name="chkButImages">
          <property name="text">
-          <string>except images</string>
+          <string>except i&amp;mages</string>
          </property>
         </widget>
        </item>
@@ -6425,11 +6484,10 @@ regardless if they were already OK.</string>
        <item>
         <widget class="QCheckBox" name="chkCleanUp">
          <property name="toolTip">
-          <string>removes helper files created in 
-program directory (html,css,js,...)</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>Clean up &amp;&amp;</string>
+          <string>Clean up and</string>
          </property>
         </widget>
        </item>

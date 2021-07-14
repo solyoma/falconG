@@ -1573,6 +1573,7 @@ bool AlbumGenerator::Read()
 	{
 		_imageMap.clear();
 		_textMap.clear();
+		_videoMap.clear();
 		_albumMap.clear();
 	// add default image when no image is found This is the only one with id == 0
 	// the file 'NoImage.jpg' must be put into the 'res' directory
@@ -3078,7 +3079,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
 	if (config.bMenuToToggleCaptions && album.TitleCount() > 0)
-		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
+		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (config.generateLatestUploads)

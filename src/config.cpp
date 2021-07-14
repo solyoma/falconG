@@ -1273,6 +1273,7 @@ void CONFIG::ClearChanged()
 				// images
 	imageWidth.ClearChanged();
 	imageHeight.ClearChanged();
+	imageQuality.ClearChanged();
 	imageSizesLinked.ClearChanged();
 	thumbWidth.ClearChanged();
 	thumbHeight.ClearChanged();
