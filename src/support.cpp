@@ -7,7 +7,7 @@
 #include <QPainter>
 #include <QTextStream>
 
-//*****************************************																			//---------------------
+//*****************************************
 void ShowWarning(QString qs, QWidget *parent)
 {
 	QFile f(config.dsApplication.ToString() + "falconG.warnings");

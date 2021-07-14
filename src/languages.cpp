@@ -73,6 +73,7 @@ int Languages::_Read(QString name)
 	toHomePage.push_back(s);
 	toAboutPage.push_back(s);
 	toContact.push_back(s);
+	showCaptions.push_back(s);
 	showDescriptions.push_back(s);
 	share.push_back(s);
 	latestTitle.push_back(s);
@@ -116,6 +117,8 @@ int Languages::_Read(QString name)
 			toContact[next] = s;
 		else if (sn == "descriptions")
 			showDescriptions[next] = s;
+		else if (sn == "captions")
+			showCaptions[next] = s;
 		else if (sn == "share")
 			share[next] = s;
 		else if (sn == "latesttitle")
@@ -231,9 +234,8 @@ int Languages::Read()
 		toAboutPage.push_back("About");
 		toContact.push_back("Contact");
 		showDescriptions.push_back("Captions");
-		share.push_back("Share");
-		showCaptions.push_back("Captions");
 		showDescriptions.push_back("Descriptions");
+		share.push_back("Share");
 		latestTitle.push_back("Latest uploads");
 		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
 		countryCode.push_back("en_US");
@@ -271,6 +273,7 @@ void Languages::Clear(int newsize)
 	toAboutPage.Prepare(newsize);
 	toContact.Prepare(newsize);
 	share.Prepare(newsize);
+	showCaptions.Prepare(newsize);
 	showDescriptions.Prepare(newsize);
 	latestTitle.Prepare(newsize);
 	latestDesc.Prepare(newsize);

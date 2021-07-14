@@ -134,7 +134,7 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------
-
+#if 0
 struct _CBool
 {
 	QString itemName;	// in settings
@@ -204,15 +204,17 @@ protected:
 	virtual void _Setup() {}		// preprocess after read from settings  v and v0 when created
 	virtual void _Prepare() {}		// preprocess before write to settings
 };
+#else
+struct _CBool : public _CFG_ITEM<bool>
+{
+	_CBool(bool def, QString namestr) : _CFG_ITEM(def, namestr) {}
+	_CBool() : _CFG_ITEM(false, "cbool") {}
 
-//struct _CBool : public _CFG_ITEM<bool>
-//{
-//	_CBool(bool def, QString namestr="cbool") : _CFG_ITEM(def, namestr) {}
-//	_CBool() : _CFG_ITEM(false, "cbool") {}
-//
-//	operator bool() const { return v; }
-//	QString ToString() const { return v ? "true" : "false"; }
-//};
+	operator bool() const { return v; }
+	QString ToString() const { return v ? "true" : "false"; }
+	_CBool& operator=(const bool s) { _CFG_ITEM<bool>::operator=(s); return *this; }	// w. this template function is not used
+};
+#endif
 
 //--------------------------------------------------------------------------------------------
 
