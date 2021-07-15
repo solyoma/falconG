@@ -13,6 +13,7 @@ void __AddSemi(QString& s, bool addSemicolon)
 
 
 QString CONFIGS_USED::_homePath;
+QString CONFIGS_USED::_samplePath;
 
 int CONFIGS_USED::maxSavedConfigs;		// last 10 configuration directory is stored
 QStringList CONFIGS_USED::lastConfigs;
@@ -98,6 +99,7 @@ void CONFIGS_USED::GetHomePath()
 #endif
 	if (!QDir(_homePath).exists())
 		QDir(_homePath).mkdir(_homePath);
+	CONFIGS_USED::_samplePath = CONFIGS_USED::_homePath+"sample/";
 }
 
 /*========================================================
@@ -1728,7 +1730,7 @@ void CONFIG::SaveSchemeIndex()
 	QString p, n;
 	SeparateFileNamePath(dsSrc.ToString(), p, n);
 
-	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat),
+	QSettings s(CONFIGS_USED::_homePath+falconG_ini, QSettings::IniFormat),
 		      s1(dsSrc.ToString() + n + ".ini", QSettings::IniFormat);
 	
 	s.setIniCodec("UTF-8");

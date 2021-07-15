@@ -2522,7 +2522,7 @@ bool AlbumGenerator::_ReadFromGallery()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
 {
-	QString src = config.dsApplication.ToString() + "sample/js/",
+	QString src = CONFIGS_USED::_samplePath+"js/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
@@ -2547,7 +2547,7 @@ int AlbumGenerator::_DoCopyJs()
 int AlbumGenerator::_DoCopyRes()
 {
 
-	QString src = config.dsApplication.ToString() + "sample/res/",
+	QString src = CONFIGS_USED::_samplePath+"res/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "res/";
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);

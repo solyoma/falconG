@@ -803,6 +803,7 @@ struct CONFIGS_USED
 {
 	static CONFIG *parent;
 	static QString _homePath;
+	static QString _samplePath;
 	static int maxSavedConfigs;		// max this many last configuration directories are stored
 	static int indexOfLastUsed;		// this was the last one used
 	static QStringList lastConfigs; // these are the (source) directories

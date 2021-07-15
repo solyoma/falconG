@@ -159,7 +159,7 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 		case 'j': destDir = name.at(++pos).unicode() == 's' ? "js/" : "res/"; break;	// .js or .jpg?
 		default: destDir  = "res/"; break;
 	}
-	destDir = "sample/" + destDir;
+	destDir = CONFIGS_USED::_samplePath + destDir;
 
 	resPath += name;
 	if ( ! QFile::exists(destDir + name))
@@ -194,17 +194,19 @@ ERR:
 *--------------------------------------------------------------------------*/
 FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 {
+	CONFIGS_USED::GetHomePath();
+
 	config.dsApplication = QDir::current().absolutePath(); // before anybody changes the current directory
 
 	// create directories for sample
 	bool ask = false;
-	CreateDir("sample", ask);
+	CreateDir(CONFIGS_USED::_samplePath, ask);
 	ask = false;
-	CreateDir("sample/css", ask);
+	CreateDir(CONFIGS_USED::_samplePath+"css", ask);
 	ask = false;
-	CreateDir("sample/js", ask);
+	CreateDir(CONFIGS_USED::_samplePath+"js", ask);
 	ask = false;
-	CreateDir("sample/res", ask);
+	CreateDir(CONFIGS_USED::_samplePath+"res", ask);
 
 	QString resPPath = QStringLiteral(":/Preview/Resources/"),
 			resIPath = QStringLiteral(":/icons/Resources/");
@@ -227,10 +229,10 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.sample->setPage(&_page);
 
 #ifdef __linux__	
-	QString url = "file://" + config.dsApplication.ToString() + "sample/index.html";
+	QString url = "file://" + CONFIGS_USED::_samplePath+"/index.html";
 	_page.load(QUrl(url));
 #else
-	_page.load(QUrl(QStringLiteral("file:///sample/index.html")));
+	_page.load(QUrl("file:///"+ CONFIGS_USED::_samplePath+"index.html"));
 #endif
 
 	ui.trvAlbums->setHeaderHidden(true);
@@ -274,8 +276,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
 	connect(_pCbColorSchemeEdit, &QLineEdit::editingFinished, this, &FalconG::_SlotForSchemeComboEditingFinished);
 
-	CONFIGS_USED::GetHomePath();
-	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(CONFIGS_USED::_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
@@ -334,7 +335,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 
 	if (ui.chkCleanUp->isChecked())		// directory will be re-created at next program start
-		RemoveDir(config.dsApplication.ToString()+"sample");
+		RemoveDir(CONFIGS_USED::_homePath +"sample");
 
 	if(_edited)
 	{
@@ -378,9 +379,9 @@ void FalconG::closeEvent(QCloseEvent * event)
 		CONFIGS_USED::Write();						// save data in program directory
 
 	CssCreator cssCreator;
-	cssCreator.Create("sample/css/falconG.css", true);	// program library
+	cssCreator.Create(CONFIGS_USED::_samplePath+"css/falconG.css", true);	// program library
 
-	QSettings s(CONFIGS_USED::_homePath + falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(CONFIGS_USED::_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 	s.setValue("wgeometry", saveGeometry());
 	s.setValue("wstate", saveState());
 }
@@ -462,7 +463,7 @@ void FalconG::on_btnGenerate_clicked()
 		if (config.Changed())
 		{
 			CssCreator cssCreator;
-			cssCreator.Create("sample/css/falconG.css", true);	// program library setting cursors too
+			cssCreator.Create(CONFIGS_USED::_samplePath+"css/falconG.css", true);	// program library setting cursors too
 		}
 
 		CONFIGS_USED::Write();
@@ -3007,9 +3008,9 @@ void FalconG::on_btnDisplayHint_clicked()
 void FalconG::_ModifyGoogleFontImport()
 {
 	CssCreator cssCreator;
-	cssCreator.Create("sample/css/falconG.css", true);	// program library setting cursors too
+	cssCreator.Create(CONFIGS_USED::_samplePath+"css/falconG.css", true);	// program library setting cursors too
 #if 0
-	static QString name = "sample/css/falconG.css",
+	static QString name = CONFIGS_USED::_samplePath+"css/falconG.css",
 		tmpName = name + ".tmp";
 	QFile in(name),
 		out(tmpName);
@@ -4834,7 +4835,7 @@ void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool sp
  *--------------------------------------------------------------------------*/
 void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
 {
-	QString src = "sample/res/"+destName;
+	QString src = CONFIGS_USED::_samplePath+"res/"+destName;
 	QPixmap pm(src) ;
 	if (pm.isNull())
 	{
