@@ -4042,9 +4042,8 @@ void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
 void FalconG::_ColorToSample(_CElem* pElem)
 {
 	QString qs;
-	if (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color) ) // else clear color
-		qs = pElem->color.ForStyleSheet(false, false);
-	_SetCssProperty(pElem, qs);
+	bool b = (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color)); // else clear color
+	_SetCssProperty(pElem,b ? pElem->color.ForStyleSheet(false, false) : QString("color:") );
 }
 
 /*========================================================
