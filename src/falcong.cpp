@@ -36,64 +36,6 @@
 
 
 FalconG *frmMain = nullptr;
-FalconGScheme FSchemeVector::blue("Blue",
-	"#3b5876",
-	"#cccccc",
-	"#747474",
-	"#f0f0f0",
-	"#8faed2",
-	"#3b589b",
-	"#1c3a55",
-	"#3b584a",
-	"#92b1d5",
-	"#999999",
-	"#697a8e",
-	"#12273f",
-	"#555555",
-	"#555555",
-	"#feb60e",
-	"#f0a91f",
-	"#e28308"
-),
-FSchemeVector::dark("Dark",
-	"#282828",
-	"#cccccc",
-	"#4d4d4d",
-	"#f0f0f0",
-	"#383838",
-	"#9B9B9B",
-	"#454545",
-	"#666666",
-	"#c0c0c0",
-	"#999999",
-	"#555555",
-	"#111111",
-	"#555555",
-	"#555555",
-	"#feb60e",
-	"#f0a91f",
-	"#e28308"
-), 							   
-FSchemeVector::black("Black",
-	"#191919",
-	"#e1e1e1",
-	"#323232",
-	"#f0f0f0",
-	"#282828",
-	"#9b9b9b",
-	"#323232",
-	"#4a4a4a",
-	"#a8a8a8",
-	"#999999",
-	"#191919",
-	"#000000",
-	"#323232",
-	"#323232",
-	"#feb60e",
-	"#f0a91f",
-	"#e28308"
-);
-
 
 /*------------------------------------- macros ------------------------------------*/
 
@@ -258,7 +200,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 
 	// read styles
-	_schemes.ReadAndSetupStyles();
+	schemes.ReadAndSetupStyles();
 
 	// setup style change menus. _SlotForContextMenus sets up a signal mapping for style menus
 	ui.tabGallery->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -286,7 +228,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	ui.designSplitter->setSizes({ config.splitterLeft, config.splitterRight } );
 
-	_tmpScheme = _schemes[config.styleIndex];
+	_tmpScheme = schemes[config.styleIndex];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 
 	frmMain = this;
@@ -1862,9 +1804,9 @@ void FalconG::_SlotForContextMenu(const QPoint& pt)
 	pa->setEnabled(false);
 	menu.addAction(pa);
 	menu.addSeparator();
-	for (int i = 0; i < _schemes.size(); ++i)
+	for (int i = 0; i < schemes.size(); ++i)
 	{
-		pa = menu.addAction(_schemes[i].MenuTitle, _popupMapper.get(), SLOT(map()));
+		pa = menu.addAction(schemes[i].MenuTitle, _popupMapper.get(), SLOT(map()));
 		if (i == config.styleIndex)
 		{
 			pa->setCheckable(true);
@@ -3233,8 +3175,8 @@ void FalconG::_AddSchemeButtons()
 	_pSchemeMapper = new QSignalMapper(this);
 
 	// add defined schemes to combo box
-	for (int i = 2; i < _schemes.size(); ++i)				// do not add default and system!
-		ui.cbColorScheme->addItem(_schemes[i].MenuTitle);
+	for (int i = 2; i < schemes.size(); ++i)				// do not add default and system!
+		ui.cbColorScheme->addItem(schemes[i].MenuTitle);
 	// add buttons to layout
 
 	QFont font;
@@ -3383,6 +3325,13 @@ void FalconG::_AddSchemeButtons()
 	_pSchemeMapper->setMapping(_pSchemeButtons[i], i);
 	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
 	++i;
+	plabel = new QLabel(tr("Drag & Drop Insert Marker"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton);
+	_pSchemeMapper->setMapping(_pSchemeButtons[i], i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
 
 	connect(_pSchemeMapper, &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeButtonClick);
 }
@@ -3584,7 +3533,7 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 {
 	if (_busy || newIndex < 0)
 		return;
-	if (newIndex +2 == _schemes.size())	// just the text changed and an ENTER is pressed?
+	if (newIndex +2 == schemes.size())	// just the text changed and an ENTER is pressed?
 		on_btnApplyColorScheme_clicked();
 	else
 	{
@@ -3592,7 +3541,7 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 		_AskForApply();
 		static const char *bckstr= "background-color:%1",
 						  *bck_txt = "background-color:%1; color:%2";
-		_tmpScheme = _schemes[newIndex+2];	// default and system are not changed
+		_tmpScheme = schemes[newIndex+2];	// default and system are not changed
 		_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 		ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
 		for (int i = 0; i < _pSchemeButtons.size(); ++i)
@@ -3614,7 +3563,7 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
  *-------------------------------------------------------*/
 void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
 {
-	ui.btnApplyColorScheme->setEnabled(_schemes.IndexOf(newText) );
+	ui.btnApplyColorScheme->setEnabled(schemes.IndexOf(newText) );
 }
 
 void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
@@ -3636,7 +3585,7 @@ void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
  *-------------------------------------------------------*/
 void FalconG::_SlotForSchemeComboEditingFinished()
 {
-	if ( _schemes.IndexOf(ui.cbColorScheme->lineEdit()->text()) < 0 )
+	if ( schemes.IndexOf(ui.cbColorScheme->lineEdit()->text()) < 0 )
 	{
 		_bNewSchemeName = true;
 		_tmpSchemeOrigName = ui.cbColorScheme->currentText();
@@ -3761,17 +3710,17 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
 void FalconG::on_btnApplyColorScheme_clicked()
 {
 	_bSchemeChanged = _bNewSchemeName = false;
-	int i = _schemes.IndexOf(_tmpSchemeOrigName);
+	int i = schemes.IndexOf(_tmpSchemeOrigName);
 	if (i >= 0)
-		_schemes[i] = _tmpScheme;
+		schemes[i] = _tmpScheme;
 	else
 	{
 		_tmpScheme.MenuTitle = _tmpSchemeOrigName;
-		_schemes.push_back(_tmpScheme);
+		schemes.push_back(_tmpScheme);
 		ui.cbColorScheme->addItem(_tmpSchemeOrigName);
 	}
 
-	_schemes.Save();
+	schemes.Save();
 
 	_EnableColorSchemeButtons();
 	_StyleTheProgram(config.styleIndex);
@@ -3787,7 +3736,7 @@ void FalconG::on_btnApplyColorScheme_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnResetColorScheme_clicked()
 {
-	_tmpScheme = _schemes[ui.cbColorScheme->currentIndex() + 2];
+	_tmpScheme = schemes[ui.cbColorScheme->currentIndex() + 2];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	ui.cbColorScheme->setCurrentText(_tmpSchemeOrigName);
 	_bSchemeChanged = false;
@@ -3820,18 +3769,18 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 		config.SaveSchemeIndex();
 	}
 
-	FalconGScheme sty = _schemes[j];
-	_schemes.replace(j, _schemes[j - 1]);
-	_schemes.replace(--j, sty);
+	FalconGScheme sty = schemes[j];
+	schemes.replace(j, schemes[j - 1]);
+	schemes.replace(--j, sty);
 
 	++_busy;
 	ui.cbColorScheme->removeItem(i--);
-	ui.cbColorScheme->insertItem(i, _schemes[j].MenuTitle);
+	ui.cbColorScheme->insertItem(i, schemes[j].MenuTitle);
 	ui.cbColorScheme->setCurrentIndex(i);
 	if (!i)
 		ui.btnMoveSchemeUp->setEnabled(false);
 	--_busy;
-	_schemes.Save();
+	schemes.Save();
 }
 
 
@@ -3861,9 +3810,9 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 		config.SaveSchemeIndex();
 	}
 	ui.cbColorScheme->removeItem(i);
-	_schemes.remove(i + 2);
-	ui.cbColorScheme->setCurrentIndex(i == _schemes.size() - 2 ? --i : i);
-	_schemes.Save();
+	schemes.remove(i + 2);
+	ui.cbColorScheme->setCurrentIndex(i == schemes.size() - 2 ? --i : i);
+	schemes.Save();
 	_EnableColorSchemeButtons();
 	_bSchemeChanged = false;
 }
@@ -4371,7 +4320,7 @@ void FalconG::_SetLayoutMargins(int which)
 
 void FalconG::_StyleTheProgram(int which)
 {
-	if (which >= _schemes.size())
+	if (which >= schemes.size())
 		which = 0;
 
 	_SetLayoutMargins(which);
@@ -4560,23 +4509,24 @@ QPusButton:default {
 	{
 		QString ss =
 			QString(styles)
-			.arg(_schemes[which].sBackground)		// %1 
-			.arg(_schemes[which].sTextColor)		// %2 
-			.arg(_schemes[which].sBorderColor)		// %3 
-			.arg(_schemes[which].sFocusedInput)		// %4 
-			.arg(_schemes[which].sHoverColor)		// %5 
-			.arg(_schemes[which].sTabBorder)		// %6 
-			.arg(_schemes[which].sInputBackground)	// %7
-			.arg(_schemes[which].sSelectedInputBgr)	// %8 
-			.arg(_schemes[which].sFocusedBorder)	// %9 
-			.arg(_schemes[which].sDisabledFg)		// %10
-			.arg(_schemes[which].sDisabledBg)		// %11
-			.arg(_schemes[which].sImageBackground)	// %12
-			.arg(_schemes[which].sPressedBg)		// %13
-			.arg(_schemes[which].sDefaultBg)		// %14
-			.arg(_schemes[which].sProgressBarChunk)	// %15
-			.arg(_schemes[which].sWarningColor)		// %16
-			.arg(_schemes[which].sBoldTitleColor)	// %17
+			.arg(schemes[which].sBackground)		// %1 
+			.arg(schemes[which].sTextColor)			// %2 
+			.arg(schemes[which].sBorderColor)		// %3 
+			.arg(schemes[which].sFocusedInput)		// %4 
+			.arg(schemes[which].sHoverColor)		// %5 
+			.arg(schemes[which].sTabBorder)			// %6 
+			.arg(schemes[which].sInputBackground)	// %7
+			.arg(schemes[which].sSelectedInputBgr)	// %8 
+			.arg(schemes[which].sFocusedBorder)		// %9 
+			.arg(schemes[which].sDisabledFg)		// %10
+			.arg(schemes[which].sDisabledBg)		// %11
+			.arg(schemes[which].sImageBackground)	// %12
+			.arg(schemes[which].sPressedBg)			// %13
+			.arg(schemes[which].sDefaultBg)			// %14
+			.arg(schemes[which].sProgressBarChunk)	// %15
+			.arg(schemes[which].sWarningColor)		// %16
+			.arg(schemes[which].sBoldTitleColor)	// %17
+			.arg(schemes[which].sSpacerColor)		// %18
 			;
 
 		if (which == stBlue)		// blue

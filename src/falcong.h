@@ -14,6 +14,7 @@ using namespace Enums;
 #include "stylehandler.h"
 #include "albums.h"
 #include "thumbnailWidget.h"
+#include "schemes.h"
 #include "ui_falcong.h"
 
 #include <memory>
@@ -64,132 +65,6 @@ public:
 signals:
 	void LinkClickedSignal(QString);
 };
-
-struct FalconGScheme
-{
-	QString
-		MenuTitle,			// this will appear in the menu bar
-		sBackground,
-		sTextColor,
-		sBorderColor,
-		sFocusedInput,
-		sHoverColor,
-		sTabBorder,
-		sInputBackground,
-		sSelectedInputBgr,
-		sFocusedBorder,
-		sDisabledFg,
-		sDisabledBg,
-		sImageBackground,
-		sPressedBg,
-		sDefaultBg,
-		sProgressBarChunk,
-		sWarningColor,
-		sBoldTitleColor;
-	QString& operator[](int index) 
-	{ 
-		switch (index)
-		{
-			case 0:		  return sBackground;
-			case 1:		  return sTextColor;
-			case 2:		  return sBorderColor;
-			case 3:		  return sFocusedInput;
-			case 4:		  return sHoverColor;
-			case 5:		  return sTabBorder;
-			case 6:		  return sInputBackground;
-			case 7:		  return sSelectedInputBgr;
-			case 8:		  return sFocusedBorder;
-			case 9:		  return sDisabledFg;
-			case 10:	  return sDisabledBg;
-			case 11:	  return sImageBackground;
-			case 12:	  return sPressedBg;
-			case 13:	  return sDefaultBg;
-			case 14:	  return sProgressBarChunk;
-			case 15:	  return sWarningColor;
-			default: 
-			case 16:	  return sBoldTitleColor;
-		}
-	}
-	FalconGScheme() 
-	{
-	}
-	FalconGScheme(const char* t,	 // menu title
-				  const char* c0,	 // sBacground
-				  const char* c1,	 // sTextColor	-	foreground
-				  const char* c2,	 // sBorderColor
-				  const char* c3,	 // sFocusedInput
-				  const char* c4,	 // sHoverColor
-				  const char* c5,	 // sTabBorder
-				  const char* c6,	 // sInputBackground - editor backgrounds
-				  const char* c7,	 // sSelectedInputBgr
-				  const char* c8,	 // sFocusedBorder
-				  const char* c9,	 // sDisabledFg
-				  const char* c10,	 // sDisabledBg
-				  const char* c11,	 // sImageBackground
-				  const char* c12,	 // sPressedBg	-	button pressed
-				  const char* c13,	 // sDefaultBg
-				  const char* c14,	 // sProgressBarChunk
-				  const char* c15,	 // sWarningColor
-				  const char* c16	 // sBoldTitleColor - GroupBox title
-									)
-	{
-		MenuTitle			= t;			// this will appear in the menu bar
-		sBackground			= c0;
-		sTextColor			= c1;
-		sBorderColor		= c2;
-		sFocusedInput		= c3;
-		sHoverColor			= c4;
-		sTabBorder			= c5;
-		sInputBackground	= c6;
-		sSelectedInputBgr	= c7;
-		sFocusedBorder		= c8;
-		sDisabledFg			= c9;
-		sDisabledBg			= c10;
-		sImageBackground	= c11;
-		sPressedBg			= c12;
-		sDefaultBg			= c13;
-		sProgressBarChunk	= c14;
-		sWarningColor		= c15;
-		sBoldTitleColor		= c16;
-	}
-
-};								
-
-
-/*========================================================
- * Style sheets (skins) for falconG
- * REMARKS: - default styles (default, system, blue, dark, black)
- *				are always present
- *			- styles are read from falconG.sty in program 
- *				directory
- *			- if a style there has the same Title as any 
- *				of the last 3 of the default they will be
- *				overwritten
- *			- styles default and system are always the first
- *				2 styles used, and if not redefined then
- *				blue, dark and black are the last ones
- *			- if a style requested which is no longer 
- *				present, the 'default' style is used instead
- *-------------------------------------------------------*/
-class FSchemeVector : public  QVector<FalconGScheme>
-{
-	static FalconGScheme blue, dark, black;
-public:
-	FSchemeVector() 
-	{
-		reserve(5);		// for default, system, blue, dark, black 
-		resize(2);		// default and system
-		operator[](0).MenuTitle = "Default";
-		operator[](1).MenuTitle = "System Colors";
-		operator[](1).sBorderColor = "#747474";
-	}
-	void ReadAndSetupStyles();	// into menu items
-	void Save();			// into "falconG.fsty"
-	int IndexOf(FalconGScheme& fgst);
-	int IndexOf(const QString &title);
-};
-
-
 //---------------
 class FalconG : public QMainWindow
 {
@@ -213,7 +88,6 @@ private:
 
 	WebEnginePage _page;
 	// style (skin) selection
-	FSchemeVector _schemes;		// default styles: default, system, blue, dark, black
 	bool _bSchemeChanged = false,	// any of the colors changed
 		 _bNewSchemeName = false;  // a new name of the scheme is added
 	FalconGScheme _tmpScheme;	// used for editing
@@ -315,7 +189,7 @@ private slots:
 	void _ThumbNailViewerIsLoading(bool yes);
 	void _TrvCountChanged();
 	void _TnvStatusChanged(QString &); // thumbnail view status changed
-	void _TnvSelectionChanged(QString );		// name of selected item or "" for no ormultiple items
+	void _TnvSelectionChanged(QString );		// name of selected item or "" for no or multiple items
 	void _TnvNewThumbs();		// previous seingle selection is the new thumbnail for actual album
 	void _SaveChangedTitleDescription();
 

@@ -205,6 +205,7 @@
     <ClCompile Include="csscreator.cpp" />
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="languages.cpp" />
+    <ClCompile Include="schemes.cpp" />
     <ClCompile Include="structEdit.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sourcehistory.cpp" />
@@ -247,6 +248,7 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtAngle;$(QTDIR)\include\QtConcurrent;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
     </QtMoc>
+    <ClInclude Include="schemes.h" />
     <ClInclude Include="stylehandler.h" />
     <ClInclude Include="support.h" />
   </ItemGroup>

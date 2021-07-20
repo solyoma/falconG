@@ -21,6 +21,7 @@
  */
 
 #include "thumbnailWidget.h"
+#include "config.h"
 
  /*=============================================================
   * TASK:		constractor
@@ -31,8 +32,22 @@
   * REMARKS:	SA
   *				- connects slots and sets up scrollbar
   *------------------------------------------------------------*/
-ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(parent), _thumbSize(thumbsize)
+ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(parent),_thumbSize(thumbsize)
 {
+    // prepare spacer for Drag & Drop into tnvImages
+    float spacerWidth = 50; // pixel
+    _insertPosImage = QImage(spacerWidth, _thumbSize, QImage::Format_ARGB32);
+    QPainter *painter = new QPainter(&_insertPosImage);
+    _insertPosImage.fill(Qt::transparent);
+    QPen pen;
+    pen.setColor(schemes[config.styleIndex].sSpacerColor);
+    pen.setWidth(10);
+    painter->setPen(pen);
+    painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbSize);
+    painter->drawLine(spacerWidth / 2.0-10, 0, spacerWidth / 2.0 + 10 , 0);
+    painter->drawLine(spacerWidth / 2.0-10, _thumbSize, spacerWidth / 2.0 + 10, _thumbSize);
+    delete painter;
+
     _currentItem = 0;
 
     setViewMode(QListView::IconMode);
@@ -59,7 +74,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(par
 *-----*/
 
     _fileFilters = new QStringList;
-    _emptyImg.load(":/icon/empty_image.png");
+    _insertPosImage.load(":/icon/spacerImage.png");
 
     //QTime time = QTime::currentTime();
     // qsrand((uint) time.msec());
@@ -130,7 +145,7 @@ QString ThumbnailWidget::getSingleSelectionFilename()
  *--------------------------------------------------------------------------*/
 void ThumbnailWidget::SetImageList(IdList * pidl)
 {
-	_pImages = pidl;
+	_imageIDs = pidl;
 }
 
 /*=============================================================
@@ -297,7 +312,7 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 	else if (!selectedCount) 
 	{
 		statusStr.clear();
-        _updateThumbsCount();
+        _UpdateThumbsCount();
     }
 	emit SignalStatusChanged(statusStr);
 }
@@ -578,8 +593,8 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
 	emit SignalInProcessing(true);
 
     for (;;) {
-        int firstVisible = _getFirstVisibleThumb();
-        int lastVisible  = _getLastVisibleThumb();
+        int firstVisible = _GetFirstVisibleThumb();
+        int lastVisible  = _GetLastVisibleThumb();
         if (_isAbortThumbsLoading || firstVisible < 0 || lastVisible < 0) {
             return;
         }
@@ -616,7 +631,7 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
 	emit SignalInProcessing(false);
 }
 
-int ThumbnailWidget::_getFirstVisibleThumb() 
+int ThumbnailWidget::_GetFirstVisibleThumb() 
 {
     QModelIndex idx;
 
@@ -631,7 +646,7 @@ int ThumbnailWidget::_getFirstVisibleThumb()
     return -1;
 }
 
-int ThumbnailWidget::_getLastVisibleThumb() 
+int ThumbnailWidget::_GetLastVisibleThumb() 
 {
     QModelIndex idx;
 
@@ -651,7 +666,7 @@ void ThumbnailWidget::loadFileList()
     for (int i = 0; i < thumbNames.size(); i++) 
         addThumb(i);
     
-    _updateThumbsCount();
+    _UpdateThumbsCount();
 
 /*
 	if (thumbNames.size() && selectionModel()->selectedIndexes().size() == 0) 
@@ -674,8 +689,8 @@ void ThumbnailWidget::reLoad()
         return;
     }
 
-    _initThumbs();
-    _updateThumbsCount();
+    _InitThumbs();
+    _UpdateThumbsCount();
     loadVisibleThumbs();
 
     _isBusy = false;
@@ -698,15 +713,13 @@ void ThumbnailWidget::loadPrepare()
     _thumbsRangeLast = -1;
 }
 
-void ThumbnailWidget::_initThumbs()
+void ThumbnailWidget::_InitThumbs()
 {
 	static QStandardItem *thumbItem;
 	static int fileIndex;
-	static QPixmap emptyPixMap;
 	static QSize hintSize;
 	int thumbsAddedCounter = 1;
 
-	emptyPixMap = QPixmap::fromImage(_emptyImg).scaled(_thumbSize, _thumbSize);
 	hintSize = QSize(_thumbSize, _thumbSize + ((int)(QFontMetrics(font()).height() * 1.5)));
 
 	thumbItem = new QStandardItem();
@@ -748,7 +761,7 @@ void ThumbnailWidget::_initThumbs()
  * RETURNS:                                                                                                                                                                                                           6666666666666
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::_updateThumbsCount()
+void ThumbnailWidget::_UpdateThumbsCount()
 {
     if (_thumbnailWidgetModel->rowCount() > 0) 
         statusStr = tr("%n image(s)", "", _thumbnailWidgetModel->rowCount());
@@ -923,24 +936,10 @@ void ThumbnailWidget::addThumb(int which)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void ThumbnailWidget::InsertSpaceAt(int here)
+void ThumbnailWidget::SetInsertPos(int here)
 {
-    _spacerPos = here;
+    _insertPos = here;
 }
-
-
-/*========================================================
- * TASK:
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void ThumbnailWidget::RemoveSpace()
-{
-    _spacerPos = -1;
-}
-
 
 
 /*=============================================================
@@ -1025,7 +1024,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	menu.addAction(pact);
 
 	pact = new QAction(tr("&Undo Delete"), this);
-	bool undo = _pImages && !_pImages->NothingToUndo();
+	bool undo = _imageIDs && !_imageIDs->NothingToUndo();
 	pact->setEnabled(undo);
 	if (undo)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);

@@ -22,7 +22,9 @@
 
 #include <QtWidgets>
 #include "enums.h"
+#include "schemes.h"
 #include "deletableitems.h"
+#include "albums.h"
 
 const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;
@@ -126,8 +128,7 @@ public:
     void setNeedToScroll(bool needToScroll);
     void selectCurrentIndex();
     void addThumb(int itemIndex);		// names are in string lists
-	void InsertSpaceAt(int here);		// into the model
-	void RemoveSpace();					// from where it was set
+	void SetInsertPos(int here);		// into the model
     void abort();
     void selectThumbByItem(int itemIndex);
     int getNextItem();
@@ -152,18 +153,24 @@ public:
 	QString title;			// use for window title
 
 private:
+// SA
+	ID_t _albumId;			// show thumbs from this album
+	IdList *_imageIDs;
+
+    int _thumbSize;
+    QImage _insertPosImage;	// shows insert position
+// /SA
+
     QStringList *_fileFilters;
     ThumbnailWidgetModel *_thumbnailWidgetModel;
 	QModelIndex _dragStartIndex;				// started drag from here
-	int _spacerPos = -1;						// put a spacer at this position
+	int _insertPos = -1;						// put a spacer at this position
     QDir::SortFlags _thumbsSortFlags;
-    int _thumbSize;
     QString _filterString;
     bool _isBusy;
 	bool _dragFromHereInProgress = false;		// drag started from here
 
 //    QFileInfo thumbFileInfo;
-    QImage _emptyImg;		// put all thumbnails into this
     int _currentItem;
     QModelIndex _currentIndex;
     bool _isAbortThumbsLoading;
@@ -171,14 +178,12 @@ private:
     bool _scrolledForward;
     int _thumbsRangeFirst;
     int _thumbsRangeLast;
-// SA
-	IdList *_pImages = nullptr;
 
 private:
-    void _initThumbs();
-    int _getFirstVisibleThumb();
-    int _getLastVisibleThumb();
-    void _updateThumbsCount();
+    void _InitThumbs();
+    int _GetFirstVisibleThumb();
+    int _GetLastVisibleThumb();
+    void _UpdateThumbsCount();
 	bool _IsAllowedToDrop(const QDropEvent *event);
 
 signals:
