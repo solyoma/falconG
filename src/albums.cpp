@@ -841,7 +841,7 @@ int Album::DescCount()
 * TASK: Create full link name of album
 * EXPECTS: language -  index of language
 *			http - true: http or https prefix plus add albumdir to the 
-*			front wgen needed, false: just name
+*			front true: needed, false: just name
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -880,6 +880,8 @@ QString Album::BareName()
 QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
 {
 	QString s;
+
+	id &= ID_MASK;
 
 	if (id == 1)	// root album
 	{
@@ -1167,7 +1169,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
  *        	- images/albums not mentioned in file are added to the end of
  *				the ordered list of images
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadAlbumFile(Album &ab)
+bool AlbumGenerator::_ReadJAlbumFile(Album &ab)
 {
 	QString path = ab.FullName();  
 	if(path[path.length()-1] != '/') 
@@ -1301,7 +1303,7 @@ QString& AlbumGenerator::_GetSetImagePath(QString & imagePath)
 *		   - languages ar separated by double '@' characters
 *		   - only as many languages are used as are set in global 'Languages'
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadCommentFile(Album &ab)
+bool AlbumGenerator::_ReadJCommentFile(Album &ab)
 {
 	QString path = ab.FullName();
 	if (path[path.length() - 1] != '/')
@@ -1353,7 +1355,7 @@ bool AlbumGenerator::_ReadCommentFile(Album &ab)
 *				'folderIcon'=<image file name for 'ab'>
 *				'descript'=<description for 'ab'>
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadMetaFile(Album &ab)
+bool AlbumGenerator::_ReadJMetaFile(Album &ab)
 {
 	QString path = ab.FullName();
 	if (path[path.length() - 1] != '/')
@@ -1505,8 +1507,8 @@ bool AlbumGenerator::_ReadInfo(Album & ab)
  * EXPECTS:		ab - album (already on global album list '_albumMap')
  * GLOBALS: _justChanges
  * REMARKS: - first reads meta.properties and set parameters for this album
- *			- then reads file 'albumfiles.txt' if it exists and add
- *				image/album names from it to album
+ *			- then reads file 'albumfiles.txt' if it exists and adds
+ *				image/video/album names from it to album
  *			- then reads all file and sub-directory names from the album directory
  *			  and add not stored ones to lists recursively processing sub albums
  *			- then reads comments.properties and sets them for images and sub-albums
@@ -1515,8 +1517,8 @@ bool AlbumGenerator::_ReadInfo(Album & ab)
 void AlbumGenerator::_ReadOneLevel(Album &ab)
 {
 	// TODO justChanges
-	_ReadAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
-	_ReadMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
+	_ReadJAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
+	_ReadJMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk 
 
@@ -1538,7 +1540,8 @@ void AlbumGenerator::_ReadOneLevel(Album &ab)
 		if (id & ALBUM_ID_FLAG)		// sub album
 		{
 			id -= ALBUM_ID_FLAG;
-			_albumMap[id].parent = ab.ID;
+			_albumMap[id].parent = ab.ID;	// signals this sub-album is in 'ab' 
+											// Must change when sub-albums moved to other album
 			if (_albumMap[id].exists)
 				_ReadOneLevel(_albumMap[id]);
 		}
@@ -1546,7 +1549,7 @@ void AlbumGenerator::_ReadOneLevel(Album &ab)
 		if (!_processing)
 			return;
 	}
-	_ReadCommentFile(ab);	// descriptions for files and folders in ab
+	_ReadJCommentFile(ab);	// descriptions for files and folders in ab
 	_ReadInfo(ab);			// titles for album and images inside
 	(void)ab.ImageCount();	// removes excluded ID s of 'ab.images'
 	(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'

@@ -35,12 +35,14 @@ const QString THUMBNAIL_TAG = "Icon";	// "album icon"
 
 
 using QString=QString;
-using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
+using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
 using IdList = UndeletableItemList<ID_t>;
 
-const ID_t ALBUM_ID_FLAG = 0x8000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
-const ID_t VIDEO_ID_FLAG = 0x4000000000000000ull;	// when set ID is for a video
+const ID_t EXCLUDED_FLAG = 0x8000000000000000ull;
+const ID_t ALBUM_ID_FLAG = 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
+const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
 const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
+const ID_t ID_MASK		= 0x0FFFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
 const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
@@ -107,7 +109,7 @@ struct LanguageTexts				// both Album and Image uses this
 //------------------------ base class for albums and images ------------------
 struct IABase
 {
-	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid)
+	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
 	bool exists = false;	// set to true if it exists on the disk somewhere
 							// some image names may come from comment files
 	ID_t titleID = 0;	// default text ID of image title
@@ -227,7 +229,7 @@ struct Image : public IABase
 			QString s = name.mid(pos);
 			if (bLCExtension)
 				s = s.toLower();
-			return QString().setNum(ID) + s;	// e.g. 12345.jpg
+			return QString().setNum(ID) + s;	// e.g. 12345.jpg (images IDs has no flag set)
 		}
 		else
 			return name;
@@ -278,7 +280,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 			QString s = name.mid(pos);
 			if (bLCExtension)
 				s = s.toLower();
-			return QString().setNum(ID) + s;	// e.g. 12345.mp4
+			return QString().setNum(ID & ID_MASK) + s;	// e.g. 12345.mp4
 		}
 		else
 			return name;
@@ -315,7 +317,9 @@ struct Video : IABase			// format: MP4, OOG, WebM
 //------------------------------------------
 struct Album : IABase			// ID == 1 root  (0: invalid)
 {
-	ID_t parent = 0;	// just a single parent is allowed
+	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
+						// this album changes. Must be modified when this album is moved into another one(**TODO**)
+	IdList items;		// for all images, videos and albums in this album
 	IdList images,		// 'images' and 'albums' inside this album are lists of IDs for faster searches
 		   albums,		// (search images in one, albums in the other
 		   videos,		// and videos here)
@@ -442,6 +446,7 @@ public:
 	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
+	int ActLanguage() const { return _actLanguage; }
 	
 	int AlbumCount() const { return _albumMap.size(); }
 	int ImageCount() const { return _imageMap.size(); }
@@ -452,9 +457,13 @@ public:
 	// careful: these are not const so that their elements could be modified
 	Album &AlbumRoot()  { return _root; }
 	ImageMap &Images() { return _imageMap; }
+	Image* ImageAt(int which) { return &_imageMap[which]; }
 	VideoMap& Videos() { return _videoMap; }
+	Video* VideoAt(int which) { return &_videoMap[which]; }
 	TextMap &Texts()   { return _textMap;  }
+	LanguageTexts *TextsAt(int which) { return &_textMap[which]; }
 	AlbumMap &Albums() { return _albumMap; }
+	Album *AlbumAt(int which) { return &_albumMap[which]; }
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
 	void SignalProgressPos(int cnt1, int cnt2);
@@ -522,9 +531,9 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadAlbumFile(Album &ab);		// albumfiles.txt
-	bool _ReadCommentFile(Album &ab);	// comments.properties
-	bool _ReadMetaFile(Album &ab);		// meta.properties
+	bool _ReadJAlbumFile(Album &ab);		// albumfiles.txt
+	bool _ReadJCommentFile(Album &ab);	// comments.properties
+	bool _ReadJMetaFile(Album &ab);		// meta.properties
 	void _ReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
 	bool _ReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
 	void _ReadOneLevel(Album &ab);

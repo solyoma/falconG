@@ -3389,31 +3389,20 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 {
 	_SaveChangedTexts();
 
-	ui.tnvImages->thumbNames.clear();
-	ui.tnvImages->originalPaths.clear();
-	ui.tnvImages->SetImageList(nullptr);
+	ui.tnvImages->Clear();
 
 	int n = current.indexes().size();
 	if (n == 1)		 // single selection and valid
 	{
 		// collect its images into list
-		ui.tnvImages->thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
+//		ui.tnvImages->thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
 
 		ID_t id = ID_t(current.indexes()[0].internalPointer());	// store ID of last selected album
 
 		_selection.newAlbum = id;	// only single selection is used
 		_GetTextsForEditing(wctSelection);	 // reads new text into _currentTexts and _originalTexts for album
 											 // before the image list is read
-		// read image list
-		IdList &idl = albumgen.Albums()[id].images;						
-		ImageMap &im = albumgen.Images();
-
-		for (int i = 0; i < idl.size(); ++i)
-		{
-			ui.tnvImages->thumbNames.push_back(im[idl[i]].LinkName());
-			ui.tnvImages->originalPaths.push_back(im[idl[i]].FullName());
-		}
-		ui.tnvImages->SetImageList(&idl);
+		ui.tnvImages->Setup(id);
 	}
 	else
 	{
