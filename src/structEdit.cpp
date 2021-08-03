@@ -50,9 +50,9 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 		return QModelIndex();
 
 	if (!parent.isValid())				// root id for tree element
-		return createIndex(row, column, quintptr(map.size() ? 1: 0));
+		return createIndex(row, column, quintptr( (map.size() ? (1 | ALBUM_ID_FLAG) : 0)) );
 	ID_t id = (ID_t)parent.internalPointer();
-	id = map[id].albums[row];
+	id = map[id].IdOfItemOfType(ALBUM_ID_FLAG,row);
 	return createIndex(row, column, quintptr(id));
 }
 
@@ -110,10 +110,10 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 {
-	if (!ind.isValid() || (ID_t)ind.internalPointer() == 1)
+	if (!ind.isValid() || (ID_t)ind.internalPointer() == (1 | ALBUM_ID_FLAG) )
 		return QModelIndex();
 
-	AlbumMap map = albumgen.Albums();
+	AlbumMap &map = albumgen.Albums();
 	Album &ab = map[(ID_t)ind.internalPointer()];
 	ID_t aParent = ab.parent;				   // get ID of parent
 	if (aParent == 0)						   // no parent: topmost element
@@ -122,13 +122,13 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 	Album &abp = map[aParent];				  // parent album
 	ID_t bParent = abp.parent;				  // parent's parent
 	if(bParent == 0)						  // parent is the topmost element
-		return createIndex(0, ind.column(), quintptr(1)); 
+		return createIndex(0, ind.column(), quintptr(1 | ALBUM_ID_FLAG)); 
 
-	IdList albums = map[bParent].albums;	// parent's parent
-	int size = albums.size();				// go through its list
+	IdList albums = map[bParent].items;			// parent's parent
+	int size = albums.size();					// go through its list
 	for (int i = 0; i < size; ++i)
 	{
-		if (albums[i] == aParent)			// index is 
+		if (albums[i] == aParent)				// aParent contains ALBUM_ID_FLAG
 			return createIndex(i, ind.column(), quintptr(aParent));
 	}
 	return QModelIndex();

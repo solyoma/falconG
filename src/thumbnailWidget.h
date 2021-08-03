@@ -30,19 +30,20 @@ const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;
 const int THUMBNAIL_SIZE = 150;
 
-using ID_t = uint64_t;			// Cf. albums.h
-using IdList = UndeletableItemList<ID_t>;
 using IntList = QVector<int>;
 
 /*=============================================================
  * info stored for items in view
  *------------------------------------------------------------*/
+//#define _USE_QSTANDARDITEM = 1
+#ifndef _USE_QSTANDARDITEM 
 class ThumbnailItem : public QStandardItem
 {
 public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
 private:
 	Type _itemType;
+
 	QString _ImageToolTip() const;
 	QString _VideoToolTip() const;
 	QString _FolderToolTip() const;
@@ -67,7 +68,7 @@ public:
 	int type() const { return _itemType; }
 	void SetType(Type typ) { _itemType = typ; }
 
-	ThumbnailItem(int index = 0, ID_t albumID = 0, Type typ = none);
+	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none);
 	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
 	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
 	bool operator=(const ThumbnailItem& other) { QStandardItem::operator=(other); itemPos = other.itemPos; _albumId = other._albumId; _itemType = other._itemType; }
@@ -84,7 +85,9 @@ public:
 	QString FileName() const;
 
 };
-
+#else
+using ThumbnailItem = QStandardItem;
+#endif
 /*=============================================================
  * my Mime Type for Drag & Drop
  *------------------------------------------------------------*/
@@ -135,7 +138,10 @@ public:
 			if (row == _dummyPosition)
 				return const_cast<ThumbnailItem*>(&_dummyItem);
 		}
-		return reinterpret_cast<ThumbnailItem*>(QStandardItemModel::item(row,0) );
+		// DEBUG
+		ThumbnailItem *result = dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row, 0));
+		return result;
+		// return dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row,0) );
 	}
 
 	QStandardItem *itemFromIndex(const QModelIndex &index) const
@@ -161,7 +167,7 @@ public:
     ThumbnailWidget(QWidget *parent, int thumbsize = THUMBNAIL_SIZE);
 
 	void Setup(ID_t aid);
-	void Clear() { _pImageIds = _pVideoIds = _pAlbumIds = nullptr; _albumId = 0; }
+	void Clear() { _pIds = nullptr; _albumId = 0; }
 
     void loadPrepare();
     void reLoad();
@@ -195,9 +201,7 @@ public:
 private:
 // SA
 	ID_t   _albumId = 0;	// show thumbs from this album (0: root)
-	IdList *_pImageIds = nullptr;	    // images in this album
-	IdList *_pVideoIds = nullptr;	    // videos in this album
-	IdList *_pAlbumIds = nullptr;		// albums in this album (1 level)
+	IdList *_pIds = nullptr;	    // images in this album
 
     int _thumbHeight;
     QImage _insertPosImage;	// shows insert position

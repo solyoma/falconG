@@ -21,46 +21,53 @@
  */
 
 #include "thumbnailWidget.h"
+#include <QIcon>
 #include "config.h"
+
+
+// ****************** ThumbnailItem ******************
+#ifndef _USE_QSTANDARDITEM 
 
 int ThumbnailItem::_thumbHeight;
 
-// ****************** ThumbnailItem ******************
 ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
 {
     QSize hintSize = QSize(_thumbHeight, _thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
     setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
 }
-QVariant ThumbnailItem::data(int role = Qt::UserRole + 1) const
+QVariant ThumbnailItem::data(int role) const
 {
     switch (role)
     {
-        case Qt::DisplayRole:   return QStandardItem::data(role);
+        case Qt::DisplayRole:   return FileName(); 
         case Qt::ToolTipRole:   return ToolTip();
         case TypeRole:          return _itemType;
         case FilePathRole:      return FilePath();
         case FileNameRole:      return FileName();
-        case FullNameRole:  return data(FilePathRole).toString() + data(FileNameRole).toString();
+        case Qt::DecorationRole:              // to show the icons (when QListView is set for it)
+                                return QIcon(FilePath() + FileName());
+        case FullNameRole:      return FilePath() + FileName();
     }
+    return QVariant();
 }
 
 QString ThumbnailItem::_ImageToolTip() const
 {
-    IdList &ImageIds = albumgen.Albums()[_albumId].images;
-    Image* pImg = albumgen.ImageAt(ImageIds[itemPos] );
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos) );
     return QString(pImg->FullName() + " \n(" + pImg->LinkName() + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const
 {
-    IdList &VideoIds = albumgen.Albums()[_albumId].videos;
-    Video* pVid = albumgen.VideoAt(VideoIds[itemPos] );
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
     return QString(pVid->FullName() + " \n(" + pVid->LinkName() + ")");
 }
 QString ThumbnailItem::_FolderToolTip() const
 {
-    IdList &FolderIds = albumgen.Albums()[_albumId].albums;
-    Album* pAlbum = albumgen.AlbumAt(FolderIds[itemPos] );
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
     return QString(pAlbum->FullName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")");
 }
 
@@ -72,14 +79,14 @@ QString ThumbnailItem::ToolTip() const
         case image: return _ImageToolTip();
         case video: return _VideoToolTip();
         case folder: return _FolderToolTip();
-        default:
+        default: break;
     }
     return QString();
 }
 
 QString ThumbnailItem::_ImageFilePath() const
 {
-    return QString((config.dsGallery + config.dsGRoot + config.dsImageDir).ToString());
+    return QString((config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString());
 
 }
 QString ThumbnailItem::_VideoFilePath() const
@@ -89,28 +96,27 @@ QString ThumbnailItem::_VideoFilePath() const
 }
 QString ThumbnailItem::_FolderFilePath() const
 {
-    return QString((config.dsGallery + config.dsGRoot + config.dsImageDir).ToString());
+    return QString((config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString());
 
 }
 QString ThumbnailItem::_ImageFileName() const
 {
-    IdList &ImageIds = albumgen.Albums()[_albumId].images;
-    Image* pImg = albumgen.ImageAt(ImageIds[itemPos] );
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
     return QString(pImg->LinkName());
 
 }
 QString ThumbnailItem::_VideoFileName() const
 {
-    IdList &VideoIds = albumgen.Albums()[_albumId].videos;
-    Video* pVid = albumgen.VideoAt(VideoIds[itemPos] );
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
     return QString(pVid->LinkName());
 }
 QString ThumbnailItem::_FolderFileName() const
 {
-    IdList &FolderIds = albumgen.Albums()[_albumId].albums;
-    Album* pAlbum = albumgen.AlbumAt(FolderIds[itemPos] );
-    IdList& ImageIds = albumgen.Albums()[_albumId].images;
-    Image* pImg = albumgen.ImageAt(ImageIds[pAlbum->thumbnail ]);
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
     return QString(pImg->LinkName()); 
 }
 
@@ -121,7 +127,7 @@ QString ThumbnailItem::FilePath() const
         case image: return _ImageFilePath();
         case video: return _VideoFilePath();
         case folder: return _FolderFilePath();
-        default:
+        default: break;
     }
     return QString();
 }
@@ -133,30 +139,28 @@ QString ThumbnailItem::FileName() const
         case image: return _ImageFileName();
         case video: return _VideoFileName();
         case folder: return _FolderFileName();
-        default:
+        default: break;
     }
     return QString();
 }
 
 QString ThumbnailItem::_ImageFullName() const
 {
-    IdList& ImageIds = albumgen.Albums()[_albumId].images;
-    Image* pImg = albumgen.ImageAt(ImageIds[itemPos]);
-    return pImg->FullName();
-
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+    return QString(pImg->FullName());
 }
 QString ThumbnailItem::_VideoFullName() const
 {
-    IdList& VideoIds = albumgen.Albums()[_albumId].videos;
-    Video* pVid = albumgen.VideoAt(VideoIds[itemPos]);
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
     return pVid->FullName();
 }
 QString ThumbnailItem::_FolderFullName() const
 {
-    IdList& FolderIds = albumgen.Albums()[_albumId].albums;
-    Album* pAlbum = albumgen.AlbumAt(FolderIds[itemPos]);
-    IdList& ImageIds = albumgen.Albums()[_albumId].images;
-    Image* pImg = albumgen.ImageAt(ImageIds[pAlbum->thumbnail]);
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
     return pImg->FullName();
 }
 
@@ -167,10 +171,11 @@ QString ThumbnailItem::text()  const
         case image: return   _ImageFullName();
         case video: return   _VideoFullName();
         case folder: return _FolderFullName();
-        default:
+        default: break;
     }
     return QString();
 }
+#endif // #ifndef _USE_QSTANDARDITEM 
 
 // ****************** ThumbnailWidget ******************
 
@@ -859,33 +864,17 @@ void ThumbnailWidget::_InitThumbs()
 	static int fileIndex;
 	static QSize hintSize;
 	int thumbsAddedCounter = 1;
-    Album *album = &albumgen.Albums()[_albumId];
-    _pImageIds = &album->images;
-    _pVideoIds = &album->videos;
-    _pAlbumIds = &album->albums;
+    Album &album = albumgen.Albums()[_albumId];
 
-	hintSize = QSize(_thumbHeight, _thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
-
-	thumbItem = new QStandardItem();
     QString thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
 	QString imageFullPath;
+
+    auto TypeFor = [](ID_t id) { return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));  };
     // Add images
-	for (fileIndex = 0; fileIndex < _pImageIds->size(); ++fileIndex)
+	for (fileIndex = 0; fileIndex < album.items.size(); ++fileIndex)
 	{
-        Image* pimg = & albumgen.Images()[(*_pImageIds)[fileIndex] ];
-        imageFullPath = pimg->FullName();
-
-		thumbItem->setData(false, LoadedRole);
-		thumbItem->setData(fileIndex, SortRole);
-		thumbItem->setData(thumbsDir, FilePathRole);
-		thumbItem->setData(pimg->LinkName(), FileNameRole);
-		thumbItem->setData(imageFullPath+ " \n(" + pimg->LinkName() + ")", Qt::DisplayRole);
-		thumbItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-		thumbItem->setSizeHint(hintSize);
-		thumbItem->setText(imageFullPath);
-
+	    thumbItem = new ThumbnailItem(fileIndex, album.ID, TypeFor(album.items[fileIndex]));
 		_thumbnailWidgetModel->appendRow(thumbItem);
-
 		++thumbsAddedCounter;
 		if (thumbsAddedCounter > 100)
 		{
@@ -893,31 +882,6 @@ void ThumbnailWidget::_InitThumbs()
 			QApplication::processEvents();
 		}
 	}
-    // Add sub-albums
-    for (fileIndex = 0; fileIndex < _pAlbumIds->size(); ++fileIndex)
-    {
-        Album* palbum = &albumgen.Albums()[(*_pAlbumIds)[fileIndex]];
-        Image* pimg = &albumgen.Images()[palbum->thumbnail];
-        imageFullPath = pimg->FullName();
-
-        thumbItem->setData(false, LoadedRole);
-        thumbItem->setData(fileIndex, SortRole);
-        thumbItem->setData(thumbsDir, FilePathRole);
-        thumbItem->setData(pimg->LinkName(), FileNameRole);
-        thumbItem->setData(imageFullPath + " \n(" + pimg->LinkName() + ")", Qt::DisplayRole);
-        thumbItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-        thumbItem->setSizeHint(hintSize);
-        thumbItem->setText(imageFullPath);
-
-        _thumbnailWidgetModel->appendRow(thumbItem);
-
-        ++thumbsAddedCounter;
-        if (thumbsAddedCounter > 100)
-        {
-            thumbsAddedCounter = 1;
-            QApplication::processEvents();
-        }
-    }
 
 	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
 		selectThumbByItem(0);
@@ -1180,14 +1144,16 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
 	menu.addAction(pact);
 
-	pact = new QAction(tr("&Undo Delete"), this);
+#if 0
+    // how to make it work?
+    pact = new QAction(tr("&Undo Delete"), this);
 #define CAN_UNDO(a) (a && !a->NothingToUndo())
-	bool undo = model()->rowCount() && (CAN_UNDO(_pImageIds) || CAN_UNDO;
+	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO;
 	pact->setEnabled(undo);
 	if (undo)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
 	menu.addAction(pact);
-
+#endif
 	menu.addSeparator();
 
 	pact = new QAction(tr("Copy &Name(s)"), this);

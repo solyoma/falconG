@@ -7,7 +7,6 @@
 #include <atomic>
 #include <chrono>
 
-#include "languages.h"
 #include "albums.h"
 #include "falcong.h"
 #include "csscreator.h"
@@ -95,12 +94,12 @@ ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
 {
 	if (album.thumbnail == 0) // then the first image  or sub-album
 	{						  // will be set as its thumbnail
-		if (album.images.isEmpty() && album.albums.isEmpty())
+		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
 			return 0;
-		if (album.images.isEmpty()) // then get thumbnail for first sub-album
-			return ThumbnailID(albums[album.albums[0]], albums);
+		if (!album.ImageCount() && !album.VideoCount()) // then get thumbnail for first sub-album
+			return ThumbnailID(albums[album.IdOfItemOfType(ALBUM_ID_FLAG,0,0)], albums);
 		else
-			return album.images[0];
+			return album.IdOfItemOfType(IMAGE_ID_FLAG | VIDEO_ID_FLAG, 0, 0);
 	}
 	return album.thumbnail;
 }
@@ -664,7 +663,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	}
 
 	added = true;
-	img.ID = id;
+	img.ID = id | IMAGE_ID_FLAG;
 	insert(id, img);
 	return id;
 }
@@ -718,13 +717,6 @@ bool Album::operator==(const Album &i)
 }
 
 /*============================================================================
-* TASK: 
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-
-/*============================================================================
 * TASK: get number of non-excluded images in album and remove excluded ones
 *		from local image list
 * EXPECTS:
@@ -733,16 +725,14 @@ bool Album::operator==(const Album &i)
 *--------------------------------------------------------------------------*/
 int Album::ImageCount()
 {
-	if (imageCount >= 0)
-		return imageCount;
-
-	if (!excluded.isEmpty())
+	if (_imageCount < 0)
 	{
-		for (int i = images.size() - 1; i >= 0; --i)	// from end to start
-			if (excluded.indexOf(images[i]) >= 0)
-				images.removeAt(i);
+		_imageCount = 0;
+		for (auto a : items)
+			if (a > 0 && (a & IMAGE_ID_FLAG))
+				++_imageCount;
 	}
-	return imageCount = images.size();
+	return _imageCount;
 }
 
 /*============================================================================
@@ -754,16 +744,14 @@ int Album::ImageCount()
 *--------------------------------------------------------------------------*/
 int Album::VideoCount()
 {
-	if (videoCount >= 0)
-		return videoCount;
-
-	if (!excluded.isEmpty())
+	if (_videoCount < 0)
 	{
-		for (int i = videos.size() - 1; i >= 0; --i)
-			if (excluded.indexOf(videos[i]) >= 0)
-				videos.removeAt(i);
+		_videoCount = 0;
+		for (auto a : items)
+			if (a > 0 && (a & VIDEO_ID_FLAG))
+				++_videoCount;
 	}
-	return videoCount = videos.size();
+	return _videoCount;
 }
 
 /*============================================================================
@@ -775,16 +763,15 @@ int Album::VideoCount()
 *--------------------------------------------------------------------------*/
 int Album::SubAlbumCount()
 {
-	if (albumCount >= 0)
-		return albumCount;
-
-	if (!excluded.isEmpty())
+	if (_albumCount < 0)
 	{
-		for (int i = albums.size() - 1; i >= 0; --i)
-			if (excluded.indexOf(albums[i]) >= 0)
-				albums.removeAt(i);
+
+		_albumCount = 0;
+		for (auto a : items)
+			if (a > 0 && (a & ALBUM_ID_FLAG))
+				++_albumCount;
 	}
-	return albumCount = albums.size();
+	return _albumCount;
 }
 
 
@@ -798,17 +785,17 @@ int Album::SubAlbumCount()
  *-------------------------------------------------------*/
 int Album::TitleCount()
 {
-	if (titleCount >= 0)
-		return titleCount;
-
-	titleCount = 0;
-	for (auto a : albums)
-		if (albumgen.Albums()[a].titleID)
-			++titleCount;
-	for (auto a : images)
-		if (albumgen.Images()[a].titleID)
-			++titleCount;
-	return titleCount;
+	if (_titleCount < 0)
+	{
+		_titleCount = 0;
+		for (auto a : items)
+			if (a > 0 &&
+				((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].titleID) ||
+				((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].titleID) ||
+				((a & IMAGE_ID_FLAG) && albumgen.Images()[a].titleID))
+				++_titleCount;
+	}
+	return _titleCount;
 }
 
 /*========================================================
@@ -821,20 +808,41 @@ int Album::TitleCount()
  * ------------------------------------------------------- */
 int Album::DescCount()
 {
-	if (descCount >= 0)
-		return descCount;
+	if (_descCount < 0)
+	{
+		_descCount = 0;
+		for (auto a : items)
+			if (a > 0 &&
+				((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].descID) ||
+				((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].descID) ||
+				((a & IMAGE_ID_FLAG) && albumgen.Images()[a].descID))
+				++_descCount;
+	}
+	return _descCount;
+}
 
-	descCount = 0;			// otherwise albums with a single description could not have a menu button
-	for (auto a : albums)
-		if (albumgen.Albums()[a].descID)
-			++descCount;
-	for (auto a : images)
-		if (albumgen.Images()[a].descID)
-			++descCount;
-	for (auto a : videos)
-		if (albumgen.Videos()[a].descID)
-			++descCount;
-	return descCount;
+
+/*========================================================
+ * TASK:	find the ID of the item of a given type starting
+ *			from 'startPos (default: 0)
+ * PARAMS:	type: ALBUM_ID_FLAG, etc
+ *			index:  ordinal of element of given type
+ *			startPos: start searching from here
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - does not change or store startPos
+ *			- 'index' must be less than 'items.size()'
+ *-------------------------------------------------------*/
+ID_t Album::IdOfItemOfType(int64_t type, int index, int startPos)
+{
+	if (index >= items.size())
+		return -1;		// MUST NOT 
+
+	for (; startPos < items.size(); ++startPos)
+		if (items[startPos] & type)
+			if(!index--)
+				return items[startPos];
+	return -1;	// invalid
 }
 
 /*============================================================================
@@ -867,7 +875,7 @@ QString Album::LinkName(int language, bool http) const
 *--------------------------------------------------------------------------*/
 QString Album::BareName()
 {
-	return QString("%1%2").arg(config.sBaseName.ToString()).arg(ID);
+	return QString("%1%2").arg(config.sBaseName.ToString()).arg(ID & ID_MASK);
 }
 
 /*============================================================================
@@ -932,6 +940,7 @@ QString Album::SiteLink(int language)
 * TASK:	  Add an album to the album map if it is not already in there
 * EXPECTS: path:  IN - either absolute path or relative to source directory (!)
 *          added: OUT - et when this is added
+* RETURNS: id of album ORed with ALBUM_ID_FLAG
 * GLOBALS:
 * REMARKS:	path may contains a logical name only it need not exist
 *			if it exists then lastUsedItemPath is adjusted
@@ -946,7 +955,7 @@ ID_t AlbumMap::Add(QString path, bool &added)
 		return found.ID;	// same base ID, same name then same album
 
 	SeparateFileNamePath(path, ab.path, ab.name);
-	ab.ID = GetUniqueID(*this, path, false);   // using full path name only
+	ab.ID = GetUniqueID(*this, path, false) | ALBUM_ID_FLAG;   // using full path name only
 	if(!QDir::isAbsolutePath(path) )
 		ab.exists = QFile::exists((config.dsSrc + path).ToString());
 	else
@@ -961,7 +970,7 @@ ID_t AlbumMap::Add(QString path, bool &added)
 	if (ab.exists)
 		AlbumGenerator::lastUsedItemPath = ab.path + ab.name + "/";
 	ab.exists = true; // no need for real directoy to exist --  QFileInfo::exists(path);
-	added = true;		// alwaays add, even when it does not exist
+	added = true;		// always add, even when it does not exist
 	(*this)[ab.ID] = ab;
 	return ab.ID;
 }
@@ -1020,7 +1029,8 @@ Album& AlbumMap::Find(ID_t id)
   * TASK:	 add a new image from structure to image map
   * EXPECTS:  imagePath: path name relative to source directory
   *			  
-  * RETURNS:  image added/found. It will not have any title or description as those
+  * RETURNS:  id of image/video added/found with type flag set
+  *				It will not have any title or description as those
   *				will be added after this image is processed
   * GLOBALS:
   * REMARKS:- new images may be added to the structure file by using the path
@@ -1089,8 +1099,6 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 		if (ds[0] == '.' || ds == "res" || ds == "cache" || ds == "thumbs")
 			return 0;
 		id = _albumMap.Add(s, added);	// add new album to global album list
-		if (id && added)
-			ab.albums.push_back(id);	// add to ordered sub-album ID list for this album
 		id += ALBUM_ID_FLAG;			// signal it was an album that was added
 	}
 	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
@@ -1098,16 +1106,15 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 		if (type == ftImage)
 		{
 			id = _imageMap.Add(s, added);	// add new image to global image list or get id of existing
-			if (id && added)
-				ab.images.push_back(id);	// add to ordered image ID list for this album
+			id += IMAGE_ID_FLAG;
 		}
 		else
 		{
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
-			if (id && added)
-				ab.videos.push_back(id);	// add to ordered video ID list for this album
 			id += VIDEO_ID_FLAG;
 		}
+			if ( (id & ID_MASK) && added)
+				ab.items.push_back(id);	// add to ordered item list for this album
 	}
 	// progress bar
 	emit SignalProgressPos(_albumMap.size(), _ItemSize() );	  // both changes
@@ -1126,19 +1133,14 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 bool AlbumGenerator::_IsExcluded(const Album &ab, QString name)
 {
 	ID_t id;
-	const IdList &exList = ab.excluded;
-	for (int i = 0; i < ab.excluded.size(); ++i)
+	for (auto i : ab.items)
 	{
-		id =  (const_cast<IdList &>(exList)[i]);
-		if (id)
-		{
-			if (_albumMap[id].name == name)
-				return true;
-		}
-		else
-			if (_imageMap[id].name == name)
-				return true;
+		if (((i & ALBUM_ID_FLAG) && _albumMap[id].name == name) ||
+			((i & IMAGE_ID_FLAG) && _imageMap[id].name == name) ||
+			((i & VIDEO_ID_FLAG) && _videoMap[id].name == name))
+			return i > 0;
 	}
+
 	return false;
 }
 
@@ -1196,7 +1198,9 @@ bool AlbumGenerator::_ReadJAlbumFile(Album &ab)
 
 		ID_t id = _AddImageOrAlbum(ab, line);   // to lists (_albumMap or _imageMap) and (albums or images) and order
 		if (excluded)
-			ab.excluded.push_back(id);	// this is excluded (needed when reading names from disk)
+			id |= EXCLUDED_FLAG;
+
+		ab.items.push_back(id);
 	}
 	return true;
 }
@@ -1222,7 +1226,7 @@ bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, 
 }
 
 /*==========================================================================
-* TASK:	sepatae lines containing text delimited by '@@' ot "{)" delimiters
+* TASK:	separate lines containing text delimited by '@@' ot "{)" delimiters
 *		into a string list
 *		fills in data
 * EXPECTS: line: line w. delimiters
@@ -1419,7 +1423,7 @@ bool AlbumGenerator::_ReadJMetaFile(Album &ab)
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-void AlbumGenerator::_ReadInfoFile(Album &ab, QString & path, QString name)
+void AlbumGenerator::_JReadInfoFile(Album &ab, QString & path, QString name)
 {
 	QString line;
 	FileReader reader(path + ".jalbum/" + name, frfNeedUtf8 | frfTrim);  // name of .info file
@@ -1478,7 +1482,7 @@ void AlbumGenerator::_ReadInfoFile(Album &ab, QString & path, QString name)
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-bool AlbumGenerator::_ReadInfo(Album & ab)
+bool AlbumGenerator::_JReadInfo(Album & ab)
 {
 	QString path = ab.FullName();
 	if (path[path.length() - 1] != '/')
@@ -1495,7 +1499,7 @@ bool AlbumGenerator::_ReadInfo(Album & ab)
 		for (QString &s : list)
 		{
 			if(!_IsExcluded(ab, s))
-				_ReadInfoFile(ab, path, s);
+				_JReadInfoFile(ab, path, s);
 		}
 	}
 	return true;
@@ -1514,7 +1518,7 @@ bool AlbumGenerator::_ReadInfo(Album & ab)
  *			- then reads comments.properties and sets them for images and sub-albums
  *			- then call itself recursively for sub-folders
  *----------------------------------------------------------------*/
-void AlbumGenerator::_ReadOneLevel(Album &ab)
+void AlbumGenerator::_JReadOneLevel(Album &ab)
 {
 	// TODO justChanges
 	_ReadJAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
@@ -1543,14 +1547,14 @@ void AlbumGenerator::_ReadOneLevel(Album &ab)
 			_albumMap[id].parent = ab.ID;	// signals this sub-album is in 'ab' 
 											// Must change when sub-albums moved to other album
 			if (_albumMap[id].exists)
-				_ReadOneLevel(_albumMap[id]);
+				_JReadOneLevel(_albumMap[id]);
 		}
 		emit SignalProgressPos(_albumMap.size(), _imageMap.size());
 		if (!_processing)
 			return;
 	}
 	_ReadJCommentFile(ab);	// descriptions for files and folders in ab
-	_ReadInfo(ab);			// titles for album and images inside
+	_JReadInfo(ab);			// titles for album and images inside
 	(void)ab.ImageCount();	// removes excluded ID s of 'ab.images'
 	(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
 //	ab.excluded.clear();	// do not need it any more
@@ -1872,7 +1876,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			bool b = reader.l()[level + THUMBNAIL_TAG.length() + 1] == ':';
 			QString s = reader.l().mid(level + THUMBNAIL_TAG.length() + 2, len);  // ID or path name
 			if (b && s[0].isDigit())
-				ids.thumbnailID = s.toULongLong();
+				ids.thumbnailID = s.toULongLong() | IMAGE_ID_FLAG;
 			else
 			{
 				ids.thumbnailID = _AddImageOrVideoFromPathInStruct(s, ftImage);
@@ -1932,13 +1936,29 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 
 /*==========================================================================
 * TASK:		helper - splits an image or video definition line into 
-*				max 8 constituents (see below):
-* EXPECTS: s : string of definition w.o. leading spaces					Image Video
+*				max 10 constituents (see below):
+* EXPECTS: s : definition string w.o. leading spaces that determines the level
+*				Formats (text not in < > is verbatim,  '-' starts remark):
+*				  yet unprocessed files	
+*					<full file path>
+*					<file name&ext only> - this uses last used path either
+*												from directory or previous file
+*				  processed files 
+*					Images:
+*						<file name&ext only>(<id w.o. flags>,<width><height>,<orig width>x<orig height>,<upload date>,<file length)<directory path>
+*					Videos:
+*						<file name&ext only>(<id w.o. flags>,<upload date>,<file length)<directory path>
+*					if 'V' is present it is a video file else it is an image file
+*																		Image Video
 * RETURNS: list of 0, 2, 5/6 or 9/10 strings:
-*				file name	- always present							(#0)	(#0)
-*				file type   - image or video, always present			(#1)	(#1)
+*		empty list:	  unknown file type
+*		2 element list:
+*				full file path
+*			always present
+*				file name 												(#0)	(#0)
+*				file type ('I', or 'V')									(#1)	(#1)
 *			 this may or may not be present:
-*				file ID		- video ID starts with the letter V			(#2)	(#2)
+*				file ID													(#2)	(#2)
 *			 if ID is present then for images these are also present	
 *				image width												(#3)
 *				image height											(#4)
@@ -1949,15 +1969,9 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 *				file size - in bytes									(#8)	(#4)
 *			this may be missing if so use last path)
 *				folder path for files									(#9)	(#5)
-* REMARKS:  - format of s may be
-*				<abs. or rel path name of file> - not yet processed file
-*				Images:
-*				<file name> '('ID, size, original size, date, length')'[<directory path>],
-*				Videos
-*				<file name> '('ID, date, length')'[<directory path>],
-*				If no path is given uses the previous one
-*			- "normal" regular function split() could not be used as names
+* REMARKS:	- "normal" regular function split() could not be used as names
 *					may contain braces and commas
+*			- file name may contain any number of brackets
 *			- result may contain fewer or more fields than required
 *--------------------------------------------------------------------------*/
 QStringList __imageMapStructLineToList(QString s)
@@ -1968,55 +1982,58 @@ QStringList __imageMapStructLineToList(QString s)
 									// or, when no such parameters) inside the file name
 	FileTypeImageVideo typ;
 
-	auto typeStr = [&]() { return typ == ftImage ? "Image" : "Video"; };
+	auto typeStr = [&]() { return typ == ftImage ? "I" : "V"; };
 
-	typ = IsImageOrVideoFile(s.mid(0, pos < 0 ? -1 : pos));
-	if (typ == ftUnknown)			// maybe '(' inside file name
+	typ = IsImageOrVideoFile(s.mid(0, pos < 0 ? -1 : pos));	// the part before the last '(', based on file extension
+	if (typ == ftUnknown)			// then maybe '(' inside file name
 	{
-		typ = IsImageOrVideoFile(s);// so check full name
-		if (typ == ftUnknown)	// this is an unknown file type
+		typ = IsImageOrVideoFile(s);// so check full name based on file extension
+		if (typ == ftUnknown)	// this is still an unknown file type, return empty list
 			return sl;
 		else 
 			pos = s.length();
 	}
 	
-	sl.push_back(s.mid(0, pos));	// index #0 - file name
+	sl.push_back(s.mid(0, pos));	// index #0 - file name + extension, possibly with path
 	sl.push_back(typeStr());		// index #1 - file type
 
-	if (pos < 0)				// no '(' found in line
-		return sl;
-
-	pos0 = pos + 1;	   					// after the opening brace
+	if (pos < 0)					// unprocessed line: no parameter block (inside brackets) found in line 
+		return sl;					// count == 2
+		   
+	// processed lines
+	pos0 = pos + 1;	   				// after the opening brace into parameter block
 	pos = s.indexOf(')',pos0);
-	if (pos < 0)
-		return sl;
+	if (pos < 0)					// invalid parameters
+		return sl;					// same as for unprocessed lines
 
 	QRegExp rexp(",|x");
-	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#8 *for image: ID, width, height, owidth, oheight, length, date
-												// index #2..#4 for video: ID, length, date	
+	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#9 for image: ID, width, height, owidth, oheight, length, date
+												// index #2..#5 for video: ID, length, date	
 
-	if (typ == ftVideo && sl[2][0] == QChar('V'))	// for video files iD starts with 'V'
-		sl[2] = sl[2].mid(1);
+//	if (typ == ftVideo && sl[2][0] == QChar('V'))	// for video files iD starts with 'V'
+//		sl[2] = sl[2].mid(1); no need
 
-	if ( (sl.size() != 9 && sl.size() != 5) || pos == s.length() )   // was s[pos + 1] != '/')
+	if ( (sl.size() != 9 && sl.size() != 5) || pos == s.length() )   // some problem, maybe path is missing (was s[pos + 1] != '/') 
 		return sl;
+
 	sl.push_back(s.mid(pos + 1));		// index #6 or #10 - original path 
 	return sl;
 }
 
 /*==========================================================================
-* TASK:		reads one image from structure
+* TASK:		reads data for one image/video from structure
 * EXPECTS: 	reader - open file reader, reader.l() contains 
-*						the image specification line
+*						the file specification line
 *			level -  the level of images
 *			album: add image to this album
 *			thumbnail - is this the album thumbnail?
 *
-* RETURNS: ID of new item (image or vide) added. For videos the VIDEO_ID_FLAG is set
+* RETURNS: ID of new item (image or vide) added. 
+*			For images the IMAGE_ID_FLAG, For videos the VIDEO_ID_FLAG is set
 *			in ID
-* REMARKS: - first image line: <spaces><file name> (<file id>) // <original path
-*		   - only video images have their type flag bit set on return value
-*				but this flag is never set into _videoMap
+* REMARKS: - line formats in reader.l() is described at '__imageMapStructLineToList'
+*		   - image/video flag is set for them here and in _imageMap, and _videoMap
+*				but not in the file
 *		   - throws 'BadStruct' on error
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Album &album, bool thumbnail)
@@ -2028,20 +2045,22 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	int n = sl.size();		// when all fields are present this should be 6 or 10 :
 							// if no path was given then 5 or 9
 							// if only the path name then 2
-		// index in sl: 0         1      2    3      4             5               6         7     8     9
-		// images: image name, "image", id, width, height, original width, original height, date, size, path
-		// videos: video name, "Video", id, date,  size,         path 
+		// 
+		// index in sl:  0       1      2    3      4             5               6         7     8     9
+		// images:		name, "image", id, width, height, original width, original height, date, size, path
+		// videos:		name, "video", id, date,  size,         path 
 
 	ID_t id;
+		// n:  images: 2 or 10, videos 2 or 5
 	FileTypeImageVideo type = n >= 2 ? (sl[1][0] == QChar('I') ? ftImage : (sl[1][0] == QChar('V') ? ftVideo : ftUnknown)) : ftUnknown;
 	if (n != 9 && n != 10 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
 	{
-		if (n != 2)	// it should be at least <config.dsSrc relative full path name> and <file type (image or video or unknown)
+		if (n != 2)	// it should be at least <config.dsSrc relative full path name> and <file type> (image or video or unknown)
 			throw BadStruct(reader.ReadCount(), QString("Wrong image parameter count:%1").arg(n)); // or just the image name (from the same folder as the previous one)
 
-		// expects: original/image/directory/inside/source/name.ext
-		id = _AddImageOrVideoFromPathInStruct(sl[0],type);	 // structure is changed
-		if (id)	
+		// expects: original/image/directory/inside/source/name.ext and 'type' set
+		id = _AddImageOrVideoFromPathInStruct(sl[0],type);	 // then structure is changed
+		if (id)		// has type flag set
 		{
 			if (thumbnail)		 // It's parent also changes
 			{
@@ -2061,6 +2080,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 		id = sl[2].toULongLong();
 		if (type == ftImage)	// n == 9 or 10
 		{
+			id |= IMAGE_ID_FLAG;
 			if (_imageMap.contains(id))
 				img = _imageMap[id];
 
@@ -2089,6 +2109,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 		}
 		else		// video
 		{
+			id |= VIDEO_ID_FLAG;
 			if (_videoMap.contains(id))
 				vid = _videoMap[id];
 
@@ -2128,7 +2149,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	else
 		_videoMap[id] = vid;
 
-	return id + (type == ftImage ? 0 : VIDEO_ID_FLAG);
+	return id;	// has the correct flag set
 }
 
 /*==========================================================================
@@ -2264,7 +2285,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	ID_t id;
 	if (n == 0)		// root album
 	{
-		album.ID = id = 1;
+		album.ID = id = (1 | ALBUM_ID_FLAG);
 		album.exists = true;		// do not check: virtual!
 		_albumMap[id] = album;
 	}
@@ -2296,12 +2317,12 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			album.path = sl[2];	// images are inside this album
 			lastUsedItemPath = album.FullName() + "/";
 		}
-		id = sl[1].toULongLong();
+		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
 		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
 			throw BadStruct(reader.ReadCount(), QString("'%1' - duplicated album ID").arg(id));
 
 
-		album.ID = id;
+		album.ID = id;				// has ALBUM_ID_FLAG set
 		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullName());
 	}
 
@@ -2327,7 +2348,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			while (reader.Ok() && reader.l()[level] == ' ')		// new sub album
 			{													// process it 
 				ID_t aid = _ReadAlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
-				album.albums.push_back(aid);
+				album.items.push_back(aid);
 			}
 			if (_albumMap.contains(id))						 // album is not yet filled in, but the changed flag may be set
 				album.changed |= _albumMap[id].changed;		 // for it because of a sub-album
@@ -2348,11 +2369,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
-				ID_t iid = _ImageOrVideoFromStruct(reader, level+1, album, false);		   // false:not thumbnail
-				if (iid & VIDEO_ID_FLAG)
-					album.videos.push_back(iid & ~VIDEO_ID_FLAG);
-				else
-					album.images.push_back(iid);
+				ID_t iid = _ImageOrVideoFromStruct(reader, level+1, album, false);		   // false:not album thumbnail
+				album.items.push_back(iid);
 			}
 		}
 	} 
@@ -2485,7 +2503,7 @@ bool AlbumGenerator::_ReadJalbum()
 	_albumMap[1] = _root;	// a copy of _root is first on list	
 
 	_remDsp.Init(directoryCount);
-	_ReadOneLevel(_albumMap[1] );
+	_JReadOneLevel(_albumMap[1] );
 	if (!_processing)
 		return false;
 
@@ -3137,29 +3155,16 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		write HTML footer with image and album counts
+* EXPECTS:	album - album for page
 * GLOBALS:
-* REMARKS:
+* REMARKS: image count includes videos
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_WriteFooterSection(const Album & album)
+int AlbumGenerator::_WriteFooterSection(Album & album)
 {
-		
-	int cntImages = 0, cntAlbums = 0, cntVideos = 0;
-
-	for (auto iid : album.images)
-		if (_imageMap[iid].exists)
-			++cntImages;
-	for (auto iid : album.videos)
-		if (_videoMap[iid].exists)
-			++cntVideos;
-	for (auto iid : album.albums)
-		if (_albumMap[iid].exists)
-			++cntAlbums;
-
 	_ofs << " <!-- footer section with social media links -->\n"
 		"<footer class = \"footer\">\n"
-		<< QString(Languages::countOfImages[_actLanguage]).arg(cntImages).arg(cntAlbums) << "<br><br>\n"
+		<< QString(Languages::countOfImages[_actLanguage]).arg(album.ImageCount()+album.VideoCount()).arg(album.SubAlbumCount()) << "<br><br>\n"
 		<< Languages::falconG[_actLanguage] << "<br>\n"
 			"</footer>\n";
 
@@ -3169,8 +3174,8 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 /*============================================================================
 * TASK:		writes eiter an image or a gallery section
 * EXPECTS:	album		- actual album whose content (images and sub-albums) is written
-*			itIsAnAlbum - if false then images are written
-*			i			- index in ID list for images or albums (when itIsAnAlbum is true)
+*			typeFlag	- only write items of this type
+*			i			- index in ID list for images or albums (when bWriteSubAlbums is true)
 * GLOBALS: config, Languages
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
 * REMARKS:  - root albums (ID == 1) are written into gallery root, others
@@ -3178,19 +3183,23 @@ int AlbumGenerator::_WriteFooterSection(const Album & album)
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int i)
+int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 {
-	IdList &idList = (itIsAnAlbum ? album.albums : album.images);
+	IdList& idList = album.items;
 	if (idList.isEmpty())
-		return itIsAnAlbum ? -1 : -2;
+		return typeFlag == ALBUM_ID_FLAG ? -1 : -2;
+
 	ID_t id = idList[i];  
+	if ((id & typeFlag) == 0)	// not this type
+		return 0;
+
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
-	if (itIsAnAlbum && !album.exists)
+	if (typeFlag == ALBUM_ID_FLAG && !album.exists)
 		return -1;
 
-	if (album.ID == 1)
+	if (album.ID == (1 | ID_MASK) )		// root album
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
 		sOneDirUp = "";					// and the img directory is here
@@ -3206,7 +3215,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 
 	Image *pImage = nullptr;
 	ID_t thumb = 0;
-	if (itIsAnAlbum)
+	if (typeFlag & ALBUM_ID_FLAG)
 	{
 		thumb = ThumbnailID(_albumMap[id], _albumMap);
 		if (thumb)
@@ -3215,8 +3224,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 				pImage = &_imageMap[thumb];
 			else	  // the thumbnail image is not in data base, but 
 			{		  // it can be present on the disk so set paths from it
-				sImagePath = sImageDir + QString("%1.jpg").arg(thumb);
-				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb);
+				sImagePath = sImageDir + QString("%1.jpg").arg(thumb & ID_MASK);
+				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb & ID_MASK);
 			}
 		}
 		else
@@ -3225,9 +3234,9 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	else
 	{
 		pImage = &_imageMap[id];
-		if (!pImage->exists)
+		if (!pImage->exists)	// then exclude it
 		{
-			album.excluded.append(id);
+			album.items[i] = album.items[i] | EXCLUDED_FLAG;
 			return -2;
 		}
 	}
@@ -3244,7 +3253,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 		_ofs << " id=\"" << pImage->ID << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
 	_ofs << ">";
 
-	if (itIsAnAlbum)
+	if (typeFlag & ALBUM_ID_FLAG)
 	{
 		title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
 		desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], true);
@@ -3257,7 +3266,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 	}
 	_ofs << "\n       <a class=\"thumb\" href=\"";
 
-	if (itIsAnAlbum)
+	if (typeFlag & ALBUM_ID_FLAG)
 	{
 		_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
 	}
@@ -3293,7 +3302,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 
 	//  -------------------------- links with  album/image title
 	QString qsLoc;		// empty for non root albums/images
-	if (itIsAnAlbum)
+	if (typeFlag)
 		qsLoc = "javascript:LoadAlbum('" + sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
@@ -3318,17 +3327,21 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, bool itIsAnAlbum, int 
 * EXPECTS:	album		- actual album whose content (images and sub-albums) is written
 *			i			- index in ID list for videos
 * GLOBALS: config, Languages
+* RETURNS:	0: OK, -1: error
 * REMARKS:  - image and asub-album sections are written in _WritegalleryContainer()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 {
 	if (!album.VideoCount())
 		return -1;
-	ID_t id = album.videos[i];
+	ID_t id = album.items[i];
+	if (!(id & VIDEO_ID_FLAG))
+		return 0;
+
 	QString title, desc, sVideoDir, sVideoPath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
-	if (album.ID == 1)
+	if (album.ID == (1|ID_MASK))
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
 		sOneDirUp = "";					// and the img directory is here
@@ -3445,7 +3458,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
 
-	if (_processing)		// else leave tha page unfinished
+	if (_processing)		// else leave the page unfinished
 	{
 		// main section is finished
 		_ofs << "\n   </main> <!-- end of main section -->\n";
@@ -3506,10 +3519,10 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 			if (album.ID == 1)
 				uplink = QString("../") + uplink;;
 
-			for (int i = 0; _processing && i < album.albums.size(); ++i)
+			for (int i = 0; _processing && i < album.items.size(); ++i)
 			{
-				if (album.excluded.indexOf(album.albums[i]) < 0)
-					_CreatePage(_albumMap[album.albums[i]], language, uplink, processedCount);
+				if((album.items[i] & ALBUM_ID_FLAG) && !(album.items[i] & EXCLUDED_FLAG) )
+					_CreatePage(_albumMap[album.items[i]], language, uplink, processedCount);
 			}
 		}
 	}
@@ -3875,9 +3888,9 @@ ID_t VideoMap::Add(QString path, bool& added)
 		}
 
 		added = true;
-		vid.ID = id;
+		vid.ID = id | VIDEO_ID_FLAG;
 		insert(id,vid);
-		return id + VIDEO_ID_FLAG;	// only for checking
+		return id;
 }
 
 Video& VideoMap::Item(int index)
