@@ -12,8 +12,8 @@ void __AddSemi(QString& s, bool addSemicolon)
 }
 
 
-QString PROGRAM_CONFIG::_homePath;
-QString PROGRAM_CONFIG::_samplePath;
+QString PROGRAM_CONFIG::homePath;
+QString PROGRAM_CONFIG::samplePath;
 
 int PROGRAM_CONFIG::maxSavedConfigs;		// last 10 configuration directory is stored
 QStringList PROGRAM_CONFIG::lastConfigs;
@@ -22,9 +22,10 @@ int PROGRAM_CONFIG::indexOfLastUsed;		// this was the last one used
 CONFIG *PROGRAM_CONFIG::parent = nullptr;
 
 int PROGRAM_CONFIG::lang = -1;
+QStringList PROGRAM_CONFIG::qslLangNames;
 int PROGRAM_CONFIG::splitterLeft = 493;
 int PROGRAM_CONFIG::splitterRight = 543;
-int PROGRAM_CONFIG::styleIndex = 0;
+int PROGRAM_CONFIG::schemeIndex = 0;
 
 static bool __bClearChangedFlag = false;	// set to true to clear the changed flag after writing the configuration
 
@@ -36,12 +37,12 @@ CONFIG config,		// must be here because _Changed uses it
 void PROGRAM_CONFIG::Read()
 {
 	lastConfigs.clear();
-	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 
 	lang = s.value("lang", -1).toInt();
 	splitterLeft = s.value("sll", 493).toInt();
 	splitterRight = s.value("slr", 543).toInt();
-	styleIndex = s.value("styleIndex", 543).toInt();
+	schemeIndex = s.value("schemeIndex", 0).toInt();
 
 	s.beginGroup("config_save"); //--------------------------------
 
@@ -87,29 +88,33 @@ void PROGRAM_CONFIG::Write()
 		}
 	}
 
-	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 	s.setValue("lang", PROGRAM_CONFIG::lang);
+	s.setValue("schemeIndex", schemeIndex);
+	s.setValue("sll", splitterLeft);
+	s.setValue("slr", splitterRight);
+
 	s.beginGroup("config_save");
-	s.setValue("maxSaveConfigs", maxSavedConfigs);
-	s.setValue("numSaveConfigs", lastConfigs.size());
-	s.setValue("indexOfLastUsed", indexOfLastUsed);
-	for (int i = 0; i < lastConfigs.size(); ++i)
-		s.setValue(QString().setNum(i), lastConfigs.at(i));
+		s.setValue("maxSaveConfigs", maxSavedConfigs);
+		s.setValue("numSaveConfigs", lastConfigs.size());
+		s.setValue("indexOfLastUsed", indexOfLastUsed);
+		for (int i = 0; i < lastConfigs.size(); ++i)
+			s.setValue(QString().setNum(i), lastConfigs.at(i));
 	s.endGroup();
 }
 
 
 void PROGRAM_CONFIG::GetHomePath()
 {
-	_homePath = QDir::homePath() +
+	homePath = QDir::homePath() +
 #if defined (Q_OS_Linux)   || defined (Q_OS_Darwin) || defined(__linux__)
 		"/.falconG/";
 #elif defined(Q_OS_WIN)
 		"/Appdata/Local/FalconG/";
 #endif
-	if (!QDir(_homePath).exists())
-		QDir(_homePath).mkdir(_homePath);
-	PROGRAM_CONFIG::_samplePath = PROGRAM_CONFIG::_homePath+"sample/";
+	if (!QDir(homePath).exists())
+		QDir(homePath).mkdir(homePath);
+			samplePath = homePath+"sample/";
 }
 
 /*========================================================
@@ -135,7 +140,7 @@ void PROGRAM_CONFIG::GetHomePath()
  *-------------------------------------------------------*/
 QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 {
-	QString sDefault = _homePath;	// set before calling this in Read()
+	QString sDefault = homePath;	// set before calling this in Read()
 	if (sExt == ".ini")
 		sDefault += falconG_ini;
 	else
@@ -162,6 +167,13 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 	}
 
 	return sIniName;
+}
+
+void PROGRAM_CONFIG::GetTranslations()
+{
+	QDir dir(":/translations/translations");
+	qslLangNames = dir.entryList(QStringList("*.qm"), QDir::Files, QDir::Name);
+	qslLangNames.sort();
 }
 
 
@@ -1703,14 +1715,14 @@ void CONFIG::_WriteIni(QString sIniName)
  *---------------------------------------------------------------------------*/
 void CONFIG::Write()			// synchronize with Read!
 {
-	PROGRAM_CONFIG::Write();		// save data in program directory
-	_WriteIni(falconG_ini);		// last used data into there as well
+	PROGRAM_CONFIG::Write();	// save data in user's directory
+//	_WriteIni(falconG_ini);		// last used data into there as well
 
 	QString p, n;
 	SeparateFileNamePath(dsSrc.ToString(), p, n);
 
 	__bClearChangedFlag = true;				// mark all changes as saved
-	_WriteIni(dsSrc.ToString() + n + ".ini");
+	_WriteIni(dsSrc.ToString() + n + ".ini"); // save into album directory
 	__bClearChangedFlag = false;
 
 	ClearChanged();

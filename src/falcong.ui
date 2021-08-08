@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1014</width>
+    <width>1042</width>
     <height>1029</height>
    </rect>
   </property>
@@ -5620,7 +5620,7 @@ Use if you changed the CSS or HTML file.</string>
                 <widget class="QWebEngineView" name="sample">
                  <property name="url">
                   <url>
-                   <string>qrc:/Preview/Resources/index.html</string>
+                   <string>qrc:/Preview/Resources/index_en_US.html</string>
                   </url>
                  </property>
                 </widget>
@@ -6098,7 +6098,7 @@ Use if you changed the CSS or HTML file.</string>
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -6113,12 +6113,35 @@ Use if you changed the CSS or HTML file.</string>
                <height>40</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="title">
               <string>Interface Language</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_17">
+              <property name="spacing">
+               <number>9</number>
+              </property>
               <item>
                <widget class="QRadioButton" name="rbEnglish">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string>English</string>
                 </property>
@@ -6129,6 +6152,13 @@ Use if you changed the CSS or HTML file.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="rbMagyar">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Hungarian</string>
                 </property>
@@ -6687,7 +6717,6 @@ regardless if they were already OK.</string>
   <tabstop>edtDescriptionText</tabstop>
   <tabstop>btnSaveChangedDescription</tabstop>
   <tabstop>chkChangeDescriptionEverywhere</tabstop>
-  <tabstop>tabFalconG</tabstop>
  </tabstops>
  <resources>
   <include location="falcong.qrc"/>

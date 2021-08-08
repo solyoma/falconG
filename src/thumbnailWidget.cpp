@@ -198,7 +198,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     QPainter *painter = new QPainter(&_insertPosImage);
     _insertPosImage.fill(Qt::transparent);
     QPen pen;
-    pen.setColor(schemes[PROGRAM_CONFIG::styleIndex].sSpacerColor);
+    pen.setColor(schemes[PROGRAM_CONFIG::schemeIndex].sSpacerColor);
     pen.setWidth(10);
     painter->setPen(pen);
     painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbHeight);

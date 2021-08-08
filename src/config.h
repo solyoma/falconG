@@ -808,14 +808,15 @@ class CONFIG;
 struct PROGRAM_CONFIG
 {
 	static CONFIG *parent;
-	static QString _homePath;
-	static QString _samplePath;
+	static QString homePath;
+	static QString samplePath;
 	// design page
 	static int splitterLeft;
 	static int splitterRight;
 	// Options page
 	static int lang;
-	static int styleIndex;
+	static QStringList qslLangNames;
+	static int schemeIndex;
 
 	static int maxSavedConfigs;		// max this many last configuration directories are stored
 	static int indexOfLastUsed;		// this was the last one used
@@ -824,6 +825,7 @@ struct PROGRAM_CONFIG
 	static void Write();
 
 	static void GetHomePath();		// in users's home directory
+	static void GetTranslations();
 	static QString NameForConfig(bool forSave, QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
@@ -919,10 +921,10 @@ public:
 								// this page if set should have links into dsGRoot for all languages
 								// If given the main page;s uplink points here, otherwise no uplink on main page(s)
 	_CString iconUplink = {"up-icon.png","iconUplink"};		// name of the icon file in the 'res' sub-directory
-	_CString  sMainPage = {"index.html"," sMainPage"};		// name of the root file in the system The gallery root 
+	_CString  sMainPage = {"index_en_US.html"," sMainPage"};		// name of the root file in the system The gallery root 
 								// (default index.html or index1en.html, index1hu.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
-								// The Home menu will link here (Example: index.html - home link: /<dsGRoot>/index.html)
+								// The Home menu will link here (Example: index_en_US.html - home link: /<dsGRoot>/index.html)
 	_CString sDescription = {"","sDescription"};		// page description: appears in we bsearch results
 	_CString sKeywords = {"","sKeywords"};			// comma separated list of keywords
 

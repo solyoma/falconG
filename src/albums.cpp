@@ -2541,7 +2541,7 @@ bool AlbumGenerator::_ReadFromGallery()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
 {
-	QString src = PROGRAM_CONFIG::_samplePath+"js/",
+	QString src = PROGRAM_CONFIG::samplePath+"js/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
@@ -2566,7 +2566,7 @@ int AlbumGenerator::_DoCopyJs()
 int AlbumGenerator::_DoCopyRes()
 {
 
-	QString src = PROGRAM_CONFIG::_samplePath+"res/",
+	QString src = PROGRAM_CONFIG::samplePath+"res/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "res/";
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);

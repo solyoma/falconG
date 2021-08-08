@@ -164,7 +164,7 @@ private:
 	void _SaveChangedTexts();  // when texts are edited and changed
 
 	void _SetLayoutMargins(int which);
-	void _StyleTheProgram();
+	void _SetProgramScheme();
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
@@ -201,7 +201,7 @@ private slots:
 	void _TextDecorationToConfig(Decoration dec, bool on);
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
-	void _SlotForStyleChange(int which);
+	void _SlotForSchemeChange(int which);
 
 	void _SlotForSchemeButtonClick(int which);
 	void _SlotForSchemeComboEditingFinished();

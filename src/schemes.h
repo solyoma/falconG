@@ -2,19 +2,20 @@
 #ifndef _SCHEMES_H
 #define _SCHEMES_H
 
-#include <QString>
 #include <QVector>
+#include <QString>
+#include <QStringList>
 
 struct FalconGScheme
 {
 	QString
-		MenuTitle,			// this will appear in the menu bar
+		MenuTitle,			// this will appear in the menu bar	it may contain a series of titles for all languages separated by commas
 		sBackground,
 		sTextColor,
 		sBorderColor,
 		sFocusedInput,
 		sHoverColor,
-		sTabBorder,
+		sTabBorder,				 
 		sInputBackground,
 		sSelectedInputBgr,
 		sFocusedBorder,
@@ -27,6 +28,17 @@ struct FalconGScheme
 		sWarningColor,
 		sBoldTitleColor,
 		sSpacerColor;		// for drag & drop in tnvImages
+
+	QString MenuTitleForLanguage(int lang)
+	{
+		if (MenuTitle.isEmpty())	// system colors
+			MenuTitle = QString("Default:Alapértelmezett");		// modify when new user interface language added!
+		QStringList sl = MenuTitle.split(':');
+		if (lang < 0 || lang >= sl.size())
+			lang = 0;
+		return sl[lang];
+	}
+
 	QString& operator[](int index)
 	{
 		switch (index)
@@ -52,9 +64,11 @@ struct FalconGScheme
 		case 17:	return sSpacerColor;
 		}
 	}
+
 	FalconGScheme()
 	{
 	}
+
 	FalconGScheme(const char* t,	 // menu title
 		const char* c0,	 // sBacground
 		const char* c1,	 // sTextColor	-	foreground
@@ -127,7 +141,7 @@ public:
 		operator[](1).MenuTitle = "System Colors";
 		operator[](1).sBorderColor = "#747474";
 	}
-	void ReadAndSetupStyles();	// into menu items
+	void ReadAndSetupSchemes();	// into menu items
 	void Save();			// into "falconG.fsty"
 	int IndexOf(FalconGScheme& fgst);
 	int IndexOf(const QString& title);

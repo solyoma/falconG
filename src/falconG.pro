@@ -41,5 +41,5 @@ QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter
 #QT += widgets webenginewidgets
 QT += widgets
 CONFIG += lrelease embed_translations
-TRANSLATIONS = falconG_en_US.ts \
-               falconG_hu_HU.ts
+TRANSLATIONS = en_US.ts \
+               hu_HU.ts
