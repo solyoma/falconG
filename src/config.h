@@ -10,11 +10,14 @@ const QString falconG_ini = "falconG.ini";
 
 // common templates for selecting the correct type of return value from settings
 template <class T>
-std::enable_if_t< std::is_same_v<bool, T>, bool> Value(QSettings& s, QString name, T def) { return s.value(name, def).toBool(); }
+std::enable_if_t< std::is_same_v<bool, T>, bool> Value(QSettings& s, QString name, T def) { 
+	return s.value(name, def).toBool(); }
 template <class T>
-std::enable_if_t< std::is_same_v<int, T>, int> Value(QSettings& s, QString name, T def) { return s.value(name, def).toInt(); }
+std::enable_if_t< std::is_same_v<int, T>, int> Value(QSettings& s, QString name, T def) { 
+	return s.value(name, def).toInt(); }
 template <class T>
-std::enable_if_t< std::is_same_v<double, T>, double> Value(QSettings& s, QString name, T def) { return s.value(name, def).toDouble(); }
+std::enable_if_t< std::is_same_v<double, T>, double> Value(QSettings& s, QString name, T def) { 
+	return s.value(name, def).toDouble(); }
 template <class T>
 std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QString name, T def) 
 { 
@@ -27,9 +30,9 @@ std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QStri
 template <class T> struct _CFG_ITEM
 {
 	QString itemName;	// in settings
-	T	vd,			// default value
-		v0,			// original value
-		v;			// actual value	read from settings file
+	T	v,			// actual value
+		vd,			// default value
+		v0;			// original value	read from settings file
 
 		// vd must be first otherwise problems with actual declarations
 	explicit _CFG_ITEM(T vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
@@ -223,7 +226,10 @@ struct _CInt : _CFG_ITEM<int>
 {
 	_CInt(int vd, QString namestr="cint") : _CFG_ITEM(vd, namestr) {}
 	_CInt() : _CFG_ITEM(0, "cint") {}
-	_CInt& operator=(int vn) { v = vn; return *this; }
+	_CInt& operator=(int vn) 
+	{ 
+		v = vn; return *this; 
+	}
 
 	operator int() const { return v; }
 	QString ToString() const { return ToString(0);  }
@@ -799,11 +805,18 @@ struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum 'BackgroundImageSizin
  *---------------------------------*/
 class CONFIG;
 
-struct CONFIGS_USED
+struct PROGRAM_CONFIG
 {
 	static CONFIG *parent;
 	static QString _homePath;
 	static QString _samplePath;
+	// design page
+	static int splitterLeft;
+	static int splitterRight;
+	// Options page
+	static int lang;
+	static int styleIndex;
+
 	static int maxSavedConfigs;		// max this many last configuration directories are stored
 	static int indexOfLastUsed;		// this was the last one used
 	static QStringList lastConfigs; // these are the (source) directories
@@ -829,7 +842,6 @@ public:
 
 	void Read();
 	void Write();
-	void SaveSchemeIndex();
 
 	bool Changed() const		
 	{ 
@@ -997,17 +1009,11 @@ public:
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 
-				// design page
-	_CInt splitterLeft =  { 493, "spll" };
-	_CInt splitterRight = { 543, "splr" };
-	// Options page
-	_CInt styleIndex = {0, "styleIndex"};
-
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
 
 		// calculated values	not saved not even included in the backup
-	QString homeLink;		// actual home link for given langyage hierarchy
+	QString homeLink;		// actual home link for given language hierarchy
 };
 
 extern CONFIG config;		// Global variable

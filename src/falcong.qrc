@@ -13,6 +13,10 @@
     <file>Resources/broken-link.png</file>
     <file>Resources/link.png</file>
   </qresource>
+  <qresource prefix="translations">
+    <file>../translations/falconG_en_US.qm</file>
+    <file>../translations/falconG_hu_HU.qm</file>
+  </qresource>
   <qresource prefix="Preview">
     <file>Resources/placeholder2.png</file>
     <file>Resources/falconG.js</file>

@@ -198,7 +198,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     QPainter *painter = new QPainter(&_insertPosImage);
     _insertPosImage.fill(Qt::transparent);
     QPen pen;
-    pen.setColor(schemes[config.styleIndex].sSpacerColor);
+    pen.setColor(schemes[PROGRAM_CONFIG::styleIndex].sSpacerColor);
     pen.setWidth(10);
     painter->setPen(pen);
     painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbHeight);
@@ -1148,7 +1148,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
     // how to make it work?
     pact = new QAction(tr("&Undo Delete"), this);
 #define CAN_UNDO(a) (a && !a->NothingToUndo())
-	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO;
+	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
 	pact->setEnabled(undo);
 	if (undo)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);

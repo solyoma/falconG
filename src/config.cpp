@@ -12,15 +12,19 @@ void __AddSemi(QString& s, bool addSemicolon)
 }
 
 
-QString CONFIGS_USED::_homePath;
-QString CONFIGS_USED::_samplePath;
+QString PROGRAM_CONFIG::_homePath;
+QString PROGRAM_CONFIG::_samplePath;
 
-int CONFIGS_USED::maxSavedConfigs;		// last 10 configuration directory is stored
-QStringList CONFIGS_USED::lastConfigs;
+int PROGRAM_CONFIG::maxSavedConfigs;		// last 10 configuration directory is stored
+QStringList PROGRAM_CONFIG::lastConfigs;
 
-int CONFIGS_USED::indexOfLastUsed;		// this was the last one used
-CONFIG *CONFIGS_USED::parent = nullptr;
+int PROGRAM_CONFIG::indexOfLastUsed;		// this was the last one used
+CONFIG *PROGRAM_CONFIG::parent = nullptr;
 
+int PROGRAM_CONFIG::lang = -1;
+int PROGRAM_CONFIG::splitterLeft = 493;
+int PROGRAM_CONFIG::splitterRight = 543;
+int PROGRAM_CONFIG::styleIndex = 0;
 
 static bool __bClearChangedFlag = false;	// set to true to clear the changed flag after writing the configuration
 
@@ -29,10 +33,15 @@ CONFIG config,		// must be here because _Changed uses it
 	   configSave;
 
 /*========================== CONFIG_USED ====================*/
-void CONFIGS_USED::Read()
+void PROGRAM_CONFIG::Read()
 {
 	lastConfigs.clear();
 	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+
+	lang = s.value("lang", -1).toInt();
+	splitterLeft = s.value("sll", 493).toInt();
+	splitterRight = s.value("slr", 543).toInt();
+	styleIndex = s.value("styleIndex", 543).toInt();
 
 	s.beginGroup("config_save"); //--------------------------------
 
@@ -55,30 +64,31 @@ void CONFIGS_USED::Read()
 	s.endGroup();				//------------------------------------
 }
 
-void CONFIGS_USED::Write()
+void PROGRAM_CONFIG::Write()
 {
 	QString sLast = parent->dsSrc.v.trimmed();
 	if (sLast.isEmpty())		
-		CONFIGS_USED::indexOfLastUsed = -1;
+		PROGRAM_CONFIG::indexOfLastUsed = -1;
 	else
 	{
-		if (CONFIGS_USED::indexOfLastUsed < 0)	// then search list for last item
+		if (PROGRAM_CONFIG::indexOfLastUsed < 0)	// then search list for last item
 		{
 			int n;
-			if ((n = CONFIGS_USED::lastConfigs.indexOf(sLast, 0)) < 0)
+			if ((n = PROGRAM_CONFIG::lastConfigs.indexOf(sLast, 0)) < 0)
 			{
-				if (CONFIGS_USED::lastConfigs.size() == CONFIGS_USED::maxSavedConfigs)
-					CONFIGS_USED::lastConfigs.removeLast();
+				if (PROGRAM_CONFIG::lastConfigs.size() == PROGRAM_CONFIG::maxSavedConfigs)
+					PROGRAM_CONFIG::lastConfigs.removeLast();
 
-				CONFIGS_USED::lastConfigs.insert(0, sLast);
-				CONFIGS_USED::indexOfLastUsed = 0;
+				PROGRAM_CONFIG::lastConfigs.insert(0, sLast);
+				PROGRAM_CONFIG::indexOfLastUsed = 0;
 			}
 			else
-				CONFIGS_USED::indexOfLastUsed = n;
+				PROGRAM_CONFIG::indexOfLastUsed = n;
 		}
 	}
 
 	QSettings s(_homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+	s.setValue("lang", PROGRAM_CONFIG::lang);
 	s.beginGroup("config_save");
 	s.setValue("maxSaveConfigs", maxSavedConfigs);
 	s.setValue("numSaveConfigs", lastConfigs.size());
@@ -89,7 +99,7 @@ void CONFIGS_USED::Write()
 }
 
 
-void CONFIGS_USED::GetHomePath()
+void PROGRAM_CONFIG::GetHomePath()
 {
 	_homePath = QDir::homePath() +
 #if defined (Q_OS_Linux)   || defined (Q_OS_Darwin) || defined(__linux__)
@@ -99,7 +109,7 @@ void CONFIGS_USED::GetHomePath()
 #endif
 	if (!QDir(_homePath).exists())
 		QDir(_homePath).mkdir(_homePath);
-	CONFIGS_USED::_samplePath = CONFIGS_USED::_homePath+"sample/";
+	PROGRAM_CONFIG::_samplePath = PROGRAM_CONFIG::_homePath+"sample/";
 }
 
 /*========================================================
@@ -123,7 +133,7 @@ void CONFIGS_USED::GetHomePath()
  *			- With no last used directory returns the
  *				default names with no directory path
  *-------------------------------------------------------*/
-QString CONFIGS_USED::NameForConfig(bool forSave, QString sExt)
+QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 {
 	QString sDefault = _homePath;	// set before calling this in Read()
 	if (sExt == ".ini")
@@ -1296,7 +1306,6 @@ void CONFIG::ClearChanged()
 	generateLatestUploads.ClearChanged();
 	newUploadInterval.ClearChanged();
 	nLatestCount.ClearChanged();
-	styleIndex.ClearChanged();
 }
 
 /*===========================================================================
@@ -1424,7 +1433,6 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	iconInfoOn = cfg.iconInfoOn;
 
 	imageBorder = cfg.imageBorder;
-	styleIndex = cfg.styleIndex;
 }
 /*============================================================================
 * TASK: constructor
@@ -1434,8 +1442,8 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 *---------------------------------------------------------------------------*/
 CONFIG::CONFIG()
 {
-	if(CONFIGS_USED::parent == nullptr)
-			CONFIGS_USED::parent = this;
+	if(PROGRAM_CONFIG::parent == nullptr)
+			PROGRAM_CONFIG::parent = this;
 	Header					.parent = &Web;
 	Menu					.parent = &Web;
 	Lang					.parent = &Web;
@@ -1463,14 +1471,14 @@ CONFIG::CONFIG()
   *					in the program directory
   *					
   *	RETURNS: nothing
-  * REMARKS: - read CONFIGS_USED before using this!
+  * REMARKS: - read PROGRAM_CONFIG before using this!
   *			 - Config element "Web" contains the default foreground and 
   *				background colors. These will be set into all other elements,
   *				but modified if the others changed
  *---------------------------------------------------------------------------*/
 void CONFIG::Read()		// synchronize with Write!
 {
-	QString sIniName = CONFIGS_USED::NameForConfig(false, ".ini"); // false: fallback to default if ini does not exist in source dir.
+	QString sIniName = PROGRAM_CONFIG::NameForConfig(false, ".ini"); // false: fallback to default if ini does not exist in source dir.
 
 	QSettings s(sIniName, QSettings::IniFormat);
 	s.setIniCodec("UTF-8");
@@ -1538,7 +1546,6 @@ void CONFIG::Read()		// synchronize with Write!
 	generateLatestUploads.Read(s);
 	newUploadInterval.Read(s);
 	nLatestCount.Read(s);
-	styleIndex.Read(s);
 
 	sServerAddress.Read(s);
 
@@ -1569,18 +1576,15 @@ void CONFIG::Read()		// synchronize with Write!
 	LightboxTitle.Read(s);
 	LightboxDesc.Read(s);
 	Footer.Read(s);
-	// splitter
-	splitterLeft.Read(s);
-	splitterRight.Read(s);
 
 				// 	Watermarks
 	waterMark.Read(s);
 	// Debug
 	bDebugging.Read(s);
 
-	if (CONFIGS_USED::indexOfLastUsed >= 0 && dsSrc.IsEmpty())
-		dsSrc.v = CONFIGS_USED::lastConfigs[CONFIGS_USED::indexOfLastUsed];
-	QString qs = CONFIGS_USED::NameForConfig(true, ".ini");
+	if (PROGRAM_CONFIG::indexOfLastUsed >= 0 && dsSrc.IsEmpty())
+		dsSrc.v = PROGRAM_CONFIG::lastConfigs[PROGRAM_CONFIG::indexOfLastUsed];
+	QString qs = PROGRAM_CONFIG::NameForConfig(true, ".ini");
 	if(!QFile::exists(qs))
 		config._WriteIni(qs);			// already written properties
 
@@ -1662,7 +1666,6 @@ void CONFIG::_WriteIni(QString sIniName)
 	generateLatestUploads.Write(s);
 	newUploadInterval.Write(s);
 	nLatestCount.Write(s);
-	styleIndex.Write(s);
 	
 	sServerAddress.Write(s);
 
@@ -1680,9 +1683,6 @@ void CONFIG::_WriteIni(QString sIniName)
 	LightboxTitle.Write(s);
 	LightboxDesc.Write(s);
 	Footer.Write(s);
-	// splitter
-	splitterLeft.Write(s);
-	splitterRight.Write(s);
 				// 	Watermarks
 	waterMark.Write(s);
 
@@ -1703,7 +1703,7 @@ void CONFIG::_WriteIni(QString sIniName)
  *---------------------------------------------------------------------------*/
 void CONFIG::Write()			// synchronize with Read!
 {
-	CONFIGS_USED::Write();		// save data in program directory
+	PROGRAM_CONFIG::Write();		// save data in program directory
 	_WriteIni(falconG_ini);		// last used data into there as well
 
 	QString p, n;
@@ -1714,31 +1714,6 @@ void CONFIG::Write()			// synchronize with Read!
 	__bClearChangedFlag = false;
 
 	ClearChanged();
-}
-
-
-/*========================================================
- * TASK:		save actual style index and do not ask
- *				the user about it.
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void CONFIG::SaveSchemeIndex()
-{
-	QString p, n;
-	SeparateFileNamePath(dsSrc.ToString(), p, n);
-
-	QSettings s(CONFIGS_USED::_homePath+falconG_ini, QSettings::IniFormat),
-		      s1(dsSrc.ToString() + n + ".ini", QSettings::IniFormat);
-	
-	s.setIniCodec("UTF-8");
-	styleIndex.Write(s);
-
-	s1.setIniCodec("UTF-8");
-	styleIndex.Write(s1);
-
 }
 
 QString _CTextAlign::ForStyleSheet(bool addSemiColon) const

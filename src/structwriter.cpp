@@ -22,7 +22,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		ofs << indent << "[" << what << Languages::abbrev[i] << ":";
+		ofs << indent << "[" << what << Languages::countryCode[i] << ":";
 		if (id != 0)
 			ofs << text[i];
 		ofs << "]";
@@ -88,24 +88,23 @@ void AlbumStructWriterThread::run()
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
 		_ofs << i << "\n"
-			<< "  abbrev=" << Languages::abbrev[i] << "\n"
-			<< "  name=" << Languages::names[i] << "\n"
+			<< "  about=" << Languages::toAboutPage[i] << "\n"
+			<< "  albums=" << Languages::Albums[i] << "\n"
+			<< "  captions=" << Languages::showCaptions[i] << "\n"
+			<< "  contact=" << Languages::toContact[i] << "\n"
+			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
+			<< "  countryCode=" << Languages::countryCode[i] << "\n"
+			<< "  descriptions=" << Languages::showDescriptions[i] << "\n"
+			<< "  falconG=" << Languages::falconG[i] << "\n"
+			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
 			<< "  images=" << Languages::Images[i] << "\n"
-			<< "  videos=" << Languages::Videos[i] << "\n"
-			<< "  albums=" << Languages::Albums[i] << "\n"
-			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
-			<< "  homePage=" << Languages::toHomePage[i] << "\n"
-			<< "  about=" << Languages::toAboutPage[i] << "\n"
-			<< "  contact=" << Languages::toContact[i] << "\n"
-			<< "  captions=" << Languages::showCaptions[i] << "\n"
-			<< "  descriptions=" << Languages::showDescriptions[i] << "\n"
-			<< "  share=" << Languages::share[i] << "\n"
-			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
 			<< "  latestDesc=" << Languages::latestDesc[i] << "\n"
-			<< "  countryCode=" << Languages::countryCode[i] << "\n"
-			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
-			<< "  falconG=" << Languages::falconG[i] << "\n"
+			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
+			<< "  name=" << Languages::names[i] << "\n"
+			<< "  share=" << Languages::share[i] << "\n"
+			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
+			<< "  videos=" << Languages::Videos[i] << "\n"
 			;
 	}
 	_ofs << "]\n\n# Album structure:\n";

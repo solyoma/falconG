@@ -19,6 +19,9 @@ using namespace Enums;
 
 #include <memory>
 
+// ************************ helper **********************
+QStringList GetTranslations();	// list of translation files
+// ************************ /helper ********************** 
 /*------------------------------------- macros ------------------------------------*/
 #define AS_HEX_COLOR_STRING(n) QString("%1").arg(n, 6, 16, QChar('0'))
 #define TO_COLOR_STRING(s,n) s = "#" + AS_HEX_COLOR_STRING(n)
@@ -161,7 +164,7 @@ private:
 	void _SaveChangedTexts();  // when texts are edited and changed
 
 	void _SetLayoutMargins(int which);
-	void _StyleTheProgram(int which);
+	void _StyleTheProgram();
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
@@ -203,6 +206,7 @@ private slots:
 	void _SlotForSchemeButtonClick(int which);
 	void _SlotForSchemeComboEditingFinished();
 	void _AskForApply();	// when color scheme changed and not yet applied
+	void _RestartRequired();	// for language change
 
 // auto connected slots
 private slots:
@@ -343,6 +347,8 @@ private slots:
 	void on_rbNoBackgroundImage_toggled(bool);
 	void on_rbCenterBckImage_toggled(bool);
 	void on_rbCoverBckImage_toggled(bool);
+	void on_rbEnglish_toggled(bool);
+	void on_rbMagyar_toggled(bool);
 	void on_rbTileBckImage_toggled(bool);
 	void on_rbTdSolid_toggled(bool);
 	void on_rbTdDotted_toggled(bool);

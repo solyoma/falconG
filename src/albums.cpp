@@ -1593,7 +1593,7 @@ bool AlbumGenerator::Read()
 	}
 
 
-	QString s = CONFIGS_USED::NameForConfig(false, ".struct");
+	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
 	if(!config.bReadJAlbum && QFileInfo::exists(s))
@@ -1701,9 +1701,7 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 		while((sl = reader.ReadLine().split('=')).size() == 2 ) // finished when next language index is read in
 		{
 			s = sl[0].toLower();
-			if ( s== "abbrev")
-				Languages::abbrev[i] = sl[1];
-			else if (s == "name")
+			if (s == "name")
 				Languages::names[i] = sl[1];
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
@@ -1830,7 +1828,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 
 	do		 // for each line with text in []);
 	{
-		int lang = (reader.l()[level + 1] == THUMBNAIL_TAG[0] ? -1 : Languages::abbrev.indexOf(reader.l().mid(level + TITLE_TAG.length()+1, 2)));
+		int lang = (reader.l()[level + 1] == THUMBNAIL_TAG[0] ? -1 : Languages::countryCode.indexOf(reader.l().mid(level + TITLE_TAG.length()+1, 5)));	// en_US
 
 		if (reader.l()[level + 1] == THUMBNAIL_TAG[0])
 			newTag = IdsFromStruct::thumbnail;
@@ -2543,7 +2541,7 @@ bool AlbumGenerator::_ReadFromGallery()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoCopyJs()
 {
-	QString src = CONFIGS_USED::_samplePath+"js/",
+	QString src = PROGRAM_CONFIG::_samplePath+"js/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "js/";
 	QDir dir(src);  // js in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
@@ -2568,7 +2566,7 @@ int AlbumGenerator::_DoCopyJs()
 int AlbumGenerator::_DoCopyRes()
 {
 
-	QString src = CONFIGS_USED::_samplePath+"res/",
+	QString src = PROGRAM_CONFIG::_samplePath+"res/",
 			dest = (config.dsGallery + config.dsGRoot).ToString() + "res/";
 	QDir dir(src);  // res in actual progam directory
 	QFileInfoList list = dir.entryInfoList(QDir::Files);
@@ -2678,7 +2676,7 @@ int AlbumGenerator::_SaveFalconGCss()
 	tmpName = BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", tmpName);
 	if (!tmpName.isEmpty())
 	{
-		QMessageBox::warning(nullptr, tr("falconG Warning"), tmpName, QMessageBox::Ok);
+		QMessageBox::warning(nullptr, tr("falconG - Warning"), tmpName, QMessageBox::Ok);
 		return 8;
 	}
 	return 0;
@@ -2714,7 +2712,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 	else
 		base = (config.dsGRoot + path).ToString() + name;
 	if (multipleLanguages)
-		base += "_" + Languages::abbrev.at(language); // e.g. index_en.html
+		base += "_" + Languages::countryCode.at(language); // e.g. index_en_GB.html
 
 	if (toServerPath)
 	{
@@ -3039,7 +3037,7 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 					config.dsCssDir.ToString();
 
 	QString s = QString("<!DOCTYPE html>\n"
-		"<html lang = \"" + Languages::abbrev[_actLanguage] + "\">\n"
+		"<html lang = \"" + Languages::countryCode[_actLanguage].left(2) + "\">\n"		  // e.g. en from en_GB
 		"<head>\n");
 	if (config.googleAnalyticsOn)
 		s += _GoogleAnaliticsOn();
@@ -3104,7 +3102,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (config.generateLatestUploads)
-		outputMenuLine("latest", config.dsGRoot.ToString() + "latest_" + Languages::abbrev[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
+		outputMenuLine("latest", config.dsGRoot.ToString() + "latest_" + Languages::countryCode[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
 	_ofs << "&nbsp;&nbsp;";
@@ -3295,7 +3293,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
     //  -------------------------- description
 	if(!desc.isEmpty() )
 		_ofs << "     <div class=\"desc\">\n"
-				"       <p lang=\"" << Languages::abbrev[_actLanguage] << "\">"
+				"       <p lang=\"" << Languages::countryCode[_actLanguage].left(2) << "\">"
 			 << desc << "</p>\n"
 				"     </div>\n";
 	//  -------------------------- end of description
@@ -3571,7 +3569,7 @@ int AlbumGenerator::_CreateHomePage()
 	// languages
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		_ofs << QString("<a href=\"%1%2\">%3</a>").arg(fn + QStringLiteral("_") + Languages::abbrev[i]).arg(ext).arg(Languages::names[i]);
+		_ofs << QString("<a href=\"%1%2\">%3</a>").arg(fn + QStringLiteral("_") + Languages::countryCode[i]).arg(ext).arg(Languages::names[i]);
 		// menu buttons
 		if (config.bMenuToAbout)
 		{
@@ -3605,7 +3603,7 @@ int AlbumGenerator::_CreateHomePage()
 *			'config.sMainPage' - base or full name of root page(s) inside dsGRoot'
 *							   Menu 'home' brings here
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: each file is named <config.baseName><album.ID><Language::abbrev[]>,html
+* REMARKS: each file is named <config.baseName><album.ID><Language::countryCode[]>,html
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoPages()
 {
