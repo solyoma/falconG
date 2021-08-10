@@ -133,6 +133,8 @@ class FSchemeVector : public  QVector<FalconGScheme>
 {
 	static FalconGScheme blue, dark, black;
 public:
+	bool wasSaved = false; // set from outside
+
 	FSchemeVector()
 	{
 		reserve(5);		// for default, system, blue, dark, black 
@@ -143,6 +145,11 @@ public:
 	}
 	void ReadAndSetupSchemes();	// into menu items
 	void Save();			// into "falconG.fsty"
+	void push_back(const FalconGScheme& scheme)
+	{
+		wasSaved = false;
+		QVector<FalconGScheme>::push_back(scheme);
+	}
 	int IndexOf(FalconGScheme& fgst);
 	int IndexOf(const QString& title);
 };

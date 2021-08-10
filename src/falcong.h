@@ -91,8 +91,7 @@ private:
 
 	WebEnginePage _page;
 	// style (skin) selection
-	bool _bSchemeChanged = false,	// any of the colors changed
-		 _bNewSchemeName = false;  // a new name of the scheme is added
+	bool _bSchemeChanged = false;	// any of the colors changed
 	FalconGScheme _tmpScheme;	// used for editing
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
@@ -204,9 +203,10 @@ private slots:
 	void _SlotForSchemeChange(int which);
 
 	void _SlotForSchemeButtonClick(int which);
-	void _SlotForSchemeComboEditingFinished();
 	void _AskForApply();	// when color scheme changed and not yet applied
 	void _RestartRequired();	// for language change
+	bool _DoOverWriteColorScheme(int i);
+	bool _LanguagesWarning();
 
 // auto connected slots
 private slots:
@@ -250,18 +250,18 @@ private slots:
 	void on_btnApplyColorScheme_clicked();
 	void on_btnResetColorScheme_clicked();
 	void on_btnMoveSchemeUp_clicked();
+	void on_btnMoveSchemeDown_clicked();
 
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 
 
 	// generate color scheme
-	void on_btnGenerateScheme_clicked();
+	void on_btnAddAndGenerateColorScheme_clicked();
 
 	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// solid, dashed, etc
 
 	void on_cbColorScheme_currentIndexChanged(int newIndex);
-	void on_cbColorScheme_currentTextChanged(const QString& newText);
 					// image
 	void on_cbImageQuality_currentIndexChanged(int newIndex);
 					//  watermark

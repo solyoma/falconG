@@ -220,7 +220,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 
 	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
-	connect(_pCbColorSchemeEdit, &QLineEdit::editingFinished, this, &FalconG::_SlotForSchemeComboEditingFinished);
 
 	QSettings s(PROGRAM_CONFIG::homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 
@@ -240,7 +239,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	// now that everything is ready
 	_SetProgramScheme();
 	_AddSchemeButtons();
+	++_busy;
 	on_cbColorScheme_currentIndexChanged(0);
+	--_busy;
 
 	_ModifyGoogleFontImport();
 
@@ -1838,12 +1839,14 @@ void FalconG::_SlotForSchemeChange(int which)
 
 void FalconG::_EnableColorSchemeButtons()
 {
-	bool b = (PROGRAM_CONFIG::schemeIndex > 1) && _bSchemeChanged;
+	bool b = _bSchemeChanged;
 	ui.btnApplyColorScheme->setEnabled(b);
 	ui.btnResetColorScheme->setEnabled(b);
-	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.cbColorScheme->currentIndex();
-	ui.btnDeleteColorScheme->setEnabled(b);
-	ui.btnMoveSchemeUp->setEnabled(ui.cbColorScheme->currentIndex() > 0);
+//	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.cbColorScheme->currentIndex();
+	ui.btnDeleteColorScheme->setEnabled(schemes.size() > 2);
+	int i = ui.cbColorScheme->currentIndex(); // is 2 less than  the real index in the schemes array
+	ui.btnMoveSchemeUp->setEnabled(i > 0);
+	ui.btnMoveSchemeDown->setEnabled(i < schemes.size()-2);
 }
 
 void FalconG::_SlotForSchemeButtonClick(int which)
@@ -1861,6 +1864,7 @@ void FalconG::_SlotForSchemeButtonClick(int which)
 		ui.pnlColorScheme->setStyleSheet("color:" + qcNew.name()+"; background-color:"+_tmpScheme.sBackground);
 	_bSchemeChanged |= true;	// might have been changed already
 	_tmpScheme[which] = qcNew.name();
+	_bSchemeChanged = true;
 	_EnableColorSchemeButtons();
 }
 
@@ -3193,7 +3197,6 @@ void FalconG::_AddSchemeButtons()
 	for (int i = 2; i < schemes.size(); ++i)				// do not add default and system!
 		ui.cbColorScheme->addItem(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 	// add buttons to layout
-
 	QFont font;
 //	font.setFamily(QString::fromUtf8("Arial"));
 	font.setPointSize(8);
@@ -3349,6 +3352,8 @@ void FalconG::_AddSchemeButtons()
 	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
 
 	connect(_pSchemeMapper, &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeButtonClick);
+
+	on_cbColorScheme_currentIndexChanged(0);
 }
 
 
@@ -3519,7 +3524,7 @@ void FalconG::_AskForApply()
 	if (_busy )//|| !_bSchemeChanged)
 		return;
 	++_busy;
-	if (QMessageBox::warning(this, tr("falconG - Color scheme changed"), tr("Changes were not applied.\nDo you want to apply changes>"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+	if (QMessageBox::warning(this, tr("falconG - Color scheme changed"), tr("Changes were not applied.\nDo you want to apply changes?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
 		on_btnApplyColorScheme_clicked();
 	--_busy;
 }
@@ -3537,67 +3542,25 @@ void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
 {
 	if (_busy || newIndex < 0)
 		return;
-	if (newIndex +2 == schemes.size())	// just the text changed and an ENTER is pressed?
-		on_btnApplyColorScheme_clicked();
-	else
-	{
-		if (_bNewSchemeName || _bSchemeChanged)
+
+	if (_bSchemeChanged)
 		_AskForApply();
-		static const char *bckstr= "background-color:%1",
-						  *bck_txt = "background-color:%1; color:%2";
-		_tmpScheme = schemes[newIndex+2];	// default and system are not changed
-		_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-		ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
-		for (int i = 0; i < _pSchemeButtons.size(); ++i)
-			_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
-		_EnableColorSchemeButtons();
-	}
+	static const char* bckstr = "background-color:%1",
+		* bck_txt = "background-color:%1; color:%2";
+	_tmpScheme = schemes[newIndex + 2];	// default and system are not changed
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+	ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
+	for (int i = 0; i < _pSchemeButtons.size(); ++i)
+		_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
+	_EnableColorSchemeButtons();
 }
 
-
-/*========================================================
- * TASK:	enable buttons to signal there are new data to be added
- * PARAMS:	newText: changed text
- * GLOBALS:
- * RETURNS:
- * REMARKS: - if the title of the source text is not the same
- *				as the original (already existing) title: then  
- *				there were changes which can be applied or
- *				taken back
- *-------------------------------------------------------*/
-void FalconG::on_cbColorScheme_currentTextChanged(const QString& newText)
-{
-	ui.btnApplyColorScheme->setEnabled(schemes.IndexOf(newText) );
-}
 
 void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
 {
 	if (_busy)
 		return;
 	config.imageQuality = newIndex ? (11 - newIndex)*10 : 0;
-}
-
-
-/*========================================================
- * TASK: when the user finishes editing the actual text of
- *			the scheme combo box creates a new scheme
- *	
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - called AFTER the currentTextChanged above
- *-------------------------------------------------------*/
-void FalconG::_SlotForSchemeComboEditingFinished()
-{
-	if ( schemes.IndexOf(ui.cbColorScheme->lineEdit()->text()) < 0 )
-	{
-		_bNewSchemeName = true;
-		_tmpSchemeOrigName = ui.cbColorScheme->currentText();
-//		_AskForApply();
-		_EnableColorSchemeButtons();
-	}
-	else
-		_bNewSchemeName = false;
 }
 
 
@@ -3675,6 +3638,22 @@ void FalconG::_RestartRequired()
 	QMessageBox::warning(this, tr("falconG - Warning"), QString(tr("Please restart the program to change the language!")));
 }
 
+bool FalconG::_DoOverWriteColorScheme(int i)
+{
+	QString qs = tr("There is a scheme \n'%1'\nwith a title which at least partially\nmatches the modified title.\n"
+					" Do you want to overwrite it?").arg(schemes[i].MenuTitle);
+	return QMessageBox::question(this, tr("falconG - Question"),
+				qs,
+				QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
+}
+
+bool FalconG::_LanguagesWarning()
+{
+	return QMessageBox::question(this, tr("falconG - Question"),
+				tr("No/not enough ':' in new name. The same name will be used for\n"
+				"all program languages. Is this what you want?")) == QMessageBox::Yes;
+}
+
 void FalconG::on_rbEnglish_toggled(bool b)
 {
 	if (_busy || !b)
@@ -3735,19 +3714,35 @@ void FalconG::on_btnGoToGoogleFontsPage_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnApplyColorScheme_clicked()
 {
-	_bSchemeChanged = _bNewSchemeName = false;
+
 	int i = schemes.IndexOf(_tmpSchemeOrigName);
-	if (i >= 0)
-		schemes[i] = _tmpScheme;
-	else
+	if (i >= 0)	// then at least one language text of the title is matched
 	{
-		_tmpScheme.MenuTitle = _tmpSchemeOrigName;
-		schemes.push_back(_tmpScheme);
-		ui.cbColorScheme->addItem(_tmpSchemeOrigName);
+		if (i < 2)
+		{
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+			return;
+		}
+		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _DoOverWriteColorScheme(i))// full or partial name matched
+		{
+			schemes[i] = _tmpScheme;
+			_bSchemeChanged = true;
+		}
 	}
+	else	// name did not exist save new
+	{
+		if (_tmpSchemeOrigName.indexOf(':') + 1 != PROGRAM_CONFIG::qslLangNames.size() && _LanguagesWarning())
+		{
+			_tmpScheme.MenuTitle = _tmpSchemeOrigName;
+			schemes.push_back(_tmpScheme);
+			ui.cbColorScheme->addItem(_tmpSchemeOrigName);
+			ui.cbColorScheme->setCurrentIndex(ui.cbColorScheme->count() - 1);
+		}
+	}
+	if(_bSchemeChanged)
+		schemes.Save();
 
-	schemes.Save();
-
+	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
 	_SetProgramScheme();
 }
@@ -3781,8 +3776,10 @@ void FalconG::on_btnResetColorScheme_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnMoveSchemeUp_clicked()
 {
-	int i = ui.cbColorScheme->currentIndex(), 
+	int i = ui.cbColorScheme->currentIndex(),  //0: corresponds to real index 2 in 'schemes'
 		j = i+2;							  // index in schemes (default and system can't be changed)
+	if (!i)
+		return;
 
 	if (j == PROGRAM_CONFIG::schemeIndex )
 	{
@@ -3803,9 +3800,49 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	ui.cbColorScheme->removeItem(i--);
 	ui.cbColorScheme->insertItem(i, schemes[j].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 	ui.cbColorScheme->setCurrentIndex(i);
-	if (!i)
-		ui.btnMoveSchemeUp->setEnabled(false);
+	ui.btnMoveSchemeDown->setEnabled(true);
+	ui.btnMoveSchemeUp->setEnabled(i > 0);
 	--_busy;
+	schemes.Save();
+}
+
+/*========================================================
+ * TASK:	moves down the actual scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - no need to change in display changes,
+ *				but need to s change the order of schemes
+ *-------------------------------------------------------*/
+void FalconG::on_btnMoveSchemeDown_clicked()
+{
+	int i = ui.cbColorScheme->currentIndex(),  //0: corresponds to real index 2 in 'schemes'
+		j = i + 2;							  // index in schemes (default and system can't be changed)
+	if (i == schemes.size() - 2)
+		return;
+
+	if (j == PROGRAM_CONFIG::schemeIndex)
+	{
+		PROGRAM_CONFIG::schemeIndex = j + 1;
+		PROGRAM_CONFIG::Write();
+	}
+	else if (j == PROGRAM_CONFIG::schemeIndex - 1)
+	{
+		PROGRAM_CONFIG::schemeIndex = j - 1;
+		PROGRAM_CONFIG::Write();
+	}
+
+	FalconGScheme sty = schemes[j];
+	schemes.replace(j, schemes[j + 1]);
+	schemes.replace(++j, sty);
+
+	++_busy;
+	ui.cbColorScheme->removeItem(i++);
+	ui.cbColorScheme->insertItem(i, schemes[j].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+	ui.cbColorScheme->setCurrentIndex(i);
+	--_busy;
+	ui.btnMoveSchemeUp->setEnabled(ui.cbColorScheme->currentIndex() > 0);
+	ui.btnMoveSchemeDown->setEnabled(i < schemes.size()-2);
 	schemes.Save();
 }
 
@@ -3821,6 +3858,8 @@ void FalconG::on_btnMoveSchemeUp_clicked()
  *			- when the actual selected scheme is deleted
  *				it still remains active, so you may
  *				restore it by writing the name into the combo box
+ *			- the first tow shemes (Default and system colors
+ *				cannot be deleted or edited!
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
 {
@@ -3830,25 +3869,58 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 		return;
 
 	int i = ui.cbColorScheme->currentIndex();
-	if (i >= PROGRAM_CONFIG::schemeIndex - 2)
+	if (i+2 < PROGRAM_CONFIG::schemeIndex)
 	{
 		PROGRAM_CONFIG::schemeIndex = PROGRAM_CONFIG::schemeIndex - 1;
+		if (PROGRAM_CONFIG::schemeIndex < 0)
+			PROGRAM_CONFIG::schemeIndex = 0;
+
 		PROGRAM_CONFIG::Write();
 	}
 	ui.cbColorScheme->removeItem(i);
 	schemes.remove(i + 2);
-	ui.cbColorScheme->setCurrentIndex(i == schemes.size() - 2 ? --i : i);
+	ui.cbColorScheme->setCurrentIndex(PROGRAM_CONFIG::schemeIndex);
 	schemes.Save();
 	_EnableColorSchemeButtons();
 	_bSchemeChanged = false;
 }
 
-void FalconG::on_btnGenerateScheme_clicked()
+void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 {
+	bool ok;
+	QString qs = PROGRAM_CONFIG::LangNameListWDelim();
+	qs = tr("New Scheme Name\n (for ")+qs+")";
+	QString sNewName = QInputDialog::getText(this, tr("falconG - Input"), qs, QLineEdit::Normal, QString(), &ok);
+	if (!ok || sNewName.isEmpty())
+		return;
+	if (PROGRAM_CONFIG::qslLangNames.size() != sNewName.count(':')+1)
+	{
+		if (!_LanguagesWarning())
+			return;
+		sNewName = sNewName + ":" + sNewName;
+	}
+
+	int i = schemes.IndexOf(sNewName);
+	if (i >= 0)
+	{
+		if(i < 2)
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+		else if (_DoOverWriteColorScheme(i))
+		{
+			schemes[i].MenuTitle = sNewName;
+			schemes.Save();
+			ui.cbColorScheme->removeItem(i - 2);
+			ui.cbColorScheme->insertItem(i - 2, schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+			ui.cbColorScheme->setCurrentIndex(i - 2);
+		}
+		return;
+	}
+
 	QColor qcBase = QColorDialog::getColor(qcBase, this, tr("Select background color."));
 	if (qcBase.isValid())
 	{
 		QColor qc;
+		_tmpScheme.MenuTitle = _tmpSchemeOrigName = sNewName;
 		_tmpScheme.sBackground = qcBase.name();
 /*
 		_tmpScheme.sTextColor = ;
@@ -3868,6 +3940,11 @@ void FalconG::on_btnGenerateScheme_clicked()
 		_tmpScheme.sWarningColor = ;
 		_tmpScheme.sBoldTitleColor = ;
 */
+		ui.cbColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+		schemes.push_back(_tmpScheme);
+		schemes.Save();
+		ui.cbColorScheme->setCurrentIndex(schemes.size() - 2-1);	// 2 for default and system colors, 1: offset vs size
+		ui.btnApplyColorScheme->setEnabled(true);
 	}
 }
 

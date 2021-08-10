@@ -43,6 +43,8 @@ void PROGRAM_CONFIG::Read()
 	splitterLeft = s.value("sll", 493).toInt();
 	splitterRight = s.value("slr", 543).toInt();
 	schemeIndex = s.value("schemeIndex", 0).toInt();
+	if (schemeIndex < 0) 
+		schemeIndex = 0;
 
 	s.beginGroup("config_save"); //--------------------------------
 
@@ -167,6 +169,25 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 	}
 
 	return sIniName;
+}
+
+
+/*========================================================
+ * TASK:	generate string for delimited language names
+ *			used for language translations for the
+ *			program interface
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS: example: en_US:hu_HU
+ * REMARKS: - only American English and Hungarian are used yet
+ *-------------------------------------------------------*/
+QString PROGRAM_CONFIG::LangNameListWDelim()
+{
+	QString qs = PROGRAM_CONFIG::qslLangNames[0].left(PROGRAM_CONFIG::qslLangNames[0].lastIndexOf('.'));
+	for (int i = 1; i < PROGRAM_CONFIG::qslLangNames.size(); ++i)
+		qs += ":" + PROGRAM_CONFIG::qslLangNames[i].left(PROGRAM_CONFIG::qslLangNames[i].lastIndexOf('.'));
+
+	return qs;
 }
 
 void PROGRAM_CONFIG::GetTranslations()

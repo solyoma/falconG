@@ -13,225 +13,281 @@
 <context>
     <name>FalconG</name>
     <message>
-        <location filename="falcong.cpp" line="432"/>
+        <location filename="falcong.cpp" line="433"/>
         <source>Cancel (F9}</source>
         <translation>Megszakítás (F9}</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="453"/>
+        <location filename="falcong.cpp" line="454"/>
         <source>Generate (F9}</source>
         <translation>Generálás (F9}</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="1812"/>
+        <location filename="falcong.cpp" line="1813"/>
         <source>Styles</source>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="1853"/>
-        <location filename="falcong.cpp" line="2515"/>
-        <location filename="falcong.cpp" line="2685"/>
-        <location filename="falcong.cpp" line="2711"/>
-        <location filename="falcong.cpp" line="2731"/>
-        <location filename="falcong.cpp" line="2762"/>
-        <location filename="falcong.cpp" line="2821"/>
-        <location filename="falcong.cpp" line="2843"/>
-        <location filename="falcong.cpp" line="2865"/>
-        <location filename="falcong.cpp" line="2887"/>
-        <location filename="falcong.cpp" line="2913"/>
+        <location filename="falcong.cpp" line="1856"/>
+        <location filename="falcong.cpp" line="2519"/>
+        <location filename="falcong.cpp" line="2689"/>
+        <location filename="falcong.cpp" line="2715"/>
+        <location filename="falcong.cpp" line="2735"/>
+        <location filename="falcong.cpp" line="2766"/>
+        <location filename="falcong.cpp" line="2825"/>
+        <location filename="falcong.cpp" line="2847"/>
+        <location filename="falcong.cpp" line="2869"/>
+        <location filename="falcong.cpp" line="2891"/>
+        <location filename="falcong.cpp" line="2917"/>
         <source>Select Color</source>
         <translation>Színválasztás</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2782"/>
+        <location filename="falcong.cpp" line="2786"/>
         <source>falconG - Open Background Image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2782"/>
+        <location filename="falcong.cpp" line="2786"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2799"/>
+        <location filename="falcong.cpp" line="2803"/>
         <source>falconG - Open background image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3203"/>
+        <location filename="falcong.cpp" line="3206"/>
         <source>Background color</source>
         <translation>Háttérszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3215"/>
+        <location filename="falcong.cpp" line="3218"/>
         <source>Foreground (Text) color</source>
         <translation>Szöveg színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3223"/>
+        <location filename="falcong.cpp" line="3226"/>
         <source>Border color</source>
         <translation>Keret színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3231"/>
+        <location filename="falcong.cpp" line="3234"/>
         <source>Focused Input color</source>
         <translation>Aktuális szövegszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3239"/>
+        <location filename="falcong.cpp" line="3242"/>
         <source>Hover color</source>
         <translation>Mutató alatti szín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3247"/>
+        <location filename="falcong.cpp" line="3250"/>
         <source>Tab Border color</source>
         <translation>Fül keretszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3255"/>
+        <location filename="falcong.cpp" line="3258"/>
         <source>Input Background</source>
         <translation>Bevitel háttere</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3263"/>
+        <location filename="falcong.cpp" line="3266"/>
         <source>Selected Background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3271"/>
+        <location filename="falcong.cpp" line="3274"/>
         <source>Focused Border color</source>
         <translation>Fokuszált elem keretszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3279"/>
+        <location filename="falcong.cpp" line="3282"/>
         <source>Disabled Foreground</source>
         <translation>Érvénytelen mező betűszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3287"/>
+        <location filename="falcong.cpp" line="3290"/>
         <source>Disabled Background</source>
         <translation>Érvénytelen mező háttérszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3295"/>
+        <location filename="falcong.cpp" line="3298"/>
         <source>Image Background</source>
         <translation>Kép háttérszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3303"/>
+        <location filename="falcong.cpp" line="3306"/>
         <source>Button Pressed Bg</source>
         <translation>Lenyomott gomb</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3311"/>
+        <location filename="falcong.cpp" line="3314"/>
         <source>Default Background</source>
         <translation>Alapértelmezett háttér</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3319"/>
+        <location filename="falcong.cpp" line="3322"/>
         <source>Progressbar Chunk color</source>
         <translation>Haladásjelző színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3327"/>
+        <location filename="falcong.cpp" line="3330"/>
         <source>Warning color</source>
         <translation>Figyelmeztetés színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3335"/>
+        <location filename="falcong.cpp" line="3338"/>
         <source>Groupbox Title Color</source>
         <translation>Doboz címének színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3343"/>
+        <location filename="falcong.cpp" line="3346"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3522"/>
+        <location filename="falcong.cpp" line="3527"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3522"/>
+        <location filename="falcong.cpp" line="3527"/>
         <source>Changes were not applied.
-Do you want to apply changes&gt;</source>
+Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmazta.
-Alkalmazzam a változtatásokat&gt;</translation>
+Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3675"/>
-        <location filename="falcong.cpp" line="3827"/>
+        <location filename="falcong.cpp" line="3653"/>
+        <source>No/not enough &apos;:&apos; in new name. The same name will be used for
+all program languages. Is this what you want?</source>
+        <oldsource>No &apos;:&apos; found in new name. so the same name will be used for
+all program languages. Is this what you want?</oldsource>
+        <translation>Nincs (elég) &apos;:&apos; a névben. Ugyanazt a nevet fogja használni
+több program nyelvre. Ezt akarja?</translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3638"/>
+        <location filename="falcong.cpp" line="3723"/>
+        <location filename="falcong.cpp" line="3866"/>
+        <location filename="falcong.cpp" line="3907"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3675"/>
+        <location filename="falcong.cpp" line="3638"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztatta a program nyelvét. Kérem indítsa újra a myelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3828"/>
+        <location filename="falcong.cpp" line="3645"/>
+        <location filename="falcong.cpp" line="3652"/>
+        <source>falconG - Question</source>
+        <translation>falconG - Kérdés</translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3643"/>
+        <source>There is a scheme 
+&apos;%1&apos;
+with a title which at least partially
+matches the modified title.
+ Do you want to overwrite it?</source>
+        <oldsource>There is a scheme with a title which partially matches the modified title.
+ Do you want to overwrite it with the new title?</oldsource>
+        <translation>Már létezik egy séma, aminek a neve legalább egy nyelven ugyanaz, mint ezé: 
+&apos;%1&apos;
+Biztos felülírjam?</translation>
+    </message>
+    <message>
+        <source>No &apos;:&apos; found in new name. so the same name will be used for
+all program languages. This is what you want?</source>
+        <oldsource>No &apos;:&apos; found in new name. so the same name will be used for
+all program languages. This is what you want&lt;</oldsource>
+        <translation type="vanished">Nem volt &apos;:&apos; az új névben, ezért ugyanazt a nevet használom majd függetlenül a program nyelvétől.
+Ezt akarja?</translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3723"/>
+        <location filename="falcong.cpp" line="3907"/>
+        <source>Invalid new name. Please use another!</source>
+        <translation>Érvénytelen név. Kérem adjon egy másikat!</translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3867"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarja ezt a színösszeállítást?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3848"/>
+        <location filename="falcong.cpp" line="3892"/>
+        <source>New Scheme Name
+ (for </source>
+        <translation>Új séma név a következő nyelvekre:
+( </translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3893"/>
+        <source>falconG - Input</source>
+        <translation>falconG - Bevitel</translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="3919"/>
         <source>Select background color.</source>
         <translation>Válasszon háttérszínt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4644"/>
+        <location filename="falcong.cpp" line="4721"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4663"/>
+        <location filename="falcong.cpp" line="4740"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4688"/>
+        <location filename="falcong.cpp" line="4765"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4736"/>
+        <location filename="falcong.cpp" line="4813"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4737"/>
+        <location filename="falcong.cpp" line="4814"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4748"/>
+        <location filename="falcong.cpp" line="4825"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4749"/>
+        <location filename="falcong.cpp" line="4826"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4753"/>
+        <location filename="falcong.cpp" line="4830"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4754"/>
+        <location filename="falcong.cpp" line="4831"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4818"/>
+        <location filename="falcong.cpp" line="4895"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4818"/>
+        <location filename="falcong.cpp" line="4895"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -270,7 +326,7 @@ A feldolgozás folytatása elrontaná azt, ezért nem folytatom
 a feldolgozást! Idáig %1 sort olvastam. </translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2639"/>
+        <location filename="falcong.cpp" line="2643"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -281,160 +337,25 @@ a feldolgozást! Idáig %1 sort olvastam. </translation>
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3717"/>
+        <location filename="falcong.cpp" line="3696"/>
         <location filename="languages.cpp" line="181"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3718"/>
+        <location filename="falcong.cpp" line="3697"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
 nem megnyitható</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4619"/>
+        <location filename="falcong.cpp" line="4696"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem.</translation>
-    </message>
-    <message>
-        <source>No language (*.lang) files are found.
-Do you want to cancel or continue with English as the single language?
-
-To avoid this message either create language files and put them into the
-    a) source
-    b) destination or
-    c) program directory
-or write the language texts into the &apos;.struct&apos; file
-
-A language file is a UTF-8 encoded text file starting with the line:
-  &apos;falconG Language file&apos;
-followed by definitions of the fixed texts used in the albums
- The format of the lines is &apos;name=text&apos;. The names
-  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
-  abbrev    =&lt;2 letter language abbreviation&gt; (&apos;en&apos;)
-  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
-  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
-  images    =&lt;text header for the images section of the actual album&gt;
-  videos    =&lt;text header for the videos section of the actual album&gt;
-  toTop     =&lt;text for up arrow: jump to top of page&gt;
-  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
-  albums    =&lt;text header for the album section of the  actual album&gt;
-  homePage	 =&lt;text for menu to home page&gt;
-  about     =&lt;text for the &apos;About&apos; button&gt;
-  contact   =&lt;text for the &apos;contact&apos; button
-  share     =&lt;text for the facebook share button&gt;  captions  =&lt;text for the captions-descriptions couple toggle&gt;
-  descriptions  =&lt;text for the descriptionss toggle menu&gt;
-  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
-  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
-  countryCode	=&lt;like &apos;en_US&apos;&gt;
-  countOfImages=% 1 image(s) and %2 sub-album(s) in this album
-  falconG   =&lt;Copyright message. Please do not remove or change this. just translate&gt;
- 
-When the language texts are put into the struct file, there must be as many
- language text blocks as languages. Each language text block is preceeded by
-  a line containing a single number: the ordinal of that language box,
-  followed by the same lines as in the .lang files
- The language text blocks are enclosed between lines
-			&apos;[Language count:xx&apos; and &apos;]&apos;
-	where &apos;xx&apos; is the ordinal of the block minus one.
-</source>
-        <translation type="vanished">Nincsenek (*.lang) fájlok.
-Megszakítsam a feldolgozást, vagy folytassam csak a Magyar nyelvvel?
-
-Ezt az üzenetet elkerülheted, ha létrehozol nyelvi fájlokat 
-(pl. a magyar nyelvhez a hu.lang-ot) vagy a
-    a) forrás, vagy a
-    b) cél fotógalériában, vagy
-    c) a programkönyvtárban
-de a nyelvi szövegeket beírhatod a &apos;.struct&apos; filokba is.
-
-A nyelvi fájlok UTF-8 kódolású és xx.lang nevű szövegfájlok, ahol
-az &apos;xx&apos; a nyelv kódja, pl. hu_HU.lang. Szerkezetük:
-  első sor: &apos;falconG Language file&apos;
-amit az adott nyelvhez tartozó szövegek definíciói követnek.
- Minden definíció külön sorba kerül és &apos;név=szöveg&apos; formája van.
- A nevek és jelentésük &lt; és &gt; jelek között, példa zárójelek között:
- ( az &apos; jeleket nem kell beírni!)  
-  abbrev    =&lt;2 betűs nyelvi azonosító&gt; (&apos;hu&apos;)
-  name	    =&lt;a nyelvre kapcsolás neve&gt; (&apos;Magyarul&apos;)
-  icon      =&lt;a nyelvhez tartozó kis kép (.png)&gt; (opcionális)
-  images    =&lt;A képek szakasz felett az aktuális albumban megjelenő szöveg&gt; (&apos;Képek&apos;)
-  videos    =&lt;Hasonlóan a videókhoz is&gt; (&apos;Videók&apos;)
-  toTop     =&lt;A lap tetejére ugrás szövege&gt;  
-  upOneLevel=&lt;Egy albummal feljebb ugrás a hierarhiában&gt;
-  albums    =&lt;&gt;Az albumok szakasza felett az aktuális albumban megjelenő szöveg&gt;
-  homePage	 =&lt;Honlapra ugrás szövege&gt; (&apos;Főoldal&apos;)
-  about     =&lt;A névjegy oldal gomb szövege&gt; (&apos;Névjegy&apos;)
-  contact   =&lt;a &apos;kapcsolat&apos; gomb szövege &gt; (&apos;Kapcsolat&apos;)
-  share     =&lt;A facebook megosztás gomb szövege&gt;
-  captions  =&lt;A képleírásokat és címeket összekapcsoló gomb szövege&gt;
-  descriptions  =&lt;A képleírások szövegének ki/be kapcsolása gombra&gt; (&apos;Képleírás&apos;)
-  latestTitle =&lt;Az utoljára feltöltött fájlok oldalán (pl. latest_hu.html) megjelenő cím&gt;
-                    (pl. &apos;Legújabb képek az albumokban&apos;)
-  latestDesc=&lt;a tartalom lerása ugyanezen az oldalon&gt;
-                    (pl. &apos;Válogatás az utolsó 10 napban feltöltött képekből&apos;)
-  countryCode =&lt;Magyarhoz pl. &apos;hu_HU&apos;&gt;
-  countOfImages=&lt;kép és album szám %1 a képek, %2 az albumok helyett áll&gt; (%1 kép és %2 album van ebben az albumban)
-  falconG   =&lt;Copyright üzenet. Segitsen nekem azzal, hogy nem változtatja meg, csak lefordítja!&gt;
-  
-Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk be 
- (ezt a program az első sikeres futása után maga megteszi), akkor minden nyelvhez
- tartozzon egy nyelvi blokk, ezek első sora a nyelv sorszáma (0,1,2...)
- A nyelvi blokkok tartalma ugyanaz, mint amit fent felsoroltunk.
- A nyelvi blokkokat a következő két sor közé kell beírjuk
-			&apos;[Language count:xx&apos; és &apos;]&apos;
-	ahol &apos;xx&apos; a nyelvek száma, ami 1 is lehet.
-</translation>
-    </message>
-    <message>
-        <location filename="support.cpp" line="27"/>
-        <source>No more warnings for this album</source>
-        <translation>Ne kapjak több figyelmeztetést itt</translation>
-    </message>
-    <message>
-        <location filename="support.cpp" line="574"/>
-        <source>Either can&apos;t delete 
-&apos;%1&apos;
- or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
-Modified file remains named as 
-&apos;%2&apos;</source>
-        <translation>Vagy törölni nem lehet ezt a fájlt:
-&apos;%1&apos;
-vagy nem lehet átnevezni ezt &apos;%2&apos; erre &apos;%1&apos;
-A módosított fájl neve marad
-&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <location filename="support.cpp" line="591"/>
-        <source>Can&apos;t create backup file
-&apos;%1~&apos;
-Temporary file
-&apos;%2&apos;
-was not renamed</source>
-        <translation>Biztonsági mentés
-&apos;%1~&apos;
-nem készíthető, ezért az ideiglenes fájl neve:
-&apos;%2&apos;
-megmaradt.</translation>
-    </message>
-    <message>
-        <location filename="support.cpp" line="980"/>
-        <source>falconG</source>
-        <translation>falconG</translation>
-    </message>
-    <message>
-        <location filename="support.cpp" line="981"/>
-        <source>Directory &apos;%1&apos; does not exist.
-
-Create?</source>
-        <translation>Ez a mappa: &apos;%1&apos; nem létezik.
-
-Létrehozzam?</translation>
     </message>
     <message>
         <location filename="languages.cpp" line="184"/>
@@ -565,6 +486,51 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
 			&apos;[Language count:xx&apos; és &apos;]&apos;
 	ahol &apos;xx&apos; a nyelvek száma, ami 1 is lehet.
 </translation>
+    </message>
+    <message>
+        <location filename="support.cpp" line="27"/>
+        <source>No more warnings for this album</source>
+        <translation>Nem kérek több figyelmeztetést ehhez az albumhoz</translation>
+    </message>
+    <message>
+        <location filename="support.cpp" line="574"/>
+        <source>Either can&apos;t delete 
+&apos;%1&apos;
+ or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
+Modified file remains named as 
+&apos;%2&apos;</source>
+        <translation>Vagy s fájl
+&apos;%1&apos;
+nem törölhető, vagy csak a file
+&apos;%2&apos;, nem nevezhető át &apos;%1&apos;-re.
+A módosított fájl neve
+&apos;%2&apos;
+megmarad</translation>
+    </message>
+    <message>
+        <location filename="support.cpp" line="591"/>
+        <source>Can&apos;t create backup file
+&apos;%1~&apos;
+Temporary file
+&apos;%2&apos;
+was not renamed</source>
+        <translation>A &apos;%1&apos; fájlról
+nem készíthető biztonsági mentés.
+Az ideiglenes
+&apos;%2&apos;  fájl megmarad</translation>
+    </message>
+    <message>
+        <location filename="support.cpp" line="980"/>
+        <source>falconG - Question</source>
+        <oldsource>falconG</oldsource>
+        <translation>falconG - kérdés</translation>
+    </message>
+    <message>
+        <location filename="support.cpp" line="981"/>
+        <source>Directory &apos;%1&apos; does not exist.
+
+Create?</source>
+        <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
     </message>
 </context>
 <context>
@@ -2169,7 +2135,7 @@ Ha a CSS vagy HTML fálokat változtatta.</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="5569"/>
-        <location filename="falcong.ui" line="6359"/>
+        <location filename="falcong.ui" line="6385"/>
         <source>Reset</source>
         <translation>Alaphelyzetbe</translation>
     </message>
@@ -2246,54 +2212,65 @@ Ha a CSS vagy HTML fálokat változtatta.</translation>
         <translation>Szín séma</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6310"/>
-        <source>Move Scheme Up</source>
+        <location filename="falcong.ui" line="6292"/>
+        <source>Add </source>
+        <translation>Új séma </translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6323"/>
+        <source>Move Up</source>
+        <oldsource>Move Scheme Up</oldsource>
         <translation>Séma feljebb</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6341"/>
+        <location filename="falcong.ui" line="6345"/>
+        <source>Move Down</source>
+        <translation>Séma lejjebb</translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6367"/>
         <source>Apply</source>
         <translation>Alkalmaz</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6482"/>
+        <location filename="falcong.ui" line="6508"/>
         <source>Re-generate all images and albums
 regardless if they were already OK.</source>
         <translation>Minden kép és album újra-
 generálása, akkor is, ha jó volt.</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6486"/>
+        <location filename="falcong.ui" line="6512"/>
         <source>&amp;all</source>
         <translation>minden</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6493"/>
+        <location filename="falcong.ui" line="6519"/>
         <source>except i&amp;mages</source>
         <translation>kivéve a képeket</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6529"/>
+        <location filename="falcong.ui" line="6555"/>
         <source>Save CSS</source>
         <translation>CSS mentése</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6539"/>
+        <location filename="falcong.ui" line="6565"/>
         <source>Save con&amp;fig.</source>
         <translation>Beáll. mentése.</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6552"/>
+        <location filename="falcong.ui" line="6578"/>
         <source>Clean up and</source>
         <translation>Takarítás</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6573"/>
+        <location filename="falcong.ui" line="6599"/>
         <source>&amp;Open</source>
         <translation>Megnyitás</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6578"/>
+        <location filename="falcong.ui" line="6604"/>
         <source>E&amp;xit</source>
         <translation>Kilépés</translation>
     </message>
@@ -2351,50 +2328,49 @@ generálása, akkor is, ha jó volt.</translation>
         <translation>Magyar</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6292"/>
         <source>Generate Scheme</source>
-        <translation>Séma generálása</translation>
+        <translation type="vanished">Séma generálása</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6472"/>
+        <location filename="falcong.ui" line="6498"/>
         <source>Generate (F9)</source>
         <translation>Generálás (F9)</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6475"/>
+        <location filename="falcong.ui" line="6501"/>
         <source>F9</source>
         <translation>F9</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6503"/>
+        <location filename="falcong.ui" line="6529"/>
         <source>Preview (F12)</source>
         <translation>Előnézet (F12)</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6506"/>
+        <location filename="falcong.ui" line="6532"/>
         <source>F12</source>
         <translation>F12</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6542"/>
+        <location filename="falcong.ui" line="6568"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6549"/>
+        <location filename="falcong.ui" line="6575"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Minta fájlok (html,css,js,...)&lt;/p&gt; törlése a samples mappából.&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Minta fájlok (html,css,js,...)&lt;/p&gt; törlése a samples mappából.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6559"/>
+        <location filename="falcong.ui" line="6585"/>
         <source>E&amp;xit (Alt+X)</source>
         <oldsource>Exit (Alt+X)</oldsource>
         <translation>Kilépés (Alt+&amp;X)</translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6562"/>
-        <location filename="falcong.ui" line="6581"/>
+        <location filename="falcong.ui" line="6588"/>
+        <location filename="falcong.ui" line="6607"/>
         <source>Alt+X</source>
         <translation>Alt+X</translation>
     </message>

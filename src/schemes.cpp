@@ -123,6 +123,8 @@ void FSchemeVector::ReadAndSetupSchemes()
 		push_back(dark);
 	if (!bk)
 		push_back(black);
+
+	wasSaved = true;
 }
 
 void FSchemeVector::Save()
@@ -154,8 +156,10 @@ void FSchemeVector::Save()
 		s.setValue("ProgressBarChunk", fgst.sProgressBarChunk);
 		s.setValue("WarningColor", fgst.sWarningColor);
 		s.setValue("BoldTitleColor", fgst.sBoldTitleColor);
+		s.setValue("SpacerColor", fgst.sSpacerColor);
 		s.endGroup();
 	}
+	wasSaved = true;
 }
 
 int FSchemeVector::IndexOf(FalconGScheme& fgst)
@@ -163,10 +167,20 @@ int FSchemeVector::IndexOf(FalconGScheme& fgst)
 	return IndexOf(fgst.MenuTitle);
 }
 
-int FSchemeVector::IndexOf(const QString& title)
+int FSchemeVector::IndexOf(const QString& title) // title: mybe full name including  all languages, like "Blue:Kék"
 {
+	QStringList sl, slf; // for schemes on many languages
+	QString sfull;
 	for (int i = 2; i < size(); ++i)
-		if (operator[](i).MenuTitleForLanguage(PROGRAM_CONFIG::lang) == title)
+	{
+		sfull = operator[](i).MenuTitle;
+		if (sfull == title)	// full title matched
 			return i;
+		sl = title.split(':');	// check for name collision
+		slf = sfull.split(':');
+		for (int k = 0; k < sl.size() && k < slf.size(); ++k)
+			if (sl[k] == slf[k])
+				return i;
+	}
 	return -1;
 }
