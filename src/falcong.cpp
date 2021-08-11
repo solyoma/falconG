@@ -3854,7 +3854,7 @@ void FalconG::on_btnMoveSchemeDown_clicked()
  *			- when the actual selected scheme is deleted
  *				it still remains active, so you may
  *				restore it by writing the name into the combo box
- *			- the first tow shemes (Default and system colors
+ *			- the first tow shemes (Default and System Colors)
  *				cannot be deleted or edited!
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
