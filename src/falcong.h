@@ -96,7 +96,6 @@ private:
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
 	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
-	QLineEdit* _pCbColorSchemeEdit;
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
 	DesignProperty _whatChanged = dpNone;
@@ -261,7 +260,7 @@ private slots:
 	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// solid, dashed, etc
 
-	void on_cbColorScheme_currentIndexChanged(int newIndex);
+	void on_lwColorScheme_currentRowChanged(int newIndex);
 					// image
 	void on_cbImageQuality_currentIndexChanged(int newIndex);
 					//  watermark

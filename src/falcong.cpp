@@ -219,8 +219,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.pnlSchemeEmulator, &QWidget::customContextMenuRequested, this, &FalconG::_SlotForContextMenu);
 
 
-	_pCbColorSchemeEdit = ui.cbColorScheme->lineEdit();
-
 	QSettings s(PROGRAM_CONFIG::homePath+falconG_ini, QSettings::IniFormat);	// in program directory
 
 	restoreGeometry (s.value("wgeometry").toByteArray());
@@ -240,7 +238,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_SetProgramScheme();
 	_AddSchemeButtons();
 	++_busy;
-	on_cbColorScheme_currentIndexChanged(0);
+	on_lwColorScheme_currentRowChanged(0);
 	--_busy;
 
 	_ModifyGoogleFontImport();
@@ -1842,11 +1840,11 @@ void FalconG::_EnableColorSchemeButtons()
 	bool b = _bSchemeChanged;
 	ui.btnApplyColorScheme->setEnabled(b);
 	ui.btnResetColorScheme->setEnabled(b);
-//	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.cbColorScheme->currentIndex();
+//	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.lwColorScheme->currentRow();
 	ui.btnDeleteColorScheme->setEnabled(schemes.size() > 2);
-	int i = ui.cbColorScheme->currentIndex(); // is 2 less than  the real index in the schemes array
+	int i = ui.lwColorScheme->currentRow(); // is 2 less than  the real index in the schemes array
 	ui.btnMoveSchemeUp->setEnabled(i > 0);
-	ui.btnMoveSchemeDown->setEnabled(i < schemes.size()-2);
+	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size()-2-1);
 }
 
 void FalconG::_SlotForSchemeButtonClick(int which)
@@ -3195,7 +3193,7 @@ void FalconG::_AddSchemeButtons()
 
 	// add defined schemes to combo box
 	for (int i = 2; i < schemes.size(); ++i)				// do not add default and system!
-		ui.cbColorScheme->addItem(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+		ui.lwColorScheme->addItem(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 	// add buttons to layout
 	QFont font;
 //	font.setFamily(QString::fromUtf8("Arial"));
@@ -3353,7 +3351,7 @@ void FalconG::_AddSchemeButtons()
 
 	connect(_pSchemeMapper, &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeButtonClick);
 
-	on_cbColorScheme_currentIndexChanged(0);
+	on_lwColorScheme_currentRowChanged(0);
 }
 
 
@@ -3538,7 +3536,7 @@ void FalconG::_AskForApply()
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::on_cbColorScheme_currentIndexChanged(int newIndex)
+void FalconG::on_lwColorScheme_currentRowChanged(int newIndex)
 {
 	if (_busy || newIndex < 0)
 		return;
@@ -3735,8 +3733,8 @@ void FalconG::on_btnApplyColorScheme_clicked()
 		{
 			_tmpScheme.MenuTitle = _tmpSchemeOrigName;
 			schemes.push_back(_tmpScheme);
-			ui.cbColorScheme->addItem(_tmpSchemeOrigName);
-			ui.cbColorScheme->setCurrentIndex(ui.cbColorScheme->count() - 1);
+			ui.lwColorScheme->addItem(_tmpSchemeOrigName);
+			ui.lwColorScheme->setCurrentRow(ui.lwColorScheme->count() - 1);
 		}
 	}
 	if(_bSchemeChanged)
@@ -3757,9 +3755,9 @@ void FalconG::on_btnApplyColorScheme_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnResetColorScheme_clicked()
 {
-	_tmpScheme = schemes[ui.cbColorScheme->currentIndex() + 2];
+	_tmpScheme = schemes[ui.lwColorScheme->currentRow() + 2];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-	ui.cbColorScheme->setCurrentText(_tmpSchemeOrigName);
+	ui.lwColorScheme->setCurrentRow(0);
 	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
 	_SetProgramScheme();
@@ -3776,7 +3774,7 @@ void FalconG::on_btnResetColorScheme_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnMoveSchemeUp_clicked()
 {
-	int i = ui.cbColorScheme->currentIndex(),  //0: corresponds to real index 2 in 'schemes'
+	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
 		j = i+2;							  // index in schemes (default and system can't be changed)
 	if (!i)
 		return;
@@ -3797,12 +3795,11 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	schemes.replace(--j, sty);
 
 	++_busy;
-	ui.cbColorScheme->removeItem(i--);
-	ui.cbColorScheme->insertItem(i, schemes[j].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
-	ui.cbColorScheme->setCurrentIndex(i);
-	ui.btnMoveSchemeDown->setEnabled(true);
-	ui.btnMoveSchemeUp->setEnabled(i > 0);
+	QListWidgetItem*plwi = ui.lwColorScheme->takeItem(i);
+	ui.lwColorScheme->insertItem(i-1, plwi);
+	ui.lwColorScheme->setCurrentRow(i-1);
 	--_busy;
+	_EnableColorSchemeButtons();
 	schemes.Save();
 }
 
@@ -3816,9 +3813,9 @@ void FalconG::on_btnMoveSchemeUp_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnMoveSchemeDown_clicked()
 {
-	int i = ui.cbColorScheme->currentIndex(),  //0: corresponds to real index 2 in 'schemes'
-		j = i + 2;							  // index in schemes (default and system can't be changed)
-	if (i == schemes.size() - 2)
+	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
+		j = i + 2;							 // index in schemes (default and system can't be changed)
+	if (i == schemes.size() - 2 - 1)
 		return;
 
 	if (j == PROGRAM_CONFIG::schemeIndex)
@@ -3837,13 +3834,12 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 	schemes.replace(++j, sty);
 
 	++_busy;
-	ui.cbColorScheme->removeItem(i++);
-	ui.cbColorScheme->insertItem(i, schemes[j].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
-	ui.cbColorScheme->setCurrentIndex(i);
+	QListWidgetItem*plwi = ui.lwColorScheme->takeItem(i);
+	ui.lwColorScheme->insertItem(i+1, plwi);
+	ui.lwColorScheme->setCurrentRow(i+1);
 	--_busy;
-	ui.btnMoveSchemeUp->setEnabled(ui.cbColorScheme->currentIndex() > 0);
-	ui.btnMoveSchemeDown->setEnabled(i < schemes.size()-2);
 	schemes.Save();
+	_EnableColorSchemeButtons();
 }
 
 
@@ -3868,7 +3864,7 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 										QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
 		return;
 
-	int i = ui.cbColorScheme->currentIndex();
+	int i = ui.lwColorScheme->currentRow();
 	if (i+2 < PROGRAM_CONFIG::schemeIndex)
 	{
 		PROGRAM_CONFIG::schemeIndex = PROGRAM_CONFIG::schemeIndex - 1;
@@ -3877,9 +3873,9 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 
 		PROGRAM_CONFIG::Write();
 	}
-	ui.cbColorScheme->removeItem(i);
+	delete ui.lwColorScheme->takeItem(i);
 	schemes.remove(i + 2);
-	ui.cbColorScheme->setCurrentIndex(PROGRAM_CONFIG::schemeIndex);
+	ui.lwColorScheme->setCurrentRow(PROGRAM_CONFIG::schemeIndex);
 	schemes.Save();
 	_EnableColorSchemeButtons();
 	_bSchemeChanged = false;
@@ -3909,9 +3905,9 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 		{
 			schemes[i].MenuTitle = sNewName;
 			schemes.Save();
-			ui.cbColorScheme->removeItem(i - 2);
-			ui.cbColorScheme->insertItem(i - 2, schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
-			ui.cbColorScheme->setCurrentIndex(i - 2);
+			delete ui.lwColorScheme->takeItem(i-2);
+			ui.lwColorScheme->insertItem(i - 2, schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+			ui.lwColorScheme->setCurrentRow(i - 2);
 		}
 		return;
 	}
@@ -3940,10 +3936,10 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 		_tmpScheme.sWarningColor = ;
 		_tmpScheme.sBoldTitleColor = ;
 */
-		ui.cbColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+		ui.lwColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 		schemes.push_back(_tmpScheme);
 		schemes.Save();
-		ui.cbColorScheme->setCurrentIndex(schemes.size() - 2-1);	// 2 for default and system colors, 1: offset vs size
+		ui.lwColorScheme->setCurrentRow(schemes.size() - 2-1);	// 2 for default and system colors, 1: offset vs size
 		ui.btnApplyColorScheme->setEnabled(true);
 	}
 }
