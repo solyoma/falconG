@@ -33,81 +33,26 @@ const QString THUMBNAIL_TAG = "Icon";	// "album icon"
 //const QString SAVED_IMAGE_DESCRIPTIONS = "images.desc";
 //const QString TEMP_SAVED_IMAGE_DESCRIPTIONS = "images.tmp";
 
-
-using QString=QString;
-using ID_t = uint64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
+#define ID_T_DEFINED
+using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
 using IdList = UndeletableItemList<ID_t>;
 
-const ID_t ALBUM_ID_FLAG = 0x8000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
-const ID_t VIDEO_ID_FLAG = 0x4000000000000000ull;	// when set ID is for a video
-const ID_t BASE_ID_MASK	= 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
-const ID_t ID_INCREMENT = BASE_ID_MASK + 1;	// when image id clash add this to id 
+const ID_t EXCLUDED_FLAG = 0x8000000000000000ull;
+const ID_t ALBUM_ID_FLAG = 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
+const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
+const ID_t IMAGE_ID_FLAG = 0x1000000000000000ull;	// when set ID is for a video
+const ID_t BASE_ID_MASK	 = 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
+const ID_t ID_MASK		 = 0x0FFFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
+const ID_t ID_INCREMENT  = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
 
 extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
 
-//------------------------------------------
-class TextMap;			// used in text for ID calculation
-
-/*============================================================================
-* LanguageTexts and TextMap
-*	- LanguageTexts objects contains the concatenated texts for all languages
-*	- Texts are represented by their ID, which may not be 0
-*	- text IDs are calculated using all language texts. This is the base ID
-*	- two or more texts may have the same base ID but different QStrings in 
-*		them (text ID collision)
-*	  in which case the ID of the new text (the one that was added later on)
-*		is modified using the 'collision' member, which is 
-*			1 + the number of the other texts with the same base ID
-*	- the usage count of each text is the number of Albums and Images that
-*		use it. If 'usageCount' is 0 thex is not used anywhere
-*	- More than one Album or Image can use the same text, or more accurately the
-*	  same text ID
-*	
-*----------------------------------------------------------------------------*/
-
-struct LanguageTexts				// both Album and Image uses this
-{
-	ID_t ID = 0;		// same for all translations of this in all languages (0: invalid)
-	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << ID_COLLISION_FACTOR)
-	QVector<int> lenghts;	// set to have as many elements as there are languages, lang ID is index in text
-	QString textsForAllLanguages; //concatenated language texts
-	UsageCount usageCount; // how many times this same text is added to list
-
-	LanguageTexts(int languageCount = 0) { Clear(languageCount); }
-	LanguageTexts(const QStringList &texts);
-	LanguageTexts(const LanguageTexts &t) : ID(t.ID), collision(t.collision), lenghts(t.lenghts), textsForAllLanguages(t.textsForAllLanguages), usageCount(t.usageCount) {}
-
-	LanguageTexts &operator=(const LanguageTexts &t);
-	LanguageTexts &operator=(const QStringList &txts);
-	bool operator==(const LanguageTexts &t);		// compare first ID then all texts
-	bool operator!=(const LanguageTexts &t);		// compare first ID then lang (unless lang < 0, when only ID is used)
-	int operator<(const LanguageTexts &t);
-
-	const QString operator[](int index) const			   // ***  can't change text using this! Use SetText() instead
-	{ 
-		static QString dummy;
-		if (textsForAllLanguages.isEmpty())
-			return dummy;
-		if (index == 0)
-			return textsForAllLanguages.left(lenghts[0]);
-		return (index > 0 && index < lenghts.size()) ? textsForAllLanguages.mid(lenghts[index-1], lenghts[index]) : dummy;
-	}
-	void SetTextForLanguageNoID(const QString str, int lang);		 // just set
-	
-	bool Valid() const { return ID > 0; }
-	ID_t CalcBaseID();			// changes 'ID' but does not change 'collision'
-	ID_t CalcID(TextMap &map);	// changes 'ID' and 'collision' unless already OK (read in)
-
-	void Clear(int newSize = 0);  // 0: does not change size of 'lenghts'
-	bool IsEmpty() { return textsForAllLanguages.isEmpty(); }
-};
-
 //------------------------ base class for albums and images ------------------
 struct IABase
 {
-	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid)
+	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
 	bool exists = false;	// set to true if it exists on the disk somewhere
 							// some image names may come from comment files
 	ID_t titleID = 0;	// default text ID of image title
@@ -227,7 +172,7 @@ struct Image : public IABase
 			QString s = name.mid(pos);
 			if (bLCExtension)
 				s = s.toLower();
-			return QString().setNum(ID) + s;	// e.g. 12345.jpg
+			return QString().setNum(ID & ID_MASK) + s;	// e.g. 12345.jpg (images IDs has no flag set)
 		}
 		else
 			return name;
@@ -278,7 +223,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 			QString s = name.mid(pos);
 			if (bLCExtension)
 				s = s.toLower();
-			return QString().setNum(ID) + s;	// e.g. 12345.mp4
+			return QString().setNum(ID & ID_MASK) + s;	// e.g. 12345.mp4
 		}
 		else
 			return name;
@@ -315,19 +260,12 @@ struct Video : IABase			// format: MP4, OOG, WebM
 //------------------------------------------
 struct Album : IABase			// ID == 1 root  (0: invalid)
 {
-	ID_t parent = 0;	// just a single parent is allowed
-	IdList images,		// 'images' and 'albums' inside this album are lists of IDs for faster searches
-		   albums,		// (search images in one, albums in the other
-		   videos,		// and videos here)
-		   excluded;	// id's in list are for images and folders and videos excluded from this album
+	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
+						// this album changes. Must be modified when this album is moved into another one(**TODO**)
+	IdList items;		// for all images, videos and albums in this album
 	ID_t thumbnail = 0;	// image ID	or 0
 
-	bool changed = false;		// set to true when: any text, album thumbnail, images, albums, exluded changed
-	int imageCount = -1;	// these are not equal to the count of the corresponding items
-	int albumCount = -1;	// because items could be excluded from display
-	int videoCount = -1;
-	int titleCount = -1;
-	int descCount  = -1;
+	bool changed = false;	// set to true when: any text, album thumbnail, images, albums, exluded changed
 
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -335,18 +273,26 @@ struct Album : IABase			// ID == 1 root  (0: invalid)
 	int operator<(const Album &i);		 // uses searchBy
 	bool operator==(const Album &i);
 
-	bool Valid() const { return ID != 0; }
-	void Clear() { images.clear(); albums.clear(); videos.clear(); excluded.clear(); }
+	bool Valid() const { return ID > 0; }
+	void Clear() { items.clear(); _imageCount = _videoCount = _albumCount = -1; }
 	int ImageCount();		// only non-excluded existing images
 	int VideoCount();		// only non-excluded existing videos
 	int SubAlbumCount();	// only non excluded existing albums (removes excluded albums) = count of children
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
+	ID_t IdOfItemOfType(int64_t type, int index, int startPos = 0);
+
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
 	QString SiteLink(int language );
 	QString LinkName(int language, bool addHttpOrsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
+private:
+	int _imageCount = -1;	// these are not equal to the count of the corresponding items
+	int _albumCount = -1;	// because items could be excluded from display
+	int _videoCount = -1;
+	int _titleCount = -1;
+	int _descCount  = -1;
 };
 
 //------------------------------------------
@@ -442,6 +388,7 @@ public:
 	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
+	int ActLanguage() const { return _actLanguage; }
 	
 	int AlbumCount() const { return _albumMap.size(); }
 	int ImageCount() const { return _imageMap.size(); }
@@ -452,9 +399,13 @@ public:
 	// careful: these are not const so that their elements could be modified
 	Album &AlbumRoot()  { return _root; }
 	ImageMap &Images() { return _imageMap; }
+	Image* ImageAt(ID_t id) { return &_imageMap[id]; }
 	VideoMap& Videos() { return _videoMap; }
+	Video* VideoAt(ID_t id) { return &_videoMap[id]; }
 	TextMap &Texts()   { return _textMap;  }
+	LanguageTexts *TextsAt(ID_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
+	Album *AlbumAt(int which) { return &_albumMap[which]; }
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
 	void SignalProgressPos(int cnt1, int cnt2);
@@ -484,9 +435,9 @@ private:
 
 	QString _upLink;		// to parent page if there's one
 	TextMap _textMap;		// all texts for all albums and images
-	AlbumMap _albumMap;		// all source albums
-	ImageMap _imageMap;		// all images for all albums
-	VideoMap _videoMap;		// all videos from all albums
+	AlbumMap _albumMap;		// all source albums			id has ALBUM_ID_FLAG set!
+	ImageMap _imageMap;		// all images for all albums	id has IMAGE_ID_FLAG set!
+	VideoMap _videoMap;		// all videos from all albums	id has ALBUM_ID_FLAG set!
 	Album _root;			// top level album (first in '_albumMap', ID = 1)
 	QDate _latestDateLimit; // depends on config.
 // no need: read is fast enough 	bool _structAlreadyInMemory = false;
@@ -522,12 +473,12 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadAlbumFile(Album &ab);		// albumfiles.txt
-	bool _ReadCommentFile(Album &ab);	// comments.properties
-	bool _ReadMetaFile(Album &ab);		// meta.properties
-	void _ReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
-	bool _ReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
-	void _ReadOneLevel(Album &ab);
+	bool _ReadJAlbumFile(Album &ab);		// albumfiles.txt
+	bool _ReadJCommentFile(Album &ab);	// comments.properties
+	bool _ReadJMetaFile(Album &ab);		// meta.properties
+	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
+	bool _JReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
+	void _JReadOneLevel(Album &ab);
 	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
@@ -537,8 +488,8 @@ private:
 	QString _IncludeFacebookLibrary();
 	void _OutputNav(Album &album, QString uplink);
 	int _WriteHeaderSection(Album &album);
-	int _WriteFooterSection(const Album &album);
-	int _WriteGalleryContainer(Album &album, bool thisIsAnAlbum, int i);
+	int _WriteFooterSection(Album &album);
+	int _WriteGalleryContainer(Album &album, ID_t typeFlag, int i);
 	int _WriteVideoContainer(Album &album, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into 'imgs' directory

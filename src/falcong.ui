@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1014</width>
+    <width>1066</width>
     <height>1029</height>
    </rect>
   </property>
@@ -480,10 +480,10 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds menu tu turn image descriptions on and off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds menu to turn image descriptions on and off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Menu to toggle descriptionss</string>
+                <string>Menu to toggle descriptions</string>
                </property>
               </widget>
              </item>
@@ -695,7 +695,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>Adds menu tu turn image captions on and off.</string>
+                <string>Adds menu to couple image captions with descriptions.</string>
                </property>
                <property name="text">
                 <string>Menu to toggle Captions</string>
@@ -757,7 +757,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of  language abbreviations (2 lower case letters) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;2 letter abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of language abbreviations (e.g. en_US or en_GB) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;language abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en_US.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
                 <string> &quot;hu,en&quot; to use hu.lang and en.lang</string>
@@ -1020,8 +1020,7 @@
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Directory for all images. 
-Iinside gallery root if no absolute or relative path is given.</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>imgs</string>
@@ -1061,8 +1060,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Directory for all images. 
-Iinside gallery root if no absolute or relative path is given.</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>thumbs</string>
@@ -1085,8 +1083,15 @@ Iinside gallery root if no absolute or relative path is given.</string>
                </item>
                <item row="1" column="1">
                 <widget class="QLineEdit" name="edtVid">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Iinside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>vids</string>
@@ -1133,7 +1138,7 @@ Iinside gallery root if no absolute or relative path is given.</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all albums. &lt;/p&gt;&lt;p&gt;Iinside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all albums. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>albums</string>
@@ -1626,7 +1631,16 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
+             <property name="childrenCollapsible">
+              <bool>false</bool>
+             </property>
              <widget class="QWidget" name="widget_16" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>439</width>
+                <height>0</height>
+               </size>
+              </property>
               <layout class="QHBoxLayout" name="horizontalLayout_10">
                <property name="leftMargin">
                 <number>1</number>
@@ -1810,8 +1824,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>372</width>
-                         <height>737</height>
+                         <width>414</width>
+                         <height>16</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2078,9 +2092,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                          <item row="2" column="0" colspan="4">
                           <widget class="QSlider" name="hsImageSizeToShow">
                            <property name="toolTip">
-                            <string>Resizes the image for the preview only.
-On the WEB page the image appears at
-its original size;</string>
+                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resizes the image for the preview only.&lt;/p&gt;&lt;p&gt;On the WEB page the image appears at&lt;/p&gt;&lt;p&gt;its original size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                            </property>
                            <property name="maximum">
                             <number>100</number>
@@ -2359,7 +2371,7 @@ its original size;</string>
                                  </font>
                                 </property>
                                 <property name="text">
-                                 <string>overLine</string>
+                                 <string>Overline</string>
                                 </property>
                                </widget>
                               </item>
@@ -2962,7 +2974,7 @@ its original size;</string>
                                  </font>
                                 </property>
                                 <property name="toolTip">
-                                 <string>Shaod color. Same for both</string>
+                                 <string>Shadow color. Same for both</string>
                                 </property>
                                 <property name="styleSheet">
                                  <string notr="true">QToolButton {background-color:#ddd;}</string>
@@ -3128,7 +3140,7 @@ its original size;</string>
                               </font>
                              </property>
                              <property name="toolTip">
-                              <string>Turn opacit on or off</string>
+                              <string>Turn opacity on or off</string>
                              </property>
                              <property name="text">
                               <string>use opacity</string>
@@ -3146,7 +3158,7 @@ its original size;</string>
                               </font>
                              </property>
                              <property name="toolTip">
-                              <string>Turn opacit on or off</string>
+                              <string>Turn opacity on or off</string>
                              </property>
                              <property name="text">
                               <string>use opacity</string>
@@ -3267,9 +3279,7 @@ its original size;</string>
                               <bool>false</bool>
                              </property>
                              <property name="toolTip">
-                              <string>If you gave any default font names or 
-google font names you can select it 
-using thjis combo box</string>
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                              </property>
                              <property name="placeholderText">
                               <string>Select specified font</string>
@@ -4206,7 +4216,7 @@ Others: set value and style separately for all 4.</string>
                          <x>0</x>
                          <y>0</y>
                          <width>386</width>
-                         <height>720</height>
+                         <height>394</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4449,17 +4459,7 @@ Others: set value and style separately for all 4.</string>
                               </font>
                              </property>
                              <property name="toolTip">
-                              <string>All thumbnail images will have the same height.
-
-Check this button if you want thumbnails to have the
-exact sizes given here. In this case the thumbnail
-will be cropped from the top left corner of the
-source image to this size. 
-
-The thumbnail still may be narrower!
-
-Need only save the CSS files, no new generation
-is required..</string>
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                              </property>
                              <property name="text">
                               <string>Crop thumbnails to this size</string>
@@ -4856,8 +4856,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>372</width>
-                         <height>737</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5620,7 +5620,7 @@ Use if you changed the CSS or HTML file.</string>
                 <widget class="QWebEngineView" name="sample">
                  <property name="url">
                   <url>
-                   <string>qrc:/Preview/Resources/index.html</string>
+                   <string>qrc:/Preview/Resources/index_en_US.html</string>
                   </url>
                  </property>
                 </widget>
@@ -5875,7 +5875,7 @@ Use if you changed the CSS or HTML file.</string>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Tiltle (Language #1)</string>
+                   <string>Title (Language #1)</string>
                   </property>
                  </widget>
                 </item>
@@ -5921,7 +5921,7 @@ Use if you changed the CSS or HTML file.</string>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Tiltle (Language #2)</string>
+                     <string>Title (Language #2)</string>
                     </property>
                    </widget>
                   </item>
@@ -6098,13 +6098,75 @@ Use if you changed the CSS or HTML file.</string>
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QWidget" name="widget_11" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Interface Language</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <property name="spacing">
+               <number>9</number>
+              </property>
+              <item>
+               <widget class="QRadioButton" name="rbEnglish">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>English</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="rbMagyar">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Hungarian</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QGroupBox" name="gbColorScheme">
              <property name="font">
@@ -6118,7 +6180,7 @@ Use if you changed the CSS or HTML file.</string>
              <property name="title">
               <string>Color Scheme Editor</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,1,10">
+             <layout class="QVBoxLayout" name="verticalLayout_16" stretch="10">
               <property name="spacing">
                <number>2</number>
               </property>
@@ -6131,176 +6193,6 @@ Use if you changed the CSS or HTML file.</string>
               <property name="bottomMargin">
                <number>1</number>
               </property>
-              <item>
-               <widget class="QWidget" name="widget_13" native="true">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>35</height>
-                 </size>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="1,5,1">
-                 <property name="leftMargin">
-                  <number>1</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>1</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>1</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>1</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_48">
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>10</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Color Scheme</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="cbColorScheme">
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QToolButton" name="btnDeleteColorScheme">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="falcong.qrc">
-                     <normaloff>:/icons/Resources/delete.png</normaloff>:/icons/Resources/delete.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="widget_12" native="true">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>35</height>
-                 </size>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_15">
-                 <item>
-                  <widget class="QPushButton" name="btnGenerateScheme">
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>50</weight>
-                     <bold>false</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Generate Scheme</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnMoveSchemeUp">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Move Scheme Up</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_14">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>539</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnApplyColorScheme">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Apply</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btnResetColorScheme">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>8</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Reset</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
               <item>
                <widget class="QWidget" name="widget_14" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="1,2">
@@ -6371,7 +6263,155 @@ Use if you changed the CSS or HTML file.</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QWidget" name="pnlSchemeEmulator" native="true"/>
+                  <widget class="QGroupBox" name="pnlSchemeEmulator">
+                   <property name="title">
+                    <string>Color Scheme</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_22">
+                    <item row="4" column="1">
+                     <spacer name="verticalSpacer_7">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>422</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="2" column="3">
+                     <widget class="QToolButton" name="btnDeleteColorScheme">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Delete</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="falcong.qrc">
+                        <normaloff>:/icons/Resources/delete.png</normaloff>:/icons/Resources/delete.png</iconset>
+                      </property>
+                      <property name="toolButtonStyle">
+                       <enum>Qt::ToolButtonTextBesideIcon</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0" rowspan="7">
+                     <widget class="QListWidget" name="lwColorScheme"/>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QPushButton" name="btnAddAndGenerateColorScheme">
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Add </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QPushButton" name="btnApplyColorScheme">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Apply</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="3">
+                     <widget class="QPushButton" name="btnResetColorScheme">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Reset</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QPushButton" name="btnMoveSchemeUp">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Move Up</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="falcong.qrc">
+                        <normaloff>:/icons/Resources/moveup-icon.png</normaloff>:/icons/Resources/moveup-icon.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QPushButton" name="btnMoveSchemeDown">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Move Down</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="falcong.qrc">
+                        <normaloff>:/icons/Resources/movedown-icon.png</normaloff>:/icons/Resources/movedown-icon.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -6655,7 +6695,6 @@ regardless if they were already OK.</string>
   <tabstop>edtDescriptionText</tabstop>
   <tabstop>btnSaveChangedDescription</tabstop>
   <tabstop>chkChangeDescriptionEverywhere</tabstop>
-  <tabstop>tabFalconG</tabstop>
  </tabstops>
  <resources>
   <include location="falcong.qrc"/>

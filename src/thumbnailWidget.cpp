@@ -21,7 +21,163 @@
  */
 
 #include "thumbnailWidget.h"
+#include <QIcon>
 #include "config.h"
+
+
+// ****************** ThumbnailItem ******************
+#ifndef _USE_QSTANDARDITEM 
+
+int ThumbnailItem::_thumbHeight;
+
+ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
+{
+    QSize hintSize = QSize(_thumbHeight, _thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
+    setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
+}
+QVariant ThumbnailItem::data(int role) const
+{
+    switch (role)
+    {
+        case Qt::DisplayRole:   return FileName(); 
+        case Qt::ToolTipRole:   return ToolTip();
+        case TypeRole:          return _itemType;
+        case FilePathRole:      return FilePath();
+        case FileNameRole:      return FileName();
+        case Qt::DecorationRole:              // to show the icons (when QListView is set for it)
+                                return QIcon(FilePath() + FileName());
+        case FullNameRole:      return FilePath() + FileName();
+    }
+    return QVariant();
+}
+
+QString ThumbnailItem::_ImageToolTip() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos) );
+    return QString(pImg->FullName() + " \n(" + pImg->LinkName() + ")");
+
+}
+QString ThumbnailItem::_VideoToolTip() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    return QString(pVid->FullName() + " \n(" + pVid->LinkName() + ")");
+}
+QString ThumbnailItem::_FolderToolTip() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    return QString(pAlbum->FullName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")");
+}
+
+
+QString ThumbnailItem::ToolTip() const
+{
+    switch (_itemType)
+    {
+        case image: return _ImageToolTip();
+        case video: return _VideoToolTip();
+        case folder: return _FolderToolTip();
+        default: break;
+    }
+    return QString();
+}
+
+QString ThumbnailItem::_ImageFilePath() const
+{
+    return QString((config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString());
+
+}
+QString ThumbnailItem::_VideoFilePath() const
+{
+    return QString((config.dsGallery + config.dsGRoot + config.dsVideoDir).ToString());
+
+}
+QString ThumbnailItem::_FolderFilePath() const
+{
+    return QString((config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString());
+
+}
+QString ThumbnailItem::_ImageFileName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+    return QString(pImg->LinkName());
+
+}
+QString ThumbnailItem::_VideoFileName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    return QString(pVid->LinkName());
+}
+QString ThumbnailItem::_FolderFileName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
+    return QString(pImg->LinkName()); 
+}
+
+QString ThumbnailItem::FilePath() const
+{
+    switch (_itemType)
+    {
+        case image: return _ImageFilePath();
+        case video: return _VideoFilePath();
+        case folder: return _FolderFilePath();
+        default: break;
+    }
+    return QString();
+}
+
+QString ThumbnailItem::FileName() const
+{
+    switch (_itemType)
+    {
+        case image: return _ImageFileName();
+        case video: return _VideoFileName();
+        case folder: return _FolderFileName();
+        default: break;
+    }
+    return QString();
+}
+
+QString ThumbnailItem::_ImageFullName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+    return QString(pImg->FullName());
+}
+QString ThumbnailItem::_VideoFullName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    return pVid->FullName();
+}
+QString ThumbnailItem::_FolderFullName() const
+{
+    Album album = albumgen.Albums()[_albumId];
+    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
+    return pImg->FullName();
+}
+
+QString ThumbnailItem::text()  const
+{
+    switch (_itemType)
+    {
+        case image: return   _ImageFullName();
+        case video: return   _VideoFullName();
+        case folder: return _FolderFullName();
+        default: break;
+    }
+    return QString();
+}
+#endif // #ifndef _USE_QSTANDARDITEM 
+
+// ****************** ThumbnailWidget ******************
 
  /*=============================================================
   * TASK:		constractor
@@ -32,20 +188,22 @@
   * REMARKS:	SA
   *				- connects slots and sets up scrollbar
   *------------------------------------------------------------*/
-ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(parent),_thumbSize(thumbsize)
+ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(parent), _thumbHeight(thumbheight)
 {
+    ThumbnailItem::SetThumbHeight(thumbheight);
+
     // prepare spacer for Drag & Drop into tnvImages
     float spacerWidth = 50; // pixel
-    _insertPosImage = QImage(spacerWidth, _thumbSize, QImage::Format_ARGB32);
+    _insertPosImage = QImage(spacerWidth, _thumbHeight, QImage::Format_ARGB32);
     QPainter *painter = new QPainter(&_insertPosImage);
     _insertPosImage.fill(Qt::transparent);
     QPen pen;
-    pen.setColor(schemes[config.styleIndex].sSpacerColor);
+    pen.setColor(schemes[PROGRAM_CONFIG::schemeIndex].sSpacerColor);
     pen.setWidth(10);
     painter->setPen(pen);
-    painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbSize);
+    painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbHeight);
     painter->drawLine(spacerWidth / 2.0-10, 0, spacerWidth / 2.0 + 10 , 0);
-    painter->drawLine(spacerWidth / 2.0-10, _thumbSize, spacerWidth / 2.0 + 10, _thumbSize);
+    painter->drawLine(spacerWidth / 2.0-10, _thumbHeight, spacerWidth / 2.0 + 10, _thumbHeight);
     delete painter;
 
     _currentItem = 0;
@@ -74,7 +232,6 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbsize) : QListView(par
 *-----*/
 
     _fileFilters = new QStringList;
-    _insertPosImage.load(":/icon/spacerImage.png");
 
     //QTime time = QTime::currentTime();
     // qsrand((uint) time.msec());
@@ -134,18 +291,6 @@ QString ThumbnailWidget::getSingleSelectionFilename()
                 FileNameRole).toString();
 
     return ("");
-}
-
-/*============================================================================
-  * TASK:	set list of images (needed for UNDELETE) into this
-  * EXPECTS:	pidl: pointer to idList or nullptr
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void ThumbnailWidget::SetImageList(IdList * pidl)
-{
-	_imageIDs = pidl;
 }
 
 /*=============================================================
@@ -363,13 +508,11 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
     QDrag *drag = new QDrag(this);
     ThumbMimeData *mimeData = new ThumbMimeData;
     QList<QUrl> urls;	// create pixmap from this list of names
-	ThumbnailRecord thumbRec;
 	for (auto f : indexesList)
 	{
-		const QString &qs = _thumbnailWidgetModel->item(f.row())->data(FileNameRole).toString();
-		urls << QUrl(qs);
-		thumbRec.imageName = qs;
-		thumbRec.row = f.row();
+	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailWidgetModel->item(f.row())->type() );
+		urls << QUrl(thumbRec.FileName());
+		thumbRec.itemPos = f.row();
 		mimeData->thumbList << thumbRec;
 	}
 
@@ -663,15 +806,11 @@ int ThumbnailWidget::_GetLastVisibleThumb()
 void ThumbnailWidget::loadFileList() 
 {
 	emit SignalInProcessing(true);
-    for (int i = 0; i < thumbNames.size(); i++) 
-        addThumb(i);
+    for (int i = 0; i < model()->rowCount(); i++) 
+        addThumb(i, (ThumbnailItem::Type)model()->data(model()->index(i,0), TypeRole).toInt());
     
     _UpdateThumbsCount();
 
-/*
-	if (thumbNames.size() && selectionModel()->selectedIndexes().size() == 0) 
-        selectThumbByItem(0);
-*/
 	_isBusy = false;
 	emit SignalStatusChanged(statusStr);
 	emit SignalTitleChanged(title);
@@ -683,7 +822,7 @@ void ThumbnailWidget::reLoad()
     _isBusy = true;
     loadPrepare();
 
-    if (thumbNames.size()) 
+    if (model()->rowCount())
 	{
         loadFileList();
         return;
@@ -696,11 +835,17 @@ void ThumbnailWidget::reLoad()
     _isBusy = false;
 }
 
-void ThumbnailWidget::loadPrepare() 
+void ThumbnailWidget::Setup(ID_t aid)
+{
+    _albumId = aid;
+    _InitThumbs();
+}
+
+void ThumbnailWidget::loadPrepare()
 {
 
     _thumbnailWidgetModel->clear();
-    setIconSize(QSize(_thumbSize, _thumbSize));
+    setIconSize(QSize(_thumbHeight, _thumbHeight));
     setSpacing(QFontMetrics(font()).height());
 
     if (_isNeedToScroll) {
@@ -719,26 +864,17 @@ void ThumbnailWidget::_InitThumbs()
 	static int fileIndex;
 	static QSize hintSize;
 	int thumbsAddedCounter = 1;
+    Album &album = albumgen.Albums()[_albumId];
 
-	hintSize = QSize(_thumbSize, _thumbSize + ((int)(QFontMetrics(font()).height() * 1.5)));
-
-	thumbItem = new QStandardItem();
+    QString thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
 	QString imageFullPath;
-	for (fileIndex = 0; fileIndex < thumbNames.size(); ++fileIndex)
+
+    auto TypeFor = [](ID_t id) { return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));  };
+    // Add images
+	for (fileIndex = 0; fileIndex < album.items.size(); ++fileIndex)
 	{
-		imageFullPath = thumbsDir + thumbNames[fileIndex];
-
-		thumbItem->setData(false, LoadedRole);
-		thumbItem->setData(fileIndex, SortRole);
-		thumbItem->setData(thumbsDir, FilePathRole);
-		thumbItem->setData(thumbNames[fileIndex], FileNameRole);
-		thumbItem->setData(originalPaths[fileIndex] + " \n(" + originalPaths[fileIndex] + ")", Qt::DisplayRole);
-		thumbItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-		thumbItem->setSizeHint(hintSize);
-		thumbItem->setText(/*imageFullPath + "\n" + */originalPaths[fileIndex]);
-
+	    thumbItem = new ThumbnailItem(fileIndex, album.ID, TypeFor(album.items[fileIndex]));
 		_thumbnailWidgetModel->appendRow(thumbItem);
-
 		++thumbsAddedCounter;
 		if (thumbsAddedCounter > 100)
 		{
@@ -747,7 +883,7 @@ void ThumbnailWidget::_InitThumbs()
 		}
 	}
 
-	if (thumbNames.size() && selectionModel()->selectedIndexes().size() == 0)
+	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
 		selectThumbByItem(0);
 
 	emit SignalStatusChanged(statusStr);
@@ -758,7 +894,7 @@ void ThumbnailWidget::_InitThumbs()
  * TASK:	emit a signal tha image count changed
  * EXPECTS:
  * GLOBALS:
- * RETURNS:                                                                                                                                                                                                           6666666666666
+ * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
 void ThumbnailWidget::_UpdateThumbsCount()
@@ -844,8 +980,8 @@ void ThumbnailWidget::loadThumbsRange()
 
         if (currentThumbSize.isValid()) 
 		{
-            if (currentThumbSize.width() > _thumbSize || currentThumbSize.height() > _thumbSize) 
-                currentThumbSize.scale(QSize(_thumbSize, _thumbSize), Qt::KeepAspectRatio);
+            if (currentThumbSize.width() > _thumbHeight || currentThumbSize.height() > _thumbHeight) 
+                currentThumbSize.scale(QSize(_thumbHeight, _thumbHeight), Qt::KeepAspectRatio);
         
             thumbReader.setScaledSize(currentThumbSize);
             imageReadOk = thumbReader.read(&thumb);
@@ -872,47 +1008,32 @@ void ThumbnailWidget::loadThumbsRange()
 }
 
 /*=============================================================
- * TASK:	adds a QStandardItem for athumbnail to the end of the 
+ * TASK:	adds a ThumbnailItem for a thumbnail to the end of the 
  *			rows
- * EXPECTS:	which - ordinal of data for thumbnail in
- *					thumbNames[] and originalPaths[]
- * 
- *          spacer - if not 0 insert an transparent thumbnail to
- *                  with no  title or hint the list
- * GLOBALS:
+ * EXPECTS:	_albumID already set
+ *          which - ordinal of data for thumbnail in
+ *					albumgen.Albums()[_albumID]'s 
+ *                  image, video or album lists
+ *          typ   - which list should be used
+ * GLOBALS: _albumID set
  * RETURNS:	nothing
  * REMARKS:	- sets 
  *------------------------------------------------------------*/
-void ThumbnailWidget::addThumb(int which)
+void ThumbnailWidget::addThumb(int which, ThumbnailItem::Type type)
 {
-    QStandardItem *thumbItem = new QStandardItem();
+    ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId, type);
     QImageReader thumbReader;
-    QSize hintSize;
     QSize currThumbSize;
-    static QImage thumb;
 
-    hintSize = QSize(_thumbSize, _thumbSize + ((int) (QFontMetrics(font()).height() * 1.5)));
-
-	QString imageFullPath = thumbsDir + thumbNames[which];
-//    thumbFileInfo = QFileInfo(imageFullPath);
-    thumbItem->setData(true, LoadedRole);
-    thumbItem->setData(0, SortRole);
-    thumbItem->setData(thumbsDir, FilePathRole);
-	thumbItem->setData(thumbNames[which], FileNameRole);
-	thumbItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    thumbItem->setData(thumbNames[which], Qt::DisplayRole);
-    thumbItem->setData(originalPaths[which], Qt::ToolTipRole);
-    thumbItem->setSizeHint(hintSize);
-
-    thumbReader.setFileName(imageFullPath);
+    thumbReader.setFileName(reinterpret_cast<ThumbnailWidgetModel*>(model())->item(which,0)->text());
     currThumbSize = thumbReader.size();
     if (currThumbSize.isValid()) 
 	{
-        if (currThumbSize.width() > _thumbSize || currThumbSize.height() > _thumbSize) 
-            currThumbSize.scale(QSize(_thumbSize, _thumbSize), Qt::KeepAspectRatio);
+        if (currThumbSize.width() > _thumbHeight || currThumbSize.height() > _thumbHeight) 
+            currThumbSize.scale(QSize(_thumbHeight, _thumbHeight), Qt::KeepAspectRatio);
 
         thumbReader.setScaledSize(currThumbSize);
-        thumb = thumbReader.read();
+        QImage thumb = thumbReader.read();
 
         thumbItem->setIcon(QPixmap::fromImage(thumb));
     } 
@@ -952,9 +1073,9 @@ void ThumbnailWidget::SetInsertPos(int here)
 void ThumbnailWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->angleDelta().y() < 0) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + _thumbSize);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + _thumbHeight);
     } else {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - _thumbSize);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - _thumbHeight);
     }
 }
 
@@ -1013,7 +1134,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	bool b = selectionModel()->selectedIndexes().size() == 1;
 	pact->setEnabled(b);
 	if(b)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThhumbnail);
+		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
 	menu.addAction(pact);
 	
 	b = selectionModel()->selectedIndexes().size();
@@ -1023,13 +1144,16 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
 	menu.addAction(pact);
 
-	pact = new QAction(tr("&Undo Delete"), this);
-	bool undo = _imageIDs && !_imageIDs->NothingToUndo();
+#if 0
+    // how to make it work?
+    pact = new QAction(tr("&Undo Delete"), this);
+#define CAN_UNDO(a) (a && !a->NothingToUndo())
+	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
 	pact->setEnabled(undo);
 	if (undo)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
 	menu.addAction(pact);
-
+#endif
 	menu.addSeparator();
 
 	pact = new QAction(tr("Copy &Name(s)"), this);
@@ -1148,9 +1272,9 @@ void ThumbnailWidget::CopyOriginalNamesToClipboard()
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
-  * REMARKS: only called when teher is exactly one selected image
+  * REMARKS: only called when there is exactly one selected image
  *--------------------------------------------------------------------------*/
-void ThumbnailWidget::SetAsAlbumThhumbnail()
+void ThumbnailWidget::SetAsAlbumThumbnail()
 {
 	emit SignalNewThumbnail();
 }

@@ -6,7 +6,6 @@ using namespace Enums;
 #include "config.h"
 
 /*--------------------- languages -------------------------*/
-LangConstList Languages::abbrev;		// abbreviations: "hu", "en", etc
 LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
 LangConstList Languages::icons;			// icons to use instead of names
 LangConstList Languages::Images;		// image section in HTML files
@@ -36,23 +35,28 @@ LangConstList Languages::falconG;		// "created by falconG"
 * EXPECTS:	name of file to read in
 * GLOBALS:  
 * RETURNS: 0: error, actual number of languages read so far: success
-* REMARKS:	- file names: <lang abbrev>.lang	
+* REMARKS:	- file names: <lang abbrev, eg. hu_HU>.lang	
 *			- the program reads all such file from directory
 *			- file formats:  
-*			   1st line		"falconG Language file"
-*				others may follow in any order and the right hand side may be empty
-*				abbrev=<2 letter abbrev>
-*				name=<text to put buttons or lists>
-*				icon=<icon (png) file name>
-*				Images=<text for Images section>
-*				Albums=<text for Albums section>
-*				HomePage=<e.g. Home>		
-*				About=<about>		
-*				Contact=<contact>
-*				captions=<text to show descriptions";
-*            	share=<text for sharing links>
-*			- if no file does not exist sets a single languag: English
-*			- do not use when languages are set from GUI
+*	   1st line		"falconG Language file"
+*  about     =&lt;text for the &apos;About&apos; button&gt;
+*  albums    =&lt;text header for the album section of the  actual album&gt;
+*  contact   =&lt;text for the &apos;contact&apos; button
+*  countOfImages=%1 image(s) and %2 sub-album(s) in this album
+*  countryCode	=&lt;like &apos;en_US&apos;&gt;
+*  descriptions  =&lt;text for the descriptionss toggle menu&gt;
+*  falconG   =&lt;Copyright message. Please do not remove or change this. just translate&gt;
+*  homePage	 =&lt;text for menu to home page&gt;
+*  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
+*  images    =&lt;text header for the images section of the actual album&gt;
+*  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
+*  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
+*  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
+*  share     =&lt;text for the facebook share button&gt;  captions  =&lt;text for the captions-descriptions couple toggle&gt;
+*  toTop     =&lt;text for up arrow: jump to top of page&gt;
+*  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
+*  videos    =&lt;text header for the videos section of the actual album&gt;*			- if no file does not exist sets a single languag: English
+**			- do not use when languages are set from GUI
 *--------------------------------------------------------------------------*/
 int Languages::_Read(QString name)
 {
@@ -62,25 +66,24 @@ int Languages::_Read(QString name)
 		return 0;
 
 	QString s;
-	int next = abbrev.size();
-	abbrev.push_back(s);
-	names.push_back(s);
-	icons.push_back(s);
-	Images.push_back(s);
-	Videos.push_back(s);
+	int next = names.size();
 	Albums.push_back(s);
-	toAlbums.push_back(s);
-	toHomePage.push_back(s);
-	toAboutPage.push_back(s);
-	toContact.push_back(s);
-	showCaptions.push_back(s);
-	showDescriptions.push_back(s);
-	share.push_back(s);
-	latestTitle.push_back(s);
-	latestDesc.push_back(s);
 	countryCode.push_back(s);
 	countOfImages.push_back(s);
 	falconG.push_back(s);
+	icons.push_back(s);
+	Images.push_back(s);
+	latestTitle.push_back(s);
+	latestDesc.push_back(s);
+	names.push_back(s);
+	showCaptions.push_back(s);
+	showDescriptions.push_back(s);
+	share.push_back(s);
+	toAboutPage.push_back(s);
+	toAlbums.push_back(s);
+	toContact.push_back(s);
+	toHomePage.push_back(s);
+	Videos.push_back(s);
 
 	QStringList sl;
 	QString sn; // name in lowercase
@@ -91,8 +94,6 @@ int Languages::_Read(QString name)
 		s = (sl.size() < 2 ? "" : sl[1]);
 		if (sn == "")
 			;
-		else if (sn == "abbrev")
-			abbrev[next] = s;
 		else if (sn == "name")
 			names[next] = s;
 		else if (sn == "icon")
@@ -189,39 +190,38 @@ int Languages::Read()
 							"or write the language texts into the '.struct' file\n\n"
 							"A language file is a UTF-8 encoded text file starting with the line:\n"
 							"  'falconG Language file'\n"
-							"followed by definitions of the fixed texts used in the albums (language text\n"
-							" blocks).\n"
-							"When the language texts are put into the struct file, there must be as many\n"
-							" language text blocks as languages. Each language text block is preceeded by\n"
-							"  a line containing a single number: the ordinal of that language box.\n"
-							" The language text blocks are enclosed between lines\n"
-							"			'[Language count:xx' and ']'\n"
-							"	where 'xx' is the ordinal of the block minus one.\n"
-							" A language text block is made up from lines in the form 'name=text'. The names\n"
-							"  and their texts are (the single quotes in the examples below are not used):\n"
-							"  abbrev    =<2 letter language abbreviation> e.g. 'en'\n"
-							"  name	     =<language name to put on language switch menu> e.g.  'to English'\n"
+							"followed by definitions of the fixed texts used in the albums\n"
+							" The format of the lines is 'name=text'. The names\n"
+							"  and their texts are (the single quotes in the examples below are not used,"
+							"  and the examples are in braces):\n"
+							"  about     =<text for the 'About' button>\n"
+							"  albums    =<text header for the album section of the  actual album>\n"
+							"  captions  =<text for the captions-descriptions couple toggle>\n"
+							"  contact   =<text for the 'contact' button\n"
+							"  countOfImages=%1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
+							"  countryCode	=<like 'en_US'>\n"
+							"  descriptions  =<text for the descriptionss toggle menu>\n"
+							"  falconG   =<Copyright message. Please do not remove or change this. just translate>\n"
+							"  homePage	 =<text for menu to home page>\n"
 							"  icon      =<name of icon (.png) file for language> may be left empty\n"
 							"  images    =<text header for the images section of the actual album>\n"
-							"  videos    =<text header for the videos section of the actual album>\n"
-							"  toTop     =<text for up arrow: jump to top of page>"
-							"  upOneLevel=<text for up/left arrow: jump to parent dir>"
-							"  albums    =<text header for the album section of the  actual album>>\n"
-							"  homePage	 =<text for menu to home page>\n"
-							"  about     =<text for the 'About' button>\n"
-							"  contact   =<text for the 'contact' button\n"
+							"  latestDesc=<description for album 'latest_en.html'>\n"
+							"  latestTitle=<title on album 'latest_en.html'>\n"
+							"  name	     =<language name to put on language switch menu>  ('to English')\n"
+							"  toTop     =<text for up arrow: jump to top of page>\n"
+							"  upOneLevel=<text for up/left arrow: jump to parent dir>\n"
 							"  share     =<text for the facebook share button>"
-							"  captions  =<text for the captions toggle menu>\n"
-							"  descriptions  =<text for the descriptionss toggle menu>\n"
-							"  latestTitle=<title for album latest.html>"
-							"  latestDesc=<description for album latest.html>\n"
-							"  countryCode	=<like 'en_US'>\n"
-							"  countOfImages=% 1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
-							"  falconG   =<copyright message. Please do not remove or change this. just translate>\n"
-			),
+							"  videos    =<text header for the videos section of the actual album>\n"
+							" \n"
+							"When the language texts are put into the struct file, there must be as many\n"
+							" language text blocks as languages. Each language text block is preceeded by\n"
+							"  a line containing a single number: the ordinal of that language box,\n"
+							"  followed by the same lines as in the .lang files\n"
+							" The language text blocks are enclosed between lines\n"
+							"			'[Language count:xx' and ']'\n"
+							"	where 'xx' is the ordinal of the block minus one.\n"),
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
-		abbrev.push_back("en");
 		names.push_back("English");
 		icons.push_back("");
 		Images.push_back("Images");
@@ -239,7 +239,7 @@ int Languages::Read()
 		latestTitle.push_back("Latest uploads");
 		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
 		countryCode.push_back("en_US");
-		countOfImages.push_back("% 1 image(s) and %2 sub-album(s) in this album");
+		countOfImages.push_back("%1 image(s) and %2 sub-album(s) in this album");
 		falconG.push_back(sFalcongEnglishCopyright);
 		return 1;
 	}
@@ -248,7 +248,7 @@ int Languages::Read()
 	{
 		_Read(fi.fileName());
 	}
-	return abbrev.size();
+	return falconG.size();
 }
 
 /*============================================================================
@@ -260,7 +260,6 @@ int Languages::Read()
 *--------------------------------------------------------------------------*/
 void Languages::Clear(int newsize)
 {
-	abbrev.Prepare(newsize);
 	names.Prepare(newsize);
 	icons.Prepare(newsize);
 	Images.Prepare(newsize);
@@ -294,7 +293,7 @@ QString Languages::FileNameForLanguage(QString s, int language)
 	SeparateFileNamePath(s, path, name, &ext);
 
 	if (Languages::Count() > 1)
-		name += "_" + Languages::abbrev[language];
+		name += "_" + Languages::countryCode[language];
 	return path + name + ext;
 }
 

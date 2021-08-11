@@ -22,7 +22,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		ofs << indent << "[" << what << Languages::abbrev[i] << ":";
+		ofs << indent << "[" << what << Languages::countryCode[i] << ":";
 		if (id != 0)
 			ofs << text[i];
 		ofs << "]";
@@ -88,30 +88,29 @@ void AlbumStructWriterThread::run()
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
 		_ofs << i << "\n"
-			<< "  abbrev=" << Languages::abbrev[i] << "\n"
-			<< "  name=" << Languages::names[i] << "\n"
+			<< "  about=" << Languages::toAboutPage[i] << "\n"
+			<< "  albums=" << Languages::Albums[i] << "\n"
+			<< "  captions=" << Languages::showCaptions[i] << "\n"
+			<< "  contact=" << Languages::toContact[i] << "\n"
+			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
+			<< "  countryCode=" << Languages::countryCode[i] << "\n"
+			<< "  descriptions=" << Languages::showDescriptions[i] << "\n"
+			<< "  falconG=" << Languages::falconG[i] << "\n"
+			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
 			<< "  images=" << Languages::Images[i] << "\n"
-			<< "  videos=" << Languages::Videos[i] << "\n"
-			<< "  albums=" << Languages::Albums[i] << "\n"
-			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
-			<< "  homePage=" << Languages::toHomePage[i] << "\n"
-			<< "  about=" << Languages::toAboutPage[i] << "\n"
-			<< "  contact=" << Languages::toContact[i] << "\n"
-			<< "  captions=" << Languages::showCaptions[i] << "\n"
-			<< "  descriptions=" << Languages::showDescriptions[i] << "\n"
-			<< "  share=" << Languages::share[i] << "\n"
-			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
 			<< "  latestDesc=" << Languages::latestDesc[i] << "\n"
-			<< "  countryCode=" << Languages::countryCode[i] << "\n"
-			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
-			<< "  falconG=" << Languages::falconG[i] << "\n"
+			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
+			<< "  name=" << Languages::names[i] << "\n"
+			<< "  share=" << Languages::share[i] << "\n"
+			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
+			<< "  videos=" << Languages::Videos[i] << "\n"
 			;
 	}
 	_ofs << "]\n\n# Album structure:\n";
 
 	QString indent;	// for directory structure file: indent line with spaces to indicate hierarchy
-	_WriteStructAlbums(_albumMap[1], indent);
+	_WriteStructAlbums(_albumMap[1+ALBUM_ID_FLAG], indent);
 	_ofs.flush();
 	f.close();
 
@@ -142,8 +141,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 
 	// IMAGES
 	// format: [!!]<name>'('<id>,<width>'x'<height>,<owidth>'x'<oheight>,<date string><file size>')'<dSrc relative or absolute path>
-	for (ID_t id : album.images)
-		if (id && album.excluded.indexOf(id) < 0)		// not excluded
+	for (ID_t id : album.items)
+		if(!(id & EXCLUDED_FLAG) && (id & IMAGE_ID_FLAG) )		// not excluded
 		{
 			pImg = &_imageMap[id];
 			if (pImg->changed)
@@ -159,8 +158,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 				if (pImg->dontResize)
 					_ofs << "!!";
 				_ofs << pImg->name << "(" 										   // field #1
-					<< pImg->ID << ","											   // field #2
-					<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","	   // field #3 - #4
+					<< (pImg->ID & ID_MASK) << ","								   // field #2
+					<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","   // field #3 - #4
 					<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
@@ -183,8 +182,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 	// ?DEBUG
 	// VIDEOS
 	// format: <name>'(''V'<id>, <date string>,<file size>')'<dSrc relative or absoluth path>
-	for (ID_t id : album.videos)
-		if (id && album.excluded.indexOf(id) < 0)		// not excluded
+	for (ID_t id : album.items)
+		if (!(id & EXCLUDED_FLAG) && (id & VIDEO_ID_FLAG))		// not excluded
 		{
 			pVid = &_videoMap[id];
 			if (pVid->changed)
@@ -196,7 +195,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 
 				_ofs << indent;
 				_ofs << pVid->name << "(V" 										   // field #1
-					<< pVid->ID << ","											   // field #2
+					<< (pVid->ID & ID_MASK) << ","								   // field #2
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
 					<< pVid->fileSize << ")";									   // field #4
@@ -213,8 +212,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 		}
 
 	// ALBUMS
-	for (ID_t id : album.albums)
-		if (id && album.excluded.indexOf(id) < 0)		// not excluded
+	for (ID_t id : album.items)
+		if (!(id & EXCLUDED_FLAG) && (id & ALBUM_ID_FLAG))		// not excluded
 			_WriteStructAlbums(_albumMap[id], indent);
 }
 
@@ -241,11 +240,11 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	ID_t thumbnail = album.thumbnail = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << "(A:" << (album.ID) << ")" << s << "\n";
+		<< album.name << "(A:" << (album.ID & ID_MASK) << ")" << s << "\n";
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 
-	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << thumbnail << "]\n"; // ID may be 0!
+	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << (thumbnail & ID_MASK) << "]\n"; // ID may be 0!
 
 	_WriteStructImagesThenSubAlbums(album, indent + " ");
 }

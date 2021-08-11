@@ -977,7 +977,7 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 *--------------------------------------------------------------------------*/
 static bool __CancelCreate(QString s)
 {
-	return  QMessageBox(QMessageBox::Question, QMainWindow::tr("falconG"),
+	return  QMessageBox(QMessageBox::Question, QMainWindow::tr("falconG - Question"),
 						QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s),
 						QMessageBox::Yes | QMessageBox::Cancel).exec() == QMessageBox::Cancel;
 }

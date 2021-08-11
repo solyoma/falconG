@@ -68,7 +68,9 @@ namespace Enums
 	enum UserRoles {
 		FileNameRole = Qt::UserRole + 1,		 // file name w.o. path, e.g. 12345.jpg
 		FilePathRole,							 // path of file ending in '/'
+		FullNameRole,
 		SortRole,
-		LoadedRole
+		LoadedRole,
+		TypeRole								// return type of item (none, image, video, album)
 	};
 }

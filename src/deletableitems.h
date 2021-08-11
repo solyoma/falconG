@@ -43,7 +43,7 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 	UsageCount _changed;			// incremented when element added to list, deleted
 									// or un-deleted
 
-	int _size = 0;					// count of non-deleted items ( < size() )
+	int _size = 0;					// count of non-deleted items ( <= BaseClassType::size() )
 					// for speedup:
 	int _prev_log = -0,				// previous logical index
 		_prev_phys = 0;				// previous physical index 
@@ -83,7 +83,7 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 	//{
 	//	return /*const_cast<UndeletableItemList*>(this)->*/_RealIndexFor(index, realFrom);
 	//}
-public:
+ public:
 	UndeletableItemList() { _dummy.batch = -100;  }	// invalidate dummy
 	UndeletableItemList(const UndeletableItemList &dtl)	: UndeletableItemList()
 	{
@@ -98,7 +98,13 @@ public:
 		return *this;
 	}
 
-	int size() const { return _size; }
+	int size() const { return _size; } // size of non-deleted elements
+	void Compact()	// remove deleted elements from list, _size does not change
+	{
+		for (auto i = BaseClassType::size() - 1; i >= 0; --i)
+			if (BaseClassType.operator[](i).batch != -100)
+				remove(i);
+	}
 
 	// return index-th not deleted element
 	UndeletableItem<T> &operator[](int index) 
