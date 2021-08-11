@@ -30,19 +30,64 @@ const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;
 const int THUMBNAIL_SIZE = 150;
 
-using ID_t = uint64_t;			// Cf. albums.h
-using IdList = UndeletableItemList<ID_t>;
 using IntList = QVector<int>;
 
 /*=============================================================
  * info stored for items in view
  *------------------------------------------------------------*/
-struct ThumbnailRecord
+//#define _USE_QSTANDARDITEM = 1
+#ifndef _USE_QSTANDARDITEM 
+class ThumbnailItem : public QStandardItem
 {
-	QString imageName;	// set using user type FileNameRole
-	int row;			// original position of this item
-};
+public:
+	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
+private:
+	Type _itemType;
 
+	QString _ImageToolTip() const;
+	QString _VideoToolTip() const;
+	QString _FolderToolTip() const;
+
+	QString _ImageFilePath() const;
+	QString _VideoFilePath() const;
+	QString _FolderFilePath() const;
+
+	QString _ImageFileName() const;
+	QString _VideoFileName() const;
+	QString _FolderFileName() const;
+
+	QString _ImageFullName() const;
+	QString _VideoFullName() const;
+	QString _FolderFullName() const;
+	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
+	static int _thumbHeight;
+public:
+	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
+
+public:
+	int type() const { return _itemType; }
+	void SetType(Type typ) { _itemType = typ; }
+
+	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none);
+	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
+	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
+	bool operator=(const ThumbnailItem& other) { QStandardItem::operator=(other); itemPos = other.itemPos; _albumId = other._albumId; _itemType = other._itemType; }
+	// set this only once for each run (static)
+	static void SetThumbHeight(int thumbHeight) {_thumbHeight = thumbHeight;  }
+		// use this after constructing 
+	void SetOwnerId(ID_t id) { _albumId = id;}
+
+
+	QString text() const;		// text displayed on item, or full image file path to show thumbnail for
+	QVariant data(int role = Qt::UserRole + 1) const;
+	QString ToolTip() const;
+	QString FilePath() const;
+	QString FileName() const;
+
+};
+#else
+using ThumbnailItem = QStandardItem;
+#endif
 /*=============================================================
  * my Mime Type for Drag & Drop
  *------------------------------------------------------------*/
@@ -50,7 +95,7 @@ class ThumbMimeData : public QMimeData
 {
 	Q_OBJECT
 public:
-	QList<ThumbnailRecord> thumbList;  // all selected items
+	QList<ThumbnailItem> thumbList;  // all selected items
 	ThumbMimeData() {
 		QMimeData::setData("application/x-thumb", "thumb"); // my type
 	}
@@ -64,7 +109,7 @@ class ThumbnailWidgetModel : public QStandardItemModel
 {
 	int _dummyPosition = -1;	// used during drag to signal possible drop position
 								// -1: not used
-	QStandardItem _dummyItem;
+	ThumbnailItem _dummyItem;
 public:
 	ThumbnailWidgetModel(QWidget *pw) : QStandardItemModel(pw) 
 	{
@@ -84,16 +129,19 @@ public:
 	}
 	int rowCount() { return QStandardItemModel::rowCount() + _dummyPosition >= 0 ? 1 : 0; }
 
-	QStandardItem *	item(int row, int column = 0) const 
+	ThumbnailItem*	item(int row, int column = 0) const
 	{
 		if (_dummyPosition >= 0)
 		{
 			if (row > _dummyPosition)
-				return QStandardItemModel::item(row - 1,0);
+				return item(row - 1,0);
 			if (row == _dummyPosition)
-				return const_cast<QStandardItem*>(&_dummyItem);
+				return const_cast<ThumbnailItem*>(&_dummyItem);
 		}
-		return QStandardItemModel::item(row,0);
+		// DEBUG
+		ThumbnailItem *result = dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row, 0));
+		return result;
+		// return dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row,0) );
 	}
 
 	QStandardItem *itemFromIndex(const QModelIndex &index) const
@@ -118,6 +166,9 @@ Q_OBJECT
 public:
     ThumbnailWidget(QWidget *parent, int thumbsize = THUMBNAIL_SIZE);
 
+	void Setup(ID_t aid);
+	void Clear() { _pIds = nullptr; _albumId = 0; }
+
     void loadPrepare();
     void reLoad();
     void loadFileList();
@@ -127,7 +178,7 @@ public:
 	void setTitle();
     void setNeedToScroll(bool needToScroll);
     void selectCurrentIndex();
-    void addThumb(int itemIndex);		// names are in string lists
+    void addThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
 	void SetInsertPos(int here);		// into the model
     void abort();
     void selectThumbByItem(int itemIndex);
@@ -141,23 +192,18 @@ public:
 
     QString getSingleSelectionFilename();
 
-	void SetImageList(IdList *pidl);
-
 	// DEBUG
 	QLabel* pDragDropLabel = nullptr;
 
-	QString thumbsDir;	// prepend to image file paths, must end with '/'
-	QStringList thumbNames;			// list of name of image files in 'dir'
-	QStringList originalPaths;		// for every element of thumbNames
 	QString statusStr;		// get status messages from here
 	QString title;			// use for window title
 
 private:
 // SA
-	ID_t _albumId;			// show thumbs from this album
-	IdList *_imageIDs;
+	ID_t   _albumId = 0;	// show thumbs from this album (0: root)
+	IdList *_pIds = nullptr;	    // images in this album
 
-    int _thumbSize;
+    int _thumbHeight;
     QImage _insertPosImage;	// shows insert position
 // /SA
 
@@ -216,7 +262,7 @@ public slots:
 	void AddFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
-	void SetAsAlbumThhumbnail();
+	void SetAsAlbumThumbnail();
 
 private slots:
     void loadThumbsRange();
