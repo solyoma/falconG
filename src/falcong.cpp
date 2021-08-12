@@ -3437,6 +3437,7 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 	}
 
 	ui.tnvImages->reLoad();
+	ui.tnvImages->clearSelection();	// no selection
 	_selection.selectedImage = _selection.newImage = 0;
 
 }
