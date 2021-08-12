@@ -4,7 +4,7 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="albums.cpp" line="2680"/>
+        <location filename="albums.cpp" line="2686"/>
         <source>falconG - Warning</source>
         <oldsource>falconG Warning</oldsource>
         <translation>falconG - Figyelmeztetés</translation>
@@ -148,19 +148,19 @@
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3533"/>
+        <location filename="falcong.cpp" line="3534"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3533"/>
+        <location filename="falcong.cpp" line="3534"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmazta.
 Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3659"/>
+        <location filename="falcong.cpp" line="3660"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <oldsource>No &apos;:&apos; found in new name. so the same name will be used for
@@ -169,26 +169,26 @@ all program languages. Is this what you want?</oldsource>
 több program nyelvre. Ezt akarja?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3644"/>
-        <location filename="falcong.cpp" line="3729"/>
-        <location filename="falcong.cpp" line="3870"/>
-        <location filename="falcong.cpp" line="3911"/>
+        <location filename="falcong.cpp" line="3645"/>
+        <location filename="falcong.cpp" line="3730"/>
+        <location filename="falcong.cpp" line="3871"/>
+        <location filename="falcong.cpp" line="3912"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3644"/>
+        <location filename="falcong.cpp" line="3645"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztatta a program nyelvét. Kérem indítsa újra a myelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3651"/>
-        <location filename="falcong.cpp" line="3658"/>
+        <location filename="falcong.cpp" line="3652"/>
+        <location filename="falcong.cpp" line="3659"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3649"/>
+        <location filename="falcong.cpp" line="3650"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -209,85 +209,85 @@ all program languages. This is what you want&lt;</oldsource>
 Ezt akarja?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3729"/>
-        <location filename="falcong.cpp" line="3911"/>
+        <location filename="falcong.cpp" line="3730"/>
+        <location filename="falcong.cpp" line="3912"/>
         <source>Invalid new name. Please use another!</source>
         <translation>Érvénytelen név. Kérem adjon egy másikat!</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3871"/>
+        <location filename="falcong.cpp" line="3872"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarja ezt a színösszeállítást?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3896"/>
+        <location filename="falcong.cpp" line="3897"/>
         <source>New Scheme Name
  (for </source>
         <translation>Új séma név a következő nyelvekre:
 ( </translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3897"/>
+        <location filename="falcong.cpp" line="3898"/>
         <source>falconG - Input</source>
         <translation>falconG - Bevitel</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3923"/>
+        <location filename="falcong.cpp" line="3924"/>
         <source>Select background color.</source>
         <translation>Válasszon háttérszínt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4725"/>
+        <location filename="falcong.cpp" line="4726"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4744"/>
+        <location filename="falcong.cpp" line="4745"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4769"/>
+        <location filename="falcong.cpp" line="4770"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4817"/>
+        <location filename="falcong.cpp" line="4818"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4818"/>
+        <location filename="falcong.cpp" line="4819"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4829"/>
+        <location filename="falcong.cpp" line="4830"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4830"/>
+        <location filename="falcong.cpp" line="4831"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4834"/>
+        <location filename="falcong.cpp" line="4835"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4835"/>
+        <location filename="falcong.cpp" line="4836"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4899"/>
+        <location filename="falcong.cpp" line="4900"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4899"/>
+        <location filename="falcong.cpp" line="4900"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -299,19 +299,19 @@ Az ikon nem olvasható
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="albums.cpp" line="2441"/>
+        <location filename="albums.cpp" line="2447"/>
         <source>falconG - Error</source>
         <translation>falconG - Hiba</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2442"/>
+        <location filename="albums.cpp" line="2448"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation>Sérült szerkezeti fájl!
 Üzenet: &apos;</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2445"/>
+        <location filename="albums.cpp" line="2451"/>
         <source>&apos;
 
 Processing aborted, because continuing
@@ -337,28 +337,27 @@ a feldolgozást! Idáig %1 sort olvastam. </translation>
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3702"/>
-        <location filename="languages.cpp" line="181"/>
+        <location filename="falcong.cpp" line="3703"/>
+        <location filename="languages.cpp" line="188"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3703"/>
+        <location filename="falcong.cpp" line="3704"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
 nem megnyitható</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4700"/>
+        <location filename="falcong.cpp" line="4701"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem.</translation>
     </message>
     <message>
-        <location filename="languages.cpp" line="184"/>
         <source>No language (*.lang) files are found.
 Do you want to cancel or continue with English as the single language?
 
@@ -439,7 +438,7 @@ When the language texts are put into the struct file, there must be as many
 			&apos;[Language count:xx&apos; and &apos;]&apos;
 	where &apos;xx&apos; is the ordinal of the block minus one.
 </oldsource>
-        <translation>Nincsenek (*.lang) fájlok.
+        <translation type="vanished">Nincsenek (*.lang) fájlok.
 Megszakítsam a feldolgozást, vagy folytassam csak a Magyar nyelvvel?
 
 Ezt az üzenetet elkerülheted, ha létrehozol nyelvi fájlokat 
@@ -531,6 +530,97 @@ Az ideiglenes
 
 Create?</source>
         <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
+    </message>
+    <message>
+        <location filename="languages.cpp" line="191"/>
+        <source>No language (*.lang) files are found.
+Do you want to cancel or continue with English as the single language?
+
+To avoid this message either create language files and put them into the
+    a) source
+    b) destination or
+    c) program directory
+or write the language texts into the &apos;.struct&apos; file
+
+A language file is a UTF-8 encoded text file starting with the line:
+  &apos;falconG Language file&apos;
+followed by definitions of the fixed texts used in the albums
+ The format of the lines is &apos;name=text&apos;. The names
+  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
+  about     =&lt;text for the &apos;About&apos; button&gt;
+  abbrev    =&lt;text for &apos;countryCode&apos; used in file names (def.:&apos;countryCode&apos;)&gt;
+  albums    =&lt;text header for the album section of the  actual album&gt;
+  cdcoupled =&lt;text for the captions-descriptions couple toggle&gt;
+  contact   =&lt;text for the &apos;contact&apos; button
+  countOfImages=%1 image(s) and %2 sub-album(s) in this album
+  countryCode	=&lt;like &apos;en_US&apos;&gt;
+  descriptions  =&lt;text for the descriptionss toggle menu&gt;
+  falconG   =&lt;Copyright message. Please do not remove or change this. just translate&gt;
+  homePage	 =&lt;text for menu to home page&gt;
+  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
+  images    =&lt;text header for the images section of the actual album&gt;
+  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
+  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
+  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
+  toTop     =&lt;text for up arrow: jump to top of page&gt;
+  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
+  share     =&lt;text for the facebook share button&gt;  videos    =&lt;text header for the videos section of the actual album&gt;
+ 
+When the language texts are put into the struct file, there must be as many
+ language text blocks as languages. Each language text block is preceeded by
+  a line containing a single number: the ordinal of that language box,
+  followed by the same lines as in the .lang files
+ The language text blocks are enclosed between lines
+			&apos;[Language count:xx&apos; and &apos;]&apos;
+	where &apos;xx&apos; is the ordinal of the block minus one.
+</source>
+        <translation>Nincsenek (*.lang) fájlok.
+Megszakítsam a feldolgozást, vagy folytassam csak a Magyar nyelvvel?
+
+Ezt az üzenetet elkerülheted, ha létrehozol nyelvi fájlokat 
+(pl. a magyar nyelvhez a hu.lang-ot) vagy a
+    a) forrás, vagy a
+    b) cél fotógalériában, vagy
+    c) a programkönyvtárban
+de a nyelvi szövegeket beírhatod a &apos;.struct&apos; filokba is.
+
+A nyelvi fájlok UTF-8 kódolású és xx.lang nevű szövegfájlok, ahol
+az &apos;xx&apos; a nyelv kódja, pl. hu_HU.lang. Szerkezetük:
+  első sor: &apos;falconG Language file&apos;
+amit az adott nyelvhez tartozó szövegek definíciói követnek.
+ Minden definíció külön sorba kerül és &apos;név=szöveg&apos; formája van.
+ A nevek és jelentésük &lt; és &gt; jelek között, példa zárójelek között:
+ ( az &apos; jeleket nem kell beírni!)  
+  abbrev    =&lt;2 betűs nyelvi azonosító&gt; (&apos;hu&apos;)
+  name	    =&lt;a nyelvre kapcsolás neve&gt; (&apos;Magyarul&apos;)
+  icon      =&lt;a nyelvhez tartozó kis kép (.png)&gt; (opcionális)
+  images    =&lt;A képek szakasz felett az aktuális albumban megjelenő szöveg&gt; (&apos;Képek&apos;)
+  videos    =&lt;Hasonlóan a videókhoz is&gt; (&apos;Videók&apos;)
+  toTop     =&lt;A lap tetejére ugrás szövege&gt;  
+  upOneLevel=&lt;Egy albummal feljebb ugrás a hierarhiában&gt;
+  albums    =&lt;&gt;Az albumok szakasza felett az aktuális albumban megjelenő szöveg&gt;
+  homePage	 =&lt;Honlapra ugrás szövege&gt; (&apos;Főoldal&apos;)
+  about     =&lt;A névjegy oldal gomb szövege&gt; (&apos;Névjegy&apos;)
+  contact   =&lt;a &apos;kapcsolat&apos; gomb szövege &gt; (&apos;Kapcsolat&apos;)
+  share     =&lt;A facebook megosztás gomb szövege&gt;
+  captions  =&lt;A képleírásokat és címeket összekapcsoló gomb szövege&gt;
+  descriptions  =&lt;A képleírások szövegének ki/be kapcsolása gombra&gt; (&apos;Képleírás&apos;)
+  latestTitle =&lt;Az utoljára feltöltött fájlok oldalán (pl. latest_hu.html) megjelenő cím&gt;
+                    (pl. &apos;Legújabb képek az albumokban&apos;)
+  latestDesc=&lt;a tartalom lerása ugyanezen az oldalon&gt;
+                    (pl. &apos;Válogatás az utolsó 10 napban feltöltött képekből&apos;)
+  countryCode =&lt;Magyarhoz pl. &apos;hu_HU&apos;&gt;
+  countOfImages=&lt;kép és album szám %1 a képek, %2 az albumok száma&gt; (%1 kép és %2 album van ebben az albumban)
+  falconG   =&lt;Copyright üzenet. Segitsen nekem azzal, hogy nem változtatja meg, csak lefordítja!&gt;
+  
+Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk be 
+ (ezt a program az első sikeres futása után maga megteszi), akkor minden nyelvhez
+ tartozzon egy nyelvi blokk, ezek első sora a nyelv sorszáma (0,1,2...)
+ A nyelvi blokkok tartalma ugyanaz, mint amit fent felsoroltunk.
+ A nyelvi blokkokat a következő két sor közé kell beírjuk
+			&apos;[Language count:xx&apos; és &apos;]&apos;
+	ahol &apos;xx&apos; a nyelvek száma, ami 1 is lehet.
+</translation>
     </message>
 </context>
 <context>
@@ -847,7 +937,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="689"/>
         <source>Menu to toggle descriptions</source>
-        <translation>Bejelölve a képleírások ki-be kapcsolására</translation>
+        <translation>Képleírások ki-be kapcsolása</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="669"/>
@@ -933,7 +1023,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <location filename="falcong.ui" line="579"/>
         <source>Menu to Contact by email</source>
         <oldsource>Email menü használata</oldsource>
-        <translation>Kapcsolat emaillel menü használata</translation>
+        <translation>Kapcsolat emaillel menü</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="593"/>
@@ -945,10 +1035,6 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <source>Adds menu to couple image captions with descriptions.</source>
         <oldsource>Couple image captions with descriptions.</oldsource>
         <translation>Menu hozzáadása a címek és leírások együttes ki/be kapcsolására.</translation>
-    </message>
-    <message>
-        <source>Menu to toggle Captions</source>
-        <translation type="vanished">Címek és leírás együtt kapcsolódik</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="607"/>
@@ -2275,12 +2361,12 @@ generálása, akkor is, ha jó volt.</translation>
     <message>
         <location filename="falcong.ui" line="6481"/>
         <source>&amp;all</source>
-        <translation></translation>
+        <translation>&amp;mindent</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="6488"/>
         <source>except i&amp;mages</source>
-        <translation>kivéve a képeket</translation>
+        <translation>k&amp;ivéve a képeket</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="6524"/>

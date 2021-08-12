@@ -7,6 +7,7 @@ using namespace Enums;
 
 /*--------------------- languages -------------------------*/
 LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
+LangConstList Languages::abbrev;		// used instead of country code in names. e.g. "_us" for "en_US"
 LangConstList Languages::icons;			// icons to use instead of names
 LangConstList Languages::Images;		// image section in HTML files
 LangConstList Languages::Videos;		// video section in HTML files
@@ -40,6 +41,7 @@ LangConstList Languages::falconG;		// "created by falconG"
 *			- file formats:  
 *	   1st line		"falconG Language file"
 *  about     =&lt;text for the &apos;About&apos; button&gt;
+"  abbrev    =<text for 'countryCode' used in file names (def.:'countryCode')>\n"
 *  albums    =&lt;text header for the album section of the  actual album&gt;
 *  contact   =&lt;text for the &apos;contact&apos; button
 *  countOfImages=%1 image(s) and %2 sub-album(s) in this album
@@ -67,6 +69,7 @@ int Languages::_Read(QString name)
 
 	QString s;
 	int next = names.size();
+	abbrev.push_back(s);
 	Albums.push_back(s);
 	countryCode.push_back(s);
 	countOfImages.push_back(s);
@@ -94,6 +97,8 @@ int Languages::_Read(QString name)
 		s = (sl.size() < 2 ? "" : sl[1]);
 		if (sn == "")
 			;
+		else if (sn == "abbrev")
+			names[next] = s;
 		else if (sn == "name")
 			names[next] = s;
 		else if (sn == "icon")
@@ -108,7 +113,7 @@ int Languages::_Read(QString name)
 			toAlbums[next] = s;
 		else if (sn == "totop")
 			toAlbums[next] = s;
-		else if (sn == "upOneLevel")
+		else if (sn == "uponelevel")
 			toAlbums[next] = s;
 		else if (sn == "homepage")
 			toHomePage[next] = s;
@@ -118,7 +123,7 @@ int Languages::_Read(QString name)
 			toContact[next] = s;
 		else if (sn == "descriptions")
 			showDescriptions[next] = s;
-		else if (sn == "captions")
+		else if (sn == "cdcaptions")
 			coupleCaptions[next] = s;
 		else if (sn == "share")
 			share[next] = s;
@@ -138,6 +143,8 @@ int Languages::_Read(QString name)
 			falconG[next] = s;
 		}
 	}
+	if (abbrev[next].isEmpty())
+		abbrev[next] = countryCode[next];
 	return ++next;
 }
 
@@ -195,6 +202,7 @@ int Languages::Read()
 							"  and their texts are (the single quotes in the examples below are not used,"
 							"  and the examples are in braces):\n"
 							"  about     =<text for the 'About' button>\n"
+							"  abbrev    =<text for 'countryCode' used in file names (def.:'countryCode')>\n"
 							"  albums    =<text header for the album section of the  actual album>\n"
 							"  cdcoupled =<text for the captions-descriptions couple toggle>\n"
 							"  contact   =<text for the 'contact' button\n"
@@ -222,6 +230,7 @@ int Languages::Read()
 							"	where 'xx' is the ordinal of the block minus one.\n"),
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
+		abbrev.push_back("_en");
 		names.push_back("English");
 		icons.push_back("");
 		Images.push_back("Images");
@@ -261,6 +270,7 @@ int Languages::Read()
 void Languages::Clear(int newsize)
 {
 	names.Prepare(newsize);
+	abbrev.Prepare(newsize);
 	icons.Prepare(newsize);
 	Images.Prepare(newsize);
 	Videos.Prepare(newsize);
@@ -300,9 +310,9 @@ QString Languages::FileNameForLanguage(QString s, int language)
 	SeparateFileNamePath(s, path, name, &ext);
 
 	if (config.bSeparateFoldersForLanguages)
-		name = Languages::countryCode[language] + "/" + s;	// en_US/album123.html
+		name = Languages::abbrev[language] + "/" + s;	// en_US/album123.html
 	else
-		name += "-" + Languages::countryCode[language];		// album123-en_US.html
+		name += Languages::abbrev[language];		// album123-en_US.html
 	return path + name + ext;
 }
 

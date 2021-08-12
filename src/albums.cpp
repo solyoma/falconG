@@ -1703,6 +1703,8 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 			s = sl[0].toLower();
 			if (s == "name")
 				Languages::names[i] = sl[1];
+			else if (s == "abbrev")
+				Languages::abbrev[i] = sl[1];
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
 			else if (s == "images")
@@ -1723,8 +1725,10 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 				Languages::toAboutPage[i] = sl[1];
 			else if (s == "contact")
 				Languages::toContact[i] = sl[1];
-			else if (s == "captions")
+			else if (s == "descriptions")
 				Languages::showDescriptions[i] = sl[1];
+			else if (s == "cdcaptions")
+				Languages::coupleCaptions[i] = sl[1];
 			else if (s == "share")
 				Languages::share[i] = sl[1];
 			else if (s == "latesttitle")
@@ -1742,6 +1746,8 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 				Languages::falconG[i] = sl[1];
 			}
 		}
+		if (Languages::abbrev[i].isEmpty())	// default
+			Languages::abbrev[i] = Languages::countryCode[i];
 	}
 	if (Languages::countryCode[0].isEmpty())
 	{
@@ -3098,9 +3104,9 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 		outputMenuLine("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
-	if (config.bMenuToToggleCaptions && album.TitleCount() > 0)
+	if (config.bMenuToToggleCaptions && album.TitleCount() > 0 || album.ImageCount() > 0 && !Languages::coupleCaptions[_actLanguage].isEmpty())
 		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
-	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
+	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !Languages::toAlbums[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (config.generateLatestUploads)
 		outputMenuLine("latest", config.dsGRoot.ToString() + "latest-" + Languages::countryCode[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);

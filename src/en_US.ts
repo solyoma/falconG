@@ -4,7 +4,7 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="albums.cpp" line="2680"/>
+        <location filename="albums.cpp" line="2686"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -147,37 +147,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3533"/>
+        <location filename="falcong.cpp" line="3534"/>
         <source>falconG - Color scheme changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3533"/>
+        <location filename="falcong.cpp" line="3534"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3644"/>
-        <location filename="falcong.cpp" line="3729"/>
-        <location filename="falcong.cpp" line="3870"/>
-        <location filename="falcong.cpp" line="3911"/>
+        <location filename="falcong.cpp" line="3645"/>
+        <location filename="falcong.cpp" line="3730"/>
+        <location filename="falcong.cpp" line="3871"/>
+        <location filename="falcong.cpp" line="3912"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3644"/>
+        <location filename="falcong.cpp" line="3645"/>
         <source>Please restart the program to change the language!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3651"/>
-        <location filename="falcong.cpp" line="3658"/>
+        <location filename="falcong.cpp" line="3652"/>
+        <location filename="falcong.cpp" line="3659"/>
         <source>falconG - Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3659"/>
+        <location filename="falcong.cpp" line="3660"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <oldsource>No &apos;:&apos; in new name. The same name will be used for
@@ -185,7 +185,7 @@ all program languages. Is this what you want?</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3649"/>
+        <location filename="falcong.cpp" line="3650"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -196,84 +196,84 @@ matches the modified title.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3729"/>
-        <location filename="falcong.cpp" line="3911"/>
+        <location filename="falcong.cpp" line="3730"/>
+        <location filename="falcong.cpp" line="3912"/>
         <source>Invalid new name. Please use another!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3871"/>
+        <location filename="falcong.cpp" line="3872"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3896"/>
+        <location filename="falcong.cpp" line="3897"/>
         <source>New Scheme Name
  (for </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3897"/>
+        <location filename="falcong.cpp" line="3898"/>
         <source>falconG - Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3923"/>
+        <location filename="falcong.cpp" line="3924"/>
         <source>Select background color.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4725"/>
+        <location filename="falcong.cpp" line="4726"/>
         <source>Watermark sample text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4744"/>
+        <location filename="falcong.cpp" line="4745"/>
         <source>Select Watermark Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4769"/>
+        <location filename="falcong.cpp" line="4770"/>
         <source>Select Watermark Shadow Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4817"/>
+        <location filename="falcong.cpp" line="4818"/>
         <source>Phase 1: reading albums and images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4818"/>
+        <location filename="falcong.cpp" line="4819"/>
         <source>albums / images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4829"/>
+        <location filename="falcong.cpp" line="4830"/>
         <source>Phase 2: processing images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4830"/>
+        <location filename="falcong.cpp" line="4831"/>
         <source>images / total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4834"/>
+        <location filename="falcong.cpp" line="4835"/>
         <source>Phase 3: Creating albums</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4835"/>
+        <location filename="falcong.cpp" line="4836"/>
         <source>albums / total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4899"/>
+        <location filename="falcong.cpp" line="4900"/>
         <source>falconG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4899"/>
+        <location filename="falcong.cpp" line="4900"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -283,18 +283,18 @@ Can&apos;t read icon
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="albums.cpp" line="2441"/>
+        <location filename="albums.cpp" line="2447"/>
         <source>falconG - Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2442"/>
+        <location filename="albums.cpp" line="2448"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2445"/>
+        <location filename="albums.cpp" line="2451"/>
         <source>&apos;
 
 Processing aborted, because continuing
@@ -311,20 +311,20 @@ could destroy your old .struct file!
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3702"/>
-        <location filename="languages.cpp" line="181"/>
+        <location filename="falcong.cpp" line="3703"/>
+        <location filename="languages.cpp" line="188"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3703"/>
+        <location filename="falcong.cpp" line="3704"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4700"/>
+        <location filename="falcong.cpp" line="4701"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation type="unfinished"></translation>
@@ -366,7 +366,7 @@ Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="languages.cpp" line="184"/>
+        <location filename="languages.cpp" line="191"/>
         <source>No language (*.lang) files are found.
 Do you want to cancel or continue with English as the single language?
 
@@ -382,6 +382,7 @@ followed by definitions of the fixed texts used in the albums
  The format of the lines is &apos;name=text&apos;. The names
   and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
   about     =&lt;text for the &apos;About&apos; button&gt;
+  abbrev    =&lt;text for &apos;countryCode&apos; used in file names (def.:&apos;countryCode&apos;)&gt;
   albums    =&lt;text header for the album section of the  actual album&gt;
   cdcoupled =&lt;text for the captions-descriptions couple toggle&gt;
   contact   =&lt;text for the &apos;contact&apos; button
@@ -407,46 +408,6 @@ When the language texts are put into the struct file, there must be as many
 			&apos;[Language count:xx&apos; and &apos;]&apos;
 	where &apos;xx&apos; is the ordinal of the block minus one.
 </source>
-        <oldsource>No language (*.lang) files are found.
-Do you want to cancel or continue with English as the single language?
-
-To avoid this message either create language files and put them into the
-    a) source
-    b) destination or
-    c) program directory
-or write the language texts into the &apos;.struct&apos; file
-
-A language file is a UTF-8 encoded text file starting with the line:
-  &apos;falconG Language file&apos;
-followed by definitions of the fixed texts used in the albums
- The format of the lines is &apos;name=text&apos;. The names
-  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
-  about     =&lt;text for the &apos;About&apos; button&gt;
-  albums    =&lt;text header for the album section of the  actual album&gt;
-  captions  =&lt;text for the captions-descriptions couple toggle&gt;
-  contact   =&lt;text for the &apos;contact&apos; button
-  countOfImages=%1 image(s) and %2 sub-album(s) in this album
-  countryCode	=&lt;like &apos;en_US&apos;&gt;
-  descriptions  =&lt;text for the descriptionss toggle menu&gt;
-  falconG   =&lt;Copyright message. Please do not remove or change this. just translate&gt;
-  homePage	 =&lt;text for menu to home page&gt;
-  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
-  images    =&lt;text header for the images section of the actual album&gt;
-  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
-  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
-  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
-  toTop     =&lt;text for up arrow: jump to top of page&gt;
-  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
-  share     =&lt;text for the facebook share button&gt;  videos    =&lt;text header for the videos section of the actual album&gt;
- 
-When the language texts are put into the struct file, there must be as many
- language text blocks as languages. Each language text block is preceeded by
-  a line containing a single number: the ordinal of that language box,
-  followed by the same lines as in the .lang files
- The language text blocks are enclosed between lines
-			&apos;[Language count:xx&apos; and &apos;]&apos;
-	where &apos;xx&apos; is the ordinal of the block minus one.
-</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

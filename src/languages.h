@@ -27,9 +27,11 @@ public:
 
 struct Languages	// each language has a text file named <text from 'languages'>.php
 {					// or the languages are set in a .struct file
+		// these are read from language definition files '<xxx>.lang in program directory
+	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be 'gb')
+										// default: same as 'countryCode'
 	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
 	static LangConstList icons;			// icons to use instead of names
-		// these are read from language definition files '<xxx>.lang in program directory
 	static LangConstList Images;		// image section in HTML files 'Képek'
 	static LangConstList Videos;		// video section in HTML files 'Videók'
 	static LangConstList Albums;		// album section in HTML files 'Albumok'
@@ -40,7 +42,7 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 	static LangConstList toAboutPage;	// 'Rólam'
 	static LangConstList toContact;		// 'Kapcsolat'
 	static LangConstList share;			// 'Megosztás'
-	static LangConstList coupleCaptions;	// 'Képcimek'
+	static LangConstList coupleCaptions;	// 'Képcim+Leírás együtt'
 	static LangConstList showDescriptions;	// 'Képleírások'
 	static LangConstList latestTitle;	// 'Kedvcsinálónak'
 	static LangConstList latestDesc;		// 'Ebbe a könyvtárba...'
