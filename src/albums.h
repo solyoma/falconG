@@ -405,7 +405,7 @@ public:
 	TextMap &Texts()   { return _textMap;  }
 	LanguageTexts *TextsAt(ID_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
-	Album *AlbumAt(int which) { return &_albumMap[which]; }
+	Album *AlbumForID(ID_t id) { return &_albumMap[id]; }
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
 	void SignalProgressPos(int cnt1, int cnt2);

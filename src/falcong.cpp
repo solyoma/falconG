@@ -443,7 +443,10 @@ void FalconG::on_btnGenerate_clicked()
 
 			// WRITE album
 		if (_running)
+		{
+			QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			ui.btnPreview->setEnabled(albumgen.Write() == 0);
+		}
 
 		ui.progressBar->setValue(0);
 

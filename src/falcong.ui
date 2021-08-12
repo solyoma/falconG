@@ -760,7 +760,7 @@
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of language abbreviations (e.g. en_US or en_GB) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;language abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en_US.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
-                <string> &quot;hu,en&quot; to use hu.lang and en.lang</string>
+                <string> &quot;hu_HU,en_US&quot; to use hu_HU.lang and en_US.lang</string>
                </property>
               </widget>
              </item>
@@ -1824,8 +1824,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>414</width>
-                         <height>16</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2173,7 +2173,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>385</width>
+                         <width>392</width>
                          <height>672</height>
                         </rect>
                        </property>
@@ -4856,8 +4856,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

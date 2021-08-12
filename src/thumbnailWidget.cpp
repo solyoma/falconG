@@ -67,7 +67,7 @@ QString ThumbnailItem::_VideoToolTip() const
 QString ThumbnailItem::_FolderToolTip() const
 {
     Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
     return QString(pAlbum->FullName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")");
 }
 
@@ -115,7 +115,7 @@ QString ThumbnailItem::_VideoFileName() const
 QString ThumbnailItem::_FolderFileName() const
 {
     Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
     Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
     return QString(pImg->LinkName()); 
 }
@@ -159,7 +159,7 @@ QString ThumbnailItem::_VideoFullName() const
 QString ThumbnailItem::_FolderFullName() const
 {
     Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumAt(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
     Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
     return pImg->FullName();
 }
@@ -180,7 +180,7 @@ QString ThumbnailItem::text()  const
 // ****************** ThumbnailWidget ******************
 
  /*=============================================================
-  * TASK:		constractor
+  * TASK:		constructor
   * EXPECTS:	parent: widget to contain his
   *				thumbsize - pixel width and height of thumbnails
   * GLOBALS:
@@ -197,13 +197,14 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     _insertPosImage = QImage(spacerWidth, _thumbHeight, QImage::Format_ARGB32);
     QPainter *painter = new QPainter(&_insertPosImage);
     _insertPosImage.fill(Qt::transparent);
+    painter->setBrush(Qt::NoBrush);
     QPen pen;
     pen.setColor(schemes[PROGRAM_CONFIG::schemeIndex].sSpacerColor);
     pen.setWidth(10);
     painter->setPen(pen);
     painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbHeight);
-    painter->drawLine(spacerWidth / 2.0-10, 0, spacerWidth / 2.0 + 10 , 0);
-    painter->drawLine(spacerWidth / 2.0-10, _thumbHeight, spacerWidth / 2.0 + 10, _thumbHeight);
+    painter->drawLine(0, 0, spacerWidth, 0);
+    painter->drawLine(0, _thumbHeight, spacerWidth, _thumbHeight);
     delete painter;
 
     _currentItem = 0;
@@ -559,14 +560,29 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
 	drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::MoveAction);
 }
 
-QString __DropActionToStr(Qt::DropAction action)
+QString __DropActionToStr(QDragMoveEvent *event)    // QDragEnterEvent inherits this
 {
+	const Qt::DropAction action = event->proposedAction();
     QString qs = "Accepted actions are: ";
     if (action == Qt::IgnoreAction)	 qs += " IgnoreAction";
     if ((action & Qt::CopyAction) == Qt::CopyAction)	qs += " CopyAction";
     if ((action & Qt::MoveAction) == Qt::MoveAction)	qs += " MoveAction";
     if ((action & Qt::LinkAction) == Qt::LinkAction)	qs += " LinkAction";
     if ((action & Qt::TargetMoveAction) == Qt::TargetMoveAction) qs += " TargetMoveAction";
+
+    auto MimeDataType = [&]() {
+        const QMimeData *pd= event->mimeData();
+        QString s;
+        if (pd->hasText()) s += " text";
+        if (pd->hasHtml()) s += " HTML";
+        if (pd->hasUrls()) s += " URLs";
+        if (pd->hasImage()) s += " image";
+        if (pd->hasColor()) s += " color";
+        if (pd->hasFormat("application/x-thumb")) s += " x-thumb";
+
+        return s;
+    };
+    qs += QString("\nAt position(%1,%2) with").arg(event->pos().x()).arg(event->pos().y()) + MimeDataType();
 
     return qs;
 }
@@ -585,7 +601,6 @@ void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
 	{
 // DEBUG
 #if 1
-		Qt::DropAction action = event->proposedAction();
 // DEBUG
         if (pDragDropLabel)
 		{
@@ -594,7 +609,7 @@ void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
 		}
 // /DEBUG
 // DEBUG
-        QString qs = __DropActionToStr(action);
+        QString qs = __DropActionToStr(event);
         pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
 		pDragDropLabel->setVisible(true);
 // /DEBUG
@@ -651,8 +666,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 //	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
 //	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailWidgetModel *>(model())->DummyPosition());
 // DEBUG
-    Qt::DropAction action = event->proposedAction();
-    QString qs = __DropActionToStr(action) + QString(" r:%1").arg(row);
+    QString qs = __DropActionToStr(event) + QString(" r:%1").arg(row);
     pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
     pDragDropLabel->setVisible(true);
     // /DEBUG
@@ -739,7 +753,7 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
         int firstVisible = _GetFirstVisibleThumb();
         int lastVisible  = _GetLastVisibleThumb();
         if (_isAbortThumbsLoading || firstVisible < 0 || lastVisible < 0) {
-            return;
+            goto FINISHED;
         }
 
         if (_scrolledForward) 
@@ -761,7 +775,7 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
         }
 
         if (_thumbsRangeFirst == firstVisible && _thumbsRangeLast == lastVisible) 
-            return;
+            goto FINISHED;
 
         _thumbsRangeFirst = firstVisible;
         _thumbsRangeLast = lastVisible;
@@ -771,6 +785,7 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
             break;
         
     }
+  FINISHED:
 	emit SignalInProcessing(false);
 }
 

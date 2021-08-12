@@ -2,6 +2,7 @@
 #ifndef _SCHEMES_H
 #define _SCHEMES_H
 
+#include <QObject>
 #include <QVector>
 #include <QString>
 #include <QStringList>

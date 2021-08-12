@@ -1796,7 +1796,7 @@ static bool __SameLevel(int level, QString line)
 *			  the opening '[' brace: TITLE_TAG, DESCRCRIPTION_TAG or THUMBNAIL_TAG
 *           - except for the THUMBNAIL_TAG there must be as many such lines as are 
 *			  languages, each starting with the text of the tag followed by a dash ('-') 
-*			  and the language abbreviation. (e.g for TITLE_TAG  [Title-en:<text>])
+*			  and the language abbreviation. (e.g for TITLE_TAG  [Title-en_US:<text>])
 *			- the first line for either tag may end with a '*' followed by the text ID. 
 *			  If it is not present the text ID will be calculated.
 *			- The THUMBNAIL_TAG may contain the ID of the thumbnail image or the path name
@@ -1891,7 +1891,8 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			while (len && s[--len] != ']')	// find last ']'
 				;
 			++len;		// include closing ']' but not the possible ID/collision
-			texts.SetTextForLanguageNoID(s.mid(level + 10, len - level - 11), lang);
+			int clen = TITLE_TAG.length() + Languages::countryCode[lang].size() + 2;	// 1 for '[' + 1 for ':'
+			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
 			if (config.majorStructVersion == 1)
 			{						// none = there is no asterix followed by a number
 				if (textID == 0)	// then this is the first line for the text
