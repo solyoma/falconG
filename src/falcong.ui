@@ -470,8 +470,8 @@
              <string>Gallery</string>
             </property>
             <layout class="QGridLayout" name="gbGalleryLayout">
-             <item row="11" column="3">
-              <widget class="QCheckBox" name="chkMenuToDescriptions">
+             <item row="6" column="2" colspan="2">
+              <widget class="QLineEdit" name="edtBackImage">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -480,10 +480,179 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds menu to turn image descriptions on and off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Path name of  an image file, which will be set as the background image for the auto generated home page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="placeholderText">
+                <string>path to image file</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QCheckBox" name="chkMenuToAbout">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
                </property>
                <property name="text">
-                <string>Menu to toggle descriptions</string>
+                <string>About page</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_47">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Title</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1" colspan="2">
+              <widget class="QCheckBox" name="chkAllowLinkToImages">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Allow  links to full size images</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" colspan="2">
+              <widget class="QLineEdit" name="edtGalleryLanguages">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of language abbreviations (e.g. en_US or en_GB) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;language abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en_US.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="placeholderText">
+                <string> &quot;hu_HU,en_US&quot; to use hu_HU.lang and en_US.lang</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_42">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Send user emails to</string>
+               </property>
+               <property name="buddy">
+                <cstring>edtEmailTo</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="3">
+              <widget class="QCheckBox" name="chkMenuToContact">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds a &lt;span style=&quot; font-style:italic;&quot;&gt;Contact &lt;/span&gt; menu which opens mail to the value &lt;/p&gt;&lt;p&gt;in the user mail address field above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Menu to Contact by email</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="1" colspan="2">
+              <widget class="QCheckBox" name="chkCanDownload">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Allow the download of images</string>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="3">
+              <widget class="QCheckBox" name="chkFacebook">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a link to like the albums on &lt;span style=&quot; text-decoration: underline;&quot;&gt;facebook.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Like on Facebook link</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_62">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Languages</string>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="1">
+              <widget class="QCheckBox" name="chkRightClickProtected">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Try to protect page from downloads using the right mouse button (or Ctrl+click on Macs).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: this only protects from the average users!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Right click protection</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="label_50">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Home page background</string>
                </property>
               </widget>
              </item>
@@ -504,22 +673,8 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
-              <widget class="QLabel" name="label_50">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Home page background</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="1">
-              <widget class="QCheckBox" name="chkRightClickProtected">
+             <item row="11" column="3">
+              <widget class="QCheckBox" name="chkMenuToDescriptions">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -528,10 +683,10 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Try to protect page from downloads using the right mouse button (or Ctrl+click on Macs).&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: this only protects from the average users!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds menu to turn image descriptions on and off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Right click protection</string>
+                <string>Menu to toggle descriptions</string>
                </property>
               </widget>
              </item>
@@ -552,38 +707,7 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QLabel" name="label_47">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Title</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2" colspan="2">
-              <widget class="QLineEdit" name="edtBackImage">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Path name of  an image file, which will be set as the background image for the auto generated home page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="placeholderText">
-                <string>path to image file</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1" colspan="2">
+             <item row="10" column="1" colspan="2">
               <widget class="QCheckBox" name="chkForceSSL">
                <property name="enabled">
                 <bool>true</bool>
@@ -623,69 +747,7 @@
                </property>
               </widget>
              </item>
-             <item row="10" column="1" colspan="2">
-              <widget class="QCheckBox" name="chkAllowLinkToImages">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Allow  links to full size images</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="label_42">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Send user emails to</string>
-               </property>
-               <property name="buddy">
-                <cstring>edtEmailTo</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="3">
-              <widget class="QCheckBox" name="chkMenuToContact">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adds a &lt;span style=&quot; font-style:italic;&quot;&gt;Contact &lt;/span&gt; menu which opens mail to the value &lt;/p&gt;&lt;p&gt;in the user mail address field above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Menu to Contact by email</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="1" colspan="2">
-              <widget class="QCheckBox" name="chkCanDownload">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Allow the download of images</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="3">
+             <item row="12" column="3">
               <widget class="QCheckBox" name="chkMenuToToggleCaptions">
                <property name="font">
                 <font>
@@ -698,12 +760,12 @@
                 <string>Adds menu to couple image captions with descriptions.</string>
                </property>
                <property name="text">
-                <string>Menu to toggle Captions</string>
+                <string>Captions w. Descriptions</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="3">
-              <widget class="QCheckBox" name="chkFacebook">
+             <item row="9" column="2">
+              <widget class="QCheckBox" name="chkSeparateFoldersForLanguages">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -712,55 +774,10 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a link to like the albums on &lt;span style=&quot; text-decoration: underline;&quot;&gt;facebook.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked HTML files for the different languages will be put into separate folders with names of the country codes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Example: two languages (en_US and hu_HU) then the name &lt;span style=&quot; font-weight:600;&quot;&gt;album12345.html&lt;/span&gt;  will be used in both folders &lt;span style=&quot; font-weight:600;&quot;&gt;en_US&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;hu_HU &lt;/span&gt;inside &lt;span style=&quot; font-weight:600;&quot;&gt;albums&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If unchecked: each albums will be put in the same folder, but the country code will be used as a suffix.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Example: &lt;span style=&quot; font-weight:600;&quot;&gt;album12345-hu_HU.html&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;album12345-en_US.html &lt;/span&gt;will be put into the same folder &lt;span style=&quot; font-weight:600;&quot;&gt;albums&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;We suggest, unless you have very many albums ( more than a few thousand) leave this unchecked.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Like on Facebook link</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QCheckBox" name="chkMenuToAbout">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>About page</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLabel" name="label_62">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Languages</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2" colspan="2">
-              <widget class="QLineEdit" name="edtGalleryLanguages">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List of language abbreviations (e.g. en_US or en_GB) separated by comma (,)&lt;/p&gt;&lt;p&gt;Texts for languages must either be in the .struct file or &lt;br/&gt;in files in either the program directory or in the&lt;br/&gt;actual gallery's source directory. Files must be named as&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;&amp;lt;language abbreviation&amp;gt;.text, &lt;/span&gt;&lt;/p&gt;&lt;p&gt;Example:&lt;span style=&quot; font-style:italic;&quot;&gt; en_US.text.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If left empty it uses all language text files it finds.&lt;/p&gt;&lt;p&gt;This is just the language used on the gallery pages and not the&lt;br/&gt;language of the program's interface!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="placeholderText">
-                <string> &quot;hu_HU,en_US&quot; to use hu_HU.lang and en_US.lang</string>
+                <string>Separate Folders for Languages</string>
                </property>
               </widget>
              </item>
@@ -1824,8 +1841,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>431</width>
+                         <height>737</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2173,7 +2190,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
+                         <width>385</width>
                          <height>672</height>
                         </rect>
                        </property>
@@ -4856,8 +4873,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -6599,9 +6616,7 @@ regardless if they were already OK.</string>
   <tabstop>chkForceSSL</tabstop>
   <tabstop>chkMenuToContact</tabstop>
   <tabstop>chkAllowLinkToImages</tabstop>
-  <tabstop>chkMenuToToggleCaptions</tabstop>
   <tabstop>chkCanDownload</tabstop>
-  <tabstop>chkMenuToDescriptions</tabstop>
   <tabstop>chkRightClickProtected</tabstop>
   <tabstop>chkFacebook</tabstop>
   <tabstop>edtImg</tabstop>

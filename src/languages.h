@@ -40,7 +40,7 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 	static LangConstList toAboutPage;	// 'Rólam'
 	static LangConstList toContact;		// 'Kapcsolat'
 	static LangConstList share;			// 'Megosztás'
-	static LangConstList showCaptions;	// 'Képcimek'
+	static LangConstList coupleCaptions;	// 'Képcimek'
 	static LangConstList showDescriptions;	// 'Képleírások'
 	static LangConstList latestTitle;	// 'Kedvcsinálónak'
 	static LangConstList latestDesc;		// 'Ebbe a könyvtárba...'

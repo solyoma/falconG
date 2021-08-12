@@ -1493,6 +1493,11 @@ void FalconG::on_chkButImages_toggled(bool on)
 	}
 }
 
+void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
+{
+	config.bSeparateFoldersForLanguages = ui.chkSeparateFoldersForLanguages->isChecked();
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:

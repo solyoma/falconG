@@ -909,7 +909,8 @@ public:
 	_CDirStr dsThumbDir = {"thumbs/","dsThumbDir"};		// thumbnail directory on server AND or destination
 	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
 
-	
+
+	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
@@ -923,8 +924,8 @@ public:
 								// this page if set should have links into dsGRoot for all languages
 								// If given the main page;s uplink points here, otherwise no uplink on main page(s)
 	_CString iconUplink = {"up-icon.png","iconUplink"};		// name of the icon file in the 'res' sub-directory
-	_CString  sMainPage = {"index_en_US.html"," sMainPage"};		// name of the root file in the system The gallery root 
-								// (default index.html or index1en.html, index1hu.html,...)
+	_CString sMainPage = {"index.html"," sMainPage"};		// name of the root file in the system The gallery root 
+								// (default index.html or index-en_US.html, index-hu_HU.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
 								// The Home menu will link here (Example: index_en_US.html - home link: /<dsGRoot>/index.html)
 	_CString sDescription = {"","sDescription"};		// page description: appears in we bsearch results

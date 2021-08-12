@@ -1535,7 +1535,8 @@ void CONFIG::Read()		// synchronize with Write!
 	sGoogleFonts.Read(s);
 	sDefFonts.Read(s);
 	sKeywords.Read(s);
-											// sepcial data
+											// special data
+	bSeparateFoldersForLanguages.Read(s);
 	bAddTitlesToAll.Read(s);
 	bAddDescriptionsToAll.Read(s);
 	bLowerCaseImageExtensions.Read(s);
@@ -1655,7 +1656,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	sGoogleFonts.Write(s);
 	sDefFonts.Write(s);
 	sKeywords.Write(s);
-											// sepcial data
+											// special data
+	bSeparateFoldersForLanguages.Write(s);
 	bAddTitlesToAll.Write(s);
 	bAddDescriptionsToAll.Write(s);
 	bLowerCaseImageExtensions.Write(s);

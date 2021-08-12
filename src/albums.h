@@ -258,7 +258,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 };
 
 //------------------------------------------
-struct Album : IABase			// ID == 1 root  (0: invalid)
+struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 {
 	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
 						// this album changes. Must be modified when this album is moved into another one(**TODO**)

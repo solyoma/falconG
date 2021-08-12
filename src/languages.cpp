@@ -17,7 +17,7 @@ LangConstList Languages::upOneLevel;	// jump to parent
 LangConstList Languages::toHomePage;	// 'Kezdõlapra'
 LangConstList Languages::toAboutPage;	// 'Rólam'
 LangConstList Languages::toContact;		// 'Kapcsolat'
-LangConstList Languages::showCaptions;  // 'Képcímek'
+LangConstList Languages::coupleCaptions;  // 'Képcímek'
 LangConstList Languages::showDescriptions;  // 'Képleírások'
 LangConstList Languages::share;			// 'Megosztás'
 LangConstList Languages::latestTitle;	// 'Kedvcsinálónak'
@@ -76,7 +76,7 @@ int Languages::_Read(QString name)
 	latestTitle.push_back(s);
 	latestDesc.push_back(s);
 	names.push_back(s);
-	showCaptions.push_back(s);
+	coupleCaptions.push_back(s);
 	showDescriptions.push_back(s);
 	share.push_back(s);
 	toAboutPage.push_back(s);
@@ -119,7 +119,7 @@ int Languages::_Read(QString name)
 		else if (sn == "descriptions")
 			showDescriptions[next] = s;
 		else if (sn == "captions")
-			showCaptions[next] = s;
+			coupleCaptions[next] = s;
 		else if (sn == "share")
 			share[next] = s;
 		else if (sn == "latesttitle")
@@ -196,7 +196,7 @@ int Languages::Read()
 							"  and the examples are in braces):\n"
 							"  about     =<text for the 'About' button>\n"
 							"  albums    =<text header for the album section of the  actual album>\n"
-							"  captions  =<text for the captions-descriptions couple toggle>\n"
+							"  cdcoupled =<text for the captions-descriptions couple toggle>\n"
 							"  contact   =<text for the 'contact' button\n"
 							"  countOfImages=%1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
 							"  countryCode	=<like 'en_US'>\n"
@@ -233,7 +233,7 @@ int Languages::Read()
 		upOneLevel.push_back("Up one level");
 		toAboutPage.push_back("About");
 		toContact.push_back("Contact");
-		showDescriptions.push_back("Captions");
+		coupleCaptions.push_back("Title&amp;Desc Coupled");	// captions and descriptions coupled
 		showDescriptions.push_back("Descriptions");
 		share.push_back("Share");
 		latestTitle.push_back("Latest uploads");
@@ -272,7 +272,7 @@ void Languages::Clear(int newsize)
 	toAboutPage.Prepare(newsize);
 	toContact.Prepare(newsize);
 	share.Prepare(newsize);
-	showCaptions.Prepare(newsize);
+	coupleCaptions.Prepare(newsize);
 	showDescriptions.Prepare(newsize);
 	latestTitle.Prepare(newsize);
 	latestDesc.Prepare(newsize);
@@ -281,19 +281,28 @@ void Languages::Clear(int newsize)
 	falconG.Prepare(newsize);
 }
 /*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
+  * TASK:	creates full file name for an HTML file for any language
+  * EXPECTS:	s - file name (e.g. album123.html) w.o. languegs 
+  * RETURNS:	name for the given language (see REMARKS)
+  * GLOBALS:	config
+  * REMARKS: - if there's one language only, then keeps name, else
+  *				add the language code to the file: 
+  *				e.g. 'album123-en_US.html', or 'en"US/album123.html'
+  *			 - the caller must ensure that the generated name is used properly
+  *				i.e. the folders exist, the file AND the link in that file to albums in the
+  *				same language are set correctly!
  *--------------------------------------------------------------------------*/
 QString Languages::FileNameForLanguage(QString s, int language)
 {
+	if (Languages::Count() == 1)
+		return s;
 	QString path, name, ext;
 	SeparateFileNamePath(s, path, name, &ext);
 
-	if (Languages::Count() > 1)
-		name += "_" + Languages::countryCode[language];
+	if (config.bSeparateFoldersForLanguages)
+		name = Languages::countryCode[language] + "/" + s;	// en_US/album123.html
+	else
+		name += "-" + Languages::countryCode[language];		// album123-en_US.html
 	return path + name + ext;
 }
 

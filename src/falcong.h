@@ -280,6 +280,7 @@ private slots:
 	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
 	void on_chkGenerateAll_toggled(bool);
 	void on_chkButImages_toggled(bool);
+	void on_chkSeparateFoldersForLanguages_toggled(bool);
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkAddDescToAll_toggled(bool);
 	void on_chkLowerCaseImageExtensions_toggled(bool);

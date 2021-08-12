@@ -90,7 +90,7 @@ void AlbumStructWriterThread::run()
 		_ofs << i << "\n"
 			<< "  about=" << Languages::toAboutPage[i] << "\n"
 			<< "  albums=" << Languages::Albums[i] << "\n"
-			<< "  captions=" << Languages::showCaptions[i] << "\n"
+			<< "  captions=" << Languages::coupleCaptions[i] << "\n"
 			<< "  contact=" << Languages::toContact[i] << "\n"
 			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
 			<< "  countryCode=" << Languages::countryCode[i] << "\n"

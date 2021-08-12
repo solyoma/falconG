@@ -2713,7 +2713,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 	else
 		base = (config.dsGRoot + path).ToString() + name;
 	if (multipleLanguages)
-		base += "_" + Languages::countryCode.at(language); // e.g. index_en_GB.html
+		base += "-" + Languages::countryCode.at(language); // e.g. index_en_GB.html
 
 	if (toServerPath)
 	{
@@ -3017,7 +3017,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 	if (!config.bFacebookLink)
 		return;
 		// facebook link
-	QString updir = (ID == 1 ? "" : "../");
+	QString updir = (ID == 1 + ALBUM_ID_FLAG ? "" : "../");
 	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
 
 	_ofs << R"(<div class="fb-share-button" data-href=")"
@@ -3032,7 +3032,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 
 QString AlbumGenerator::_PageHeadToString(ID_t id)
 {
-	QString supdir = (id == 1 ? "" : "../"),
+	QString supdir = (id == 1 + ALBUM_ID_FLAG ? "" : "../"),
 			sCssLink = QString("<link rel=\"stylesheet\" href=\"") +
 					supdir + 
 					config.dsCssDir.ToString();
@@ -3074,7 +3074,7 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
  *-------------------------------------------------------*/
 void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 {
-	QString updir = (album.ID == 1) ? "" : "../";
+	QString updir = (album.ID == 1 + ALBUM_ID_FLAG) ? "" : "../";
 
 	auto outputMenuLine = [&](QString id, QString href, QString text, QString hint=QString())
 	{
@@ -3099,11 +3099,11 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
 	if (config.bMenuToToggleCaptions && album.TitleCount() > 0)
-		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showCaptions[_actLanguage] << "</a>\n";
+		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 )	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (config.generateLatestUploads)
-		outputMenuLine("latest", config.dsGRoot.ToString() + "latest_" + Languages::countryCode[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
+		outputMenuLine("latest", config.dsGRoot.ToString() + "latest-" + Languages::countryCode[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
 	_ofs << "&nbsp;&nbsp;";
@@ -3171,13 +3171,13 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 }
 
 /*============================================================================
-* TASK:		writes eiter an image or a gallery section
+* TASK:		writes either an image or a gallery section
 * EXPECTS:	album		- actual album whose content (images and sub-albums) is written
 *			typeFlag	- only write items of this type
 *			i			- index in ID list for images or albums (when bWriteSubAlbums is true)
-* GLOBALS: config, Languages
+* GLOBALS: config, Languages, _actLanguage
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
-* REMARKS:  - root albums (ID == 1) are written into gallery root, others
+* REMARKS:  - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, others
 *			  are put into directory 'albums' 
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
@@ -3198,7 +3198,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 	if (typeFlag == ALBUM_ID_FLAG && !album.exists)
 		return -1;
 
-	if (album.ID == (1 | ID_MASK) )		// root album
+	if (album.ID == (1 + ALBUM_ID_FLAG) )		// root album
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
 		sOneDirUp = "";					// and the img directory is here
@@ -3393,7 +3393,7 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 *				homeLink - The 'home' button links to this page
 *
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: - root albums (ID == 1) are written into gallery root, all others in 'albums'
+* REMARKS: - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, all others in 'albums'
 *			  so sub-album links must point into the 'albums' sub -directory EXCEPT for
 *		   - non root
 *--------------------------------------------------------------------------*/
@@ -3430,7 +3430,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<< "    <section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.ImageCount(); ++i)
-			_WriteGalleryContainer(album, false, i);
+			_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
@@ -3453,7 +3453,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 
 		for (int i = 0; _processing && i < album.SubAlbumCount(); ++i)
 			//			if (album.excluded.indexOf(album.albums[i]) < 0)
-			_WriteGalleryContainer(album, true, i);
+			_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
 
@@ -3484,7 +3484,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 *				homeLink - The 'home' button links to this page
 *
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: - root albums (ID == 1) are written into gallery root, all others in 'albums'
+* REMARKS: - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, all others in 'albums'
 *			  so sub-album links must point into the 'albums' sub -directory EXCEPT for
 *		   - non root: when it not changed and need not re-create all albums, just signals
 *			 it processed the album
@@ -3495,10 +3495,10 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	_actLanguage = language;
 
 	QString s;
-	if ( album.ID == 1)		// top level: use name from config 
+	if ( album.ID == 1 + ALBUM_ID_FLAG)		// top level: use name from config 
 		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
-	else
-		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language); // all non root albums are in the same directory
+	else		 // all non root albums are either in the same directory or in separate language directories inside it
+		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language);
 
 	QFile f(s);
 	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structChanged*/)
@@ -3515,7 +3515,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		if (album.SubAlbumCount() >0)
 		{
 			uplink = album.NameFromID(language);
-			if (album.ID == 1)
+			if (album.ID == 1 + ALBUM_ID_FLAG)
 				uplink = QString("../") + uplink;;
 
 			for (int i = 0; _processing && i < album.items.size(); ++i)
@@ -3541,7 +3541,7 @@ int AlbumGenerator::_CreateHomePage()
 	if (Languages::Count() == 1)
 		return 0;
 
-	QString name = config.sMainPage.ToString(),
+	QString name = config.sMainPage.ToString(),	 // e.g. index.html
 		s, path, fn, ext;
 	SeparateFileNamePath(name, path, fn, &ext);
 
@@ -3567,10 +3567,10 @@ int AlbumGenerator::_CreateHomePage()
 		<< "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
 	_WriteFacebookLink(_albumMap[1].LinkName(_actLanguage, true), 1);	// when required
 	_ofs << "<p class=\"menu-line\">\n";
-	// languages
+	// languages links
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		_ofs << QString("<a href=\"%1%2\">%3</a>").arg(fn + QStringLiteral("_") + Languages::countryCode[i]).arg(ext).arg(Languages::names[i]);
+		_ofs << QString("<a href=\"%1\">%3</a>").arg(Languages::FileNameForLanguage(fn, i)).arg(Languages::names[i]);
 		// menu buttons
 		if (config.bMenuToAbout)
 		{
@@ -3627,13 +3627,20 @@ int AlbumGenerator::_DoPages()
 	QString path, name;				 
 
 	int cnt = 0;
+	
+	if (Languages::Count() != 1 && config.bSeparateFoldersForLanguages)
+	{
+		bool ask = false;
+		for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
+			CreateDir(Languages::countryCode[lang], ask);
+	}
 
 	for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
 	{
 										// home of gallery root	 like 'index' or 'index.html'
 		config.homeLink = uplink.isEmpty() ? config.sMainPage.ToString() : config.sUplink.ToString();
 
-		_CreatePage(_albumMap[1], lang, uplink, cnt);	// all albums go into the same directory!
+		_CreatePage(_albumMap[1+ALBUM_ID_FLAG], lang, uplink, cnt);	// all albums go into the same directory!
 	}
 	_CreateHomePage();
 
