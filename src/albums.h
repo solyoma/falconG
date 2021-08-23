@@ -39,6 +39,8 @@ using IdList = UndeletableItemList<ID_t>;
 
 const ID_t EXCLUDED_FLAG = 0x8000000000000000ull;
 const ID_t ALBUM_ID_FLAG = 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
+const ID_t ROOT_ALBUM_ID = 0x4000000000000001ull;
+const ID_t RECENT_ALBUM_ID = 0x4000000000000002ull;
 const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
 const ID_t IMAGE_ID_FLAG = 0x1000000000000000ull;	// when set ID is for a video
 const ID_t BASE_ID_MASK	 = 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC

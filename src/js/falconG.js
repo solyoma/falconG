@@ -126,7 +126,7 @@ function preloadImage(img) {
     img.removeAttribute("data-src");
 }
 
-function falconGLoad() {
+function falconGLoad(latest) {
     ResizeThumbs();
     showDesc = sessionStorage.getItem("showDescription");
     if (!showDesc)       // e.g. not defined
@@ -134,6 +134,10 @@ function falconGLoad() {
     else
         showDesc ^= 1;  // invert stored
 
+//console.log("latest: "+latest)
+
+	if(latest === 1)
+		SetRandomLastImage()	// in 'latest.js'
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
     t1 = Date.time;

@@ -1521,6 +1521,10 @@ void CONFIG::Read()		// synchronize with Write!
 	dsGallery.Read(s);
 	dsGallery.Read(s);
 	dsGRoot.Read(s);
+	//if (dsGRoot.IsEmpty())
+	//	dsGRoot = "/";
+	//if(dsGRoot.ToString()[0] != QChar('/'))
+	//	dsGRoot.v0 = dsGRoot.v = "/" + dsGRoot.v0;
 	dsAlbumDir.Read(s);
 
 	sBaseName.Read(s);
@@ -1641,6 +1645,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	// directories
 	dsSrc.Write(s);
 	dsGallery.Write(s);
+	if (dsGRoot == "/")
+		dsGRoot.Clear();
 	dsGRoot.Write(s);
 	dsAlbumDir.Write(s);
 

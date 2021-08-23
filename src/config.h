@@ -102,8 +102,11 @@ struct _CString : public _CFG_ITEM<QString>
 
 	QString& operator=(const QString s);
 	QString& operator=(const _CString& s) { _CFG_ITEM::operator=(s);  return v; };
+	bool operator==(const QString s) { return v == s; }
+	bool operator==(const _CString &s) { return v == s.v; }
 //	operator const QString() const { return ToString(); }
 	operator QString() const { return ToString(); }
+	void Clear() { v.clear(); }
 	bool IsEmpty() const { return v.isEmpty();  }
 	QString ToString() const { return v.isEmpty() ? vd : v; }
 	int Length() const { return ToString().length(); }
@@ -883,12 +886,17 @@ public:
 		ThumbAspect(reset);
 		return _aspectsDiffer;
 	}
+			// these are on the local machine
+	_CDirStr GalleryRoot() const				{ return _CDirStr(dsGallery) + dsGRoot.ToString(); }
+	_CDirStr LocalImageDirectory() const		{ return GalleryRoot() + dsImageDir; }
+	_CDirStr LocalVideoDirectory() const		{ return GalleryRoot() + dsVideoDir; }
+	_CDirStr LocalThumbnailDirectory() const	{ return GalleryRoot() + dsThumbDir; }
+	_CDirStr LocalAlbumDirectory() const		{ return GalleryRoot() + dsAlbumDir; }
+		// these are relative to the album directory
+	_CDirStr RelativeImageDirectory() const		{ return _CDirStr("../") + dsImageDir; }
+	_CDirStr RelativeVideoDirectory() const		{ return _CDirStr("../") + dsVideoDir; }
+	_CDirStr RelativeThumbnailDirectory() const { return _CDirStr("../") + dsThumbDir; }
 
-	_CDirStr GalleryRoot() const	{ return _CDirStr(dsGallery) + _CDirStr(dsGRoot); }
-	_CDirStr ImageDirectory() const { return GalleryRoot() + dsImageDir; }
-	_CDirStr VideoDirectory() const { return GalleryRoot() + dsVideoDir; }
-	_CDirStr ThumbnailDirectory() const { return GalleryRoot() + dsThumbDir; }
-	_CDirStr AlbumDirectory() const { return GalleryRoot() + dsAlbumDir; }
 		  // **** Fields of CONFIG ***
 	bool designChanged = false;	// page design is changed
 

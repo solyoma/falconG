@@ -1625,16 +1625,17 @@ bool AlbumGenerator::Read()
 * EXPECTS:
 * GLOBALS:	config
 * REMARKS: - if directories does not have an absolute path
-*				(windows: starting with "drive:\" or "\", linux: starts with '/')
+*				(windows: starting with "drive:\" or "\", linux: starting with '/')
 *			 they are created in this hierarchy:
-*			  config.dsGallery						destination directory
-*				config.dsGRoot				gallery root	(may be empty then
-*									all thes below will be in config.dsGallery)
+*			  config.dsGallery		destination directory corresponding to server address
+*				config.dsGRoot		gallery root folder on server (if empty then
+*									it is set to '/')
 *					config.dsAlbumDir	albums (HTML files) here
 *					config.dsImageDir	images for all albums
 *					config.dsCssDir		css files
 *					config.dsFontDir		fonts
-*					res					javascript files, icon files
+*					js					javascript files
+*					res					icon files, stb
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_CreateDirectories()
 {
@@ -1836,7 +1837,19 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 
 	do		 // for each line with text in []);
 	{
-		int lang = (reader.l()[level + 1] == THUMBNAIL_TAG[0] ? -1 : Languages::countryCode.indexOf(reader.l().mid(level + TITLE_TAG.length()+1, 5)));	// en_US
+		int lang = -1;		// THUMBNAIL_TAG
+		if (reader.l()[level + 1] != THUMBNAIL_TAG[0])
+		{
+
+			for (lang = 0; lang < Languages::Count(); ++lang)
+			{
+				int len = Languages::language[lang].length();
+				if (reader.l().mid(level + TITLE_TAG.length() + 1, len) == Languages::language[lang])
+					break;
+			}
+			if (lang == Languages::Count())		// safety
+				lang = 0;
+		}
 
 		if (reader.l()[level + 1] == THUMBNAIL_TAG[0])
 			newTag = IdsFromStruct::thumbnail;
@@ -2442,7 +2455,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			if (reader.l()[0] != '(' || (reader.l()[1] != 'A' && reader.l()[1] != 'C'))
 				throw BadStruct(reader.ReadCount(),"Invalid / empty root album line");
 					// recursive album read. there is only one top level album
-					// with id == 1 + ALBUM_ID_FLAG (id == ALBUM_ID_FLAG is not used)
+					// with id == ROOT_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, 0, 0); 
 			if (error)
 				throw BadStruct(reader.ReadCount(),"Error");
@@ -2765,8 +2778,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-			dst = config.ImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions), // e.g. imgs/123456789.jpg
-			thumbName = config.ThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
+			dst = config.LocalImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions), // e.g. imgs/123456789.jpg
+			thumbName = config.LocalThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
 
 	QFileInfo fiSrc(src), fiThumb(thumbName), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),
@@ -2977,7 +2990,7 @@ int AlbumGenerator::_ProcessVideos()
 		// to one that does
 		// at the moment: just copy file to vids directory
 		QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-			dst = config.VideoDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
+				dst = config.LocalVideoDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);
 
 		QFile file(src);
 		file.copy(dst);
@@ -3030,7 +3043,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 	if (!config.bFacebookLink)
 		return;
 		// facebook link
-	QString updir = (ID == 1 + ALBUM_ID_FLAG ? "" : "../");
+	QString updir = (ID == ROOT_ALBUM_ID ? "" : "../");
 	QUrl url(linkName); // https://andreasfalco.com/albums/album1234.html\" 
 
 	_ofs << R"(<div class="fb-share-button" data-href=")"
@@ -3045,7 +3058,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 
 QString AlbumGenerator::_PageHeadToString(ID_t id)
 {
-	QString supdir = (id == 1 + ALBUM_ID_FLAG ? "" : "../"),
+	QString supdir = (id == ROOT_ALBUM_ID ? "" : "../"),
 			sCssLink = QString("<link rel=\"stylesheet\" href=\"") +
 					supdir + 
 					config.dsCssDir.ToString();
@@ -3066,8 +3079,12 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 	if (!config.sKeywords.IsEmpty())
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "\"/>\n");
 
-	s += QString(sCssLink + "falconG.css\">\n" + 
-		"<script type=\"text/javascript\"  src=\"" + supdir + "js/falconG.js\"></script>"	);
+	s += QString(sCssLink + "falconG.css\">\n");
+	if (id == ROOT_ALBUM_ID)
+		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ Languages::abbrev[_actLanguage] +".js\"></script>" +
+		"<script type=\"text/javascript\" src=\"" + supdir + "js/latest.js\"></script>";
+
+	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
 
 	if (config.bFacebookLink)
 		s += _IncludeFacebookLibrary();
@@ -3087,7 +3104,7 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
  *-------------------------------------------------------*/
 void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 {
-	QString updir = (album.ID == 1 + ALBUM_ID_FLAG) ? "" : "../";
+	QString updir = (album.ID == ROOT_ALBUM_ID) ? "" : "../";
 
 	auto outputMenuLine = [&](QString id, QString href, QString text, QString hint=QString())
 	{
@@ -3116,9 +3133,9 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !Languages::toAlbums[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
-	if (album.ID > 2 + ALBUM_ID_FLAG && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
+	if (album.ID > RECENT_ALBUM_ID && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
 	{
-		QString qs = config.AlbumDirectory().ToString() + "latest";
+		QString qs = "latest";
 		if (Languages::Count() > 1)
 			qs += Languages::abbrev[_actLanguage];
 		qs += ".html";
@@ -3195,6 +3212,7 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 * EXPECTS:	album		- actual album whose content (images and sub-albums) is written
 *			typeFlag	- only write items of this type
 *			idIndex		- index in ID list for images or albums (when bWriteSubAlbums is true)
+*							-1: this is an image for  the latest uploads
 * GLOBALS: config, Languages, _actLanguage
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
 * REMARKS:  - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, others
@@ -3204,13 +3222,12 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idIndex)
 {
-	const int ROOT_ID = (1 + ALBUM_ID_FLAG);
 
 	IdList& idList = album.items;
-	if (idIndex > 0 && idList.isEmpty())
+	if (idIndex >= 0 && idList.isEmpty())
 		return typeFlag == ALBUM_ID_FLAG ? -1 : -2;
 
-	ID_t id = idIndex >= 0?  idList[idIndex] : (2 + ALBUM_ID_FLAG);
+	ID_t id = idIndex >= 0?  idList[idIndex] : RECENT_ALBUM_ID;
 	if ((id & typeFlag) == 0)	// not this type
 		return 0;
 
@@ -3220,7 +3237,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	if (typeFlag == ALBUM_ID_FLAG && !album.exists)
 		return -1;
 
-	if (album.ID == ROOT_ID )		// root album
+	if (album.ID == ROOT_ALBUM_ID )		// root album
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
 		sOneDirUp = "";								// and the img directory is here
@@ -3238,7 +3255,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	ID_t thumb = 0;
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		thumb = idIndex > 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ];
+		thumb = idIndex >= 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ];
 		if (thumb)
 		{
 			if (_imageMap.contains(thumb))
@@ -3271,7 +3288,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	_ofs << "   <div class=\"img-container\">\n"
 		"     <div";
 	if (pImage)
-		_ofs << " id=\"" << pImage->ID << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
+		_ofs << " id=\"" << (pImage->ID & ID_MASK) << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
 	_ofs << ">";
 
 	if (typeFlag & ALBUM_ID_FLAG)
@@ -3300,7 +3317,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		if (idIndex >= 0)
 			_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
 		else
-			_ofs << sAlbumDir << config.AlbumDirectory().ToString() << "latest" << Languages::abbrev[_actLanguage] << ".html\">";
+			_ofs << sAlbumDir << "latest" << Languages::abbrev[_actLanguage] << ".html\">";
 	}
 	else
 	{
@@ -3313,6 +3330,9 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 	// the first 3 images will always be loaded immediately
 	_ofs << (idIndex > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
+
+	if (idIndex < 0)	   // latest uploads
+		_ofs << " id=\"latest\"";
 	
 	if (pImage)
 	{
@@ -3336,7 +3356,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString qsLoc;		// empty for non root albums/images
 	if (typeFlag == ALBUM_ID_FLAG)
 		qsLoc = "javascript:LoadAlbum('" + 
-					(idIndex > 0 ? sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false) : config.AlbumDirectory().ToString() + "latest" + Languages::abbrev[_actLanguage] + ".html")+")'";
+					sAlbumDir + (idIndex >= 0 ? _albumMap[id].NameFromID(id, _actLanguage, false) : "latest" + Languages::abbrev[_actLanguage] + ".html")+")'";
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
@@ -3443,8 +3463,8 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
 	emit SignalProgressPos(++processedCount, _albumMap.size() * Languages::Count());
 
-	_ofs << _PageHeadToString(album.ID)
-		 << " <body onload = \"falconGLoad()\" onbeforeunload=\"BeforeUnload()\"";
+	_ofs << _PageHeadToString(album.ID)	// for root album set random thumbnail to most recent gallery
+		 << " <body onload = \"falconGLoad(" + QString(album.ID == ROOT_ALBUM_ID ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"
@@ -3456,11 +3476,11 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	_ofs << "<!-- Main section -->\n"
 		"   <div class=\"main\" id=\"main\">\n";
 
-	if (album.ID == 1 + ALBUM_ID_FLAG && config.bGenerateLatestUploads)	// root album and last uploaded?
+	if (album.ID == ROOT_ALBUM_ID && config.bGenerateLatestUploads)	// root album and last uploaded?
 	{
-		_ofs << "<!-- section for latest uploads -->\n"
+		_ofs << "<br><br><!-- section for latest uploads -->\n"
 			<< "    <section>\n";
-		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads
+		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads> the thumbnail is set by javascript 'GetRandomLastImage()'
 
 		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
 	}
@@ -3537,10 +3557,10 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	_actLanguage = language;
 
 	QString s;
-	if ( album.ID == 1 + ALBUM_ID_FLAG)		// top level: use name from config 
+	if ( album.ID == ROOT_ALBUM_ID)		// top level: use name from config 
 		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
 	else		 // all non root albums are either in the same directory or in separate language directories inside it
-		s = config.AlbumDirectory().ToString() + album.NameFromID(language);
+		s = config.LocalAlbumDirectory().ToString() + album.NameFromID(language);
 
 	QFile f(s);
 	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structChanged*/)
@@ -3557,7 +3577,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		if (album.SubAlbumCount() >0)
 		{
 			uplink = album.NameFromID(language);
-			if (album.ID == 1 + ALBUM_ID_FLAG)
+			if (album.ID == ROOT_ALBUM_ID)
 				uplink = QString("../") + uplink;;
 
 			for (int i = 0; _processing && i < album.items.size(); ++i)
@@ -3682,7 +3702,7 @@ int AlbumGenerator::_DoPages()
 										// home of gallery root	 like 'index' or 'index.html'
 		config.homeLink = uplink.isEmpty() ? config.sMainPage.ToString() : config.sUplink.ToString();
 
-		_CreatePage(_albumMap[1+ALBUM_ID_FLAG], lang, uplink, cnt);	// all albums go into the same directory!
+		_CreatePage(_albumMap[ROOT_ALBUM_ID], lang, uplink, cnt);	// all albums go into the same directory!
 	}
 	_CreateHomePage();
 
@@ -3774,7 +3794,8 @@ int AlbumGenerator::_DoLatestJs()
 			"// date of latest upload: " << _latestDateLimit.toString() << "\n"
 			"// period: "<< config.newUploadInterval << " days, count: "<< n << ",max count : "<< config.nLatestCount <<"\n\n"
 			"const lang='" << (Languages::language[lang]) << "'\n"
-			"const imagePath='"<< config.ThumbnailDirectory().ToString() <<"'\n"
+			"const imagePath='"<< config.dsImageDir.ToString() <<"'\n"
+			"const thumbsPath='"<< config.dsThumbDir.ToString() <<"'\n"
 			"const ids = [\n";
 
 		for (auto latest : _latestImages.list)
@@ -3916,7 +3937,7 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 	fileName = baseName + postFix + ".html";
 
 	Album albumLatest;
-	albumLatest.ID = 2 + ALBUM_ID_FLAG;
+	albumLatest.ID = RECENT_ALBUM_ID;
 
 	QFile f(fileName);
 	if (!f.open(QIODevice::WriteOnly))
@@ -3925,7 +3946,7 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << _PageHeadToString(2 + ALBUM_ID_FLAG)
+	_ofs << _PageHeadToString(RECENT_ALBUM_ID)
 		 << " <body onload = \"select()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
@@ -3969,7 +3990,7 @@ int AlbumGenerator::_DoLatest()
 	if (!config.bGenerateLatestUploads)
 		return 0;
 
-	QString qsBase = config.AlbumDirectory().ToString()+"latest";
+	QString qsBase = config.LocalAlbumDirectory().ToString()+"latest";
 	int res = _DoLatestJs();
 	if (res || !_latestImages.list.size())	// only generate if one exists
 		return res;

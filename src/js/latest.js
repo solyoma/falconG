@@ -30,7 +30,7 @@ let maxiter = 500
         if(!s.includes(i))
         {
 	// DEBUG
-	 console.log("i: "+ i +", remaining: "+remaining);
+	//console.log("i: "+ i +", remaining: "+remaining);
             s.push(i);
             selected.push(ids[i]);
             --remaining;
@@ -55,7 +55,7 @@ let maxiter = 500
 		// console.log('href:'+a.href)
             
                 const img = document.createElement('img');
-                img.src = `${imagePath}${item.id}.jpg`;
+                img.src = `${thumbsPath}${item.id}.jpg`;
                 img.alt= `Image ${item.id}.jpg`;
                 img.classList.add('galleryImg');
             
@@ -90,6 +90,13 @@ let maxiter = 500
 
         section.appendChild(divImgContainer);
 
-         console.log(img.src + ' - processed');
+ //       console.log(img.src + ' - processed');
     })
+}
+function SetRandomLastImage()
+{
+	let elem = document.getElementById('latest');
+	let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
+	elem.src= thumbsPath + ids[i].id + '.jpg';
+//	console.log("thumbsPath:"+thumbsPath + "\nsrc: "+elem.src)
 }
