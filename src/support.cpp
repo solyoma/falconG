@@ -57,12 +57,24 @@ QString EncodeLF(QString s)
 * RETURNS:
 * REMARKS:
 *------------------------------------------------------------*/
-QString DecodeLF(QString s, bool toHtml)
+QString DecodeLF(QString s, bool toHtml, bool alsoQuotes)
 {
 	int pos;
-	QString LF = toHtml ? "<br>\n" : "\n";
+	const QString LF = toHtml ? "<br>\n" : "\n";
 	while ((pos = s.indexOf("\\n")) >= 0)
 		s = s.left(pos) + LF + s.mid(pos + 2);
+
+	if (alsoQuotes)
+	{
+		QString res;
+		for (pos = 0; pos < s.length(); ++pos)
+		{
+			if (s[pos] == QChar('"') || s[pos] == QChar('\"'))
+				res += '\\';
+			res += s[pos];
+		}
+		return res;
+	}
 	return s;
 }
 #if 0

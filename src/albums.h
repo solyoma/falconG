@@ -169,10 +169,10 @@ struct Image : public IABase
 		if (ID)
 		{
 			int pos = name.lastIndexOf('.');
-			QString s = name.mid(pos);
+			QString ext = name.mid(pos);
 			if (bLCExtension)
-				s = s.toLower();
-			return QString().setNum(ID & ID_MASK) + s;	// e.g. 12345.jpg (images IDs has no flag set)
+				ext = ext.toLower();
+			return QString().setNum(ID & ID_MASK) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
 		}
 		else
 			return name;
@@ -284,7 +284,6 @@ struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
-	QString SiteLink(int language );
 	QString LinkName(int language, bool addHttpOrsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
 private:
@@ -406,6 +405,8 @@ public:
 	LanguageTexts *TextsAt(ID_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
 	Album *AlbumForID(ID_t id) { return &_albumMap[id]; }
+	QString SiteLink(int language);
+
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
 	void SignalProgressPos(int cnt1, int cnt2);
@@ -438,14 +439,25 @@ private:
 	AlbumMap _albumMap;		// all source albums			id has ALBUM_ID_FLAG set!
 	ImageMap _imageMap;		// all images for all albums	id has IMAGE_ID_FLAG set!
 	VideoMap _videoMap;		// all videos from all albums	id has ALBUM_ID_FLAG set!
-	Album _root;			// top level album (first in '_albumMap', ID = 1)
-	QDate _latestDateLimit; // depends on config.
+	Album _root;			// top level album (first in '_albumMap', ID = 1+ALBUM_ID_FLAG)
+		// --------- latest images collection
+	QDate _latestDateLimit = QDate::fromJulianDay(0); // date of latest upload for generating the latest files
+	struct LatestImages
+	{
+		int cntDescs =0;
+		int cntTitles=0;
+		IdList list;		// ID's for latest images/videos
+		void Clear() { cntDescs = cntTitles = 0; list.clear(); }
+		int size() const { return list.size(); }
+	} _latestImages;
 // no need: read is fast enough 	bool _structAlreadyInMemory = false;
 	UsageCount _structChanged;	// signals wheather a new 'struct' file must be written
 							// increase after a jalbum style read and after an album struct change
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
+
+	//------------
 
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
 
@@ -502,6 +514,10 @@ private:
 	int _DoCopyJs();	// copy directory 'js'
 	int _SaveFalconGCss();
 	int _DoPages();
+	// latest images
+	int _CollectLatestImagesAndVideos(LatestImages &here);
+	int _DoLatestJs();	// creates "javascript latest.js"
+	int _DoLatestHelper(QString fileName, int lang);
 	int _DoLatest();
 	int _DoHtAccess();
 				// read 'gallery.struct

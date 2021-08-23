@@ -951,7 +951,7 @@ public:
 	_CBool bSourceRelativePerSign = {true,"bSourceRelativePerSign"}; // when true add source gallery to paths starting with '/'
 
 		 		// latest uploads
-	_CBool generateLatestUploads = { false,"generateLatestUploads"};	// or not
+	_CBool bGenerateLatestUploads = { false,"bGenerateLatestUploads"};	// or not
 	_CInt newUploadInterval = { 10,"newUploadInterval"};		// date period of images calculated from the latest to include into latest images
 	_CInt nLatestCount = { 10,"nLatestCount"};				// max this many images in the latest upload gallery
 				// Google Analytycs

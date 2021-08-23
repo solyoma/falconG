@@ -917,23 +917,6 @@ QString Album::NameFromID(int language)
 	return NameFromID(ID, language, false);
 }
 
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-QString Album::SiteLink(int language)
-{
-	QString s;
-	if (config.sServerAddress.ToString().toLower().left(4) == "http")
-		s = config.sServerAddress + "/";
-	else
-		s = (config.bForceSSL ? "https://" : "http://") + config.sServerAddress + "/";
-	return s;
-}
-
 /**************************** AlbumMap *****************************/
 
 /*============================================================================
@@ -1025,6 +1008,23 @@ Album& AlbumMap::Find(ID_t id)
 }
 
 /************************** Albumgenerator *************************/
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString AlbumGenerator::SiteLink(int language)
+{
+	QString s;
+	if (config.sServerAddress.ToString().toLower().left(4) == "http")
+		s = config.sServerAddress + "/";
+	else
+		s = (config.bForceSSL ? "https://" : "http://") + config.sServerAddress + "/";
+	return s;
+}
+
 /*============================================================================
   * TASK:	 add a new image from structure to image map
   * EXPECTS:  imagePath: path name relative to source directory
@@ -1705,6 +1705,8 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 				Languages::names[i] = sl[1];
 			else if (s == "abbrev")
 				Languages::abbrev[i] = sl[1];
+			else if (s == "language")
+				Languages::language[i] = sl[1];
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
 			else if (s == "images")
@@ -2290,9 +2292,14 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	ID_t id;
 	if (n == 0)		// root album
 	{
-		album.ID = id = (1 | ALBUM_ID_FLAG);
+			// dummy album for latest Images must come first as sets album's ID
+		album.ID = id = (2 | ALBUM_ID_FLAG);
 		album.exists = true;		// do not check: virtual!
 		_albumMap[id] = album;
+				// root album with ID 1
+		album.ID = id = (1 | ALBUM_ID_FLAG);
+		album.exists = true;		// do not check: virtual!
+		_albumMap[id] = album;		// and not with _albumMap.Add
 	}
 	else if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
 	{
@@ -2719,7 +2726,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 	else
 		base = (config.dsGRoot + path).ToString() + name;
 	if (multipleLanguages)
-		base += "-" + Languages::countryCode.at(language); // e.g. index_en_GB.html
+		base += Languages::abbrev.at(language); // e.g. index_en.html
 
 	if (toServerPath)
 	{
@@ -3044,7 +3051,7 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 					config.dsCssDir.ToString();
 
 	QString s = QString("<!DOCTYPE html>\n"
-		"<html lang = \"" + Languages::countryCode[_actLanguage].left(2) + "\">\n"		  // e.g. en from en_GB
+		"<html lang = \"" + Languages::abbrev[_actLanguage] + "\">\n"		  // e.g. en from en_GB
 		"<head>\n");
 	if (config.googleAnalyticsOn)
 		s += _GoogleAnaliticsOn();
@@ -3086,10 +3093,11 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	{
 		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
 	};
+
 	// menu buttons
 	_ofs << "   <nav>\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
-		outputMenuLine("uplink", uplink, "&nbsp;", "back to previous page");
+		outputMenuLine("uplink", updir+RootNameFromBase(config.sMainPage.ToString(), _actLanguage), "&nbsp;", Languages::upOneLevel[_actLanguage]);
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
 //		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
 	outputMenuLine("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
@@ -3104,12 +3112,18 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 		outputMenuLine("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
-	if (config.bMenuToToggleCaptions && album.TitleCount() > 0 || album.ImageCount() > 0 && !Languages::coupleCaptions[_actLanguage].isEmpty())
+	if (config.bMenuToToggleCaptions && (album.TitleCount() > 0 || album.ImageCount() > 0) && !Languages::coupleCaptions[_actLanguage].isEmpty())
 		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !Languages::toAlbums[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
 		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
-	if (config.generateLatestUploads)
-		outputMenuLine("latest", config.dsGRoot.ToString() + "latest-" + Languages::countryCode[_actLanguage] + ".php", Languages::latestTitle[_actLanguage]);
+	if (album.ID > 2 + ALBUM_ID_FLAG && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
+	{
+		QString qs = config.AlbumDirectory().ToString() + "latest";
+		if (Languages::Count() > 1)
+			qs += Languages::abbrev[_actLanguage];
+		qs += ".html";
+		outputMenuLine("latest", qs, Languages::latestTitle[_actLanguage]);
+	}
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
 	_ofs << "&nbsp;&nbsp;";
@@ -3132,7 +3146,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 {
 
 	_ofs << "   <div class=\"header\">\n"
-		"    <a href=\"" << album.SiteLink(_actLanguage) << "\">"
+		"    <a href=\"" << SiteLink(_actLanguage) << "\">"
 		"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
 		"</a>&nbsp; &nbsp;";
 
@@ -3180,7 +3194,7 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 * TASK:		writes either an image or a gallery section
 * EXPECTS:	album		- actual album whose content (images and sub-albums) is written
 *			typeFlag	- only write items of this type
-*			i			- index in ID list for images or albums (when bWriteSubAlbums is true)
+*			idIndex		- index in ID list for images or albums (when bWriteSubAlbums is true)
 * GLOBALS: config, Languages, _actLanguage
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
 * REMARKS:  - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, others
@@ -3188,13 +3202,15 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
+int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idIndex)
 {
+	const int ROOT_ID = (1 + ALBUM_ID_FLAG);
+
 	IdList& idList = album.items;
-	if (idList.isEmpty())
+	if (idIndex > 0 && idList.isEmpty())
 		return typeFlag == ALBUM_ID_FLAG ? -1 : -2;
 
-	ID_t id = idList[i];  
+	ID_t id = idIndex >= 0?  idList[idIndex] : (2 + ALBUM_ID_FLAG);
 	if ((id & typeFlag) == 0)	// not this type
 		return 0;
 
@@ -3204,10 +3220,10 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 	if (typeFlag == ALBUM_ID_FLAG && !album.exists)
 		return -1;
 
-	if (album.ID == (1 + ALBUM_ID_FLAG) )		// root album
+	if (album.ID == ROOT_ID )		// root album
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
-		sOneDirUp = "";					// and the img directory is here
+		sOneDirUp = "";								// and the img directory is here
 	}
 	else
 	{
@@ -3222,7 +3238,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 	ID_t thumb = 0;
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		thumb = ThumbnailID(_albumMap[id], _albumMap);
+		thumb = idIndex > 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ];
 		if (thumb)
 		{
 			if (_imageMap.contains(thumb))
@@ -3241,7 +3257,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 		pImage = &_imageMap[id];
 		if (!pImage->exists)	// then exclude it
 		{
-			album.items[i] = album.items[i] | EXCLUDED_FLAG;
+			album.items[idIndex] = album.items[idIndex] | EXCLUDED_FLAG;
 			return -2;
 		}
 	}
@@ -3260,8 +3276,16 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
-		desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], true);
+		if(idIndex < 0)
+		{ 
+			title = Languages::latestTitle[_actLanguage];
+			desc = Languages::latestDesc[_actLanguage];
+		}
+		else
+		{
+			title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
+			desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], true);
+		}
 
 		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
 		{
@@ -3273,7 +3297,10 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
+		if (idIndex >= 0)
+			_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
+		else
+			_ofs << sAlbumDir << config.AlbumDirectory().ToString() << "latest" << Languages::abbrev[_actLanguage] << ".html\">";
 	}
 	else
 	{
@@ -3285,7 +3312,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 	}
 
 	// the first 3 images will always be loaded immediately
-	_ofs << (i > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
+	_ofs << (idIndex > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
 	
 	if (pImage)
 	{
@@ -3307,8 +3334,9 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int i)
 
 	//  -------------------------- links with  album/image title
 	QString qsLoc;		// empty for non root albums/images
-	if (typeFlag)
-		qsLoc = "javascript:LoadAlbum('" + sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
+	if (typeFlag == ALBUM_ID_FLAG)
+		qsLoc = "javascript:LoadAlbum('" + 
+					(idIndex > 0 ? sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false) : config.AlbumDirectory().ToString() + "latest" + Languages::abbrev[_actLanguage] + ".html")+")'";
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
@@ -3428,6 +3456,14 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	_ofs << "<!-- Main section -->\n"
 		"   <div class=\"main\" id=\"main\">\n";
 
+	if (album.ID == 1 + ALBUM_ID_FLAG && config.bGenerateLatestUploads)	// root album and last uploaded?
+	{
+		_ofs << "<!-- section for latest uploads -->\n"
+			<< "    <section>\n";
+		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads
+
+		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
+	}
 	// get number of images and sub-albums
 	if (album.ImageCount())
 	{
@@ -3504,7 +3540,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if ( album.ID == 1 + ALBUM_ID_FLAG)		// top level: use name from config 
 		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
 	else		 // all non root albums are either in the same directory or in separate language directories inside it
-		s = (config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString() + album.NameFromID(language);
+		s = config.AlbumDirectory().ToString() + album.NameFromID(language);
 
 	QFile f(s);
 	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structChanged*/)
@@ -3653,19 +3689,295 @@ int AlbumGenerator::_DoPages()
 	return 0;
 }
 
+/*=============================================================
+ * TASK:	goes through all images to collect latest uploads
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:	count of images found and list of found in array
+ * REMARKS:
+ *------------------------------------------------------------*/
+int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
+{
+	QDate dt = dt.fromJulianDay(_latestDateLimit.toJulianDay() - config.newUploadInterval);
+
+	here.Clear();
+	const int MAX_LATEST_COUNT = 100;		// max 100 images from latest uploads
+	int cnt = MAX_LATEST_COUNT;
+
+	for (auto a : _imageMap)
+		if (a.uploadDate >= dt)
+		{
+			here.list.push_back(a.ID);
+			if (a.descID)
+				++here.cntDescs;
+			if (a.titleID)
+				++here.cntTitles;
+			if (!--cnt)
+				break;
+		}
+
+	if (cnt)
+	{
+		for (auto a : _videoMap)
+			if (a.uploadDate >= dt)
+			{
+				here.list.push_back(a.ID);
+				if (a.descID)
+					++here.cntDescs;
+				if (a.titleID)
+					++here.cntTitles;
+				if (!--cnt)
+					break;
+			}
+	}
+
+	return here.size();
+}
+
+/*=============================================================
+ * TASK:	create latest_XX.js javascript data file for the 
+ *				latest uploads
+ * EXPECTS:	
+ * GLOBALS:	config.nLatestCount, _albumMap, _textMap, _imageMap, 
+ *			_videoMap, _actLanguage
+ * RETURNS: 0: OK, any other error code
+ * REMARKS:	- only the data array is put into these js files, one
+ *				for each language. These are included into the
+ *				correct HTML files before the 'latest_common.js'
+ *				file
+ *			- generated into javascript directory
+ *			- real generation is set in javascript file latest.js
+ *------------------------------------------------------------*/
+int AlbumGenerator::_DoLatestJs()
+{
+	// create array of latest uploads
+	int n = _CollectLatestImagesAndVideos(_latestImages);	// limited # can be selected
+	if (!n)
+		return 0;
+
+	// create one file for each languages named 'latestList_XX.js'
+
+	for (int lang = 0; lang < Languages::Count(); ++lang)
+	{
+		QString qsName = config.GalleryRoot().ToString() + "js/latestList" + Languages::abbrev[lang] + ".js";
+
+		QFile f(qsName);
+		if (!f.open(QIODevice::WriteOnly))
+			return 16;
+
+		QTextStream ofjs(&f);
+		ofjs.setCodec("UTF-8");
+
+		ofjs << "// Copyright  2021 András Sólyom\n"
+			"// email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com).\n"
+			"\n"
+			"// date of latest upload: " << _latestDateLimit.toString() << "\n"
+			"// period: "<< config.newUploadInterval << " days, count: "<< n << ",max count : "<< config.nLatestCount <<"\n\n"
+			"const lang='" << (Languages::language[lang]) << "'\n"
+			"const imagePath='"<< config.ThumbnailDirectory().ToString() <<"'\n"
+			"const ids = [\n";
+
+		for (auto latest : _latestImages.list)
+		{
+			Image* pim;
+			Video* pvid;
+			ID_t idt = (ID_t)latest;
+			if (idt & IMAGE_ID_FLAG)
+			{
+				pim = &_imageMap[idt];
+				pim->SetThumbSize();
+				ofjs << "{ id:" << (idt & ID_MASK) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
+				if (pim->titleID)
+					ofjs << ",t:\"" << DecodeLF(_textMap[pim->titleID][lang], true, true) << "\"";
+				if (pim->descID)
+					ofjs << ",d:\"" << DecodeLF(_textMap[pim->descID][lang], true, true) << "\"";
+				ofjs << "},\n";
+			}
+			else if (idt & VIDEO_ID_FLAG)
+			{
+				pvid = &_videoMap[idt];
+				ofjs << "{ id:" << (idt & ID_MASK) << ",w:" << config.thumbWidth << ",h:" << config.thumbHeight;
+				if (pvid->titleID)
+					ofjs << ",t:\"" << DecodeLF(_textMap[pvid->titleID][lang], true) << "\"";
+				if (pvid->descID)
+					ofjs << ",d:\"" << DecodeLF(_textMap[pvid->descID][lang], true) << "\"";
+				ofjs << "},\n";
+			}
+		}
+		ofjs << "];\n"
+			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount : n) << ";\n"; // # of random images to show
+		f.close();
+	}
+/* ----------------
+			content of 'latest.js':
+
+// has array 'selectedList[]', 'cnt' and'imagePath' set
+let selected=[]
+//--------------------------------------------------------------------
+function select() {
+	// DEBUG
+	// console.log(window.location.pathname)
+
+	selected.length = 0;
+	let s = []
+	if(cnt > ids.count)
+		cnt = ids.count;
+	// DEBUG
+	//console.log("cnt:"+cnt);
+
+	while(cnt) {
+		let i = Math.floor(Math.random()*cnt); // index:0..cnt
+	// DEBUG
+	// console.log("i:"+i);
+		if(!s.includes(i))
+		{
+			s.push(i);
+			selected.push(ids[i]);
+			--cnt;
+		}
+	}
+	const section = document.getElementsByTagName('section')[0];
+
+	selected.forEach(item => {
+		const divImgContainer = document.createElement('div');
+		divImgContainer.classList.add('img-container');
+		// DEBUG
+		// console.log('item:'+item)
+			const divId = document.createElement('div');
+			divId.id=item.id;
+			divId.w= item.w;
+			divId.h= item.h;
+
+				const a = document.createElement('a');
+				a.classList.add('thumb');
+				a.href=`javascript:ShowImage('${imagePath}${item.id}.jpg','')`;
+		// DEBUG
+		// console.log('href:'+a.href)
+
+				const img = document.createElement('img');
+				img.src = `${imagePath}${item.id}.jpg`;
+				img.alt= `Image ${item.id}.jpg`;
+				img.classList.add('galleryImg');
+
+			const divDesc = document.createElement('div');
+			divDesc.classList.add('desc');
+
+				const pw = document.createElement('p');
+				pw.lang=lang;
+				if(typeof item.d === 'undefined')
+					pw.innerHTML ="&nbsp;";
+				else
+					pw.innerHTML = item.d;
+
+			const divLinks = document.createElement('div');
+			divLinks.classList.add('links');
+
+				const divTitle = document.createElement('div');
+				divTitle.classList.add('title');
+				divTitle.onclick = `javascript:ShowImage(''${imagePath}${item.id}.jpg','')`;
+				if(typeof item.t !== 'undefined')
+					divTitle.innerHTML ="&nbsp;";
+				else
+					divTitle.innerHTML = item.t;
+
+			divLinks.appendChild(divTitle);
+			divDesc.appendChild(pw);
+			a.appendChild(img);
+			divId.appendChild(a);
+		divImgContainer.appendChild(divId);
+		divImgContainer.appendChild(divDesc);
+		divImgContainer.appendChild(divLinks);
+
+		section.appendChild(divImgContainer);
+
+		// console.log(img.src + ' - processed');
+	})
+}
+ -- end of latest.js */
+	return 0;
+}
+
+/*=============================================================
+ * TASK:	create one file for the latest uploads
+ * EXPECTS:	"baseName" - path name (in album folder)	 w.o.
+ *					language postfix & extension!
+ * GLOBALS:
+ * RETURNS: 0 for success else error code
+ * REMARKS: uses a dummy album with ID == 2
+ *------------------------------------------------------------*/
+int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
+{
+	QString postFix, fileName;
+	int saveLang = _actLanguage;
+	_actLanguage = lang;
+
+	if(Languages::Count() > 1)
+		postFix = Languages::abbrev[lang];
+	fileName = baseName + postFix + ".html";
+
+	Album albumLatest;
+	albumLatest.ID = 2 + ALBUM_ID_FLAG;
+
+	QFile f(fileName);
+	if (!f.open(QIODevice::WriteOnly))
+		return 16;
+
+	_ofs.setDevice(&f);
+	_ofs.setCodec("UTF-8");
+
+	_ofs << _PageHeadToString(2 + ALBUM_ID_FLAG)
+		 << " <body onload = \"select()\"";
+	if (config.bRightClickProtected)
+		_ofs << " oncontextmenu=\"return false;\"";
+	_ofs << ">\n"
+		"  <div class=\"area\">\n";
+
+		/* sticky menu line  */
+	_OutputNav(albumLatest, "../index" + Languages::abbrev[_actLanguage]+".html");
+
+	_WriteFacebookLink(fileName, 1);	// only when required
+
+	_ofs << "</nav>\n";
+	// - end of navigation menus -----
+
+	_WriteHeaderSection(albumLatest);
+
+	_ofs << "<!-- Main section -->\n"
+			"   <div class=\"main\" id=\"main\">\n"
+			"		<section>\n"
+            "		</section>\n"
+			"	</div>\n"
+			"</div>\n"
+			"<script language=\"javascript\" src=\"../js/latestList"<< (Languages::Count() > 1 ? Languages::abbrev[_actLanguage] : "") << ".js\"></script>\n"
+			"<script language=\"javascript\" src=\"../js/latest.js\"></script>\n"
+			"</body>\n"
+			"</html>\n";
+	_ofs.flush();
+	_actLanguage = saveLang;
+	return 0;
+}
+
 /*============================================================================
 * TASK:	Creates latest uploads	- latest.html
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 32: error writing file
-* REMARKS:
+* REMARKS: album generated into root directory on server
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoLatest()
 {
-	if (!config.generateLatestUploads)
+	if (!config.bGenerateLatestUploads)
 		return 0;
-	// TODO: add code to falconG.js, add data to page Latest (special processing)
-	return 0;
+
+	QString qsBase = config.AlbumDirectory().ToString()+"latest";
+	int res = _DoLatestJs();
+	if (res || !_latestImages.list.size())	// only generate if one exists
+		return res;
+
+	for (int i = 0; i < Languages::Count() && !res; ++i)
+			res |= _DoLatestHelper(qsBase, i);
+
+	return res;
 }
 
 /*============================================================================
@@ -3722,6 +4034,7 @@ int AlbumGenerator::Write()
 	{
 		i = _DoCopyRes();			// 0 | 1	modifes 'up-link.png' !
 		i |= _DoCopyJs();
+		i |= _DoLatest();			// 0 | 16 | 32 latest HTML + JS files must come before _DoPages
 	}
 	if (_processing)
 		i |= _DoHtAccess();			// 0 | 2
@@ -3729,8 +4042,6 @@ int AlbumGenerator::Write()
 		i |= _SaveFalconGCss();			// 0 | 8
 	if (_processing)
 		i |= _DoPages();			// 0 | 16
-	if (_processing)
-		i |= _DoLatest();			// 0 | 32
 
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
 	_structChanged = 0;

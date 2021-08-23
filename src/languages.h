@@ -28,8 +28,9 @@ public:
 struct Languages	// each language has a text file named <text from 'languages'>.php
 {					// or the languages are set in a .struct file
 		// these are read from language definition files '<xxx>.lang in program directory
-	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be 'gb')
+	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be '_gb')
 										// default: same as 'countryCode'
+	static LangConstList language;		// this is set in 'lang=XX' in HTML
 	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
 	static LangConstList icons;			// icons to use instead of names
 	static LangConstList Images;		// image section in HTML files 'Képek'

@@ -100,6 +100,7 @@ void AlbumStructWriterThread::run()
 			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
 			<< "  images=" << Languages::Images[i] << "\n"
+			<< "  language=" << Languages::language[i] << "\n"
 			<< "  latestDesc=" << Languages::latestDesc[i] << "\n"
 			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
 			<< "  name=" << Languages::names[i] << "\n"

@@ -843,7 +843,7 @@ void FalconG::_OtherToUi()
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
 //	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);	  
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
-	ui.chkSetLatest->setChecked(config.generateLatestUploads);
+	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
 	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
@@ -1645,10 +1645,10 @@ void FalconG::on_chkUseGoogleAnalytics_toggled(bool b)
  *--------------------------------------------------------------------------*/
 void FalconG::on_chkSetLatest_toggled(bool on)
 {
-	config.generateLatestUploads = on;
 	
 	if (_busy)
 		return;
+	config.bGenerateLatestUploads = on;
 	_SetConfigChanged(true);
 	_EnableButtons();
 }

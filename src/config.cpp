@@ -1336,7 +1336,7 @@ void CONFIG::ClearChanged()
 	googleAnalyticsOn.ClearChanged();
 	googleAnalTrackingCode.ClearChanged();
 
-	generateLatestUploads.ClearChanged();
+	bGenerateLatestUploads.ClearChanged();
 	newUploadInterval.ClearChanged();
 	nLatestCount.ClearChanged();
 }
@@ -1405,7 +1405,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	sMailTo = cfg.sMailTo;
 	sAbout = cfg.sAbout;
 
-	generateLatestUploads = cfg.generateLatestUploads;
+	bGenerateLatestUploads = cfg.bGenerateLatestUploads;
 	newUploadInterval = cfg.newUploadInterval;
 	nLatestCount = cfg.nLatestCount;
 
@@ -1577,7 +1577,7 @@ void CONFIG::Read()		// synchronize with Write!
 	googleAnalyticsOn.Read(s);
 	googleAnalTrackingCode.Read(s);
 			// latest uploads
-	generateLatestUploads.Read(s);
+	bGenerateLatestUploads.Read(s);
 	newUploadInterval.Read(s);
 	nLatestCount.Read(s);
 
@@ -1698,7 +1698,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	googleAnalyticsOn.Write(s);
 	googleAnalTrackingCode.Write(s);
 			// latest uploads
-	generateLatestUploads.Write(s);
+	bGenerateLatestUploads.Write(s);
 	newUploadInterval.Write(s);
 	nLatestCount.Write(s);
 	
