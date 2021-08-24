@@ -50,12 +50,12 @@ let maxiter = 500
             
                 const a = document.createElement('a');
                 a.classList.add('thumb');
-                a.href=`javascript:ShowImage('${imagePath}${item.id}.jpg','')`;
+                a.href=`javascript:ShowImage('../${imagePath}${item.id}.jpg','')`;
         // DEBUG
 		// console.log('href:'+a.href)
             
                 const img = document.createElement('img');
-                img.src = `${thumbsPath}${item.id}.jpg`;
+                img.src = `../${thumbsPath}${item.id}.jpg`;
                 img.alt= `Image ${item.id}.jpg`;
                 img.classList.add('galleryImg');
             
@@ -74,7 +74,7 @@ let maxiter = 500
             
                 const divTitle = document.createElement('div');
                 divTitle.classList.add('title');
-                divTitle.onclick = `javascript:ShowImage(''${imagePath}${item.id}.jpg','')`;
+                divTitle.onclick = `javascript:ShowImage('../${imagePath}${item.id}.jpg','')`;
 				text = "&nbsp";
 				if(typeof item.t !== 'undefined')
 					text = item.t;
@@ -98,5 +98,5 @@ function SetRandomLastImage()
 	let elem = document.getElementById('latest');
 	let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
 	elem.src= thumbsPath + ids[i].id + '.jpg';
-//	console.log("thumbsPath:"+thumbsPath + "\nsrc: "+elem.src)
+//	console.log("thumbsPath:"+thumbsPath + "i: "+i+"\nsrc: "+elem.src)
 }

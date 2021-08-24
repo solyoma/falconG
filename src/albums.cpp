@@ -898,11 +898,14 @@ QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
 	}
 	else
 	{
-		s = Languages::FileNameForLanguage(QString("%1%2.html").arg(config.sBaseName.ToString()).arg(id), language);
+		if (id == 2)	// recent uploads
+			s = "latest" + Languages::abbrev[language] + ".html";
+		else
+			s = Languages::FileNameForLanguage(QString("%1%2.html").arg(config.sBaseName.ToString()).arg(id), language);
+
 		if (withAlbumPath)
 			s = config.dsAlbumDir.ToString() + s;
 	}
-
 	return s;
 }
 
@@ -3314,10 +3317,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		if (idIndex >= 0)
-			_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
-		else
-			_ofs << sAlbumDir << "latest" << Languages::abbrev[_actLanguage] << ".html\">";
+		_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
 	}
 	else
 	{
@@ -3356,7 +3356,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString qsLoc;		// empty for non root albums/images
 	if (typeFlag == ALBUM_ID_FLAG)
 		qsLoc = "javascript:LoadAlbum('" + 
-					sAlbumDir + (idIndex >= 0 ? _albumMap[id].NameFromID(id, _actLanguage, false) : "latest" + Languages::abbrev[_actLanguage] + ".html")+")'";
+					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false)+")'";
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
@@ -3578,7 +3578,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		{
 			uplink = album.NameFromID(language);
 			if (album.ID == ROOT_ALBUM_ID)
-				uplink = QString("../") + uplink;;
+				uplink = QString("../") + uplink;
 
 			for (int i = 0; _processing && i < album.items.size(); ++i)
 			{
