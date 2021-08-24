@@ -72,12 +72,12 @@ int Languages::_Read(QString name)
 	int next = names.size();
 	abbrev.push_back(s);
 	language.push_back(s);
-	Albums.push_back(s);
+	albums.push_back(s);
 	countryCode.push_back(s);
 	countOfImages.push_back(s);
 	falconG.push_back(s);
 	icons.push_back(s);
-	Images.push_back(s);
+	images.push_back(s);
 	latestTitle.push_back(s);
 	latestDesc.push_back(s);
 	names.push_back(s);
@@ -88,7 +88,7 @@ int Languages::_Read(QString name)
 	toAlbums.push_back(s);
 	toContact.push_back(s);
 	toHomePage.push_back(s);
-	Videos.push_back(s);
+	videos.push_back(s);
 
 	QStringList sl;
 	QString sn; // name in lowercase
@@ -108,11 +108,11 @@ int Languages::_Read(QString name)
 		else if (sn == "icon")
 			icons[next] = s;
 		else if (sn == "images")
-			Images[next] = s;
+			images[next] = s;
 		else if (sn == "videos")
-			Videos[next] = s;
+			videos[next] = s;
 		else if (sn == "albums")
-			Albums[next] = s;
+			albums[next] = s;
 		else if (sn == "toalbums")
 			toAlbums[next] = s;
 		else if (sn == "totop")
@@ -240,9 +240,9 @@ int Languages::Read()
 		language.push_back("en");
 		names.push_back("English");
 		icons.push_back("");
-		Images.push_back("Images");
-		Videos.push_back("Videos");
-		Albums.push_back("Albums");
+		images.push_back("Images");
+		videos.push_back("Videos");
+		albums.push_back("Albums");
 		toAlbums.push_back("to Albums");
 		toHomePage.push_back("Home");
 		toTop.push_back("Jump to top of page");
@@ -280,9 +280,9 @@ void Languages::Clear(int newsize)
 	abbrev.Prepare(newsize);
 	language.Prepare(newsize);
 	icons.Prepare(newsize);
-	Images.Prepare(newsize);
-	Videos.Prepare(newsize);
-	Albums.Prepare(newsize);
+	images.Prepare(newsize);
+	videos.Prepare(newsize);
+	albums.Prepare(newsize);
 	toAlbums.Prepare(newsize);
 	toTop.Prepare(newsize);
 	upOneLevel.Prepare(newsize);
