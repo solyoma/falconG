@@ -30,26 +30,26 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 		// these are read from language definition files '<xxx>.lang in program directory
 	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be '_gb')
 										// default: same as 'countryCode'
-	static LangConstList language;		// this is set in 'lang=XX' in HTML
-	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
-	static LangConstList icons;			// icons to use instead of names
-	static LangConstList Images;		// image section in HTML files 'Képek'
-	static LangConstList Videos;		// video section in HTML files 'Videók'
-	static LangConstList Albums;		// album section in HTML files 'Albumok'
-	static LangConstList toAlbums;		// Jump to album section
-	static LangConstList toTop;			// title of icon to jump to top of page
-	static LangConstList upOneLevel;	// title of icon jump to parent/up one level
-	static LangConstList toHomePage;		// 'Kezdõlapra'
-	static LangConstList toAboutPage;	// 'Rólam'
-	static LangConstList toContact;		// 'Kapcsolat'
-	static LangConstList share;			// 'Megosztás'
-	static LangConstList coupleCaptions;	// 'Képcim+Leírás együtt'
-	static LangConstList showDescriptions;	// 'Képleírások'
-	static LangConstList latestTitle;	// 'Kedvcsinálónak'
-	static LangConstList latestDesc;		// 'Ebbe a könyvtárba...'
+	static LangConstList albums;		// album section in HTML files 'Albumok'
 	static LangConstList countryCode;	// "en_US", "hu_HU", etc
 	static LangConstList countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
+	static LangConstList coupleCaptions;	// 'Képcim+Leírás együtt'
 	static LangConstList falconG;		// "created by "
+	static LangConstList icons;			// icons to use instead of names
+	static LangConstList images;		// image section in HTML files 'Képek'
+	static LangConstList language;		// this is set in 'lang=XX' in HTML
+	static LangConstList latestDesc;		// 'Ebbe a könyvtárba...'
+	static LangConstList latestTitle;	// 'Kedvcsinálónak'
+	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
+	static LangConstList share;			// 'Megosztás'
+	static LangConstList showDescriptions;	// 'Képleírások'
+	static LangConstList toAboutPage;	// 'Rólam'
+	static LangConstList toAlbums;		// Jump to album section
+	static LangConstList toContact;		// 'Kapcsolat'
+	static LangConstList toHomePage;		// 'Kezdõlapra'
+	static LangConstList toTop;			// title of icon to jump to top of page
+	static LangConstList upOneLevel;	// title of icon jump to parent/up one level
+	static LangConstList videos;		// video section in HTML files 'Videók'
 
 	static int _Read(QString name);		// defult: single language, name: "English" countryCode: "en_US", no icon
 	static int Read();					// reads all language files from program directory

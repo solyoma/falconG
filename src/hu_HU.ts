@@ -4,7 +4,7 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="albums.cpp" line="2686"/>
+        <location filename="albums.cpp" line="2709"/>
         <source>falconG - Warning</source>
         <oldsource>falconG Warning</oldsource>
         <translation>falconG - Figyelmeztetés</translation>
@@ -299,19 +299,19 @@ Az ikon nem olvasható
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="albums.cpp" line="2447"/>
+        <location filename="albums.cpp" line="2470"/>
         <source>falconG - Error</source>
         <translation>falconG - Hiba</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2448"/>
+        <location filename="albums.cpp" line="2471"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation>Sérült szerkezeti fájl!
 Üzenet: &apos;</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2451"/>
+        <location filename="albums.cpp" line="2474"/>
         <source>&apos;
 
 Processing aborted, because continuing
@@ -338,7 +338,7 @@ a feldolgozást! Idáig %1 sort olvastam. </translation>
     </message>
     <message>
         <location filename="falcong.cpp" line="3703"/>
-        <location filename="languages.cpp" line="188"/>
+        <location filename="languages.cpp" line="192"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
@@ -492,7 +492,7 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
         <translation>Nem kérek több figyelmeztetést ehhez az albumhoz</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="574"/>
+        <location filename="support.cpp" line="586"/>
         <source>Either can&apos;t delete 
 &apos;%1&apos;
  or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
@@ -507,7 +507,7 @@ A módosított fájl neve
 megmarad</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="591"/>
+        <location filename="support.cpp" line="603"/>
         <source>Can&apos;t create backup file
 &apos;%1~&apos;
 Temporary file
@@ -519,20 +519,19 @@ Az ideiglenes
 &apos;%2&apos;  fájl megmarad</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="980"/>
+        <location filename="support.cpp" line="992"/>
         <source>falconG - Question</source>
         <oldsource>falconG</oldsource>
         <translation>falconG - kérdés</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="981"/>
+        <location filename="support.cpp" line="993"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
     </message>
     <message>
-        <location filename="languages.cpp" line="191"/>
         <source>No language (*.lang) files are found.
 Do you want to cancel or continue with English as the single language?
 
@@ -574,7 +573,7 @@ When the language texts are put into the struct file, there must be as many
 			&apos;[Language count:xx&apos; and &apos;]&apos;
 	where &apos;xx&apos; is the ordinal of the block minus one.
 </source>
-        <translation>Nincsenek (*.lang) fájlok.
+        <translation type="vanished">Nincsenek (*.lang) fájlok.
 Megszakítsam a feldolgozást, vagy folytassam csak a Magyar nyelvvel?
 
 Ezt az üzenetet elkerülheted, ha létrehozol nyelvi fájlokat 
@@ -622,6 +621,140 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
 	ahol &apos;xx&apos; a nyelvek száma, ami 1 is lehet.
 </translation>
     </message>
+    <message>
+        <location filename="languages.cpp" line="195"/>
+        <source>No language (*.lang) files are found.
+Do you want to cancel or continue with English as the single language?
+
+To avoid this message either create language files and put them into the
+    a) source
+    b) destination or
+    c) program directory
+or write the language texts into the &apos;.struct&apos; file
+
+A language file is a UTF-8 encoded text file starting with the line:
+  &apos;falconG Language file&apos;
+followed by definitions of the fixed texts used in the albums
+ The format of the lines is &apos;name=text&apos;. The names
+  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
+  abbrev      = &lt;language abbrev. in file names (e.g.&apos;_hu&apos; for`album123_hu.html`)&gt;
+  albums      = &lt;text header for the album section of the  actual album&gt;
+  coupleCaptions = &lt;text for captions-toggled-with-descriptions toggle&gt;
+  countOfImages= %1 image(s) and %2 sub-album(s) in this album
+  countryCode	= &lt;like &apos;en_US&apos;&gt; (usually part of this is abbrev and language)
+  descriptions  =&lt;text for the descriptionss toggle menu&gt;
+  falconG   =&lt;my copyright message. Please do not remove or change this, just translate&gt;
+  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
+  images    =&lt;text header for the images section of the actual album&gt;
+  language  =&lt;text for&apos;lang=XX&apos; in HTML or &apos;Title-XX&apos;, &apos;Desc-XX&apos; in &apos;.struct&apos;&gt;  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
+  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
+  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
+  share     =&lt;text for the facebook share button&gt;  toAboutPage = &lt;text for the &apos;About&apos; button&gt;
+  toAlbums  = &lt;menu text to jump to albums section&gt;  toContact   =&lt;text for the &apos;contact&apos; button
+  toHomePage	 =&lt;text for menu to home page&gt;
+  toTop     =&lt;text for up arrow: jump to top of page&gt;
+  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
+  videos    =&lt;text header for the videos section of the actual album&gt;
+ 
+When the language texts are put into the struct file, there must be as many
+ language text blocks as languages. Each language text block is preceeded by
+  a line containing a single number: the ordinal of that language box,
+  followed by the same lines as in the .lang files
+ The language text blocks are enclosed between lines
+			&apos;[Language count:xx&apos; and &apos;]&apos;
+	where &apos;xx&apos; is the ordinal of the block minus one.
+</source>
+        <oldsource>No language (*.lang) files are found.
+Do you want to cancel or continue with English as the single language?
+
+To avoid this message either create language files and put them into the
+    a) source
+    b) destination or
+    c) program directory
+or write the language texts into the &apos;.struct&apos; file
+
+A language file is a UTF-8 encoded text file starting with the line:
+  &apos;falconG Language file&apos;
+followed by definitions of the fixed texts used in the albums
+ The format of the lines is &apos;name=text&apos;. The names
+  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
+  about     =&lt;text for the &apos;About&apos; button&gt;
+  abbrev    =&lt;text for &apos;countryCode&apos; used in file names (def.:&apos;countryCode&apos;)&gt;
+  language  =&lt;text for&apos;lang=XX&apos; in HTML&gt;  albums    =&lt;text header for the album section of the  actual album&gt;
+  cdcoupled =&lt;text for the captions-descriptions couple toggle&gt;
+  contact   =&lt;text for the &apos;contact&apos; button
+  countOfImages=%1 image(s) and %2 sub-album(s) in this album
+  countryCode	=&lt;like &apos;en_US&apos;&gt;
+  descriptions  =&lt;text for the descriptionss toggle menu&gt;
+  falconG   =&lt;Copyright message. Please do not remove or change this. just translate&gt;
+  homePage	 =&lt;text for menu to home page&gt;
+  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
+  images    =&lt;text header for the images section of the actual album&gt;
+  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
+  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
+  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
+  toTop     =&lt;text for up arrow: jump to top of page&gt;
+  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
+  share     =&lt;text for the facebook share button&gt;  videos    =&lt;text header for the videos section of the actual album&gt;
+ 
+When the language texts are put into the struct file, there must be as many
+ language text blocks as languages. Each language text block is preceeded by
+  a line containing a single number: the ordinal of that language box,
+  followed by the same lines as in the .lang files
+ The language text blocks are enclosed between lines
+			&apos;[Language count:xx&apos; and &apos;]&apos;
+	where &apos;xx&apos; is the ordinal of the block minus one.
+</oldsource>
+        <translation>Nincsenek (*.lang) fájlok.
+Megszakítsam a feldolgozást, vagy folytassam csak a Magyar nyelvvel?
+
+Ezt az üzenetet elkerülheted, ha létrehozol nyelvi fájlokat 
+(pl. a magyar nyelvhez a hu.lang-ot) vagy a
+    a) forrás, vagy a
+    b) cél fotógalériában, vagy
+    c) a programkönyvtárban
+de a nyelvi szövegeket beírhatod a &apos;.struct&apos; filokba is.
+
+A nyelvi fájlok UTF-8 kódolású és xx.lang nevű szövegfájlok, ahol
+az &apos;xx&apos; a nyelv kódja, pl. hu_HU.lang. Szerkezetük:
+  első sor: &apos;falconG Language file&apos;
+amit az adott nyelvhez tartozó szövegek definíciói követnek.
+ Minden definíció külön sorba kerül és &apos;név=szöveg&apos; formája van.
+ A nevek és jelentésük &lt; és &gt; jelek között, példák zárójelek között:
+ ( az &apos; jeleket nem kell beírni!)  
+  abbrev    =&lt;2 betűs nyelvi azonosító&gt; (&apos;hu&apos;)
+  albums    =&lt;&gt;Az albumok szakasza felett az aktuális albumban megjelenő szöveg&gt;
+  name	    =&lt;a nyelvre kapcsolás neve&gt; (&apos;Magyarul&apos;)
+  coupleCaptions  =&lt;A képleírásokat és címeket összekapcsoló gomb szövege&gt;
+  countOfImages=&lt;kép és album szám %1 a képek, %2 az albumok száma&gt; 
+				(%1 kép és %2 album van ebben az albumban)
+  countryCode =&lt;Magyarhoz pl. &apos;hu_HU&apos;&gt;
+  descriptions  =&lt;A képleírások szövegének ki/be kapcsolása gombra&gt; (&apos;Képleírás&apos;)
+  falconG   =&lt;Az én copyrightom. Segitsen nekem azzal, hogy nem változtatja meg, csak lefordítja!&gt;
+  icon      =&lt;a nyelvhez tartozó kis kép (.png)&gt; (opcionális)
+  images    =&lt;A képek szakasz felett az aktuális albumban megjelenő szöveg&gt; (&apos;Képek&apos;)
+  language  =&lt;nyelvi rövidítés a HTML fájlba (&apos;lang=hu&apos;), illetve a .struct fájlokba&gt;
+  latestDesc=&lt;a tartalom lerása ugyanezen az oldalon&gt;
+                    (pl. &apos;Válogatás az utolsó 10 napban feltöltött képekből&apos;)
+  latestTitle =&lt;Az utoljára feltöltött fájlok oldalán (pl. latest_hu.html) megjelenő cím&gt;
+                    (pl. &apos;Legújabb képek az albumokban&apos;)
+  share     =&lt;A facebook megosztás gomb szövege&gt;
+  toAboutPage =&lt;A névjegy oldal gomb szövege&gt; (&apos;Névjegy&apos;)
+  toContact   =&lt;a &apos;kapcsolat&apos; gomb szövege &gt; (&apos;Kapcsolat&apos;)
+  toHomePage	 =&lt;Honlapra ugrás szövege&gt; (&apos;Főoldal&apos;)
+  toTop     =&lt;A lap tetejére ugrás szövege&gt;  
+  upOneLevel=&lt;Egy albummal feljebb ugrás a hierarhiában&gt;
+  videos    =&lt;Hasonlóan a videókhoz is&gt; (&apos;Videók&apos;)
+  
+Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk be 
+ (ezt a program az első sikeres futása után maga megteszi), akkor minden nyelvhez
+ tartozzon egy nyelvi blokk, ezek első sora a nyelv sorszáma (0,1,2...)
+ A nyelvi blokkok tartalma ugyanaz, mint amit fent felsoroltunk.
+ A nyelvi blokkokat a következő két sor közé kell beírjuk
+			&apos;[Language count:xx&apos; és &apos;]&apos;
+	ahol &apos;xx&apos; a nyelvek száma, ami 1 is lehet.
+</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -640,12 +773,12 @@ mert ebbe a mappába nem tudok írni. Kérem használjon írható mappát!
 Kilépek</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1052"/>
+        <location filename="support.cpp" line="1064"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1052"/>
+        <location filename="support.cpp" line="1064"/>
         <source>Really remove %1 and all of its content?</source>
         <translation>Tényleg töröljem %1 -et a tartalmával együtt?</translation>
     </message>
@@ -835,7 +968,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="225"/>
         <source>Source of Ga&amp;llery</source>
-        <translation>A Galéria forráskönyvtára</translation>
+        <translation>A Ga&amp;léria forráskönyvtára</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="251"/>
@@ -845,7 +978,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="264"/>
         <source>Ser&amp;ver address</source>
-        <translation>Szer&amp;ver címe</translation>
+        <translation>Szerver &amp;címe</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="281"/>
@@ -1049,7 +1182,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="500"/>
         <source>About page</source>
-        <translation>Névjegy oldal link </translation>
+        <translation>Névjegy oldal link</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="624"/>
@@ -1100,7 +1233,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="934"/>
         <source>Trac&amp;king Code</source>
-        <translation>Google nyomkövető kód</translation>
+        <translation>Google n&amp;yomkövető kód</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="951"/>
@@ -1699,7 +1832,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     <message>
         <location filename="falcong.ui" line="2038"/>
         <source>&amp;Tile</source>
-        <translation>Csempézés</translation>
+        <translation>Csempé&amp;zés</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="2056"/>
@@ -1929,7 +2062,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     <message>
         <location filename="falcong.ui" line="3317"/>
         <source>Si&amp;ze:</source>
-        <translation>Méret:</translation>
+        <translation>Mére&amp;t:</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="3442"/>
@@ -1944,7 +2077,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     <message>
         <location filename="falcong.ui" line="3601"/>
         <source>&amp;Different 1st line:</source>
-        <translation>Az első sor más:</translation>
+        <translation>Az első sor &amp;más:</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="3723"/>
@@ -2299,7 +2432,7 @@ Ha a CSS vagy HTML fálokat változtatta.</translation>
     <message>
         <location filename="falcong.ui" line="6112"/>
         <source>&amp;Options</source>
-        <translation>Opciók</translation>
+        <translation>&amp;Opciók</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="6141"/>
@@ -2386,12 +2519,12 @@ generálása, akkor is, ha jó volt.</translation>
     <message>
         <location filename="falcong.ui" line="6568"/>
         <source>&amp;Open</source>
-        <translation>Megnyitás</translation>
+        <translation>&amp;Megnyitás</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="6573"/>
         <source>E&amp;xit</source>
-        <translation>Kilépés</translation>
+        <translation>Kilé&amp;pés</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="4379"/>

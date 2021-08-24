@@ -90,7 +90,7 @@ void AlbumStructWriterThread::run()
 		_ofs << i << "\n"
 			<< "  about=" << Languages::toAboutPage[i] << "\n"
 			<< "  abbrev=" << Languages::abbrev[i] << "\n"
-			<< "  albums=" << Languages::Albums[i] << "\n"
+			<< "  albums=" << Languages::albums[i] << "\n"
 			<< "  captions=" << Languages::coupleCaptions[i] << "\n"
 			<< "  contact=" << Languages::toContact[i] << "\n"
 			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
@@ -99,14 +99,14 @@ void AlbumStructWriterThread::run()
 			<< "  falconG=" << Languages::falconG[i] << "\n"
 			<< "  homePage=" << Languages::toHomePage[i] << "\n"
 			<< "  icon=" << Languages::icons[i] << "\n"
-			<< "  images=" << Languages::Images[i] << "\n"
+			<< "  images=" << Languages::images[i] << "\n"
 			<< "  language=" << Languages::language[i] << "\n"
 			<< "  latestDesc=" << Languages::latestDesc[i] << "\n"
 			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
 			<< "  name=" << Languages::names[i] << "\n"
 			<< "  share=" << Languages::share[i] << "\n"
 			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
-			<< "  videos=" << Languages::Videos[i] << "\n"
+			<< "  videos=" << Languages::videos[i] << "\n"
 			;
 	}
 	_ofs << "]\n\n# Album structure:\n";

@@ -96,6 +96,8 @@ let maxiter = 500
 function SetRandomLastImage()
 {
 	let elem = document.getElementById('latest');
+	if(typeof elem === 'undefined' || !elem)
+		return;
 	let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
 	elem.src= thumbsPath + ids[i].id + '.jpg';
 //	console.log("thumbsPath:"+thumbsPath + "i: "+i+"\nsrc: "+elem.src)

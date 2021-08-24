@@ -1714,11 +1714,11 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 			else if (s == "icon")
 				Languages::icons[i] = sl[1];
 			else if (s == "images")
-				Languages::Images[i] = sl[1];
+				Languages::images[i] = sl[1];
 			else if (s == "videos")
-				Languages::Videos[i] = sl[1];
+				Languages::videos[i] = sl[1];
 			else if (s == "albums")
-				Languages::Albums[i] = sl[1];
+				Languages::albums[i] = sl[1];
 			else if (s == "toalbums")
 				Languages::toAlbums[i] = sl[1];
 			else if (s == "totop")
@@ -3488,7 +3488,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.ImageCount())
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
-			<< "    <div id=\"images\" class=\"fgsection\">" << Languages::Images[_actLanguage] << "</div>\n"
+			<< "    <div id=\"images\" class=\"fgsection\">" << Languages::images[_actLanguage] << "</div>\n"
 			<< "    <section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.ImageCount(); ++i)
@@ -3499,7 +3499,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.VideoCount() > 0)
 	{
 		_ofs << "<!--start section videos -->\n"
-			 << "    <div id=\"videos\" class=\"fgsection\">" << Languages::Videos[_actLanguage] << "</div>\n"
+			 << "    <div id=\"videos\" class=\"fgsection\">" << Languages::videos[_actLanguage] << "</div>\n"
 			    "    <section>\n";
 
 		for (int i = 0; _processing && i < album.VideoCount(); ++i)
@@ -3510,7 +3510,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.SubAlbumCount() > 0)
 	{
 		_ofs << "<!--start section albums -->\n"
-			<<	"    <div id=\"albums\" class=\"fgsection\">" << Languages::Albums[_actLanguage] << "</div>\n"
+			<<	"    <div id=\"albums\" class=\"fgsection\">" << Languages::albums[_actLanguage] << "</div>\n"
 				"    <section>\n";
 
 		for (int i = 0; _processing && i < album.SubAlbumCount(); ++i)

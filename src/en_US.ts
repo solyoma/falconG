@@ -4,7 +4,7 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="albums.cpp" line="2686"/>
+        <location filename="albums.cpp" line="2709"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -283,18 +283,18 @@ Can&apos;t read icon
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="albums.cpp" line="2447"/>
+        <location filename="albums.cpp" line="2470"/>
         <source>falconG - Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2448"/>
+        <location filename="albums.cpp" line="2471"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2451"/>
+        <location filename="albums.cpp" line="2474"/>
         <source>&apos;
 
 Processing aborted, because continuing
@@ -312,7 +312,7 @@ could destroy your old .struct file!
     </message>
     <message>
         <location filename="falcong.cpp" line="3703"/>
-        <location filename="languages.cpp" line="188"/>
+        <location filename="languages.cpp" line="192"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
@@ -335,7 +335,7 @@ into %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="574"/>
+        <location filename="support.cpp" line="586"/>
         <source>Either can&apos;t delete 
 &apos;%1&apos;
  or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
@@ -344,7 +344,7 @@ Modified file remains named as
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="591"/>
+        <location filename="support.cpp" line="603"/>
         <source>Can&apos;t create backup file
 &apos;%1~&apos;
 Temporary file
@@ -353,21 +353,62 @@ was not renamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="980"/>
+        <location filename="support.cpp" line="992"/>
         <source>falconG - Question</source>
         <oldsource>falconG</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="981"/>
+        <location filename="support.cpp" line="993"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="languages.cpp" line="191"/>
+        <location filename="languages.cpp" line="195"/>
         <source>No language (*.lang) files are found.
+Do you want to cancel or continue with English as the single language?
+
+To avoid this message either create language files and put them into the
+    a) source
+    b) destination or
+    c) program directory
+or write the language texts into the &apos;.struct&apos; file
+
+A language file is a UTF-8 encoded text file starting with the line:
+  &apos;falconG Language file&apos;
+followed by definitions of the fixed texts used in the albums
+ The format of the lines is &apos;name=text&apos;. The names
+  and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
+  abbrev      = &lt;language abbrev. in file names (e.g.&apos;_hu&apos; for`album123_hu.html`)&gt;
+  albums      = &lt;text header for the album section of the  actual album&gt;
+  coupleCaptions = &lt;text for captions-toggled-with-descriptions toggle&gt;
+  countOfImages= %1 image(s) and %2 sub-album(s) in this album
+  countryCode	= &lt;like &apos;en_US&apos;&gt; (usually part of this is abbrev and language)
+  descriptions  =&lt;text for the descriptionss toggle menu&gt;
+  falconG   =&lt;my copyright message. Please do not remove or change this, just translate&gt;
+  icon      =&lt;name of icon (.png) file for language&gt; may be left empty
+  images    =&lt;text header for the images section of the actual album&gt;
+  language  =&lt;text for&apos;lang=XX&apos; in HTML or &apos;Title-XX&apos;, &apos;Desc-XX&apos; in &apos;.struct&apos;&gt;  latestDesc=&lt;description for album &apos;latest_en.html&apos;&gt;
+  latestTitle=&lt;title on album &apos;latest_en.html&apos;&gt;
+  name	     =&lt;language name to put on language switch menu&gt;  (&apos;to English&apos;)
+  share     =&lt;text for the facebook share button&gt;  toAboutPage = &lt;text for the &apos;About&apos; button&gt;
+  toAlbums  = &lt;menu text to jump to albums section&gt;  toContact   =&lt;text for the &apos;contact&apos; button
+  toHomePage	 =&lt;text for menu to home page&gt;
+  toTop     =&lt;text for up arrow: jump to top of page&gt;
+  upOneLevel=&lt;text for up/left arrow: jump to parent dir&gt;
+  videos    =&lt;text header for the videos section of the actual album&gt;
+ 
+When the language texts are put into the struct file, there must be as many
+ language text blocks as languages. Each language text block is preceeded by
+  a line containing a single number: the ordinal of that language box,
+  followed by the same lines as in the .lang files
+ The language text blocks are enclosed between lines
+			&apos;[Language count:xx&apos; and &apos;]&apos;
+	where &apos;xx&apos; is the ordinal of the block minus one.
+</source>
+        <oldsource>No language (*.lang) files are found.
 Do you want to cancel or continue with English as the single language?
 
 To avoid this message either create language files and put them into the
@@ -383,7 +424,7 @@ followed by definitions of the fixed texts used in the albums
   and their texts are (the single quotes in the examples below are not used,  and the examples are in braces):
   about     =&lt;text for the &apos;About&apos; button&gt;
   abbrev    =&lt;text for &apos;countryCode&apos; used in file names (def.:&apos;countryCode&apos;)&gt;
-  albums    =&lt;text header for the album section of the  actual album&gt;
+  language  =&lt;text for&apos;lang=XX&apos; in HTML&gt;  albums    =&lt;text header for the album section of the  actual album&gt;
   cdcoupled =&lt;text for the captions-descriptions couple toggle&gt;
   contact   =&lt;text for the &apos;contact&apos; button
   countOfImages=%1 image(s) and %2 sub-album(s) in this album
@@ -407,7 +448,7 @@ When the language texts are put into the struct file, there must be as many
  The language text blocks are enclosed between lines
 			&apos;[Language count:xx&apos; and &apos;]&apos;
 	where &apos;xx&apos; is the ordinal of the block minus one.
-</source>
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -422,12 +463,12 @@ Exiting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1052"/>
+        <location filename="support.cpp" line="1064"/>
         <source>falconG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1052"/>
+        <location filename="support.cpp" line="1064"/>
         <source>Really remove %1 and all of its content?</source>
         <translation type="unfinished"></translation>
     </message>

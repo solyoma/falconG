@@ -6,27 +6,27 @@ using namespace Enums;
 #include "config.h"
 
 /*--------------------- languages -------------------------*/
-LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
 LangConstList Languages::abbrev;		// used instead of country code in names. e.g. set "_us" for "en_US" here
-LangConstList Languages::language;		// this is set in 'lang=XX' in HTML
-LangConstList Languages::icons;			// icons to use instead of names
-LangConstList Languages::Images;		// image section in HTML files
-LangConstList Languages::Videos;		// video section in HTML files
-LangConstList Languages::Albums;		// album section in HTML files
-LangConstList Languages::toAlbums;		// jump to album section
-LangConstList Languages::toTop;			// top of page
-LangConstList Languages::upOneLevel;	// jump to parent
-LangConstList Languages::toHomePage;	// 'Kezdõlapra'
-LangConstList Languages::toAboutPage;	// 'Rólam'
-LangConstList Languages::toContact;		// 'Kapcsolat'
-LangConstList Languages::coupleCaptions;  // 'Képcímek'
-LangConstList Languages::showDescriptions;  // 'Képleírások'
-LangConstList Languages::share;			// 'Megosztás'
-LangConstList Languages::latestTitle;	// 'Kedvcsinálónak'
-LangConstList Languages::latestDesc;	// 'Ebbe a könyvtárba...'
+LangConstList Languages::albums;		// album section in HTML files
 LangConstList Languages::countryCode;	// "en_US", "hu_HU", etc
 LangConstList Languages::countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
+LangConstList Languages::coupleCaptions;  // 'Képcímek'
 LangConstList Languages::falconG;		// "created by falconG"
+LangConstList Languages::icons;			// icons to use instead of names
+LangConstList Languages::images;		// image section in HTML files
+LangConstList Languages::language;		// this is set in 'lang=XX' in HTML
+LangConstList Languages::latestTitle;	// 'Kedvcsinálónak'
+LangConstList Languages::latestDesc;	// 'Ebbe a könyvtárba...'
+LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
+LangConstList Languages::share;			// 'Megosztás'
+LangConstList Languages::showDescriptions;  // 'Képleírások'
+LangConstList Languages::toHomePage;	// 'Kezdõlapra'
+LangConstList Languages::toAboutPage;	// 'Rólam'
+LangConstList Languages::toAlbums;		// jump to album section
+LangConstList Languages::toContact;		// 'Kapcsolat'
+LangConstList Languages::toTop;			// top of page
+LangConstList Languages::upOneLevel;	// jump to parent
+LangConstList Languages::videos;		// video section in HTML files
 
 /*============================================================================
 * TASK:		reads language definitions from files in the
@@ -205,25 +205,26 @@ int Languages::Read()
 							" The format of the lines is 'name=text'. The names\n"
 							"  and their texts are (the single quotes in the examples below are not used,"
 							"  and the examples are in braces):\n"
-							"  about     =<text for the 'About' button>\n"
-							"  abbrev    =<text for 'countryCode' used in file names (def.:'countryCode')>\n"
-							"  language  =<text for'lang=XX' in HTML>"
-							"  albums    =<text header for the album section of the  actual album>\n"
-							"  cdcoupled =<text for the captions-descriptions couple toggle>\n"
-							"  contact   =<text for the 'contact' button\n"
-							"  countOfImages=%1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
-							"  countryCode	=<like 'en_US'>\n"
+							"  abbrev      = <language abbrev. in file names (e.g.'_hu' for`album123_hu.html`)>\n"
+							"  albums      = <text header for the album section of the  actual album>\n"
+							"  coupleCaptions = <text for captions-toggled-with-descriptions toggle>\n"
+							"  countOfImages= %1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
+							"  countryCode	= <like 'en_US'> (usually part of this is abbrev and language)\n"
 							"  descriptions  =<text for the descriptionss toggle menu>\n"
-							"  falconG   =<Copyright message. Please do not remove or change this. just translate>\n"
-							"  homePage	 =<text for menu to home page>\n"
+							"  falconG   =<my copyright message. Please do not remove or change this, just translate>\n"
 							"  icon      =<name of icon (.png) file for language> may be left empty\n"
 							"  images    =<text header for the images section of the actual album>\n"
+							"  language  =<text for'lang=XX' in HTML or 'Title-XX', 'Desc-XX' in '.struct'>"
 							"  latestDesc=<description for album 'latest_en.html'>\n"
 							"  latestTitle=<title on album 'latest_en.html'>\n"
 							"  name	     =<language name to put on language switch menu>  ('to English')\n"
+							"  share     =<text for the facebook share button>"
+							"  toAboutPage = <text for the 'About' button>\n"
+							"  toAlbums  = <menu text to jump to albums section>"
+							"  toContact   =<text for the 'contact' button\n"
+							"  toHomePage	 =<text for menu to home page>\n"
 							"  toTop     =<text for up arrow: jump to top of page>\n"
 							"  upOneLevel=<text for up/left arrow: jump to parent dir>\n"
-							"  share     =<text for the facebook share button>"
 							"  videos    =<text header for the videos section of the actual album>\n"
 							" \n"
 							"When the language texts are put into the struct file, there must be as many\n"
