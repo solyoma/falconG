@@ -3114,10 +3114,14 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
 	};
 
+	QString qsParent = album.parent > RECENT_ALBUM_ID ? _albumMap[album.parent].BareName() : config.sMainPage.ToString();
+	qsParent = RootNameFromBase(qsParent, _actLanguage);
+	if (album.parent <= RECENT_ALBUM_ID)	// for uplinks to index you need to go up one directory, for others you do not
+		qsParent = "../" + qsParent;
 	// menu buttons
 	_ofs << "   <nav>\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
-		outputMenuLine("uplink", updir+RootNameFromBase(config.sMainPage.ToString(), _actLanguage), "&nbsp;", Languages::upOneLevel[_actLanguage]);
+		outputMenuLine("uplink", qsParent, "&nbsp;", Languages::upOneLevel[_actLanguage]);
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
 //		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
 	outputMenuLine("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
@@ -3149,7 +3153,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	_ofs << "&nbsp;&nbsp;";
 	_WriteFacebookLink(album.LinkName(_actLanguage, true), 1);	// only when required
 	
-	_ofs << "</nav>\n";
+	_ofs << "\n   </nav>\n";
 }
 
 /*============================================================================
@@ -3176,10 +3180,22 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 		if (i != _actLanguage)
 			_ofs << "     <a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << Languages::names[i] << "</a>&nbsp;&nbsp\n";
 	_ofs << "     <br><br><br>\n";
-	if (album.titleID)
-		_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2><br><br>\n";
-	if (album.descID)
-		_ofs << "     <p class=\"gallery-desc\">" << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
+	if (album.ID == RECENT_ALBUM_ID)
+	{
+		QString qs = Languages::latestTitle[_actLanguage];
+		if(!qs.isEmpty())
+			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(qs, true) << "</h2><br><br>\n";
+		qs = Languages::latestDesc[_actLanguage];
+		if(!qs.isEmpty())
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(qs, true) << "</p>\n";
+	}
+	else
+	{
+		if (album.titleID)
+			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2><br><br>\n";
+		if (album.descID)
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
+	}
 
 	_ofs << R"X(
     <div id="lightbox" class="lightbox">
@@ -3356,7 +3372,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString qsLoc;		// empty for non root albums/images
 	if (typeFlag == ALBUM_ID_FLAG)
 		qsLoc = "javascript:LoadAlbum('" + 
-					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false)+")'";
+					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
@@ -3368,7 +3384,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	if (pImage && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
 	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "        </div>\n     </div>";	// for "title" "links"
+		<< "</div>\n"
+		   "     </div>\n";	// for "title" "links"
 	
 	_ofs << "   </div>\n";		// "img-container"
 
@@ -3964,6 +3981,7 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 	_WriteHeaderSection(albumLatest);
 
 	_ofs << "<!-- Main section -->\n"
+			"<br><br>"
 			"   <div class=\"main\" id=\"main\">\n"
 			"		<section>\n"
             "		</section>\n"

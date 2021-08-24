@@ -796,16 +796,31 @@ void FalconG::_DesignToUi()
 	--_busy;
 }
 
+static void _SetEditText(QLineEdit* pe, _CDirStr cs)
+{
+	if (cs.Changed())
+		pe->setText(cs.ToString());
+}
+
+static inline bool _TestDirValue(QLineEdit* pe, _CString cs)
+{
+	return  (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString());
+}
+static inline bool _TestDirValue(QLineEdit* pe, _CDirStr cs)
+{
+	return  (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString());
+}
+
 void FalconG::_OtherToUi()
 {
 	++_busy;
 	ui.edtAbout->setText(config.sAbout);
-	ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
+	_SetEditText(ui.edtAlbumDir, config.dsAlbumDir);
 	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
 	ui.edtDescription->setText(config.sDescription);
 	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
 	ui.edtEmailTo->setText(config.sMailTo);
-	ui.edtGalleryRoot->setText(config.dsGRoot.ToString());
+	_SetEditText(ui.edtGalleryRoot, config.dsGRoot);
 	ui.edtGalleryTitle->setText(config.sGalleryTitle);
 	QString s = config.sGoogleFonts.ToString();
 	s.replace('|', ',');s.replace('+', ' ');
@@ -815,17 +830,17 @@ void FalconG::_OtherToUi()
 	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
 	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
 	ui.edtUplink->setText(config.sUplink);
-	if (!config.dsAlbumDir.IsEmpty() && ui.edtAlbumDir->placeholderText() != config.dsAlbumDir.ToString())
+	if (_TestDirValue(ui.edtAlbumDir, config.dsAlbumDir))
 		ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
-	if (!config.sBaseName.IsEmpty() && ui.edtBaseName->placeholderText() != config.sBaseName.ToString())
-		ui.edtBaseName->setText(config.sBaseName.ToString());
-	if (!config.dsFontDir.IsEmpty() && ui.edtFontDir->placeholderText() != config.dsFontDir.ToString())
+	if (_TestDirValue(ui.edtBaseName, config.sBaseName))
+		ui.edtBaseName->setText(config.sBaseName);
+	if (_TestDirValue(ui.edtFontDir, config.dsFontDir))
 		ui.edtFontDir->setText(config.dsFontDir.ToString());
-	if (!config.dsImageDir.IsEmpty() && ui.edtImg->placeholderText() != config.dsImageDir.ToString())
+	if (_TestDirValue(ui.edtImg, config.dsImageDir))
 		ui.edtImg->setText(config.dsImageDir.ToString());
-	if (!config.dsVideoDir.IsEmpty() && ui.edtImg->placeholderText() != config.dsVideoDir.ToString())
+	if (_TestDirValue(ui.edtImg, config.dsVideoDir))
 		ui.edtVid->setText(config.dsVideoDir.ToString());
-	if (!config.dsThumbDir.IsEmpty() && ui.edtThumb->placeholderText() != config.dsThumbDir.ToString())
+	if (_TestDirValue(ui.edtThumb, config.dsThumbDir))
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
 	ui.edtWatermark->setText(config.waterMark.wm.text);
