@@ -856,6 +856,9 @@
                    <bold>false</bold>
                   </font>
                  </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum number of images selected randomly from the latest photos&lt;/p&gt;&lt;p&gt;that will be displayed on the page of the latest uploads.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
                  <property name="minimum">
                   <number>1</number>
                  </property>
@@ -872,6 +875,9 @@
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
