@@ -51,16 +51,18 @@ QString EncodeLF(QString s)
 }
 
 /*=============================================================
-* TASK:   Replaces encded \\n strings with character \n
-* EXPECTS:
+* TASK:   Replaces encded \\n strings with character <BR> and \n
+* EXPECTS:	s -string with \\n
+*			toHtmlOrJs - 0: not, 1: HTML, 2: JS
+*			lasoQuotes - tru: put quotes around it
 * GLOBALS:
 * RETURNS:
 * REMARKS:
 *------------------------------------------------------------*/
-QString DecodeLF(QString s, bool toHtml, bool alsoQuotes)
+QString DecodeLF(QString s, int toHtmlOrJs, bool alsoQuotes)
 {
 	int pos;
-	const QString LF = toHtml ? "<br>\n" : "\n";
+	const QString LF = toHtmlOrJs == 1 ? "<br>\n" : toHtmlOrJs == 2 ? "<br>" : "\n";
 	while ((pos = s.indexOf("\\n")) >= 0)
 		s = s.left(pos) + LF + s.mid(pos + 2);
 

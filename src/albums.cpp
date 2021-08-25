@@ -629,7 +629,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 		path = config.dsSrc.ToString() + img.path + img.name;	 // but we need it
 
 	added = false;
-	ID_t id = CalcCrc(img.name, false);	// just by name. CRC can but id can never be 0 
+	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just by name. CRC can but id can never be 0 
 
 	QFileInfo fi(path);			
 	img.exists = fi.exists();	
@@ -663,7 +663,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	}
 
 	added = true;
-	img.ID = id | IMAGE_ID_FLAG;
+	img.ID = id;
 	insert(id, img);
 	return id;
 }
@@ -3184,17 +3184,17 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	{
 		QString qs = Languages::latestTitle[_actLanguage];
 		if(!qs.isEmpty())
-			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(qs, true) << "</h2><br><br>\n";
+			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(qs, 1) << "</h2><br><br>\n";
 		qs = Languages::latestDesc[_actLanguage];
 		if(!qs.isEmpty())
-			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(qs, true) << "</p>\n";
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(qs, 1) << "</p>\n";
 	}
 	else
 	{
 		if (album.titleID)
-			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], true) << "</h2><br><br>\n";
+			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], 1) << "</h2><br><br>\n";
 		if (album.descID)
-			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(_textMap[album.descID][_actLanguage], true) << "</p>\n";
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(_textMap[album.descID][_actLanguage], 1) << "</p>\n";
 	}
 
 	_ofs << R"X(
@@ -3319,8 +3319,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		}
 		else
 		{
-			title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], true);
-			desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], true);
+			title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], 1);
+			desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], 1);
 		}
 
 		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
@@ -3337,8 +3337,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	}
 	else
 	{
-		title = DecodeLF(_textMap[pImage->titleID][_actLanguage], true);
-		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], true);
+		title = DecodeLF(_textMap[pImage->titleID][_actLanguage], 1);
+		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], 1);
 		sImagePath = sImageDir + ( (album.ImageCount() > 0 ? pImage->LinkName() : QString()) );
 		sThumbnailPath = sThumbnailDir + ((album.ImageCount() > 0 ? pImage->LinkName() : QString()));
 		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')\">";		// image in the image directory
@@ -3440,8 +3440,8 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 		    "					<source src=\"" << sVideoPath << "\" type = \"video/" << sVideoType << "\">\n"
 		 << "				</video>\n";
 
-	title = DecodeLF(_textMap[pVideo->titleID][_actLanguage], true);
-	desc = DecodeLF(_textMap[(pVideo->descID)][_actLanguage], true);
+	title = DecodeLF(_textMap[pVideo->titleID][_actLanguage], 1);
+	desc = DecodeLF(_textMap[(pVideo->descID)][_actLanguage], 1);
 	_ofs << "					<div class=\"title\">\n";	//#3	// video in the video directory
 	if (pVideo && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pVideo->name).arg(pVideo->ID);
@@ -3826,9 +3826,9 @@ int AlbumGenerator::_DoLatestJs()
 				pim->SetThumbSize();
 				ofjs << "{ id:" << (idt & ID_MASK) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
 				if (pim->titleID)
-					ofjs << ",t:\"" << DecodeLF(_textMap[pim->titleID][lang], true, true) << "\"";
+					ofjs << ",t:\"" << DecodeLF(_textMap[pim->titleID][lang], 2, true) << "\"";
 				if (pim->descID)
-					ofjs << ",d:\"" << DecodeLF(_textMap[pim->descID][lang], true, true) << "\"";
+					ofjs << ",d:\"" << DecodeLF(_textMap[pim->descID][lang], 2, true) << "\"";
 				ofjs << "},\n";
 			}
 			else if (idt & VIDEO_ID_FLAG)
@@ -3836,9 +3836,9 @@ int AlbumGenerator::_DoLatestJs()
 				pvid = &_videoMap[idt];
 				ofjs << "{ id:" << (idt & ID_MASK) << ",w:" << config.thumbWidth << ",h:" << config.thumbHeight;
 				if (pvid->titleID)
-					ofjs << ",t:\"" << DecodeLF(_textMap[pvid->titleID][lang], true) << "\"";
+					ofjs << ",t:\"" << DecodeLF(_textMap[pvid->titleID][lang], 2, true) << "\"";
 				if (pvid->descID)
-					ofjs << ",d:\"" << DecodeLF(_textMap[pvid->descID][lang], true) << "\"";
+					ofjs << ",d:\"" << DecodeLF(_textMap[pvid->descID][lang], 2, true) << "\"";
 				ofjs << "},\n";
 			}
 		}

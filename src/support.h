@@ -296,7 +296,7 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 void ShowWarning(QString qs, QWidget *parent = nullptr);
 
 QString EncodeLF(QString str);
-QString DecodeLF(QString str, bool toHtml = false, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n
+QString DecodeLF(QString str, int toHtmlOrJs = 0, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n (html) or <br> (Javascript)
 
 
 QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);
