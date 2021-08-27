@@ -3508,8 +3508,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<< "    <div id=\"images\" class=\"fgsection\">" << Languages::images[_actLanguage] << "</div>\n"
 			<< "    <section>\n";
 		// first the images
-		for (int i = 0; _processing && i < album.ImageCount(); ++i)
-			_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
+		for (int i = 0; _processing && i < album.items.size(); ++i)
+			if(album.items[i] && IMAGE_ID_FLAG)
+				_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
@@ -3519,8 +3520,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			 << "    <div id=\"videos\" class=\"fgsection\">" << Languages::videos[_actLanguage] << "</div>\n"
 			    "    <section>\n";
 
-		for (int i = 0; _processing && i < album.VideoCount(); ++i)
-			_WriteVideoContainer(album, i);
+		for (int i = 0; _processing && i < album.items.size(); ++i)
+			if (album.items[i] && VIDEO_ID_FLAG)
+				_WriteVideoContainer(album, i);
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
 
@@ -3530,9 +3532,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<<	"    <div id=\"albums\" class=\"fgsection\">" << Languages::albums[_actLanguage] << "</div>\n"
 				"    <section>\n";
 
-		for (int i = 0; _processing && i < album.SubAlbumCount(); ++i)
-			//			if (album.excluded.indexOf(album.albums[i]) < 0)
-			_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
+		for (int i = 0; _processing && i < album.items.size(); ++i)
+			if (album.items[i] && ALBUM_ID_FLAG)
+				_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
 
