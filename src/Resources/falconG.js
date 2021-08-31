@@ -11,51 +11,77 @@ function DebugProperties(className, obj)
  //   console.log(className + " => " + style.cssText)
 }
 
-function SetPropertyForClass(className, propertyName, propValue) 
+function SetPropertyForSelector(selector, propertyName, propValue) 
 {
-    let x, i, r, id;
+    var x, i, r, id = '';
     try 
     {
-        if((i=className.indexOf('#')) >= 0) // then a single element
+        if((i=selector.indexOf('#')) >= 0) // then a single element with id
         {
-            id = className.substring(i+1)
-            className = className.substring(0,i);
+            id = selector.substring(i+1)
+            selector = selector.substring(0,i);
             x = document.getElementById(id);
+			
             if (propValue == '')  
-                x.removeProperty(propertyName)
+                x.style.removeProperty(propertyName)
             else
-            x.setProperty(propertyName, propValue);
+				x.style.setProperty(propertyName, propValue);
             // DEBUG
-//            console.log(className + '.' + propertyName + '#'+ id + ':' + propValue + ", old.: '" + r + "'")
-            // /DEBUG
-        }
-
-        x = document.getElementsByClassName(className)
-        if (propValue == '') { 
-            for (i = 0; i < x.length; ++i)
-                r = x[i].style.removeProperty(propertyName);
-        }
-        else {
-            if (propertyName in x[0].style)
-            {
-                r = x[0].style.getPropertyValue(propertyName)   // previous value
-                for (i = 0; i < x.length; ++i)
-                    x[i].style.setProperty(propertyName, propValue);
-            }        
-            else
-                r = "No '" + propertyName + "' in class '" + className + "'"
+//            console.log(selector + '.' + propertyName + '#'+ id + ':' + propValue + ", old.: '" + r + "'")
+			
+			// for log and error:
+			id = '(id='+id+')';
     // DEBUG
-//            console.log(className + '.' + propertyName + ':' + propValue + ", old.: '" + r + "'")
+			console.log('OPERATION: ' + selector + id + '.' + propertyName + ":" + propValue);
+        }
+		else
+		{
+			x = document.getElementsByClassName(selector)
+// DEBUG
+// if( i = selector.indexOf('.') >= 0)
+// {
+	// let y = selector.substring(i);
+	// console.log('---------> selector='+ y + ', length:'+x.length+', typeof x[0]= ' + typeof(x[0]));
+// }	
+			if(x.length != 0) 
+			{	
+				if (propValue == '' && propertyName in x[0].style) 
+				{ 
+					i = -9999
+					for (i = 0; i < x.length; ++i)
+					{
+						if(typeof x[i] !== "undefined")
+							r = x[i].style.removeProperty(propertyName);
+					}
+				}
+				else 
+				{
+					i = -8000
+					if (propertyName in x[0].style)
+					{
+						r = x[0].style.getPropertyValue(propertyName)   // previous value (for debugging)
+						for (i = 0; i < x.length; ++i)
+						{
+							if(typeof x[i] !== "undefined")
+								x[i].style.setProperty(propertyName, propValue);
+						}
+					}        
+					else
+						r = "No '" + propertyName + "' in class '" + selector + "'"
+				}
+    // DEBUG
+				console.log('OPERATION: ' + selector + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]');
+			}
     // /DEBUG
         }
 
-//        DebugProperties(className, x[0]);
+//        DebugProperties(selector, x[0]);
     // DEBUG
-    document.getElementById("DEBUG").innerHTML = className + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
+    //document.getElementById("DEBUG").innerHTML = selector + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
     // /DEBUG
     }
     catch (err) {
-        console.log('*** EXCEPTION ' + className + '.' + propertyName + ':' + propValue + " err.: '" + err + "'")
+        console.log('*** EXCEPTION at #' + i + " " + selector + id + '.' + propertyName + ':' + propValue + " err.: '" + err + "'")
     }
 }
 
@@ -126,7 +152,7 @@ function preloadImage(img) {
     img.removeAttribute("data-src");
 }
 
-function falconGLoad() {
+function falconGLoad(latest) {
     ResizeThumbs();
     showDesc = sessionStorage.getItem("showDescription");
     if (!showDesc)       // e.g. not defined
@@ -134,6 +160,10 @@ function falconGLoad() {
     else
         showDesc ^= 1;  // invert stored
 
+//console.log("latest: "+latest)
+
+	if(latest === 1)
+		SetRandomLastImage()	// in 'latest.js'
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
     t1 = Date.time;
@@ -208,7 +238,7 @@ function LightBoxFadeOut() {
 }
 
 function LoadAlbum(album) {
-    window.location.href="albums/"+album;
+    window.location.href=album;
 }
 
 function ShowImage(img, caption) {

@@ -157,6 +157,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_CopyResourceFileToSampleDir(resPPath, "index_en_US.html");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
+	_CopyResourceFileToSampleDir(resPPath, "latest.js");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder.png");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder2.png");
 	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
@@ -555,11 +556,11 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae)
 
 void FalconG::_SaveLinkIcon()
 {
-		QIcon icon = _SetUplinkIcon();		// from file (see around line# 2297)
-		QString qs = "res/up-link.png";
-		QFile::remove(qs);
-		qs = "background-image: " + qs;
-		icon.pixmap(64,64).save(qs);		// and save into "res" subdirectory
+		QString qs = "res/up-link.png";		// existing icon
+		QFile::remove(qs);					// delete
+		QIcon icon = _SetUplinkIcon();		// from original file w. new color (see around line# 2596)
+		icon.pixmap(64,64).save(qs);		// and save back
+//		qs = "background-image: " + qs;
 }
 
 /*========================================================
@@ -5045,7 +5046,7 @@ void FalconG::_RunJavaScript(QString className, QString value)
 		pos = s.indexOf(':');
 		if (pos <= 0) 
 			return;
-		qs = QString("SetPropertyForClass('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
+		qs = QString("SetPropertyForSelector('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 		_page.runJavaScript(qs);
 //		DEBUG_LOG(qs)
 	};
@@ -5057,8 +5058,8 @@ void FalconG::_RunJavaScript(QString className, QString value)
 
 void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 {
-	if (value.isEmpty())
-		return;
+//	if (value.isEmpty())
+//		return;
 
 	QString className = pElem->ClassName();
 	if (!subSelector.isEmpty())

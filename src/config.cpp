@@ -725,9 +725,11 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 
 QString _CGradient::ForStyleSheet(bool semi) const
 {
+	QString qs;
 	if (!used) 
-		return QString();
-	QString qs = QString("background-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
+		qs = QString("background-image:none");
+	else
+		qs = QString("background-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
 								.arg(gs[0].color).arg(gs[0].percent)
 								.arg(gs[1].color).arg(gs[1].percent)
 								.arg(gs[2].color).arg(gs[2].percent);

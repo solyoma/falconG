@@ -88,7 +88,7 @@ struct WaterMark
 {
 	QString text;
 	int origin = 0+0;	// 0,1,2: index of vertical	(top,center,bottom)
-						// 0,0x10,0x20 - index of horizontal  (left, center,m right)
+						// 0,0x10,0x20 - index of horizontal  (left, center, right)
 	int marginX = 0, // measured from nearest horizontal image edge 
 		marginY = 0; // measured from nearest vert. image edge
 
@@ -103,6 +103,11 @@ struct WaterMark
 
 	QFont font;
 	QImage *mark = nullptr;		// watermark text
+	int markWidth = 0, markHeight = 0;
+
+	int Width() const  { return markWidth; }
+	int Height() const { return markHeight; }
+
 	QString ColorToCss() const
 	{
 		return QString("rgba(%1,%2,%3,%4)").arg( (colorWOpacity >> 16) & 0xFF).arg((colorWOpacity >> 8) & 0xFF).arg(colorWOpacity & 0xFF).arg(Opacity(false)/255.0);
@@ -182,12 +187,16 @@ struct WaterMark
 			|| (font != wm.font);
 	}
 
-	void SetupMark()
+	void GetMarkDimensions()
 	{
 		QFontMetrics fm(font);
+		markWidth = fm.horizontalAdvance(text),
+		markHeight = fm.height();
+	}
+	void SetupMark()
+	{
+		GetMarkDimensions(markWidth, markHeight);
 
-		int markWidth = fm.horizontalAdvance(text),
-			markHeight = fm.height();
 		delete mark;
 		mark = new QImage(markWidth, markHeight, QImage::Format_ARGB32);
 		mark->fill(qRgba(0, 0, 0, 0) );	// transparent image
@@ -208,7 +217,8 @@ struct WaterMark
 		fdbg.open(QIODevice::WriteOnly);
 		QTextStream odbg(&fdbg);
 		odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
-		*/mark->save("debug_watermark.png");
+		*/
+		mark->save(PROGRAM_CONFIG::samplePath + "res/watermark.png");	// used on image
 	}
 };
 

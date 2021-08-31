@@ -20,6 +20,7 @@
   <qresource prefix="Preview">
     <file>Resources/placeholder2.png</file>
     <file>Resources/falconG.js</file>
+    <file>Resources/latest.js</file>
     <file>Resources/NoImage.jpg</file>
     <file>Resources/placeholder.png</file>
     <file>Resources/falconG.css</file>
