@@ -84,142 +84,90 @@ public:
 };
 
 //*****************************************
-struct WaterMark
+class WaterMark
 {
-	QString text;
-	int origin = 0+0;	// 0,1,2: index of vertical	(top,center,bottom)
-						// 0,0x10,0x20 - index of horizontal  (left, center, right)
-	int marginX = 0, // measured from nearest horizontal image edge 
-		marginY = 0; // measured from nearest vert. image edge
+public:
+	enum POSITION : int {
+		LEFT = 0
+		, HCENTER = 16
+		, RIGHT = 32
+		, TOP = 0
+		, VCENTER = 1
+		, BOTTOM = 2
+	};
+	using POS = int;
 
-	unsigned colorWOpacity = 0x00ffffff,		// AARRGGBB
-		background = 0;			 
-	bool useBackground = false;	
+protected:
+	bool _enabled = true;	// otherwise do not create image
+private:
+	//using POS = int;
 
-	bool shadowOn = false;
-	int shadowHoriz, shadowVert,
-		shadowBlur,
-		shadowColor = -1; // color (rgb) -1: not used
+	QString _text;
+	int _origin = LEFT+TOP;	// 0,1,2		- index of vertical	position (top,center,bottom)
+						// 0,0x10,0x20	- index of horizontal position  (left, center, right)
 
-	QFont font;
-	QImage *mark = nullptr;		// watermark text
-	int markWidth = 0, markHeight = 0;
+	QImage *_pmark = nullptr;				// watermark text as an image
+	int _markWidth = 0, _markHeight = 0;	// image width and height
 
-	int Width() const  { return markWidth; }
-	int Height() const { return markHeight; }
+	int _marginX = 0, // >= 0, measured from nearest horizontal image edge in pixels
+		_marginY = 0; // >= 0, measured from nearest vert. image edge
 
-	QString ColorToCss() const
-	{
-		return QString("rgba(%1,%2,%3,%4)").arg( (colorWOpacity >> 16) & 0xFF).arg((colorWOpacity >> 8) & 0xFF).arg(colorWOpacity & 0xFF).arg(Opacity(false)/255.0);
-	}
-	QColor BorderColor() const
-	{
-		unsigned c = colorWOpacity & 0xffffff;
-		return (QColor(QString("#%1").arg(c, 6, 16, QChar(0))).value() < 170 ? "white" : "black");
-	}
+	unsigned _colorWOpacity = 0x00ffffff,		// AARRGGBB
+			 _background = 0;			 
+	bool	_useBackground = false;	
 
-	QString XMarginName(bool & centered, bool used)	const // used ? active text else inactive one
-	{
-		switch (origin & 0xF0)
-		{
-			case 0x0:	centered = false; return used? "margin-left:" : "margin-right:"; break;
-			case 0x10:  centered = true; return used?  "margin-left:" : "margin-right:"; break;
-			case 0x20:  centered = false; return used? "margin-right:": "margin-left:"; break;
-			default: return QString();
-		}
-	}
-	QString YMarginName(bool & centered, bool used) const
-	{
-		switch (origin & 0xF)
-		{
-			case 0: centered = false; return used ? "margin-top:" :		"margin-bottom:"; break;
-			case 1: centered = false; return used ? "margin-top:" :		"margin-bottom:"; break;
-			case 2: centered = false; return used ? "margin-bottom:" :	"margin-top:"; break;
-			default: return QString();
-		}
-	}
-	QString OffsetXToStr() const { return (origin & 0xF0) == 0x10 ? "50%" : QString().setNum(marginX);  }
-	QString OffsetYToStr() const { return (origin & 0xF) == 1 ? "50%" : QString().setNum(marginY);  }
+	bool _shadowOn = false;
+	int _shadowHoriz, _shadowVert;
+	unsigned _shadowBlur;
+	unsigned _shadowColor = (unsigned)-1; // color (rgb) -1: not used
 
-	unsigned Color() const { return colorWOpacity & 0xFFFFFF; } 
-	double Opacity(bool percent) const		// 0..255 (!percent) or 0..100 (percent)
+	QFont _font;
+public:
+
+	QImage *SetupMark();
+	WaterMark& operator=(const WaterMark& other);
+	WaterMark& operator=(const WaterMark&& other);
+	bool operator!=(const WaterMark& wm) const;
+
+	QImage* PMarkImage() const { return _pmark; }
+	QString Text() const { return _text; }
+	int Origin() const { return _origin; }
+
+	int Width() const  { return _markWidth; }
+	int Height() const { return _markHeight; }
+	int MarginX() const { return _marginX; }
+	int MarginY() const { return _marginX; }
+	QFont Font() const { return _font; }
+	bool HasDropShadow(int* xoffset = nullptr, int* yoffset = nullptr, QColor* color = nullptr) const 
 	{ 
-		return ((colorWOpacity >> 24) & 0xFF) * (percent ? 100.0/255.0 : 1.0);  
-	}
-	void SetFont(QFont & qfont) 
-	{
-		font = qfont;
-		font.setStyleHint(QFont::AnyStyle, QFont::PreferAntialias);
-		SetupMark();
-	}
-	void SetText(QString  qs)
-	{
-		text = qs; 
-		SetupMark();
-	}
-	void SetColor(int ccolorWOpacity) 
-	{ 
-		colorWOpacity = ccolorWOpacity; 
-		SetupMark();
-	}
-	void SetColor(QString scolorWOpacity)
-	{
-		colorWOpacity = scolorWOpacity.toInt(nullptr, 16); 
-		SetupMark();
-	}
-	void SetOpacity(int val, bool percent) // val is in percent (0..100) or not(0..255)?
-	{
-		if (percent)
-			val *= 2.55;
-		colorWOpacity = (((int) (val)) << 24) + (qRed(colorWOpacity) << 16) + (qGreen(colorWOpacity) << 8) + qBlue(colorWOpacity);
-		SetupMark();
-	}
+		if (xoffset) *xoffset = _shadowHoriz;
+		if (xoffset) *yoffset = _shadowVert;
+		if (color) *color = _shadowColor < 0 ? QColor(63, 63, 63, 180) : QColor(_shadowColor);
 
-	bool operator!=(const WaterMark &wm)
-	{
-		return (text != wm.text)
-			|| (origin != wm.origin)
-			|| (marginX != wm.marginX)
-			|| (marginY != wm.marginY)
-			|| (colorWOpacity != wm.colorWOpacity)
-			|| (background != wm.background)
-			|| (shadowColor != wm.shadowColor)
-			|| (font != wm.font);
+		return _shadowOn;
 	}
+	void GetMarkDimensions();	// into _markWidth and _markHeight using current font
+	QString PositionToStyle(int width, int height, double ratio, POS newPosition = -1) const;
 
-	void GetMarkDimensions()
-	{
-		QFontMetrics fm(font);
-		markWidth = fm.horizontalAdvance(text),
-		markHeight = fm.height();
-	}
-	void SetupMark()
-	{
-		GetMarkDimensions(markWidth, markHeight);
-
-		delete mark;
-		mark = new QImage(markWidth, markHeight, QImage::Format_ARGB32);
-		mark->fill(qRgba(0, 0, 0, 0) );	// transparent image
-		QPainter painter(mark);
-		painter.setFont(font);
-		QColor c(qRed(colorWOpacity), qGreen(colorWOpacity), qBlue(colorWOpacity), Opacity(false) );
-		// Debug 
-		//QColor c(0xff,0,0,128);
-		//QString n = c.rgba();
-		QPen pen(c);
-		painter.setPen(pen);
-
-		painter.drawText(0, 0, markWidth, markHeight, Qt::AlignCenter, text);
-		
-		// DEBUG
-
-		/*QFile fdbg("debug-watermark.txt");
-		fdbg.open(QIODevice::WriteOnly);
-		QTextStream odbg(&fdbg);
-		odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
-		*/
-		mark->save(PROGRAM_CONFIG::samplePath + "res/watermark.png");	// used on image
-	}
+	QString ColorToCss() const;
+	QColor BorderColor() const;
+	unsigned Color() const;	// with opacity
+	unsigned ShadowColor() const { return _shadowColor; };	// with opacity
+	unsigned Background() const { return _background; }
+	double Opacity(bool percent) const;		// 0..255 (!percent) or 0..100 (percent)
+	// setters	: each regenerates watermark image and saves it into 'res/'
+	void SetPositioning(int pos) { _origin = pos; }
+	void SetBackground(unsigned bck) { _background = bck; }
+	void SetFont(QFont& qfont);
+	void SetMarginX(int mx) { _marginX = mx; }
+	void SetMarginY(int my) { _marginY = my; }
+	void SetText(QString  qs);
+	void SetColorWithOpacity(int colorWOpacity);
+	void SetColorWithOpacity(QString sColorWOpacity);
+	void SetShadowColor(unsigned color) { _shadowColor = color; }
+	void SetShadowOn(bool on) { _shadowOn = on; }
+	void SetShadowBlur(int blur) { _shadowBlur = blur; }
+	void SetOpacity(int val, bool percent); // val is in percent (0..100) or not(0..255)?
 };
 
 //*****************************************																			

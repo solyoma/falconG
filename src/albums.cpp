@@ -2888,7 +2888,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 		WaterMark *pwm = nullptr;
 		if (config.waterMark.used)
-			pwm = &config.waterMark.wm;
+			pwm = &config.waterMark;
 		converter.flags = doProcess + (im.dontResize ? dontResize : 0) + 
 							(config.doNotEnlarge ? dontEnlarge : 0);
 
@@ -2937,7 +2937,7 @@ int AlbumGenerator::_ProcessImages()
 
 	_remDsp.Init(_imageMap.size()+_videoMap.size());
 	if (config.waterMark.used)
-		config.waterMark.wm.SetupMark();
+		config.waterMark.SetupMark();
 
 	for (auto &im : _imageMap)
 	{

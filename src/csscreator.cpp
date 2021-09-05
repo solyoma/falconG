@@ -81,13 +81,11 @@ a, a:visited {
 
 	s = config.backgroundImage.ForStyleSheet(true);
 
-	if (s.at(s.indexOf(':')+1) == ';')		// no image
-	{
-		_ofs << "body {\n"
-			 << s
-			 << config.Web.ColorsForStyleSheet(true) 
-			 << "}\n\n";
-	}
+	_ofs << "body {\n";
+	if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
+		_ofs << s;
+	_ofs << config.Web.ColorsForStyleSheet(true);
+	_ofs << "}\n\n";
 
 	_ofs << R"(
 .main{
@@ -219,56 +217,44 @@ void CssCreator::_CreateForImages()
 	max-width:90vw;
 }
 
-.thumb {
-	display: inline-block;
 )";
-	WaterMark& wm = config.waterMark.wm;
 	if (_forSamplePage)
 	{
-		_ofs << "\tpadding: 1px;\n"
-				"\tmargin: 0 2;\n"
-				"\tborder:1px dashed #ffd460;\n"
-				"\tcursor:pointer;\n";
+		_ofs << ".thumb,.thumb1 {\n"
+//			"\tdisplay:inline-box;\n"
+			"\tpadding: 1px;\n"
+			"\tmargin: 0 2;\n"
+			"\tborder:1px dashed #ffd460;\n"
+			"\tcursor:pointer;\n";
 	}
+	else
+		_ofs << ".thumb {\n"
+				"\tdisplay:inline-box;\n";
+
 	// image border is used for <a class="thumb">
 	if(config.imageBorder.Used())
 		_ofs << config.imageBorder.ForStyleSheetShort(true);
-	_ofs << "\n}\n\n";	// close '.thumb'
+	_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.thumb1
+
+	WaterMark& wm = config.waterMark;
 
 	if (_forSamplePage)
 	{	
-		//QString wmutf8;	// replace non utf8 © with utf-8 version?
-		//for (auto i = 0; i < wm.text.length(); ++i)
-		//	if()
-		_ofs << ".thumb::after {\n"
-				"\tposition:absolute;\n";
-		_ofs << "\tcontent:\"" << wm.text << "\";\n"
-				"\tcolor:"	 << wm.ColorToCss() << ";\n";
-	
-		int x0 = 0, y0 = 0;		// origin on image for watermark
-		int w = config.thumbWidth, h = config.thumbHeight;
-		if (config.waterMark.used && !wm.mark)
-			wm.SetupMark();
-		if (wm.mark)
-		{
-			switch (wm.origin & 0xF0)
-			{
-				case 0x00: x0 = wm.marginX; break;
-				case 0x10: x0 = (w - wm.mark->width()) / 2; break;
-				case 0x20: x0 = w - wm.marginX - wm.mark->width(); break;
-			}
-			switch (wm.origin & 0x0F)
-			{
-				case 0x0: y0 = wm.marginY; break;
-				case 0x1: y0 = (h - wm.mark->height()) / 2; break;
-				case 0x2: y0 = h - wm.marginY - wm.mark->height(); break;
-			}
-			_ofs << "\ttop:" << y0 << "px;\n"
-				"\tleft:" << x0 << "px;\n"
-				"\tfont-height:" << wm.font.pointSize() << "pt;\n"
-				"\tfont-family:" << wm.font.family();
-		}
-		_ofs	 << ";\n}\n\n";	// close .thumb::after
+		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
+
+		_ofs << ".thumb::after, .thumb1::after {\n"
+				"\tposition:relative;\n"
+				"\tcontent:\"\";\n"
+				"\tbackground-image:url(\"../res/watermark.png\");\n"
+				"\tcolor:" << wm.ColorToCss() << ";\n"
+				"}\n\n"
+				".thumb::after {\n"	// images
+			 << wm.PositionToStyle(config.imageWidth,config.imageHeight, ratio) <<";\n"
+				"}\n\n"
+				".thumb1::after {\n"	// album square format image
+			 << wm.PositionToStyle(config.imageWidth, config.imageWidth, ratio) << ";\n"
+				"}\n\n"
+			;
 	}
 
 

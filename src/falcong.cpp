@@ -153,13 +153,13 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	QString resPPath = QStringLiteral(":/Preview/Resources/"),
 			resIPath = QStringLiteral(":/icons/Resources/");
-	_CopyResourceFileToSampleDir(resPPath, "index_hu_HU.html");
-	_CopyResourceFileToSampleDir(resPPath, "index_en_US.html");
-	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
+	_CopyResourceFileToSampleDir(resPPath, "index_hu.html");
+	_CopyResourceFileToSampleDir(resPPath, "index_en.html");
+//	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
 	_CopyResourceFileToSampleDir(resPPath, "latest.js");
-	_CopyResourceFileToSampleDir(resPPath, "placeholder.png");
-	_CopyResourceFileToSampleDir(resPPath, "placeholder2.png");
+	_CopyResourceFileToSampleDir(resPPath, "placeholder.jpg");
+	_CopyResourceFileToSampleDir(resPPath, "placeholder2.jpg");
 	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
 
 	_CopyResourceFileToSampleDir(resIPath, "up-icon.png");
@@ -172,16 +172,13 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 
+	ui.edtWmHorizMargin->setValidator(new QIntValidator(0, 100, ui.edtWmHorizMargin));
+	ui.edtWmVertMargin->setValidator(new QIntValidator(0, 100, ui.edtWmVertMargin));
 
 	ui.sample->setPage(&_page);
 
-	QString index_html = PROGRAM_CONFIG::samplePath + (PROGRAM_CONFIG::lang <= 0 ? "index_en_US.html" : "index_hu_HU.html");
-#ifdef __linux__	
-	QString url = "file://" + index_html;
-	_page.load(QUrl(url));
-#else
-	_page.load(QUrl("file:///"+ index_html));
-#endif
+	QString index_html = PROGRAM_CONFIG::samplePath + (PROGRAM_CONFIG::lang <= 0 ? "index_en.html" : "index_hu.html");
+	_page.load(QUrl::fromLocalFile(index_html));
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
@@ -747,6 +744,7 @@ void FalconG::_ConfigToSample()
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	qs = config.imageBorder.ForStyleSheetShort(false);
 	_RunJavaScript(".thumb", qs);
+	_RunJavaScript(".thumb1", qs);
 
 	--_busy;
 }
@@ -769,18 +767,17 @@ void FalconG::_DesignToUi()
 	++_busy;
 				// WaterMark
 	StyleHandler handler(ui.btnWmColor->styleSheet());
-	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.wm.Color()).name());
-	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.wm.BorderColor().name()) );
+	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.Color()).name());
+	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.BorderColor().name()) );
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
-	ui.sbWmOpacity->setValue( (int)(config.waterMark.wm.Opacity(true)));
-	//ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.Color(),8,16,QChar('0')));
-	if(config.waterMark.wm.shadowColor >= 0)
-		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.wm.shadowColor,6,16,QChar('0')));
+	ui.sbWmOpacity->setValue( (int)(config.waterMark.Opacity(true)));
+	//ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.Color(),8,16,QChar('0')));
+	if(config.waterMark.ShadowColor() >= 0)
+		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.ShadowColor(),6,16,QChar('0')));
 		// others
-	ui.edtWmHorizMargin->setText(QString().setNum(config.waterMark.wm.marginX));
-	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.wm.marginY));
+	ui.edtWmHorizMargin->setText(QString().setNum(config.waterMark.MarginX()));
+	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.MarginY()));
 
-	ui.chkImageBorder->setChecked(config.imageBorder.Used());
 	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
 	ui.chkUseWM->setChecked(config.waterMark.used);
 
@@ -789,7 +786,7 @@ void FalconG::_DesignToUi()
 	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
 
 	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
-	ui.sbImagePadding->setValue(config.imagePadding);
+	ui.sbImageMatteWidth->setValue(config.imageMatte);
 	ui.sbSpaceAfter->setValue(0);
 
 	_SettingUpFontsCombo();
@@ -844,7 +841,7 @@ void FalconG::_OtherToUi()
 	if (_TestDirValue(ui.edtThumb, config.dsThumbDir))
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
 
-	ui.edtWatermark->setText(config.waterMark.wm.text);
+	ui.edtWatermark->setText(config.waterMark.Text());
 
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
@@ -874,24 +871,24 @@ void FalconG::_OtherToUi()
 	_aspect = (double)config.imageWidth / h;
 
 							// Watermark
-	ui.sbWmOpacity->setValue(config.waterMark.wm.Opacity(true));
+	ui.sbWmOpacity->setValue(config.waterMark.Opacity(true));
 	ui.sbNewDays->setValue(config.newUploadInterval);
 	ui.sbImageWidth->setValue(config.imageWidth);
 	ui.sbImageHeight->setValue(config.imageHeight);
 	ui.sbThumbnailWidth->setValue(config .thumbWidth);
 	ui.sbThumbnailHeight->setValue(config.thumbHeight);
 
-	h = config.waterMark.wm.origin & 0xF;  // vertical position
+	h = config.waterMark.Origin() & 0xF;  // vertical position
 	ui.cbWmVPosition->setCurrentIndex(h);
-	h = (config.waterMark.wm.origin & 0xF0) >> 4; // horizontal position
+	h = (config.waterMark.Origin() & 0xF0) >> 4; // horizontal position
 	ui.cbWmHPosition->setCurrentIndex(h);
 	
 
-	ui.lblWaterMarkFont->setText(QString("%1 (%2,%3)").arg(config.waterMark.wm.font.family()).arg(config.waterMark.wm.font.pointSize()).arg(config.waterMark.wm.font.italic()));
-	if (!config.waterMark.wm.text.isEmpty())
-		ui.lblWmSample->setText(config.waterMark.wm.text);
+	ui.lblWaterMarkFont->setText(QString("%1 (%2,%3)").arg(config.waterMark.Font().family()).arg(config.waterMark.Font().pointSize()).arg(config.waterMark.Font().italic()));
+	if (!config.waterMark.Text().isEmpty())
+		ui.lblWmSample->setText(config.waterMark.Text());
 
-	ui.lblWmSample->setFont(config.waterMark.wm.font);
+	ui.lblWmSample->setFont(config.waterMark.Font());
 
 	h = config.imageQuality;
 	ui.cbImageQuality->setCurrentIndex(h ? 11 - h/10 : 0);
@@ -1286,39 +1283,39 @@ void FalconG::on_edtWatermark_textChanged()
 {
 	if (_busy)
 		return;
-	config.waterMark.wm.SetText(ui.edtWatermark->text() );
-	if(config.waterMark.wm.text.isEmpty())
+	config.waterMark.SetText(ui.edtWatermark->text() );
+	config.waterMark.SetupMark();
+	if(config.waterMark.Text().isEmpty())
 		ui.lblWmSample->setText("Watermark Sample text");
 	else
-		ui.lblWmSample->setText(config.waterMark.wm.text);
+		ui.lblWmSample->setText(config.waterMark.Text());
+	_WaterMarkToSample();
 	
 	_SetConfigChanged(true);
 }
 
 /*============================================================================
   * TASK:
-  * EXPECTS:mx, my new margines.  -1 : do not set this margin
+  * EXPECTS:mx, my new margins.  -1 : do not set this margin
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
 void FalconG::_UpdateWatermarkMargins(int mx, int my)
 {
-	WaterMark& wm = config.waterMark.wm;
-	bool centered;
+	WaterMark& wm = config.waterMark;
 	if (mx >= 0)
-	{
-		wm.marginX = mx;	// set active and clear inactive
-		_RunJavaScript(".thumb::after", wm.XMarginName(centered, false)+"");
-		_RunJavaScript(".thumb::after", wm.XMarginName(centered, true)+ wm.OffsetXToStr() );
-	}
+		wm.SetMarginX(mx);
 	if (my >= 0)
+		wm.SetMarginY(my);
+	config.waterMark.SetupMark();
+	_WaterMarkToSample();
+	if (config.waterMark.used)
 	{
-		wm.marginY = my;	// set active and clear inactive
-		_RunJavaScript(".thumb::after", wm.YMarginName(centered, false)+"");
-		_RunJavaScript(".thumb::after", wm.YMarginName(centered, true)+ wm.OffsetYToStr() );
-	}
-	config.waterMark.wm = wm;
+		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
 
+		_RunJavaScript(".thumb::after", wm.PositionToStyle(config.imageWidth, config.imageHeight, ratio, (WaterMark::POS)wm.Origin()));	// 2 images
+		_RunJavaScript(".thumb1::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
+	}
 	_SetConfigChanged(true);
 }
 void FalconG::on_edtWmHorizMargin_textChanged()
@@ -1366,7 +1363,10 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 		h = 0; // no change in aspect ratio when linked!
 	}
 	config.imageWidth = val;
-	config.waterMark.v = true;
+	config.waterMark.GetMarkDimensions();
+	config.waterMark.SetupMark();
+	if (config.waterMark.v)
+		_page.triggerAction(QWebEnginePage::Reload);
 	
 	if(h)	// else no change
 		_aspect = (double)val / (double)h;
@@ -1399,7 +1399,11 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 		w = 0; // no change in aspect ratio when linked!
 	}
 	config.imageHeight = val;
-	
+	config.waterMark.GetMarkDimensions();
+	config.waterMark.SetupMark();
+	if (config.waterMark.v)
+		_page.triggerAction(QWebEnginePage::Reload);
+
 	if (w && val)
 		_aspect = (double)w / (double)val;
 
@@ -1739,24 +1743,6 @@ void FalconG::on_edtFontFamily_textChanged()
   * TASK:
   * EXPECTS:
   * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkImageBorder_toggled(bool on)
-{
-	if (_busy)
-		return;
-
-	QString qs;
-	config.imageBorder.SetUsed(on);
-	qs = config.imageBorder.ForStyleSheetShort(false);
-	_SetConfigChanged(true);
-	_RunJavaScript(".thumb", qs);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
   * REMARKS: disabled, not used
  *--------------------------------------------------------------------------*/
 void FalconG::on_chkIconText_toggled(bool)
@@ -1937,6 +1923,7 @@ void FalconG::on_rbTextShadow_toggled(bool b)
 	_CElem* pElem = _PtrToElement();
 	int n = b ? 0 : 1;	// text or box shadow
 	_ShadowForElementToUI(pElem, n);
+	config.waterMark.SetupMark();
 }
 
 
@@ -1951,6 +1938,25 @@ void FalconG::on_chkUseWM_toggled(bool on)
 	if (_busy)
 		return;
 	config.waterMark.used = on;
+	_WaterMarkToSample();
+	_SetConfigChanged(true);
+	
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkUseWMShadow_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.waterMark.SetShadowOn(on);
+	config.waterMark.SetupMark();
+	_WaterMarkToSample();
 	_SetConfigChanged(true);
 	
 	_EnableButtons();
@@ -2363,7 +2369,8 @@ void FalconG::on_sbGradStopPos_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 {
-	config.waterMark.wm.shadowHoriz = val;
+	config.waterMark.SetShadowColor(val);
+	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2376,7 +2383,8 @@ void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbWmShadowVert_valueChanged(int val)
 {
-	config.waterMark.wm.shadowVert = val;
+	config.waterMark.SetShadowColor(val);
+	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2389,7 +2397,8 @@ void FalconG::on_sbWmShadowVert_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbWmShadowBlur_valueChanged(int val)
 {
-	config.waterMark.wm.shadowBlur = val;
+	config.waterMark.SetShadowBlur(val);
+	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2419,12 +2428,12 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::on_sbImagePadding_valueChanged(int val)
+void FalconG::on_sbImageMatte_valueChanged(int val)
 {
-	if (_busy || config.imagePadding == val )
+	if (_busy || config.imageMatte == val )
 		return;
 
-	config.imagePadding = val;
+	config.imageMatte = val;
 	if (!config.imageBorder.Used())
 		_RunJavaScript(".thumb",QString("padding:"));
 	else	
@@ -2469,10 +2478,11 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	config.waterMark.wm.SetOpacity(val, true);
-	_SetWatermark();
+	config.waterMark.SetOpacity(val, true);
+	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
-	_RunJavaScript(".thumb::after","color"+ config.waterMark.wm.ColorToCss());
+	_RunJavaScript(".thumb::after","color"+ config.waterMark.ColorToCss());
+	_WaterMarkToSample();
 }
 
 void FalconG::on_sbSpaceAfter_valueChanged(int val)
@@ -3468,9 +3478,13 @@ void FalconG::on_cbWmHPosition_currentIndexChanged(int index)
 {
 	if (_busy)
 		return;
-	config.waterMark.wm.origin &= 0xF;
-	config.waterMark.wm.origin += index << 4;
+	int o = config.waterMark.Origin();
+	o &= 0xF;
+	o += index << 4;
+	config.waterMark.SetPositioning(o);
+	config.waterMark.SetupMark();
 	ui.edtWmHorizMargin->setEnabled(index != 1);
+	_WaterMarkToSample();
 }
 
 /*============================================================================
@@ -3483,9 +3497,13 @@ void FalconG::on_cbWmVPosition_currentIndexChanged(int index)
 {
 	if (_busy)
 		return;
-	config.waterMark.wm.origin &= 0xF0;
-	config.waterMark.wm.origin += index;
+	int o = config.waterMark.Origin();
+	o &= 0xF0;
+	o += index;
+	config.waterMark.SetPositioning(o);
+	config.waterMark.SetupMark();
 	ui.edtWmVertMargin->setEnabled(index != 1);
+	_WaterMarkToSample();
 }
 
 /*=============================================================
@@ -4257,31 +4275,27 @@ void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has
 
 
 /*========================================================
- * TASK:	only used for falconG and not in production
+ * TASK:	set watermark to sample page or remove it from there
  * PARAMS:
- * GLOBALS:
+ * GLOBALS:	config.waterMark image is created
  * RETURNS:
- * REMARKS: -
+ * REMARKS: - only used for falconG and not in production
  *-------------------------------------------------------*/
-void FalconG::_SetWatermark()
+void FalconG::_WaterMarkToSample()
 {
 			// set text
-	WaterMark &wm = config.waterMark.wm;
-	_RunJavaScript(".thumb::after","content:" + wm.text);
-			// set offsets
-	bool  centered;
-	QString 
-	qs = wm.XMarginName(centered, false);		// X offset  -clear unused property
-	_RunJavaScript(".thumb::after", qs +  wm.OffsetXToStr());
-	qs = wm.XMarginName(centered, true);				// set used property												   
-	_RunJavaScript(".thumb::after",qs + wm.OffsetXToStr());
-
-	qs = wm.YMarginName(centered, false);				// Y offset clear unused property
-	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
-	qs = wm.YMarginName(centered, true);				// set used property												   
-	_RunJavaScript(".thumb::after",qs + wm.OffsetYToStr());
-			// set color
-	_RunJavaScript(".thumb::after","color:" + wm.ColorToCss());
+	_CWaterMark &wm = config.waterMark;
+	if (wm.used)
+	{
+		_RunJavaScript(".thumbs::after", "display:"); // remove "none"
+		_RunJavaScript(".thumbs1::after", "display:"); // remove "none"
+	}
+	else
+	{
+		_RunJavaScript(".thumbs::after", "display:none"); // remove "none"
+		_RunJavaScript(".thumbs1::after", "display:none"); // remove "none"
+	}
+	_page.triggerAction(QWebEnginePage::Reload);
 }
 
 
@@ -4730,14 +4744,14 @@ void FalconG::on_btnSaveStyleSheet_clicked()
 void FalconG::on_btnSelectWmFont_clicked()
 {
 	bool ok;
-	QFont font = QFontDialog::getFont(&ok, config.waterMark.wm.font, this, "falconG - select Watermark font");
-	if (ok && config.waterMark.wm.font != font)
+	QFont font = QFontDialog::getFont(&ok, config.waterMark.Font(), this, "falconG - select Watermark font");
+	if (ok && config.waterMark.Font() != font)
 	{
-		config.waterMark.wm.SetFont(font);
+		config.waterMark.SetFont(font);
 		
 		ui.lblWaterMarkFont->setText( QString("%1 (%2,%3)").arg(font.family()).arg(font.pointSize()).arg(font.italic()));
-		if(!config.waterMark.wm.text.isEmpty())
-			ui.lblWmSample->setText(config.waterMark.wm.text);
+		if(!config.waterMark.Text().isEmpty())
+			ui.lblWmSample->setText(config.waterMark.Text());
 		else
 			ui.lblWmSample->setText(tr("Watermark sample text"));
 
@@ -4756,7 +4770,7 @@ void FalconG::on_btnWmColor_clicked()
 {
 	StyleHandler handler(ui.btnWmColor->styleSheet());
 
-	QColor  qc = config.waterMark.wm.Color() ,
+	QColor  qc = config.waterMark.Color() ,
 			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Watermark Color"));
 
@@ -4766,9 +4780,9 @@ void FalconG::on_btnWmColor_clicked()
 		handler.SetItem("QToolButton", "background-color", s);
 		ui.btnWmColor->setStyleSheet(handler.StyleSheet());
 		s = s.mid(1);	 // skip '#'
-		config.waterMark.wm.SetColor(s);
+		config.waterMark.SetColorWithOpacity(s);
 		_SetConfigChanged(config.waterMark.v = true);
-		_RunJavaScript(".thumb::after", "color: " + config.waterMark.wm.ColorToCss());
+		_RunJavaScript(".thumb::after", "color: " + config.waterMark.ColorToCss());
 	}
 }
 
@@ -4788,7 +4802,7 @@ void FalconG::on_btnWmShadowColor_clicked()
 	if (qc.isValid())
 	{
 		handler.SetItem("QToolButton", "background-color", qc.name());
-		config.waterMark.wm.shadowColor = qc.name().mid(1).toInt(nullptr, 16);
+		config.waterMark.SetShadowColor( qc.name().mid(1).toInt(nullptr, 16) );
 		
 	}
 }
@@ -5025,18 +5039,18 @@ void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)
 /*========================================================
  * TASK:	calls the javascript function to set one parameter
  * PARAMS:	className - css selector
- *			value - string of css styles separated by '\n'
+ *			styles - string of css styles separated by '\n'
  * GLOBALS:
  * RETURNS:
  * REMARKS: - 
  *-------------------------------------------------------*/
-void FalconG::_RunJavaScript(QString className, QString value)
+void FalconG::_RunJavaScript(QString className, QString styles)
 {
-	static QStringList __qslRunThese;
-	__qslRunThese = __qslRunThese + value.split('\n');
-
 	if (!_isWebPageLoaded)		// only try to run after page looaded
 		return;
+
+	static QStringList __qslRunThese;
+	__qslRunThese = __qslRunThese + styles.split('\n');
 
 	int pos;
 	QString qs;	 

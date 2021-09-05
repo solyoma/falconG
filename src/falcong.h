@@ -148,7 +148,7 @@ private:
 	void _PageColorToSample();
 	void _PagebackgroundToSample();	// possibly for all elements
 	void _SetIcon();			// re-color it for the page
-	void _SetWatermark();
+	void _WaterMarkToSample();
 	void _UpdateWatermarkMargins(int mx, int my);
 
 	void _SaveLinkIcon();
@@ -296,7 +296,6 @@ private slots:
 	void on_chkUseGradient_toggled(bool on);
 	void on_chkShadowOn_toggled(bool on);
 	void on_chkUseBorder_toggled(bool on);
-	void on_chkImageBorder_toggled(bool);		// image border
 	void on_chkIconText_toggled(bool);
 	void on_chkIconTop_toggled(bool);
 	void on_chkBold_toggled(bool);
@@ -305,6 +304,7 @@ private slots:
 	void on_chkTdUnderline_toggled(bool);
 	void on_chkTdOverline_toggled(bool);
 	void on_chkUseWM_toggled(bool);				// watermark
+	void on_chkUseWMShadow_toggled(bool);				// watermark
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkDoNotEnlarge_toggled(bool);
 	void on_chkCropThumbnails_toggled(bool);
@@ -382,7 +382,7 @@ private slots:
 	void on_sbWmShadowHoriz_valueChanged(int val);
 	void on_sbWmShadowBlur_valueChanged(int val);
 	void on_sbImageBorderWidth_valueChanged(int val);
-	void on_sbImagePadding_valueChanged(int val);
+	void on_sbImageMatte_valueChanged(int val);
 	void on_sbTextOpacity_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbWmOpacity_valueChanged(int val);

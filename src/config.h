@@ -566,16 +566,19 @@ private:
 
 /*========================================================
  * BORDERs
- *	settings format: accepts and saves
- *		<used ?>|top|right|bottom|left|styleT|styleR|styleB|styleL|colorT|colorR|colorB|colorL[|<radius in pixels>]
- *		  0		   1	2	 3	   4	  5		6		7    8		9	   10	  11	 12		   13
- *	also accepts
- *		<used ?>|top-right|bottom-left|styleT-R|styleB-L|colorT-R|colorB-L[|<radius in pixels>]
- *		  0		   1			2			3	    4		5		 6			7
- *  and
- *		<used ?>|width|style|color[|<radius in pixels>]
- * index	0	   1	2	 3	      4
- *		  T,R,B,L: indices (0..3)
+ *	settings format in ini file: accepts and saves
+ * siz == 4    0      1		2	  3
+ *			<used?>|width|style|color
+ * siz == 5    0      1		2	  3		4
+ *			<used?>|width|style|color|radius
+ * siz == 7	   0			1					 2					 3					  4			 		 5					 6
+ *			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
+ * siz == 8	   0			1					 2					 3					  4			 		 5					 6		   7
+ *			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
+ * siz == 13   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12
+ *			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
+ * siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
+ *			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
  * no other formats acceptable
  *  internally always uses the longest of these
  *-------------------------------------------------------*/
@@ -609,16 +612,16 @@ struct _CBorder : public _CFG_ITEM<QString>
 			sd = sdTop;
 		switch (_styleIndex[(int)sd])
 		{
-			case 0: return "solid";
-			case 1:	return "dotted";
-			case 2:	return "dashed";
-			case 3:	return "double";
-			case 4:	return "groove";
-			case 5:	return "ridge";
-			case 6:	return "inset";
-			case 7:	return "outset";
 			default:
-			case 8:	return "none";
+			case 0:	return "none";
+			case 1: return "solid";
+			case 2:	return "dotted";
+			case 3:	return "dashed";
+			case 4:	return "double";
+			case 5:	return "groove";
+			case 6:	return "ridge";
+			case 7:	return "inset";
+			case 8:	return "outset";
 			
 		}
 	}
@@ -660,7 +663,7 @@ struct _CBorder : public _CFG_ITEM<QString>
 		_CountWidths();
 		_Prepare();
 	}
-	void SetStyleIndex(BorderSide sd, int ix)
+	void SetStyleIndex(BorderSide sd, int ix)	//ix==0 -> no border
 	{
 		if(sd == sdAll)
 		   _styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix; 
@@ -678,9 +681,9 @@ struct _CBorder : public _CFG_ITEM<QString>
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
 	QString ForStyleSheetShort(bool semicolonAtLineEnds) const;	// if  kind is sdAll simplified, else the same as the normal one
 private:
-	int _used = false;
+	int _used = false;	// indices 1 to 4 correspond to: top, right,bottom,left
 	int _sizeWidths;	// 1,2, 4: all sizes are equal, 
-	int _widths[4];		// in px
+	int _widths[4];		
 	int _styleIndex[4];
 	QString _colorNames[4];
 	int _radius;		// in px
@@ -766,10 +769,9 @@ private:
 //--------------------------------------------------------------------------------------------
 
 
-struct _CWaterMark : public _CFG_ITEM<bool>		  // v used for changed
+struct _CWaterMark : public _CFG_ITEM<bool>, public WaterMark	  // v used for changed
 {
 	bool used = false;
-	WaterMark wm;
 
 	bool Changed() const override { return v; }
 
@@ -1018,7 +1020,7 @@ public:
 	_CBool iconToTopOn = {false, "iconToTopOn"};
 	_CBool iconInfoOn = {false, "iconInfoOn"};
 	_CBorder imageBorder = {"0|2|1|#EAA41E", "imageBorder"};
-	_CInt imagePadding = { 0, "imagePadding" };
+	_CInt imageMatte = { 0, "imageMatte" };
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 

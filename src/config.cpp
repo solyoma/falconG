@@ -783,7 +783,7 @@ void _CGradient::_Prepare()		// to store in settings
 }
 
 
-// -------------------------------------------------------------------------------------
+// ------------------------------------- _CBorder ------------------------------------------------
 
 
 
@@ -870,8 +870,22 @@ void _CBorder::_Setup()
 		qsl.clear();
 		qsl << "0" << "0" << "0" << "0" << "#000000";
 	}
-	// create as for this: <used 0 or 1>|top|right|bottom|left|style|<color>[|<radius in pixels>]
-	_used = qsl[0].toInt();
+	// create for any of these: 
+
+	// siz == 4    0      1     2     3
+	//			<used?>|width|style|color
+	// siz == 5    0      1		2	  3		4
+	//			<used?>|width|style|color|radius
+	// siz == 7	   0			1					 2					 3					  4			 		 5					 6
+	//			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
+	// siz == 8	   0			1					 2					 3					  4			 		 5					 6		   7
+	//			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
+	// siz == 13   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12
+	//			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
+	// siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
+	//			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
+
+		_used = qsl[0].toInt();
 	switch (siz)
 	{
 		case 5:
@@ -1078,16 +1092,14 @@ _CElem& _CElem::operator=(const _CElem& o)
 }
 
 /*===========================================================================
-* TASK:  inequality operator for _CWaterMark
+* TASK:  operator= for _CWaterMark
 * EXPECTS:	cwm - the other _CWaterMark
 * GLOBALS: config
-* RETURNS: nothing
+* RETURNS: actual watermark
 * REMARKS: sets design and other parameters
 *--------------------------------------------------------------------------*/
 _CWaterMark &_CWaterMark::operator=(const _CWaterMark &cwm)
 {
-	v = ((WaterMark&)cwm.wm != (WaterMark&)wm);	//'const'
-	wm = cwm.wm;
 	used = cwm.used;
 	return *this;
 }
@@ -1101,20 +1113,20 @@ void _CWaterMark::Write(QSettings& s, QString group)
 	QString sOrigin;
 	s.beginGroup(itemName);
 		s.setValue("used", used);
-		s.setValue("text", wm.text);
+		s.setValue("text", Text());
 
-		s.setValue("origin", wm.origin); // low 4 bits: vertical, high 4 bits : horizontal
+		s.setValue("origin", Origin()); // low 4 bits: vertical, high 4 bits : horizontal
 
-		s.setValue("mx", wm.marginX);
-		s.setValue("my", wm.marginY);
-		s.setValue("color", wm.colorWOpacity);
-		s.setValue("background", wm.background);
-		s.setValue("shadow", wm.shadowColor);
+		s.setValue("mx", MarginX());
+		s.setValue("my", MarginY());
+		s.setValue("color", Color());
+		s.setValue("background", Background());
+		s.setValue("shadow", ShadowColor());
 
-		s.setValue("family", wm.font.family());
-		s.setValue("size", wm.font.pointSize());
-		s.setValue("weight", wm.font.weight());
-		s.setValue("italic", wm.font.italic());
+		s.setValue("family", Font().family());
+		s.setValue("size",   Font().pointSize());
+		s.setValue("weight", Font().weight());
+		s.setValue("italic", Font().italic());
 	s.endGroup();
 
 	if (!group.isEmpty())
@@ -1128,21 +1140,31 @@ void _CWaterMark::Read(QSettings& s, QString group)
 	if (!group.isEmpty())
 		s.beginGroup(group);
 
+
 	s.beginGroup(itemName);
+		_enabled = false;	// do not create new watermark image
+
+		QFont font;		// must set font first to get text dimensions
+		font.setFamily(s.value("family", "").toString());
+		font.setPointSize(s.value("size", 16).toInt());
+		font.setWeight(s.value("weight", QFont::Bold).toInt());
+		font.setItalic(s.value("italic", false).toBool());
+		SetFont(font);
+
 		used = s.value("used", false).toBool();
-		wm.text = s.value("text", "Watermark").toString();
+		SetText( s.value("text", "Watermark").toString());	// this sets Watermark's extent
 
-		wm.origin = s.value("origin", 11).toInt(); // low 4 bit: vertical next 4 bits: horizontal
 
-		wm.marginX = s.value("mx", 0).toInt();
-		wm.marginY = s.value("my", 0).toInt();
-		wm.colorWOpacity = s.value("color", 0xffffffff).toInt();
-		wm.background = s.value("background", 0).toInt();
-		wm.shadowColor = s.value("shadow", 0).toInt();
-		wm.font.setFamily(s.value("family", "").toString());
-		wm.font.setPointSize(s.value("size", 16).toInt());
-		wm.font.setWeight(s.value("weight", QFont::Bold).toInt());
-		wm.font.setItalic(s.value("italic", false).toBool());
+		SetPositioning( s.value("origin", 11).toInt() ); // low 4 bit: vertical next 4 bits: horizontal
+
+		SetMarginX(s.value("mx", 0).toInt());
+		SetMarginY(s.value("my", 0).toInt());
+		SetColorWithOpacity( s.value("color", 0xffffffff).toInt() );
+		SetBackground(s.value("background", 0).toInt());
+
+		_enabled = true;				// end at last create watermark image
+		SetShadowColor(s.value("shadow", 0).toInt());
+
 	s.endGroup();
 
 
@@ -1152,21 +1174,21 @@ void _CWaterMark::Read(QSettings& s, QString group)
 // ********************************* Background Image ********************
 QString _CBackgroundImage::Url(bool addSemicolon) const
 {
-	QString qsN = QString("background-image:");
-	if(!fileName.isEmpty() && v != (int)hNotUsed)
-	{
 
-		if (addSemicolon)	// then for WEb page
-		{					// when image must be copied into /res
-			QString p, n;
-			SeparateFileNamePath(fileName, p, n);
-			// must ide \" instead of ' because the whole string will be in ''
-			// when _RunJavaScript is called in falconG.cpp
-			qsN = QString("background-image:url(\"/res/%1\")").arg(n);
-		}
-		else				// for sample
-			qsN = QString("background-image:url(\"file://%1\")").arg(fileName);
+	if (fileName.isEmpty() || v == (int)hNotUsed)
+		return QString();
+
+	QString qsN = QString("background-image:");
+	if (addSemicolon)	// then for WEb page
+	{					// when image must be copied into /res
+		QString p, n;
+		SeparateFileNamePath(fileName, p, n);
+		// must ide \" instead of ' because the whole string will be in ''
+		// when _RunJavaScript is called in falconG.cpp
+		qsN = QString("background-image:url(\"/res/%1\")").arg(n);
 	}
+	else				// for sample
+		qsN = QString("background-image:url(\"file://%1\")").arg(fileName);
 	__AddSemi(qsN, addSemicolon);
 	return qsN;
 }
@@ -1177,7 +1199,8 @@ QString _CBackgroundImage::Size(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-			break;
+			return QString();
+			
 		case hAuto:
 			qs +="auto";
 			break;
@@ -1203,7 +1226,8 @@ QString _CBackgroundImage::Position(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-			break;
+			return QString();
+
 		case hAuto:
 			qs += "center";
 			break;
@@ -1222,7 +1246,7 @@ QString _CBackgroundImage::Repeat(bool addSemicolon) const
 	switch (v)
 	{
 		case hNotUsed:
-			break;
+			return QString();
 		case hAuto:
 		case hCover:	
 			qs += "no-repeat";
@@ -1575,7 +1599,7 @@ void CONFIG::Read()		// synchronize with Write!
 	bDistrortThumbnails.Read(s);
 	// image decoration
 	imageBorder.Read(s);
-	imagePadding.Read(s);
+	imageMatte.Read(s);
 
 	iconToTopOn.Read(s);
 	iconInfoOn.Read(s);
@@ -1698,7 +1722,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	bDistrortThumbnails.Write(s);
 	// image decoration
 	imageBorder.Write(s);
-	imagePadding.Write(s);
+	imageMatte.Write(s);
 	
 	iconToTopOn.Write(s);
 	iconInfoOn.Write(s);
