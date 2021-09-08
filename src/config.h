@@ -568,17 +568,17 @@ private:
  * BORDERs
  *	settings format in ini file: accepts and saves
  * siz == 4    0      1		2	  3
- *			<used?>|width|style|color
+ *			<used>|width|style|color
  * siz == 5    0      1		2	  3		4
- *			<used?>|width|style|color|radius
+ *			<used>|width|style|color|radius
  * siz == 7	   0			1					 2					 3					  4			 		 5					 6
- *			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
+ *			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
  * siz == 8	   0			1					 2					 3					  4			 		 5					 6		   7
- *			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
+ *			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
  * siz == 13   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12
- *			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
+ *			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
  * siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
- *			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
+ *			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
  * no other formats acceptable
  *  internally always uses the longest of these
  *-------------------------------------------------------*/
@@ -587,16 +587,13 @@ struct _CBorder : public _CFG_ITEM<QString>
 	_CBorder(QString vd, QString namestr="cborder") : _CFG_ITEM(vd, namestr) { _Setup(); }
 	_CBorder() : _CFG_ITEM("0|0|0|0|#000000", "cborder") { _Setup(); }
 
+	BorderSide actSide = sdAll;
+
 	int Width(BorderSide sd) const
 	{
-		switch (sd)
-		{
-			default:
-			case sdTop:		return _widths[0];
-			case sdRight:	return _widths[1];
-			case sdBottom:	return _widths[2];
-			case sdLeft:	return _widths[3];
-		}
+		if (sd == sdAll)
+			return _widths[0];
+		return _widths[(int)sd];
 	}
 
 	QString ColorStr(BorderSide sd) const
@@ -606,7 +603,14 @@ struct _CBorder : public _CFG_ITEM<QString>
 		return _colorNames[(int)sd];
 	}
 
-	QString Style(BorderSide sd)	 const
+	int StyleIndex(BorderSide sd) const
+	{
+		if (sd == sdAll)
+			return _styleIndex[0];
+		return _styleIndex[(int)sd];
+	}
+
+	QString StyleStr(BorderSide sd)	 const
 	{
 		if (sd == sdAll)
 			sd = sdTop;
@@ -632,8 +636,29 @@ struct _CBorder : public _CFG_ITEM<QString>
 	}
 
 	int BorderCnt() const { return _sizeWidths; }
-	bool Used() const { return _used; }
-	void SetUsed(bool on) { _used = on; _Prepare(); }
+	int UsedSides() const { return _used; }
+	void SetUsed(BorderSide side, bool on) 
+	{ 
+
+		if (side == sdAll)
+			_used = on ? 15 : 0;
+		else
+		{
+			int mask, bit;
+			switch (side)
+			{
+				case sdTop:		mask = 14; bit = 1; break;
+				case sdRight:	mask = 13; bit = 2; break;
+				case sdBottom:	mask = 11; bit = 4; break;
+				default:
+				case sdLeft:	mask =  7; bit = 8; break;
+			}
+			_used &= mask;
+			if(on)
+				_used |= bit;
+		}
+		_Prepare(); 
+	}
 	void SetWidth(BorderSide sd, int width) 
 	{ 
 		switch(sd)
@@ -678,14 +703,24 @@ struct _CBorder : public _CFG_ITEM<QString>
 		_Prepare();
 	}
 
+	void SetUsedSide(BorderSide sd, bool on)
+	{
+		if (sd == sdAll)
+			_used = on ? 15 : 0;	// 15 = 1 + 2 + 4 +8 
+		else if (on)
+			_used |= (1 << (int)sd);
+		else
+			_used &= !(1 << (int)sd);
+	}
+
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
 	QString ForStyleSheetShort(bool semicolonAtLineEnds) const;	// if  kind is sdAll simplified, else the same as the normal one
 private:
-	int _used = false;	// indices 1 to 4 correspond to: top, right,bottom,left
-	int _sizeWidths;	// 1,2, 4: all sizes are equal, 
-	int _widths[4];		
-	int _styleIndex[4];
-	QString _colorNames[4];
+	int _used = 0;		// bits 1 to 4 correspond to: top, right,bottom,left
+	int _sizeWidths;	// how many different sides are there 1,2,4 - 4: all sizes are equal, 
+	int _widths[4];		// width of a given side
+	int _styleIndex[4];	// style of a given side
+	QString _colorNames[4]; // color -"-
 	int _radius;		// in px
 
 	int _IndexOfColor(QStringList& _details)	const	// use on unprocessed stringlist
@@ -702,7 +737,7 @@ private:
 	}
 	void _Setup() override;		// from 'v' to _details
 	void _Prepare() override;	// from _details to 'v'
-	void _CountWidths();
+	void _CountWidths();		// set _sizeWidths
 };
 
 //--------------------------------------------------------------------------------------------
@@ -837,6 +872,7 @@ struct PROGRAM_CONFIG
 };
 
 //-------------------------
+// IF MODIFIED modify Read(), Write(), ClearChanges(), FromOther and FromDesign() too
 class CONFIG
 {
 	bool _changed = false;
@@ -865,10 +901,16 @@ public:
 	void ClearChanged();
 
 	CONFIG &operator=(const CONFIG &cfg);
-	void FromDesign(const CONFIG &cfg);
-	void FromOther(const CONFIG &cfg);
-	void RestoreDesign();
+
+	void FromDesign(const CONFIG &cfg);	// set designer part of cfg 
+	void FromOther(const CONFIG &cfg);	// set other part from cfg
+
+	void SaveDesign();		// into configSave in config.cpp
+	void SaveOther();
+
+	void RestoreDesign();	// from configSave
 	void RestoreOther();
+
 	QSize ImageSize() { return QSize(imageWidth, imageHeight);	}
 	QSize ThumbSize() { return QSize(thumbWidth, thumbHeight); }
 
@@ -1019,11 +1061,18 @@ public:
 				// image decoration
 	_CBool iconToTopOn = {false, "iconToTopOn"};
 	_CBool iconInfoOn = {false, "iconInfoOn"};
+	_CInt  imageMargin = { 2, "imageMargin" };			// on img-container
 	_CBorder imageBorder = {"0|2|1|#EAA41E", "imageBorder"};
-	_CInt imageMatte = { 0, "imageMatte" };
+	_CInt imageMatte = { 0, "imageMatte" };					  // width
+	_CInt imageMatteRadius = { 0, "imgMRad" };
+	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
+	_CInt albumMatte = { 0, "albumMatte" };					  // width
+	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
+	_CInt albumBorderRadius = { 0, "abrdRad" };
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 
+	_CBool bAskBeforeClosing = { false, "bAskBeforeClosing" };
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
 

@@ -1063,7 +1063,7 @@ bool RemoveDir(QString name, bool ask)
 {
 	if (ask)
 	{
-		if (QMessageBox::question(nullptr, QObject::tr("falconG"), QString(QObject::tr("Really remove %1 and all of its content?")).arg(name)) != QMessageBox::Yes)
+		if (QMessageBox::question(nullptr, QMainWindow::tr("falconG"), QString(QMainWindow::tr("Really remove %1 and all of its content?")).arg(name)) != QMessageBox::Yes)
 			return false;
 	}
 	return __RemoveFolder(name);
@@ -1096,7 +1096,7 @@ QString WaterMark::PositionToStyle(int width, int height, double ratio, POS pos)
 {
 	if (pos < 0)
 		pos = _origin;
-	int left, top;
+	int left=-999999, top = -999999;	//impossible values
 	switch (pos &0xF0)
 	{
 		case LEFT:		left = -width + _marginX; break;
@@ -1114,7 +1114,7 @@ QString WaterMark::PositionToStyle(int width, int height, double ratio, POS pos)
 	if (top < -height)
 		top = -height;
 
-	QString qs = QString("top:%1\nleft:%2px\n").arg(int(top*ratio)).arg(int(left*ratio));
+	QString qs = QString("top:%1px;\n\tleft:%2px;\n").arg(int(top*ratio)).arg(int(left*ratio));
 	return qs;
 }
 

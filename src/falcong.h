@@ -206,6 +206,7 @@ private slots:
 	void _RestartRequired();	// for language change
 	bool _DoOverWriteColorScheme(int i);
 	bool _LanguagesWarning();
+	void _SetupActualBorder(BorderSide side);
 
 // auto connected slots
 private slots:
@@ -223,6 +224,8 @@ private slots:
 	void on_btnOpenBckImage_clicked();
 
 	void on_btnImageBorderColor_clicked();
+	void on_btnImageMatteColor_clicked();
+	void on_btnAlbumMatteColor_clicked();
 	void on_btnSelectUplinkIcon_clicked();
 
 	void on_btnReload_clicked();
@@ -251,14 +254,16 @@ private slots:
 	void on_btnMoveSchemeUp_clicked();
 	void on_btnMoveSchemeDown_clicked();
 
+	void on_btnResetDialogs_clicked();
+
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 
 
 	// generate color scheme
 	void on_btnAddAndGenerateColorScheme_clicked();
 
-	void on_cbBorder_currentIndexChanged(int newIndex);			// all, top, right, bottom, left border
-	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// solid, dashed, etc
+	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
+	void on_cbImageBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
 
 	void on_lwColorScheme_currentRowChanged(int newIndex);
 					// image
@@ -295,7 +300,6 @@ private slots:
 	void on_chkBackgroundOpacity_toggled(bool on);
 	void on_chkUseGradient_toggled(bool on);
 	void on_chkShadowOn_toggled(bool on);
-	void on_chkUseBorder_toggled(bool on);
 	void on_chkIconText_toggled(bool);
 	void on_chkIconTop_toggled(bool);
 	void on_chkBold_toggled(bool);
@@ -344,6 +348,11 @@ private slots:
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
 
+	void on_rbAllBorders_toggled(bool);
+	void on_rbTopBorder_toggled(bool);
+	void on_rbRightBorder_toggled(bool);
+	void on_rbBottomBorder_toggled(bool);
+	void on_rbLeftBorder_toggled(bool);
 	void on_rbNoBackgroundImage_toggled(bool);
 	void on_rbCenterBckImage_toggled(bool);
 	void on_rbCoverBckImage_toggled(bool);
@@ -362,7 +371,11 @@ private slots:
 	void on_rbTextShadow_toggled(bool);
 
 	void on_sbImageHeight_valueChanged(int h);			// image height
+	void on_sbImageMargin_valueChanged(int h);			// image margin
 	void on_sbImageWidth_valueChanged(int w);				// image width
+	void on_sbImageMatteRadius_valueChanged(int w);				// image width
+	void on_sbAlbumMatteRadius_valueChanged(int val);
+	void on_sbAlbumMatteWidth_valueChanged(int val);
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height
 	void on_sbThumbnailWidth_valueChanged(int w);				// image width
 	void on_sbNewDays_valueChanged(int val);
@@ -382,7 +395,7 @@ private slots:
 	void on_sbWmShadowHoriz_valueChanged(int val);
 	void on_sbWmShadowBlur_valueChanged(int val);
 	void on_sbImageBorderWidth_valueChanged(int val);
-	void on_sbImageMatte_valueChanged(int val);
+	void on_sbImageMatteWidth_valueChanged(int val);
 	void on_sbTextOpacity_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbWmOpacity_valueChanged(int val);

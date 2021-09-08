@@ -3,6 +3,7 @@
 #define _SCHEMES_H
 
 #include <QObject>
+#include <QMainWindow>
 #include <QVector>
 #include <QString>
 #include <QStringList>
@@ -140,8 +141,8 @@ public:
 	{
 		reserve(5);		// for default, system, blue, dark, black 
 		resize(2);		// default and system
-		operator[](0).MenuTitle = QObject::tr("Default");
-		operator[](1).MenuTitle = QObject::tr("System Colors");
+		operator[](0).MenuTitle = QMainWindow::tr("Default");
+		operator[](1).MenuTitle = QMainWindow::tr("System Colors");
 		operator[](1).sBorderColor = "#747474";
 	}
 	void ReadAndSetupSchemes();	// into menu items

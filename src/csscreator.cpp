@@ -17,7 +17,7 @@ void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 	if (!qs.isEmpty())
 	{
 		if (elem.spaceAfter > 0)
-			qs += QString("margin-bottom:%1px;\n").arg(elem.spaceAfter);
+			qs += QString("\tmargin-bottom:%1px;\n").arg(elem.spaceAfter);
 		_ofs << classStr << qs << "}\n\n";
 	}
 	if (elem.font.IsFirstLineDifferent())
@@ -196,63 +196,90 @@ void CssCreator::_CreateForSection()
 	_CssForElement(s, config.Section);
 }
 
-void CssCreator::_CreateForImages()
+/*=============================================================
+ * TASK:	CSS for images both for final pages and for
+ *			the designer
+ * EXPECTS:	_ofs,config
+ * GLOBALS:	config, _ofs
+ * RETURNS:	none
+ * REMARKS: - each thumbnail with title and description texts is 
+ *			  enclosed into "img-container"
+ *			- The image border will be on the .matte/.amatte class
+ *------------------------------------------------------------*/
+void CssCreator::_CreateForImagesAndAlbums()
 {
-	_ofs << R"(		/* ---- img----- */
-.img-container {
+	_ofs << R"(.img-container {		/* ---- image or album ----- */;
 	display:flex;
 	flex-direction: column;
 	justify-content:center;
 	align-items:center;
 	position: relative;
-}
-
-.img-container > div {
-	position:relative;
-}
-
-.img-container img {
-	display:block;			/* get rid of bottom space */
-	margin:auto;
-	max-width:90vw;
-}
-
 )";
-	if (_forSamplePage)
-	{
-		_ofs << ".thumb,.thumb1 {\n"
-//			"\tdisplay:inline-box;\n"
-			"\tpadding: 1px;\n"
-			"\tmargin: 0 2;\n"
-			"\tborder:1px dashed #ffd460;\n"
-			"\tcursor:pointer;\n";
-	}
-	else
-		_ofs << ".thumb {\n"
-				"\tdisplay:inline-box;\n";
+	_ofs << "\tmargin: 0 " << config.imageMargin << ";\n"
+			"}\n\n";
+									 // .imatte
+	_ofs << ".imatte {\n"
+			"\tposition:relative;\n";
+	if (config.imageMatte.v)
+		_ofs << "\tbackground-color:" << config.imageMatteColor.v << ";\n"
+			 << "\tpadding:" << config.imageMatte.v << "px;\n"
+				"\t" << config.imageBorder.ForStyleSheetShort(true);
 
-	// image border is used for <a class="thumb">
-	if(config.imageBorder.Used())
-		_ofs << config.imageBorder.ForStyleSheetShort(true);
-	_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.thumb1
+	if (config.imageBorder.Radius() > 0)
+		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
+	_ofs << "}\n\n";
+									 // .amatte
+	_ofs << ".amatte {\n"
+			"\tposition:relative;\n";
+	if (config.albumMatte.v)
+		_ofs << "\tbackground-color:" << config.albumMatteColor.v << ";\n"
+			 << "\tpadding:" << config.albumMatte.v << "px;\n";
+	if (config.albumBorderRadius.v > 0)
+		_ofs << "\tborder-radius:" << config.albumBorderRadius.v << "px;\n";
+	_ofs << "}\n\n";
+
+	_ofs << ".thumb,.athumb {\n";
+	if (_forSamplePage)
+		_ofs <<	"\tcursor:pointer;\n";
+
+	_ofs << "\tmax-width:80vw;\n"
+			"\tdisplay:inline-box;\n"
+			"\tmax-width:80vw;\n"
+			"\tmargin: 0 " << config.imageMargin << ";\n"
+			"}\n\n";
+	// image border is used for <img class="thumb"> but only if there is no matte around the image
+	if(config.imageBorder.UsedSides() && !config.imageMatte.v)
+		_ofs << ".thumb {\n"
+				"\t"
+			 << config.imageBorder.ForStyleSheetShort(true)
+			 << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
+	// album border is used for <img class="athumb">
+	if (config.albumMatte.v)
+		_ofs << ".athumb {\n"
+			 << QString("\tpadding:%1px;\tbackground-color:%2\n").arg(config.albumMatte).arg(config.albumMatteColor.Name())
+			 << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
+
+
 
 	WaterMark& wm = config.waterMark;
+
 
 	if (_forSamplePage)
 	{	
 		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
+	
 
-		_ofs << ".thumb::after, .thumb1::after {\n"
-				"\tposition:relative;\n"
+		_ofs <<	".thumb::after, .athumb::after {\n"
+				"\tposition:absolute;\n"
 				"\tcontent:\"\";\n"
 				"\tbackground-image:url(\"../res/watermark.png\");\n"
 				"\tcolor:" << wm.ColorToCss() << ";\n"
 				"}\n\n"
-				".thumb::after {\n"	// images
-			 << wm.PositionToStyle(config.imageWidth,config.imageHeight, ratio) <<";\n"
+				".thumb::after {\n\t"	// images
+			 << wm.PositionToStyle(config.imageWidth,config.imageHeight, ratio) <<
 				"}\n\n"
-				".thumb1::after {\n"	// album square format image
-			 << wm.PositionToStyle(config.imageWidth, config.imageWidth, ratio) << ";\n"
+				".athumb::after {\n\t"	// album square format image
+			 << wm.PositionToStyle(config.imageWidth, config.imageWidth, ratio) <<
 				"}\n\n"
 			;
 	}
@@ -338,13 +365,13 @@ void CssCreator::_CreateMediaQueries()
 {
 	_ofs << R"(		 	/* -- media queries ***/
 @media only screen and (orientation: landscape) {
-	.img-container img {
+	.thumb {
 		max-height: 95vh; 
 	}
 }
 
 @media only screen and (min-width:700px) {
-	.img-container img {
+	.thumb {
 		max-width:99vw;
 		height:400px;
 	}
@@ -365,7 +392,6 @@ void CssCreator::_CreateMediaQueries()
 	{
 		max-width:99vw;
 		flex-direction:column;
-		padding:0 1px;
 	}
 
 	.desc {
@@ -392,7 +418,7 @@ void CssCreator::_Create()
 	_CreateForGalleryTitle();
 	_CreateForGalleryDesc();
 	_CreateForSection();
-	_CreateForImages();
+	_CreateForImagesAndAlbums();
 	_CreateForImageTitle();
 	_CreateForImageDesc();
 	_CreateForLightboxTitle();

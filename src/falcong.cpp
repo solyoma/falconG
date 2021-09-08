@@ -123,7 +123,7 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 	}
 	return true;	// not copied
 ERR:
-	QString serr = QObject::tr("Can't copy resource'%1' to folder '%2'\nPlease make sure the folder is writeable!\n\nExiting");
+	QString serr = QMainWindow::tr("Can't copy resource'%1' to folder '%2'\nPlease make sure the folder is writeable!\n\nExiting");
 	QMessageBox::critical(nullptr, "falconG", serr.arg(name).arg(destDir));
 	exit(1);
 }
@@ -304,23 +304,46 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 	PROGRAM_CONFIG::Write();
 
-	if (config.Changed())
+	if (config.Changed() && config.bAskBeforeClosing.v)
 	{
 		int res;
-		res  = QMessageBox(QMessageBox::Question, "falconG - Configuration",
-			"There are unsaved changes in the configuration\nDo you want to save them?",
-			QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, this).exec();
-		if (res == QMessageBox::Save)
-		{
-			//CssCreator cssCreator;
-			//cssCreator.Create("falconG.css", true);	// program library setting cursors too
+			QMessageBox closeQuestion(this);
+			closeQuestion.setText("falconG");
+			closeQuestion.setInformativeText("Do you really want to exit?");
+			closeQuestion.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+			closeQuestion.setDefaultButton(QMessageBox::Yes);
+
+			QCheckBox *checkBox = new QCheckBox("Don't ask again (use Options to re-enable)");
+			closeQuestion.setCheckBox(checkBox);
+
+			res = closeQuestion.exec();
+			if (res == QMessageBox::No)
+			{
+				event->ignore();
+				return;
+			}
+			config.bAskBeforeClosing = closeQuestion.checkBox()->isChecked();
 			config.Write();
-		}
-		else if (res == QMessageBox::Cancel)
-			event->ignore();
 	}
 	else
-		PROGRAM_CONFIG::Write();						// save data in program directory
+		PROGRAM_CONFIG::Write();	// save data in program directory
+
+	//{
+	//	int res;
+	//	res  = QMessageBox(QMessageBox::Question, "falconG - Configuration",
+	//		"There are unsaved changes in the configuration\nDo you want to save them?",
+	//		QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, this).exec();
+	//	if (res == QMessageBox::Save)
+	//	{
+	//		//CssCreator cssCreator;
+	//		//cssCreator.Create("falconG.css", true);	// program library setting cursors too
+	//		config.Write();
+	//	}
+	//	else if (res == QMessageBox::Cancel)
+	//		event->ignore();
+	//}
+	//else
+	//	PROGRAM_CONFIG::Write();						// save data in program directory
 
 	CssCreator cssCreator;
 	cssCreator.Create(PROGRAM_CONFIG::samplePath+"css/falconG.css", true);	// program library
@@ -696,20 +719,37 @@ void FalconG::_ActualSampleParamsToUi()
 		case alRight: ui.rbTextRight->setChecked(true); break;
 	}
 
-		// border
-	ui.chkUseBorder->setChecked(pElem->border.Used());
-	BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
-
-	ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(side)+";\n color:"+ config.Web.background.Name()+";}\n"));
-	ui.sbBorderRadius->setValue(pElem->border.Radius());
-	int cnt = pElem->border.BorderCnt();
-	ui.cbBorder->setCurrentIndex( cnt == 1 ? 0 : 1);
-	ui.cbBorderStyle->setCurrentText(pElem->border.Style(side));
-	ui.sbBorderWidth->setValue(pElem->border.Width(side));
-
 	ui.cbPointSizeFirstLine->setCurrentText(pElem->font.FirstLineFontSizeStr());
 
+	--_busy;
 
+		// border for actual element
+	int used = pElem->border.UsedSides();
+	BorderSide first = sdAll;
+	if (!used)
+	{
+		++_busy;
+		ui.rbAllBorders->setChecked(true);	// bits: 1:top,2:right,4:bottom,8:left
+		--_busy;
+	}
+	else if(used == 15)	// something must be checked
+		ui.rbAllBorders->setChecked(true);	// bits: 1:top,2:right,4:bottom,8:left
+	else
+	{
+		if(used & 1)
+			ui.rbTopBorder->setChecked(true), first = sdTop;
+		else if (used & 2)
+			ui.rbRightBorder->setChecked(true), first = sdRight;
+		else if (used & 4)
+			ui.rbBottomBorder->setChecked(true), first = sdBottom;
+		else
+			ui.rbLeftBorder->setChecked(true), first = sdLeft;
+	}
+	++_busy;
+	ui.btnBorderColor->setStyleSheet(QString("QToolButton { background-color:" + pElem->border.ColorStr(first)+";\n color:"+ config.Web.background.Name()+";}\n"));
+	ui.cbBorderStyle->setCurrentIndex(pElem->border.StyleIndex(first));
+	ui.sbBorderWidth->setValue(pElem->border.Width(first));
+	ui.sbBorderRadius->setValue(pElem->border.Radius());
 	--_busy;
 }
 
@@ -743,8 +783,8 @@ void FalconG::_ConfigToSample()
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript(".thumb", qs);
-	_RunJavaScript(".thumb1", qs);
+	_RunJavaScript("thumb", qs);
+	_RunJavaScript("thumb1", qs);
 
 	--_busy;
 }
@@ -756,7 +796,8 @@ void FalconG::_SetConfigChanged(bool on)
 
 
 /*========================================================
- * TASK:	set up controls on Design and Watermark page
+ * TASK:	set up controls on 'Global settings for Page' 
+ *			'Selected Item'and Watermark page
  * PARAMS:
  * GLOBALS:
  * RETURNS:
@@ -765,8 +806,37 @@ void FalconG::_SetConfigChanged(bool on)
 void FalconG::_DesignToUi()
 {
 	++_busy;
+				// globals
+	_SettingUpFontsCombo();
+	_GlobalsToUi();			
+	
+	StyleHandler handler;
+
+	_ActualSampleParamsToUi();
+		// selected item
+	//_CElem* pElem = _PtrToElement(_aeActiveElement);
+
+	//ui.chkUseGradient->setChecked(pElem->gradient.used);
+	//ui.chkUseWM->setChecked(config.waterMark.used);
+
+	//ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[1].color));
+	//ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[0].color));
+	//ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[2].color));
+
+	//// images
+	//ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAll));
+	//ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
+	//ui.sbImageBorderRadius->setValue(config.imageBorder.Radius());
+	//ui.sbImageMatteWidth->setValue(config.imageMatte);
+	//ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
+
+	//ui.sbAlbumMatteRadius->setValue(config.albumBorderRadius);
+	//ui.sbAlbumMatteWidth->setValue(config.albumMatte);
+
+	//ui.sbSpaceAfter->setValue(0);
+
 				// WaterMark
-	StyleHandler handler(ui.btnWmColor->styleSheet());
+	handler.Set(ui.btnWmColor->styleSheet());
 	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.Color()).name());
 	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.BorderColor().name()) );
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
@@ -774,23 +844,9 @@ void FalconG::_DesignToUi()
 	//ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.Color(),8,16,QChar('0')));
 	if(config.waterMark.ShadowColor() >= 0)
 		ui.btnWmShadowColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.ShadowColor(),6,16,QChar('0')));
-		// others
 	ui.edtWmHorizMargin->setText(QString().setNum(config.waterMark.MarginX()));
 	ui.edtWmVertMargin->setText(QString().setNum(config.waterMark.MarginY()));
 
-	ui.chkUseGradient->setChecked(config.Menu.gradient.used);
-	ui.chkUseWM->setChecked(config.waterMark.used);
-
-	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
-	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
-	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
-
-	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
-	ui.sbImageMatteWidth->setValue(config.imageMatte);
-	ui.sbSpaceAfter->setValue(0);
-
-	_SettingUpFontsCombo();
-	_GlobalsToUi();	
 	--_busy;
 }
 
@@ -1084,7 +1140,7 @@ void FalconG::on_edtBckImageName_textChanged()
 	else
 		_RunJavaScript("body", QString("background-image:"));	// show image
 
-	config.SetChanged(true);				// file is copied to /res
+	_SetConfigChanged(true);				// file is copied to /res
 }
 
 /*============================================================================
@@ -1313,8 +1369,8 @@ void FalconG::_UpdateWatermarkMargins(int mx, int my)
 	{
 		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
 
-		_RunJavaScript(".thumb::after", wm.PositionToStyle(config.imageWidth, config.imageHeight, ratio, (WaterMark::POS)wm.Origin()));	// 2 images
-		_RunJavaScript(".thumb1::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
+		_RunJavaScript("thumb::after", wm.PositionToStyle(config.imageWidth, config.imageHeight, ratio, (WaterMark::POS)wm.Origin()));	// 2 images
+		_RunJavaScript("thumb1::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
 	}
 	_SetConfigChanged(true);
 }
@@ -1336,6 +1392,74 @@ void FalconG::on_edtWmVertMargin_textChanged()
 	if (_busy)
 		return;
 	_UpdateWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
+}
+
+void FalconG::_SetupActualBorder(BorderSide side)
+{
+	_CElem* pElem = _PtrToElement();
+	_CBorder &border = pElem->border;
+	BorderSide oldSide = border.actSide;
+	if ((border.actSide = side) == sdAll)	// then use last set values to all sides
+	{
+		border.SetStyleIndex(sdAll, border.StyleIndex(oldSide));
+		border.SetWidth(sdAll, border.Width(oldSide));
+		border.SetColor(sdAll, border.ColorStr(oldSide));
+	}
+	else	// change to data for actual side
+	{
+		++_busy;
+		ui.cbBorderStyle->setCurrentIndex(border.StyleIndex(side));
+		ui.sbBorderWidth->setValue(border.Width(side));
+		ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(border.ColorStr(side)).arg(pElem->background.Name()));
+		--_busy;
+	}
+
+	QString qs = pElem->border.ForStyleSheet(false);
+	_SetCssProperty(pElem, qs);
+	_EnableButtons();
+}
+
+/*=============================================================
+ * TASK:	the next 5 functions select the border of an element
+ *			except images
+ * EXPECTS:	on - if the radio button is activated
+ * GLOBALS: config
+ * RETURNS: none
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_rbAllBorders_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdAll);
+}
+
+void FalconG::on_rbTopBorder_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdTop);
+}
+
+void FalconG::on_rbRightBorder_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdRight);
+}
+
+void FalconG::on_rbBottomBorder_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdBottom);
+}
+
+void FalconG::on_rbLeftBorder_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdLeft);
 }
 
 /*============================================================================
@@ -1374,6 +1498,24 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 // ????	_ChangesToSample(dp);
 }
 
+void FalconG::on_sbImageMatteRadius_valueChanged(int w)
+{
+	if (_busy)
+		return;
+	config.imageMatteRadius = w;
+	_SetConfigChanged(true);
+	_RunJavaScript("imatte", QString("border-radius:%1").arg(w) );
+}
+
+void FalconG::on_sbAlbumMatteRadius_valueChanged(int w)
+{
+	if (_busy)
+		return;
+	config.imageMatteRadius = w;
+	_SetConfigChanged(true);
+	_RunJavaScript("amatte", QString("border-radius:%1").arg(w) );
+}
+
 /*============================================================================
   * TASK:	change the image height in config to new height and
   *			for linked image sizes change the value in the width box
@@ -1409,6 +1551,15 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 
 	--_busy;
 // ????	_ChangesToSample();
+}
+
+void FalconG::on_sbImageMargin_valueChanged(int m)
+{
+	if (_busy)
+		return;
+	config.imageMargin = m;
+	_SetConfigChanged(true);
+	_RunJavaScript("img-container", QString(m ? "margin: 0 %1;" : "margin:0;").arg(m));
 }
 
 /*============================================================================
@@ -2108,23 +2259,6 @@ void FalconG::on_chkShadowOn_toggled(bool on)
 * TASK:
 * EXPECTS:
 * GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkUseBorder_toggled(bool on)
-{
-	if (_busy)
-		return;
-
-	_CElem* pElem = _PtrToElement();
-	pElem->border.SetUsed(on);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
 * REMARKS: on 'Gallery' page
 *--------------------------------------------------------------------------*/
 void FalconG::on_chkMenuToContact_toggled(bool on)
@@ -2416,7 +2550,7 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 
 	config.imageBorder.SetWidth(sdAll, val);
 	QString qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript(".thumb", qs);
+	_RunJavaScript("thumb", qs);
 	_SetConfigChanged(true);
 }
 
@@ -2428,17 +2562,29 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::on_sbImageMatte_valueChanged(int val)
+void FalconG::on_sbImageMatteWidth_valueChanged(int val)
 {
 	if (_busy || config.imageMatte == val )
 		return;
 
 	config.imageMatte = val;
-	if (!config.imageBorder.Used())
-		_RunJavaScript(".thumb",QString("padding:"));
+	if (!val)
+		_RunJavaScript("imatte",QString("padding:"));
 	else	
-		_RunJavaScript(".thumb",QString("padding: %1px").arg(val));
+		_RunJavaScript("imatte",QString("padding: %1px").arg(val));
 
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	config.albumMatte = val;
+	if(!val)
+		_RunJavaScript("amatte", QString("padding:"));
+	else
+		_RunJavaScript("amatte", QString("padding: %1px").arg(val));
 	_SetConfigChanged(true);
 }
 
@@ -2481,7 +2627,7 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 	config.waterMark.SetOpacity(val, true);
 	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
-	_RunJavaScript(".thumb::after","color"+ config.waterMark.ColorToCss());
+	_RunJavaScript("thumb::after","color"+ config.waterMark.ColorToCss());
 	_WaterMarkToSample();
 }
 
@@ -2500,8 +2646,7 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 	if (_busy)
 		return;
 	_CElem* pElem = _PtrToElement();
-	BorderSide side = (BorderSide) (ui.cbBorder->currentIndex()-1);
-	pElem->border.SetWidth(side, val);
+	pElem->border.SetWidth(pElem->border.actSide, val);
 	_SetConfigChanged(true);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
@@ -2545,15 +2690,14 @@ void FalconG::on_hsImageSizeToShow_valueChanged(int val)
 void FalconG::on_btnBorderColor_clicked()
 {
 	_CElem* pElem = _PtrToElement();
-	BorderSide side = (BorderSide )(ui.cbBorder->currentIndex()-1);
-	QColor qc(pElem->border.ColorStr(side)),
+	QColor qc(pElem->border.ColorStr(pElem->border.actSide)),
 			qcNew;
 	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 	if (qcNew == qc || !qcNew.isValid())
 		return;
 
 	_SetConfigChanged(true);
-	pElem->border.SetColor(side, qcNew.name());
+	pElem->border.SetColor(pElem->border.actSide, qcNew.name());
 	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
 
 	QString qs = pElem->border.ForStyleSheet(false);
@@ -2636,7 +2780,8 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 
 
 /*========================================================
- * TASK:	When the css or html changes 
+ * TASK:	Return the original web page, throwing away the
+ *			changes
  * PARAMS:
  * GLOBALS:
  * RETURNS:
@@ -2644,6 +2789,9 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnReload_clicked()
 {
+//	CssCreator cssCreator;
+//	cssCreator.Create(PROGRAM_CONFIG::samplePath + "css/falconG.css", true);	// program library
+	config.RestoreDesign();
 	_page.triggerAction(QWebEnginePage::Reload);
 	_ConfigToUI();
 }
@@ -2663,9 +2811,6 @@ void FalconG::on_btnSaveConfig_clicked()
 		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
 	}
 	PROGRAM_CONFIG::Write();
-
-	//CssCreator creator;
-	//creator.Create("falconG.css", true);
 
 	QString s	 = PROGRAM_CONFIG::NameForConfig(true, ".ini"),
 			sp = s.left(s.lastIndexOf('/'));	// path
@@ -2929,6 +3074,38 @@ void FalconG::on_btnImageBorderColor_clicked()
 		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.imageBorder.SetColor(side, qcNew.name());
 		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
+	}
+}
+
+void FalconG::on_btnImageMatteColor_clicked()
+{
+	StyleHandler handler(ui.btnImageMatteColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+			qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
+		config.imageMatteColor = qcNew.name();
+		on_sbImageMatteWidth_valueChanged(ui.sbImageMatteWidth->value());
+	}
+}
+
+void FalconG::on_btnAlbumMatteColor_clicked()
+{
+	StyleHandler handler(ui.btnAlbumMatteColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
+		config.albumMatteColor = qcNew.name();
+		on_sbAlbumMatteWidth_valueChanged(ui.sbAlbumMatteWidth->value());
 	}
 }
 
@@ -3650,7 +3827,7 @@ void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hNotUsed;
-		config.SetChanged(true);
+		_SetConfigChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3660,7 +3837,7 @@ void FalconG::on_rbCenterBckImage_toggled(bool b)
 	if (!_busy && b)
 	{		
 		config.backgroundImage.v = hAuto;
-		config.SetChanged(true);
+		_SetConfigChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3669,7 +3846,7 @@ void FalconG::on_rbCoverBckImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hCover;
-		config.SetChanged(true);
+		_SetConfigChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3716,7 +3893,7 @@ void FalconG::on_rbTileBckImage_toggled(bool b)
 	if (!_busy && b)
 	{
 		config.backgroundImage.v = hTile;
-		config.SetChanged(true);
+		_SetConfigChanged(true);
 		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 	}
 }
@@ -3885,6 +4062,12 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 	_EnableColorSchemeButtons();
 }
 
+void FalconG::on_btnResetDialogs_clicked()
+{
+	if (QMessageBox::question(this, "falconG - Warning", "This will reset all dialogs. Do you want to proceed") == QMessageBox::Yes)
+		config.bAskBeforeClosing = false;
+}
+
 
 /*========================================================
  * TASK:	delete scheme
@@ -4003,27 +4186,29 @@ void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
 	--_busy;
 }
 
-void FalconG::on_cbBorder_currentIndexChanged(int newIndex)
+void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
 {
+	if (_busy)
+		return;
+
 	_CElem* pElem = _PtrToElement();
-	BorderSide side = (BorderSide) (newIndex -1);
-	//if (!_busy)
-	//	pElem->border.SetWidth(side, ui.sbBorderWidth->value());
-	++_busy;
-   ui.sbBorderWidth->setValue( pElem->border.Width(side) );
-	--_busy;
+	_CBorder& border = pElem->border;
+	border.SetStyleIndex(pElem->border.actSide, newIndex);
+	border.SetUsed(border.actSide, newIndex);
+
+	_SetConfigChanged(true);
 	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
-void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
+void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
 {
-	_CElem* pElem = _PtrToElement();
 	if (!_busy)
 	{
-		BorderSide side = (BorderSide)(ui.cbBorder->currentIndex()-1);
-		pElem->border.SetStyleIndex(side, ui.cbBorderStyle->currentIndex());
+		config.imageBorder.SetUsed(sdAll, newIndex);
+		config.imageBorder.SetStyleIndex(sdAll, newIndex);
+		_SetConfigChanged(true);
+		_RunJavaScript("thumb", config.imageBorder.ForStyleSheetShort(true));
 	}
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
 }
 
 void FalconG::on_chkFacebook_toggled(bool on)
@@ -4054,9 +4239,9 @@ QString FalconG::_GradientStyleQt(_CElem &elem, bool invert)
 void FalconG::_SetGradientLabelColors(_CElem* pElem, bool invert)
 {
 	ui.lblGradient->setStyleSheet(QString("background:%1;").arg(pElem->gradient.ForQtStyleSheet(invert)));
-	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[1].color));
-	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[0].color));
-	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(config.Menu.gradient.gs[2].color));
+	ui.btnGradMiddleColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[1].color));
+	ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[0].color));
+	ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[2].color));
 }
 
 
@@ -4287,13 +4472,13 @@ void FalconG::_WaterMarkToSample()
 	_CWaterMark &wm = config.waterMark;
 	if (wm.used)
 	{
-		_RunJavaScript(".thumbs::after", "display:"); // remove "none"
-		_RunJavaScript(".thumbs1::after", "display:"); // remove "none"
+		_RunJavaScript("thumbs::after", "display:"); // remove "none"
+		_RunJavaScript("thumbs1::after", "display:"); // remove "none"
 	}
 	else
 	{
-		_RunJavaScript(".thumbs::after", "display:none"); // remove "none"
-		_RunJavaScript(".thumbs1::after", "display:none"); // remove "none"
+		_RunJavaScript("thumbs::after", "display:none"); // remove "none"
+		_RunJavaScript("thumbs1::after", "display:none"); // remove "none"
 	}
 	_page.triggerAction(QWebEnginePage::Reload);
 }
@@ -4691,7 +4876,7 @@ QCheckBox::indicator:unchecked {
 
 	}
 	else
-		setStyleSheet("");
+		((QApplication*)(QApplication::instance()))->setStyleSheet("");
 
 }
 
@@ -4716,13 +4901,17 @@ void FalconG::_SetIconColor(QIcon &icon, _CElem & elem)
 }
 
 /*============================================================================
-  * TASK:
+  * TASK:		saves the style sheet into both the gallery and the sample page
   * EXPECTS:
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
 void FalconG::on_btnSaveStyleSheet_clicked()
 {
+	CssCreator cssCreator;
+	cssCreator.Create(PROGRAM_CONFIG::samplePath + "css/falconG.css", true);	// program library
+	config.SaveDesign();
+
 	if (albumgen.SaveStyleSheets() == 0)
 	{
 		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
@@ -4782,7 +4971,7 @@ void FalconG::on_btnWmColor_clicked()
 		s = s.mid(1);	 // skip '#'
 		config.waterMark.SetColorWithOpacity(s);
 		_SetConfigChanged(config.waterMark.v = true);
-		_RunJavaScript(".thumb::after", "color: " + config.waterMark.ColorToCss());
+		_RunJavaScript("thumb::after", "color: " + config.waterMark.ColorToCss());
 	}
 }
 

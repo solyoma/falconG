@@ -40,7 +40,7 @@ public:
 	void WriteToSettings(QSettings &s);
 	void ReadFromSettings(QSettings &s);
 
-	void Set(const QString &css);						// _ssr from CSS string
+	void Set(const QString &css);					// _ssr from CSS string
 	QString StyleSheet();							// create stylesheet text
 	bool Exists(const QString selector, const QString nameOfRule) const;	// group contains object name
 	bool Exists(const QString baseSelector, const QString objectName, const QString nameOfRule) const;	

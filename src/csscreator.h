@@ -26,7 +26,7 @@ class CssCreator
 	void _CreateForGalleryTitle();
 	void _CreateForGalleryDesc();
 	void _CreateForSection();
-	void _CreateForImages();
+	void _CreateForImagesAndAlbums();
 	void _CreateForImageTitle();
 	void _CreateForImageDesc();
 	void _CreateForLightboxTitle();

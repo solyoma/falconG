@@ -1,13 +1,16 @@
 #include "config.h"
 
 // helper	prepends a tab and adds a semicolon and LF after the string
+// if s has more than one property (each should be in separate lines
+// semicolons must already be present
 void __AddSemi(QString& s, bool addSemicolon)
 {
 	if (!s.isEmpty())
 	{
-		if (addSemicolon)
+		if (addSemicolon && s.length() && s[s.length()-1] != QChar('\n'))
 			s = "	" + s + ";";
-		s += "\n";
+		if (s.length() && s[s.length() - 1] != QChar('\n'))
+			s += "\n";
 	}
 }
 
@@ -802,7 +805,7 @@ void _CGradient::_Prepare()		// to store in settings
  *-------------------------------------------------------*/
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
-	if (!Used())
+	if (!UsedSides())
 	{
 		QString qs = "border:none";
 		__AddSemi(qs,semi);
@@ -810,10 +813,10 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 	}
 
 	QString res,res2,res3,res4;
-	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(Style(sdTop)).arg(ColorStr(sdTop));
-	res2 = QString("border-right:%1px %2 %3").arg(_widths[sdRight]).arg(Style(sdRight)).arg(ColorStr(sdRight));
-	res3 = QString("border-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(Style(sdBottom)).arg(ColorStr(sdBottom));
-	res4 = QString("border-left:%1px %2 %3").arg(_widths[sdLeft]).arg(Style(sdLeft)).arg(ColorStr(sdLeft));
+	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(StyleStr(sdTop)).arg(ColorStr(sdTop));
+	res2 = QString("border-right:%1px %2 %3").arg(_widths[sdRight]).arg(StyleStr(sdRight)).arg(ColorStr(sdRight));
+	res3 = QString("border-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(StyleStr(sdBottom)).arg(ColorStr(sdBottom));
+	res4 = QString("border-left:%1px %2 %3").arg(_widths[sdLeft]).arg(StyleStr(sdLeft)).arg(ColorStr(sdLeft));
 	__AddSemi(res , semi);
 	__AddSemi(res2, semi);
 	__AddSemi(res3, semi);
@@ -833,7 +836,7 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 {
 	QString res;
-	if (!Used())
+	if (!UsedSides())
 		res = "border:none";
 	else
 	{
@@ -858,7 +861,7 @@ void _CBorder::_CountWidths()
 		else
 			_sizeWidths = 2;	// 2 widths, styles and colors
 	else
-		_sizeWidths = 4;		// 4 width, style and color
+		_sizeWidths = 4;		// 4 widths, styles and colors
 }
 
 void _CBorder::_Setup()
@@ -870,20 +873,20 @@ void _CBorder::_Setup()
 		qsl.clear();
 		qsl << "0" << "0" << "0" << "0" << "#000000";
 	}
-	// create for any of these: 
+	// create for any of these: (<used> = 0..15)
 
 	// siz == 4    0      1     2     3
-	//			<used?>|width|style|color
+	//			<used>|width|style|color
 	// siz == 5    0      1		2	  3		4
-	//			<used?>|width|style|color|radius
+	//			<used>|width|style|color|radius
 	// siz == 7	   0			1					 2					 3					  4			 		 5					 6
-	//			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
+	//			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
 	// siz == 8	   0			1					 2					 3					  4			 		 5					 6		   7
-	//			<used?>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
+	//			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
 	// siz == 13   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12
-	//			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
+	//			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
 	// siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
-	//			<used?>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
+	//			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
 
 		_used = qsl[0].toInt();
 	switch (siz)
@@ -932,6 +935,7 @@ void _CBorder::_Setup()
  *-------------------------------------------------------*/
 void _CBorder::_Prepare()
 {
+	_CountWidths();
 	switch (_sizeWidths)
 	{
 		case 1:		v = QString("%1|%2|%3|%4").arg(_used).arg(_widths[0]).arg(_styleIndex[0]).arg(_colorNames[0]); 
@@ -1352,12 +1356,20 @@ void CONFIG::ClearChanged()
 	bCropThumbnails.ClearChanged();
 	bDistrortThumbnails.ClearChanged();
 
-	imageBorder.ClearChanged();
-
 	iconToTopOn.ClearChanged();
 	iconInfoOn.ClearChanged();
 
+	imageMargin.ClearChanged();
+	imageBorder.ClearChanged();
+	imageMatte.ClearChanged();
+	imageMatteRadius.ClearChanged();
+	imageMatteColor.ClearChanged();
+	albumMatte.ClearChanged();
+	albumBorderRadius.ClearChanged();
+	albumMatteColor.ClearChanged();
+
 	waterMark.ClearChanged();
+	bAskBeforeClosing.ClearChanged();
 
 	googleAnalyticsOn.ClearChanged();
 	googleAnalTrackingCode.ClearChanged();
@@ -1453,6 +1465,16 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	 FromOther(configSave);
  }
 
+ void CONFIG::SaveDesign()
+ {
+	 return configSave.FromDesign(*this);
+ }
+
+void CONFIG::SaveOther()
+ {
+	 return configSave.FromOther(*this);
+ }
+
 /*===========================================================================
  * TASK:  assign design configuration parameters
  * EXPECTS:	cfg - other config
@@ -1491,7 +1513,16 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	iconToTopOn = cfg.iconToTopOn;
 	iconInfoOn = cfg.iconInfoOn;
 
+
+	imageMargin = cfg.imageMargin;
 	imageBorder = cfg.imageBorder;
+	imageMatte = cfg.imageMatte;
+	imageMatteColor = cfg.imageMatteColor;
+	imageMatteRadius = cfg.imageMatteRadius;
+
+	albumMatte = cfg.albumMatte;
+	albumMatteColor = cfg.albumMatteColor;
+	albumBorderRadius = cfg.albumBorderRadius;
 }
 /*============================================================================
 * TASK: constructor
@@ -1598,8 +1629,16 @@ void CONFIG::Read()		// synchronize with Write!
 	bCropThumbnails.Read(s);
 	bDistrortThumbnails.Read(s);
 	// image decoration
+	imageMargin.Read(s);
 	imageBorder.Read(s);
 	imageMatte.Read(s);
+	imageMatteColor.Read(s);
+	imageMatteRadius.Read(s);
+	// album decoration
+	albumMatte.Read(s);
+	imageMatteRadius.Read(s);
+	albumMatteColor.Read(s);
+	albumBorderRadius.Read(s);
 
 	iconToTopOn.Read(s);
 	iconInfoOn.Read(s);
@@ -1643,6 +1682,8 @@ void CONFIG::Read()		// synchronize with Write!
 
 				// 	Watermarks
 	waterMark.Read(s);
+	// other
+	bAskBeforeClosing.Read(s);
 	// Debug
 	bDebugging.Read(s);
 
@@ -1721,8 +1762,15 @@ void CONFIG::_WriteIni(QString sIniName)
 	bCropThumbnails.Write(s);
 	bDistrortThumbnails.Write(s);
 	// image decoration
+	imageMargin.Write(s);
 	imageBorder.Write(s);
 	imageMatte.Write(s);
+	imageMatteColor.Write(s);
+	// album decoration
+	albumMatte.Write(s);
+	imageMatteRadius.Write(s);
+	albumMatteColor.Write(s);
+	albumBorderRadius.Write(s);
 	
 	iconToTopOn.Write(s);
 	iconInfoOn.Write(s);
@@ -1753,8 +1801,12 @@ void CONFIG::_WriteIni(QString sIniName)
 				// 	Watermarks
 	waterMark.Write(s);
 
+	// other
+	bAskBeforeClosing.Write(s);
+
 	if (__bClearChangedFlag)
 		ClearChanged();
+	configSave = *this;
 }
 /*============================================================================
   * TASK: writes changed configuration settings

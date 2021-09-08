@@ -2209,6 +2209,237 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <property name="spacing">
                          <number>2</number>
                         </property>
+                        <item row="3" column="0">
+                         <widget class="QGroupBox" name="gbGradient">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>120</height>
+                           </size>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <family>Arial</family>
+                            <pointsize>10</pointsize>
+                            <weight>75</weight>
+                            <bold>true</bold>
+                           </font>
+                          </property>
+                          <property name="title">
+                           <string>Gradient</string>
+                          </property>
+                          <layout class="QGridLayout" name="gridLayout_19">
+                           <item row="0" column="1" colspan="2">
+                            <widget class="QCheckBox" name="chkUseGradient">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Use</string>
+                             </property>
+                             <property name="checked">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0">
+                            <widget class="QLabel" name="label_4">
+                             <property name="text">
+                              <string>Color</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="2">
+                            <widget class="QLabel" name="label_24">
+                             <property name="text">
+                              <string>Stop</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="0" rowspan="3">
+                            <widget class="QLabel" name="lblGradient">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>50</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #A90329, stop:0.4 #890222, stop:1 #6d0019); </string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="1">
+                            <widget class="QToolButton" name="btnGradStartColor">
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="toolButtonStyle">
+                              <enum>Qt::ToolButtonFollowStyle</enum>
+                             </property>
+                             <property name="arrowType">
+                              <enum>Qt::LeftArrow</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="2">
+                            <widget class="QSpinBox" name="sbGradStartPos">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>60</width>
+                               <height>16777215</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="1">
+                            <widget class="QToolButton" name="btnGradMiddleColor">
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="toolButtonStyle">
+                              <enum>Qt::ToolButtonFollowStyle</enum>
+                             </property>
+                             <property name="arrowType">
+                              <enum>Qt::LeftArrow</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="2">
+                            <widget class="QSpinBox" name="sbGradMiddlePos">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>40</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="1">
+                            <widget class="QToolButton" name="btnGradStopColor">
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="toolButtonStyle">
+                              <enum>Qt::ToolButtonFollowStyle</enum>
+                             </property>
+                             <property name="arrowType">
+                              <enum>Qt::LeftArrow</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="2">
+                            <widget class="QSpinBox" name="sbGradStopPos">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="value">
+                              <number>100</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="0">
+                            <spacer name="verticalSpacer_3">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>21</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
                         <item row="2" column="0" colspan="2">
                          <widget class="QGroupBox" name="gbTextStyle">
                           <property name="maximumSize">
@@ -3007,226 +3238,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                           </layout>
                          </widget>
                         </item>
-                        <item row="0" column="0" colspan="2">
-                         <widget class="QWidget" name="gbColors" native="true">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>92</height>
-                           </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <family>Arial</family>
-                            <pointsize>10</pointsize>
-                            <weight>75</weight>
-                            <bold>true</bold>
-                           </font>
-                          </property>
-                          <layout class="QGridLayout" name="gridLayout_7" rowstretch="0,0">
-                           <property name="leftMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="topMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="rightMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="bottomMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="horizontalSpacing">
-                            <number>6</number>
-                           </property>
-                           <item row="0" column="4">
-                            <spacer name="horizontalSpacer_9">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>33</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QLabel" name="label_26">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Text</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label_33">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Background</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="2">
-                            <widget class="QSpinBox" name="sbBackgroundOpacity">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
-                             </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>100</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1">
-                            <widget class="QToolButton" name="btnForeground">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#ddd;}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="3">
-                            <widget class="QCheckBox" name="chkTextOpacity">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Turn opacity on or off</string>
-                             </property>
-                             <property name="text">
-                              <string>use opacity</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="3">
-                            <widget class="QCheckBox" name="chkBackgroundOpacity">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Turn opacity on or off</string>
-                             </property>
-                             <property name="text">
-                              <string>use opacity</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1">
-                            <widget class="QToolButton" name="btnBackground">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#a03020;}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="2">
-                            <widget class="QSpinBox" name="sbTextOpacity">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
-                             </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>100</number>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                        </item>
                         <item row="1" column="0" colspan="2">
                          <widget class="QGroupBox" name="gbFont">
                           <property name="minimumSize">
@@ -3738,15 +3749,18 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                           </layout>
                          </widget>
                         </item>
-                        <item row="3" column="0">
-                         <widget class="QGroupBox" name="gbGradient">
-                          <property name="enabled">
-                           <bool>false</bool>
+                        <item row="0" column="0" colspan="2">
+                         <widget class="QWidget" name="gbColors" native="true">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
                           </property>
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>120</height>
+                            <height>92</height>
                            </size>
                           </property>
                           <property name="font">
@@ -3757,12 +3771,37 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                             <bold>true</bold>
                            </font>
                           </property>
-                          <property name="title">
-                           <string>Gradient</string>
-                          </property>
-                          <layout class="QGridLayout" name="gridLayout_19">
-                           <item row="0" column="1" colspan="2">
-                            <widget class="QCheckBox" name="chkUseGradient">
+                          <layout class="QGridLayout" name="gridLayout_7" rowstretch="0,0">
+                           <property name="leftMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="horizontalSpacing">
+                            <number>6</number>
+                           </property>
+                           <item row="0" column="4">
+                            <spacer name="horizontalSpacer_9">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>33</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="label_26">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -3772,81 +3811,135 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                               </font>
                              </property>
                              <property name="text">
-                              <string>Use</string>
-                             </property>
-                             <property name="checked">
-                              <bool>true</bool>
+                              <string>Text</string>
                              </property>
                             </widget>
                            </item>
                            <item row="1" column="0">
-                            <widget class="QLabel" name="label_4">
+                            <widget class="QLabel" name="label_33">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
                              <property name="text">
-                              <string>Color</string>
+                              <string>Background</string>
                              </property>
                             </widget>
                            </item>
                            <item row="1" column="2">
-                            <widget class="QLabel" name="label_24">
-                             <property name="text">
-                              <string>Stop</string>
+                            <widget class="QSpinBox" name="sbBackgroundOpacity">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="minimum">
+                              <number>0</number>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>100</number>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="0" rowspan="3">
-                            <widget class="QLabel" name="lblGradient">
+                           <item row="0" column="1">
+                            <widget class="QToolButton" name="btnForeground">
                              <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
                                <verstretch>0</verstretch>
                               </sizepolicy>
                              </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>50</width>
-                               <height>0</height>
-                              </size>
+                             <property name="font">
+                              <font>
+                               <family>MS Shell Dlg 2</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
                              </property>
                              <property name="styleSheet">
-                              <string notr="true">background-color:qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #A90329, stop:0.4 #890222, stop:1 #6d0019); </string>
+                              <string notr="true">QToolButton {background-color:#ddd;}</string>
                              </property>
                              <property name="text">
                               <string/>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="1">
-                            <widget class="QToolButton" name="btnGradStartColor">
+                           <item row="0" column="3">
+                            <widget class="QCheckBox" name="chkTextOpacity">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Turn opacity on or off</string>
+                             </property>
                              <property name="text">
-                              <string/>
-                             </property>
-                             <property name="toolButtonStyle">
-                              <enum>Qt::ToolButtonFollowStyle</enum>
-                             </property>
-                             <property name="arrowType">
-                              <enum>Qt::LeftArrow</enum>
+                              <string>use opacity</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="2">
-                            <widget class="QSpinBox" name="sbGradStartPos">
+                           <item row="1" column="3">
+                            <widget class="QCheckBox" name="chkBackgroundOpacity">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Turn opacity on or off</string>
+                             </property>
+                             <property name="text">
+                              <string>use opacity</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="1">
+                            <widget class="QToolButton" name="btnBackground">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
                                <verstretch>0</verstretch>
                               </sizepolicy>
                              </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#a03020;}</string>
                              </property>
-                             <property name="maximumSize">
-                              <size>
-                               <width>60</width>
-                               <height>16777215</height>
-                              </size>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="2">
+                            <widget class="QSpinBox" name="sbTextOpacity">
+                             <property name="enabled">
+                              <bool>false</bool>
                              </property>
                              <property name="font">
                               <font>
@@ -3859,112 +3952,19 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              <property name="suffix">
                               <string>%</string>
                              </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="1">
-                            <widget class="QToolButton" name="btnGradMiddleColor">
-                             <property name="text">
-                              <string/>
-                             </property>
-                             <property name="toolButtonStyle">
-                              <enum>Qt::ToolButtonFollowStyle</enum>
-                             </property>
-                             <property name="arrowType">
-                              <enum>Qt::LeftArrow</enum>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="2">
-                            <widget class="QSpinBox" name="sbGradMiddlePos">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
+                             <property name="minimum">
+                              <number>0</number>
                              </property>
                              <property name="maximum">
                               <number>100</number>
                              </property>
-                             <property name="value">
-                              <number>40</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="1">
-                            <widget class="QToolButton" name="btnGradStopColor">
-                             <property name="text">
-                              <string/>
-                             </property>
-                             <property name="toolButtonStyle">
-                              <enum>Qt::ToolButtonFollowStyle</enum>
-                             </property>
-                             <property name="arrowType">
-                              <enum>Qt::LeftArrow</enum>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="2">
-                            <widget class="QSpinBox" name="sbGradStopPos">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
+                             <property name="singleStep">
+                              <number>10</number>
                              </property>
                              <property name="value">
                               <number>100</number>
                              </property>
                             </widget>
-                           </item>
-                           <item row="5" column="0">
-                            <spacer name="verticalSpacer_3">
-                             <property name="orientation">
-                              <enum>Qt::Vertical</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>20</width>
-                               <height>21</height>
-                              </size>
-                             </property>
-                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -3978,55 +3978,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                            <string>Border</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_6">
-                           <item row="9" column="1">
-                            <widget class="QSpinBox" name="sbBorderRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QCheckBox" name="chkUseBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Use</string>
-                             </property>
-                             <property name="checked">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1">
-                            <widget class="QLabel" name="label_15">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Color:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="6" column="0">
+                           <item row="2" column="0">
                             <widget class="QLabel" name="label_57">
                              <property name="font">
                               <font>
@@ -4041,87 +3993,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                             </widget>
                            </item>
-                           <item row="9" column="0">
-                            <widget class="QLabel" name="label_70">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Border radius</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="0" colspan="3">
-                            <widget class="QComboBox" name="cbBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>All borders: the same width &amp; style applied to all
-Others: set value and style separately for all 4.</string>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>All borders</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>Top</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>Right</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>Bottom</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>Left</string>
-                              </property>
-                             </item>
-                            </widget>
-                           </item>
-                           <item row="0" column="2">
-                            <widget class="QToolButton" name="btnBorderColor">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>10</pointsize>
-                               <weight>75</weight>
-                               <bold>true</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#890222;color:#76fccc;}</string>
-                             </property>
-                             <property name="text">
-                              <string>B</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="6" column="1" colspan="2">
+                           <item row="2" column="1" colspan="3">
                             <widget class="QComboBox" name="cbBorderStyle">
                              <property name="font">
                               <font>
@@ -4178,7 +4050,31 @@ Others: set value and style separately for all 4.</string>
                              </item>
                             </widget>
                            </item>
-                           <item row="4" column="0">
+                           <item row="2" column="4">
+                            <widget class="QToolButton" name="btnBorderColor">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>MS Shell Dlg 2</family>
+                               <pointsize>10</pointsize>
+                               <weight>75</weight>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#890222;color:#76fccc;}</string>
+                             </property>
+                             <property name="text">
+                              <string>B</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="0">
                             <widget class="QLabel" name="label_58">
                              <property name="font">
                               <font>
@@ -4193,7 +4089,7 @@ Others: set value and style separately for all 4.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="1">
+                           <item row="3" column="1" colspan="2">
                             <widget class="QSpinBox" name="sbBorderWidth">
                              <property name="font">
                               <font>
@@ -4211,10 +4107,115 @@ Others: set value and style separately for all 4.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="5" column="0" colspan="3">
+                           <item row="4" column="0" colspan="5">
                             <widget class="Line" name="line">
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="0" colspan="2">
+                            <widget class="QLabel" name="label_70">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Border radius</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="2" colspan="2">
+                            <widget class="QSpinBox" name="sbBorderRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="3" colspan="2">
+                            <widget class="QRadioButton" name="rbLeftBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Left</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="1" colspan="2">
+                            <widget class="QRadioButton" name="rbBottomBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Bottom</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="3" colspan="2">
+                            <widget class="QRadioButton" name="rbRightBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Right</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="1" colspan="2">
+                            <widget class="QRadioButton" name="rbTopBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Top</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="0">
+                            <widget class="QRadioButton" name="rbAllBorders">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>All</string>
                              </property>
                             </widget>
                            </item>
@@ -4236,6 +4237,18 @@ Others: set value and style separately for all 4.</string>
                         <string>Images</string>
                        </attribute>
                        <layout class="QVBoxLayout" name="verticalLayout_10">
+                        <property name="leftMargin">
+                         <number>3</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>3</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>3</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>3</number>
+                        </property>
                         <item>
                          <widget class="QWidget" name="gbResizing" native="true">
                           <property name="sizePolicy">
@@ -4247,7 +4260,7 @@ Others: set value and style separately for all 4.</string>
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>0</height>
+                            <height>206</height>
                            </size>
                           </property>
                           <property name="font">
@@ -4258,66 +4271,19 @@ Others: set value and style separately for all 4.</string>
                             <bold>true</bold>
                            </font>
                           </property>
-                          <layout class="QGridLayout" name="gridLayout_20">
-                           <item row="3" column="0">
-                            <widget class="QLabel" name="label_73">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
+                          <layout class="QGridLayout" name="gridLayout_12">
+                           <item row="1" column="6" colspan="3">
+                            <spacer name="horizontalSpacer_6">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
                              </property>
-                             <property name="text">
-                              <string>Image Quality:</string>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>94</width>
+                               <height>20</height>
+                              </size>
                              </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0">
-                            <widget class="QLabel" name="label_7">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Thumbnail</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="6" column="0" colspan="2">
-                            <widget class="QCheckBox" name="chkCropThumbnails">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                             </property>
-                             <property name="text">
-                              <string>Crop thumbnails to this size</string>
-                             </property>
-                            </widget>
+                            </spacer>
                            </item>
                            <item row="0" column="1">
                             <widget class="QLabel" name="label_2">
@@ -4334,20 +4300,37 @@ Others: set value and style separately for all 4.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="4">
-                            <spacer name="horizontalSpacer_6">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
+                           <item row="4" column="8">
+                            <widget class="QSpinBox" name="sbImageMargin">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
                              </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>94</width>
-                               <height>20</height>
-                              </size>
+                             <property name="suffix">
+                              <string>px</string>
                              </property>
-                            </spacer>
+                            </widget>
                            </item>
-                           <item row="5" column="0" colspan="4">
+                           <item row="4" column="7">
+                            <widget class="QLabel" name="label_15">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Gap</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="0" colspan="5">
                             <widget class="QCheckBox" name="chkDistortThumbnails">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4377,8 +4360,29 @@ is required.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="3">
-                            <widget class="QSpinBox" name="sbThumbnailHeight">
+                           <item row="4" column="0">
+                            <widget class="QLabel" name="label_7">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Thumbnail</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="4">
+                            <widget class="QSpinBox" name="sbImageHeight">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -4406,27 +4410,12 @@ is required.</string>
                               <number>10</number>
                              </property>
                              <property name="value">
-                              <number>400</number>
+                              <number>1280</number>
                              </property>
                             </widget>
                            </item>
-                           <item row="0" column="3">
-                            <widget class="QLabel" name="label_3">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Height</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="0" colspan="2">
-                            <widget class="QCheckBox" name="chkDoNotEnlarge">
+                           <item row="1" column="1" colspan="2">
+                            <widget class="QSpinBox" name="sbImageWidth">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -4441,15 +4430,73 @@ is required.</string>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="text">
-                              <string>Do not enlarge images</string>
+                             <property name="suffix">
+                              <string>px</string>
                              </property>
-                             <property name="checked">
+                             <property name="minimum">
+                              <number>50</number>
+                             </property>
+                             <property name="maximum">
+                              <number>8192</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>1920</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="3">
+                            <widget class="QToolButton" name="btnLink">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Links/unlinks image width and height,
+so when one changes the other changes too.
+</string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="icon">
+                              <iconset resource="falcong.qrc">
+                               <normaloff>:/icons/Resources/broken-link.png</normaloff>
+                               <normalon>:/icons/Resources/link.png</normalon>:/icons/Resources/broken-link.png</iconset>
+                             </property>
+                             <property name="iconSize">
+                              <size>
+                               <width>24</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="checkable">
                               <bool>true</bool>
                              </property>
                             </widget>
                            </item>
-                           <item row="3" column="1" colspan="4">
+                           <item row="3" column="0" colspan="2">
+                            <widget class="QLabel" name="label_73">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Image Quality:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="2" colspan="5">
                             <widget class="QComboBox" name="cbImageQuality">
                              <property name="font">
                               <font>
@@ -4519,10 +4566,43 @@ is required.</string>
                              </item>
                             </widget>
                            </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label">
+                           <item row="4" column="3">
+                            <widget class="QLabel" name="label_59">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>x</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="4">
+                            <widget class="QLabel" name="label_3">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Height</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="6" column="0" colspan="5">
+                            <widget class="QCheckBox" name="chkCropThumbnails">
                              <property name="sizePolicy">
-                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
                                <verstretch>0</verstretch>
                               </sizepolicy>
@@ -4535,13 +4615,16 @@ is required.</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
                              <property name="text">
-                              <string>Image</string>
+                              <string>Crop thumbnails to this size</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="1">
-                            <widget class="QSpinBox" name="sbImageWidth">
+                           <item row="4" column="4">
+                            <widget class="QSpinBox" name="sbThumbnailHeight">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -4569,11 +4652,35 @@ is required.</string>
                               <number>10</number>
                              </property>
                              <property name="value">
-                              <number>1920</number>
+                              <number>400</number>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="1">
+                           <item row="2" column="0" colspan="4">
+                            <widget class="QCheckBox" name="chkDoNotEnlarge">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Do not enlarge images</string>
+                             </property>
+                             <property name="checked">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="1" colspan="2">
                             <widget class="QSpinBox" name="sbThumbnailWidth">
                              <property name="enabled">
                               <bool>false</bool>
@@ -4609,10 +4716,10 @@ is required.</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="3">
-                            <widget class="QSpinBox" name="sbImageHeight">
+                           <item row="1" column="0">
+                            <widget class="QLabel" name="label">
                              <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                                <horstretch>0</horstretch>
                                <verstretch>0</verstretch>
                               </sizepolicy>
@@ -4625,56 +4732,23 @@ is required.</string>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="minimum">
-                              <number>50</number>
-                             </property>
-                             <property name="maximum">
-                              <number>8192</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>1280</number>
+                             <property name="text">
+                              <string>Image</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="2">
-                            <widget class="QToolButton" name="btnLink">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
+                           <item row="4" column="5">
+                            <spacer name="horizontalSpacer_18">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
                              </property>
-                             <property name="toolTip">
-                              <string>Links/unlinks image width and height,
-so when one changes the other changes too.
-</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                             <property name="icon">
-                              <iconset resource="falcong.qrc">
-                               <normaloff>:/icons/Resources/broken-link.png</normaloff>
-                               <normalon>:/icons/Resources/link.png</normalon>:/icons/Resources/broken-link.png</iconset>
-                             </property>
-                             <property name="iconSize">
+                             <property name="sizeHint" stdset="0">
                               <size>
-                               <width>24</width>
-                               <height>24</height>
+                               <width>76</width>
+                               <height>20</height>
                               </size>
                              </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
+                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -4683,8 +4757,8 @@ so when one changes the other changes too.
                          <widget class="QGroupBox" name="gbImageDecoration">
                           <property name="minimumSize">
                            <size>
-                            <width>270</width>
-                            <height>180</height>
+                            <width>0</width>
+                            <height>70</height>
                            </size>
                           </property>
                           <property name="font">
@@ -4696,11 +4770,11 @@ so when one changes the other changes too.
                            </font>
                           </property>
                           <property name="title">
-                           <string>Image Border</string>
+                           <string>Image Frame</string>
                           </property>
-                          <layout class="QGridLayout" name="gridLayout_12">
-                           <item row="2" column="3">
-                            <widget class="QLabel" name="label_75">
+                          <layout class="QHBoxLayout" name="horizontalLayout_15">
+                           <item>
+                            <widget class="QLabel" name="label_74">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -4710,11 +4784,11 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="text">
-                              <string>Radius:</string>
+                              <string>Frame style</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="0" column="1" colspan="3">
+                           <item>
                             <widget class="QComboBox" name="cbImageBorderStyle">
                              <property name="font">
                               <font>
@@ -4726,7 +4800,7 @@ so when one changes the other changes too.
                              </property>
                              <item>
                               <property name="text">
-                               <string>no border</string>
+                               <string>no frame</string>
                               </property>
                              </item>
                              <item>
@@ -4771,26 +4845,22 @@ so when one changes the other changes too.
                              </item>
                             </widget>
                            </item>
-                           <item row="2" column="6">
-                            <widget class="QToolButton" name="btnImageBorderColor">
+                           <item>
+                            <widget class="QLabel" name="label_14">
                              <property name="font">
                               <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>8</pointsize>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
                                <weight>50</weight>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton { background-color:#ffff00;}
-                         </string>
-                             </property>
                              <property name="text">
-                              <string/>
+                              <string>Width:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="1">
+                           <item>
                             <widget class="QSpinBox" name="sbImageBorderWidth">
                              <property name="minimumSize">
                               <size>
@@ -4814,8 +4884,8 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="5">
-                            <widget class="QLabel" name="label_59">
+                           <item>
+                            <widget class="QLabel" name="label_75">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -4825,11 +4895,81 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="text">
-                              <string>Color: </string>
+                              <string>Radius:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="1">
+                           <item>
+                            <widget class="QSpinBox" name="sbImageBorderRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QToolButton" name="btnImageBorderColor">
+                             <property name="font">
+                              <font>
+                               <family>MS Shell Dlg 2</family>
+                               <pointsize>8</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton { background-color:#ffff00;}
+                         </string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QGroupBox" name="gbImageDecoration_2">
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>70</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>&quot;Matte&quot; is the area around an image in the frame</string>
+                          </property>
+                          <property name="title">
+                           <string>Image Matte</string>
+                          </property>
+                          <layout class="QHBoxLayout" name="horizontalLayout_17">
+                           <item>
+                            <widget class="QLabel" name="label_25">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Width:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
                             <widget class="QSpinBox" name="sbImageMatteWidth">
                              <property name="minimumSize">
                               <size>
@@ -4856,68 +4996,14 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="0">
-                            <widget class="QLabel" name="label_14">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="4">
-                            <widget class="QSpinBox" name="sbImageBorderRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0">
-                            <widget class="QLabel" name="label_25">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Matte  Widtrh:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QLabel" name="label_74">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Style</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="3">
+                           <item>
                             <widget class="QLabel" name="label_76">
+                             <property name="minimumSize">
+                              <size>
+                               <width>38</width>
+                               <height>0</height>
+                              </size>
+                             </property>
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -4927,11 +5013,11 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="text">
-                              <string>Matte Color:</string>
+                              <string>Color:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="4">
+                           <item>
                             <widget class="QToolButton" name="btnImageMatteColor">
                              <property name="font">
                               <font>
@@ -4950,6 +5036,52 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
+                           <item>
+                            <widget class="QLabel" name="label_96">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Radius:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="sbImageMatteRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <spacer name="horizontalSpacer_11">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>120</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
                           </layout>
                          </widget>
                         </item>
@@ -4958,7 +5090,7 @@ so when one changes the other changes too.
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>0</height>
+                            <height>70</height>
                            </size>
                           </property>
                           <property name="font">
@@ -4969,26 +5101,14 @@ so when one changes the other changes too.
                             <bold>true</bold>
                            </font>
                           </property>
+                          <property name="toolTip">
+                           <string>&quot;Matte&quot; is the area around an image in the frame</string>
+                          </property>
                           <property name="title">
                            <string>Album Matte</string>
                           </property>
-                          <layout class="QGridLayout" name="gridLayout_25">
-                           <item row="1" column="2">
-                            <widget class="QLabel" name="label_93">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Border radius</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="0">
+                          <layout class="QHBoxLayout" name="horizontalLayout_21">
+                           <item>
                             <widget class="QLabel" name="label_95">
                              <property name="font">
                               <font>
@@ -5003,22 +5123,7 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="3">
-                            <widget class="QSpinBox" name="sbAlbumMatteRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1">
+                           <item>
                             <widget class="QSpinBox" name="sbAlbumMatteWidth">
                              <property name="minimumSize">
                               <size>
@@ -5045,7 +5150,7 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="4">
+                           <item>
                             <widget class="QLabel" name="label_94">
                              <property name="font">
                               <font>
@@ -5056,11 +5161,11 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="text">
-                              <string>Color: </string>
+                              <string>Color:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="5">
+                           <item>
                             <widget class="QToolButton" name="btnAlbumMatteColor">
                              <property name="font">
                               <font>
@@ -5078,6 +5183,52 @@ so when one changes the other changes too.
                               <string/>
                              </property>
                             </widget>
+                           </item>
+                           <item>
+                            <widget class="QLabel" name="label_93">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Radius:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="sbAlbumMatteRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <spacer name="horizontalSpacer_14">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>120</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -5856,11 +6007,11 @@ so when one changes the other changes too.
                     <item>
                      <widget class="QPushButton" name="btnReload">
                       <property name="toolTip">
-                       <string>reload the WEB page shown in the editor
-Use if you changed the CSS or HTML file.</string>
+                       <string>Reset the WEB page to the state of
+the last CSS save.</string>
                       </property>
                       <property name="text">
-                       <string>Reload Page</string>
+                       <string>Reset Page</string>
                       </property>
                      </widget>
                     </item>
@@ -6395,12 +6546,56 @@ Use if you changed the CSS or HTML file.</string>
        <attribute name="title">
         <string>&amp;Options</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,5">
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,0,5">
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Program Options</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_22">
+           <item>
+            <spacer name="horizontalSpacer_16">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>936</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnResetDialogs">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Press this button to clear your saved choices in dialoges.</string>
+             </property>
+             <property name="text">
+              <string>Reset dialogs</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -6411,7 +6606,7 @@ Use if you changed the CSS or HTML file.</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>40</height>
+               <height>60</height>
               </size>
              </property>
              <property name="font">
@@ -6424,10 +6619,21 @@ Use if you changed the CSS or HTML file.</string>
              <property name="title">
               <string>Interface Language</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_17">
-              <property name="spacing">
-               <number>9</number>
-              </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QRadioButton" name="rbMagyar">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Hungarian</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QRadioButton" name="rbEnglish">
                 <property name="minimumSize">
@@ -6452,18 +6658,17 @@ Use if you changed the CSS or HTML file.</string>
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="rbMagyar">
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
+               <spacer name="horizontalSpacer_17">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="text">
-                 <string>Hungarian</string>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
                 </property>
-               </widget>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -6681,7 +6886,7 @@ Use if you changed the CSS or HTML file.</string>
                        </font>
                       </property>
                       <property name="text">
-                       <string>Move Up</string>
+                       <string>Move Up      </string>
                       </property>
                       <property name="icon">
                        <iconset resource="falcong.qrc">
@@ -6969,10 +7174,6 @@ Use if you changed the CSS or HTML file.</string>
   <tabstop>sbGradMiddlePos</tabstop>
   <tabstop>btnGradStopColor</tabstop>
   <tabstop>sbGradStopPos</tabstop>
-  <tabstop>chkUseBorder</tabstop>
-  <tabstop>btnBorderColor</tabstop>
-  <tabstop>cbBorder</tabstop>
-  <tabstop>sbBorderWidth</tabstop>
   <tabstop>cbBorderStyle</tabstop>
   <tabstop>sbBorderRadius</tabstop>
   <tabstop>btnDisplayHint</tabstop>
