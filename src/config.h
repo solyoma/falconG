@@ -1068,11 +1068,12 @@ public:
 	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
 	_CInt albumMatte = { 0, "albumMatte" };					  // width
 	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
-	_CInt albumBorderRadius = { 0, "abrdRad" };
+	_CInt albumMatteRadius = { 0, "abMRad" };
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 
-	_CBool bAskBeforeClosing = { false, "bAskBeforeClosing" };
+	_CBool bAskBeforeClosing = { true, "bAskBeforeClosing" };
+	_CBool bDsiplayResultAfterSavingCss = { true, "bAskBeforeClosing" };
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
 

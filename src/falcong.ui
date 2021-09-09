@@ -5086,30 +5086,22 @@ so when one changes the other changes too.
                          </widget>
                         </item>
                         <item>
-                         <widget class="QGroupBox" name="gbAlbumDecoration">
+                         <widget class="QGroupBox" name="gbImageDecoration_3">
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
                             <height>70</height>
                            </size>
                           </property>
-                          <property name="font">
-                           <font>
-                            <family>Arial</family>
-                            <pointsize>10</pointsize>
-                            <weight>75</weight>
-                            <bold>true</bold>
-                           </font>
-                          </property>
                           <property name="toolTip">
                            <string>&quot;Matte&quot; is the area around an image in the frame</string>
                           </property>
                           <property name="title">
-                           <string>Album Matte</string>
+                           <string>Image Matte</string>
                           </property>
-                          <layout class="QHBoxLayout" name="horizontalLayout_21">
+                          <layout class="QHBoxLayout" name="horizontalLayout_24">
                            <item>
-                            <widget class="QLabel" name="label_95">
+                            <widget class="QLabel" name="label_77">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5151,7 +5143,13 @@ so when one changes the other changes too.
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_94">
+                            <widget class="QLabel" name="label_78">
+                             <property name="minimumSize">
+                              <size>
+                               <width>38</width>
+                               <height>0</height>
+                              </size>
+                             </property>
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5176,7 +5174,7 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="styleSheet">
-                              <string notr="true">QToolButton { background-color:#ccc;}
+                              <string notr="true">QToolButton { background-color:#ddd;}
                          </string>
                              </property>
                              <property name="text">
@@ -5185,7 +5183,7 @@ so when one changes the other changes too.
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_93">
+                            <widget class="QLabel" name="label_97">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5218,7 +5216,7 @@ so when one changes the other changes too.
                             </widget>
                            </item>
                            <item>
-                            <spacer name="horizontalSpacer_14">
+                            <spacer name="horizontalSpacer_19">
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
                              </property>
@@ -6546,56 +6544,12 @@ the last CSS save.</string>
        <attribute name="title">
         <string>&amp;Options</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,0,5">
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,5">
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Program Options</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_22">
-           <item>
-            <spacer name="horizontalSpacer_16">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>936</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnResetDialogs">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>23</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Press this button to clear your saved choices in dialoges.</string>
-             </property>
-             <property name="text">
-              <string>Reset dialogs</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>
@@ -6617,9 +6571,23 @@ the last CSS save.</string>
               </font>
              </property>
              <property name="title">
-              <string>Interface Language</string>
+              <string>Program Options</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_79">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Interface Language</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QRadioButton" name="rbMagyar">
                 <property name="font">
@@ -6669,6 +6637,29 @@ the last CSS save.</string>
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnResetDialogs">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>23</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Press this button to clear your saved choices in dialoges.</string>
+                </property>
+                <property name="text">
+                 <string>Reset dialogs</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>

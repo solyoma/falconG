@@ -12,174 +12,175 @@
 <context>
     <name>FalconG</name>
     <message>
-        <location filename="falcong.cpp" line="429"/>
+        <location filename="falcong.cpp" line="455"/>
         <source>Cancel (F9}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="453"/>
+        <location filename="falcong.cpp" line="479"/>
         <source>Generate (F9}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="1821"/>
+        <location filename="falcong.cpp" line="2006"/>
         <source>Styles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="1864"/>
-        <location filename="falcong.cpp" line="2563"/>
-        <location filename="falcong.cpp" line="2733"/>
-        <location filename="falcong.cpp" line="2759"/>
-        <location filename="falcong.cpp" line="2779"/>
-        <location filename="falcong.cpp" line="2810"/>
-        <location filename="falcong.cpp" line="2869"/>
-        <location filename="falcong.cpp" line="2891"/>
-        <location filename="falcong.cpp" line="2913"/>
-        <location filename="falcong.cpp" line="2935"/>
-        <location filename="falcong.cpp" line="2952"/>
-        <location filename="falcong.cpp" line="2968"/>
-        <location filename="falcong.cpp" line="2993"/>
+        <location filename="falcong.cpp" line="2049"/>
+        <location filename="falcong.cpp" line="2732"/>
+        <location filename="falcong.cpp" line="2903"/>
+        <location filename="falcong.cpp" line="2929"/>
+        <location filename="falcong.cpp" line="2949"/>
+        <location filename="falcong.cpp" line="2980"/>
+        <location filename="falcong.cpp" line="3039"/>
+        <location filename="falcong.cpp" line="3061"/>
+        <location filename="falcong.cpp" line="3083"/>
+        <location filename="falcong.cpp" line="3105"/>
+        <location filename="falcong.cpp" line="3122"/>
+        <location filename="falcong.cpp" line="3138"/>
+        <location filename="falcong.cpp" line="3163"/>
         <source>Select Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2830"/>
+        <location filename="falcong.cpp" line="3000"/>
         <source>falconG - Open Background Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2830"/>
+        <location filename="falcong.cpp" line="3000"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2847"/>
+        <location filename="falcong.cpp" line="3017"/>
         <source>falconG - Open background image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3282"/>
+        <location filename="falcong.cpp" line="3452"/>
         <source>Background color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3294"/>
+        <location filename="falcong.cpp" line="3464"/>
         <source>Foreground (Text) color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3302"/>
+        <location filename="falcong.cpp" line="3472"/>
         <source>Border color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3310"/>
+        <location filename="falcong.cpp" line="3480"/>
         <source>Focused Input color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3318"/>
+        <location filename="falcong.cpp" line="3488"/>
         <source>Hover color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3326"/>
+        <location filename="falcong.cpp" line="3496"/>
         <source>Tab Border color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3334"/>
+        <location filename="falcong.cpp" line="3504"/>
         <source>Input Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3342"/>
+        <location filename="falcong.cpp" line="3512"/>
         <source>Selected Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3350"/>
+        <location filename="falcong.cpp" line="3520"/>
         <source>Focused Border color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3358"/>
+        <location filename="falcong.cpp" line="3528"/>
         <source>Disabled Foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3366"/>
+        <location filename="falcong.cpp" line="3536"/>
         <source>Disabled Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3374"/>
+        <location filename="falcong.cpp" line="3544"/>
         <source>Image Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3382"/>
+        <location filename="falcong.cpp" line="3552"/>
         <source>Button Pressed Bg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3390"/>
+        <location filename="falcong.cpp" line="3560"/>
         <source>Default Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3398"/>
+        <location filename="falcong.cpp" line="3568"/>
         <source>Progressbar Chunk color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3406"/>
+        <location filename="falcong.cpp" line="3576"/>
         <source>Warning color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3414"/>
+        <location filename="falcong.cpp" line="3584"/>
         <source>Groupbox Title Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3422"/>
+        <location filename="falcong.cpp" line="3592"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3612"/>
+        <location filename="falcong.cpp" line="3782"/>
         <source>falconG - Color scheme changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3612"/>
+        <location filename="falcong.cpp" line="3782"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3723"/>
-        <location filename="falcong.cpp" line="3808"/>
-        <location filename="falcong.cpp" line="3949"/>
-        <location filename="falcong.cpp" line="3990"/>
+        <location filename="falcong.cpp" line="3893"/>
+        <location filename="falcong.cpp" line="3978"/>
+        <location filename="falcong.cpp" line="4104"/>
+        <location filename="falcong.cpp" line="4125"/>
+        <location filename="falcong.cpp" line="4166"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3723"/>
+        <location filename="falcong.cpp" line="3893"/>
         <source>Please restart the program to change the language!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3730"/>
-        <location filename="falcong.cpp" line="3737"/>
+        <location filename="falcong.cpp" line="3900"/>
+        <location filename="falcong.cpp" line="3907"/>
         <source>falconG - Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3738"/>
+        <location filename="falcong.cpp" line="3908"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <oldsource>No &apos;:&apos; in new name. The same name will be used for
@@ -187,7 +188,7 @@ all program languages. Is this what you want?</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3728"/>
+        <location filename="falcong.cpp" line="3898"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -198,84 +199,90 @@ matches the modified title.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3808"/>
-        <location filename="falcong.cpp" line="3990"/>
+        <location filename="falcong.cpp" line="3978"/>
+        <location filename="falcong.cpp" line="4166"/>
         <source>Invalid new name. Please use another!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3950"/>
+        <location filename="falcong.cpp" line="4104"/>
+        <source>This will reset all dialogs.
+Do you want to proceed?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.cpp" line="4126"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3975"/>
+        <location filename="falcong.cpp" line="4151"/>
         <source>New Scheme Name
  (for </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3976"/>
+        <location filename="falcong.cpp" line="4152"/>
         <source>falconG - Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4002"/>
+        <location filename="falcong.cpp" line="4178"/>
         <source>Select background color.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4800"/>
+        <location filename="falcong.cpp" line="4989"/>
         <source>Watermark sample text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4819"/>
+        <location filename="falcong.cpp" line="5008"/>
         <source>Select Watermark Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4844"/>
+        <location filename="falcong.cpp" line="5033"/>
         <source>Select Watermark Shadow Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4892"/>
+        <location filename="falcong.cpp" line="5081"/>
         <source>Phase 1: reading albums and images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4893"/>
+        <location filename="falcong.cpp" line="5082"/>
         <source>albums / images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4904"/>
+        <location filename="falcong.cpp" line="5093"/>
         <source>Phase 2: processing images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4905"/>
+        <location filename="falcong.cpp" line="5094"/>
         <source>images / total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4909"/>
+        <location filename="falcong.cpp" line="5098"/>
         <source>Phase 3: Creating albums</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4910"/>
+        <location filename="falcong.cpp" line="5099"/>
         <source>albums / total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4974"/>
+        <location filename="falcong.cpp" line="5163"/>
         <source>falconG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4974"/>
+        <location filename="falcong.cpp" line="5163"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -313,7 +320,7 @@ Exiting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2687"/>
+        <location filename="falcong.cpp" line="2857"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -321,20 +328,20 @@ Exiting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3781"/>
+        <location filename="falcong.cpp" line="3951"/>
         <location filename="languages.cpp" line="192"/>
         <location filename="support.cpp" line="26"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3782"/>
+        <location filename="falcong.cpp" line="3952"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4775"/>
+        <location filename="falcong.cpp" line="4958"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation type="unfinished"></translation>
@@ -637,8 +644,8 @@ When the language texts are put into the struct file, there must be as many
         <location filename="falcong.ui" line="177"/>
         <location filename="falcong.ui" line="208"/>
         <location filename="falcong.ui" line="2088"/>
-        <location filename="falcong.ui" line="6125"/>
-        <location filename="falcong.ui" line="6185"/>
+        <location filename="falcong.ui" line="6200"/>
+        <location filename="falcong.ui" line="6260"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -910,9 +917,8 @@ When the language texts are put into the struct file, there must be as many
     </message>
     <message>
         <location filename="falcong.ui" line="947"/>
-        <location filename="falcong.ui" line="2967"/>
-        <location filename="falcong.ui" line="3775"/>
-        <location filename="falcong.ui" line="4007"/>
+        <location filename="falcong.ui" line="2246"/>
+        <location filename="falcong.ui" line="3198"/>
         <source>Use</source>
         <translation type="unfinished"></translation>
     </message>
@@ -974,28 +980,28 @@ Iinside gallery root if no absolute or relative path is given.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2387"/>
+        <location filename="falcong.ui" line="2618"/>
         <source>Overline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2990"/>
+        <location filename="falcong.ui" line="3221"/>
         <source>Shadow color. Same for both</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3156"/>
-        <location filename="falcong.ui" line="3174"/>
+        <location filename="falcong.ui" line="3898"/>
+        <location filename="falcong.ui" line="3916"/>
         <source>Turn opacity on or off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3295"/>
+        <location filename="falcong.ui" line="3306"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4327"/>
+        <location filename="falcong.ui" line="4619"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1342,19 +1348,19 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     </message>
     <message>
         <location filename="falcong.ui" line="2007"/>
-        <location filename="falcong.ui" line="5458"/>
+        <location filename="falcong.ui" line="5533"/>
         <source>Position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="falcong.ui" line="2013"/>
-        <location filename="falcong.ui" line="2269"/>
+        <location filename="falcong.ui" line="2500"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="falcong.ui" line="2020"/>
-        <location filename="falcong.ui" line="2302"/>
+        <location filename="falcong.ui" line="2533"/>
         <source>Center</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1404,601 +1410,590 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2221"/>
+        <location filename="falcong.ui" line="2452"/>
         <source>Text Style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2254"/>
+        <location filename="falcong.ui" line="2485"/>
         <source>Alignment:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2287"/>
-        <location filename="falcong.ui" line="4095"/>
-        <location filename="falcong.ui" line="5584"/>
+        <location filename="falcong.ui" line="2518"/>
+        <location filename="falcong.ui" line="4158"/>
+        <location filename="falcong.ui" line="5659"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2320"/>
-        <location filename="falcong.ui" line="4085"/>
-        <location filename="falcong.ui" line="5594"/>
+        <location filename="falcong.ui" line="2551"/>
+        <location filename="falcong.ui" line="4188"/>
+        <location filename="falcong.ui" line="5669"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2357"/>
+        <location filename="falcong.ui" line="2588"/>
         <source>Decoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2372"/>
+        <location filename="falcong.ui" line="2603"/>
         <source>Underline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2402"/>
+        <location filename="falcong.ui" line="2633"/>
         <source>Line-through</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2442"/>
+        <location filename="falcong.ui" line="2673"/>
         <source>wavy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2460"/>
-        <location filename="falcong.ui" line="4156"/>
-        <location filename="falcong.ui" line="4761"/>
+        <location filename="falcong.ui" line="2691"/>
+        <location filename="falcong.ui" line="4028"/>
+        <location filename="falcong.ui" line="4823"/>
         <source>double</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2478"/>
-        <location filename="falcong.ui" line="4141"/>
-        <location filename="falcong.ui" line="4746"/>
+        <location filename="falcong.ui" line="2709"/>
+        <location filename="falcong.ui" line="4013"/>
+        <location filename="falcong.ui" line="4808"/>
         <source>solid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2499"/>
-        <location filename="falcong.ui" line="4146"/>
-        <location filename="falcong.ui" line="4751"/>
+        <location filename="falcong.ui" line="2730"/>
+        <location filename="falcong.ui" line="4018"/>
+        <location filename="falcong.ui" line="4813"/>
         <source>dotted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2517"/>
-        <location filename="falcong.ui" line="4151"/>
-        <location filename="falcong.ui" line="4756"/>
+        <location filename="falcong.ui" line="2748"/>
+        <location filename="falcong.ui" line="4023"/>
+        <location filename="falcong.ui" line="4818"/>
         <source>dashed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2542"/>
+        <location filename="falcong.ui" line="2773"/>
         <source>Shadow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2559"/>
+        <location filename="falcong.ui" line="2790"/>
         <source>#1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2575"/>
-        <location filename="falcong.ui" line="2767"/>
+        <location filename="falcong.ui" line="2806"/>
+        <location filename="falcong.ui" line="2998"/>
         <source>H:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2600"/>
-        <location filename="falcong.ui" line="2792"/>
+        <location filename="falcong.ui" line="2831"/>
+        <location filename="falcong.ui" line="3023"/>
         <source>Horizontal displacement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2603"/>
-        <location filename="falcong.ui" line="2647"/>
-        <location filename="falcong.ui" line="2691"/>
-        <location filename="falcong.ui" line="2735"/>
-        <location filename="falcong.ui" line="2795"/>
-        <location filename="falcong.ui" line="2845"/>
-        <location filename="falcong.ui" line="2895"/>
-        <location filename="falcong.ui" line="2939"/>
-        <location filename="falcong.ui" line="3566"/>
-        <location filename="falcong.ui" line="3992"/>
-        <location filename="falcong.ui" line="4207"/>
-        <location filename="falcong.ui" line="4409"/>
-        <location filename="falcong.ui" line="4572"/>
-        <location filename="falcong.ui" line="4608"/>
-        <location filename="falcong.ui" line="4641"/>
-        <location filename="falcong.ui" line="4818"/>
-        <location filename="falcong.ui" line="4851"/>
-        <location filename="falcong.ui" line="4921"/>
-        <location filename="falcong.ui" line="4997"/>
-        <location filename="falcong.ui" line="5069"/>
-        <location filename="falcong.ui" line="5139"/>
-        <location filename="falcong.ui" line="5516"/>
-        <location filename="falcong.ui" line="5652"/>
-        <location filename="falcong.ui" line="5733"/>
-        <location filename="falcong.ui" line="5775"/>
-        <location filename="falcong.ui" line="5817"/>
+        <location filename="falcong.ui" line="2834"/>
+        <location filename="falcong.ui" line="2878"/>
+        <location filename="falcong.ui" line="2922"/>
+        <location filename="falcong.ui" line="2966"/>
+        <location filename="falcong.ui" line="3026"/>
+        <location filename="falcong.ui" line="3076"/>
+        <location filename="falcong.ui" line="3126"/>
+        <location filename="falcong.ui" line="3170"/>
+        <location filename="falcong.ui" line="3577"/>
+        <location filename="falcong.ui" line="4103"/>
+        <location filename="falcong.ui" line="4143"/>
+        <location filename="falcong.ui" line="4314"/>
+        <location filename="falcong.ui" line="4401"/>
+        <location filename="falcong.ui" line="4434"/>
+        <location filename="falcong.ui" line="4643"/>
+        <location filename="falcong.ui" line="4703"/>
+        <location filename="falcong.ui" line="4880"/>
+        <location filename="falcong.ui" line="4916"/>
+        <location filename="falcong.ui" line="4989"/>
+        <location filename="falcong.ui" line="5068"/>
+        <location filename="falcong.ui" line="5135"/>
+        <location filename="falcong.ui" line="5214"/>
+        <location filename="falcong.ui" line="5591"/>
+        <location filename="falcong.ui" line="5727"/>
+        <location filename="falcong.ui" line="5808"/>
+        <location filename="falcong.ui" line="5850"/>
+        <location filename="falcong.ui" line="5892"/>
         <source>px</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2619"/>
-        <location filename="falcong.ui" line="2817"/>
+        <location filename="falcong.ui" line="2850"/>
+        <location filename="falcong.ui" line="3048"/>
         <source>&amp;V:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2644"/>
-        <location filename="falcong.ui" line="2842"/>
+        <location filename="falcong.ui" line="2875"/>
+        <location filename="falcong.ui" line="3073"/>
         <source>Vertical displacement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2663"/>
-        <location filename="falcong.ui" line="2867"/>
+        <location filename="falcong.ui" line="2894"/>
+        <location filename="falcong.ui" line="3098"/>
         <source>B:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2688"/>
-        <location filename="falcong.ui" line="2892"/>
+        <location filename="falcong.ui" line="2919"/>
+        <location filename="falcong.ui" line="3123"/>
         <source>Blur in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2707"/>
-        <location filename="falcong.ui" line="2911"/>
+        <location filename="falcong.ui" line="2938"/>
+        <location filename="falcong.ui" line="3142"/>
         <source>S:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2732"/>
-        <location filename="falcong.ui" line="2936"/>
+        <location filename="falcong.ui" line="2963"/>
+        <location filename="falcong.ui" line="3167"/>
         <source>Spread in pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2751"/>
+        <location filename="falcong.ui" line="2982"/>
         <source>#2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2948"/>
+        <location filename="falcong.ui" line="3179"/>
         <source>Box Shadow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="2974"/>
-        <location filename="falcong.ui" line="5664"/>
+        <location filename="falcong.ui" line="3205"/>
+        <location filename="falcong.ui" line="5739"/>
         <source>Text Shadow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3072"/>
-        <location filename="falcong.ui" line="5309"/>
+        <location filename="falcong.ui" line="3814"/>
+        <location filename="falcong.ui" line="5384"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3087"/>
+        <location filename="falcong.ui" line="3829"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3105"/>
-        <location filename="falcong.ui" line="3211"/>
-        <location filename="falcong.ui" line="3860"/>
-        <location filename="falcong.ui" line="3900"/>
-        <location filename="falcong.ui" line="3946"/>
-        <location filename="falcong.ui" line="5291"/>
+        <location filename="falcong.ui" line="2331"/>
+        <location filename="falcong.ui" line="2371"/>
+        <location filename="falcong.ui" line="2417"/>
+        <location filename="falcong.ui" line="3847"/>
+        <location filename="falcong.ui" line="3953"/>
+        <location filename="falcong.ui" line="5366"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3159"/>
-        <location filename="falcong.ui" line="3177"/>
+        <location filename="falcong.ui" line="3901"/>
+        <location filename="falcong.ui" line="3919"/>
         <source>use opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3247"/>
-        <location filename="falcong.ui" line="5392"/>
+        <location filename="falcong.ui" line="3258"/>
+        <location filename="falcong.ui" line="5467"/>
         <source>Font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3261"/>
+        <location filename="falcong.ui" line="3272"/>
         <source>Family</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3285"/>
+        <location filename="falcong.ui" line="3296"/>
         <source>Example: &quot;Tms Rmn&quot;,Arial</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3298"/>
+        <location filename="falcong.ui" line="3309"/>
         <source>Select specified font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3313"/>
+        <location filename="falcong.ui" line="3324"/>
         <source>Si&amp;ze:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3347"/>
-        <location filename="falcong.ui" line="3460"/>
-        <location filename="falcong.ui" line="3628"/>
+        <location filename="falcong.ui" line="3358"/>
+        <location filename="falcong.ui" line="3471"/>
+        <location filename="falcong.ui" line="3639"/>
         <source>8pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3352"/>
-        <location filename="falcong.ui" line="3465"/>
-        <location filename="falcong.ui" line="3633"/>
+        <location filename="falcong.ui" line="3363"/>
+        <location filename="falcong.ui" line="3476"/>
+        <location filename="falcong.ui" line="3644"/>
         <source>9pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3357"/>
-        <location filename="falcong.ui" line="3470"/>
-        <location filename="falcong.ui" line="3638"/>
+        <location filename="falcong.ui" line="3368"/>
+        <location filename="falcong.ui" line="3481"/>
+        <location filename="falcong.ui" line="3649"/>
         <source>10pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3362"/>
-        <location filename="falcong.ui" line="3475"/>
-        <location filename="falcong.ui" line="3643"/>
+        <location filename="falcong.ui" line="3373"/>
+        <location filename="falcong.ui" line="3486"/>
+        <location filename="falcong.ui" line="3654"/>
         <source>11pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3367"/>
-        <location filename="falcong.ui" line="3480"/>
-        <location filename="falcong.ui" line="3648"/>
+        <location filename="falcong.ui" line="3378"/>
+        <location filename="falcong.ui" line="3491"/>
+        <location filename="falcong.ui" line="3659"/>
         <source>12pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3372"/>
-        <location filename="falcong.ui" line="3485"/>
-        <location filename="falcong.ui" line="3653"/>
+        <location filename="falcong.ui" line="3383"/>
+        <location filename="falcong.ui" line="3496"/>
+        <location filename="falcong.ui" line="3664"/>
         <source>14pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3377"/>
-        <location filename="falcong.ui" line="3490"/>
-        <location filename="falcong.ui" line="3658"/>
+        <location filename="falcong.ui" line="3388"/>
+        <location filename="falcong.ui" line="3501"/>
+        <location filename="falcong.ui" line="3669"/>
         <source>16pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3382"/>
-        <location filename="falcong.ui" line="3495"/>
-        <location filename="falcong.ui" line="3663"/>
+        <location filename="falcong.ui" line="3393"/>
+        <location filename="falcong.ui" line="3506"/>
+        <location filename="falcong.ui" line="3674"/>
         <source>18pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3387"/>
-        <location filename="falcong.ui" line="3500"/>
-        <location filename="falcong.ui" line="3668"/>
+        <location filename="falcong.ui" line="3398"/>
+        <location filename="falcong.ui" line="3511"/>
+        <location filename="falcong.ui" line="3679"/>
         <source>20pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3392"/>
-        <location filename="falcong.ui" line="3505"/>
-        <location filename="falcong.ui" line="3673"/>
+        <location filename="falcong.ui" line="3403"/>
+        <location filename="falcong.ui" line="3516"/>
+        <location filename="falcong.ui" line="3684"/>
         <source>22pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3397"/>
-        <location filename="falcong.ui" line="3510"/>
-        <location filename="falcong.ui" line="3678"/>
+        <location filename="falcong.ui" line="3408"/>
+        <location filename="falcong.ui" line="3521"/>
+        <location filename="falcong.ui" line="3689"/>
         <source>24pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3402"/>
-        <location filename="falcong.ui" line="3515"/>
-        <location filename="falcong.ui" line="3683"/>
+        <location filename="falcong.ui" line="3413"/>
+        <location filename="falcong.ui" line="3526"/>
+        <location filename="falcong.ui" line="3694"/>
         <source>26pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3407"/>
-        <location filename="falcong.ui" line="3520"/>
-        <location filename="falcong.ui" line="3688"/>
+        <location filename="falcong.ui" line="3418"/>
+        <location filename="falcong.ui" line="3531"/>
+        <location filename="falcong.ui" line="3699"/>
         <source>28pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3412"/>
-        <location filename="falcong.ui" line="3525"/>
-        <location filename="falcong.ui" line="3693"/>
+        <location filename="falcong.ui" line="3423"/>
+        <location filename="falcong.ui" line="3536"/>
+        <location filename="falcong.ui" line="3704"/>
         <source>36pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3417"/>
-        <location filename="falcong.ui" line="3530"/>
-        <location filename="falcong.ui" line="3698"/>
+        <location filename="falcong.ui" line="3428"/>
+        <location filename="falcong.ui" line="3541"/>
+        <location filename="falcong.ui" line="3709"/>
         <source>48pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3422"/>
-        <location filename="falcong.ui" line="3535"/>
-        <location filename="falcong.ui" line="3703"/>
+        <location filename="falcong.ui" line="3433"/>
+        <location filename="falcong.ui" line="3546"/>
+        <location filename="falcong.ui" line="3714"/>
         <source>72pt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3438"/>
+        <location filename="falcong.ui" line="3449"/>
         <source>Line height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3551"/>
+        <location filename="falcong.ui" line="3562"/>
         <source>Space below</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3597"/>
+        <location filename="falcong.ui" line="3608"/>
         <source>&amp;Different 1st line:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3719"/>
+        <location filename="falcong.ui" line="3730"/>
         <source>Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3734"/>
+        <location filename="falcong.ui" line="3745"/>
         <source>Italic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3761"/>
+        <location filename="falcong.ui" line="2232"/>
         <source>Gradient</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3785"/>
-        <location filename="falcong.ui" line="5276"/>
-        <location filename="falcong.ui" line="5832"/>
+        <location filename="falcong.ui" line="2256"/>
+        <location filename="falcong.ui" line="5351"/>
+        <location filename="falcong.ui" line="5907"/>
         <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="3792"/>
+        <location filename="falcong.ui" line="2263"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="falcong.ui" line="3978"/>
-        <location filename="falcong.ui" line="4725"/>
         <source>Border</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4025"/>
-        <location filename="falcong.ui" line="4948"/>
+        <location filename="falcong.ui" line="5016"/>
+        <location filename="falcong.ui" line="5162"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4040"/>
+        <location filename="falcong.ui" line="3992"/>
         <source>Style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4055"/>
+        <location filename="falcong.ui" line="4128"/>
         <source>Border radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4070"/>
-        <source>All borders: the same width &amp; style applied to all
-Others: set value and style separately for all 4.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="4075"/>
-        <source>All borders</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="4080"/>
-        <location filename="falcong.ui" line="5544"/>
+        <location filename="falcong.ui" line="4203"/>
+        <location filename="falcong.ui" line="5619"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4090"/>
-        <location filename="falcong.ui" line="5554"/>
+        <location filename="falcong.ui" line="4173"/>
+        <location filename="falcong.ui" line="5629"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4120"/>
+        <location filename="falcong.ui" line="4073"/>
         <source>B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4161"/>
-        <location filename="falcong.ui" line="4766"/>
+        <location filename="falcong.ui" line="4033"/>
+        <location filename="falcong.ui" line="4828"/>
         <source>groove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4166"/>
-        <location filename="falcong.ui" line="4771"/>
+        <location filename="falcong.ui" line="4038"/>
+        <location filename="falcong.ui" line="4833"/>
         <source>ridge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4171"/>
-        <location filename="falcong.ui" line="4776"/>
+        <location filename="falcong.ui" line="4043"/>
+        <location filename="falcong.ui" line="4838"/>
         <source>inset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4176"/>
-        <location filename="falcong.ui" line="4781"/>
+        <location filename="falcong.ui" line="4048"/>
+        <location filename="falcong.ui" line="4843"/>
         <source>outset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4136"/>
+        <location filename="falcong.ui" line="4008"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4192"/>
-        <location filename="falcong.ui" line="4797"/>
-        <location filename="falcong.ui" line="4900"/>
-        <location filename="falcong.ui" line="5048"/>
+        <location filename="falcong.ui" line="4088"/>
+        <location filename="falcong.ui" line="4859"/>
+        <location filename="falcong.ui" line="4968"/>
+        <location filename="falcong.ui" line="5114"/>
         <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4236"/>
-        <location filename="falcong.ui" line="6171"/>
+        <location filename="falcong.ui" line="4237"/>
+        <location filename="falcong.ui" line="6246"/>
         <source>Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4345"/>
+        <location filename="falcong.ui" line="4299"/>
         <source>Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5486"/>
-        <location filename="falcong.ui" line="5637"/>
+        <location filename="falcong.ui" line="5561"/>
+        <location filename="falcong.ui" line="5712"/>
         <source>Relative to the nearest edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5998"/>
+        <location filename="falcong.ui" line="6073"/>
         <source>qrc:/Preview/Resources/index_en.html</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6835"/>
+        <location filename="falcong.ui" line="6957"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today&apos;s date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4551"/>
+        <location filename="falcong.ui" line="4736"/>
         <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4475"/>
+        <location filename="falcong.ui" line="4510"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the quality of the images on the server.&lt;/p&gt;&lt;p&gt;The smaller the number the smaller the file size but &lt;/p&gt;&lt;p&gt;the more artifact will be present in the result.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;A huge space reduction is achieved, with a small&lt;/p&gt;&lt;p&gt;quality loss with a quality of 80%.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4479"/>
+        <location filename="falcong.ui" line="4514"/>
         <source>Same as original</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4484"/>
+        <location filename="falcong.ui" line="4519"/>
         <source>100% - best</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4489"/>
+        <location filename="falcong.ui" line="4524"/>
         <source>90%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4494"/>
+        <location filename="falcong.ui" line="4529"/>
         <source>80% - high</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4499"/>
+        <location filename="falcong.ui" line="4534"/>
         <source>70%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4504"/>
+        <location filename="falcong.ui" line="4539"/>
         <source>60%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4509"/>
+        <location filename="falcong.ui" line="4544"/>
         <source>50% - medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4514"/>
+        <location filename="falcong.ui" line="4549"/>
         <source>40%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4519"/>
+        <location filename="falcong.ui" line="4554"/>
         <source>30% - low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4524"/>
+        <location filename="falcong.ui" line="4559"/>
         <source>20%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4529"/>
+        <location filename="falcong.ui" line="4564"/>
         <source>10% - abysmal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4436"/>
+        <location filename="falcong.ui" line="4598"/>
         <source>Height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4285"/>
+        <location filename="falcong.ui" line="4495"/>
         <source>Image Quality:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4330"/>
+        <location filename="falcong.ui" line="4622"/>
         <source>Crop thumbnails to this size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4457"/>
+        <location filename="falcong.ui" line="4676"/>
         <source>Do not enlarge images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4306"/>
+        <location filename="falcong.ui" line="4380"/>
         <source>Thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4668"/>
+        <location filename="falcong.ui" line="4461"/>
         <source>Links/unlinks image width and height,
 so when one changes the other changes too.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4379"/>
+        <location filename="falcong.ui" line="4350"/>
         <source>Wide thumbnails will be squeezed into the 
 width given here. This distorsion is created
 by the browser, so it may not be what you want.
@@ -2009,335 +2004,364 @@ is required.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4388"/>
+        <location filename="falcong.ui" line="4359"/>
         <source>Modify aspect ratio for thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4711"/>
-        <source>Image Border</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="5090"/>
-        <source>Color: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="5184"/>
+        <location filename="falcong.ui" line="5259"/>
         <source>Watermark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5233"/>
+        <location filename="falcong.ui" line="5308"/>
         <source>Opacity   </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5261"/>
-        <location filename="falcong.ui" line="5678"/>
+        <location filename="falcong.ui" line="5336"/>
+        <location filename="falcong.ui" line="5753"/>
         <source>use</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5364"/>
+        <location filename="falcong.ui" line="5439"/>
         <source>Watermark text sample</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5404"/>
+        <location filename="falcong.ui" line="5479"/>
         <source>A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5428"/>
+        <location filename="falcong.ui" line="5503"/>
         <source>----------------------------------------------------------------------------------------------</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5501"/>
+        <location filename="falcong.ui" line="5576"/>
         <source>Vertical margin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5537"/>
-        <location filename="falcong.ui" line="5549"/>
+        <location filename="falcong.ui" line="5612"/>
+        <location filename="falcong.ui" line="5624"/>
         <source>Center vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5589"/>
+        <location filename="falcong.ui" line="5664"/>
         <source>Center horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5610"/>
+        <location filename="falcong.ui" line="5685"/>
         <source>Horizontal margin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5790"/>
+        <location filename="falcong.ui" line="5865"/>
         <source>Blur:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5706"/>
+        <location filename="falcong.ui" line="5781"/>
         <source>Horizontal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4836"/>
-        <location filename="falcong.ui" line="4982"/>
-        <location filename="falcong.ui" line="5124"/>
+        <location filename="falcong.ui" line="4898"/>
+        <location filename="falcong.ui" line="5050"/>
+        <location filename="falcong.ui" line="5196"/>
         <source>Radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4741"/>
-        <source>no border</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="4192"/>
-        <location filename="falcong.ui" line="4797"/>
-        <location filename="falcong.ui" line="4900"/>
-        <location filename="falcong.ui" line="5048"/>
-        <source>Width:</source>
-        <oldsource>Matte  Widtrh:</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="5034"/>
-        <source>Album Matte</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="5748"/>
+        <location filename="falcong.ui" line="5823"/>
         <source>Vertical:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5886"/>
+        <location filename="falcong.ui" line="5961"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The watermark on the sample image is just an indication &lt;br/&gt;how they would look like on the page.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5913"/>
+        <location filename="falcong.ui" line="5988"/>
         <source>?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5933"/>
-        <source>Reset the WEB page to the state of
-the last CSS save..</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="5937"/>
+        <location filename="falcong.ui" line="6012"/>
         <source>Reset Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5944"/>
-        <location filename="falcong.ui" line="6740"/>
+        <location filename="falcong.ui" line="6019"/>
+        <location filename="falcong.ui" line="6862"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="5976"/>
+        <location filename="falcong.ui" line="6051"/>
         <source>Sample</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6020"/>
+        <location filename="falcong.ui" line="6095"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6115"/>
+        <location filename="falcong.ui" line="6190"/>
         <source>Albums</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6253"/>
+        <location filename="falcong.ui" line="6328"/>
         <source>Title (Language #1)</source>
         <oldsource>Tiltle (Language #1)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6299"/>
+        <location filename="falcong.ui" line="6374"/>
         <source>Title (Language #2)</source>
         <oldsource>Tiltle (Language #2)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6322"/>
-        <location filename="falcong.ui" line="6439"/>
+        <location filename="falcong.ui" line="6397"/>
+        <location filename="falcong.ui" line="6514"/>
         <source>Save changed title and description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6325"/>
-        <location filename="falcong.ui" line="6442"/>
+        <location filename="falcong.ui" line="6400"/>
+        <location filename="falcong.ui" line="6517"/>
         <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6332"/>
-        <location filename="falcong.ui" line="6449"/>
+        <location filename="falcong.ui" line="6407"/>
+        <location filename="falcong.ui" line="6524"/>
         <source>Everywhere</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6374"/>
+        <location filename="falcong.ui" line="6449"/>
         <source>Description (Language #1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6416"/>
+        <location filename="falcong.ui" line="6491"/>
         <source>Description (Language #2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6470"/>
+        <location filename="falcong.ui" line="6545"/>
         <source>&amp;Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6476"/>
+        <location filename="falcong.ui" line="6551"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6499"/>
+        <location filename="falcong.ui" line="6587"/>
         <source>Interface Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6521"/>
+        <location filename="falcong.ui" line="6621"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6538"/>
+        <location filename="falcong.ui" line="6601"/>
         <source>Hungarian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6556"/>
+        <location filename="falcong.ui" line="6678"/>
         <source>Color Scheme Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6643"/>
+        <location filename="falcong.ui" line="6765"/>
         <source>Color Scheme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6679"/>
+        <location filename="falcong.ui" line="6801"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6704"/>
+        <location filename="falcong.ui" line="6826"/>
         <source>Add </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6758"/>
-        <source>Move Up</source>
-        <oldsource>Move Scheme Up</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="falcong.ui" line="6780"/>
+        <location filename="falcong.ui" line="6902"/>
         <source>Move Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6722"/>
+        <location filename="falcong.ui" line="6844"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="4886"/>
+        <location filename="falcong.ui" line="4218"/>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4329"/>
+        <source>Gap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4580"/>
+        <source>x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4773"/>
+        <source>Image Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4787"/>
+        <source>Frame style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4803"/>
+        <source>no frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4913"/>
+        <location filename="falcong.ui" line="5065"/>
+        <location filename="falcong.ui" line="5211"/>
+        <source>Corner radius for a rounded rectangle. 0 means not rounded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4951"/>
+        <location filename="falcong.ui" line="5097"/>
+        <source>&quot;Matte&quot; is the area around an image in the frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="4954"/>
+        <location filename="falcong.ui" line="5100"/>
         <source>Image Matte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6825"/>
+        <location filename="falcong.ui" line="6008"/>
+        <source>Reset the WEB page to the state of
+the last CSS save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6574"/>
+        <source>Program Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6657"/>
+        <source>Press this button to clear your saved choices in dialoges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6660"/>
+        <source>Reset dialogs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6880"/>
+        <source>Move Up      </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="falcong.ui" line="6947"/>
         <source>Generate (F9)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6828"/>
+        <location filename="falcong.ui" line="6950"/>
         <source>F9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6838"/>
+        <location filename="falcong.ui" line="6960"/>
         <source>&amp;all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6845"/>
+        <location filename="falcong.ui" line="6967"/>
         <source>except i&amp;mages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6855"/>
+        <location filename="falcong.ui" line="6977"/>
         <source>Preview (F12)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6858"/>
+        <location filename="falcong.ui" line="6980"/>
         <source>F12</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6881"/>
+        <location filename="falcong.ui" line="7003"/>
         <source>Save CSS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6891"/>
+        <location filename="falcong.ui" line="7013"/>
         <source>Save con&amp;fig.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6894"/>
+        <location filename="falcong.ui" line="7016"/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6901"/>
+        <location filename="falcong.ui" line="7023"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6904"/>
+        <location filename="falcong.ui" line="7026"/>
         <source>Clean up and</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6911"/>
+        <location filename="falcong.ui" line="7033"/>
         <source>E&amp;xit (Alt+X)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6914"/>
-        <location filename="falcong.ui" line="6933"/>
+        <location filename="falcong.ui" line="7036"/>
+        <location filename="falcong.ui" line="7055"/>
         <source>Alt+X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6925"/>
+        <location filename="falcong.ui" line="7047"/>
         <source>&amp;Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="falcong.ui" line="6930"/>
+        <location filename="falcong.ui" line="7052"/>
         <source>E&amp;xit</source>
         <translation type="unfinished"></translation>
     </message>

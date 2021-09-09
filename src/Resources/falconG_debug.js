@@ -8,6 +8,22 @@ window.addEventListener("resize", ResizeThumbs);
 function DebugProperties(className, obj)
 {
     let style= getComputedStyle(obj)
+ //   console.log(className + " => " + style.cssText)
+}
+
+// DEBUG function for remaining style print
+function asstring(o) { 
+	let str = '';
+	sa=JSON.stringify(o).split(',');
+	for(l=0; l < sa.length; ++l)
+	{ 
+		a = sa[l].split(':');
+		if(a[1] !='""' && a[1] !='"initial"' && a[1] != '"none"' && a[1] != '""}')
+			str += sa[l] + "\n";
+	}
+	if(str==='')
+		return "  no styles remained set";
+	return "  remaining styles:\n" + str;
 }
 
 
@@ -26,10 +42,23 @@ function SetPropertyForSelector(selector, propertyName, propValue)
                 x.style.removeProperty(propertyName)
             else
 				x.style.setProperty(propertyName, propValue);
+            // DEBUG
+//            console.log(selector + '#'+ id + '.' + propertyName + ':' + propValue); // + ", old.: '" + r + "'")
+			
+			// for log and error:
+			id = '(id='+id+')';
+    // DEBUG
+//			console.log('OPERATION: ' + selector + id + '.' + propertyName + ":" + propValue);
         }
 		else
 		{
 			x = document.getElementsByClassName(selector)
+// DEBUG
+// if( i = selector.indexOf('.') >= 0)
+// {
+	// let y = selector.substring(i);
+	// console.log('---------> selector='+ y + ', length:'+x.length+', typeof x[0]= ' + typeof(x[0]));
+// }	
 			if(x.length != 0) 
 			{	
 				if (propValue == '' && propertyName in x[0].style) 
@@ -58,9 +87,24 @@ function SetPropertyForSelector(selector, propertyName, propValue)
 					else
 						r = "No '" + propertyName + "' in class '" + selector + "'"
 				}
+    // DEBUG
+/*				if(propValue == '')
+				{
+					console.log("REMOVED: "+ selector + '->' + propertyName + ' [' + x.length + ' element(s)],Result: ('+r+')');
+					console.log(asstring(x[0].style));
+
+				}
+				else
+					console.log('OPERATION: ' + selector + '->' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)], Result: ('+r+')');
 			}
+*/			
+    // /DEBUG
         }
 
+//        DebugProperties(selector, x[0]);
+    // DEBUG
+    //document.getElementById("DEBUG").innerHTML = selector + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
+    // /DEBUG
     }
     catch (err) {
         console.log('*** EXCEPTION at #' + i + " " + selector + id + '.' + propertyName + ':' + propValue + " err.: '" + err + "'")
@@ -116,6 +160,7 @@ function PageWidthHeight() {
 // when link uses onbeforeunload
 
 function BeforeUnload() {
+    //    console.log( "From page '"+ window.location.href + "' (width, height):" + PageWidthHeight().width + ", " + PageWidthHeight().height + " pos=" +(document.documentElement.scrollTop || document.body.scrollTop));
 
     sessionStorage.setItem(window.location.href, document.documentElement.scrollTop || document.body.scrollTop);
 }
@@ -141,6 +186,8 @@ function falconGLoad(latest) {
     else
         showDesc ^= 1;  // invert stored
 
+//console.log("latest: "+latest)
+
 	if(latest === 1)
 		SetRandomLastImage()	// in 'latest.js'
     // console.log("showDesc=" + showDesc)    
@@ -156,6 +203,7 @@ function falconGLoad(latest) {
                 else {
                     preloadImage(entry.target);
                     imgObserver.unobserve(entry.target);
+                    //document.getElementById("counter").innerHTML=(cnt+1) + " ("+images.length + ")";
                 }
             })
         }, imgOptions);

@@ -372,8 +372,9 @@ private slots:
 
 	void on_sbImageHeight_valueChanged(int h);			// image height
 	void on_sbImageMargin_valueChanged(int h);			// image margin
-	void on_sbImageWidth_valueChanged(int w);				// image width
-	void on_sbImageMatteRadius_valueChanged(int w);				// image width
+	void on_sbImageBorderRadius_valueChanged(int h);	// border radius on both matte's outside border
+	void on_sbImageWidth_valueChanged(int w);			// image width
+	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
 	void on_sbAlbumMatteRadius_valueChanged(int val);
 	void on_sbAlbumMatteWidth_valueChanged(int val);
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height

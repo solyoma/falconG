@@ -304,16 +304,18 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 	PROGRAM_CONFIG::Write();
 
-	if (config.Changed() && config.bAskBeforeClosing.v)
-	{
-		int res;
+	if (config.Changed())
+	{				  
+		if (config.bAskBeforeClosing.v)
+		{
+			int res;
 			QMessageBox closeQuestion(this);
 			closeQuestion.setText("falconG");
 			closeQuestion.setInformativeText("Do you really want to exit?");
 			closeQuestion.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 			closeQuestion.setDefaultButton(QMessageBox::Yes);
 
-			QCheckBox *checkBox = new QCheckBox("Don't ask again (use Options to re-enable)");
+			QCheckBox* checkBox = new QCheckBox("Don't ask again (use Options to re-enable)");
 			closeQuestion.setCheckBox(checkBox);
 
 			res = closeQuestion.exec();
@@ -323,7 +325,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 				return;
 			}
 			config.bAskBeforeClosing = closeQuestion.checkBox()->isChecked();
-			config.Write();
+		}
+		config.Write();
 	}
 	else
 		PROGRAM_CONFIG::Write();	// save data in program directory
@@ -783,8 +786,8 @@ void FalconG::_ConfigToSample()
 	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
 	ui.btnImageBorderColor->setStyleSheet(qs);
 	qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("thumb", qs);
-	_RunJavaScript("thumb1", qs);
+	_RunJavaScript("imatte", qs);
+	_RunJavaScript("amatte", qs);
 
 	--_busy;
 }
@@ -823,17 +826,17 @@ void FalconG::_DesignToUi()
 	//ui.btnGradStartColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[0].color));
 	//ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[2].color));
 
-	//// images
-	//ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAll));
-	//ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
-	//ui.sbImageBorderRadius->setValue(config.imageBorder.Radius());
-	//ui.sbImageMatteWidth->setValue(config.imageMatte);
-	//ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
+	// images
+	ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAll));
+	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
+	ui.sbImageBorderRadius->setValue(config.imageBorder.Radius());
+	ui.sbImageMatteWidth->setValue(config.imageMatte);
+	ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
 
-	//ui.sbAlbumMatteRadius->setValue(config.albumBorderRadius);
-	//ui.sbAlbumMatteWidth->setValue(config.albumMatte);
+	ui.sbAlbumMatteRadius->setValue(config.albumMatteRadius);
+	ui.sbAlbumMatteWidth->setValue(config.albumMatte);
 
-	//ui.sbSpaceAfter->setValue(0);
+	ui.sbSpaceAfter->setValue(0);
 
 				// WaterMark
 	handler.Set(ui.btnWmColor->styleSheet());
@@ -1370,7 +1373,7 @@ void FalconG::_UpdateWatermarkMargins(int mx, int my)
 		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
 
 		_RunJavaScript("thumb::after", wm.PositionToStyle(config.imageWidth, config.imageHeight, ratio, (WaterMark::POS)wm.Origin()));	// 2 images
-		_RunJavaScript("thumb1::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
+		_RunJavaScript("athumb::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
 	}
 	_SetConfigChanged(true);
 }
@@ -1498,22 +1501,53 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 // ????	_ChangesToSample(dp);
 }
 
+/*=============================================================
+ * TASK:	changes the border radius on the image and album matte!
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	border is set on mattem not in image
+ *------------------------------------------------------------*/
+void FalconG::on_sbImageBorderRadius_valueChanged(int r)
+{
+	if (_busy)
+		return;
+	config.imageBorder.SetRadius(r);
+	_SetConfigChanged(true);
+	_RunJavaScript("imatte", QString("border-radius:%1px").arg(r));
+	_RunJavaScript("amatte", QString("border-radius:%1px").arg(r));
+}
+
+/*=============================================================
+ * TASK:	changes radius of image border inside matte
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
 void FalconG::on_sbImageMatteRadius_valueChanged(int w)
 {
 	if (_busy)
 		return;
 	config.imageMatteRadius = w;
 	_SetConfigChanged(true);
-	_RunJavaScript("imatte", QString("border-radius:%1").arg(w) );
+	_RunJavaScript("thumb", QString("border-radius:%1px").arg(w) );
 }
 
+/*=============================================================
+ * TASK:	changes radius of image border inside matte
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
 void FalconG::on_sbAlbumMatteRadius_valueChanged(int w)
 {
 	if (_busy)
 		return;
-	config.imageMatteRadius = w;
+	config.albumMatteRadius = w;
 	_SetConfigChanged(true);
-	_RunJavaScript("amatte", QString("border-radius:%1").arg(w) );
+	_RunJavaScript("athumb", QString("border-radius:%1px").arg(w) );
 }
 
 /*============================================================================
@@ -2550,7 +2584,8 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 
 	config.imageBorder.SetWidth(sdAll, val);
 	QString qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("thumb", qs);
+	_RunJavaScript("imatte", qs);
+	_RunJavaScript("amatte", qs);
 	_SetConfigChanged(true);
 }
 
@@ -2568,6 +2603,7 @@ void FalconG::on_sbImageMatteWidth_valueChanged(int val)
 		return;
 
 	config.imageMatte = val;
+	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.v);
 	if (!val)
 		_RunJavaScript("imatte",QString("padding:"));
 	else	
@@ -2581,6 +2617,7 @@ void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
 	if (_busy)
 		return;
 	config.albumMatte = val;
+	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.v);
 	if(!val)
 		_RunJavaScript("amatte", QString("padding:"));
 	else
@@ -3089,7 +3126,7 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
 		config.imageMatteColor = qcNew.name();
-		on_sbImageMatteWidth_valueChanged(ui.sbImageMatteWidth->value());
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.v);
 	}
 }
 
@@ -3105,7 +3142,7 @@ void FalconG::on_btnAlbumMatteColor_clicked()
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
 		config.albumMatteColor = qcNew.name();
-		on_sbAlbumMatteWidth_valueChanged(ui.sbAlbumMatteWidth->value());
+		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.v);
 	}
 }
 
@@ -4064,7 +4101,7 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 
 void FalconG::on_btnResetDialogs_clicked()
 {
-	if (QMessageBox::question(this, "falconG - Warning", "This will reset all dialogs. Do you want to proceed") == QMessageBox::Yes)
+	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
 		config.bAskBeforeClosing = false;
 }
 
@@ -4207,7 +4244,7 @@ void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
 		config.imageBorder.SetUsed(sdAll, newIndex);
 		config.imageBorder.SetStyleIndex(sdAll, newIndex);
 		_SetConfigChanged(true);
-		_RunJavaScript("thumb", config.imageBorder.ForStyleSheetShort(true));
+		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(false));
 	}
 }
 
@@ -4912,14 +4949,22 @@ void FalconG::on_btnSaveStyleSheet_clicked()
 	cssCreator.Create(PROGRAM_CONFIG::samplePath + "css/falconG.css", true);	// program library
 	config.SaveDesign();
 
-	if (albumgen.SaveStyleSheets() == 0)
+	_SetConfigChanged(true);
+	if (albumgen.SaveStyleSheets() != 0 || config.bDsiplayResultAfterSavingCss.v)
 	{
+		QMessageBox info(this);
 		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
-		QMessageBox(QMessageBox::Information,
-					QString("falconG"),
-					QString(QMainWindow::tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)),
-					QMessageBox::Ok,
-					this).exec();
+		info.setText("falconG");
+		info.setIcon(QMessageBox::Information);
+		info.setInformativeText(QString(QMainWindow::tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)));
+		info.setStandardButtons(QMessageBox::Ok);
+
+		QCheckBox* checkBox = new QCheckBox("Don't show again (use Options to re-enable)");
+		info.setCheckBox(checkBox);
+
+		info.exec();
+
+		config.bDsiplayResultAfterSavingCss = info.checkBox()->isChecked();
 	}
 }
 
@@ -5237,6 +5282,8 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 {
 	if (!_isWebPageLoaded)		// only try to run after page looaded
 		return;
+
+	styles = styles.trimmed();
 
 	static QStringList __qslRunThese;
 	__qslRunThese = __qslRunThese + styles.split('\n');

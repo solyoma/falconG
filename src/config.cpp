@@ -842,7 +842,7 @@ QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 	{
 		if (_sizeWidths > 1)
 			return ForStyleSheet(semicolonAtLineEnds);
-		res = QString("border:%1px %2 %3").arg(_widths[0]).arg(Style(sdAll)).arg(_colorNames[0]);
+		res = QString("border:%1px %2 %3").arg(_widths[0]).arg(StyleStr(sdAll)).arg(_colorNames[0]);
 	}
 	__AddSemi(res, semicolonAtLineEnds);
 	return res;
@@ -945,10 +945,10 @@ void _CBorder::_Prepare()
 													.arg(_colorNames[0]).arg(_colorNames[1]); 
 			break;
 		default:	// case 4:
-					v = QString("%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11|%12").arg(_used)
+					v = QString("%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11|%12|%13").arg(_used)
 									.arg(_widths[0]).arg(_widths[1]).arg(_widths[2]).arg(_widths[3])
 									.arg(_styleIndex[0]).arg(_styleIndex[1]).arg(_styleIndex[2]).arg(_styleIndex[3])
-									.arg(_colorNames[0]).arg(_colorNames[2]).arg(_colorNames[2]).arg(_colorNames[3]); 
+									.arg(_colorNames[0]).arg(_colorNames[1]).arg(_colorNames[2]).arg(_colorNames[3]); 
 					break;
 	}
 	if (_radius)
@@ -1365,12 +1365,12 @@ void CONFIG::ClearChanged()
 	imageMatteRadius.ClearChanged();
 	imageMatteColor.ClearChanged();
 	albumMatte.ClearChanged();
-	albumBorderRadius.ClearChanged();
+	albumMatteRadius.ClearChanged();
 	albumMatteColor.ClearChanged();
 
 	waterMark.ClearChanged();
 	bAskBeforeClosing.ClearChanged();
-
+	bDsiplayResultAfterSavingCss.ClearChanged();
 	googleAnalyticsOn.ClearChanged();
 	googleAnalTrackingCode.ClearChanged();
 
@@ -1522,7 +1522,7 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 
 	albumMatte = cfg.albumMatte;
 	albumMatteColor = cfg.albumMatteColor;
-	albumBorderRadius = cfg.albumBorderRadius;
+	albumMatteRadius = cfg.albumMatteRadius;
 }
 /*============================================================================
 * TASK: constructor
@@ -1638,7 +1638,7 @@ void CONFIG::Read()		// synchronize with Write!
 	albumMatte.Read(s);
 	imageMatteRadius.Read(s);
 	albumMatteColor.Read(s);
-	albumBorderRadius.Read(s);
+	albumMatteRadius.Read(s);
 
 	iconToTopOn.Read(s);
 	iconInfoOn.Read(s);
@@ -1684,6 +1684,7 @@ void CONFIG::Read()		// synchronize with Write!
 	waterMark.Read(s);
 	// other
 	bAskBeforeClosing.Read(s);
+	bDsiplayResultAfterSavingCss.Read(s);
 	// Debug
 	bDebugging.Read(s);
 
@@ -1770,7 +1771,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	albumMatte.Write(s);
 	imageMatteRadius.Write(s);
 	albumMatteColor.Write(s);
-	albumBorderRadius.Write(s);
+	albumMatteRadius.Write(s);
 	
 	iconToTopOn.Write(s);
 	iconInfoOn.Write(s);
@@ -1803,6 +1804,7 @@ void CONFIG::_WriteIni(QString sIniName)
 
 	// other
 	bAskBeforeClosing.Write(s);
+	bDsiplayResultAfterSavingCss.Write(s);
 
 	if (__bClearChangedFlag)
 		ClearChanged();

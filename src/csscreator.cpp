@@ -234,8 +234,8 @@ void CssCreator::_CreateForImagesAndAlbums()
 	if (config.albumMatte.v)
 		_ofs << "\tbackground-color:" << config.albumMatteColor.v << ";\n"
 			 << "\tpadding:" << config.albumMatte.v << "px;\n";
-	if (config.albumBorderRadius.v > 0)
-		_ofs << "\tborder-radius:" << config.albumBorderRadius.v << "px;\n";
+	if (config.imageBorder.Radius() > 0)
+		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
 	_ofs << "}\n\n";
 
 	_ofs << ".thumb,.athumb {\n";
@@ -243,26 +243,30 @@ void CssCreator::_CreateForImagesAndAlbums()
 		_ofs <<	"\tcursor:pointer;\n";
 
 	_ofs << "\tmax-width:80vw;\n"
-			"\tdisplay:inline-box;\n"
+			"\tdisplay:box;\n"		// to remove space after the image
 			"\tmax-width:80vw;\n"
 			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"}\n\n";
 	// image border is used for <img class="thumb"> but only if there is no matte around the image
-	if(config.imageBorder.UsedSides() && !config.imageMatte.v)
+	if (config.imageBorder.UsedSides() && !config.imageMatte.v)
+	{
 		_ofs << ".thumb {\n"
-				"\t"
-			 << config.imageBorder.ForStyleSheetShort(true)
-			 << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
+			"\t"
+			<< config.imageBorder.ForStyleSheetShort(true);
+		if (config.imageMatteRadius.v)
+			_ofs << "border-radius:" << config.imageMatteRadius.v << ";\n";
+		_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
+	}
 	// album border is used for <img class="athumb">
 	if (config.albumMatte.v)
+	{
 		_ofs << ".athumb {\n"
-			 << QString("\tpadding:%1px;\tbackground-color:%2\n").arg(config.albumMatte).arg(config.albumMatteColor.Name())
-			 << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
-
-
-
+			<< QString("\tpadding:%1px;\tbackground-color:%2\n").arg(config.albumMatte).arg(config.albumMatteColor.Name());
+		if (config.albumMatteRadius.v)
+			_ofs << "border-radius:" << config.albumMatteRadius.v << ";\n";
+		_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
+	}
 	WaterMark& wm = config.waterMark;
-
 
 	if (_forSamplePage)
 	{	
@@ -392,6 +396,10 @@ void CssCreator::_CreateMediaQueries()
 	{
 		max-width:99vw;
 		flex-direction:column;
+)";
+	if (config.imageMargin > 0)
+		_ofs << "\t\tmargin:0 " << config.imageMargin << "px;\n";
+  _ofs << R"(
 	}
 
 	.desc {
