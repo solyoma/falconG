@@ -1102,20 +1102,14 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 		if (ds[0] == '.' || ds == "res" || ds == "cache" || ds == "thumbs")
 			return 0;
 		id = _albumMap.Add(s, added);	// add new album to global album list
-		id += ALBUM_ID_FLAG;			// signal it was an album that was added
 	}
 	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
 	{
 		if (type == ftImage)
-		{
 			id = _imageMap.Add(s, added);	// add new image to global image list or get id of existing
-			id += IMAGE_ID_FLAG;
-		}
 		else
-		{
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
-			id += VIDEO_ID_FLAG;
-		}
+
 			if ( (id & ID_MASK) && added)
 				ab.items.push_back(id);	// add to ordered item list for this album
 	}
@@ -1511,7 +1505,11 @@ bool AlbumGenerator::_JReadInfo(Album & ab)
 /*=================================================================
  * TASK: read a directory tree of images and order them into an album
  *		  hierarchy
- * EXPECTS:		ab - album (already on global album list '_albumMap')
+ * Reads whole gallery hierarchy starting at 'ab'
+ *			If it is a JAlbum directory with corresponding files
+ *			adds only images and albums set in those files
+ *			otherwise adds each image and sub-folders to it
+ * EXPECTS:		ab - album (must already be on the global album list '_albumMap')
  * GLOBALS: _justChanges
  * REMARKS: - first reads meta.properties and set parameters for this album
  *			- then reads file 'albumfiles.txt' if it exists and adds
@@ -1524,8 +1522,9 @@ bool AlbumGenerator::_JReadInfo(Album & ab)
 void AlbumGenerator::_JReadOneLevel(Album &ab)
 {
 	// TODO justChanges
-	_ReadJAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
-	_ReadJMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
+	_isAJAlbum = false;		// set only if jalbum's file are in this directory
+	_isAJAlbum |= _ReadJAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
+	_isAJAlbum |= _ReadJMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk 
 
@@ -1546,7 +1545,6 @@ void AlbumGenerator::_JReadOneLevel(Album &ab)
 			continue;
 		if (id & ALBUM_ID_FLAG)		// sub album
 		{
-			id -= ALBUM_ID_FLAG;
 			_albumMap[id].parent = ab.ID;	// signals this sub-album is in 'ab' 
 											// Must change when sub-albums moved to other album
 			if (_albumMap[id].exists)
@@ -2079,7 +2077,8 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	if (n != 9 && n != 10 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
 	{
 		if (n != 2)	// it should be at least <config.dsSrc relative full path name> and <file type> (image or video or unknown)
-			throw BadStruct(reader.ReadCount(), QString("Wrong image parameter count:%1").arg(n)); // or just the image name (from the same folder as the previous one)
+			throw BadStruct(reader.ReadCount(), 
+							QMainWindow::tr(StringToUtf8CString(QString("Wrong image parameter count:%1").arg(n)))); // or just the image name (from the same folder as the previous one)
 
 		// expects: original/image/directory/inside/source/name.ext and 'type' set
 		id = _AddImageOrVideoFromPathInStruct(sl[0],type);	 // then structure is changed
@@ -2347,7 +2346,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
 		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
-			throw BadStruct(reader.ReadCount(), QString("'%1' - duplicated album ID").arg(id));
+			throw BadStruct(reader.ReadCount(), QMainWindow::tr(StringToUtf8CString(QString("'%1' - duplicated album ID").arg(id))));
 
 
 		album.ID = id;				// has ALBUM_ID_FLAG set
@@ -2433,19 +2432,19 @@ bool AlbumGenerator::_ReadStruct(QString from)
 	{
 		FileReader reader(from);	// with ReadLine() discard empty lines, and trim lines
 		if (!reader.Ok())
-			throw BadStruct(reader.ReadCount(), "Read error");
+			throw BadStruct(reader.ReadCount(), QMainWindow::tr("Read error"));
 
 		QStringList sl;
 		QString line = reader.NextLine(true);	// version line (comment format)
 
 		if (line.left(versionStr.length()) != versionStr)
-			throw BadStruct(reader.ReadCount(),"Bad version string");
+			throw BadStruct(reader.ReadCount(), QMainWindow::tr("Bad version string"));
 		else
 		{
 			line = line.mid(versionStr.length());
 			int pos = line.indexOf('.');
 			if(pos < 0)
-				throw BadStruct(reader.ReadCount(),"Missing '.' from version");
+				throw BadStruct(reader.ReadCount(), QMainWindow::tr("Missing '.' from version"));
 
 			config.majorStructVersion = line.left(pos).toInt();
 			config.minorStructVersion = line.mid(pos+1).toInt();
@@ -2456,7 +2455,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			// from now on we need the empty lines as well
 			reader.ReadLine();		// discard empty and comment
 			if (reader.l()[0] != '(' || (reader.l()[1] != 'A' && reader.l()[1] != 'C'))
-				throw BadStruct(reader.ReadCount(),"Invalid / empty root album line");
+				throw BadStruct(reader.ReadCount(), QMainWindow::tr("Invalid / empty root album line"));
 					// recursive album read. there is only one top level album
 					// with id == ROOT_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, 0, 0); 
@@ -2471,7 +2470,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 						QMainWindow::tr("Damaged structure file!\n"
 										"Message: '") +  
 						b.msg + 
-						QMainWindow::tr("'\n\n"
+						QMainWindow::tr("\n\n"
 										"Processing aborted, because continuing\n"
 										"could destroy your old .struct file!\n"
 										"%1 lines read so far. ").arg(b.cnt), 
@@ -2483,19 +2482,22 @@ bool AlbumGenerator::_ReadStruct(QString from)
 }
 
 /*==========================================================================
-* TASK:		reads whole Jalbum hierarchy starting at directory 'root'
+* TASK:		Reads whole gallery hierarchy starting at directory 'root'
+*			If it is a JAlbum directory with corresponding files
+*			adds only images and albums set in those files
+*			otherwise adds each image and sub-folders to it
 * EXPECTS: 'root' path name of uppermost source album directory
 * RETURNS: success
 * REMARKS: - prepares _root album and recursively processes all levels
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_ReadJalbum()
 {
-
 	if (!Languages::Read())		// cancelled, no default set
 		return false;
 			// first languages from en.lang, etc
 	emit SignalSetLanguagesToUI();
-			// get number of sub albums
+
+			// get number of sub albums for display only
 	QDirIterator dirIter(config.dsSrc.ToString(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);	// count directories
 	int directoryCount = 0;												// iterator points BEFORE first entry
 	QString s;
@@ -2517,21 +2519,20 @@ bool AlbumGenerator::_ReadJalbum()
 	emit SetDirectoryCountTo(directoryCount);
 	emit SignalToSetProgressParams(0, directoryCount, 0, 0);	// phase 0
 
-	QString root = config.dsSrc.ToString();
 
+	QString root = config.dsSrc.ToString();
 	QDir dir(root);
 
-
 	_root.Clear();
-	_root.ID = 1;							// id = 0: invalid
-	_root.path = config.dsSrc.ToString();
+	_root.ID = 1 | ALBUM_ID_FLAG;							// id = 0: invalid
+	_root.path = root;
 	// root has no name and no path it is inside config.dsSrc
 	_root.exists = true;
 
 	_albumMap[1] = _root;	// a copy of _root is first on list	
 
 	_remDsp.Init(directoryCount);
-	_JReadOneLevel(_albumMap[1] );
+	_JReadOneLevel(_albumMap[1] );	// recursive read of all levels
 	if (!_processing)
 		return false;
 
@@ -2652,7 +2653,7 @@ QString AlbumGenerator::_HtaccessToString()
 
 	QString s = "RewriteEngine On\n";
 	if(config.bForceSSL)
-		QString("# change web access to https by redirecting page with code 301 (moved permanently)\n"
+		s += QString("# change web access to https by redirecting page with code 301 (moved permanently)\n"
 		"RewriteCond %{SERVER_PORT} 80\n"
 		"RewriteRule ^(.*)$ https ://"	+ sS +	"/$1 [R=301,L]\n");
 

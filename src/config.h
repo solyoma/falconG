@@ -1072,8 +1072,7 @@ public:
 				// 	Watermarks
 	_CWaterMark waterMark = {"", "Watermark"};
 
-	_CBool bAskBeforeClosing = { true, "bAskBeforeClosing" };
-	_CBool bDsiplayResultAfterSavingCss = { true, "bAskBeforeClosing" };
+	_CInt  doNotShowTheseDialogs = { 0, "_doNotShowTheseDialogs" };
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
 

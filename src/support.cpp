@@ -32,6 +32,13 @@ void ShowWarning(QString qs, QWidget *parent)
 	}
 }
 
+const char* StringToUtf8CString(QString qs)
+{
+	static QByteArray ba;
+	ba = qs.toUtf8();
+	return ba.data();
+}
+
 
 /*=============================================================
 * TASK:	replaces LF character in string 's'
@@ -988,12 +995,30 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 * EXPECTS: s - name of directory to display in message box
 * RETURNS: true: ok to create, false: cancel create
 * REMARKS: - prepares _root album and recursively processes all levels
+*		   - saves user seelction into static variable
 *--------------------------------------------------------------------------*/
 static bool __CancelCreate(QString s)
 {
-	return  QMessageBox(QMessageBox::Question, QMainWindow::tr("falconG - Question"),
-						QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s),
-						QMessageBox::Yes | QMessageBox::Cancel).exec() == QMessageBox::Cancel;
+	static bool __defaultresult = true;
+	if (config.doNotShowTheseDialogs & dbAskCreateDir)
+		return __defaultresult;
+
+	QMessageBox question;
+	question.setText(QMainWindow::tr("falconG - Question"));
+	question.setIcon(QMessageBox::Question);
+	question.setInformativeText(QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s));
+	question.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+
+	QCheckBox* checkBox = new QCheckBox(QMainWindow::tr("Don't ask again (use Options to re-enable)") );
+	question.setCheckBox(checkBox);
+
+
+	__defaultresult = question.exec() == QMessageBox::Yes;
+
+	if (checkBox && question.checkBox()->isChecked())
+		config.doNotShowTheseDialogs.v |= (int)dbAskCreateDir;
+
+	return __defaultresult;
 }
 
 

@@ -1369,8 +1369,7 @@ void CONFIG::ClearChanged()
 	albumMatteColor.ClearChanged();
 
 	waterMark.ClearChanged();
-	bAskBeforeClosing.ClearChanged();
-	bDsiplayResultAfterSavingCss.ClearChanged();
+	doNotShowTheseDialogs.ClearChanged();
 	googleAnalyticsOn.ClearChanged();
 	googleAnalTrackingCode.ClearChanged();
 
@@ -1683,8 +1682,7 @@ void CONFIG::Read()		// synchronize with Write!
 				// 	Watermarks
 	waterMark.Read(s);
 	// other
-	bAskBeforeClosing.Read(s);
-	bDsiplayResultAfterSavingCss.Read(s);
+	doNotShowTheseDialogs.Read(s);
 	// Debug
 	bDebugging.Read(s);
 
@@ -1803,8 +1801,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	waterMark.Write(s);
 
 	// other
-	bAskBeforeClosing.Write(s);
-	bDsiplayResultAfterSavingCss.Write(s);
+	doNotShowTheseDialogs.Write(s);
 
 	if (__bClearChangedFlag)
 		ClearChanged();

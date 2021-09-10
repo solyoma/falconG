@@ -2,6 +2,7 @@
 
 namespace Enums
 {
+	enum DialogBits : int {dbNone=0, dbAskBeforeClosing=1, dbShowAfterSavingCss = 2, dbSaveEdited=4, dbSaveConfig=8,  dbAskCreateDir=16, dbAll=1|2|4|8|16};
 	enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
 	enum Decoration {	   // _CTextDecoration
 		tdNone = 0, tdUnderline = 1, tdLinethrough = 2, tdOverline = 4,

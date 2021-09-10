@@ -461,6 +461,7 @@ private:
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
 
+	bool _isAJAlbum = false;
 	//------------
 
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }

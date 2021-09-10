@@ -252,6 +252,7 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 }
 //*****************************************																			//---------------------
 void ShowWarning(QString qs, QWidget *parent = nullptr);
+const char* StringToUtf8CString(QString qs);
 
 QString EncodeLF(QString str);
 QString DecodeLF(QString str, int toHtmlOrJs = 0, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n (html) or <br> (Javascript)
