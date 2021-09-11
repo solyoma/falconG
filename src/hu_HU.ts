@@ -1259,7 +1259,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="486"/>
         <source>path to image file</source>
-        <translation></translation>
+        <translation>kép fájl elérési útja</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="723"/>
@@ -1305,7 +1305,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="falcong.ui" line="593"/>
         <source>Allow the download of images</source>
-        <translation></translation>
+        <translation>Képek letöltésének engedélyezése</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="760"/>
@@ -1384,7 +1384,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <location filename="falcong.ui" line="2246"/>
         <location filename="falcong.ui" line="3198"/>
         <source>Use</source>
-        <translation></translation>
+        <translation>Használd</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="1000"/>
@@ -2455,7 +2455,7 @@ A többi: mind a négy más adat.</translation>
     <message>
         <location filename="falcong.ui" line="4580"/>
         <source>x</source>
-        <translation></translation>
+        <translation>x</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="4598"/>
