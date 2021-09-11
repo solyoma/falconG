@@ -2065,7 +2065,7 @@ int FalconG::_QuestionDialog(QString title, QString text, int show, QString chec
 	}
 
 	int res = question.exec();
-	if (question.exec() == QMessageBox::Yes || question.exec() == QMessageBox::Save )
+	if (res == QMessageBox::Yes || res == QMessageBox::Save )
 		config.defaultAnswers[show] = res;
 
 	if (checkBox && question.checkBox()->isChecked())

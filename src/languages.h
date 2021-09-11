@@ -32,8 +32,8 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be '_gb')
 										// default: same as 'countryCode'
 	static LangConstList albums;		// album section in HTML files 'Albumok'
-	static LangConstList countryCode;	// "en_US", "hu_HU", etc
 	static LangConstList countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
+	static LangConstList countryCode;	// "en_US", "hu_HU", etc
 	static LangConstList coupleCaptions;	// 'Képcim+Leírás együtt'
 	static LangConstList falconG;		// "created by "
 	static LangConstList icons;			// icons to use instead of names

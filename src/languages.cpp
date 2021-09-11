@@ -103,44 +103,20 @@ int Languages::_Read(QString name)
 			;
 		else if (sn == "abbrev")
 			names[next] = s;
-		else if (sn == "language")
-			names[next] = s;
-		else if (sn == "name")
-			names[next] = s;
-		else if (sn == "icon")
-			icons[next] = s;
-		else if (sn == "images")
-			images[next] = s;
-		else if (sn == "videos")
-			videos[next] = s;
-		else if (sn == "albums")
-			albums[next] = s;
-		else if (sn == "toalbums")
-			toAlbums[next] = s;
-		else if (sn == "totop")
-			toAlbums[next] = s;
-		else if (sn == "uponelevel")
-			toAlbums[next] = s;
-		else if (sn == "homepage")
-			toHomePage[next] = s;
 		else if (sn == "about")
 			toAboutPage[next] = s;
-		else if (sn == "contact")
-			toContact[next] = s;
-		else if (sn == "descriptions")
-			showDescriptions[next] = s;
+		else if (sn == "albums")
+			albums[next] = s;
 		else if (sn == "cdcaptions")
 			coupleCaptions[next] = s;
-		else if (sn == "share")
-			share[next] = s;
-		else if (sn == "latesttitle")
-			latestTitle[next] = s;
-		else if (sn == "latestdesc")
-			latestDesc[next] = s;
-		else if (sn == "countrycode")
-			countryCode[next] = s;
+		else if (sn == "contact")
+			toContact[next] = s;
 		else if (sn == "countofimages")
 			countOfImages[next] = s;
+		else if (sn == "countrycode")
+			countryCode[next] = s;
+		else if (sn == "descriptions")
+			showDescriptions[next] = s;
 		else if (sn == "falcong")
 		{
 			QString qsolyom = ToUTF8(QString("Sólyom"));
@@ -148,6 +124,30 @@ int Languages::_Read(QString name)
 				s = sFalcongEnglishCopyright;
 			falconG[next] = s;
 		}
+		else if (sn == "homepage")
+			toHomePage[next] = s;
+		else if (sn == "icon")
+			icons[next] = s;
+		else if (sn == "images")
+			images[next] = s;
+		else if (sn == "language")
+			names[next] = s;
+		else if (sn == "latestdesc")
+			latestDesc[next] = s;
+		else if (sn == "latesttitle")
+			latestTitle[next] = s;
+		else if (sn == "name")
+			names[next] = s;
+		else if (sn == "share")
+			share[next] = s;
+		else if (sn == "toalbums")
+			toAlbums[next] = s;
+		else if (sn == "totop")
+			toAlbums[next] = s;
+		else if (sn == "uponelevel")
+			toAlbums[next] = s;
+		else if (sn == "videos")
+			videos[next] = s;
 	}
 	if (abbrev[next].isEmpty())
 		abbrev[next] = countryCode[next];

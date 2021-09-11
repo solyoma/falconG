@@ -819,7 +819,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},
 							{"0|0|0|0|#000000","box-shadow2"} };
 	_CGradient gradient = { "0|0|#A90329|40|#890222|100|#6d0019"};
-	_CBorder border = {"0|2|1|#890222","border"};
+	_CBorder border = {"0|2|0|#890222","border"};
 
 	_CElem* parent = nullptr;
 
@@ -1125,7 +1125,7 @@ public:
 	_CBool iconToTopOn = {false, "iconToTopOn"};
 	_CBool iconInfoOn = {false, "iconInfoOn"};
 	_CInt  imageMargin = { 2, "imageMargin" };			// on img-container
-	_CBorder imageBorder = {"0|2|1|#EAA41E", "imageBorder"};
+	_CBorder imageBorder = {"0|2|0|#EAA41E", "imageBorder"};
 	_CInt imageMatte = { 0, "imageMatte" };					  // width
 	_CInt imageMatteRadius = { 0, "imgMRad" };
 	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
