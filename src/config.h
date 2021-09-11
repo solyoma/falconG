@@ -256,6 +256,69 @@ struct _CInt : _CFG_ITEM<int>
 	}
 };
 
+struct _CIntArray : _CFG_ITEM<int>	// v: how many elements in array
+{
+	_CIntArray(int vd, QString namestr = "cintA") : _CFG_ITEM(vd, namestr) { _Setup();  }
+	_CIntArray() : _CFG_ITEM(0, "cintA") {}
+
+	int &operator[](int i)
+	{
+		if (i < 0) 
+			return _arr[9999];	// may throw!
+		while (i >= _arr.size())
+			_arr.push_back(0), ++v;
+		return _arr[i];
+	}
+
+	QString ToString()
+	{
+		QString qs;
+		if (_arr.size())
+		{
+			qs = QString().setNum(_arr[0]);
+			for (int i = 1; i < _arr.size(); ++i)
+				qs += QString("|%1").arg(_arr[i]);
+		}
+		return qs;
+	}
+	void Set(QString qs)
+	{
+		_arr.clear();
+		QStringList sl = qs.split('|');
+		for (int i = 0; i < sl.size(); ++i)
+			_arr.push_back(sl[i].toInt());
+		v = _arr.size();
+	}
+	void Read(QSettings& s, QString group = QString()) override 
+	{ 
+		if (!group.isEmpty())
+			s.beginGroup(group);
+
+		QString qs = s.value("cintA", QString()).toString();
+		Set(qs);	// may modify 'v'
+		v0 = v;
+
+		if (!group.isEmpty())
+			s.endGroup();
+	}
+	void Write(QSettings& s, QString group = QString()) override
+	{
+		if (!group.isEmpty())
+			s.beginGroup(group);
+		QString qs = ToString();
+		s.setValue("cintA", qs);
+		if (!group.isEmpty())
+			s.endGroup();
+	}
+private:
+	QVector<int> _arr;
+	void _Setup() 
+	{ 
+		if (vd && _arr.size() > vd)
+			_arr.resize(vd);
+	};
+};
+
 //--------------------------------------------------------------------------------------------
 // IMPORTANT:
 //	ForStyleSheet() functions below must return a string which does not end in "\n" !
@@ -1073,6 +1136,8 @@ public:
 	_CWaterMark waterMark = {"", "Watermark"};
 
 	_CInt  doNotShowTheseDialogs = { 0, "_doNotShowTheseDialogs" };
+	_CIntArray defaultAnswers = { 6, "defaultAnswers" };	// for question dialogs 1 integer for each 
+															// modify  number 6 for as many as there are items in enum 'DialogBits'
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};
 

@@ -173,8 +173,9 @@ private:
 	void _ResetScheme();			 //	use _tmpScheme
 	void _EnableColorSchemeButtons();
 
-	void _InformationMessage(bool WarningAndNotInfo, QString title, QString text, DialogBits show= dbAll, QString checkboxtext= QString());
-	int _QuestionDialog(QString title, QString text, DialogBits show = dbAll, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons=QMessageBox::Yes|QMessageBox::No);
+	void _InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show= 0, QString checkboxtext= QString());
+	// QuestionDialog returns a single bit at position 'show', which, when 1 may be QMessageBox::Yes or QMessageBox::Save only!
+	int _QuestionDialog(QString title, QString text, int show = 0, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons=QMessageBox::Yes|QMessageBox::No);
 
 private slots:
 	void LinkClicked(QString s);		// from sample page

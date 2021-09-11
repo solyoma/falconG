@@ -71,23 +71,25 @@ int Languages::_Read(QString name)
 	QString s;
 	int next = names.size();
 	abbrev.push_back(s);
-	language.push_back(s);
 	albums.push_back(s);
-	countryCode.push_back(s);
 	countOfImages.push_back(s);
+	countryCode.push_back(s);
+	coupleCaptions.push_back(s);
 	falconG.push_back(s);
 	icons.push_back(s);
 	images.push_back(s);
-	latestTitle.push_back(s);
+	language.push_back(s);
 	latestDesc.push_back(s);
+	latestTitle.push_back(s);
 	names.push_back(s);
-	coupleCaptions.push_back(s);
-	showDescriptions.push_back(s);
 	share.push_back(s);
+	showDescriptions.push_back(s);
 	toAboutPage.push_back(s);
 	toAlbums.push_back(s);
 	toContact.push_back(s);
 	toHomePage.push_back(s);
+	toTop.push_back(s);			// title of icon to jump to top of page
+	upOneLevel.push_back(s);	// title of icon jump to parent/up one level
 	videos.push_back(s);
 
 	QStringList sl;
@@ -237,26 +239,26 @@ int Languages::Read()
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
 		abbrev.push_back("_en");
-		language.push_back("en");
-		names.push_back("English");
+		albums.push_back("Albums");
+		countOfImages.push_back("%1 image(s) and %2 sub-album(s) in this album");
+		countryCode.push_back("en_US");
+		coupleCaptions.push_back("Title&amp;Desc Coupled");	// captions and descriptions coupled
+		falconG.push_back(sFalcongEnglishCopyright);
 		icons.push_back("");
 		images.push_back("Images");
-		videos.push_back("Videos");
-		albums.push_back("Albums");
+		language.push_back("en");
+		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
+		latestTitle.push_back("Latest uploads");
+		names.push_back("English");
+		share.push_back("Share");
+		showDescriptions.push_back("Descriptions");
+		toAboutPage.push_back("About");
 		toAlbums.push_back("to Albums");
+		toContact.push_back("Contact");
 		toHomePage.push_back("Home");
 		toTop.push_back("Jump to top of page");
 		upOneLevel.push_back("Up one level");
-		toAboutPage.push_back("About");
-		toContact.push_back("Contact");
-		coupleCaptions.push_back("Title&amp;Desc Coupled");	// captions and descriptions coupled
-		showDescriptions.push_back("Descriptions");
-		share.push_back("Share");
-		latestTitle.push_back("Latest uploads");
-		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
-		countryCode.push_back("en_US");
-		countOfImages.push_back("%1 image(s) and %2 sub-album(s) in this album");
-		falconG.push_back(sFalcongEnglishCopyright);
+		videos.push_back("Videos");
 		return 1;
 	}
 
@@ -276,27 +278,27 @@ int Languages::Read()
 *--------------------------------------------------------------------------*/
 void Languages::Clear(int newsize)
 {
-	names.Prepare(newsize);
 	abbrev.Prepare(newsize);
-	language.Prepare(newsize);
+	albums.Prepare(newsize);
+	countOfImages.Prepare(newsize);
+	countryCode.Prepare(newsize);
+	coupleCaptions.Prepare(newsize);
+	falconG.Prepare(newsize);
 	icons.Prepare(newsize);
 	images.Prepare(newsize);
-	videos.Prepare(newsize);
-	albums.Prepare(newsize);
+	language.Prepare(newsize);
+	latestDesc.Prepare(newsize);
+	latestTitle.Prepare(newsize);
+	names.Prepare(newsize);
+	share.Prepare(newsize);
+	showDescriptions.Prepare(newsize);
+	toAboutPage.Prepare(newsize);
 	toAlbums.Prepare(newsize);
+	toContact.Prepare(newsize);
+	toHomePage.Prepare(newsize);
 	toTop.Prepare(newsize);
 	upOneLevel.Prepare(newsize);
-	toHomePage.Prepare(newsize);
-	toAboutPage.Prepare(newsize);
-	toContact.Prepare(newsize);
-	share.Prepare(newsize);
-	coupleCaptions.Prepare(newsize);
-	showDescriptions.Prepare(newsize);
-	latestTitle.Prepare(newsize);
-	latestDesc.Prepare(newsize);
-	countryCode.Prepare(newsize);
-	countOfImages.Prepare(newsize);
-	falconG.Prepare(newsize);
+	videos.Prepare(newsize);
 }
 /*============================================================================
   * TASK:	creates full file name for an HTML file for any language

@@ -946,8 +946,8 @@ ID_t AlbumMap::Add(QString path, bool &added)
 		ab.exists = QFile::exists((config.dsSrc + path).ToString());
 	else
 		ab.exists = QFile::exists(path);
-	if (!ab.exists)	// bit maybe its parent does
-	{
+	if (!ab.exists)	// but maybe its parent does
+	{				// in that case get path from its parent
 		if (!QDir::isAbsolutePath(ab.path))
 			ab.exists = QFile::exists((config.dsSrc + ab.path).ToString());
 		else
@@ -1110,9 +1110,9 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 		else
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
 
-			if ( (id & ID_MASK) && added)
-				ab.items.push_back(id);	// add to ordered item list for this album
 	}
+	if ((id & ID_MASK) && added)
+		ab.items.push_back(id);	// add to ordered item list for this album
 	// progress bar
 	emit SignalProgressPos(_albumMap.size(), _ItemSize() );	  // both changes
 
@@ -1554,8 +1554,8 @@ void AlbumGenerator::_JReadOneLevel(Album &ab)
 		if (!_processing)
 			return;
 	}
-	_ReadJCommentFile(ab);	// descriptions for files and folders in ab
-	_JReadInfo(ab);			// titles for album and images inside
+	_isAJAlbum |= _ReadJCommentFile(ab);	// descriptions for files and folders in ab
+	_isAJAlbum |= _JReadInfo(ab);			// titles for album and images inside
 	(void)ab.ImageCount();	// removes excluded ID s of 'ab.images'
 	(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
 //	ab.excluded.clear();	// do not need it any more
@@ -1588,7 +1588,7 @@ bool AlbumGenerator::Read()
 		Image im;
 		im.exists = true;
 		im.name = "NoImage.jpg";
-		im.ID = 0;
+		im.ID = 0 | IMAGE_ID_FLAG;
 		im.dsize = im.osize = QSize(800, 800);
 		_imageMap[0] = im;
 	}
@@ -1913,7 +1913,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			while (len && s[--len] != ']')	// find last ']'
 				;
 			++len;		// include closing ']' but not the possible ID/collision
-			int clen = TITLE_TAG.length() + Languages::countryCode[lang].size() + 2;	// 1 for '[' + 1 for ':'
+			int clen = TITLE_TAG.length() + Languages::abbrev[lang].size() + 2;	// 1 for '[' + 1 for ':'
 			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
 			if (config.majorStructVersion == 1)
 			{						// none = there is no asterix followed by a number
@@ -2523,20 +2523,21 @@ bool AlbumGenerator::_ReadJalbum()
 	QString root = config.dsSrc.ToString();
 	QDir dir(root);
 
+	ID_t rootId = 1 | ALBUM_ID_FLAG;
 	_root.Clear();
-	_root.ID = 1 | ALBUM_ID_FLAG;							// id = 0: invalid
+	_root.ID = rootId;							// id = 0: invalid
 	_root.path = root;
 	// root has no name and no path it is inside config.dsSrc
 	_root.exists = true;
 
-	_albumMap[1] = _root;	// a copy of _root is first on list	
+	_albumMap[_root.ID] = _root;	// a copy of _root is first on list	
 
 	_remDsp.Init(directoryCount);
-	_JReadOneLevel(_albumMap[1] );	// recursive read of all levels
+	_JReadOneLevel(_albumMap[rootId] );	// recursive read of all levels
 	if (!_processing)
 		return false;
 
-	_root = _albumMap[1];	// get values stored in hierarchy back to _root
+	_root = _albumMap[rootId];	// get values stored in hierarchy back to _root
 	++_structChanged;					// i.e. must write 'gallery.struct'
 	return true;
 }
@@ -3364,7 +3365,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
     //  -------------------------- description
 	if(!desc.isEmpty() )
 		_ofs << "     <div class=\"desc\">\n"
-				"       <p lang=\"" << Languages::countryCode[_actLanguage].left(2) << "\">"
+				"       <p lang=\"" << Languages::language[_actLanguage] << "\">"
 			 << desc << "</p>\n"
 				"     </div>\n";
 	//  -------------------------- end of description
@@ -3714,7 +3715,7 @@ int AlbumGenerator::_DoPages()
 	{
 		bool ask = false;
 		for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
-			CreateDir(Languages::countryCode[lang], ask);
+			CreateDir(Languages::abbrev[lang], ask);
 	}
 
 	for (int lang = 0; _processing && lang < Languages::Count(); ++lang)

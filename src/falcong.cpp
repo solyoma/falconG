@@ -2023,8 +2023,11 @@ void FalconG::_EnableColorSchemeButtons()
 	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size()-2-1);
 }
 
-void FalconG::_InformationMessage(bool WarningAndNotInfo, QString title, QString text, DialogBits show, QString checkboxtext)
+void FalconG::_InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show, QString checkboxtext)
 {
+	if (config.doNotShowTheseDialogs.v & (1 << show))
+		return;
+
 	QMessageBox info(this);
 	info.setText(title);
 	info.setIcon(WarningAndNotInfo ? QMessageBox::Warning : QMessageBox::Information );
@@ -2037,14 +2040,18 @@ void FalconG::_InformationMessage(bool WarningAndNotInfo, QString title, QString
 		info.setCheckBox(checkBox);
 	}
 
-	info.exec();
+	int res = info.exec();
 
 	if (checkBox && info.checkBox()->isChecked())
-		config.doNotShowTheseDialogs.v |= (int)show;
+		config.doNotShowTheseDialogs.v |= (1 << show);
+	config.defaultAnswers[show] = res;
 }
 
-int FalconG::_QuestionDialog(QString title, QString text, DialogBits show, QString checkboxtext, QMessageBox::StandardButtons buttons)
+int FalconG::_QuestionDialog(QString title, QString text, int show, QString checkboxtext, QMessageBox::StandardButtons buttons)
 {
+	if (config.doNotShowTheseDialogs.v & (1 << show) )
+		return config.defaultAnswers[show];
+
 	QMessageBox question(this);
 	question.setText(title);
 	question.setIcon(QMessageBox::Question);
@@ -2058,9 +2065,11 @@ int FalconG::_QuestionDialog(QString title, QString text, DialogBits show, QStri
 	}
 
 	int res = question.exec();
+	if (question.exec() == QMessageBox::Yes || question.exec() == QMessageBox::Save )
+		config.defaultAnswers[show] = res;
 
 	if (checkBox && question.checkBox()->isChecked())
-		config.doNotShowTheseDialogs.v |= (int)show;
+		config.doNotShowTheseDialogs.v |= (1 << show);
 
 	return res;
 }

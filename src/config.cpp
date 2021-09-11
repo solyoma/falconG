@@ -1370,6 +1370,7 @@ void CONFIG::ClearChanged()
 
 	waterMark.ClearChanged();
 	doNotShowTheseDialogs.ClearChanged();
+	defaultAnswers.ClearChanged();
 	googleAnalyticsOn.ClearChanged();
 	googleAnalTrackingCode.ClearChanged();
 
@@ -1683,6 +1684,7 @@ void CONFIG::Read()		// synchronize with Write!
 	waterMark.Read(s);
 	// other
 	doNotShowTheseDialogs.Read(s);
+	defaultAnswers.Read(s);
 	// Debug
 	bDebugging.Read(s);
 
@@ -1802,6 +1804,7 @@ void CONFIG::_WriteIni(QString sIniName)
 
 	// other
 	doNotShowTheseDialogs.Write(s);
+	defaultAnswers.Write(s);
 
 	if (__bClearChangedFlag)
 		ClearChanged();

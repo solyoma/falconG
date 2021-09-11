@@ -692,7 +692,7 @@ FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi)
 		return ftUnknown;
 	int pos = name.lastIndexOf('.');
 	QString s = name.mid(pos).toLower();
-	return (s == ".jpg") || (s == ".jpeg") || (s == ".gif") || (s == ".png") ? ftImage : (s == ".mp4") || (s == ".ogg") || (s == ".webm") ? ftVideo : ftUnknown;
+	return (s == ".jpg") || (s == ".jpeg") || (s == ".tif") || (s == ".png") ? ftImage : (s == ".mp4") || (s == ".ogg") || (s == ".webm") ? ftVideo : ftUnknown;
 }
 
 
@@ -999,9 +999,8 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 *--------------------------------------------------------------------------*/
 static bool __CancelCreate(QString s)
 {
-	static bool __defaultresult = true;
 	if (config.doNotShowTheseDialogs & dbAskCreateDir)
-		return __defaultresult;
+		return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
 
 	QMessageBox question;
 	question.setText(QMainWindow::tr("falconG - Question"));
@@ -1012,13 +1011,12 @@ static bool __CancelCreate(QString s)
 	QCheckBox* checkBox = new QCheckBox(QMainWindow::tr("Don't ask again (use Options to re-enable)") );
 	question.setCheckBox(checkBox);
 
-
-	__defaultresult = question.exec() == QMessageBox::Yes;
+	config.defaultAnswers[dboAskCreateDir] = question.exec();
 
 	if (checkBox && question.checkBox()->isChecked())
 		config.doNotShowTheseDialogs.v |= (int)dbAskCreateDir;
 
-	return __defaultresult;
+	return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
 }
 
 

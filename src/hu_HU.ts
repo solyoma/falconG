@@ -406,9 +406,12 @@ Message: &apos;</source>
 Processing aborted, because continuing
 could destroy your old .struct file!
 %1 lines read so far. </source>
-        <translation>Hibát találtam a &apos;.struct&apos; fájlban
+        <translation>
+
+Hibát találtam a &apos;.struct&apos; fájlban
 A feldolgozás folytatása elrontaná azt, ezért nem folytatom
-a feldolgozást! Idáig %1 sort olvastam.</translation>
+a feldolgozást!
+Idáig %1 sort olvastam.</translation>
     </message>
     <message>
         <source>&apos;
