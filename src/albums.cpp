@@ -1648,37 +1648,38 @@ bool AlbumGenerator::_CreateDirectories()
 {
 	__DestDir = config.dsGallery;		// destination directory the new gallery is
 										// put inside it
-	bool ask = true;
-	if (!CreateDir(__DestDir.ToString(), ask))
+	QString sActDir = __DestDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
 
 	__SetBaseDirs();
 
-	ask |= QDir::isAbsolutePath(__RootDir.ToString());
-	if (!CreateDir(__RootDir.ToString(), ask))
+	sActDir = __RootDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__AlbumDir.ToString());
-	if (!CreateDir(__AlbumDir.ToString(), ask))
+	sActDir = __AlbumDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__CssDir.ToString());
-	if (!CreateDir(__CssDir.ToString(), ask))
+	sActDir = __CssDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__ImageDir.ToString());
-	if (!CreateDir(__ImageDir.ToString(), ask))
+	sActDir = __ImageDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__ThumbDir.ToString());
-	if (!CreateDir(__ThumbDir.ToString(), ask))
+	sActDir = __ThumbDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__VideoDir.ToString());
-	if (!CreateDir(__VideoDir.ToString(), ask))
+	sActDir = __VideoDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask |= QDir::isAbsolutePath(__FontDir.ToString());
-	if (!CreateDir(__FontDir.ToString(), ask))
+	sActDir = __FontDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	ask = false;
-	if (!CreateDir(__ResourceDir.ToString(), ask))
+	sActDir = __ResourceDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
-	if (!CreateDir(__JsDir.ToString(), ask))
+	sActDir = __JsDir.ToString();
+	if (!CreateDir(sActDir))	// cancelled
 		return false;
 	return true;
 }
@@ -3719,9 +3720,13 @@ int AlbumGenerator::_DoPages()
 	
 	if (Languages::Count() != 1 && config.bSeparateFoldersForLanguages)
 	{
-		bool ask = false;
+		int ask = config.doNotShowTheseDialogs;
+		config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+
 		for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
-			CreateDir(Languages::abbrev[lang], ask);
+			CreateDir(Languages::abbrev[lang]);
+
+		config.doNotShowTheseDialogs = ask;
 	}
 
 	for (int lang = 0; _processing && lang < Languages::Count(); ++lang)

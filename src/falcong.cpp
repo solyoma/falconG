@@ -142,14 +142,14 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	config.dsApplication = QDir::current().absolutePath(); // before anybody changes the current directory
 
 	// create directories for sample
-	bool ask = false;
-	CreateDir(PROGRAM_CONFIG::samplePath, ask);
-	ask = false;
-	CreateDir(PROGRAM_CONFIG::samplePath+"css", ask);
-	ask = false;
-	CreateDir(PROGRAM_CONFIG::samplePath+"js", ask);
-	ask = false;
-	CreateDir(PROGRAM_CONFIG::samplePath+"res", ask);
+	int ask = config.doNotShowTheseDialogs;
+	config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+
+	CreateDir(PROGRAM_CONFIG::samplePath);
+	CreateDir(PROGRAM_CONFIG::samplePath+"css");
+	CreateDir(PROGRAM_CONFIG::samplePath+"js");
+	CreateDir(PROGRAM_CONFIG::samplePath+"res");
+	config.doNotShowTheseDialogs = ask;
 
 	QString resPPath = QStringLiteral(":/Preview/Resources/"),
 			resIPath = QStringLiteral(":/icons/Resources/");

@@ -263,5 +263,5 @@ QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = 
 QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);
 
 bool CopyOneFile(QString src, QString dest, bool overWrite = true);
-bool CreateDir(QString sdir, bool& ask); //sdir ends with '/'
+bool CreateDir(QString sdir); // recursive creation of directories, returns 0: error, 1: created, -1: cancelled
 bool RemoveDir(QString name, bool ask = false);

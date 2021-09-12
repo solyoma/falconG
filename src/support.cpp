@@ -999,9 +999,9 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 *--------------------------------------------------------------------------*/
 static bool __CancelCreate(QString s)
 {
-	if (config.doNotShowTheseDialogs & dbAskCreateDir)
+	if (config.doNotShowTheseDialogs.v & dbAskCreateDir)
 		return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
-
+			// can't use the one in falconG.cpp
 	QMessageBox question;
 	question.setText(QMainWindow::tr("falconG - Question"));
 	question.setIcon(QMessageBox::Question);
@@ -1021,24 +1021,42 @@ static bool __CancelCreate(QString s)
 
 
 /*==========================================================================
-* TASK:		Creates directory and conditionally asks for confirmation
-* EXPECTS: sdir - directory to create
+* TASK:		Recurvely creates directory and conditionally asks for confirmation
+* EXPECTS:	sdir - directory to create
 *			aks	- if directory does not exist then ask permission to proceed?
-* RETURNS:  true: directory either exists or created successfully
-* REMARKS: 	 ask set to true if dir. existed and false when it did not
+* RETURNS:  1: directory exists (or created successfully)
+*			0: directory creation error
+*			-1: cancelled
+* REMARKS: 	 
 *--------------------------------------------------------------------------*/
-bool CreateDir(QString sdir, bool& ask) // only create if needed
+bool CreateDir(QString sdir) // only create if needed
 {										// ask - if does not exist ask what to do
 	QDir folder;
 	if (folder.exists(sdir))
-		return ask = true;
+		return true;
 
-	bool b = ask;
-	ask = false;
-
-	if (b && __CancelCreate(sdir))
+	if (__CancelCreate(sdir))
 		return false;
-	return folder.mkdir(sdir);
+	QStringList qsl = sdir.split('/');
+	QString spath;
+	bool res = true;
+	for (auto s : qsl)
+	{
+		spath += s;
+		if (!s.isEmpty() && spath != "/")
+		{
+			if (!folder.exists(spath))
+				res = folder.mkdir(spath);
+			if (!res)
+			{
+				s = QString("Can't create folder '%1'").arg(spath);
+				QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), QMainWindow::tr(StringToUtf8CString(s)));
+				return false;
+			}
+			spath += "/";
+		}
+	}
+	return true;
 }
 
 /*========================================================
