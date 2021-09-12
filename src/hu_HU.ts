@@ -1878,7 +1878,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     <message>
         <location filename="falcong.ui" line="1720"/>
         <source>Use &apos;Global Settings for Page&apos;</source>
-        <translation>Használja az &apos;Általános beállításokat&apos;</translation>
+        <translation>Használja az &apos;Általános beállítások&apos;-at</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="1725"/>
@@ -1943,7 +1943,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
     <message>
         <location filename="falcong.ui" line="1857"/>
         <source>Global Settings for Page</source>
-        <translation>Global Settings for Page</translation>
+        <translation>Általános beállítások</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="1877"/>

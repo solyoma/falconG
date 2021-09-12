@@ -490,7 +490,7 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadJAlbumFile(Album &ab);		// albumfiles.txt
+	bool _ReadFromDirsFile(Album &ab);		// albumfiles.txt
 	bool _ReadJCommentFile(Album &ab);	// comments.properties
 	bool _ReadJMetaFile(Album &ab);		// meta.properties
 	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
@@ -533,7 +533,7 @@ private:
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
 			// read 'Jalbum' file structure
-	bool _ReadJalbum();	//or if it does not exist loads them from supposedly jalbum directory dsSrc
+	bool _ReadFromDirs();	//or if it does not exist loads them from supposedly jalbum directory dsSrc
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !

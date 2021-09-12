@@ -789,10 +789,13 @@ int Album::TitleCount()
 	{
 		_titleCount = 0;
 		for (auto a : items)
-			if (a > 0 &&
-				((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].titleID) ||
-				((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].titleID) ||
-				((a & IMAGE_ID_FLAG) && albumgen.Images()[a].titleID))
+			if ((a > 0) &&
+				(
+					((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].titleID) ||
+					((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].titleID) ||
+					((a & IMAGE_ID_FLAG) && albumgen.Images()[a].titleID)
+				)
+			)
 				++_titleCount;
 	}
 	return _titleCount;
@@ -813,9 +816,12 @@ int Album::DescCount()
 		_descCount = 0;
 		for (auto a : items)
 			if (a > 0 &&
-				((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].descID) ||
-				((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].descID) ||
-				((a & IMAGE_ID_FLAG) && albumgen.Images()[a].descID))
+				(
+					((a & ALBUM_ID_FLAG) && albumgen.Albums()[a].descID) ||
+					((a & VIDEO_ID_FLAG) && albumgen.Videos()[a].descID) ||
+					((a & IMAGE_ID_FLAG) && albumgen.Images()[a].descID)
+				)
+			)
 				++_descCount;
 	}
 	return _descCount;
@@ -1094,7 +1100,7 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 	if (fi.fileName()[0] == '.')			// hidden file?
 		return 0;
 
-	bool added;
+	bool added = false;
 	FileTypeImageVideo type;
 	if (fi.isDir())
 	{
@@ -1168,7 +1174,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
  *        	- images/albums not mentioned in file are added to the end of
  *				the ordered list of images
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumFile(Album &ab)
+bool AlbumGenerator::_ReadFromDirsFile(Album &ab)
 {
 	QString path = ab.FullName();  
 	if(path[path.length()-1] != '/') 
@@ -1523,7 +1529,7 @@ void AlbumGenerator::_JReadOneLevel(Album &ab)
 {
 	// TODO justChanges
 	_isAJAlbum = false;		// set only if jalbum's file are in this directory
-	_isAJAlbum |= _ReadJAlbumFile(ab);		// ordering set in file ( including exlusions and real names)
+	_isAJAlbum |= _ReadFromDirsFile(ab);		// ordering set in file ( including exlusions and real names)
 	_isAJAlbum |= _ReadJMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk 
@@ -1593,7 +1599,7 @@ bool AlbumGenerator::Read()
 		_imageMap[0] = im;
 	}
 
-
+	PROGRAM_CONFIG::MakeValidLastConfig();		// may add new config
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
@@ -1611,7 +1617,7 @@ bool AlbumGenerator::Read()
 		}
 	}
 	else
-		result = _ReadJalbum();
+		result = _ReadFromDirs();
 	emit SignalAlbumStructChanged();	// show list of albums in GUI
 //	if (result)
 //		_structAlreadyInMemory = true;
@@ -2490,7 +2496,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 * RETURNS: success
 * REMARKS: - prepares _root album and recursively processes all levels
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJalbum()
+bool AlbumGenerator::_ReadFromDirs()
 {
 	if (!Languages::Read())		// cancelled, no default set
 		return false;
@@ -3248,7 +3254,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	if (idIndex >= 0 && idList.isEmpty())
 		return typeFlag == ALBUM_ID_FLAG ? -1 : -2;
 
-	ID_t id = idIndex >= 0?  idList[idIndex] : RECENT_ALBUM_ID;
+	ID_t id = idIndex >= 0?  idList[idIndex].t : RECENT_ALBUM_ID;	// const non const values
 	if ((id & typeFlag) == 0)	// not this type
 		return 0;
 
@@ -3276,7 +3282,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	ID_t thumb = 0;
 	if (typeFlag & ALBUM_ID_FLAG)
 	{
-		thumb = idIndex >= 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ];
+		thumb = idIndex >= 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ].t;
 		if (thumb)
 		{
 			if (_imageMap.contains(thumb))
@@ -3847,7 +3853,7 @@ int AlbumGenerator::_DoLatestJs()
 			}
 		}
 		ofjs << "];\n"
-			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount : n) << ";\n"; // # of random images to show
+			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount.v : n) << ";\n"; // # of random images to show
 		f.close();
 	}
 /* ----------------

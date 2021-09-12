@@ -102,7 +102,7 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 	void Compact()	// remove deleted elements from list, _size does not change
 	{
 		for (auto i = BaseClassType::size() - 1; i >= 0; --i)
-			if (BaseClassType.operator[](i).batch != -100)
+			if (BaseClassType::operator[](i).batch != -100)
 				remove(i);
 	}
 

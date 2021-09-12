@@ -119,7 +119,7 @@ private:
 	bool _shadowOn = false;
 	int _shadowHoriz, _shadowVert;
 	unsigned _shadowBlur;
-	unsigned _shadowColor = (unsigned)-1; // color (rgb) -1: not used
+	unsigned _shadowColor = unsigned(-1); // color (rgb) -1: not used
 
 	QFont _font;
 public:
@@ -142,7 +142,7 @@ public:
 	{ 
 		if (xoffset) *xoffset = _shadowHoriz;
 		if (xoffset) *yoffset = _shadowVert;
-		if (color) *color = _shadowColor < 0 ? QColor(63, 63, 63, 180) : QColor(_shadowColor);
+		if (color) *color = _shadowColor == unsigned(-1) ? QColor(63, 63, 63, 180) : QColor(_shadowColor);
 
 		return _shadowOn;
 	}

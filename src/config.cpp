@@ -40,7 +40,7 @@ CONFIG config,		// must be here because _Changed uses it
 void PROGRAM_CONFIG::Read()
 {
 	lastConfigs.clear();
-	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in user's local home directory
 
 	lang = s.value("lang", -1).toInt();
 	splitterLeft = s.value("sll", 493).toInt();
@@ -123,8 +123,9 @@ void PROGRAM_CONFIG::GetHomePath()
 }
 
 /*========================================================
- * TASK: Determines file name of configuration from ini
-*				 or struct files
+ * TASK: Determines file name of configuration for ini
+ *		 or struct files
+ *		 	
  * PARAMS:	forSave - name required for save or read
  *				for read: if file in source directory
  *							does not exist return default name
@@ -133,15 +134,14 @@ void PROGRAM_CONFIG::GetHomePath()
  *			sExt - extension (.ini or .struct)
  *					defaults: 'falconG.ini' and 'gallery.struct'
  * GLOBALS: lastConfigs, indexOfLastUsed
- * RETURNS:	full path name of config file
- * REMARKS: - If a directory path is taken from 'lastConfig'
- *				returns a name of this directory without its
- *				path followed by the extension sExt inside
+ * RETURNS:	full path name of config file even if it doesn't exist
+ * REMARKS: - call only when 'lastConfigs' and 'indexOfLastConfig'
+ *				are correct
+ *			- Config file name is the directory name
+ *				followed by the extension sExt inside
  *				the original directory
  *				Example: directory name: '/in/this/dir/'
  *				File name '/in/this/dir/dir.ini'
- *			- With no last used directory returns the
- *				default names with no directory path
  *-------------------------------------------------------*/
 QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 {
@@ -152,10 +152,9 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 		sDefault += "gallery.struct";
 
 	QString sIniName, p, n, s;				  // if there was a last used directory read from it
-	if (indexOfLastUsed < 0 || indexOfLastUsed >= lastConfigs.size())
-		return sDefault;
-
+	
 	s = lastConfigs[indexOfLastUsed];
+
 	SeparateFileNamePath(s, p, n);	// cuts '/' from name
 	if (s[s.length() - 1] != '/')
 		s += "/";
@@ -166,9 +165,9 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 
 	if(!forSave && !QFile::exists(sIniName))	 
 	{
-		sIniName = s + sDefault;
-		if (!QFile::exists(sIniName))
-			sIniName = sDefault;
+		QString sDefIniName = sDefault;
+		if (QFile::exists(sDefIniName))
+			return sDefIniName;
 	}
 
 	return sIniName;
@@ -198,6 +197,19 @@ void PROGRAM_CONFIG::GetTranslations()
 	QDir dir(":/translations/translations");
 	qslLangNames = dir.entryList(QStringList("*.qm"), QDir::Files, QDir::Name);
 	qslLangNames.sort();
+}
+
+void PROGRAM_CONFIG::MakeValidLastConfig()
+{
+	int i;
+	QString s = config.dsSrc.ToString();
+	i = lastConfigs.indexOf(s);
+	if(i < 0)
+	{
+		indexOfLastUsed = lastConfigs.size();
+		lastConfigs.append(s);
+	}
+	indexOfLastUsed = i;
 }
 
 

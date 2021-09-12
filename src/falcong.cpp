@@ -1012,7 +1012,7 @@ void FalconG::on_edtFontDir_textChanged()
 /*============================================================================
 * TASK:	   Handle source gallery changes
 * EXPECTS:
-* GLOBALS:
+* GLOBALS:	PROGRAM_CONFIG
 * REMARKS: Although the first .ToString()uct file will be saved into the source 
 *			directory
 *--------------------------------------------------------------------------*/
@@ -1025,6 +1025,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != scr)
 	{
 		config.dsSrc = scr;
+		PROGRAM_CONFIG::indexOfLastUsed = -1;	// new path, not used yet
 		for(int i = 0; i < PROGRAM_CONFIG::lastConfigs.size(); ++i )
 			if (config.dsSrc.ToString() == PROGRAM_CONFIG::lastConfigs[i])
 			{

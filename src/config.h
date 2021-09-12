@@ -773,7 +773,7 @@ struct _CBorder : public _CFG_ITEM<QString>
 		else if (on)
 			_used |= (1 << (int)sd);
 		else
-			_used &= !(1 << (int)sd);
+			_used &= ~(1 << (int)sd);
 	}
 
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
@@ -922,7 +922,7 @@ struct PROGRAM_CONFIG
 	static int schemeIndex;			// 0->default, 1 -> system, 2 and more: changable.
 
 	static int maxSavedConfigs;		// max this many last configuration directories are stored
-	static int indexOfLastUsed;		// this was the last one used
+	static int indexOfLastUsed;		// this was the last one used (may change to -1 for new source directory)
 	static QStringList lastConfigs; // these are the (source) directories
 
 	static void Read();	// the last directories used
@@ -931,6 +931,7 @@ struct PROGRAM_CONFIG
 	static void GetHomePath();		// in users's home directory
 	static void GetTranslations();	// from resources
 	static QString LangNameListWDelim();	// e.g. en_US:hu_HU (always the default, en_US comes first)
+	static void MakeValidLastConfig();	// using config.dsSrc
 	static QString NameForConfig(bool forSave, QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 

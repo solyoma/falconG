@@ -71,7 +71,14 @@ public:
 	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none);
 	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
 	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
-	bool operator=(const ThumbnailItem& other) { QStandardItem::operator=(other); itemPos = other.itemPos; _albumId = other._albumId; _itemType = other._itemType; }
+	ThumbnailItem &operator=(const ThumbnailItem& other) 
+	{ 
+		QStandardItem::operator=(other); 
+		itemPos = other.itemPos; 
+		_albumId = other._albumId; 
+		_itemType = other._itemType; 
+		return *this;
+	}
 	// set this only once for each run (static)
 	static void SetThumbHeight(int thumbHeight) {_thumbHeight = thumbHeight;  }
 		// use this after constructing 
@@ -113,10 +120,7 @@ class ThumbnailWidgetModel : public QStandardItemModel
 public:
 	ThumbnailWidgetModel(QWidget *pw) : QStandardItemModel(pw) 
 	{
-		//QPixmap pix;
-		//QPixmap(128, 112);
-		//pix.fill(Qt::transparent);
-		_dummyItem.setData(NULL, Qt::UserRole+1);		// FileNameRole
+		_dummyItem.setData(QString(), Qt::UserRole + 1);		// FileNameRole
 	}
 	virtual ~ThumbnailWidgetModel() {}
 	int SetDummyPos(int newPos) 
