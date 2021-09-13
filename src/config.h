@@ -314,7 +314,7 @@ private:
 	QVector<int> _arr;
 	void _Setup() 
 	{ 
-		if (vd && _arr.size() > vd)
+		if (vd && _arr.size() < vd)
 			_arr.resize(vd);
 	};
 };
@@ -346,7 +346,8 @@ struct _CColor : _CFG_ITEM<QString>
 	void SetColor(QString clr) { _colorName = clr; _Prepare(); }
 	void SetOpacity(int opac, bool percent) 
 	{ 
-		if (opac < 0) opac = 0;
+		if (opac < 0) 
+			opac = 255;
 		else
 		{
 			int limit = percent ? 100 : 255;

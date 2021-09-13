@@ -214,14 +214,14 @@ private slots:
 
 // auto connected slots
 private slots:
-	void on_toolBox_currentChanged(int newIndex);
 	void on_btnDeleteColorScheme_clicked();
-	void on_btnSourceHistory_clicked();
 	void on_btnGenerate_clicked();
 	void on_btnSaveStyleSheet_clicked();
 	void on_btnSelectWmFont_clicked();
+	void on_btnSourceHistory_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
+	void on_toolBox_currentChanged(int newIndex);
 
 	void on_btnPageColor_clicked();
 	void on_btnPageBackground_clicked();
@@ -280,131 +280,131 @@ private slots:
 	void on_cbLanguage_currentIndexChanged(int index);
 	void on_cbFonts_currentIndexChanged(int index);
 	void on_cbLineHeight_currentIndexChanged(int index);
-
 	void on_cbPointSize_currentTextChanged(const QString& txt);
 
-	void on_chkFacebook_toggled(bool);
+	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
+	void on_chkAddDescToAll_toggled(bool);
+	void on_chkAddTitlesToAll_toggled(bool);
+	void on_chkBackgroundOpacity_toggled(bool on);
+	void on_chkBold_toggled(bool);
+	void on_chkButImages_toggled(bool);
+	void on_chkCanDownload_toggled(bool);
+	void on_chkCropThumbnails_toggled(bool);
 	void on_chkDebugging_toggled(bool);
 	void on_chkDifferentFirstLine_toggled(bool b);
-	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
-	void on_chkGenerateAll_toggled(bool);
-	void on_chkButImages_toggled(bool);
-	void on_chkSeparateFoldersForLanguages_toggled(bool);
-	void on_chkAddTitlesToAll_toggled(bool);
-	void on_chkAddDescToAll_toggled(bool);
-	void on_chkLowerCaseImageExtensions_toggled(bool);
-	void on_chkReadJAlbum_toggled(bool);
-	void on_chkReadFromGallery_toggled(bool);
-	void on_chkRightClickProtected_toggled(bool);
-	void on_chkCanDownload_toggled(bool);
+	void on_chkDistortThumbnails_toggled(bool);
+	void on_chkDoNotEnlarge_toggled(bool);
+	void on_chkFacebook_toggled(bool);
 	void on_chkForceSSL_toggled(bool);
-	void on_chkUseGoogleAnalytics_toggled(bool);
-	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
-	void on_chkTextOpacity_toggled(bool on);
-	void on_chkBackgroundOpacity_toggled(bool on);
-	void on_chkUseGradient_toggled(bool on);
-	void on_chkShadowOn_toggled(bool on);
+	void on_chkGenerateAll_toggled(bool);
 	void on_chkIconText_toggled(bool);
 	void on_chkIconTop_toggled(bool);
-	void on_chkBold_toggled(bool);
 	void on_chkItalic_toggled(bool);
-	void on_chkTdLinethrough_toggled(bool);
-	void on_chkTdUnderline_toggled(bool);
-	void on_chkTdOverline_toggled(bool);
-	void on_chkUseWM_toggled(bool);				// watermark
-	void on_chkUseWMShadow_toggled(bool);				// watermark
-	void on_chkOvrImages_toggled(bool);		// used for image processing
-	void on_chkDoNotEnlarge_toggled(bool);
-	void on_chkCropThumbnails_toggled(bool);
-	void on_chkDistortThumbnails_toggled(bool);
-	void on_chkSourceRelativePerSign_toggled(bool);
-	void on_chkMenuToContact_toggled(bool);
+	void on_chkLowerCaseImageExtensions_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
+	void on_chkMenuToContact_toggled(bool);
 	void on_chkMenuToDescriptions_toggled(bool);
 	void on_chkMenuToToggleCaptions_toggled(bool);
+	void on_chkOvrImages_toggled(bool);		// used for image processing
+	void on_chkReadFromGallery_toggled(bool);
+	void on_chkReadJAlbum_toggled(bool);
+	void on_chkRightClickProtected_toggled(bool);
+	void on_chkSeparateFoldersForLanguages_toggled(bool);
+	void on_chkSetAll_toggled(bool);			// background colors
+	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
+	void on_chkShadowOn_toggled(bool on);
+	void on_chkSourceRelativePerSign_toggled(bool);
+	void on_chkTdLinethrough_toggled(bool);
+	void on_chkTdOverline_toggled(bool);
+	void on_chkTdUnderline_toggled(bool);
+	void on_chkTextOpacity_toggled(bool on);
+	void on_chkUseGoogleAnalytics_toggled(bool);
+	void on_chkUseGradient_toggled(bool on);
+	void on_chkUseWMShadow_toggled(bool);				// watermark
+	void on_chkUseWM_toggled(bool);				// watermark
 
-	void on_edtFontFamily_textChanged();
-	void on_edtAlbumDir_textChanged();
 	void on_edtAbout_textChanged();
-	void on_edtBckImageName_textChanged();
+	void on_edtAlbumDir_textChanged();
 	void on_edtBaseName_textChanged();
+	void on_edtBckImageName_textChanged();
 	void on_edtDefaultFonts_textChanged();
-	void on_edtDestGallery_textChanged();
-	void on_edtFontDir_textChanged();
-	void on_edtGalleryRoot_textChanged();
-	void on_edtEmailTo_textChanged();
-	void on_edtImg_textChanged();
-	void on_edtVid_textChanged();
-	void on_edtServerAddress_textChanged();
-	void on_edtGalleryTitle_textChanged();
-	void on_edtGalleryLanguages_textChanged();
-	void on_edtGoogleFonts_editingFinished();
-	void on_edtSourceGallery_textChanged();
+	void on_edtDescriptionText_textChanged();
 	void on_edtDescription_textChanged();
+	void on_edtDestGallery_textChanged();
+	void on_edtEmailTo_textChanged();
+	void on_edtFontDir_textChanged();
+	void on_edtFontFamily_textChanged();
+	void on_edtGalleryLanguages_textChanged();
+	void on_edtGalleryRoot_textChanged();
+	void on_edtGalleryTitle_textChanged();
+	void on_edtGoogleFonts_editingFinished();
+	void on_edtImg_textChanged();
 	void on_edtKeywords_textChanged();
+	void on_edtMainPage_textChanged();
+	void on_edtServerAddress_textChanged();
+	void on_edtSourceGallery_textChanged();
 	void on_edtThumb_textChanged();
+	void on_edtTitleText_textChanged();
 	void on_edtTrackingCode_textChanged();
 	void on_edtUplink_textChanged();
-	void on_edtMainPage_textChanged();
+	void on_edtVid_textChanged();
 	void on_edtWatermark_textChanged();
-	void on_edtTitleText_textChanged();
-	void on_edtDescriptionText_textChanged();
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
 
 	void on_rbAllBorders_toggled(bool);
-	void on_rbTopBorder_toggled(bool);
-	void on_rbRightBorder_toggled(bool);
 	void on_rbBottomBorder_toggled(bool);
-	void on_rbLeftBorder_toggled(bool);
-	void on_rbNoBackgroundImage_toggled(bool);
 	void on_rbCenterBckImage_toggled(bool);
 	void on_rbCoverBckImage_toggled(bool);
 	void on_rbEnglish_toggled(bool);
+	void on_rbLeftBorder_toggled(bool);
 	void on_rbMagyar_toggled(bool);
-	void on_rbTileBckImage_toggled(bool);
-	void on_rbTdSolid_toggled(bool);
-	void on_rbTdDotted_toggled(bool);
+	void on_rbNoBackgroundImage_toggled(bool);
+	void on_rbRightBorder_toggled(bool);
 	void on_rbTdDashed_toggled(bool);
+	void on_rbTdDotted_toggled(bool);
 	void on_rbTdDouble_toggled(bool);
+	void on_rbTdSolid_toggled(bool);
 	void on_rbTdWavy_toggled(bool);
 	void on_rbTextAlignNone_toggled(bool);
-	void on_rbTextLeft_toggled(bool);
 	void on_rbTextCenter_toggled(bool);
+	void on_rbTextLeft_toggled(bool);
 	void on_rbTextRight_toggled(bool);
 	void on_rbTextShadow_toggled(bool);
+	void on_rbTileBckImage_toggled(bool);
+	void on_rbTopBorder_toggled(bool);
 
-	void on_sbImageHeight_valueChanged(int h);			// image height
-	void on_sbImageMargin_valueChanged(int h);			// image margin
-	void on_sbImageBorderRadius_valueChanged(int h);	// border radius on both matte's outside border
-	void on_sbImageWidth_valueChanged(int w);			// image width
-	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
 	void on_sbAlbumMatteRadius_valueChanged(int val);
 	void on_sbAlbumMatteWidth_valueChanged(int val);
+	void on_sbBackgroundOpacity_valueChanged(int val);
+	void on_sbGradMiddlePos_valueChanged(int val);
+	void on_sbGradStartPos_valueChanged(int val);
+	void on_sbGradStopPos_valueChanged(int val);
+	void on_sbImageBorderRadius_valueChanged(int h);	// border radius on both matte's outside border
+	void on_sbImageBorderWidth_valueChanged(int val);
+	void on_sbImageHeight_valueChanged(int h);			// image height
+	void on_sbImageMargin_valueChanged(int h);			// image margin
+	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
+	void on_sbImageMatteWidth_valueChanged(int val);
+	void on_sbImageWidth_valueChanged(int w);			// image width
+	void on_sbLatestCount_valueChanged(int val);
+	void on_sbNewDays_valueChanged(int val);
+	void on_sbShadowBlur1_valueChanged(int val);
+	void on_sbShadowBlur2_valueChanged(int val);
+	void on_sbShadowHoriz1_valueChanged(int val);
+	void on_sbShadowHoriz2_valueChanged(int val);
+	void on_sbShadowSpread1_valueChanged(int val);
+	void on_sbShadowSpread2_valueChanged(int val);
+	void on_sbShadowVert1_valueChanged(int val);
+	void on_sbShadowVert2_valueChanged(int val);
+	void on_sbSpaceAfter_valueChanged(int val);
+	void on_sbTextOpacity_valueChanged(int val);
 	void on_sbThumbnailHeight_valueChanged(int h);			// image height
 	void on_sbThumbnailWidth_valueChanged(int w);				// image width
-	void on_sbNewDays_valueChanged(int val);
-	void on_sbLatestCount_valueChanged(int val);
-	void on_sbShadowHoriz1_valueChanged(int val);
-	void on_sbShadowVert1_valueChanged(int val);
-	void on_sbShadowBlur1_valueChanged(int val);
-	void on_sbShadowSpread1_valueChanged(int val);
-	void on_sbShadowHoriz2_valueChanged(int val);
-	void on_sbShadowVert2_valueChanged(int val);
-	void on_sbShadowBlur2_valueChanged(int val);
-	void on_sbShadowSpread2_valueChanged(int val);
-	void on_sbGradStartPos_valueChanged(int val);
-	void on_sbGradMiddlePos_valueChanged(int val);
-	void on_sbGradStopPos_valueChanged(int val);
-	void on_sbWmShadowVert_valueChanged(int val);
-	void on_sbWmShadowHoriz_valueChanged(int val);
-	void on_sbWmShadowBlur_valueChanged(int val);
-	void on_sbImageBorderWidth_valueChanged(int val);
-	void on_sbImageMatteWidth_valueChanged(int val);
-	void on_sbTextOpacity_valueChanged(int val);
-	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbWmOpacity_valueChanged(int val);
-	void on_sbSpaceAfter_valueChanged(int val);
+	void on_sbWmShadowBlur_valueChanged(int val);
+	void on_sbWmShadowHoriz_valueChanged(int val);
+	void on_sbWmShadowVert_valueChanged(int val);
 
 	void on_sbBorderWidth_valueChanged(int val);
 	void on_sbBorderRadius_valueChanged(int val);

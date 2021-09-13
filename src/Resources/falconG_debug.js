@@ -48,7 +48,7 @@ function SetPropertyForSelector(selector, propertyName, propValue)
 			// for log and error:
 			id = '(id='+id+')';
     // DEBUG
-//			console.log('OPERATION: ' + selector + id + '.' + propertyName + ":" + propValue);
+			console.log('OPERATION: ' + selector + id + '.' + propertyName + ":" + propValue);
         }
 		else
 		{
@@ -88,7 +88,7 @@ function SetPropertyForSelector(selector, propertyName, propValue)
 						r = "No '" + propertyName + "' in class '" + selector + "'"
 				}
     // DEBUG
-/*				if(propValue == '')
+				if(propValue == '')
 				{
 					console.log("REMOVED: "+ selector + '->' + propertyName + ' [' + x.length + ' element(s)],Result: ('+r+')');
 					console.log(asstring(x[0].style));
@@ -96,14 +96,14 @@ function SetPropertyForSelector(selector, propertyName, propValue)
 				}
 				else
 					console.log('OPERATION: ' + selector + '->' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)], Result: ('+r+')');
-			}
-*/			
     // /DEBUG
+			
+			}
         }
 
 //        DebugProperties(selector, x[0]);
     // DEBUG
-    //document.getElementById("DEBUG").innerHTML = selector + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
+		document.getElementById("DEBUG").innerHTML = selector + '.' + propertyName + ":" + propValue + ' [' + x.length + ' element(s)]'
     // /DEBUG
     }
     catch (err) {

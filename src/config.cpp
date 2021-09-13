@@ -115,7 +115,7 @@ void PROGRAM_CONFIG::GetHomePath()
 #if defined (Q_OS_Linux)   || defined (Q_OS_Darwin) || defined(__linux__)
 		"/.falconG/";
 #elif defined(Q_OS_WIN)
-		"/Appdata/Local/FalconG/";
+		"/AppData/Local/FalconG/";
 #endif
 	if (!QDir(homePath).exists())
 		QDir(homePath).mkdir(homePath);

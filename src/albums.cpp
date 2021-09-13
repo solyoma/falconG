@@ -3722,6 +3722,7 @@ int AlbumGenerator::_DoPages()
 	{
 		int ask = config.doNotShowTheseDialogs;
 		config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+		config.defaultAnswers[dboAskCreateDir] = QMessageBox::Yes;
 
 		for (int lang = 0; _processing && lang < Languages::Count(); ++lang)
 			CreateDir(Languages::abbrev[lang]);

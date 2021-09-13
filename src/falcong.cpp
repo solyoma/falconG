@@ -144,6 +144,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	// create directories for sample
 	int ask = config.doNotShowTheseDialogs;
 	config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+	config.defaultAnswers[dboAskCreateDir] = QMessageBox::Yes;
 
 	CreateDir(PROGRAM_CONFIG::samplePath);
 	CreateDir(PROGRAM_CONFIG::samplePath+"css");
@@ -1685,6 +1686,11 @@ void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
 	config.bSeparateFoldersForLanguages = ui.chkSeparateFoldersForLanguages->isChecked();
 }
 
+void FalconG::on_chkSetAll_toggled(bool)
+{
+	_PagebackgroundToSample();
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3022,10 +3028,7 @@ void FalconG::on_btnPageBackground_clicked()
 			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
 			_SetConfigChanged(true);
 		}
-		//AlbumElement ae = _aeActiveElement;
-		//_aeActiveElement = aeWebPage;
 		_PagebackgroundToSample();
-		//_aeActiveElement = ae;
 	}
 }
 
