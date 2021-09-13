@@ -3652,7 +3652,7 @@ int AlbumGenerator::_CreateHomePage()
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << _PageHeadToString(1)
+	_ofs << _PageHeadToString(ROOT_ALBUM_ID)
 		<< "<body>\n";
 
 	_OutputNav(_albumMap[ROOT_ALBUM_ID], QString());	/* sticky menu line*/
@@ -3664,7 +3664,7 @@ int AlbumGenerator::_CreateHomePage()
 	// languages links
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		_ofs << QString("<a href=\"%1\">%3</a>").arg(Languages::FileNameForLanguage(fn, i)).arg(Languages::names[i]);
+		_ofs << QString("<a href=\"%1\">%2</a>").arg(Languages::FileNameForLanguage(fn, i)+".html").arg(Languages::names[i]);
 		// menu buttons
 		if (config.bMenuToAbout)
 		{
