@@ -1861,7 +1861,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                          <rect>
                           <x>10</x>
                           <y>110</y>
-                          <width>99</width>
+                          <width>147</width>
                           <height>22</height>
                          </rect>
                         </property>
@@ -1882,7 +1882,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                          <rect>
                           <x>0</x>
                           <y>10</y>
-                          <width>371</width>
+                          <width>420</width>
                           <height>89</height>
                          </rect>
                         </property>
@@ -1964,8 +1964,14 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              <bold>false</bold>
                             </font>
                            </property>
+                           <property name="toolTip">
+                            <string>This may be overridden on any element, but
+if you change the  page background color when this
+is checked, it will override those colors!
+</string>
+                           </property>
                            <property name="text">
-                            <string>Transparent others</string>
+                            <string>Same background for all</string>
                            </property>
                            <property name="checked">
                             <bool>true</bool>
@@ -2132,7 +2138,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         </property>
                         <property name="geometry">
                          <rect>
-                          <x>130</x>
+                          <x>258</x>
                           <y>110</y>
                           <width>157</width>
                           <height>20</height>
@@ -2159,7 +2165,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         </property>
                         <property name="geometry">
                          <rect>
-                          <x>130</x>
+                          <x>258</x>
                           <y>130</y>
                           <width>160</width>
                           <height>20</height>
@@ -3752,7 +3758,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <item row="0" column="0" colspan="2">
                          <widget class="QWidget" name="gbColors" native="true">
                           <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                            </sizepolicy>
@@ -3760,7 +3766,13 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>92</height>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>100</height>
                            </size>
                           </property>
                           <property name="font">
@@ -3771,36 +3783,47 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                             <bold>true</bold>
                            </font>
                           </property>
-                          <layout class="QGridLayout" name="gridLayout_7" rowstretch="0,0">
-                           <property name="leftMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="topMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="rightMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="bottomMargin">
-                            <number>2</number>
-                           </property>
-                           <property name="horizontalSpacing">
-                            <number>6</number>
-                           </property>
-                           <item row="0" column="4">
-                            <spacer name="horizontalSpacer_9">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
+                          <layout class="QGridLayout" name="gridLayout_7">
+                           <item row="0" column="3">
+                            <widget class="QLabel" name="label_80">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
                              </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>33</width>
-                               <height>20</height>
-                              </size>
+                             <property name="text">
+                              <string>Opacity</string>
                              </property>
-                            </spacer>
+                            </widget>
                            </item>
-                           <item row="0" column="0">
+                           <item row="1" column="1">
+                            <widget class="QToolButton" name="btnForeground">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>MS Shell Dlg 2</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#ddd;}</string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0">
                             <widget class="QLabel" name="label_26">
                              <property name="font">
                               <font>
@@ -3815,7 +3838,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="0">
+                           <item row="2" column="0">
                             <widget class="QLabel" name="label_33">
                              <property name="font">
                               <font>
@@ -3830,7 +3853,66 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="2">
+                           <item row="1" column="5">
+                            <spacer name="horizontalSpacer_9">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>33</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="2" column="1">
+                            <widget class="QToolButton" name="btnBackground">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#a03020;}</string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="3">
+                            <widget class="QSpinBox" name="sbTextOpacity">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="minimum">
+                              <number>0</number>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>100</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="3">
                             <widget class="QSpinBox" name="sbBackgroundOpacity">
                              <property name="enabled">
                               <bool>false</bool>
@@ -3860,31 +3942,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                             </widget>
                            </item>
-                           <item row="0" column="1">
-                            <widget class="QToolButton" name="btnForeground">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#ddd;}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="3">
+                           <item row="1" column="2">
                             <widget class="QCheckBox" name="chkTextOpacity">
                              <property name="font">
                               <font>
@@ -3902,7 +3960,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="3">
+                           <item row="2" column="2">
                             <widget class="QCheckBox" name="chkBackgroundOpacity">
                              <property name="font">
                               <font>
@@ -3917,52 +3975,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                              </property>
                              <property name="text">
                               <string>use opacity</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1">
-                            <widget class="QToolButton" name="btnBackground">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#a03020;}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="2">
-                            <widget class="QSpinBox" name="sbTextOpacity">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
-                             </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>100</number>
                              </property>
                             </widget>
                            </item>
@@ -4229,8 +4241,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>737</height>
+                         <width>415</width>
+                         <height>446</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7130,10 +7142,8 @@ the last CSS save.</string>
   <tabstop>rbTileBckImage</tabstop>
   <tabstop>btnForeground</tabstop>
   <tabstop>sbTextOpacity</tabstop>
-  <tabstop>chkTextOpacity</tabstop>
   <tabstop>btnBackground</tabstop>
   <tabstop>sbBackgroundOpacity</tabstop>
-  <tabstop>chkBackgroundOpacity</tabstop>
   <tabstop>chkTdUnderline</tabstop>
   <tabstop>chkTdOverline</tabstop>
   <tabstop>chkTdLinethrough</tabstop>

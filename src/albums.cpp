@@ -2319,7 +2319,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		album.exists = true;		// do not check: virtual!
 		_albumMap[id] = album;
 				// root album with ID 1
-		album.ID = id = (1 | ALBUM_ID_FLAG);
+		album.ID = id = ROOT_ALBUM_ID;
 		album.exists = true;		// do not check: virtual!
 		_albumMap[id] = album;		// and not with _albumMap.Add
 	}
@@ -2419,8 +2419,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			album.thumbnail = ids.thumbnailID;
 		ids.Clear();
 	}
-	if(!_albumMap.contains(id))
-		_albumMap[id] = album;
+
+	_albumMap[id] = album;
 
 	return id;
 }
@@ -2530,7 +2530,7 @@ bool AlbumGenerator::_ReadFromDirs()
 	QString root = config.dsSrc.ToString();
 	QDir dir(root);
 
-	ID_t rootId = 1 | ALBUM_ID_FLAG;
+	ID_t rootId = ROOT_ALBUM_ID;
 	_root.Clear();
 	_root.ID = rootId;							// id = 0: invalid
 	_root.path = root;
@@ -2710,6 +2710,10 @@ int AlbumGenerator::_SaveFalconGCss()
 {
 	// generate new falconG.css into temporary files
 	CssCreator cssCreator;
+	QDir dir;
+	if (!dir.exists(QString(__CssDir.ToString())))
+		CreateDir(QString(__CssDir.ToString()));
+
 	QString tmpName = QString(__CssDir.ToString()) + "tmpfg.css";
 	cssCreator.Create(tmpName,false);
 	tmpName = BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", tmpName);
@@ -2756,10 +2760,10 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 	if (toServerPath)
 	{
 		path = config.sServerAddress;
-		if (path.toLower().left(4) == "http")
-			path = path + "/";
-		else
-			path = (config.bForceSSL ? "https://" : "http://") + path + "/";
+		int n = path.indexOf(':');	// may be 'http:/' or 'https:'
+		if (n < 0)
+			path = (config.bForceSSL ? "https://" :"http://") + path;
+
 		if (path[path.length() - 1] != '/')
 			path += '/';
 		base = path + base;
@@ -3651,11 +3655,11 @@ int AlbumGenerator::_CreateHomePage()
 	_ofs << _PageHeadToString(1)
 		<< "<body>\n";
 
-	_OutputNav(_albumMap[0], QString());	/* sticky menu line*/
+	_OutputNav(_albumMap[ROOT_ALBUM_ID], QString());	/* sticky menu line*/
 
 	_ofs << "<!--Header section-->\n"
 		<< "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
-	_WriteFacebookLink(_albumMap[1].LinkName(_actLanguage, true), 1);	// when required
+	_WriteFacebookLink(_albumMap[ROOT_ALBUM_ID].LinkName(_actLanguage, true), 1);	// when required
 	_ofs << "<p class=\"menu-line\">\n";
 	// languages links
 	for (int i = 0; i < Languages::Count(); ++i)

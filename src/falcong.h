@@ -146,7 +146,7 @@ private:
 	void _DecorationToSample(_CElem* pElem);
 	void _TextAlignToSample(_CElem *pElem);
 	void _PageColorToSample();
-	void _PagebackgroundToSample();	// possibly for all elements
+	void _PageBackgroundToSample();	// possibly for all elements
 	void _SetIcon();			// re-color it for the page
 	void _WaterMarkToSample();
 	void _UpdateWatermarkMargins(int mx, int my);

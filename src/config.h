@@ -353,7 +353,9 @@ struct _CColor : _CFG_ITEM<QString>
 			int limit = percent ? 100 : 255;
 			if (opac > limit) opac = limit;
 
-			_opacity = opac * (percent ? 2.55 : 1);
+			_opacity = opac;
+			if (percent)
+				_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
 		}
 		_Prepare(); 
 	}
@@ -371,23 +373,24 @@ struct _CColor : _CFG_ITEM<QString>
 	QString ARGB() const { return v; }		// may or may not have an opacity set
 	QString ToRgba() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/266.0) 
 	{
+		int n = _colorName.length() == 9 ? 3 : 1;
+		QString qs = QString("rgba(%1,%2,%3,%4)").arg(_colorName.mid(n, 2).toInt(nullptr, 16)).arg(_colorName.mid(n+2, 2).toInt(nullptr, 16)).arg(_colorName.mid(n+4, 2).toInt(nullptr, 16));
 		if (_opacity >= 0)
-			return QString("rgba(%1,%2,%3,%4)").arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16)).arg(_colorName.mid(7, 2).toInt(nullptr, 16)).arg((double)_opacity / 100.0);
-		else if(_colorName.length() == 9)
-			return QString("rgb(%1,%2,%3)").arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16)).arg(_colorName.mid(7, 2).toInt(nullptr, 16));
-		else
-			return QString("rgb(%1,%2,%3)").arg(_colorName.mid(1, 2).toInt(nullptr, 16)).arg(_colorName.mid(3, 2).toInt(nullptr, 16)).arg(_colorName.mid(5, 2).toInt(nullptr, 16));
+			return qs += QString().setNum((double)_opacity / 255.0);
+		return qs;
 	}
 
 	QString ForStyleSheet(bool addSemiColon, bool isBackground) const;
 
 	QString operator=(QString s);
 	_CColor& operator=(_CColor c);
+	bool operator==(const _CColor& o);
+	bool operator!=(const _CColor& o);
 
 private:
-	int _opacity;			// 0..100 (%) or -1: not used
+	int _opacity;			// 0..255 (=== 0..100 %) or -1: not used
 	QString _colorName;		// starts with a '#' character	and has 4 or 7 characters (no opacity)
-
+							// otherwise invalid
 	void _NormalizeName()
 	{
 		if (_colorName.isEmpty())
@@ -399,10 +402,10 @@ private:
 	}
 	void _Setup()			// from 'v' read from settings
 	{
-		_colorName = v;		// v always  #RGB or #RRGGBB or possibly #AARRGGBB when including opacity
+		_opacity = -1;			// suppose it is not used
+		_colorName = v;		// v either empty or #RGB or #RRGGBB or possibly #AARRGGBB when including opacity
 		if (!_ColorStringValid(v))
 			return;
-		_opacity = -1;			// suppose it is not used
 		if (v.length() == 9)		// #AARRGGBB
 		{
 			_opacity = v.at(1) == '-' ? -1 : (v.mid(1, 2)).toInt(nullptr, 16);
@@ -413,7 +416,7 @@ private:
 	void _Prepare() override		// v from internal (changed) variables
 	{
 		v = _colorName;										  // name w.o. opacity: #RRGGBB
-		if (v.length() != 9 && _opacity != 100)				  // name with opacity: #AARRGGBB but AA only goes from 0 to 100(0x64)
+		if (v.length() != 9 && _opacity >= 0)				  // name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
 			v = "#" + (_opacity >= 0 ? QString("%1").arg(_opacity, 2, 16, QChar('0')) : QStringLiteral("") ) + v.mid(1);
 	}
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
@@ -810,7 +813,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 {											// name is the elem name
 	AlbumElement kind;
 	_CColor color = { "#000000" ,"color"}, 
-		background = {  "" ,"background"};	// invalid color
+			background = {  "" ,"background"};	// invalid color
 	_CFont font = {"\"Tms Rmn\",Times,serif|12pt|12pt|0","font"};
 	_CInt spaceAfter = { 0, "after"};
 	_CTextDecoration decoration = { 0, "decoration" };

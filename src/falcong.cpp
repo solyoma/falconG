@@ -587,7 +587,7 @@ void FalconG::_ElemToSample(AlbumElement ae)
 	if (ae == aeWebPage)
 	{
 		_PageColorToSample();
-		_PagebackgroundToSample();
+		_PageBackgroundToSample();
 	}
 	else
 	{
@@ -1688,7 +1688,7 @@ void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
 
 void FalconG::on_chkSetAll_toggled(bool)
 {
-	_PagebackgroundToSample();
+	_PageBackgroundToSample();
 }
 
 /*============================================================================
@@ -2290,7 +2290,7 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 		return;
 	ui.sbBackgroundOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	pElem->background.SetOpacity(on ? ui.sbBackgroundOpacity->value()*2.55 : -1, false);
+	pElem->background.SetOpacity(on ? (ui.sbBackgroundOpacity->value()*255 + 50)/255 : -1, false);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -3021,14 +3021,11 @@ void FalconG::on_btnPageBackground_clicked()
 
 	if (qcNew.isValid())
 	{
-		if (qc != qcNew)
-		{
-
 			config.Web.background.SetColor(qcNew.name());
+			config.Web.background.SetOpacity(100, true);	// always 100% opacity
 			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
 			_SetConfigChanged(true);
-		}
-		_PagebackgroundToSample();
+		_PageBackgroundToSample();
 	}
 }
 
@@ -4406,9 +4403,10 @@ void FalconG::_ColorToSample(_CElem* pElem)
  *			- to clear a parameter set sValue to empty string
  *-------------------------------------------------------*/
 void FalconG::_BackgroundToSample(_CElem* pElem)
-{
-	bool b = (pElem->parent && pElem->parent->background != pElem->background) || !pElem->parent;
-	_SetCssProperty(pElem,b ? pElem->background.ForStyleSheet(false, true) : QString("background-color:") );
+{	
+	QString qs;
+	qs = pElem->background.ForStyleSheet(false, true);
+	_SetCssProperty(pElem, qs);
 }
 
 void FalconG::_ShadowToSample(_CElem* pElem,int what)
@@ -4497,31 +4495,31 @@ void FalconG::_PageColorToSample()
 	_SetCssProperty(&config.Web,"color:" + config.Web.color.Name());
 }
 
-void FalconG::_PagebackgroundToSample()
+void FalconG::_PageBackgroundToSample()
 {
 	QString wbc = config.Web.background.Name();
 
-	auto clearBackground = [&](AlbumElement what)
-	{
+	auto setSameBackground = [&](AlbumElement what)
+	{		   // opacity does not change
 		_CElem* pe = _PtrToElement(what);
-		pe->background.Set(wbc, -100);
-		_SetCssProperty(pe, "background-color:");
+		pe->background.Set(wbc, -1);
+		_SetCssProperty(pe, "background-color:"+wbc);
 	};
 
 	if (ui.chkSetAll->isChecked())		// then remove all other background colors
 	{
-		clearBackground(aeHeader);
-		clearBackground(aeMenuButtons);
-		clearBackground(aeLangButton);
-		clearBackground(aeSmallTitle);
-		clearBackground(aeGalleryTitle);
-		clearBackground(aeGalleryDesc);
-		clearBackground(aeSection);
-		clearBackground(aeImageTitle);
-		clearBackground(aeImageDesc);
-		clearBackground(aeLightboxTitle);
-		clearBackground(aeLightboxDescription);
-		clearBackground(aeFooter);
+		setSameBackground(aeHeader);
+		setSameBackground(aeMenuButtons);
+		setSameBackground(aeLangButton);
+		setSameBackground(aeSmallTitle);
+		setSameBackground(aeGalleryTitle);
+		setSameBackground(aeGalleryDesc);
+		setSameBackground(aeSection);
+		setSameBackground(aeImageTitle);
+		setSameBackground(aeImageDesc);
+		setSameBackground(aeLightboxTitle);
+		setSameBackground(aeLightboxDescription);
+		setSameBackground(aeFooter);
 	}
 	QString qs = config.Web.background.ForStyleSheet(false, true);
 	_RunJavaScript("body", qs);

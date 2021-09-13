@@ -24,7 +24,7 @@ class AlbumStructWriterThread : public QThread
 	AlbumMap& _albumMap;	// all source albums
 	ImageMap& _imageMap;	// all images for all albums
 	VideoMap& _videoMap;	// all videos for all albums
-	Album _root;			// top level album (first in '_albumMap', ID = 1)
+	Album _root;			// top level album (first in '_albumMap', ID = 1|ALBUM_ID_FLAG)
 	QTextStream _ofs;
 
 	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);

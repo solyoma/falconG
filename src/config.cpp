@@ -340,10 +340,15 @@ void _CColor::Set(QString str, int opac)
 QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
 {
 	QString qs = (isBackground ? "background-color:" : "color:");
-	if (_opacity != 100 && _opacity > 0)
-		qs += ToRgba();
-	else
-		qs += _colorName;
+	
+	if (_opacity != 0)
+	{
+		if (_opacity > 0 && _opacity != 255)
+			qs += ToRgba();
+		else
+			qs += _colorName;
+	}
+
 	__AddSemi(qs, addSemiColon);
 	return qs;
 }
@@ -374,6 +379,17 @@ _CColor& _CColor::operator=(_CColor c)
 	v = c.v; v0 = c.v0;
 	_Setup();
 	return *this;
+}
+bool _CColor::operator==(const _CColor& o)
+{
+	bool res = _colorName == o._colorName;
+	if (_opacity >= 0 && o._opacity >= 0)
+		res &= _opacity == o._opacity;
+	return res;
+}
+bool _CColor::operator!=(const _CColor& o)
+{
+	return !operator==(o);
 }
 /*===========================================================================
  * TASK: drop the leading '# from the name

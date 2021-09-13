@@ -69,7 +69,7 @@ int Languages::_Read(QString name)
 		return 0;
 
 	QString s;
-	int next = names.size();
+	int lang = names.size();
 	abbrev.push_back(s);
 	albums.push_back(s);
 	countOfImages.push_back(s);
@@ -102,56 +102,56 @@ int Languages::_Read(QString name)
 		if (sn == "")
 			;
 		else if (sn == "abbrev")
-			names[next] = s;
+			abbrev[lang] = s;
 		else if (sn == "about")
-			toAboutPage[next] = s;
+			toAboutPage[lang] = s;
 		else if (sn == "albums")
-			albums[next] = s;
+			albums[lang] = s;
 		else if (sn == "cdcaptions")
-			coupleCaptions[next] = s;
+			coupleCaptions[lang] = s;
 		else if (sn == "contact")
-			toContact[next] = s;
+			toContact[lang] = s;
 		else if (sn == "countofimages")
-			countOfImages[next] = s;
+			countOfImages[lang] = s;
 		else if (sn == "countrycode")
-			countryCode[next] = s;
+			countryCode[lang] = s;
 		else if (sn == "descriptions")
-			showDescriptions[next] = s;
+			showDescriptions[lang] = s;
 		else if (sn == "falcong")
 		{
 			QString qsolyom = ToUTF8(QString("Sólyom"));
 			if (s.indexOf(qsolyom) < 0)
 				s = sFalcongEnglishCopyright;
-			falconG[next] = s;
+			falconG[lang] = s;
 		}
 		else if (sn == "homepage")
-			toHomePage[next] = s;
+			toHomePage[lang] = s;
 		else if (sn == "icon")
-			icons[next] = s;
+			icons[lang] = s;
 		else if (sn == "images")
-			images[next] = s;
+			images[lang] = s;
 		else if (sn == "language")
-			names[next] = s;
+			names[lang] = s;
 		else if (sn == "latestdesc")
-			latestDesc[next] = s;
+			latestDesc[lang] = s;
 		else if (sn == "latesttitle")
-			latestTitle[next] = s;
+			latestTitle[lang] = s;
 		else if (sn == "name")
-			names[next] = s;
+			names[lang] = s;
 		else if (sn == "share")
-			share[next] = s;
+			share[lang] = s;
 		else if (sn == "toalbums")
-			toAlbums[next] = s;
+			toAlbums[lang] = s;
 		else if (sn == "totop")
-			toAlbums[next] = s;
+			toTop[lang] = s;
 		else if (sn == "uponelevel")
-			toAlbums[next] = s;
+			upOneLevel[lang] = s;
 		else if (sn == "videos")
-			videos[next] = s;
+			videos[lang] = s;
 	}
-	if (abbrev[next].isEmpty())
-		abbrev[next] = countryCode[next];
-	return ++next;
+	if (abbrev[lang].isEmpty())
+		abbrev[lang] = countryCode[lang];
+	return ++lang;
 }
 
 /*============================================================================
