@@ -116,65 +116,23 @@
            <string>Local machine</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="1" column="0" colspan="3">
-            <widget class="QCheckBox" name="chkSourceRelativePerSign">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="btnSourceHistory">
              <property name="font">
               <font>
                <family>Arial</family>
                <weight>50</weight>
                <bold>false</bold>
               </font>
+             </property>
+             <property name="toolTip">
+              <string>Click for history!</string>
              </property>
              <property name="text">
-              <string>Paths starting with '/' are under source gallery</string>
+              <string>Source of Ga&amp;llery</string>
              </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLineEdit" name="edtDestGallery">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="placeholderText">
-              <string>( any folder on your machine other the source folder or its subfolders)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="edtSourceGallery">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="placeholderText">
-              <string>( directory for the hierarchy descriptions 'gallery.struct' or a 'jalbum' source gallery )</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QToolButton" name="btnBrowseSource">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>...</string>
+             <property name="flat">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -195,7 +153,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="3">
+           <item row="2" column="4">
             <widget class="QToolButton" name="btnBrowseDestination">
              <property name="font">
               <font>
@@ -209,8 +167,8 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="btnSourceHistory">
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="edtSourceGallery">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -218,14 +176,56 @@
                <bold>false</bold>
               </font>
              </property>
-             <property name="toolTip">
-              <string>Click for history!</string>
+             <property name="placeholderText">
+              <string>( directory for the hierarchy descriptions 'gallery.struct' or a 'jalbum' source gallery )</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QToolButton" name="btnBrowseSource">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
              </property>
              <property name="text">
-              <string>Source of Ga&amp;llery</string>
+              <string>...</string>
              </property>
-             <property name="flat">
-              <bool>false</bool>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QCheckBox" name="chkSourceRelativePerSign">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Paths starting with '/' are under source gallery</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="edtDestGallery">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="placeholderText">
+              <string>( any folder on your machine other the source folder or its subfolders)</string>
              </property>
             </widget>
            </item>
@@ -1904,31 +1904,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                          <string>Colors</string>
                         </property>
                         <layout class="QGridLayout" name="gridLayout">
-                         <item row="0" column="0">
-                          <widget class="QLabel" name="label_68">
-                           <property name="font">
-                            <font>
-                             <family>Arial</family>
-                             <pointsize>10</pointsize>
-                             <weight>50</weight>
-                             <bold>false</bold>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Page Foreground color:</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="1">
-                          <widget class="QToolButton" name="btnPageColor">
-                           <property name="styleSheet">
-                            <string notr="true">QToolButton {background-color:#d6e0f7;}</string>
-                           </property>
-                           <property name="text">
-                            <string/>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="1" column="0">
                           <widget class="QLabel" name="label_65">
                            <property name="font">
@@ -1954,7 +1929,32 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                            </property>
                           </widget>
                          </item>
-                         <item row="1" column="2">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_68">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Page Foreground color:</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QToolButton" name="btnPageColor">
+                           <property name="styleSheet">
+                            <string notr="true">QToolButton {background-color:#d6e0f7;}</string>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="3">
                           <widget class="QCheckBox" name="chkSetAll">
                            <property name="font">
                             <font>
@@ -1975,6 +1975,26 @@ is checked, it will override those colors!
                            </property>
                            <property name="checked">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="3">
+                          <widget class="QCheckBox" name="chkSameForeground">
+                           <property name="font">
+                            <font>
+                             <family>Arial</family>
+                             <pointsize>10</pointsize>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <property name="toolTip">
+                            <string>If this is checked and you select a new foreground color then
+the same color will be applied to all elements on page as text color.
+This option then reverts to not checked.</string>
+                           </property>
+                           <property name="text">
+                            <string>Apply to all elements</string>
                            </property>
                           </widget>
                          </item>
@@ -2192,8 +2212,8 @@ is checked, it will override those colors!
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
-                         <height>616</height>
+                         <width>431</width>
+                         <height>737</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -3784,21 +3804,6 @@ is checked, it will override those colors!
                            </font>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_7">
-                           <item row="0" column="3">
-                            <widget class="QLabel" name="label_80">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Opacity</string>
-                             </property>
-                            </widget>
-                           </item>
                            <item row="1" column="1">
                             <widget class="QToolButton" name="btnForeground">
                              <property name="sizePolicy">
@@ -3823,21 +3828,6 @@ is checked, it will override those colors!
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label_26">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Text</string>
-                             </property>
-                            </widget>
-                           </item>
                            <item row="2" column="0">
                             <widget class="QLabel" name="label_33">
                              <property name="font">
@@ -3853,7 +3843,7 @@ is checked, it will override those colors!
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="5">
+                           <item row="1" column="6">
                             <spacer name="horizontalSpacer_9">
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
@@ -3865,6 +3855,21 @@ is checked, it will override those colors!
                               </size>
                              </property>
                             </spacer>
+                           </item>
+                           <item row="1" column="0">
+                            <widget class="QLabel" name="label_26">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Text</string>
+                             </property>
+                            </widget>
                            </item>
                            <item row="2" column="1">
                             <widget class="QToolButton" name="btnBackground">
@@ -3882,7 +3887,7 @@ is checked, it will override those colors!
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="3">
+                           <item row="1" column="5">
                             <widget class="QSpinBox" name="sbTextOpacity">
                              <property name="enabled">
                               <bool>false</bool>
@@ -3912,7 +3917,7 @@ is checked, it will override those colors!
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="3">
+                           <item row="2" column="5">
                             <widget class="QSpinBox" name="sbBackgroundOpacity">
                              <property name="enabled">
                               <bool>false</bool>
@@ -3942,7 +3947,7 @@ is checked, it will override those colors!
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="2">
+                           <item row="1" column="3">
                             <widget class="QCheckBox" name="chkTextOpacity">
                              <property name="font">
                               <font>
@@ -3956,11 +3961,11 @@ is checked, it will override those colors!
                               <string>Turn opacity on or off</string>
                              </property>
                              <property name="text">
-                              <string>use opacity</string>
+                              <string>use opacity:</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="2">
+                           <item row="2" column="3">
                             <widget class="QCheckBox" name="chkBackgroundOpacity">
                              <property name="font">
                               <font>
@@ -3974,7 +3979,22 @@ is checked, it will override those colors!
                               <string>Turn opacity on or off</string>
                              </property>
                              <property name="text">
-                              <string>use opacity</string>
+                              <string>use opacity:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="5">
+                            <widget class="QLabel" name="label_80">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Opacity</string>
                              </property>
                             </widget>
                            </item>
@@ -4241,8 +4261,8 @@ is checked, it will override those colors!
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>737</height>
+                         <width>415</width>
+                         <height>446</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5275,7 +5295,7 @@ so when one changes the other changes too.
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>428</width>
+                          <width>433</width>
                           <height>474</height>
                          </rect>
                         </property>
@@ -7085,8 +7105,6 @@ the last CSS save.</string>
   <tabstop>btnSourceHistory</tabstop>
   <tabstop>edtSourceGallery</tabstop>
   <tabstop>btnBrowseSource</tabstop>
-  <tabstop>chkSourceRelativePerSign</tabstop>
-  <tabstop>edtDestGallery</tabstop>
   <tabstop>btnBrowseDestination</tabstop>
   <tabstop>edtServerAddress</tabstop>
   <tabstop>edtGalleryRoot</tabstop>
@@ -7141,9 +7159,7 @@ the last CSS save.</string>
   <tabstop>rbCoverBckImage</tabstop>
   <tabstop>rbTileBckImage</tabstop>
   <tabstop>btnForeground</tabstop>
-  <tabstop>sbTextOpacity</tabstop>
   <tabstop>btnBackground</tabstop>
-  <tabstop>sbBackgroundOpacity</tabstop>
   <tabstop>chkTdUnderline</tabstop>
   <tabstop>chkTdOverline</tabstop>
   <tabstop>chkTdLinethrough</tabstop>
