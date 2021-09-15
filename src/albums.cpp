@@ -3255,9 +3255,11 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idIndex)
 {
 
+	bool isAlbum = typeFlag & ALBUM_ID_FLAG;
+
 	IdList& idList = album.items;
 	if (idIndex >= 0 && idList.isEmpty())
-		return typeFlag == ALBUM_ID_FLAG ? -1 : -2;
+		return isAlbum ? -1 : -2;
 
 	ID_t id = idIndex >= 0?  idList[idIndex].t : RECENT_ALBUM_ID;	// const non const values
 	if ((id & typeFlag) == 0)	// not this type
@@ -3266,10 +3268,10 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
-	if (typeFlag == ALBUM_ID_FLAG && !album.exists)
+	if (isAlbum && !album.exists)
 		return -1;
 
-	if (album.ID == ROOT_ALBUM_ID )		// root album
+	if (album.ID == ROOT_ALBUM_ID )
 	{
 		sAlbumDir = config.dsAlbumDir.ToString();	// root album: all other albums are inside 'albums'
 		sOneDirUp = "";								// and the img directory is here
@@ -3285,7 +3287,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 	Image *pImage = nullptr;
 	ID_t thumb = 0;
-	if (typeFlag & ALBUM_ID_FLAG)
+	if (isAlbum)
 	{
 		thumb = idIndex >= 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ].t;
 		if (thumb)
@@ -3316,72 +3318,44 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		if (pImage->tsize.width() <= 0)
 			pImage->SetThumbSize();
 	}
-
-	_ofs << "   <div class=\"img-container\">\n"
-		"     <div";
-	if (pImage)
-		_ofs << " id=\"" << (pImage->ID & ID_MASK) << "\" w=" << pImage->tsize.width() << " h=" << pImage->tsize.height();
-	_ofs << ">";
-
-	if (typeFlag & ALBUM_ID_FLAG)
-	{
-		if(idIndex < 0)
-		{ 
-			title = Languages::latestTitle[_actLanguage];
-			desc = Languages::latestDesc[_actLanguage];
-		}
-		else
-		{
-			title = DecodeLF(_textMap[_albumMap[id].titleID][_actLanguage], 1);
-			desc = DecodeLF(_textMap[_albumMap[id].descID][_actLanguage], 1);
-		}
-
-		if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
-		{
-			sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
-			sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
-		}
-	}
-	_ofs << "\n       <a class=\"thumb\" href=\"";
-
-	if (typeFlag & ALBUM_ID_FLAG)
-	{
-		_ofs << sAlbumDir << _albumMap[id].NameFromID(id, _actLanguage, false) << "\">";	// non root albums are in the same sub directory
+	if(idIndex < 0)
+	{ 
+		title = Languages::latestTitle[_actLanguage];
+		desc = Languages::latestDesc[_actLanguage];
 	}
 	else
 	{
-		title = DecodeLF(_textMap[pImage->titleID][_actLanguage], 1);
-		desc = DecodeLF(_textMap[(pImage->descID)][_actLanguage], 1);
-		sImagePath = sImageDir + ( (album.ImageCount() > 0 ? pImage->LinkName() : QString()) );
-		sThumbnailPath = sThumbnailDir + ((album.ImageCount() > 0 ? pImage->LinkName() : QString()));
-		_ofs << "javascript:ShowImage('" +sImagePath+"', '" + title + "')\">";		// image in the image directory
+		int tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
+			did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
+
+		title = DecodeLF(_textMap[tid][_actLanguage], 1);
+		desc = DecodeLF(_textMap[did][_actLanguage], 1);
 	}
 
-	// the first 3 images will always be loaded immediately
-	_ofs << (idIndex > 2 ? "<img data-src=\"" : "<img src=\"") + sThumbnailPath + "\" alt=\"" + title + "\"";
+	if (pImage && config.bDebugging)
+		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
+	if (title.isEmpty())
+		title = "&nbsp;";
 
-	if (idIndex < 0)	   // latest uploads
-		_ofs << " id=\"latest\"";
-	
-	if (pImage)
+	if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
 	{
-		if (pImage->tsize.width() >= 700)		// too wide thumbnail image
-			_ofs << " style=\"max-height:calc(99vw / " << (int)(pImage->Aspect()) << ")\"";
-//		else
-//			_ofs << " style=\"width: " << pImage->tsize.width() << "; height: " << pImage->tsize.height() << ";\"";
+		sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
 	}
-	_ofs << "></a>\n"
-			"     </div>\n";									   // end of div thumb
-	
-    //  -------------------------- description
-	if(!desc.isEmpty() )
-		_ofs << "     <div class=\"desc\">\n"
-				"       <p lang=\"" << Languages::language[_actLanguage] << "\">"
-			 << desc << "</p>\n"
-				"     </div>\n";
-	//  -------------------------- end of description
 
-	//  -------------------------- links with  album/image title
+				   /*
+				   *	<div class="img-container">
+				   *		<div class="%1">							// imatte or amatte
+				   *			<div id="%2" w=%3 h=%4 >				// %2:image or album id, %4: height, %3:width
+				   *				<img class="%5" %6="%7" alt="%8" onclick="%9" %10>	
+				   *					// %5:"thumb" or "athumb", %6:"src=" or "data-src", %7:image link, %8:"alt text",%9:"ShowImage()" or album location %10: "style='something'" or ""
+				   *			</div>
+				   *		</div>
+				   *		%11%										// %11:"<p class='desc' lang='language"> or nothing, %12:" or nothing %13 "></p>" or nothing
+				   *		<a class="title" href="%9">%8</a>				
+				   *	</div>
+				   */
+
 	QString qsLoc;		// empty for non root albums/images
 	if (typeFlag == ALBUM_ID_FLAG)
 		qsLoc = "javascript:LoadAlbum('" + 
@@ -3390,17 +3364,43 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
 	qsLoc += +"')\">";
 
-	_ofs << "     <div class=\"links\">\n"
-			"        <div class=\"title\" onclick=\""
-		 << qsLoc;		   // closes <div>
+	QString tagPDesc;
+	if (!desc.isEmpty())
+		tagPDesc =	"<div class=\"desc\">\n"
+					"			<p class='desc' lang='" + Languages::language[_actLanguage] + ">" + desc + "</p>\n"
+					"		</div>\n";
 
-	if (pImage && config.bDebugging)
-		title += QString(" <br>%1<br>%2").arg(pImage->name).arg(pImage->ID);
-	_ofs << (title.isEmpty() ? "&nbsp;" : title)	// was "---"
-		<< "</div>\n"
-		   "     </div>\n";	// for "title" "links"
-	
-	_ofs << "   </div>\n";		// "img-container"
+	QString qsOptionalStyle;
+	if (pImage->tsize.width() >= 700)
+		qsOptionalStyle = " style=\"max-height:calc(99vw/" + QString().setNum((int)(pImage->Aspect())) + ")\"";
+
+	QString qs = QString(R"(
+	<div class = "img-container">
+		<div class="%1">
+			<div id="%2" w=%3 h=%4>
+				<img class="%5" %6="%7" alt="%8" onclick="%9" %10>
+			</div>
+		</div>
+		%11
+		<div class="links">
+			<div class="title" onclick="%9">%8</div>
+		</div>
+	</div>
+
+)").arg((isAlbum ? "imatte" : "amatte"))							// 1
+	.arg(pImage->ID & ID_MASK)										// 2
+	.arg(pImage->tsize.width())										// 3
+	.arg(pImage->tsize.height())									// 4
+	.arg(isAlbum ? "thumb" : "athumb")								// 5
+	.arg(idIndex > 2 ? "data-src":"src")							// 6
+	.arg(sThumbnailPath)											// 7
+	.arg(title)														// 8
+	.arg(qsLoc)														// 9
+	.arg(qsOptionalStyle)											// 10
+	.arg(tagPDesc)													// 11
+	;
+
+	_ofs << qs;
 
 	return 0;
 }

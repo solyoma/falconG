@@ -877,7 +877,7 @@ void FalconG::_OtherToUi()
 		ui.edtFontDir->setText(config.dsFontDir.ToString());
 	if (_TestDirValue(ui.edtImg, config.dsImageDir))
 		ui.edtImg->setText(config.dsImageDir.ToString());
-	if (_TestDirValue(ui.edtImg, config.dsVideoDir))
+	if (_TestDirValue(ui.edtVid, config.dsVideoDir))
 		ui.edtVid->setText(config.dsVideoDir.ToString());
 	if (_TestDirValue(ui.edtThumb, config.dsThumbDir))
 		ui.edtThumb->setText(config.dsThumbDir.ToString());
@@ -4544,13 +4544,13 @@ void FalconG::_WaterMarkToSample()
 	_CWaterMark &wm = config.waterMark;
 	if (wm.used)
 	{
-		_RunJavaScript("thumbs::after", "display:"); // remove "none"
-		_RunJavaScript("thumbs1::after", "display:"); // remove "none"
+		_RunJavaScript("athumb::after", "display:"); // remove "none"
+		_RunJavaScript("athumb::after", "display:"); // remove "none"
 	}
 	else
 	{
-		_RunJavaScript("thumbs::after", "display:none"); // remove "none"
-		_RunJavaScript("thumbs1::after", "display:none"); // remove "none"
+		_RunJavaScript("athumb::after", "display:none"); // remove "none"
+		_RunJavaScript("athumb::after", "display:none"); // remove "none"
 	}
 	_page.triggerAction(QWebEnginePage::Reload);
 }

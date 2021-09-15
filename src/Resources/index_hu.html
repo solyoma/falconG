@@ -24,7 +24,7 @@
             <a class="menu-item" id="contact" href="javascript:MenuClick()">Kapcsolat</a>
             <a class="menu-item" id="captions" href="javascript:MenuClick()">Kép és leírás</a>
             <a class="menu-item" id="desc" href="javascript:MenuClick()">Leírások</a>
-            <a class="menu-item" id="toAlbums" href="#albums">Albumokhoz</a>
+            <a class="menu-item" id="toAlbums" href="javascript:MenuClick()">Albumokhoz</a>
             &nbsp;&nbsp;
             <div class="fb-share-button"
                         data-href="https://andreasfalco.com" 
@@ -56,16 +56,20 @@
     <div id="images"  class="fgsection" onclick="javascript:SectionClick()">Képek</div><br>
     <section>
         <div class="img-container">
-            <div class="thumb" id="2237674750" w=600 h=400>
-                <a href="javascript:ThumbClick()"><img src="res/placeholder.jpg" alt="szöveg a kép nevével" style="max-height:calc(99vw / 2)"></a>
-            </div>
+			<div class="imatte">
+				<div id="2237674750" w=600 h=400>
+					<img class="thumb" src="res/placeholder.jpg" onclick="javascript:ThumbClick()" alt="szöveg a kép nevével" style="max-height:calc(99vw / 2)"></a>
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">1. Kép leírása:Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <a class="title" href="javascript:LinkClick()">1. Kép - első sor<br>további sorok</a>
         </div>
         <div class="img-container">
-            <div class="thumb" id="2237674750" w=600 h=400>
-                <a href="javascript:ThumbClick()"><img src="res/placeholder2.jpg" alt="szöveg a kép nevével" style="max-height:calc(99vw / 2)"></a>
-            </div>
+			<div class="imatte">
+				<div id="2237674750" w=600 h=400>
+					<img class="thumb" src="res/placeholder2.jpg" onclick="javascript:ThumbClick()" alt="szöveg a kép nevével" style="max-height:calc(99vw / 2)"></a>
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">2. kép leírása:Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <a class="title" href="javascript:LinkClick()">2. Kép - első sor<br>további sorok</a>
         </div>
@@ -75,11 +79,11 @@
     <div  id="albums" class="fgsection" onclick="javascript:SectionClick()">Albumok</div><br>
     <section>
         <div class="img-container">
-            <div class="thumb" id="2237674750" w=400 h=400>
-                <a href="javascript:ThumbClick()">
-                    <img src="res/NoImage.jpg" alt="nincs kép" style="max-height:calc(99vw / 2)">
-                </a>
-            </div>
+			<div class="amatte">
+				<div id="2237674750" w=400 h=400>
+                    <img class="athumb" src="res/NoImage.jpg" onclick="javascript:ThumbClick()" alt="alt text for album">
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">Album leírása:Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <a class="title" href="javascript:LinkClick()">'Album - első sor<br>többi sor</a>
         </div>

@@ -208,67 +208,58 @@ void CssCreator::_CreateForSection()
  *------------------------------------------------------------*/
 void CssCreator::_CreateForImagesAndAlbums()
 {
-	_ofs << R"(.img-container {		/* ---- image or album ----- */;
+	// --------- imgContainer ----------------
+	_ofs << QString(R"(.img-container {		/* ---- image or album ----- */;
 	display:flex;
 	flex-direction: column;
 	justify-content:center;
 	align-items:center;
 	position: relative;
-)";
-	_ofs << "\tmargin: 0 " << config.imageMargin << ";\n"
-			"}\n\n";
-									 // .imatte
+	margin: 0 %1
+}
+
+img {
+	display:box;
+}
+
+)").arg(config.imageMargin);
+			
+	// --------- imatte ----------------
 	_ofs << ".imatte {\n"
+			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"\tposition:relative;\n";
-	if (config.imageMatte.v)
+	if (config.imageMatte.v)	// width not 0
 		_ofs << "\tbackground-color:" << config.imageMatteColor.v << ";\n"
-			 << "\tpadding:" << config.imageMatte.v << "px;\n"
-				"\t" << config.imageBorder.ForStyleSheetShort(true);
+			 << "\tpadding:" << config.imageMatte.v << "px;\n";
+	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);	// image border on matte
 
-	if (config.imageBorder.Radius() > 0)
+	if (config.imageBorder.Radius() > 0)							// also on matte
 		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
 	_ofs << "}\n\n";
-									 // .amatte
+					
+	// --------- amatte ----------------
 	_ofs << ".amatte {\n"
+			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"\tposition:relative;\n";
-	if (config.albumMatte.v)
-		_ofs << "\tbackground-color:" << config.albumMatteColor.v << ";\n"
+	if (config.albumMatte.v)	// width not 0 ?
+		_ofs << "\tbackground-color:" << config.albumMatteColor.Name() << ";\n"
 			 << "\tpadding:" << config.albumMatte.v << "px;\n";
+	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);
 	if (config.imageBorder.Radius() > 0)
 		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
 	_ofs << "}\n\n";
 
+	// --------- img.thumb, img.athumb ----------------
 	_ofs << ".thumb,.athumb {\n";
 	if (_forSamplePage)
 		_ofs <<	"\tcursor:pointer;\n";
 
 	_ofs << "\tmax-width:80vw;\n"
-			"\tdisplay:box;\n"		// to remove space after the image
 			"\tmax-width:80vw;\n"
-			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"}\n\n";
-	// image border is used for <img class="thumb"> but only if there is no matte around the image
-	if (config.imageBorder.UsedSides() && !config.imageMatte.v)
-	{
-		_ofs << ".thumb {\n"
-			"\t"
-			<< config.imageBorder.ForStyleSheetShort(true);
-		if (config.imageMatteRadius.v)
-			_ofs << "border-radius:" << config.imageMatteRadius.v << ";\n";
-		_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
-	}
-	// album border is used for <img class="athumb">
-	if (config.albumMatte.v)
-	{
-		_ofs << ".athumb {\n"
-			<< QString("\tpadding:%1px;\tbackground-color:%2\n").arg(config.albumMatte).arg(config.albumMatteColor.Name());
-		if (config.albumMatteRadius.v)
-			_ofs << "border-radius:" << config.albumMatteRadius.v << ";\n";
-		_ofs << "\n}\n\n";	// close '.thumb' or '.thumb,.athumb
-	}
 	WaterMark& wm = config.waterMark;
 
-	if (_forSamplePage)
+	if (_forSamplePage && config.waterMark.used)
 	{	
 		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
 	

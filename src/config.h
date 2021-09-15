@@ -374,9 +374,12 @@ struct _CColor : _CFG_ITEM<QString>
 	QString ToRgba() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/266.0) 
 	{
 		int n = _colorName.length() == 9 ? 3 : 1;
-		QString qs = QString("rgba(%1,%2,%3,%4)").arg(_colorName.mid(n, 2).toInt(nullptr, 16)).arg(_colorName.mid(n+2, 2).toInt(nullptr, 16)).arg(_colorName.mid(n+4, 2).toInt(nullptr, 16));
+		QString qs = QString("rgba(%1,%2,%3").arg(_colorName.mid(n, 2).toInt(nullptr, 16))
+												 .arg(_colorName.mid(n+2, 2).toInt(nullptr, 16))
+												 .arg(_colorName.mid(n+4, 2).toInt(nullptr, 16));
 		if (_opacity >= 0)
-			return qs += QString().setNum((double)_opacity / 255.0);
+			qs += QString(",%1").arg((double)_opacity / 255.0);
+		qs += ")";
 		return qs;
 	}
 

@@ -152,7 +152,10 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 		sDefault += "gallery.struct";
 
 	QString sIniName, p, n, s;				  // if there was a last used directory read from it
-	
+
+	if (lastConfigs.isEmpty() || indexOfLastUsed < 0)
+		return sDefault;
+
 	s = lastConfigs[indexOfLastUsed];
 
 	SeparateFileNamePath(s, p, n);	// cuts '/' from name

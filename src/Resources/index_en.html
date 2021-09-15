@@ -24,7 +24,7 @@
             <a class="menu-item" id="contact" href="javascript:MenuClick()">Contact</a>
             <a class="menu-item" id="captions" href="javascript:MenuClick()">Capt. and Desc</a>
             <a class="menu-item" id="desc" href="javascript:MenuClick()">Descriptions</a>
-            <a class="menu-item" id="toAlbums" href="#albums">To Albums</a>
+            <a class="menu-item" id="toAlbums" href="javascript:MenuClick()">To Albums</a>
             &nbsp;&nbsp;
             <div class="fb-share-button"
                         data-href="https://andreasfalco.com" 
@@ -56,16 +56,20 @@
     <div id="images"  class="fgsection" onclick="javascript:SectionClick()">Images</div><br>
     <section>
         <div class="img-container">
-            <div class="thumb" id="2237674750" w=600 h=400>
-                <a href="javascript:ThumbClick()"><img src="res/placeholder.jpg" alt="alt text for image" style="max-height:calc(99vw / 2)"></a>
-            </div>
+			<div class="imatte">
+				<div id="2237674750" w=600 h=400>
+					<img class="thumb" src="res/placeholder.jpg" onclick="javascript:ThumbClick()" alt="alt text for image" style="max-height:calc(99vw / 2)">
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">Description of Image#1: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <a class="title" href="javascript:LinkClick()">Image #1 - First_Line<br>other lines</a>
         </div>
         <div class="img-container">
-            <div class="thumb" id="2237674750" w=600 h=400>
-                <a href="javascript:ThumbClick()"><img src="res/placeholder2.jpg" alt="alt text for image" style="max-height:calc(99vw / 2)"></a>
-            </div>
+			<div class="imatte">
+				<div id="2237674750" w=600 h=400>
+					<img class="thumb" src="res/placeholder2.jpg" onclick="javascript:ThumbClick()" alt="alt text for image" style="max-height:calc(99vw / 2)"></a>
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">Description of Image#2: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <div class="title" href="javascript:LinkClick()">Image #2 - First_Line<br>other lines</div>
         </div>
@@ -75,11 +79,11 @@
     <div  id="albums" class="fgsection" onclick="javascript:SectionClick()">Albums</div><br>
     <section>
         <div class="img-container">
-            <div  class="thumb1"id="2237674750" w=400 h=400>
-                <a href="javascript:ThumbClick()">
-                    <img src="res/NoImage.jpg" alt="" style="max-height:calc(99vw / 2)">
-                </a>
-            </div>
+			<div class="amatte">
+				<div id="2237674750" w=400 h=400>
+                    <img class="athumb" src="res/NoImage.jpg" onclick="javascript:ThumbClick()" alt="alt. text for album">
+				</div>
+			</div>
             <p class="desc" onclick="DescClick()" lang="hu">Description of Album#1: Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</p>
             <a class="title" href="javascript:LinkClick()">Album #1 - First_Line<br>other lines</a>
         </div>
