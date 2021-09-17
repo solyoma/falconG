@@ -348,6 +348,7 @@ struct _CColor : _CFG_ITEM<QString>
 		if (opac > limit) 
 			opac = limit;
 
+		_opacityUsed = used;
 		_opacity = opac;
 		if (percent)
 			_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
@@ -373,7 +374,7 @@ struct _CColor : _CFG_ITEM<QString>
 	QString ARGB() const { return v; }	// may or may not have an opacity set
 	QString ToRgba() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/266.0) 
 	{
-		int n = _colorName.length() == 9 ? 3 : 1;
+		int n = _colorName.length() == 4 ? 3 : 1;	// either 4 ("#RGB") or 7 ("#RRGGBB")characters
 		QString qs = QString("rgba(%1,%2,%3").arg(_colorName.mid(n, 2).toInt(nullptr, 16))
 												 .arg(_colorName.mid(n+2, 2).toInt(nullptr, 16))
 												 .arg(_colorName.mid(n+4, 2).toInt(nullptr, 16));
@@ -393,7 +394,7 @@ struct _CColor : _CFG_ITEM<QString>
 private:
 	int _opacity = 255;			// 0..255 (=== 0..100 %)
 	bool _opacityUsed = false;
-	QString _colorName;		// starts with a '#' character	and has 4 or 7 characters (no opacity)
+	QString _colorName;		// starts with a '#' character	and always has 7 characters (no opacity)
 							// otherwise invalid
 	void _NormalizeName()
 	{
@@ -408,12 +409,12 @@ private:
 	{
 		if (!_ColorStringValid(v))
 			return;
-		int len = v.length(),
-			len1 = len == 10 ? 9 : len;
+		int len = v.length(),			// can be 4, 7, 9, or 10 (#RGB, #RRGGBB #AARRGGBB #AARRGGBB- )  
+			len1 = len == 10 ? 9 : len; // without the '-' at the end, any other cases opacity is 100% (255) and not used
 
-		_opacityUsed = len != 10;
+		_opacityUsed = len == 9;
 
-		if (len1 == 9)		// v == #AARRGGBB[-]
+		if (len1 == 9)		// v == #AARRGGBB
 		{
 			_opacity = (v.mid(1, 2)).toInt(nullptr, 16);
 			_colorName = "#" + v.mid(3,6);		// cut opacity part
@@ -428,7 +429,7 @@ private:
 	void _Prepare() override		// v from internal (changed) variables
 	{
 		v = _colorName;			  // name w.o. opacity: #RRGGBB
-		v = "#" + QString("%1").arg(_opacity, 2, 16, QChar('0')) + v.mid(1);	// name w. opacity
+		v = "#" + QString("%1").arg(_opacity, 2, 16, QChar('0')) + v.mid(1);	// name w. o. opacity
 		if (!_opacityUsed)				  // name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
 			v = v + '-';
 	}

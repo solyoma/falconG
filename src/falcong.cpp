@@ -2307,8 +2307,8 @@ void FalconG::on_chkTextOpacity_toggled(bool on)
 		return;
 	ui.sbTextOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	int val = ((int64_t)ui.sbTextOpacity->value() * 255 + 90) / (int64_t)100;
-	pElem->color.SetOpacity(val, on, false);
+	int val = ui.sbTextOpacity->value();
+	pElem->color.SetOpacity(val, on, true);	// in percent
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2325,8 +2325,8 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 		return;
 	ui.sbBackgroundOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	int val = ((int64_t)ui.sbTextOpacity->value() * 255 + 90) / (int64_t)100;
-	pElem->background.SetOpacity(val, on, false);
+	int val = ui.sbBackgroundOpacity->value();
+	pElem->background.SetOpacity(val, on, true);	// in percent
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -4172,12 +4172,6 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 	_EnableColorSchemeButtons();
 }
 
-void FalconG::on_btnWriteStructForTextChanges_clicked()
-{
-	ui.btnWriteStructForTextChanges->setEnabled(false);	// until next changes
-	albumgen.WriteDirStruct(true);
-}
-
 void FalconG::on_btnResetDialogs_clicked()
 {
 	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
@@ -5310,7 +5304,6 @@ void FalconG::_SaveChangedTitleDescription()
 	_SaveChangedTexts();
 	ui.btnSaveChangedTitle->setEnabled(false);
 	ui.btnSaveChangedDescription->setEnabled(false);
-	ui.btnWriteStructForTextChanges->setEnabled(true);
 }
 
 void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)

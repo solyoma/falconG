@@ -3239,8 +3239,8 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	}
 	else
 	{
-		if (album.titleID)
-			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(_textMap[album.titleID][_actLanguage], 1) << "</h2><br><br>\n";
+		QString title = album.titleID ? DecodeLF(_textMap[album.titleID][_actLanguage], 1) : album.name;
+			_ofs << "     <h2 class=\"gallery-title\">" << title << "</h2><br><br>\n";
 		if (album.descID)
 			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(_textMap[album.descID][_actLanguage], 1) << "</p>\n";
 	}
@@ -3408,7 +3408,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 					"		</div>\n";
 
 	QString qsOptionalStyle;
-	if (pImage->tsize.width() >= 700)
+	if (pImage && pImage->tsize.width() >= 700)
 		qsOptionalStyle = " style=\"max-height:calc(99vw/" + QString().setNum((int)(pImage->Aspect())) + ")\"";
 
 	QString qs = QString(R"(
@@ -3582,14 +3582,18 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.SubAlbumCount() > 0)
 	{
 		_ofs << "<!--start section albums -->\n"
-			<<	"    <div id=\"albums\" class=\"fgsection\">" << Languages::albums[_actLanguage] << "</div>\n"
-				"    <section>\n";
+			<< "    <div id=\"albums\" class=\"fgsection\">" << Languages::albums[_actLanguage] << "</div>\n"
+			"    <section>\n";
 
 		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if (album.items[i] & ALBUM_ID_FLAG && !(album.items[i] & EXCLUDED_FLAG) )
+		{
+			ID_t idSub = album.items[i];
+			if ((idSub & ALBUM_ID_FLAG) && !(_albumMap[idSub].ID & EXCLUDED_FLAG))
 				_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
+		}
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
+	
 
 	if (_processing)		// else leave the page unfinished
 	{
@@ -3609,7 +3613,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 
 /*============================================================================
 * TASK: Creates one html file for a given album
-* EXPECTS:	album , 
+* EXPECTS:	album - create web page for this album
 *			Language - index of actual language
 *			uplink - uplink : one level up
 *			processedCount - output parameter
@@ -3626,6 +3630,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int &processedCount)
 {
+	if (album.ID & EXCLUDED_FLAG)
+		return 0;
+
 	_actLanguage = language;
 
 	QString s;
@@ -3654,7 +3661,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 
 			for (int i = 0; _processing && i < album.items.size(); ++i)
 			{
-				if((album.items[i] & ALBUM_ID_FLAG) && !(album.items[i] & EXCLUDED_FLAG) )
+				if((album.items[i] & ALBUM_ID_FLAG) )
 					_CreatePage(_albumMap[album.items[i]], language, uplink, processedCount);
 			}
 		}
