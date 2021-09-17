@@ -1129,13 +1129,18 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 
 bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 {
-	if ( (a.ID & EXCLUDED_FLAG))
+	if (a.ID & EXCLUDED_FLAG)
 		return true;
-	if (a.ImageCount() == 0)	// just sub-albums
-		for (auto b : a.items)
-			return _IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]);
 
-	return false;
+	if (a.ImageCount() == 0)	// just sub-albums
+	{
+		for (auto b : a.items)
+			if (!_IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]))
+				return false;
+		return true;
+	}
+	else
+		return false;
 }
 
 /*=============================================================
