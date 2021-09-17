@@ -418,10 +418,11 @@ bool _CColor::_ColorStringValid(QString &s)
 	if (s.length() > 0 && s[0] != '#')
 		s = QChar('#') + s;
 
-	if (s.length() != 4 && s.length() != 7 && s.length() != 9)	// #RGB, #RRGGBB or #AARRGGBB
+	if (s.length() != 4 && s.length() != 7 && s.length() != 9 && s.length() != 10)	// #RGB, #RRGGBB, #AARRGGBB or #AARRGGBB-
 		return false;
-	char n;
-	for (int i = 1; i < s.length(); ++i)
+	char len = s.length() == 10 ? 9 : s.length(),
+		 n;
+	for (int i = 1; i < len; ++i)
 	{
 		n = s[i].unicode();
 		if (n < '0' || (n > '9' && (n < 'a' || n > 'f')))
@@ -1719,8 +1720,12 @@ void CONFIG::Read()		// synchronize with Write!
 	// Debug
 	bDebugging.Read(s);
 
-	if (PROGRAM_CONFIG::indexOfLastUsed >= 0 && dsSrc.IsEmpty())
-		dsSrc.v = PROGRAM_CONFIG::lastConfigs[PROGRAM_CONFIG::indexOfLastUsed];
+	int lastCfg = PROGRAM_CONFIG::indexOfLastUsed;		// check and correct bad parameter from file
+	if (lastCfg >= PROGRAM_CONFIG::lastConfigs.size())
+		PROGRAM_CONFIG::indexOfLastUsed = lastCfg = -1;
+
+	if (lastCfg >= 0 && dsSrc.IsEmpty())
+		dsSrc.v = PROGRAM_CONFIG::lastConfigs[lastCfg];
 	QString qs = PROGRAM_CONFIG::NameForConfig(true, ".ini");
 	if(!QFile::exists(qs))
 		config._WriteIni(qs);			// already written properties

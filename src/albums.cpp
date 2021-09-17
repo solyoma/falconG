@@ -92,7 +92,7 @@ static void __SetBaseDirs()
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
 {
-	if (album.thumbnail == 0) // then the first image  or sub-album
+	if (album.thumbnail == 0 + IMAGE_ID_FLAG) // then the first image  or sub-album
 	{						  // will be set as its thumbnail
 		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
 			return 0;
@@ -1127,6 +1127,38 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 	return id;
 }
 
+bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
+{
+	if ( (a.ID & EXCLUDED_FLAG))
+		return true;
+	if (a.ImageCount() == 0)	// just sub-albums
+		for (auto b : a.items)
+			return _IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]);
+
+	return false;
+}
+
+/*=============================================================
+ * TASK:	set excluded for all empty albums and on albums which
+ *			only has empty albums inside it to any depth
+ * PARAMS:
+ * GLOBALS: _albumMap
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void AlbumGenerator::_CleanupAlbums()
+{
+		// pass #1: mark empty albums with no items
+	for (auto a : _albumMap)
+		if (a.items.isEmpty())
+			a.ID |= EXCLUDED_FLAG;
+
+		// pass #2: mark non empty albums which only contain empty albums recursively
+	for (auto a : _albumMap)
+		if (!a.items.isEmpty() && a.ImageCount() == 0 && _IsAlbumAndItsSubAlbumsEmpty(a))
+			a.ID |= EXCLUDED_FLAG;
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -1218,7 +1250,7 @@ bool AlbumGenerator::_ReadFromDirsFile(Album &ab)
   * GLOBALS:
   * REMARKS: - the thumbnail is already a rotated image when needed
  *--------------------------------------------------------------------------*/
-bool AlbumGenerator::MustRecreateThumbBasedOnImageDimensions(QString thumbPath, Image & img)
+bool AlbumGenerator::_MustRecreateThumbBasedOnImageDimensions(QString thumbPath, Image & img)
 {
 	ImageReader reader(thumbPath);
 	QSize 	// tsize = config.ThumbSize(),
@@ -1618,6 +1650,9 @@ bool AlbumGenerator::Read()
 	}
 	else
 		result = _ReadFromDirs();
+
+	_CleanupAlbums();	// recursively exclude empty ones
+
 	emit SignalAlbumStructChanged();	// show list of albums in GUI
 //	if (result)
 //		_structAlreadyInMemory = true;
@@ -2878,7 +2913,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 	//	// order of these checks is important! (for thumbnails always must check size)
-		if (!config.bGenerateAll && (config.bButImages || (!MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)) )
+		if (!config.bGenerateAll && (config.bButImages || (!_MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)) )
 			doProcess -= prThumb;			// then do not process
 // DEBUG
 		//else
@@ -3122,7 +3157,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 {
 	QString updir = (album.ID == ROOT_ALBUM_ID) ? "" : "../";
 
-	auto outputMenuLine = [&](QString id, QString href, QString text, QString hint=QString())
+	auto outputMenuButton = [&](QString id, QString href, QString text, QString hint=QString())
 	{
 		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
 	};
@@ -3134,32 +3169,32 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	// menu buttons
 	_ofs << "   <nav>\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
-		outputMenuLine("uplink", qsParent, "&nbsp;", Languages::upOneLevel[_actLanguage]);
+		outputMenuButton("uplink", qsParent, "&nbsp;", Languages::upOneLevel[_actLanguage]);
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
 //		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
-	outputMenuLine("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
+	outputMenuButton("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
 	if (config.bMenuToAbout)
 	{
 		QString s = config.sAbout;
 		if (s.isEmpty())
 			s = "about.html";
-		outputMenuLine("about", updir + Languages::FileNameForLanguage(s, _actLanguage), Languages::toAboutPage[_actLanguage]);
+		outputMenuButton("about", updir + Languages::FileNameForLanguage(s, _actLanguage), Languages::toAboutPage[_actLanguage]);
 	}
 	if (config.bMenuToContact)
-		outputMenuLine("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
+		outputMenuButton("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
 		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
 	if (config.bMenuToToggleCaptions && (album.TitleCount() > 0 || album.ImageCount() > 0) && !Languages::coupleCaptions[_actLanguage].isEmpty())
 		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !Languages::toAlbums[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
-		outputMenuLine("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
+		outputMenuButton("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (album.ID > RECENT_ALBUM_ID && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
 	{
 		QString qs = "latest";
 		if (Languages::Count() > 1)
 			qs += Languages::abbrev[_actLanguage];
 		qs += ".html";
-		outputMenuLine("latest", qs, Languages::latestTitle[_actLanguage]);
+		outputMenuButton("latest", qs, Languages::latestTitle[_actLanguage]);
 	}
 	//// debug
 	//"<p style=\"margin-left:10px; font-size:8pt;font-family:Arial;\"id=\"felbontas\"></p>  <!--debug: display screen resolution-->
@@ -3330,6 +3365,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 		title = DecodeLF(_textMap[tid][_actLanguage], 1);
 		desc = DecodeLF(_textMap[did][_actLanguage], 1);
+		if (isAlbum && title.isEmpty())	// no album title: use folder name
+			title = _albumMap[id].name;
 	}
 
 	if (pImage && config.bDebugging)
@@ -3357,12 +3394,12 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 				   */
 
 	QString qsLoc;		// empty for non root albums/images
-	if (typeFlag == ALBUM_ID_FLAG)
+	if (isAlbum)
 		qsLoc = "javascript:LoadAlbum('" + 
 					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
-	qsLoc += +"')\">";
+	qsLoc += +"')";
 
 	QString tagPDesc;
 	if (!desc.isEmpty())

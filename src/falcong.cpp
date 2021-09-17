@@ -60,7 +60,7 @@ QString ColorToCss(_CColor color)
 {
 	QString c = color.Name();	// c starts with '#'
 	int opacity = color.Opacity(true);	// in percent
-	if (opacity > 0)	// color name format: #AABBCC
+	if (color.IsOpacityUsed())	// color name format: #AABBCC
 		return QString("rgba(%1,%2,%3,%4)").arg(c.mid(1, 2).toInt(nullptr, 16)).arg(c.mid(1+2, 2).toInt(nullptr, 16)).arg(c.mid(1+4, 2).toInt(nullptr, 16)).arg((double)opacity / 100.0);
 
 	return c;
@@ -382,6 +382,7 @@ void FalconG::on_btnSourceHistory_clicked()
 		if (SourceHistory::Changed())
 			PROGRAM_CONFIG::Write();
 	}
+	_EnableButtons();
 }
 
 
@@ -641,6 +642,13 @@ void FalconG::_GlobalsToUi()
 	--_busy;
 }
 
+/*=============================================================
+ * TASK:	fill in interface lements from stored value
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
 void FalconG::_ActualSampleParamsToUi()
 {
 	_CElem* pElem = _PtrToElement();
@@ -651,12 +659,12 @@ void FalconG::_ActualSampleParamsToUi()
 	++_busy;
 
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
-	ui.chkTextOpacity->setChecked(pElem->color.Opacity(false) != -1);
+	ui.chkTextOpacity->setChecked(pElem->color.IsOpacityUsed() );
 	if(pElem->background.Valid())
 		ui.btnBackground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->background.Name()));	// sets btnBackground's color
 	else // invalid: set from background
 		ui.btnBackground->setStyleSheet(__ToolButtonBckStyleSheet(config.Web.background.Name()));	// sets btnBackground's color
-	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity(false) != -1);
+	ui.chkBackgroundOpacity->setChecked(pElem->background.IsOpacityUsed());
 
 //	_EnableGradient(false);					// disable gradient buttons for background
 
@@ -676,8 +684,8 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.sbTextOpacity->setValue(pElem->color.Opacity(false) < 0 ? 100: pElem->color.Opacity(true));
 	ui.sbTextOpacity->setEnabled(ui.chkTextOpacity->isChecked());
 
-	ui.chkBackgroundOpacity->setChecked(pElem->background.Opacity(false) > 0);
-	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity(false) < 0 ? 100 : pElem->background.Opacity(true));
+	ui.chkBackgroundOpacity->setChecked(pElem->background.IsOpacityUsed());
+	ui.sbBackgroundOpacity->setValue(pElem->background.Opacity(true));
 	ui.sbBackgroundOpacity->setEnabled(ui.chkBackgroundOpacity->isChecked());
 
 	ui.sbSpaceAfter->setValue(pElem->spaceAfter.v);
@@ -1403,6 +1411,25 @@ void FalconG::_SetupActualBorder(BorderSide side)
 	QString qs = pElem->border.ForStyleSheet(false);
 	_SetCssProperty(pElem, qs);
 	_EnableButtons();
+}
+
+void FalconG::_PropagatePageColor()
+{
+	config.Header.color = config.Web.color.Name();
+	config.Menu.color = config.Web.color.Name(); 
+	config.Lang.color = config.Web.color.Name(); 
+	config.SmallGalleryTitle.color = config.Web.color.Name(); 
+	config.GalleryTitle.color = config.Web.color.Name();
+	config.GalleryDesc.color = config.Web.color.Name();
+	config.Section.color = config.Web.color.Name(); 
+	config.Thumb.color = config.Web.color.Name();
+	config.ImageTitle.color = config.Web.color.Name();
+	config.ImageDesc.color = config.Web.color.Name();
+	config.LightboxTitle.color = config.Web.color.Name();
+	config.LightboxDesc.color = config.Web.color.Name();
+	config.Footer.color = config.Web.color.Name();
+ 
+	_ConfigToSample();
 }
 
 /*=============================================================
@@ -2273,7 +2300,8 @@ void FalconG::on_chkTextOpacity_toggled(bool on)
 		return;
 	ui.sbTextOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	pElem->color.SetOpacity(on ? ui.sbTextOpacity->value()*2.55 : -1, false);
+	int val = ((int64_t)ui.sbTextOpacity->value() * 255 + 90) / (int64_t)100;
+	pElem->color.SetOpacity(val, on, false);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2290,7 +2318,8 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 		return;
 	ui.sbBackgroundOpacity->setEnabled(on);
 	_CElem* pElem = _PtrToElement();
-	pElem->background.SetOpacity(on ? (ui.sbBackgroundOpacity->value()*255 + 50)/255 : -1, false);
+	int val = ((int64_t)ui.sbTextOpacity->value() * 255 + 90) / (int64_t)100;
+	pElem->background.SetOpacity(val, on, false);
 	_SetConfigChanged(true);
 	_ElemToSample();
 }
@@ -2674,7 +2703,7 @@ void FalconG::on_sbTextOpacity_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	_OpacityChanged(val, 1);
+	_OpacityChanged(val, 1, ui.chkTextOpacity->isChecked());
 }
 
 /*============================================================================
@@ -2687,7 +2716,7 @@ void FalconG::on_sbBackgroundOpacity_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	_OpacityChanged(val, 2);
+	_OpacityChanged(val, 2, ui.chkBackgroundOpacity->isChecked());
 }
 
 /*============================================================================
@@ -3001,6 +3030,9 @@ void FalconG::on_btnPageColor_clicked()
 		_PageColorToSample();
 		//_aeActiveElement = ae;
 	}
+	if (ui.chkSameForeground->isChecked())	// propagate color to all elements
+		_PropagatePageColor();
+	ui.chkSameForeground->setChecked(false);
 // DEBUG
 //	ShowStyleOf(ui.btnPageColor);
 }
@@ -3022,7 +3054,7 @@ void FalconG::on_btnPageBackground_clicked()
 	if (qcNew.isValid())
 	{
 			config.Web.background.SetColor(qcNew.name());
-			config.Web.background.SetOpacity(100, true);	// always 100% opacity
+			config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
 			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
 			_SetConfigChanged(true);
 		_PageBackgroundToSample();
@@ -4360,20 +4392,20 @@ void FalconG::_EnableGradient(bool ena)
   * GLOBALS: ui element
   * REMARKS: only modifies config when opacity is changed
  *--------------------------------------------------------------------------*/
-void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
-{
-	int val;
-	if (which & 2)
-	{
-		val = (ui.chkBackgroundOpacity->isChecked() ? 1 : -1)*ui.sbBackgroundOpacity->value(); // in %
-		elem.background.SetOpacity(val, true);
-	}
-	if((which & 1) == 0 )
-	{
-		val = (ui.chkTextOpacity->isChecked() ? 1 : -1)*ui.sbTextOpacity->value(); // in %
-		elem.color.SetOpacity(val, true);
-	}
-}
+//void FalconG::_SetOpacityToConfig(_CElem & elem, int which)
+//{
+//	int val;
+//	if (which & 2)
+//	{
+//		val = (ui.chkBackgroundOpacity->isChecked() ? 1 : -1)*ui.sbBackgroundOpacity->value(); // in %
+//		elem.background.SetOpacity(val, true, true);
+//	}
+//	if((which & 1) == 0 )
+//	{
+//		val = (ui.chkTextOpacity->isChecked() ? 1 : -1)*ui.sbTextOpacity->value(); // in %
+//		elem.color.SetOpacity(val, true, true);
+//	}
+//}
 
 //-------------------------------------------------------------------------------
 
@@ -4563,13 +4595,13 @@ void FalconG::_WaterMarkToSample()
   * GLOBALS:
   * REMARKS: 
  *--------------------------------------------------------------------------*/
-void FalconG::_OpacityChanged(int val, int which)
+void FalconG::_OpacityChanged(int val, int which, bool used)
 {
 	_CElem* pElem = _PtrToElement();
 	if (which == 1)
-		pElem->color.SetOpacity(val,true);
+		pElem->color.SetOpacity(val, used, true);
 	else
-		pElem->background.SetOpacity(val, true);
+		pElem->background.SetOpacity(val, used, true);
 	_SetConfigChanged(true);
 	_SetCssProperty(pElem, which == 1 ? pElem->color.ForStyleSheet(false,false) : pElem->background.ForStyleSheet(false, true));
 }

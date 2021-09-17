@@ -476,7 +476,7 @@ private:
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
 //	bool MustRecreateImageBasedOnImageDimensions(Image &img);
-	bool MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
+	bool _MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
@@ -499,6 +499,9 @@ private:
 	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
+
+	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
+	void _CleanupAlbums();	// exclude empty albums and albums with only albums in them each empty
 	
 					// write gallery files
 	void _WriteFacebookLink(QString linkName, ID_t ID);

@@ -131,7 +131,7 @@ private:
 	void _OtherToUi();					// all others
 	void _ConfigToUI(); 
 	bool _CreateAlbumDirs();
-	void _SetOpacityToConfig(_CElem & elem, int which = 3); // 1: text, 2: background, 3 both
+//	void _SetOpacityToConfig(_CElem & elem, int which = 3); // 1: text, 2: background, 3 both
 
 			 // set CSS for sample 
 	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
@@ -158,7 +158,7 @@ private:
 
 	void _SetConfigChanged(bool on);
 	
-	void _OpacityChanged(int val, int which);	// which = 0 -> color, 1: background
+	void _OpacityChanged(int val, int which, bool used);	// which = 0 -> color, 1: background
 	void _SaveChangedTexts();  // when texts are edited and changed
 
 	void _SetLayoutMargins(int which);
@@ -211,6 +211,7 @@ private slots:
 	bool _DoOverWriteColorScheme(int i);
 	bool _LanguagesWarning();
 	void _SetupActualBorder(BorderSide side);
+	void _PropagatePageColor();	// to all items
 
 // auto connected slots
 private slots:

@@ -326,51 +326,51 @@ private:
 
 struct _CColor : _CFG_ITEM<QString>	
 {								
-	// v is always in the form '#RGB' or '#RRGGBB or '#AARRGGBB' 
+	// v is always in the form '#RGB' or '#RRGGBB  for full opacity
+	//		'#AARRGGBB' for any opacity OR '#AARRGGBB-' when not used
 	//  where each letter can be any hexadecimal digit (A: alpha)
-	//	opacity may be missing and when it does -1 (opacity not used) is assumed
-	// AA may be two '-' signs: defines opacity is not used (_opacity is set to -1)
+	//	opacity may be missing and when it does full opacity is assumed
 	_CColor(QString defaultColorString, QString namestr = "ccolor") : _CFG_ITEM(defaultColorString, namestr)
 	{					
 		_Setup();  // set internal string representation and opacity
 	}
 	_CColor() :_CFG_ITEM("", "ccolor")		// invalid color
 	{					
-//		_colorName = "#";
-		_opacity = -1;
 	}
 
-	bool Valid() { return _ColorStringValid(v); }
+	bool Valid() { return _ColorStringValid(v); }	// opacity not checked
 
 	void Set(QString str, int opac);	  // set _colorName to a 9 or 7 character string in format #AARRGGBB or #RRGGBB
 	void SetColor(QString clr) { _colorName = clr; _Prepare(); }
-	void SetOpacity(int opac, bool percent) 
+	void SetOpacity(int opac, bool used, bool percent)		// opac 0..255 OR  0..100 (percent)
 	{ 
-		if (opac < 0) 
-			opac = 255;
-		else
-		{
-			int limit = percent ? 100 : 255;
-			if (opac > limit) opac = limit;
+		int limit = percent ? 100 : 255;
+		if (opac > limit) 
+			opac = limit;
 
-			_opacity = opac;
-			if (percent)
-				_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
-		}
+		_opacity = opac;
+		if (percent)
+			_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
+		
 		_Prepare(); 
 	}
-	int Opacity(bool percent) const 			// opacity -1, 0..100 (-1: not used)
+
+	int Opacity(bool percent) const 			// opacity 0..100 
 	{ 
 		if(percent)
-			return _opacity; 
+			return int( ((int64_t)100 * (int64_t)_opacity + 254)/255 );		// always stored as 0..255
 		else
 			return _opacity; 
 	}
+
+	bool IsOpacityUsed() const { return _opacityUsed; }
+
 	QString Name(bool nohash = false) const				// no opacity!
 	{
 		return (nohash ? _colorName.mid(1) : _colorName); 			// nohash:   no '#' at start
 	}
-	QString ARGB() const { return v; }		// may or may not have an opacity set
+
+	QString ARGB() const { return v; }	// may or may not have an opacity set
 	QString ToRgba() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/266.0) 
 	{
 		int n = _colorName.length() == 9 ? 3 : 1;
@@ -391,7 +391,8 @@ struct _CColor : _CFG_ITEM<QString>
 	bool operator!=(const _CColor& o);
 
 private:
-	int _opacity;			// 0..255 (=== 0..100 %) or -1: not used
+	int _opacity = 255;			// 0..255 (=== 0..100 %)
+	bool _opacityUsed = false;
 	QString _colorName;		// starts with a '#' character	and has 4 or 7 characters (no opacity)
 							// otherwise invalid
 	void _NormalizeName()
@@ -405,22 +406,31 @@ private:
 	}
 	void _Setup()			// from 'v' read from settings
 	{
-		_opacity = -1;			// suppose it is not used
-		_colorName = v;		// v either empty or #RGB or #RRGGBB or possibly #AARRGGBB when including opacity
 		if (!_ColorStringValid(v))
 			return;
-		if (v.length() == 9)		// #AARRGGBB
+		int len = v.length(),
+			len1 = len == 10 ? 9 : len;
+
+		_opacityUsed = len != 10;
+
+		if (len1 == 9)		// v == #AARRGGBB[-]
 		{
-			_opacity = v.at(1) == '-' ? -1 : (v.mid(1, 2)).toInt(nullptr, 16);
-			_colorName = "#" + v.mid(3);		// cut opacity part
+			_opacity = (v.mid(1, 2)).toInt(nullptr, 16);
+			_colorName = "#" + v.mid(3,6);		// cut opacity part
 		}
-		_NormalizeName();
+		else
+		{	
+			_colorName = v.left(len1);
+			_opacity = 255;		// suppose it is not used
+		}
+		_NormalizeName();		// set to #AARRGGBB
 	}
 	void _Prepare() override		// v from internal (changed) variables
 	{
-		v = _colorName;										  // name w.o. opacity: #RRGGBB
-		if (v.length() != 9 && _opacity >= 0)				  // name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
-			v = "#" + (_opacity >= 0 ? QString("%1").arg(_opacity, 2, 16, QChar('0')) : QStringLiteral("") ) + v.mid(1);
+		v = _colorName;			  // name w.o. opacity: #RRGGBB
+		v = "#" + QString("%1").arg(_opacity, 2, 16, QChar('0')) + v.mid(1);	// name w. opacity
+		if (!_opacityUsed)				  // name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
+			v = v + '-';
 	}
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
 };

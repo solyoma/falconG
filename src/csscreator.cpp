@@ -220,6 +220,7 @@ void CssCreator::_CreateForImagesAndAlbums()
 
 img {
 	display:box;
+	cursor:pointer;
 }
 
 )").arg(config.imageMargin);
