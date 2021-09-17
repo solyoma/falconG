@@ -87,4 +87,20 @@ namespace Enums
 		LoadedRole,
 		TypeRole								// return type of item (none, image, video, album)
 	};
+	enum ElemSubPart {
+		espAll, 
+		espColor, 
+		espBackground, 
+		espFont, 
+		espSpaceAfter, 
+		espTextDecor, 
+		espShadow1, 
+		espShadow2, 
+		espShadow,	// both shadow
+		espGradient, 
+		espBorder,
+		espTextAlign,
+		espLinkIcon,
+		espBackgroundImage
+	};
 }

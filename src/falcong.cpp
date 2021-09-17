@@ -585,7 +585,7 @@ void FalconG::_SaveLinkIcon()
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_ElemToSample(AlbumElement ae)
+void FalconG::_ElemToSample(AlbumElement ae, ElemSubPart esp)
 {
 	if (ae == aeUndefined)
 		ae = _aeActiveElement;
@@ -594,29 +594,48 @@ void FalconG::_ElemToSample(AlbumElement ae)
 
 	if (ae == aeWebPage)
 	{
-		_PageColorToSample();
-		_PageBackgroundToSample();
+		if(esp == espAll || esp == espColor)
+			_PageColorToSample();
+		if(esp == espAll || esp == espBackground)
+			_PageBackgroundToSample();
 	}
 	else
 	{
-		_ColorToSample(pElem);
-		_BackgroundToSample(pElem);
+		if(esp == espAll || esp == espColor)
+			_ColorToSample(pElem);
+		if(esp == espAll || esp == espBackground)
+			_BackgroundToSample(pElem);
 	}
-	_FontToSample(pElem);
-	_SpaceAfterToSample(pElem);
-	_DecorationToSample(pElem);
-	_ShadowToSample(pElem, 0);	// text
-	_ShadowToSample(pElem, 1);	// box
-	_SetLinearGradient(pElem);
-	_BorderToSample(pElem);
-	_TextAlignToSample(pElem);
+	if(esp == espAll || esp == espFont)
+		_FontToSample(pElem);
+	if(esp == espAll || esp == espSpaceAfter)
+		_SpaceAfterToSample(pElem);
+	if(esp == espAll || esp == espTextDecor)
+		_DecorationToSample(pElem);
+	if(esp == espAll || esp == espShadow1 || esp == espShadow)
+		_ShadowToSample(pElem, 0);	// text
+	if(esp == espAll || esp == espShadow2 || esp == espShadow1)
+		_ShadowToSample(pElem, 1);	// box
+	if(esp == espAll || esp == espGradient)
+		_SetLinearGradient(pElem);
+	if(esp == espAll || esp == espBorder)
+		_BorderToSample(pElem);
+	if(esp == espAll || esp == espTextAlign)
+		_TextAlignToSample(pElem);
 
 	// menus: set uplink icon
 	if (ae == aeMenuButtons)
-	{	_SaveLinkIcon();
-
-		_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\")", "#uplink");
+	{	
+		if(esp == espAll || esp == espLinkIcon)
+			_SaveLinkIcon();
+		if(esp == espAll || esp == espBackgroundImage)
+			_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\")", "#uplink");
 	}
+}
+
+void FalconG::_ElemToSample(ElemSubPart esp)
+{
+	_ElemToSample(_aeActiveElement, esp);
 }
 
 // helper
@@ -1904,7 +1923,7 @@ void FalconG::on_cbPointSize_currentTextChanged(const QString & txt)
 		pElem->font.SetDifferentFirstLine(true, txt);
 	}
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espFont);
 }
 
 void FalconG::on_chkDifferentFirstLine_toggled(bool b)
@@ -1913,7 +1932,7 @@ void FalconG::on_chkDifferentFirstLine_toggled(bool b)
 		return;
 	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espFont);
 }
 
 void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
@@ -1926,7 +1945,7 @@ void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
 	pElem = _PtrToElement();
 	pElem->font.SetDifferentFirstLine(pElem->font.IsFirstLineDifferent(), txt);	// do not change first line font size
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espFont);
 }
 
 /*============================================================================
@@ -1957,7 +1976,7 @@ void FalconG::on_chkIconText_toggled(bool)
 	if (_busy)
 		return;
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espLinkIcon);
 }
 
 /*============================================================================
@@ -2328,7 +2347,7 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 	int val = ui.sbBackgroundOpacity->value();
 	pElem->background.SetOpacity(val, on, true);	// in percent
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espBackground);
 }
 
 /*============================================================================
@@ -2361,7 +2380,7 @@ void FalconG::on_chkShadowOn_toggled(bool on)
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spUse, on);	// used flag
 	_PtrToElement()->shadow2[which].Set(spUse, on);	// used flag
-	_ElemToSample();
+	_ElemToSample(espShadow);
 }
 
 /*============================================================================
@@ -2463,7 +2482,7 @@ void FalconG::on_sbShadowHoriz1_valueChanged(int val)
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 
 	_PtrToElement()->shadow1[which].Set(spHoriz, val);
-	_ElemToSample();
+	_ElemToSample(espShadow1);
 }
 /*============================================================================
   * TASK:
@@ -2476,7 +2495,7 @@ void FalconG::on_sbShadowHoriz2_valueChanged(int val)
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 
 	_PtrToElement()->shadow2[which].Set(spHoriz, val);
-	_ElemToSample();
+	_ElemToSample(espShadow2);
 }
 
 /*============================================================================
@@ -2489,7 +2508,7 @@ void FalconG::on_sbShadowVert1_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spVert, val);
-	_ElemToSample();
+	_ElemToSample(espShadow1);
 }
 
 /*============================================================================
@@ -2502,7 +2521,7 @@ void FalconG::on_sbShadowVert2_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spVert, val);
-	_ElemToSample();
+	_ElemToSample(espShadow2);
 }
 
 /*============================================================================
@@ -2515,7 +2534,7 @@ void FalconG::on_sbShadowBlur1_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spBlurR, val);
-	_ElemToSample();
+	_ElemToSample(espShadow1);
 }
 
 /*============================================================================
@@ -2528,7 +2547,7 @@ void FalconG::on_sbShadowBlur2_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spBlurR, val);
-	_ElemToSample();
+	_ElemToSample(espShadow2);
 }
 
 /*============================================================================
@@ -2541,7 +2560,7 @@ void FalconG::on_sbShadowSpread1_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spSpread, val);
-	_ElemToSample();
+	_ElemToSample(espShadow1);
 }
 /*============================================================================
 * TASK:
@@ -2553,7 +2572,7 @@ void FalconG::on_sbShadowSpread2_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spSpread, val);
-	_ElemToSample();
+	_ElemToSample(espShadow1);
 }
 
 /*============================================================================
@@ -2601,7 +2620,7 @@ void FalconG::on_sbGradStopPos_valueChanged(int val)
 	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
 	_SetGradientLabelColors(pElem);
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espGradient);
 }
 
 /*============================================================================
@@ -2615,7 +2634,7 @@ void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 	config.waterMark.SetShadowColor(val);
 	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
-	_ElemToSample();
+	_ElemToSample(espGradient);
 }
 
 /*============================================================================
@@ -5374,25 +5393,11 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 
 void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 {
-//	if (value.isEmpty())
-//		return;
-
 	QString className = pElem->ClassName();
 	if (!subSelector.isEmpty())
 		className += subSelector;
 	_RunJavaScript(className, value);
 }
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//void FalconG::_ImageMapChanged()
-//{
-//	reinterpret_cast<ImageMapModel*>(ui.lvImages->model())->ModelChanged();
-//}
 
 /*=============================================================
  * TASK:

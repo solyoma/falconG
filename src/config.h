@@ -424,6 +424,8 @@ private:
 			_colorName = v.left(len1);
 			_opacity = 255;		// suppose it is not used
 		}
+		if (_opacity == 255)
+			_opacityUsed = false;
 		_NormalizeName();		// set to #AARRGGBB
 	}
 	void _Prepare() override		// v from internal (changed) variables

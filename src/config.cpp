@@ -336,7 +336,9 @@ void _CColor::Set(QString str, int opac)
 		return;
 
 	_colorName = str; 
-	_opacity = opac;
+	_opacityUsed = opac < 0;
+	if(opac > 0)
+		_opacity = opac;
 	_Prepare();		// setup 'v'
 }
 
@@ -344,13 +346,10 @@ QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
 {
 	QString qs = (isBackground ? "background-color:" : "color:");
 	
-	if (_opacity != 0)
-	{
-		if (_opacity > 0 && _opacity != 255)
-			qs += ToRgba();
-		else
-			qs += _colorName;
-	}
+	if (_opacityUsed && _opacity != 255)
+		qs += ToRgba();
+	else
+		qs += _colorName;
 
 	__AddSemi(qs, addSemiColon);
 	return qs;

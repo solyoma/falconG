@@ -152,7 +152,8 @@ private:
 	void _UpdateWatermarkMargins(int mx, int my);
 
 	void _SaveLinkIcon();
-	void _ElemToSample(AlbumElement ae = aeUndefined);	// with no argument uses _aeActElement
+	void _ElemToSample(AlbumElement ae, ElemSubPart esp = espAll);	
+	void _ElemToSample(ElemSubPart esp = espAll);					// with no argument uses _aeActElement
 
 	void _ConfigToSample();	// for all elements
 
