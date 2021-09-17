@@ -452,8 +452,15 @@ void FalconG::on_btnGenerate_clicked()
 		if (_running)
 		{
 			QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			ui.btnPreview->setEnabled(albumgen.Write() == 0);
+
+			bool bAlbumWriteOK = albumgen.Write() == 0; // generate struct, pages, images, thumbs
+
+			ui.btnPreview->setEnabled(bAlbumWriteOK);
+			if (!bAlbumWriteOK)		// no switch to edit TAB
+				_phase = -1;
 		}
+		else
+			_phase = -1;
 
 		ui.progressBar->setValue(0);
 
@@ -470,7 +477,7 @@ void FalconG::on_btnGenerate_clicked()
 		ui.actionExit->setEnabled(true);
 
 		--_running;
-		if(_phase != -1)
+		if(_phase != -1 )
 			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
 
 		albumgen.SetRecrateAlbumFlag(config.bGenerateAll);	// not until relevant changes
@@ -4165,6 +4172,12 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 	_EnableColorSchemeButtons();
 }
 
+void FalconG::on_btnWriteStructForTextChanges_clicked()
+{
+	ui.btnWriteStructForTextChanges->setEnabled(false);	// until next changes
+	albumgen.WriteDirStruct(true);
+}
+
 void FalconG::on_btnResetDialogs_clicked()
 {
 	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
@@ -5297,6 +5310,7 @@ void FalconG::_SaveChangedTitleDescription()
 	_SaveChangedTexts();
 	ui.btnSaveChangedTitle->setEnabled(false);
 	ui.btnSaveChangedDescription->setEnabled(false);
+	ui.btnWriteStructForTextChanges->setEnabled(true);
 }
 
 void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)

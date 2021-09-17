@@ -279,9 +279,9 @@ struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 
 	bool Valid() const { return ID > 0; }
 	void Clear() { items.clear(); _imageCount = _videoCount = _albumCount = -1; }
-	int ImageCount();		// only non-excluded existing images
-	int VideoCount();		// only non-excluded existing videos
-	int SubAlbumCount();	// only non excluded existing albums (removes excluded albums) = count of children
+	int ImageCount(bool forced = false);		// only non-excluded existing images
+	int VideoCount(bool forced=false);		// only non-excluded existing videos
+	int SubAlbumCount(bool forced=false);	// only non excluded existing albums (removes excluded albums) = count of children
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
 	ID_t IdOfItemOfType(int64_t type, int index, int startPos = 0);

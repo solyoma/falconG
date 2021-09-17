@@ -1,8 +1,8 @@
 falconG Language file
-about=Rólam
 abbrev=_hu
+about=Rólam
 albums=Albumok
-cdcoupled=Cím&amp;Leírás együtt
+cdcaptions=Cím&amp;Leírás együtt
 contact=Kapcsolat
 countOfImages=%1 kép és %2 album van ebben az albumban
 countryCode=hu_HU
@@ -16,6 +16,7 @@ latestDesc=Ebben a galériában található néhány  a legutoljára feltöltöt
 latestTitle="Kedvcsináló"
 name=Magyarul
 share=Megosztás
+toAlbums=Albumokhoz												# toAlbums
 toTop=
 upOneLevel=
 videos=Videók

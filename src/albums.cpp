@@ -187,7 +187,7 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 {
 	if (lang < 0 || lang > Languages::Count())
 		return;
-QString stmp = EncodeLF(str.trimmed());
+	QString stmp = EncodeLF(str.trimmed());
 	int len = stmp.length();
 	if (lenghts.isEmpty())
 		Clear(Languages::Count());
@@ -717,58 +717,54 @@ bool Album::operator==(const Album &i)
 }
 
 /*============================================================================
-* TASK: get number of non-excluded images in album and remove excluded ones
-*		from local image list
+* TASK: get number of non-excluded images from local image list
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-int Album::ImageCount()
+int Album::ImageCount(bool forced)
 {
-	if (_imageCount < 0)
+	if (forced || _imageCount < 0)
 	{
 		_imageCount = 0;
 		for (auto a : items)
-			if (a > 0 && (a & IMAGE_ID_FLAG))
+			if (a > 0 && (a & IMAGE_ID_FLAG) && !(a & EXCLUDED_FLAG) )
 				++_imageCount;
 	}
 	return _imageCount;
 }
 
 /*============================================================================
-* TASK: get number of non-excluded videos in album and remove excluded ones
-*		from local video list
+* TASK: get number of non-excluded videos in album from local video list
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-int Album::VideoCount()
+int Album::VideoCount(bool forced)
 {
-	if (_videoCount < 0)
+	if (forced || _videoCount < 0)
 	{
 		_videoCount = 0;
 		for (auto a : items)
-			if (a > 0 && (a & VIDEO_ID_FLAG))
+			if (a > 0 && (a & VIDEO_ID_FLAG) && !(a & EXCLUDED_FLAG) )
 				++_videoCount;
 	}
 	return _videoCount;
 }
 
 /*============================================================================
-* TASK: get number of non-excluded sub-albums in album and remove excluded ones
-*		from local sub-album list
+* TASK: get number of non-excluded sub-albums in album from local sub-album list
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-int Album::SubAlbumCount()
+int Album::SubAlbumCount(bool forced)
 {
-	if (_albumCount < 0)
+	if (forced || _albumCount < 0)
 	{
-
 		_albumCount = 0;
 		for (auto a : items)
-			if (a > 0 && (a & ALBUM_ID_FLAG))
+			if (a > 0 && (a & ALBUM_ID_FLAG) && !(a & EXCLUDED_FLAG) )
 				++_albumCount;
 	}
 	return _albumCount;
@@ -1137,6 +1133,8 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 		for (auto b : a.items)
 			if (!_IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]))
 				return false;
+
+		a.SubAlbumCount(true);	// recalculate and set to 0
 		return true;
 	}
 	else
@@ -1154,13 +1152,12 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 void AlbumGenerator::_CleanupAlbums()
 {
 		// pass #1: mark empty albums with no items
-	for (auto a : _albumMap)
+	for (Album &a : _albumMap)
 		if (a.items.isEmpty())
 			a.ID |= EXCLUDED_FLAG;
-
 		// pass #2: mark non empty albums which only contain empty albums recursively
-	for (auto a : _albumMap)
-		if (!a.items.isEmpty() && a.ImageCount() == 0 && _IsAlbumAndItsSubAlbumsEmpty(a))
+	for (Album &a : _albumMap)
+		if (!(a.ID & EXCLUDED_FLAG) && _IsAlbumAndItsSubAlbumsEmpty(a))
 			a.ID |= EXCLUDED_FLAG;
 }
 
@@ -1960,7 +1957,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			while (len && s[--len] != ']')	// find last ']'
 				;
 			++len;		// include closing ']' but not the possible ID/collision
-			int clen = TITLE_TAG.length() + Languages::abbrev[lang].size() + 2;	// 1 for '[' + 1 for ':'
+			int clen = TITLE_TAG.length() + Languages::countryCode[lang].length() + 2;	// 1 for '[' + 1 for ':'
 			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
 			if (config.majorStructVersion == 1)
 			{						// none = there is no asterix followed by a number
@@ -2683,8 +2680,6 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 	_keepPreviousBackup = keep;
 
 	pWriteStructThread->start();
-// DEBUG:
-//	pWriteStructThread->run();
 	return 0;
 }
 /*============================================================================
@@ -3525,6 +3520,9 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, QString uplink, int & processedCount)
 {
+	if (album.ID & EXCLUDED_FLAG)
+		return 0;
+
 	if (!f.open(QIODevice::WriteOnly))
 		return 16;
 
@@ -3564,7 +3562,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<< "    <section>\n";
 		// first the images
 		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if(album.items[i] && IMAGE_ID_FLAG)
+			if(album.items[i] & IMAGE_ID_FLAG && !(album.items[i] & EXCLUDED_FLAG))
 				_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
@@ -3576,7 +3574,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			    "    <section>\n";
 
 		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if (album.items[i] && VIDEO_ID_FLAG)
+			if (album.items[i] & VIDEO_ID_FLAG && !(album.items[i] & EXCLUDED_FLAG))
 				_WriteVideoContainer(album, i);
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
@@ -3588,7 +3586,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 				"    <section>\n";
 
 		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if (album.items[i] && ALBUM_ID_FLAG)
+			if (album.items[i] & ALBUM_ID_FLAG && !(album.items[i] & EXCLUDED_FLAG) )
 				_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}

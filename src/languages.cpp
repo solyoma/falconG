@@ -70,6 +70,7 @@ int Languages::_Read(QString name)
 
 	QString s;
 	int lang = names.size();
+
 	abbrev.push_back(s);
 	albums.push_back(s);
 	countOfImages.push_back(s);

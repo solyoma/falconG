@@ -259,6 +259,8 @@ private slots:
 	void on_btnMoveSchemeUp_clicked();
 	void on_btnMoveSchemeDown_clicked();
 
+	void on_btnWriteStructForTextChanges_clicked();
+
 	void on_btnResetDialogs_clicked();
 
 	void on_cbActualItem_currentIndexChanged(int newIndex);
