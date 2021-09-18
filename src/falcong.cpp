@@ -779,23 +779,23 @@ void FalconG::_ActualSampleParamsToUi()
 * GLOBALS:  'config'
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::_ConfigToSample()
+void FalconG::_ConfigToSample(ElemSubPart esp)
 {
 	++_busy;		// prevent page changes until last settings
 
-	_ElemToSample(aeWebPage);
-	_ElemToSample(aeHeader);
-	_ElemToSample(aeMenuButtons);
-	_ElemToSample(aeLangButton);
-	_ElemToSample(aeSmallTitle);
-	_ElemToSample(aeGalleryTitle);
-	_ElemToSample(aeGalleryDesc);
-	_ElemToSample(aeSection);
-	_ElemToSample(aeImageTitle);
-	_ElemToSample(aeImageDesc);
-	_ElemToSample(aeLightboxTitle);
-	_ElemToSample(aeLightboxDescription);
-	_ElemToSample(aeFooter);
+	_ElemToSample(aeWebPage, esp);
+	_ElemToSample(aeHeader, esp);
+	_ElemToSample(aeMenuButtons, esp);
+	_ElemToSample(aeLangButton, esp);
+	_ElemToSample(aeSmallTitle, esp);
+	_ElemToSample(aeGalleryTitle, esp);
+	_ElemToSample(aeGalleryDesc, esp);
+	_ElemToSample(aeSection, esp);
+	_ElemToSample(aeImageTitle, esp);
+	_ElemToSample(aeImageDesc, esp);
+	_ElemToSample(aeLightboxTitle, esp);
+	_ElemToSample(aeLightboxDescription, esp);
+	_ElemToSample(aeFooter, esp);
 
 	_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 
@@ -1455,7 +1455,7 @@ void FalconG::_PropagatePageColor()
 	config.LightboxDesc.color = config.Web.color.Name();
 	config.Footer.color = config.Web.color.Name();
  
-	_ConfigToSample();
+	_ConfigToSample(espColor);
 }
 
 /*=============================================================
@@ -3051,14 +3051,13 @@ void FalconG::on_btnPageColor_clicked()
 			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
 			_SetConfigChanged(true);
 		}
-		//AlbumElement ae = _aeActiveElement;
-		//_aeActiveElement = aeWebPage;
 		_PageColorToSample();
-		//_aeActiveElement = ae;
 	}
 	if (ui.chkSameForeground->isChecked())	// propagate color to all elements
+	{
 		_PropagatePageColor();
-	ui.chkSameForeground->setChecked(false);
+		ui.chkSameForeground->setChecked(false);
+	}
 // DEBUG
 //	ShowStyleOf(ui.btnPageColor);
 }
@@ -3079,10 +3078,10 @@ void FalconG::on_btnPageBackground_clicked()
 
 	if (qcNew.isValid())
 	{
-			config.Web.background.SetColor(qcNew.name());
-			config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
-			ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
-			_SetConfigChanged(true);
+		config.Web.background.SetColor(qcNew.name());
+		config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
+		ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
+		_SetConfigChanged(true);
 		_PageBackgroundToSample();
 	}
 }
@@ -4447,8 +4446,9 @@ void FalconG::_EnableGradient(bool ena)
 void FalconG::_ColorToSample(_CElem* pElem)
 {
 	QString qs;
-	bool b = (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color)); // else clear color
-	_SetCssProperty(pElem,b ? pElem->color.ForStyleSheet(false, false) : QString("color:") );
+//	bool b = (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color)); // else clear color
+//	_SetCssProperty(pElem,b ? pElem->color.ForStyleSheet(false, false) : QString("color:") );
+	_SetCssProperty(pElem, pElem->color.ForStyleSheet(false, false));
 }
 
 /*========================================================
@@ -4561,7 +4561,7 @@ void FalconG::_PageBackgroundToSample()
 	{		   // opacity does not change
 		_CElem* pe = _PtrToElement(what);
 		pe->background.Set(wbc, -1);
-		_SetCssProperty(pe, "background-color:"+wbc);
+		_SetCssProperty(pe, pe->background.ForStyleSheet(false,true) );
 	};
 
 	if (ui.chkSetAll->isChecked())		// then remove all other background colors

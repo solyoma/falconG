@@ -192,7 +192,8 @@ void CssCreator::_CreateForSection()
 	margin: auto;
 	padding:%1;
 )").arg(config.Section.font.SizeStr());
-
+	if (_forSamplePage)
+		s += "\tcursor:pointer;\n";
 	_CssForElement(s, config.Section);
 }
 

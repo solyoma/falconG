@@ -322,10 +322,11 @@ _CDirStr _CDirStr::operator+(const QString subdir)
  * TASK: assign a QString to a _CColor and modify opacity
  * EXPECTS: str - QString: formats RGB or RRGGBB or #RGB or #RRGGBB, where
  *				 R,G,B are any hexadecimaL digit
- *		   opac - opacity in percent 0..100
+ *		   opac - opacity in percent 0..100 or -1: no changes
  * GLOBALS: config
  * RETURNS: nothing
- * REMARKS:	- if string name is invalid does not set it
+ * REMARKS:	- does not change if opacity is used
+ *			- if string name is invalid does not set it
  *			- no symbolic color names
  *			- any combination of upper and lower case hexadecimal numbers
  *			- if the QString is #xyz, then it is the same as #xxyyzz
@@ -336,7 +337,7 @@ void _CColor::Set(QString str, int opac)
 		return;
 
 	_colorName = str; 
-	_opacityUsed = opac < 0;
+//	_opacityUsed = opac < 0;
 	if(opac > 0)
 		_opacity = opac;
 	_Prepare();		// setup 'v'
