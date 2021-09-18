@@ -91,7 +91,7 @@ function SetPropertyForSelector(selector, propertyName, propValue)
 				if(propValue == '')
 				{
 					console.log("REMOVED: "+ selector + '->' + propertyName + ' [' + x.length + ' element(s)],Result: ('+r+')');
-					console.log(asstring(x[0].style));
+//					console.log(asstring(x[0].style));
 
 				}
 				else

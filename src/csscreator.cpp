@@ -252,13 +252,21 @@ img {
 	_ofs << "}\n\n";
 
 	// --------- img.thumb, img.athumb ----------------
-	_ofs << ".thumb,.athumb {\n";
-	if (_forSamplePage)
-		_ofs <<	"\tcursor:pointer;\n";
+	_ofs << R"(.thumb,.athumb {
+	cursor:pointer;
+	max-width:80vw;
+	max-width:80vw;
+}
 
-	_ofs << "\tmax-width:80vw;\n"
-			"\tmax-width:80vw;\n"
-			"}\n\n";
+)";
+	
+//	_ofs << ".thumb,.athumb {\n";
+////	if (_forSamplePage)
+//	_ofs <<	"\tcursor:pointer;\n";
+//
+//	_ofs << "\tmax-width:80vw;\n"
+//			"\tmax-width:80vw;\n"
+//			"}\n\n";
 	WaterMark& wm = config.waterMark;
 
 	if (_forSamplePage && config.waterMark.used)

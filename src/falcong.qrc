@@ -20,6 +20,7 @@
   <qresource prefix="Preview">
     <file>Resources/index_en.html</file>
     <file>Resources/index_hu.html</file>
+    <file>Resources/falconGGen.js</file>
     <file>Resources/falconG.js</file>
     <file>Resources/placeholder.jpg</file>
     <file>Resources/placeholder2.jpg</file>

@@ -156,7 +156,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 			resIPath = QStringLiteral(":/icons/Resources/");
 	_CopyResourceFileToSampleDir(resPPath, "index_hu.html");
 	_CopyResourceFileToSampleDir(resPPath, "index_en.html");
-//	_CopyResourceFileToSampleDir(resPPath, "falconG.css");
+	_CopyResourceFileToSampleDir(resPPath, "falconGGen.js");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
 	_CopyResourceFileToSampleDir(resPPath, "latest.js");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder.jpg");

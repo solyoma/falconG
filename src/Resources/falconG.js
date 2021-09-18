@@ -243,36 +243,3 @@ function ShowImage(img, caption) {
     document.getElementById("lightbox-caption").innerHTML = caption
     LightBoxFadeIn();
 }
-/* these must be in sync with AlbumElements in 'falconG.h' */
-const ELEM = {
-    AE_WEB_PAGE: 0,
-    AE_HEADER: 1,
-    AE_MENU_BUTTONS: 2,
-    AE_LANG_BUTTON: 3,
-    AE_SMALL_GALLERY_TITLE: 4,
-    AE_GALLERY_TITLE: 5,
-    AE_GALLERY_DESC: 6,
-    AE_SECTION: 7,
-    AE_THUMB: 8,
-    AE_IMAGE_TITLE: 9,
-    AE_IMAGE_DESC: 10,
-    AE_LIGHTBOX_TITLE: 11,
-    AE_LIGHTBOX_DESCRIPTION: 12,
-    AE_FOOTER: 13
-};
-
-function PageClick() { document.location.href = ELEM.AE_WEB_PAGE }
-function HeaderClick() { document.location.href = ELEM.AE_HEADER }
-function MenuClick() { document.location.href = ELEM.AE_MENU_BUTTONS }
-function LangClick() { document.location.href = ELEM.AE_LANG_BUTTON }
-function SmallTitleClick() { document.location.href = ELEM.AE_SMALL_GALLERY_TITLE }
-function GalleryTitleClick() { document.location.href = ELEM.AE_GALLERY_TITLE }
-function GalleryDescClick() { document.location.href = ELEM.AE_GALLERY_DESC }
-function SectionClick() { document.location.href = ELEM.AE_SECTION }
-function ThumbClick() { document.location.href = ELEM.AE_THUMB }
-function LinkClick() { document.location.href = ELEM.AE_IMAGE_TITLE }
-function DescClick() { document.location.href = ELEM.AE_IMAGE_DESC }
-// lightbox title (10) and description (11) only from combo box
-//                                                             ELEM.AE_LIGHTBOX_TITLE      
-//                                                             ELEM.AE_LIGHTBOX_DESCRIPTION
-function FooterClick() { document.location.href = ELEM.AE_FOOTER }

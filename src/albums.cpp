@@ -2609,7 +2609,7 @@ bool AlbumGenerator::_ReadFromGallery()
 }
 
 /*============================================================================
-* TASK:	copies directory 'js'
+* TASK:	copies directory 'js' to gallery, except 'falconGGen.js'
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing some file
@@ -2624,6 +2624,7 @@ int AlbumGenerator::_DoCopyJs()
 	int res = 0;
 	QString dname;
 	for (QFileInfo& fi : list)
+		if(fi.fileName() != "falconGGen.js")
 		res |= CopyOneFile(src + fi.fileName(), dest + fi.fileName()) ? 0: 1;
 //		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
 
@@ -3320,7 +3321,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	sImageDir = (QDir::isAbsolutePath(config.dsImageDir.ToString()) ? "" : sOneDirUp) + config.dsImageDir.ToString();
 	sThumbnailDir = (QDir::isAbsolutePath(config.dsThumbDir.ToString()) ? "" : sOneDirUp) + config.dsThumbDir.ToString();
 
-	Image *pImage = nullptr;
+	Image *pImage = &_imageMap[0];
 	ID_t thumb = 0;
 	if (isAlbum)
 	{
@@ -3360,8 +3361,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	}
 	else
 	{
-		int tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
-			did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
+		ID_t tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
+			 did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
 
 		title = DecodeLF(_textMap[tid][_actLanguage], 1);
 		desc = DecodeLF(_textMap[did][_actLanguage], 1);
@@ -3404,15 +3405,14 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString tagPDesc;
 	if (!desc.isEmpty())
 		tagPDesc =	"<div class=\"desc\">\n"
-					"			<p class='desc' lang='" + Languages::language[_actLanguage] + ">" + desc + "</p>\n"
+					"			<p class='desc' lang='" + Languages::language[_actLanguage] + "'>" + desc + "</p>\n"
 					"		</div>\n";
 
 	QString qsOptionalStyle;
 	if (pImage && pImage->tsize.width() >= 700)
 		qsOptionalStyle = " style=\"max-height:calc(99vw/" + QString().setNum((int)(pImage->Aspect())) + ")\"";
 
-	QString qs = QString(R"(
-	<div class = "img-container">
+	QString qs = QString(R"(<div class = "img-container">
 		<div class="%1">
 			<div id="%2" w=%3 h=%4>
 				<img class="%5" %6="%7" alt="%8" onclick="%9" %10>
@@ -3702,7 +3702,7 @@ int AlbumGenerator::_CreateHomePage()
 	_ofs << _PageHeadToString(ROOT_ALBUM_ID)
 		<< "<body>\n";
 
-	_OutputNav(_albumMap[ROOT_ALBUM_ID], QString());	/* sticky menu line*/
+// NO menus	_OutputNav(_albumMap[ROOT_ALBUM_ID], QString());	/* sticky menu line*/
 
 	_ofs << "<!--Header section-->\n"
 		<< "<header>\n<span class=\"falconG\">" << config.sGalleryTitle << "</span>&nbsp; &nbsp;";
@@ -3711,7 +3711,6 @@ int AlbumGenerator::_CreateHomePage()
 	// languages links
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		_ofs << QString("<a href=\"%1\">%2</a>").arg(Languages::FileNameForLanguage(fn, i)+".html").arg(Languages::names[i]);
 		// menu buttons
 		if (config.bMenuToAbout)
 		{
@@ -3726,7 +3725,13 @@ int AlbumGenerator::_CreateHomePage()
 	_ofs << "</header>\n"
 			"<!-- Main section -->\n"
 			"<main id=\"main\">\n"
-			" <!** ... TODO ... -->\n"
+			"\t<div  class=\"fgsection\">\n";
+	for (int i = 0; i < Languages::Count() - 1; ++i)
+		_ofs << QString("\t\t<a href=\"%1\">%2</a>\n").arg(Languages::FileNameForLanguage(fn, i) + ".html").arg(Languages::names[i])
+			 << "\t\t&nbsp;&nbsp;-&nbsp;&nbsp;\n";
+	_ofs << QString("\t\t<a href=\"%1\">%2</a>\n").arg(Languages::FileNameForLanguage(fn, Languages::Count()-1) + ".html").arg(Languages::names[Languages::Count()-1]);
+
+	_ofs <<	" <!** ... TODO ... -->\n"
 			"</main>"
 			"<footer>\n"
 			" <!** ... TODO ... -->\n"
