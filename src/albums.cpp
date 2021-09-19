@@ -2567,9 +2567,15 @@ bool AlbumGenerator::_ReadFromDirs()
 	QString root = config.dsSrc.ToString();
 	QDir dir(root);
 
+	// dummy album for latest Images must come first as sets album's ID
+	_root.Clear();
+	_root.ID = RECENT_ALBUM_ID;
+	_root.exists = true;		// do not check: virtual!
+	_albumMap[_root.ID] = _root;
+
 	ID_t rootId = ROOT_ALBUM_ID;
 	_root.Clear();
-	_root.ID = rootId;							// id = 0: invalid
+	_root.ID = rootId;							// id = 1 (id = 0 -> invalid)
 	_root.path = root;
 	// root has no name and no path it is inside config.dsSrc
 	_root.exists = true;
