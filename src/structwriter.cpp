@@ -137,7 +137,6 @@ void AlbumStructWriterThread::run()
 void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QString indent)
 {
 	QString s;
-	int len = config.dsSrc.Length();
 	Image* pImg;
 	Video* pVid;
 
@@ -166,9 +165,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 					// ISO 8601 extended format: yyyy-MM-dd for dates
 					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
 					<< pImg->fileSize << ")";									   // field #8
-				s = pImg->path;
-				if (s.left(len) == config.dsSrc.ToString())
-					s = s.mid(len);
+				s = config.RemoveSourceFromPath(pImg->path);
 				_ofs << s << "\n";
 				// field #9
 			}
@@ -202,8 +199,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 					<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
 					<< pVid->fileSize << ")";									   // field #4
 				s = pVid->path;
-				if (s.left(len) == config.dsSrc.ToString())
-					s = s.mid(len);
+				s = config.RemoveSourceFromPath(pVid->path);
 				_ofs << s << "\n";
 				// field #9
 			}
@@ -234,10 +230,7 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	if (!album.exists)
 		return;
 
-	QString s = album.path;	// album.FullName()  +'/';
-	//int len = config.dsSrc.Length();
-	//if (s.left(len) == config.dsSrc.ToString())	// drop sorce path ending '/'
-	//	s = s.mid(len);				// so root album will have no path 
+	QString s = config.RemoveSourceFromPath(album.path);
 
 	ID_t thumbnail = album.thumbnail = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID

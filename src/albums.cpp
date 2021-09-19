@@ -1083,7 +1083,7 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
 *			fi - info of a file and album
 * RETURNS:	id of data , for albums with ALBUM_ID_FLAG, 
 *				with videos with VIDEO_ID_FLAG set
-* REMARKS:  - 'exists' member of not excluded old oe new images and sub-albums 
+* REMARKS:  - 'exists' member of not excluded old or new images and sub-albums 
 *				are set to true when 'fromDisk' is true
 *			- adds new images/videos and id's to the corresponding id list of 'ab'
 *			- shows progress using frmMain's progress bar
@@ -3331,7 +3331,13 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	ID_t thumb = 0;
 	if (isAlbum)
 	{
-		thumb = idIndex >= 0 ? ThumbnailID(_albumMap[id], _albumMap) : _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size()) ].t;
+		
+		if (idIndex >= 0)
+			thumb = ThumbnailID(_albumMap[id], _albumMap);
+		else
+			if(_latestImages.list.size())
+				thumb = _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size())].t;
+
 		if (thumb)
 		{
 			if (_imageMap.contains(thumb))
@@ -4239,10 +4245,7 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
  *--------------------------------------------------------------------------*/
 QString IABase::ShortPathName()
 {
-	QString s = path + name;
-	if (s.left(config.dsSrc.ToString().length()) == config.dsSrc.ToString())
-		s = s.mid(config.dsSrc.ToString().length());
-	return s;
+	return config.RemoveSourceFromPath(path + name);
 }
 
 Video& VideoMap::Find(ID_t id, bool useBase)

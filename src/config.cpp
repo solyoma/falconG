@@ -254,7 +254,7 @@ QString &_CDirStr::operator=(const QString s)
 * EXPECTS: subdir - absolute or relative directory name
 * GLOBALS: config
 * RETURNS: the result
-* REMARKS: JAlbum quirk: if a link is relatice to the JA;lbuum root the path to the
+* REMARKS: JAlbum quirk: if a link is relative to the JAlbuum root dir. the path to the
 *		file name starts with a '/' instead of the full path. Therefore 
 *		when config.bSourceRelativePerSign is set such paths are considered relative
 *--------------------------------------------------------------------------*/
@@ -1423,6 +1423,27 @@ CONFIG &CONFIG::operator=(const CONFIG &cfg)
 	FromDesign(cfg);
 	FromOther(cfg);
 	return *this;
+}
+/*=============================================================
+ * TASK:	remove common source directory path from path names
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+QString CONFIG::RemoveSourceFromPath(QString s)
+{
+	QString sd = dsSrc.ToString();
+	QString sp = s;
+
+#if defined(_MSC_VER) || defined(WIN32) || defined(WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
+	// letter case doesn't matter in windows
+	sp = sp.toLower();
+	sd = sd.toLower();
+#endif
+	if (sp.left(sd.length()) == sd)
+		s = s.mid(sd.length());
+	return s;
 }
 /*===========================================================================
  * TASK:  assign other configuration parameters

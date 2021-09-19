@@ -1450,7 +1450,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
          </layout>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,0,0,0">
+         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,1,0,0,0">
           <property name="leftMargin">
            <number>9</number>
           </property>
@@ -1463,16 +1463,13 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           <property name="bottomMargin">
            <number>4</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="chkReadFromGallery">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="chkReadJAlbum">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you have an existing gallery in the folder&lt;/p&gt;&lt;p&gt;'Generate gallery into' and want to create the&lt;/p&gt;&lt;p&gt;.struct file in the source folder. That structure file&lt;/p&gt;&lt;p&gt;will not contain the original image names, and supposes&lt;/p&gt;&lt;p&gt;that the image files and albums of same names as in&lt;/p&gt;&lt;p&gt;the html files are present in the source directory.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Pressing 'Generate'  when this option is checked&lt;/p&gt;&lt;p&gt;you loose all data in the .struct file!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This setting will not be saved in the configuration.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create or overwrite existing .struct file using&lt;/p&gt;&lt;p&gt;data from the source directory tree. &lt;/p&gt;&lt;p&gt;If that data contains files from a JAlbum Version &amp;lt; 12,&lt;/p&gt;&lt;p&gt;that will be used to get image and album descriptions and titles.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If no .struct file is present in the source directory then&lt;/p&gt;&lt;p&gt;that directory will automatically be processed as if&lt;/p&gt;&lt;p&gt;this option were selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Create structure from existing HTML gallery</string>
+             <string>Read from directories/JAlbum</string>
             </property>
            </widget>
           </item>
@@ -1486,26 +1483,26 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="chkReadFromGallery">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this if you have an existing gallery in the folder&lt;/p&gt;&lt;p&gt;'Generate gallery into' and want to create the&lt;/p&gt;&lt;p&gt;.struct file in the source folder. That structure file&lt;/p&gt;&lt;p&gt;will not contain the original image names, and supposes&lt;/p&gt;&lt;p&gt;that the image files and albums of same names as in&lt;/p&gt;&lt;p&gt;the html files are present in the source directory.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Pressing 'Generate'  when this option is checked&lt;/p&gt;&lt;p&gt;you loose all data in the .struct file!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;This setting will not be saved in the configuration.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Create structure from existing HTML gallery</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
            <widget class="QCheckBox" name="chkAddTitlesToAll">
             <property name="toolTip">
              <string>Add title fields for images in 'gallery struct', which doesn't have one</string>
             </property>
             <property name="text">
              <string>Title fields for all</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="chkAddDescToAll">
-            <property name="toolTip">
-             <string>Add description fields for images in 'gallery struct', which doesn't have one</string>
-            </property>
-            <property name="text">
-             <string>Description fields for all</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -1529,7 +1526,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
+          <item row="1" column="4">
            <widget class="QCheckBox" name="chkDebugging">
             <property name="contextMenuPolicy">
              <enum>Qt::DefaultContextMenu</enum>
@@ -1548,13 +1545,26 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="chkReadJAlbum">
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="chkAddDescToAll">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create or overwrite existing .struct file using&lt;/p&gt;&lt;p&gt;data from the source directory tree. &lt;/p&gt;&lt;p&gt;If that data contains files from a JAlbum Version &amp;lt; 12,&lt;/p&gt;&lt;p&gt;that will be used to get image and album descriptions and titles.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If no .struct file is present in the source directory then&lt;/p&gt;&lt;p&gt;that directory will automatically be processed as if&lt;/p&gt;&lt;p&gt;this option were selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Add description fields for images in 'gallery struct', which doesn't have one</string>
             </property>
             <property name="text">
-             <string>Read from directories/JAlbum</string>
+             <string>Description fields for all</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="chkAllowDuplicates">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;As a default image IDs are determined from the image name only. &lt;/p&gt;&lt;p&gt;Therefore if you have two or more images with the same name, they will have the same ID and will only be put into the gallery once, &lt;span style=&quot; font-weight:600;&quot;&gt;unless &lt;/span&gt;this check box is checked. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this box if you have different images with the same name in different folders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Allow duplicates</string>
             </property>
            </widget>
           </item>
@@ -2314,7 +2324,7 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>385</width>
+                         <width>392</width>
                          <height>616</height>
                         </rect>
                        </property>
@@ -5385,8 +5395,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
