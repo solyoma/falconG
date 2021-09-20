@@ -496,8 +496,8 @@ private:
 	bool _JReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
 	void _JReadOneLevel(Album &ab);
 	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
-	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
+	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
 	void _CleanupAlbums();	// exclude empty albums and albums with only albums in them each empty

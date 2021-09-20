@@ -1069,9 +1069,8 @@ QString AlbumGenerator::SiteLink(int language)
   *			  data base.
   *			 - sets '_structChanged' to true
  *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp)
+ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool& added)
 {
-	bool added;
 	++_structChanged;
 
 	if (ftyp == ftImage)
@@ -2132,8 +2131,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 			throw BadStruct(reader.ReadCount(), 
 							QMainWindow::tr(StringToUtf8CString(QString("Wrong image parameter count:%1").arg(n)))); // or just the image name (from the same folder as the previous one)
 
-		// expects: original/image/directory/inside/source/name.ext and 'type' set
-		id = _AddImageOrVideoFromPathInStruct(sl[0],type);	 // then structure is changed
+		// expects: original/image/directory/inside/source/name.ext and 'type' setbool added;
+		bool added;
+		id = _AddImageOrVideoFromPathInStruct(sl[0],type, added);	 // then structure is changed
 		if (id)		// has type flag set
 		{
 			if (thumbnail)		 // It's parent also changes
@@ -2145,9 +2145,17 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 			album.changed = true;			// set it as changed always 
 		}
 		if (type == ftImage)
+		{
 			img = _imageMap[id];
+			if(added)
+				ImageMap::lastUsedPath = img.path;
+		}
 		else
+		{
 			vid = _videoMap[id];
+			if (added)
+				VideoMap::lastUsedPath = vid.path;
+		}
 	}
 	else
 	{
