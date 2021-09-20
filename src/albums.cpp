@@ -1950,7 +1950,8 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 				ids.thumbnailID = s.toULongLong() | IMAGE_ID_FLAG;
 			else
 			{
-				ids.thumbnailID = _AddImageOrVideoFromPathInStruct(s, ftImage);
+				bool added;
+				ids.thumbnailID = _AddImageOrVideoFromPathInStruct(s, ftImage, added);
 				++_structChanged;
 			}
 

@@ -1499,7 +1499,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           <item row="0" column="3">
            <widget class="QCheckBox" name="chkAddTitlesToAll">
             <property name="toolTip">
-             <string>Add title fields for images in 'gallery struct', which doesn't have one</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add title fields for images in 'gallery struct', which dosn't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Title fields for all</string>
@@ -1548,7 +1548,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           <item row="1" column="3">
            <widget class="QCheckBox" name="chkAddDescToAll">
             <property name="toolTip">
-             <string>Add description fields for images in 'gallery struct', which doesn't have one</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add description fields for images in 'gallery struct', which don't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Description fields for all</string>
