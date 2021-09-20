@@ -45,7 +45,7 @@ const ID_t RECENT_ALBUM_ID = 0x4000000000000002ull;
 
 const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
 const ID_t IMAGE_ID_FLAG = 0x1000000000000000ull;	// when set ID is for a video
-const ID_t BASE_ID_MASK	 = 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
+const ID_t BASE_ID_MASK	 = 0xF0000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC + image/video/album flag
 const ID_t ID_MASK		 = 0x0FFFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
 const ID_t ID_INCREMENT  = BASE_ID_MASK + 1;	// when image id clash add this to id 
 const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
@@ -319,6 +319,7 @@ class ImageMap : public QMap<ID_t, Image>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Image invalid;
+	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
 
 	Image& Find(ID_t id, bool useBase = true);
 	Image& Find(QString FullName);
@@ -334,8 +335,8 @@ class VideoMap : public QMap<ID_t, Video>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Video invalid;
-	static QString lastUsedVideoPath;	// config.dsSrc relative path to video so that we can add 
-										// an video by its name (relative to this path) only
+	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
+									// an video by its name (relative to this path) only
 
 	Video& Find(ID_t id, bool useBase = true);
 	Video& Find(QString FullName);
@@ -348,8 +349,8 @@ public:
 class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
+	// last used album path is in 'albumGenerator::lastUsedAlbumPath'
 public:
-	static QString lastAlbumPath;	//relative to confg.dsSrc
 	Album &Find(ID_t id);
 	Album &Find(QString albumPath);
 	ID_t Add(QString relativeAlbumPath, bool &added);			// returns ID and if it was added
@@ -378,7 +379,7 @@ class AlbumGenerator : public QObject
 	Q_OBJECT
 
 public:
-	static QString lastUsedItemPath;	// config.dsSrc relative path to image so that we can add 
+	static QString lastUsedAlbumPath;	// config.dsSrc relative path to image so that we can add 
 										// an image by its name (relative to this path) only
 
 	AlbumGenerator() {};
@@ -475,10 +476,8 @@ private:
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
-//	bool MustRecreateImageBasedOnImageDimensions(Image &img);
 	bool _MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
-	QString& _GetSetImagePath(QString &img);
 	bool _IsExcluded(const Album& album, QString name);
 	void _TitleFromPath(QString path, LangConstList &ltl);
 	QString _HtaccessToString();

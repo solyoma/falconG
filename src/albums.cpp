@@ -34,7 +34,9 @@ struct BadStruct
 LanguageTexts TextMap::invalid;
 Image ImageMap::invalid;
 Video VideoMap::invalid;
-QString AlbumGenerator::lastUsedItemPath;
+QString ImageMap::lastUsedPath;		// first check if next pathless image
+QString VideoMap::lastUsedPath;		// or video is here
+QString AlbumGenerator::lastUsedAlbumPath;		// or album is here
 
 Album AlbumMap::invalid;
 
@@ -607,8 +609,14 @@ Image &ImageMap::Find(QString FullName)
 * TASK: Add an image to the list of all images
 * EXPECTS:  path - full or config.dsSrc relative path name of the image
 *			added- output parameter: was this a new image?
-* GLOBALS:
-* REMARKS: - calculates the CRC32 of the file contents
+* GLOBALS: config
+* RETURNS: Id of image
+* REMARKS: - Id of image is the CRC32 of the file name on;y
+*		   - If two images have the same name then 'config.bAllowDuplicates`
+*			determines what happens
+*				- when it is true and the two images are of different sizes
+*				or have different file sizes the newer or larger will be used
+*				- when it is false each imge will have a different ID
 *		   - when collisions occur adds a unique value above 0xFFFFFFFF to the ID
 *		   - even non-existing images are added to map
 *		   - if an image with the same name, but with different path is found
@@ -617,42 +625,59 @@ Image &ImageMap::Find(QString FullName)
 *--------------------------------------------------------------------------*/
 ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 {
+	QString basePath;
+
+	if (!QDir::isAbsolutePath(path))			// common part of path is not stored
+		basePath = config.dsSrc.ToString();		// but we need it
+
 	Image img;
 
 	SeparateFileNamePath(path, img.path, img.name);
-	img.SetResizeType();	// handle '!!'
+	img.SetResizeType();	// using img.name, handles '!!'
 
 	if (img.path.isEmpty())
-		img.path = AlbumGenerator::lastUsedItemPath;
+		img.path = ImageMap::lastUsedPath;
 
-	if (!QDir::isAbsolutePath(path))     // common part of path is not stored
-		path = config.dsSrc.ToString() + img.path + img.name;	 // but we need it
+	QDir dir;
+	img.exists = dir.exists(basePath + img.path + img.name);
+	if (!img.exists)
+		img.path = AlbumGenerator::lastUsedAlbumPath;
+	img.exists = dir.exists(basePath + img.path + img.name);
 
 	added = false;
 	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just by name. CRC can but id can never be 0 
 
-	QFileInfo fi(path);			
-	img.exists = fi.exists();	
+	QFileInfo fi(path);		   // new (?) image to add
 
 	Image *found = &Find(id); // check if a file with this same base id is already in data base? 
+							  // can't use reference as we may want to modify 'found' below
 							  
 	if( found->Valid())		  // yes an image with the same base ID as this image was found
 	{						  // the ID can still be different from the id of the found image though
-		do					  // loop thorugh all images with the same base ID			
+		if (config.bAllowDuplicates)
 		{
-			if (found->name == img.name)	// if name is the same too then same image	
-			{								// even when they are in different directories!
-				if (found->exists)
-					if( !img.exists || (img.exists && (found->uploadDate >= fi.lastModified().date()  || found->fileSize >= fi.size())) )
-						return found->ID;	  // do not change path as image already existed
-
-				id = found->ID;		// else found image did not exist,
-				break;				// replace it with this image but with the same ID as the old one 
-			}
-			else						// same ID, different name - new image
+			do
 				id += ID_INCREMENT;
-			// repeat until a matching name with the new ID is found or no more images
-		} while ((found = &Find(id, false))->Valid()); // full by ID
+			while (Find(id, false).Valid()); // full by ID
+		}
+		else
+		{
+			do					  // loop thorugh all images with the same base ID			
+			{
+				if (found->name == img.name)	// if name is the same too then same image	
+				{								// even when they are in different directories!
+					if (found->exists)
+						if (!img.exists || (img.exists && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
+							return found->ID;	  // do not change path as image already existed
+
+					id = found->ID;		// else found image did not exist,
+					break;				// replace it with this image but with the same ID as the old one 
+				}
+				else						// same ID, different name - new image
+					id += ID_INCREMENT;
+				// repeat until a matching name with the new ID is found or no more images
+			} while ((found = &Find(id, false))->Valid()); // full by ID
+		}
 	}
 	// now I have a new image to add
 	// new image: 
@@ -931,7 +956,7 @@ QString Album::NameFromID(int language)
 * RETURNS: id of album ORed with ALBUM_ID_FLAG
 * GLOBALS:
 * REMARKS:	path may contains a logical name only it need not exist
-*			if it exists then lastUsedItemPath is adjusted
+*			if it exists then lastUsedAlbumPath is adjusted
 *--------------------------------------------------------------------------*/
 ID_t AlbumMap::Add(QString path, bool &added)
 {
@@ -956,7 +981,7 @@ ID_t AlbumMap::Add(QString path, bool &added)
 			ab.exists = QFile::exists(ab.path);
 	}
 	if (ab.exists)
-		AlbumGenerator::lastUsedItemPath = ab.path + ab.name + "/";
+		AlbumGenerator::lastUsedAlbumPath = ab.path + ab.name + "/";
 	ab.exists = true; // no need for real directoy to exist --  QFileInfo::exists(path);
 	added = true;		// always add, even when it does not exist
 	(*this)[ab.ID] = ab;
@@ -1314,23 +1339,6 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 		}
 	}
 	return list;
-}
-
-/*============================================================================
-  * TASK:	sets a relativ path to the image if it has no path
-  *			or stores the path as the last used path if it had one
-  * EXPECTS: imagerPath - absolute or relative image path or just file name
-  * RETURNS: imagerPath
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-QString& AlbumGenerator::_GetSetImagePath(QString & imagePath)
-{
-	if (imagePath.indexOf('/') < 0)		// no path at all
-		imagePath = lastUsedItemPath + imagePath;
-	else
-		lastUsedItemPath = imagePath.left(imagePath.lastIndexOf('/') + 1); // including last '/'
-	return imagePath;
 }
 
 /*==========================================================================
@@ -2001,14 +2009,14 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 
 /*==========================================================================
 * TASK:		helper - splits an image or video definition line into 
-*				max 10 constituents (see below):
-* EXPECTS: s : definition string w.o. leading spaces that determines the level
+*				max 10 fields (see below):
+* EXPECTS: s : definition string w.o. the leading spaces that determines the level
 *				Formats (text not in < > is verbatim,  '-' starts remark):
-*				  yet unprocessed files	
-*					<full file path>
+*				  yet unprocessed files:	
+*					<full file path> OR
 *					<file name&ext only> - this uses last used path either
 *												from directory or previous file
-*				  processed files 
+*				  processed files:
 *					Images:
 *						<file name&ext only>(<id w.o. flags>,<width><height>,<orig width>x<orig height>,<upload date>,<file length)<directory path>
 *					Videos:
@@ -2017,10 +2025,9 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 *																		Image Video
 * RETURNS: list of 0, 2, 5/6 or 9/10 strings:
 *		empty list:	  unknown file type
-*		2 element list:
-*				full file path
-*			always present
-*				file name 												(#0)	(#0)
+*		for lists of 2 elements, when the unprocessed line has the full file path or just
+*		the file name, but no id and so on:
+*				file name or path										(#0)	(#0)
 *				file type ('I', or 'V')									(#1)	(#1)
 *			 this may or may not be present:
 *				file ID													(#2)	(#2)
@@ -2036,7 +2043,8 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 *				folder path for files									(#9)	(#5)
 * REMARKS:	- "normal" regular function split() could not be used as names
 *					may contain braces and commas
-*			- file name may contain any number of brackets
+*			- file name may contain any number of brackets, but it must not have
+*				a file type/extension before a '('. (E.g. 'foo.jpg(bar.jpg' is invalid.)
 *			- result may contain fewer or more fields than required
 *--------------------------------------------------------------------------*/
 QStringList __imageMapStructLineToList(QString s)
@@ -2044,7 +2052,7 @@ QStringList __imageMapStructLineToList(QString s)
 	QStringList sl;
 	int pos0 = 0, 
 		pos = s.lastIndexOf('(');	// either the opening for file parameters after the file name
-									// or, when no such parameters) inside the file name
+									// or, when no such parameters, inside the file name
 	FileTypeImageVideo typ;
 
 	auto typeStr = [&]() { return typ == ftImage ? "I" : "V"; };
@@ -2109,7 +2117,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	QStringList sl = __imageMapStructLineToList(reader.l().mid(level));
 	int n = sl.size();		// when all fields are present this should be 6 or 10 :
 							// if no path was given then 5 or 9
-							// if only the path name then 2
+							// if only the path name was given then just the first two
 		// 
 		// index in sl:  0       1      2    3      4             5               6         7     8     9
 		// images:		name, "image", id, width, height, original width, original height, date, size, path
@@ -2118,7 +2126,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	ID_t id;
 		// n:  images: 2 or 10, videos 2 or 5
 	FileTypeImageVideo type = n >= 2 ? (sl[1][0] == QChar('I') ? ftImage : (sl[1][0] == QChar('V') ? ftVideo : ftUnknown)) : ftUnknown;
-	if (n != 9 && n != 10 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
+	if (n < 9 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
 	{
 		if (n != 2)	// it should be at least <config.dsSrc relative full path name> and <file type> (image or video or unknown)
 			throw BadStruct(reader.ReadCount(), 
@@ -2167,9 +2175,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 
 			img.fileSize = sl[8].toULongLong();
 			if (n == 10)
-				lastUsedItemPath = sl[9];
+				ImageMap::lastUsedPath = sl[9];
 
-			img.path = lastUsedItemPath;
+			img.path = ImageMap::lastUsedPath;
 
 			img.exists = (img.fileSize != 0);	// non existing images have 0 size
 		}
@@ -2190,9 +2198,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 
 			vid.fileSize = sl[4].toULongLong();
 			if (n == 6)
-				lastUsedItemPath = sl[5];
+				VideoMap::lastUsedPath = sl[5];
 
-			vid.path = lastUsedItemPath;
+			vid.path = VideoMap::lastUsedPath;
 
 			vid.exists = (vid.fileSize != 0);	// non existing videos have 0 size
 		}
@@ -2365,7 +2373,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		if (parent != 0)
 			aParent->changed = true;
 		if(QFile::exists(sl[0]))				// then images are inside this (not virtual directory)
-			lastUsedItemPath = sl[0] + "/";
+			lastUsedAlbumPath = sl[0] + "/";
 
 		bool added;
 		id = _albumMap.Add(aParent->path + sl[0], added);	// add new album to global album list
@@ -2378,15 +2386,15 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		if (n == 2)	// name & ID but no path
 		{
 			if (level < 2)	   // level == 0: root, level == 1 top level album
-				lastUsedItemPath.clear();
-			album.path = lastUsedItemPath;
+				lastUsedAlbumPath.clear();
+			album.path = lastUsedAlbumPath;
 			if (level == 1)	// top level album> its name is path for images and sub albums
-				lastUsedItemPath = sl[0] + "/";
+				lastUsedAlbumPath = sl[0] + "/";
 		}
 		else // n==3 -> name, ID and path
 		{
 			album.path = sl[2];	// images are inside this album
-			lastUsedItemPath = album.FullName() + "/";
+			lastUsedAlbumPath = album.FullName() + "/";
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
 		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
@@ -4286,24 +4294,36 @@ Video& VideoMap::Find(QString FullName)
 *--------------------------------------------------------------------------*/
 ID_t VideoMap::Add(QString path, bool& added)
 {
-		Video vid;
+	QString basePath;
 
-		SeparateFileNamePath(path, vid.path, vid.name);
+	if (!QDir::isAbsolutePath(path))			// common part of path is not stored
+		basePath = config.dsSrc.ToString();		// but we need it
 
-		if (vid.path.isEmpty())
-			vid.path = AlbumGenerator::lastUsedItemPath;
+	Video vid;
 
-		if (!QDir::isAbsolutePath(path))     // common part of path is not stored
-			path = config.dsSrc.ToString() + vid.path + vid.name;	 // but we need it
+	SeparateFileNamePath(path, vid.path, vid.name);
 
-		added = false;
-		ID_t id = CalcCrc(vid.name, false);	// just by name. CRC can but id can never be 0 
+	QDir dir;
+	vid.exists = dir.exists(basePath + vid.path + vid.name);
+	if (!vid.exists)
+		vid.path = AlbumGenerator::lastUsedAlbumPath;
+	vid.exists = dir.exists(basePath + vid.path + vid.name);
 
-		QFileInfo fi(path);
-		vid.exists = fi.exists();
+	added = false;
+	ID_t id = CalcCrc(vid.name, false) | VIDEO_ID_FLAG;	// just by name. CRC can but id can never be 0 
 
-		Video* found = &Find(id); // check if a file with this same base id is already in data base? 
+	QFileInfo fi(path);
 
+	Video* found = &Find(id); // check if a file with this same base id is already in data base? 
+							  // can't use reference as we may want to modify 'found' below
+	if (config.bAllowDuplicates)
+	{
+		do
+			id += ID_INCREMENT;
+		while (Find(id, false).Valid()); // full by ID
+	}
+	else
+	{
 		if (found->Valid())		  // yes an video with the same base ID as this video was found
 		{						  // the ID can still be different from the id of the found video though
 			do					  // loop thorugh all videos with the same base ID			
@@ -4322,18 +4342,19 @@ ID_t VideoMap::Add(QString path, bool& added)
 				// repeat until a matching name with the new ID is found or no more videos
 			} while ((found = &Find(id, false))->Valid()); // full by ID
 		}
-		// now I have a new video to add
-		// new video: 
-		if (vid.exists)
-		{
-			vid.fileSize = fi.size();
-			vid.uploadDate = fi.lastModified().date();
-		}
+	}
+	// now I have a new video to add
+	// new video: 
+	if (vid.exists)
+	{
+		vid.fileSize = fi.size();
+		vid.uploadDate = fi.lastModified().date();
+	}
 
-		added = true;
-		vid.ID = id | VIDEO_ID_FLAG;
-		insert(id,vid);
-		return id;
+	added = true;
+	vid.ID = id;
+	insert(id,vid);
+	return id;
 }
 
 Video& VideoMap::Item(int index)

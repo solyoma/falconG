@@ -1450,7 +1450,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
          </layout>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,1,0,0,0">
+         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,1,1,1,0">
           <property name="leftMargin">
            <number>9</number>
           </property>
@@ -1565,6 +1565,9 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
             <property name="text">
              <string>Allow duplicates</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
