@@ -94,7 +94,7 @@ static void __SetBaseDirs()
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
 {
-	if (album.thumbnail == 0 + IMAGE_ID_FLAG) // then the first image  or sub-album
+	if (album.thumbnail == 0/* + IMAGE_ID_FLAG*/) // then the first image  or sub-album
 	{						  // will be set as its thumbnail
 		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
 			return 0;
@@ -612,7 +612,7 @@ Image &ImageMap::Find(QString FullName)
 * GLOBALS: config
 * RETURNS: Id of image
 * REMARKS: - Id of image is the CRC32 of the file name on;y
-*		   - If two images have the same name then 'config.bAllowDuplicates`
+*		   - If two images have the same name then 'config.bKeepDuplicates`
 *			determines what happens
 *				- when it is true and the two images are of different sizes
 *				or have different file sizes the newer or larger will be used
@@ -654,7 +654,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 							  
 	if( found->Valid())		  // yes an image with the same base ID as this image was found
 	{						  // the ID can still be different from the id of the found image though
-		if (config.bAllowDuplicates)
+		if (config.bKeepDuplicates)
 		{
 			do
 				id += ID_INCREMENT;
@@ -2458,6 +2458,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ImageOrVideoFromStruct(reader, level+1, album, false);		   // false:not album thumbnail
+				if(!iid)
+					throw BadStruct(reader.ReadCount(), QMainWindow::tr("Image id is 0! Try to remove text after image name in .struct file!"));
 				album.items.push_back(iid);
 			}
 		}
@@ -3444,7 +3446,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString qs = QString(R"(<div class = "img-container">
 		<div class="%1">
 			<div id="%2" w=%3 h=%4>
-				<img class="%5" %6="%7" alt="%8" onclick="%9" %10>
+				<img class="%5" %6="%7" %12alt="%8" onclick="%9" %10>
 			</div>
 		</div>
 		%11
@@ -3464,7 +3466,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	.arg(qsLoc)														// 9
 	.arg(qsOptionalStyle)											// 10
 	.arg(tagPDesc)													// 11
-	;
+	.arg(idIndex < 0 ? "id=\"latest\" " :"")						// 12
+		;
 
 	_ofs << qs;
 
@@ -4325,7 +4328,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 
 	Video* found = &Find(id); // check if a file with this same base id is already in data base? 
 							  // can't use reference as we may want to modify 'found' below
-	if (config.bAllowDuplicates)
+	if (config.bKeepDuplicates)
 	{
 		do
 			id += ID_INCREMENT;

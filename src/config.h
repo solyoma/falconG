@@ -1049,7 +1049,7 @@ public:
 
 
 	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};
-	_CBool bAllowDuplicates = { true, "bAllowDuplicates" };
+	_CBool bKeepDuplicates = { false, "bKeepDuplicates" }; // when tru duplicates are kept
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase

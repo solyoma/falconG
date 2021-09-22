@@ -47,7 +47,7 @@ const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
 const ID_t IMAGE_ID_FLAG = 0x1000000000000000ull;	// when set ID is for a video
 const ID_t BASE_ID_MASK	 = 0xF0000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC + image/video/album flag
 const ID_t ID_MASK		 = 0x0FFFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
-const ID_t ID_INCREMENT  = BASE_ID_MASK + 1;	// when image id clash add this to id 
+const ID_t ID_INCREMENT  = 0x0000000100000000ull;	// when image id clash add this to id 
 const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
 const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
 

@@ -1651,9 +1651,9 @@ void CONFIG::Read()		// synchronize with Write!
 	sKeywords.Read(s);
 											// special data
 	bSeparateFoldersForLanguages.Read(s);
-	bAllowDuplicates.Read(s);
 	bAddTitlesToAll.Read(s);
 	bAddDescriptionsToAll.Read(s);
+	bKeepDuplicates.Read(s);
 	bLowerCaseImageExtensions.Read(s);
 	bMenuToContact.Read(s);
 	bMenuToAbout.Read(s);
@@ -1790,9 +1790,9 @@ void CONFIG::_WriteIni(QString sIniName)
 	sKeywords.Write(s);
 											// special data
 	bSeparateFoldersForLanguages.Write(s);
-	bAllowDuplicates.Write(s);
 	bAddTitlesToAll.Write(s);
 	bAddDescriptionsToAll.Write(s);
+	bKeepDuplicates.Write(s);
 	bLowerCaseImageExtensions.Write(s);
 	bMenuToContact.Write(s);
 	bMenuToAbout.Write(s);

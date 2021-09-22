@@ -1559,15 +1559,15 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QCheckBox" name="chkAllowDuplicates">
+           <widget class="QCheckBox" name="chkKeepDuplicates">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;As a default image IDs are determined from the image name only. &lt;/p&gt;&lt;p&gt;Therefore if you have two or more images with the same name, they will have the same ID and will only be put into the gallery once, &lt;span style=&quot; font-weight:600;&quot;&gt;unless &lt;/span&gt;this check box is checked. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this box if you have different images with the same name in different folders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Allow duplicates</string>
+             <string>Keep duplicates</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

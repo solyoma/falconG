@@ -2025,6 +2025,12 @@ void FalconG::on_chkItalic_toggled(bool on)
 	_FontToSample(pElem);
 }
 
+void FalconG::on_chkKeepDuplicates_toggled(bool yes)
+{
+	config.bKeepDuplicates = yes;
+	_SetConfigChanged(true);
+}
+
 
 void FalconG::_TextAlignToConfig(Align align, bool on)
 {

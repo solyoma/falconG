@@ -302,6 +302,7 @@ private slots:
 	void on_chkIconText_toggled(bool);
 	void on_chkIconTop_toggled(bool);
 	void on_chkItalic_toggled(bool);
+	void on_chkKeepDuplicates_toggled(bool);
 	void on_chkLowerCaseImageExtensions_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
 	void on_chkMenuToContact_toggled(bool);

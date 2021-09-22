@@ -4,7 +4,7 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="albums.cpp" line="2781"/>
+        <location filename="albums.cpp" line="2783"/>
         <source>falconG - Warning</source>
         <oldsource>falconG Warning</oldsource>
         <translation>falconG - Figyelmeztetés</translation>
@@ -23,29 +23,29 @@
         <translation>Generálás (F9}</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2047"/>
+        <location filename="falcong.cpp" line="2053"/>
         <source>Styles</source>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2141"/>
-        <location filename="falcong.cpp" line="2826"/>
-        <location filename="falcong.cpp" line="2998"/>
-        <location filename="falcong.cpp" line="3024"/>
-        <location filename="falcong.cpp" line="3044"/>
-        <location filename="falcong.cpp" line="3077"/>
-        <location filename="falcong.cpp" line="3130"/>
-        <location filename="falcong.cpp" line="3152"/>
-        <location filename="falcong.cpp" line="3174"/>
-        <location filename="falcong.cpp" line="3196"/>
-        <location filename="falcong.cpp" line="3213"/>
-        <location filename="falcong.cpp" line="3229"/>
-        <location filename="falcong.cpp" line="3254"/>
+        <location filename="falcong.cpp" line="2147"/>
+        <location filename="falcong.cpp" line="2832"/>
+        <location filename="falcong.cpp" line="3004"/>
+        <location filename="falcong.cpp" line="3030"/>
+        <location filename="falcong.cpp" line="3050"/>
+        <location filename="falcong.cpp" line="3083"/>
+        <location filename="falcong.cpp" line="3136"/>
+        <location filename="falcong.cpp" line="3158"/>
+        <location filename="falcong.cpp" line="3180"/>
+        <location filename="falcong.cpp" line="3202"/>
+        <location filename="falcong.cpp" line="3219"/>
+        <location filename="falcong.cpp" line="3235"/>
+        <location filename="falcong.cpp" line="3260"/>
         <source>Select Color</source>
         <translation>Színválasztás</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="2951"/>
+        <location filename="falcong.cpp" line="2957"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -56,124 +56,124 @@ A  mentés mappája:
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3091"/>
+        <location filename="falcong.cpp" line="3097"/>
         <source>falconG - Open Background Image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3091"/>
+        <location filename="falcong.cpp" line="3097"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3108"/>
+        <location filename="falcong.cpp" line="3114"/>
         <source>falconG - Open background image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3543"/>
+        <location filename="falcong.cpp" line="3549"/>
         <source>Background color</source>
         <translation>Háttérszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3555"/>
+        <location filename="falcong.cpp" line="3561"/>
         <source>Foreground (Text) color</source>
         <translation>Szöveg színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3563"/>
+        <location filename="falcong.cpp" line="3569"/>
         <source>Border color</source>
         <translation>Keret színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3571"/>
+        <location filename="falcong.cpp" line="3577"/>
         <source>Focused Input color</source>
         <translation>Aktuális szövegszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3579"/>
+        <location filename="falcong.cpp" line="3585"/>
         <source>Hover color</source>
         <translation>Mutató alatti szín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3587"/>
+        <location filename="falcong.cpp" line="3593"/>
         <source>Tab Border color</source>
         <translation>Fül keretszín</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3595"/>
+        <location filename="falcong.cpp" line="3601"/>
         <source>Input Background</source>
         <translation>Bevitel háttere</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3603"/>
+        <location filename="falcong.cpp" line="3609"/>
         <source>Selected Background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3611"/>
+        <location filename="falcong.cpp" line="3617"/>
         <source>Focused Border color</source>
         <translation>Fokuszált elem keretszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3619"/>
+        <location filename="falcong.cpp" line="3625"/>
         <source>Disabled Foreground</source>
         <translation>Érvénytelen mező betűszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3627"/>
+        <location filename="falcong.cpp" line="3633"/>
         <source>Disabled Background</source>
         <translation>Érvénytelen mező háttérszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3635"/>
+        <location filename="falcong.cpp" line="3641"/>
         <source>Image Background</source>
         <translation>Kép háttérszíne</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3643"/>
+        <location filename="falcong.cpp" line="3649"/>
         <source>Button Pressed Bg</source>
         <translation>Lenyomott gomb</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3651"/>
+        <location filename="falcong.cpp" line="3657"/>
         <source>Default Background</source>
         <translation>Alapértelmezett háttér</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3659"/>
+        <location filename="falcong.cpp" line="3665"/>
         <source>Progressbar Chunk color</source>
         <translation>Haladásjelző színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3667"/>
+        <location filename="falcong.cpp" line="3673"/>
         <source>Warning color</source>
         <translation>Figyelmeztetés színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3675"/>
+        <location filename="falcong.cpp" line="3681"/>
         <source>Groupbox Title Color</source>
         <translation>Doboz címének színe</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3683"/>
+        <location filename="falcong.cpp" line="3689"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3873"/>
+        <location filename="falcong.cpp" line="3879"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3873"/>
+        <location filename="falcong.cpp" line="3879"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmazta.
 Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3999"/>
+        <location filename="falcong.cpp" line="4005"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <oldsource>No &apos;:&apos; found in new name. so the same name will be used for
@@ -183,11 +183,11 @@ több program nyelvre. Ezt akarja?</translation>
     </message>
     <message>
         <location filename="falcong.cpp" line="276"/>
-        <location filename="falcong.cpp" line="3984"/>
-        <location filename="falcong.cpp" line="4069"/>
-        <location filename="falcong.cpp" line="4195"/>
-        <location filename="falcong.cpp" line="4216"/>
-        <location filename="falcong.cpp" line="4257"/>
+        <location filename="falcong.cpp" line="3990"/>
+        <location filename="falcong.cpp" line="4075"/>
+        <location filename="falcong.cpp" line="4201"/>
+        <location filename="falcong.cpp" line="4222"/>
+        <location filename="falcong.cpp" line="4263"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -211,7 +211,7 @@ El akarod menteni ezeket?</translation>
     </message>
     <message>
         <location filename="falcong.cpp" line="292"/>
-        <location filename="falcong.cpp" line="2953"/>
+        <location filename="falcong.cpp" line="2959"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatja a kérdezést)</translation>
     </message>
@@ -226,18 +226,18 @@ El akarod menteni ezeket?</translation>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatja a kérdezést)</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3984"/>
+        <location filename="falcong.cpp" line="3990"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztatta a program nyelvét. Kérem indítsa újra a myelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3991"/>
-        <location filename="falcong.cpp" line="3998"/>
+        <location filename="falcong.cpp" line="3997"/>
+        <location filename="falcong.cpp" line="4004"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="3989"/>
+        <location filename="falcong.cpp" line="3995"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -258,105 +258,105 @@ all program languages. This is what you want&lt;</oldsource>
 Ezt akarja?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4069"/>
-        <location filename="falcong.cpp" line="4257"/>
+        <location filename="falcong.cpp" line="4075"/>
+        <location filename="falcong.cpp" line="4263"/>
         <source>Invalid new name. Please use another!</source>
         <translation>Érvénytelen név. Kérem adjon egy másikat!</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4195"/>
+        <location filename="falcong.cpp" line="4201"/>
         <source>This will reset all dialogs.
 Do you want to proceed?</source>
         <translation>Valóba alaphelyzetbeakarja állítani az összes párbeszéd ablakot?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4217"/>
+        <location filename="falcong.cpp" line="4223"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarja ezt a színösszeállítást?</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4242"/>
+        <location filename="falcong.cpp" line="4248"/>
         <source>New Scheme Name
  (for </source>
         <translation>Új séma név a következő nyelvekre:
 ( </translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4243"/>
+        <location filename="falcong.cpp" line="4249"/>
         <source>falconG - Input</source>
         <translation>falconG - Bevitel</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4269"/>
+        <location filename="falcong.cpp" line="4275"/>
         <source>Select background color.</source>
         <translation>Válasszon háttérszínt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5050"/>
+        <location filename="falcong.cpp" line="5056"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5051"/>
+        <location filename="falcong.cpp" line="5057"/>
         <source>Don&apos;t show again (use Options to re-enable)</source>
         <translation>Ne mutassa mégegyszer (A Beállításokban visszakapcsolhatja)</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5075"/>
+        <location filename="falcong.cpp" line="5081"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5094"/>
+        <location filename="falcong.cpp" line="5100"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5119"/>
+        <location filename="falcong.cpp" line="5125"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5167"/>
+        <location filename="falcong.cpp" line="5173"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5168"/>
+        <location filename="falcong.cpp" line="5174"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5179"/>
+        <location filename="falcong.cpp" line="5185"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5180"/>
+        <location filename="falcong.cpp" line="5186"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5184"/>
+        <location filename="falcong.cpp" line="5190"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5185"/>
+        <location filename="falcong.cpp" line="5191"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
         <location filename="falcong.cpp" line="316"/>
-        <location filename="falcong.cpp" line="5049"/>
-        <location filename="falcong.cpp" line="5249"/>
+        <location filename="falcong.cpp" line="5055"/>
+        <location filename="falcong.cpp" line="5255"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="5249"/>
+        <location filename="falcong.cpp" line="5255"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -368,39 +368,45 @@ Az ikon nem olvasható
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="albums.cpp" line="2496"/>
+        <location filename="albums.cpp" line="2462"/>
+        <source>Image id is 0! Try to remove text after image name in .struct file!</source>
+        <translation>A képazonosíto 0☺. Próbáld meg kitörölni a szövegeket a fájlnevek után
+a .struct fájlban!</translation>
+    </message>
+    <message>
+        <location filename="albums.cpp" line="2498"/>
         <source>Read error</source>
         <translation>Olvasási hiba</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2502"/>
+        <location filename="albums.cpp" line="2504"/>
         <source>Bad version string</source>
         <translation>Hibás verzió sor</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2508"/>
+        <location filename="albums.cpp" line="2510"/>
         <source>Missing &apos;.&apos; from version</source>
         <translation>Hiányzó &apos;.&apos; a verziósorban</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2519"/>
+        <location filename="albums.cpp" line="2521"/>
         <source>Invalid / empty root album line</source>
         <translation>Érvénytelen / üres album sor</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2530"/>
+        <location filename="albums.cpp" line="2532"/>
         <source>falconG - Error</source>
         <translation>falconG - Hiba</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2531"/>
+        <location filename="albums.cpp" line="2533"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation>Sérült szerkezeti fájl!
 Üzenet: &apos;</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2534"/>
+        <location filename="albums.cpp" line="2536"/>
         <source>
 
 Processing aborted, because continuing
@@ -449,7 +455,7 @@ Kilépek</translation>
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4042"/>
+        <location filename="falcong.cpp" line="4048"/>
         <location filename="languages.cpp" line="195"/>
         <location filename="support.cpp" line="26"/>
         <location filename="support.cpp" line="1053"/>
@@ -457,7 +463,7 @@ Kilépek</translation>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="falcong.cpp" line="4043"/>
+        <location filename="falcong.cpp" line="4049"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
@@ -1479,8 +1485,9 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="1567"/>
-        <source>Allow duplicates</source>
-        <translation>Másolatok engedélyezése</translation>
+        <source>Keep duplicates</source>
+        <oldsource>Allow duplicates</oldsource>
+        <translation>Másolatok megtartása</translation>
     </message>
     <message>
         <location filename="falcong.ui" line="2083"/>
