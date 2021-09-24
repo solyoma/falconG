@@ -483,6 +483,8 @@ void FalconG::on_btnGenerate_clicked()
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);
+	if (!_running)
+		ui.chkReadJAlbum->setChecked(false);
 }
 
 /*============================================================================
