@@ -495,7 +495,7 @@ private:
 	bool _ReadJMetaFile(Album &ab);		// meta.properties
 	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
 	bool _JReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
-	void _JReadOneLevel(Album &ab);
+	void _ReadOneLevelOfDirs(Album &ab);
 	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);

@@ -931,7 +931,7 @@ void FalconG::_OtherToUi()
 	ui.chkForceSSL->setChecked(config.bForceSSL);
 // not saved/restored:
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
-//	ui.chkReadJAlbum->setChecked(config.bReadJAlbum);	  
+//	ui.chkReadJAlbum->setChecked(config.bReadFromDirs);	  
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
@@ -1799,8 +1799,8 @@ void FalconG::on_chkReadJAlbum_toggled(bool on)
 {
 	if (_busy)
 		return;
-	config.bReadJAlbum = on;
-	_SetConfigChanged(true);
+	config.bReadFromDirs = on;
+//	_SetConfigChanged(true);	no configuration change!
 	
 	_EnableButtons();
 }

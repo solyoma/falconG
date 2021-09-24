@@ -1137,7 +1137,7 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
 
 	}
-	if ((id & ID_MASK) && added)
+	if ((id & ID_MASK) && ! (id & EXCLUDED_FLAG) )
 		ab.items.push_back(id);	// add to ordered item list for this album
 	// progress bar
 	emit SignalProgressPos(_albumMap.size(), _ItemSize() );	  // both changes
@@ -1566,7 +1566,7 @@ bool AlbumGenerator::_JReadInfo(Album & ab)
  *			- then reads comments.properties and sets them for images and sub-albums
  *			- then call itself recursively for sub-folders
  *----------------------------------------------------------------*/
-void AlbumGenerator::_JReadOneLevel(Album &ab)
+void AlbumGenerator::_ReadOneLevelOfDirs(Album &ab)
 {
 	// TODO justChanges
 	_isAJAlbum = false;		// set only if jalbum's file are in this directory
@@ -1595,7 +1595,7 @@ void AlbumGenerator::_JReadOneLevel(Album &ab)
 			_albumMap[id].parent = ab.ID;	// signals this sub-album is in 'ab' 
 											// Must change when sub-albums moved to other album
 			if (_albumMap[id].exists)
-				_JReadOneLevel(_albumMap[id]);
+				_ReadOneLevelOfDirs(_albumMap[id]);
 		}
 		emit SignalProgressPos(_albumMap.size(), _imageMap.size());
 		if (!_processing)
@@ -1638,7 +1638,7 @@ bool AlbumGenerator::Read()
 
 	bool result = false;
 
-	bool _justChanges = !config.bReadJAlbum && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
+	bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
 	
 	if (!_justChanges)
 		Clear();
@@ -1646,7 +1646,7 @@ bool AlbumGenerator::Read()
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
-	if(!config.bReadJAlbum && QFileInfo::exists(s))
+	if(!config.bReadFromDirs && QFileInfo::exists(s))
 	{
 		try
 		{
@@ -2604,7 +2604,7 @@ bool AlbumGenerator::_ReadFromDirs()
 	_albumMap[_root.ID] = _root;	// a copy of _root is first on list	
 
 	_remDsp.Init(directoryCount);
-	_JReadOneLevel(_albumMap[rootId] );	// recursive read of all levels
+	_ReadOneLevelOfDirs(_albumMap[rootId] );	// recursive read of all levels
 	if (!_processing)
 		return false;
 

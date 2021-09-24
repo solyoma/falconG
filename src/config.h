@@ -1053,7 +1053,7 @@ public:
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
-	_CBool bReadJAlbum = {false,"bReadJAlbum"};			// do not process gallery.struct, read from JAlbum structure
+	_CBool bReadFromDirs = {false,"bReadFromDirs"};			// do not process gallery.struct, read from JAlbum structure
 	_CBool bReadFromGallery = {false,"bReadFromGallery"};	// read back from HTML files in gallery (you loose original names and paths!
 		// next two bools will not be read from or saved into the configuration file
 	_CBool bGenerateAll = {false,"bGenerateAll"};		// must regenerate all pages regardless of status?
