@@ -1622,8 +1622,8 @@ bool AlbumGenerator::Read()
 
 	bool result = false;
 
-	bool _justChanges = (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
-
+	bool _justChanges = !config.bReadJAlbum && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
+	
 	if (!_justChanges)
 	{
 		_imageMap.clear();
