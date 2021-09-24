@@ -272,10 +272,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 {
 	if (_running)		// operation in progress
 	{
-		_InformationMessage(true, 
-							tr("falconG - Warning"), 
-							tr("An operation is in progress.\n Please stop it before exiting.")
-						   );
+		ShowWarning( tr("An operation is in progress.\n Please stop it before exiting."), this);
 		event->ignore();
 		return;
 	}
@@ -286,9 +283,10 @@ void FalconG::closeEvent(QCloseEvent * event)
 	if(_edited)
 	{
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
-		int res = _QuestionDialog( tr("falconG - albums edited"),
+		int res = QuestionDialog( tr("falconG - albums edited"),
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
 								dbSaveEdited, 
+								this,
 								tr("Don't ask again (use Options to re-enable)")
 							   );
 		if (res == QMessageBox::Save)
@@ -313,9 +311,10 @@ void FalconG::closeEvent(QCloseEvent * event)
 		if ( (config.doNotShowTheseDialogs & dbAskBeforeClosing) == 0)
 		{
 			QMessageBox::StandardButtons btns = QMessageBox::Yes | QMessageBox::No;
-			int res = _QuestionDialog( tr("falconG"),
+			int res = QuestionDialog( tr("falconG"),
 							 tr("Do you really want to exit?"),
 							 dbAskBeforeClosing,
+							 frmMain,
 							 tr("Don't ask again (use Options to re-enable))"),
 							 btns
 							);
@@ -2089,57 +2088,6 @@ void FalconG::_EnableColorSchemeButtons()
 	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size()-2-1);
 }
 
-void FalconG::_InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show, QString checkboxtext)
-{
-	if (config.doNotShowTheseDialogs.v & (1 << show))
-		return;
-
-	QMessageBox info(this);
-	info.setText(title);
-	info.setIcon(WarningAndNotInfo ? QMessageBox::Warning : QMessageBox::Information );
-	info.setInformativeText(text);
-	info.setStandardButtons(QMessageBox::Ok);
-	QCheckBox* checkBox = nullptr;
-	if (!checkboxtext.isEmpty())
-	{
-		checkBox = new QCheckBox(checkboxtext);
-		info.setCheckBox(checkBox);
-	}
-
-	int res = info.exec();
-
-	if (checkBox && info.checkBox()->isChecked())
-		config.doNotShowTheseDialogs.v |= (1 << show);
-	config.defaultAnswers[show] = res;
-}
-
-int FalconG::_QuestionDialog(QString title, QString text, int show, QString checkboxtext, QMessageBox::StandardButtons buttons)
-{
-	if (config.doNotShowTheseDialogs.v & (1 << show) )
-		return config.defaultAnswers[show];
-
-	QMessageBox question(this);
-	question.setText(title);
-	question.setIcon(QMessageBox::Question);
-	question.setInformativeText(text);
-	question.setStandardButtons(buttons);
-	QCheckBox* checkBox = nullptr;
-	if (!checkboxtext.isEmpty())
-	{
-		checkBox = new QCheckBox(checkboxtext);
-		question.setCheckBox(checkBox);
-	}
-
-	int res = question.exec();
-	if (res == QMessageBox::Yes || res == QMessageBox::Save )
-		config.defaultAnswers[show] = res;
-
-	if (checkBox && question.checkBox()->isChecked())
-		config.doNotShowTheseDialogs.v |= (1 << show);
-
-	return res;
-}
-
 void FalconG::_SlotForSchemeButtonClick(int which)
 {
 	StyleHandler sh( (*_pSchemeButtons[which]).styleSheet());
@@ -2952,11 +2900,12 @@ void FalconG::on_btnSaveConfig_clicked()
 	QString s	 = PROGRAM_CONFIG::NameForConfig(true, ".ini"),
 			sp = s.left(s.lastIndexOf('/'));	// path
 	s = s.mid(s.lastIndexOf('/') + 1);			// name
-	_InformationMessage(false, 
+	InformationMessage(false, 
 						"falconG", 
 						tr("Saved configuration\n'%1'\n into folder \n'%2'").arg(s).arg(sp), 
 						dbSaveConfig, 
-						tr("Don't ask again (use Options to re-enable)")
+						tr("Don't ask again (use Options to re-enable)"),
+						this
 					   );
 }
 
@@ -4045,8 +3994,8 @@ void FalconG::on_btnPreview_clicked()
 		AlbumGenerator::RootNameFromBase(config.homeLink, 0, false);
 	if (!QDesktopServices::openUrl(QUrl(qs)))
 	{
-		QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG - Warning"),
-						QMainWindow::tr("Cannot open\n'%1'").arg(qs),
+		QMessageBox(QMessageBox::Warning, tr("falconG - Warning"),
+						tr("Cannot open\n'%1'").arg(qs),
 							QMessageBox::Ok, this).exec();
 	}
 }
@@ -5052,10 +5001,11 @@ void FalconG::on_btnSaveStyleSheet_clicked()
 	if (albumgen.SaveStyleSheets() != 0 || (config.doNotShowTheseDialogs & (int)dbShowAfterSavingCss) )
 	{	
 		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
-		_InformationMessage( false, tr("falconG"), 
-							 QString(tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)),
-							 dbShowAfterSavingCss, tr("Don't show again (use Options to re-enable)")
-							);
+		InformationMessage( false, tr("falconG"), 
+							QString(tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)),
+							dbShowAfterSavingCss, tr("Don't show again (use Options to re-enable)"),
+							this
+						  );
 	}
 }
 

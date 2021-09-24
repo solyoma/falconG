@@ -1,11 +1,12 @@
-#include "support.h"
-#include "config.h"
 #include <QtWidgets>
 #include <QtDebug>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QPainter>
 #include <QTextStream>
+#include "support.h"
+#include "config.h"
+#include "falconG.h"
 
 //*****************************************
 void ShowWarning(QString qs, QWidget *parent)
@@ -30,6 +31,57 @@ void ShowWarning(QString qs, QWidget *parent)
 		msgBox.exec();
 		config.bNoMoreWarnings = msgBox.checkBox()->isChecked();
 	}
+}
+
+void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show, QString checkboxtext, QWidget* parent)
+{
+	if (config.doNotShowTheseDialogs.v & (1 << show))
+		return;
+
+	QMessageBox info(parent);
+	info.setText(title);
+	info.setIcon(WarningAndNotInfo ? QMessageBox::Warning : QMessageBox::Information);
+	info.setInformativeText(text);
+	info.setStandardButtons(QMessageBox::Ok);
+	QCheckBox* checkBox = nullptr;
+	if (!checkboxtext.isEmpty())
+	{
+		checkBox = new QCheckBox(checkboxtext);
+		info.setCheckBox(checkBox);
+	}
+
+	int res = info.exec();
+
+	if (checkBox && info.checkBox()->isChecked())
+		config.doNotShowTheseDialogs.v |= (1 << show);
+	config.defaultAnswers[show] = res;
+}
+
+int QuestionDialog(QString title, QString text, int show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
+{
+	if (config.doNotShowTheseDialogs.v & (1 << show))
+		return config.defaultAnswers[show];
+
+	QMessageBox question(parent);
+	question.setText(title);
+	question.setIcon(QMessageBox::Question);
+	question.setInformativeText(text);
+	question.setStandardButtons(buttons);
+	QCheckBox* checkBox = nullptr;
+	if (!checkboxtext.isEmpty())
+	{
+		checkBox = new QCheckBox(checkboxtext);
+		question.setCheckBox(checkBox);
+	}
+
+	int res = question.exec();
+	if (res == QMessageBox::Yes || res == QMessageBox::Save)
+		config.defaultAnswers[show] = res;
+
+	if (checkBox && question.checkBox()->isChecked())
+		config.doNotShowTheseDialogs.v |= (1 << show);
+
+	return res;
 }
 
 const char* StringToUtf8CString(QString qs)
@@ -834,42 +886,45 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 
 /*============================================================================
 * TASK:		resize images and add watermark
-* EXPECTS:	 
-*			 dest - path of destination image
+* EXPECTS:	imgReader - reader with image already read
+*			dest - path of destination image
 *			thumb - process a thumbnail?
-*			 ovr - overwrite image if it exists
-*			 pwm - pointer to watermark structure
+*			ovr - overwrite image if it exists
+*			pwm - pointer to watermark structure
 *			parameters maxwidth, maxheight,dontEnlarge are set
-* RETURNS:	- normal exit: aspect ratio 
-*			- load errors: 0.0
-*			- if destination exists and it is not allowed to overwrite it: -1.0
-*			- file write error: -2.0
+* RETURNS:	- 0: OK
+*			- load errors: -1
+*			- if destination exists and it is not allowed to overwrite it: -2
+*			- file write error: -3
 * GLOBALS: 
 * REMARKS:	- path of source image must be set into imgReader before calling
 *			- for thumbnails if the image was already loaded into imgReader
 *				then scale image during save, else save the image as it is
+*			- if there's an error sets _qsErrorMsg
 *--------------------------------------------------------------------------*/
-double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, WaterMark *pwm)
+int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, WaterMark *pwm)
 {
-	if (!config.bOvrImages)	// file MUST exist (checked before coming here)  && QFile::exists(dest))
-		return -1.0;
-
-	QImageIOHandler::Transformations tr = imgReader.transformation();
+	if (QFile::exists(dest) && !config.bOvrImages)
+	{
+		_qsErrorMsg = QMainWindow::tr("Destination file") + QString(" ,%1' ").arg(dest) + QMainWindow::tr("exists and image override is not allowed!");
+		return -1;
+	}
+	QImageIOHandler::Transformations trans = imgReader.transformation();
 	QSize newSize = imgReader.imgSize;	// if tr then it may already transposed sizes (from camera, not from PS/LR)
-	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
+	if (trans & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
 		newSize.transpose();
 	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
 
 	if (!imgReader.isReady)			// not read yet
 	{								
-		imgReader.read();			// scaled and possibly rotated image
+		if (!imgReader.read())			// scaled and possibly rotated image
+			return -2;
 
 		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
 		if (pwm)
 			_AddWatermark(*pwm);
 	}
 		
-	QString qsErr;
 	// write scaled image into 'dest'
 	if(flags & prImage)
 	{
@@ -882,7 +937,10 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 		imageWriter.setFormat(imgReader.format());
 
 		if (!imageWriter.write(imgReader.img))
-			qsErr = imageWriter.errorString() + "\n'" + dest + "'\n";
+		{
+			_qsErrorMsg = imageWriter.errorString() + "\n'" + dest + "'\n";
+			return -3;
+		}
 	}
 	// write thumbnail image into 'thumb'
 	// thumbnail image dimensions are never transposed 
@@ -892,8 +950,8 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 	{
 		if (imgReader.thumbSize.width() <= 0 || imgReader.thumbSize.height() <= 0)
 		{
-			ShowWarning("Invalid sizes for thumbnail \n'"+thumb + "'\n");
-			return aspect;
+			_qsErrorMsg = QMainWindow::tr("Invalid sizes for thumbnail") + QString(" \n'"+thumb + "'\n");
+			return -aspect;
 		}
 		//	re-scale image for thumbnail
 		imgReader.img = imgReader.img.scaled(imgReader.thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -902,11 +960,12 @@ double ImageConverter::Process(ImageReader &imgReader, QString dest, QString thu
 		imageWriter.setQuality(imgReader.quality());
 		imageWriter.setFormat(imgReader.format());
 		if (!imageWriter.write(imgReader.img))
-			qsErr += "'"+thumb + "'\n" +imageWriter.errorString();
+		{
+			_qsErrorMsg += "'" + thumb + "'\n" + imageWriter.errorString();
+			return -3;
+		}
 	}
-	if (!qsErr.isEmpty())
-		ShowWarning(qsErr);
-	return aspect;
+	return 0;
 }
 
 /*============================================================================
@@ -1049,8 +1108,8 @@ bool CreateDir(QString sdir) // only create if needed
 				res = folder.mkdir(spath);
 			if (!res)
 			{
-				s = QString("Can't create folder '%1'").arg(spath);
-				QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), QMainWindow::tr(StringToUtf8CString(s)));
+				s = QMainWindow::tr("Can't create folder") + QString("'%1'").arg(spath);
+				QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), s);
 				return false;
 			}
 			spath += "/";

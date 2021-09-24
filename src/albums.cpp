@@ -2130,7 +2130,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	{
 		if (n != 2)	// it should be at least <config.dsSrc relative full path name> and <file type> (image or video or unknown)
 			throw BadStruct(reader.ReadCount(), 
-							QMainWindow::tr(StringToUtf8CString(QString("Wrong image parameter count:%1").arg(n)))); // or just the image name (from the same folder as the previous one)
+							QString(FalconG::tr("Wrong image parameter count:")) + QString().setNum(n)); // or just the image name (from the same folder as the previous one)
 
 		// expects: original/image/directory/inside/source/name.ext and 'type' setbool added;
 		bool added;
@@ -2407,7 +2407,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
 		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
-			throw BadStruct(reader.ReadCount(), QMainWindow::tr(StringToUtf8CString(QString("'%1' - duplicated album ID").arg(id))));
+			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id) + FalconG::tr(" - duplicated album ID"));
 
 
 		album.ID = id;				// has ALBUM_ID_FLAG set
@@ -2459,7 +2459,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ImageOrVideoFromStruct(reader, level+1, album, false);		   // false:not album thumbnail
 				if(!iid)
-					throw BadStruct(reader.ReadCount(), QMainWindow::tr("Image id is 0! Try to remove text after image name in .struct file!"));
+					throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in .struct file!"));
 				album.items.push_back(iid);
 			}
 		}
@@ -2495,19 +2495,19 @@ bool AlbumGenerator::_ReadStruct(QString from)
 	{
 		FileReader reader(from);	// with ReadLine() discard empty lines, and trim lines
 		if (!reader.Ok())
-			throw BadStruct(reader.ReadCount(), QMainWindow::tr("Read error"));
+			throw BadStruct(reader.ReadCount(), FalconG::tr("Read error"));
 
 		QStringList sl;
 		QString line = reader.NextLine(true);	// version line (comment format)
 
 		if (line.left(versionStr.length()) != versionStr)
-			throw BadStruct(reader.ReadCount(), QMainWindow::tr("Bad version string"));
+			throw BadStruct(reader.ReadCount(), FalconG::tr("Bad version string"));
 		else
 		{
 			line = line.mid(versionStr.length());
 			int pos = line.indexOf('.');
 			if(pos < 0)
-				throw BadStruct(reader.ReadCount(), QMainWindow::tr("Missing '.' from version"));
+				throw BadStruct(reader.ReadCount(), FalconG::tr("Missing '.' from version"));
 
 			config.majorStructVersion = line.left(pos).toInt();
 			config.minorStructVersion = line.mid(pos+1).toInt();
@@ -2518,7 +2518,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			// from now on we need the empty lines as well
 			reader.ReadLine();		// discard empty and comment
 			if (reader.l()[0] != '(' || (reader.l()[1] != 'A' && reader.l()[1] != 'C'))
-				throw BadStruct(reader.ReadCount(), QMainWindow::tr("Invalid / empty root album line"));
+				throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
 					// recursive album read. there is only one top level album
 					// with id == ROOT_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, 0, 0); 
@@ -2529,11 +2529,11 @@ bool AlbumGenerator::_ReadStruct(QString from)
 	}
 	catch (BadStruct b)
 	{
-		QMessageBox(QMessageBox::Critical, QMainWindow::tr("falconG - Error"), 
-						QMainWindow::tr("Damaged structure file!\n"
+		QMessageBox(QMessageBox::Critical, FalconG::tr("falconG - Error"), 
+						FalconG::tr("Damaged structure file!\n"
 										"Message: '") +  
 						b.msg + 
-						QMainWindow::tr("\n\n"
+						FalconG::tr("\n\n"
 										"Processing aborted, because continuing\n"
 										"could destroy your old .struct file!\n"
 										"%1 lines read so far. ").arg(b.cnt), 
@@ -2953,7 +2953,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 	{
 		//		int btn;
 				//if (!QFile::exists(dst) && !config.bOvrImages)
-				//	if ((btn = QMessageBox(QMessageBox::Warning, QMainWindow::tr("falconG warning"), QMainWindow::tr("Image \n'%s'\n exists").arg(dst), QMessageBox::Yes | QMessageBox::Abort).exec()) == QMessageBox::Abort)
+				//	if ((btn = QMessageBox(QMessageBox::Warning, FalconG::tr("falconG warning"), FalconG::tr("Image \n'%s'\n exists").arg(dst), QMessageBox::Yes | QMessageBox::Abort).exec()) == QMessageBox::Abort)
 				//	{ 
 				//			emit SignalToEnableEditTab(true);
 				//			return false;
@@ -2968,13 +2968,20 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 		imgReader.thumbSize = im.tsize;
 		imgReader.imgSize = im.rsize;
-		converter.Process(imgReader, dst, thumbName, pwm);
-		//im.owidth = converter.oSize.width();
-		//im.oheight = converter.oSize.height();
-		//im.width = converter.newSize.width();
-		//im.height = converter.newSize.height();
-		im.changed = true;			// so check in struct file before writing to disk
-		_imageMap[im.ID] = im;
+		int convRes = converter.Process(imgReader, dst, thumbName, pwm);
+		if(convRes  < 0)		// converting error -1: can't overwrite, -2: read, -3: write
+			ShowWarning(converter.ErrorText(), frmMain);
+		else
+		{
+			QFileInfo fi(dst);
+			im.fileSize = fi.size();
+			im.uploadDate = fi.lastModified().date();
+			QImage dstImage(dst);
+
+			im.dsize = dstImage.size();
+			im.changed = true;			// so check in struct file before writing to disk
+			_imageMap[im.ID] = im;
+		}
 
 	}
 	if (im.uploadDate > _latestDateLimit)	// find latest upload date

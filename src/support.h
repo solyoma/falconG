@@ -209,9 +209,9 @@ struct ImageConverter
 	ImageConverter(int flags = dontEnlarge) : flags(flags) { }
 
 //	double CalcSizes(ImageReader &reader);	 // set original and new sizes
-	double Process(ImageReader &reader, QString dest, QString thumb, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
+	int Process(ImageReader &reader, QString dest, QString thumb, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
 
-	QString ErrorText() const { return QString(); }
+	QString ErrorText() const { return _qsErrorMsg; }
 private:
 	QImage *_pImg = nullptr;
 	QString _qsErrorMsg;
@@ -252,6 +252,10 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 }
 //*****************************************																			//---------------------
 void ShowWarning(QString qs, QWidget *parent = nullptr);
+void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show = 0, QString checkboxtext = QString(), QWidget* parent = nullptr);
+// QuestionDialog returns a single bit at position 'show', which, when 1 may be QMessageBox::Yes or QMessageBox::Save only!
+int QuestionDialog(QString title, QString text, int show = 0, QWidget* parent = nullptr, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No);
+
 const char* StringToUtf8CString(QString qs);
 
 QString EncodeLF(QString str);
