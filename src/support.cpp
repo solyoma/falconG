@@ -8,10 +8,9 @@
 #include "config.h"
 #include "falconG.h"
 
-//*****************************************
-void ShowWarning(QString qs, QWidget *parent)
+static void  WarningToFile(QString qs)
 {
-	QFile f(config.dsApplication.ToString() + "falconG.warnings");
+	QFile f(PROGRAM_CONFIG::homePath + "falconG.warnings");
 	f.open(QIODevice::WriteOnly | QIODevice::Append);
 	if (f.isOpen())
 	{
@@ -19,6 +18,15 @@ void ShowWarning(QString qs, QWidget *parent)
 		ofs << QDateTime::currentDateTime().toString() << " - " << qs << "\n\n";
 		f.close();
 	}
+}
+
+//*****************************************
+void ShowWarning(QString qs, QWidget *parent)
+{
+	if (qs.isEmpty())
+		qs = QMainWindow::tr("Unspecified message");
+
+	WarningToFile(qs);
 
 	if (!config.bNoMoreWarnings)
 	{
@@ -35,6 +43,9 @@ void ShowWarning(QString qs, QWidget *parent)
 
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show, QString checkboxtext, QWidget* parent)
 {
+	if (WarningAndNotInfo)
+		WarningToFile(text);
+
 	if (config.doNotShowTheseDialogs.v & (1 << show))
 		return;
 

@@ -1608,6 +1608,22 @@ void AlbumGenerator::_JReadOneLevel(Album &ab)
 //	ab.excluded.clear();	// do not need it any more
 }
 
+void AlbumGenerator::Clear()
+{
+	_imageMap.clear();
+	_textMap.clear();
+	_videoMap.clear();
+	_albumMap.clear();
+	// add default image when no image is found This is the only one with id == 0
+	// the file 'NoImage.jpg' must be put into the 'res' directory
+	Image im;
+	im.exists = true;
+	im.name = "NoImage.jpg";
+	im.ID = 0 | IMAGE_ID_FLAG;
+	im.dsize = im.osize = QSize(800, 800);
+	_imageMap[0] = im;
+}
+
 /*==========================================================================
 * TASK:		reads whole album hierarchy starting at directory 'root'
 * EXPECTS: 'root' path name of uppermost source album directory
@@ -1625,21 +1641,7 @@ bool AlbumGenerator::Read()
 	bool _justChanges = !config.bReadJAlbum && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
 	
 	if (!_justChanges)
-	{
-		_imageMap.clear();
-		_textMap.clear();
-		_videoMap.clear();
-		_albumMap.clear();
-	// add default image when no image is found This is the only one with id == 0
-	// the file 'NoImage.jpg' must be put into the 'res' directory
-		Image im;
-		im.exists = true;
-		im.name = "NoImage.jpg";
-		im.ID = 0 | IMAGE_ID_FLAG;
-		im.dsize = im.osize = QSize(800, 800);
-		_imageMap[0] = im;
-	}
-
+		Clear();
 	PROGRAM_CONFIG::MakeValidLastConfig();		// may add new config
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;

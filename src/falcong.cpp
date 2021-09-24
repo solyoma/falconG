@@ -382,6 +382,7 @@ void FalconG::on_btnSourceHistory_clicked()
 			PROGRAM_CONFIG::Write();
 	}
 	_EnableButtons();
+	albumgen.Clear();
 }
 
 
@@ -1077,6 +1078,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 			_EnableButtons();
 		}
 	}
+	albumgen.Clear();
 }
 
 

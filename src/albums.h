@@ -383,6 +383,7 @@ public:
 										// an image by its name (relative to this path) only
 
 	AlbumGenerator() {};
+	void Clear();
 	bool Read();	 // reads all albums recursively from Config::dsSrc
 	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool keep=false);		

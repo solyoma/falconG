@@ -930,9 +930,9 @@ class CONFIG;
 
 struct PROGRAM_CONFIG
 {
-	static CONFIG *parent;
-	static QString homePath;
-	static QString samplePath;
+	static CONFIG *parent;		// struct Config 
+	static QString homePath;	// local home directory
+	static QString samplePath;	// sample directory
 	// design page
 	static int splitterLeft;
 	static int splitterRight;
