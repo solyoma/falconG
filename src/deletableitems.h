@@ -77,7 +77,7 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 					--index;
 			_prev_phys = --ind;
 		}
-		return index >=0 ? -1 : ind;
+		return (index >=0 || _prev_phys < 0) ? -1 : ind;
 	}
 	//int _RealIndexFor(int index, int realFrom = 0)		  
 	//{
