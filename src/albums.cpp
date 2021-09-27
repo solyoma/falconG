@@ -3168,9 +3168,9 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (config.bMenuToContact)
 		outputMenuButton("contact", "mailto:" + config.sMailTo, Languages::toContact[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
-		_ofs << "	<a class = \"menu-item\" id=\"descriptions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
+		_ofs << "	<a class = \"menu-item\" id=\"descriptions\" href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::showDescriptions[_actLanguage] << "</a>\n";
 	if (config.bMenuToToggleCaptions && (album.TitleCount() > 0 || album.ImageCount() > 0) && !Languages::coupleCaptions[_actLanguage].isEmpty())
-		_ofs << "	<a class = \"menu-item\" id=\"captions\", href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
+		_ofs << "	<a class = \"menu-item\" id=\"captions\" href=\"#\" onclick=\"javascript:ShowHide()\">" << Languages::coupleCaptions[_actLanguage] << "</a>\n";
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !Languages::toAlbums[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
 		outputMenuButton("toAlbums", "#albums", Languages::toAlbums[_actLanguage]);								  // to albums
 	if (album.ID > RECENT_ALBUM_ID && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
