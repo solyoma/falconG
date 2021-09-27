@@ -150,20 +150,20 @@ int Languages::_Read(QString name)
 		else if (sn == "videos")
 			videos[lang] = s;
 	}
-	if (abbrev[lang].isEmpty())
-		abbrev[lang] = countryCode[lang];
 	return ++lang;
 }
 
 /*============================================================================
 * TASK:		reads all language definition files in program directory
 * EXPECTS:	nothing
-* GLOBALS:
+* GLOBALS: config, static Language strings
 * RETURNS: the number of languages read
-* REMARKS:	
-*
-*			- if no file exists sets a single languag: English
-*	?????		- do not use when languages are set from GUI
+* REMARKS:	- language files have extension ;.lang'
+*			- tries to read lnag files from the following directories:
+*				config.dsSrc, program directory
+*			- searches the directory for language files to read them all
+*			- if no language file exists sets a single language: English
+*			- when languages are set in the GUI we will use only those
 *--------------------------------------------------------------------------*/
 int Languages::Read()
 {
@@ -189,7 +189,7 @@ int Languages::Read()
 		dir.setCurrent(d.path());	// go back to program directory
 	}
 
-	if (list.size() == 0)	// no files: set default language: English
+	if (list.size() == 0)	// no files: set single default language: English
 	{
 		if (QMessageBox(QMessageBox::Warning,
 			QMainWindow::tr("falconG - Warning"),
@@ -208,7 +208,7 @@ int Languages::Read()
 							" The format of the lines is 'name=text'. The names\n"
 							"  and their texts are (the single quotes in the examples below are not used,"
 							"  and the examples are in braces):\n"
-							"  abbrev      = <language abbrev. in file names (e.g.'_hu' for`album123_hu.html`)>\n"
+							"  abbrev      = <language abbrev. in file names if any (e.g.'_hu' for`album123_hu.html`)>\n"
 							"  albums      = <text header for the album section of the  actual album>\n"
 							"  coupleCaptions = <text for captions-toggled-with-descriptions toggle>\n"
 							"  countOfImages= %1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
@@ -239,7 +239,8 @@ int Languages::Read()
 							"	where 'xx' is the ordinal of the block minus one.\n"),
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
-		abbrev.push_back("_en");
+
+		abbrev.push_back("");	// no need for abbrev if only one language
 		albums.push_back("Albums");
 		countOfImages.push_back("%1 image(s) and %2 sub-album(s) in this album");
 		countryCode.push_back("en_US");

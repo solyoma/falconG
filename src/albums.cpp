@@ -1803,8 +1803,8 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 				Languages::falconG[i] = sl[1];
 			}
 		}
-		if (Languages::abbrev[i].isEmpty())	// default
-			Languages::abbrev[i] = Languages::countryCode[i];
+		//if (Languages::abbrev[i].isEmpty())	// default
+		//	Languages::abbrev[i] = Languages::countryCode[i];
 	}
 	if (Languages::countryCode[0].isEmpty())
 	{
@@ -1967,7 +1967,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			while (len && s[--len] != ']')	// find last ']'
 				;
 			++len;		// include closing ']' but not the possible ID/collision
-			int clen = TITLE_TAG.length() + Languages::countryCode[lang].length() + 2;	// 1 for '[' + 1 for ':'
+			int clen = TITLE_TAG.length() + Languages::language[lang].length() + 2;	// 1 for '[' + 1 for ':'
 			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
 			if (config.majorStructVersion == 1)
 			{						// none = there is no asterix followed by a number
@@ -3791,7 +3791,7 @@ int AlbumGenerator::_CreateHomePage()
 *			'config.sMainPage' - base or full name of root page(s) inside dsGRoot'
 *							   Menu 'home' brings here
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: each file is named <config.baseName><album.ID><Language::countryCode[]>,html
+* REMARKS: each file is named <config.baseName><album.ID><Language::abbrev[]>,html
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_DoPages()
 {

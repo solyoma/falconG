@@ -22,7 +22,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
-		ofs << indent << "[" << what << Languages::countryCode[i] << ":";
+		ofs << indent << "[" << what << Languages::language	[i] << ":";
 		if (id != 0)
 			ofs << text[i];
 		ofs << "]";
