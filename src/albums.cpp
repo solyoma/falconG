@@ -1751,60 +1751,10 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 	QStringList sl;
 	Languages::Clear(langcnt);		// allocates this many empty strings in each string list
 	reader.ReadLine();				// first language index :0 
-	for (int i = 0; i < langcnt; ++i)
+	for (int lang = 0; lang < langcnt; ++lang)
 	{
 		while((sl = reader.ReadLine().split('=')).size() == 2 ) // finished when next language index is read in
-		{
-			s = sl[0].toLower();
-			if (s == "name")
-				Languages::names[i] = sl[1];
-			else if (s == "abbrev")
-				Languages::abbrev[i] = sl[1];
-			else if (s == "language")
-				Languages::language[i] = sl[1];
-			else if (s == "icon")
-				Languages::icons[i] = sl[1];
-			else if (s == "images")
-				Languages::images[i] = sl[1];
-			else if (s == "videos")
-				Languages::videos[i] = sl[1];
-			else if (s == "albums")
-				Languages::albums[i] = sl[1];
-			else if (s == "toalbums")
-				Languages::toAlbums[i] = sl[1];
-			else if (s == "totop")
-				Languages::toTop[i] = sl[1];
-			else if (s == "uponelevel")
-				Languages::upOneLevel[i] = sl[1];
-			else if (s == "homepage")
-				Languages::toHomePage[i] = sl[1];
-			else if (s == "about")
-				Languages::toAboutPage[i] = sl[1];
-			else if (s == "contact")
-				Languages::toContact[i] = sl[1];
-			else if (s == "descriptions")
-				Languages::showDescriptions[i] = sl[1];
-			else if (s == "cdcaptions")
-				Languages::coupleCaptions[i] = sl[1];
-			else if (s == "share")
-				Languages::share[i] = sl[1];
-			else if (s == "latesttitle")
-				Languages::latestTitle[i] = sl[1];
-			else if (s == "latestdesc")
-				Languages::latestDesc[i] = sl[1];
-			else if (s == "countrycode")
-				Languages::countryCode[i] = sl[1];
-			else if (s == "countofimages")
-				Languages::countOfImages[i] = sl[1];
-			else if (s == "falcong")
-			{
-				if (sl[1].indexOf("©") >= 0 && sl[1].indexOf(ToUTF8(QString("Sólyom"))) < 0)
-					sl[1] = sFalcongEnglishCopyright;
-				Languages::falconG[i] = sl[1];
-			}
-		}
-		//if (Languages::abbrev[i].isEmpty())	// default
-		//	Languages::abbrev[i] = Languages::countryCode[i];
+			Languages::SetTextFor(sl[0].toLower(), sl[1], lang);
 	}
 	if (Languages::countryCode[0].isEmpty())
 	{

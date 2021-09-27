@@ -28,6 +28,59 @@ LangConstList Languages::toTop;			// top of page
 LangConstList Languages::upOneLevel;	// jump to parent
 LangConstList Languages::videos;		// video section in HTML files
 
+
+void Languages::SetTextFor(QString name, QString val,int lang)
+{
+	if (name == "")
+		;
+	else if (name == "abbrev")
+		abbrev[lang] = val;
+	else if (name == "about")
+		toAboutPage[lang] = val;
+	else if (name == "albums")
+		albums[lang] = val;
+	else if (name == "cdcaptions")
+		coupleCaptions[lang] = val;
+	else if (name == "contact")
+		toContact[lang] = val;
+	else if (name == "countofimages")
+		countOfImages[lang] = val;
+	else if (name == "countrycode")
+		countryCode[lang] = val;
+	else if (name == "descriptions")
+		showDescriptions[lang] = val;
+	else if (name == "falcong")
+	{
+		QString qsolyom = ToUTF8(QString("Sólyom"));
+		if (val.indexOf(qsolyom) < 0)
+			val = sFalcongEnglishCopyright;
+		falconG[lang] = val;
+	}
+	else if (name == "homepage")
+		toHomePage[lang] = val;
+	else if (name == "icon")
+		icons[lang] = val;
+	else if (name == "images")
+		images[lang] = val;
+	else if (name == "language")
+		names[lang] = val;
+	else if (name == "latestdesc")
+		latestDesc[lang] = val;
+	else if (name == "latesttitle")
+		latestTitle[lang] = val;
+	else if (name == "name")
+		names[lang] = val;
+	else if (name == "share")
+		share[lang] = val;
+	else if (name == "toalbums")
+		toAlbums[lang] = val;
+	else if (name == "totop")
+		toTop[lang] = val;
+	else if (name == "uponelevel")
+		upOneLevel[lang] = val;
+	else if (name == "videos")
+		videos[lang] = val;
+}
 /*============================================================================
 * TASK:		reads language definitions from files in the
 *				a) source 
@@ -94,61 +147,10 @@ int Languages::_Read(QString name)
 	videos.push_back(s);
 
 	QStringList sl;
-	QString sn; // name in lowercase
 	while (!(line = reader.ReadLine()).isEmpty())
 	{
 		sl = line.split('=');
-		sn = sl[0].toLower();
-		s = (sl.size() < 2 ? "" : sl[1]);
-		if (sn == "")
-			;
-		else if (sn == "abbrev")
-			abbrev[lang] = s;
-		else if (sn == "about")
-			toAboutPage[lang] = s;
-		else if (sn == "albums")
-			albums[lang] = s;
-		else if (sn == "cdcaptions")
-			coupleCaptions[lang] = s;
-		else if (sn == "contact")
-			toContact[lang] = s;
-		else if (sn == "countofimages")
-			countOfImages[lang] = s;
-		else if (sn == "countrycode")
-			countryCode[lang] = s;
-		else if (sn == "descriptions")
-			showDescriptions[lang] = s;
-		else if (sn == "falcong")
-		{
-			QString qsolyom = ToUTF8(QString("Sólyom"));
-			if (s.indexOf(qsolyom) < 0)
-				s = sFalcongEnglishCopyright;
-			falconG[lang] = s;
-		}
-		else if (sn == "homepage")
-			toHomePage[lang] = s;
-		else if (sn == "icon")
-			icons[lang] = s;
-		else if (sn == "images")
-			images[lang] = s;
-		else if (sn == "language")
-			names[lang] = s;
-		else if (sn == "latestdesc")
-			latestDesc[lang] = s;
-		else if (sn == "latesttitle")
-			latestTitle[lang] = s;
-		else if (sn == "name")
-			names[lang] = s;
-		else if (sn == "share")
-			share[lang] = s;
-		else if (sn == "toalbums")
-			toAlbums[lang] = s;
-		else if (sn == "totop")
-			toTop[lang] = s;
-		else if (sn == "uponelevel")
-			upOneLevel[lang] = s;
-		else if (sn == "videos")
-			videos[lang] = s;
+		SetTextFor(sl[0].toLower(), (sl.size() < 2 ? "" : sl[1]), lang);
 	}
 	return ++lang;
 }

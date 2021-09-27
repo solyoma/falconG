@@ -57,6 +57,7 @@ struct Languages	// each language has a text file named <text from 'languages'>.
 	static void Clear(int newSize = 0);
 	static int Count() { return countryCode.size(); }
 	static QString FileNameForLanguage(QString name, int language);	// adds _<abbrev> to base name if more than one languages
+	static void SetTextFor(QString name, QString val, int lang);
 };
 
 //------------------------------------------
