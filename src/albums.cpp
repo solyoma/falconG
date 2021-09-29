@@ -2928,7 +2928,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		else
 		{
 			QFileInfo fi(dst);
-			im.fileSize = fi.size();
+//			im.fileSize = fi.size();
 			im.uploadDate = fi.lastModified().date();
 			QImage dstImage(dst);
 
