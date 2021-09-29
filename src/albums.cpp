@@ -1,4 +1,3 @@
-// ez csak teszt
 #include <QApplication>
 #include <QApplication>
 #include <QtCore>
@@ -612,12 +611,12 @@ Image &ImageMap::Find(QString FullName)
 *			added- output parameter: was this a new image?
 * GLOBALS: config
 * RETURNS: Id of image
-* REMARKS: - Id of image is the CRC32 of the file name on;y
+* REMARKS: - Id of image is the CRC32 of the file name only
 *		   - If two images have the same name then 'config.bKeepDuplicates`
 *			determines what happens
 *				- when it is true and the two images are of different sizes
 *				or have different file sizes the newer or larger will be used
-*				- when it is false each imge will have a different ID
+*				- when it is false each image will have a different ID
 *		   - when collisions occur adds a unique value above 0xFFFFFFFF to the ID
 *		   - even non-existing images are added to map
 *		   - if an image with the same name, but with different path is found
@@ -642,8 +641,10 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	QDir dir;
 	img.exists = dir.exists(basePath + img.path + img.name);
 	if (!img.exists)
+	{
 		img.path = AlbumGenerator::lastUsedAlbumPath;
-	img.exists = dir.exists(basePath + img.path + img.name);
+		img.exists = dir.exists(basePath + img.path + img.name);
+	}
 
 	added = false;
 	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just by name. CRC can but id can never be 0 

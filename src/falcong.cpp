@@ -435,7 +435,7 @@ void FalconG::on_btnGenerate_clicked()
 
 		QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-		ui.btnGenerate->setText(tr("Cancel (F9}"));
+		ui.btnGenerate->setText(tr("Cancel (F9)"));
 		__SetShortcut(ui.btnGenerate, "F9");
 		ui.pnlProgress->setVisible(true);
 
@@ -1058,23 +1058,27 @@ void FalconG::on_edtSourceGallery_textChanged()
 	if (_busy)
 		return;
 
-	QString scr = QDir::cleanPath(ui.edtSourceGallery->text().trimmed()) + "/";
-	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != scr)
+	QString src = QDir::cleanPath(ui.edtSourceGallery->text().trimmed()) + "/";
+	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != src)
 	{
-		config.dsSrc = scr;
-		PROGRAM_CONFIG::indexOfLastUsed = -1;	// new path, not used yet
-		for(int i = 0; i < PROGRAM_CONFIG::lastConfigs.size(); ++i )
-			if (config.dsSrc.ToString() == PROGRAM_CONFIG::lastConfigs[i])
+		config.dsSrc = src;
+		PROGRAM_CONFIG::indexOfLastUsed = -1;	// suppose new path, not used yet
+		for(int i = 0; i < PROGRAM_CONFIG::lastConfigs.size(); ++i )	// search if already exists
+			if (src == PROGRAM_CONFIG::lastConfigs[i])
 			{
-				PROGRAM_CONFIG::indexOfLastUsed = i;
-				break;
+				PROGRAM_CONFIG::indexOfLastUsed = i;	// found a config for this source
+				break;							
 			}
-		QFile f(config.dsSrc.ToString() + falconG_ini);
+		QFile f(src + falconG_ini);
 		if (f.exists())
 		{
 			config.Read();
 			_ConfigToUI();	// edit values from config
 
+		}
+		else if(QFile::exists(src) )	// directory exists but no ini file inside yet
+		{
+			config.SetChanged(true);	// allow user to save config into this directory
 			_EnableButtons();
 		}
 	}
