@@ -442,6 +442,7 @@ void FalconG::on_btnGenerate_clicked()
 		ui.tabFalconG->setCurrentIndex(0);	// show front page
 			   // when interrupted in phase1 (_phase == 0) total generation is used
 		_phase = 0;
+
 				// READ album
 		if (!albumgen.Read())		// any error
 			--_running, _phase = -1;
