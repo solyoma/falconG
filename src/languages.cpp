@@ -63,7 +63,7 @@ void Languages::SetTextFor(QString name, QString val,int lang)
 	else if (name == "images")
 		images[lang] = val;
 	else if (name == "language")
-		names[lang] = val;
+		language[lang] = val;
 	else if (name == "latestdesc")
 		latestDesc[lang] = val;
 	else if (name == "latesttitle")

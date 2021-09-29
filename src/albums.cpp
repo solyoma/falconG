@@ -2073,9 +2073,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 							// if no path was given then 5 or 9
 							// if only the path name was given then just the first two
 		// 
-		// index in sl:  0       1      2    3      4             5               6         7     8     9
-		// images:		name, "image", id, width, height, original width, original height, date, size, path
-		// videos:		name, "video", id, date,  size,         path 
+		// index in sl:  0       1      2    3      4             5               6         7              8          9
+		// images:		name, "image", id, width, height, original width, original height, date, original file size, path
+		// videos:		name, "video", id, date,  file size,         path 
 
 	ID_t id;
 		// n:  images: 2 or 10, videos 2 or 5
@@ -2141,6 +2141,18 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 				ImageMap::lastUsedPath = sl[9];
 
 			img.path = ImageMap::lastUsedPath;
+			if (!img.fileSize)	// maybe file does not exist
+			{
+				QString sn = img.path + img.name;
+				if (!QDir::isAbsolutePath(sn))
+					sn = config.dsSrc.ToString() + sn;
+				QFile f(sn);
+				if (f.exists())
+				{
+					img.fileSize = f.size();
+					++_structChanged;
+				}
+			}
 
 			img.exists = (img.fileSize != 0);	// non existing images have 0 size
 		}
