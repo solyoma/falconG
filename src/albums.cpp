@@ -1,3 +1,4 @@
+// ez csak teszt
 #include <QApplication>
 #include <QApplication>
 #include <QtCore>
