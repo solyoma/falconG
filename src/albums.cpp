@@ -2373,7 +2373,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
 		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
-			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id) + FalconG::tr(" - duplicated album ID"));
+			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id & ID_MASK) + FalconG::tr(" - duplicated album ID"));
 
 
 		album.ID = id;				// has ALBUM_ID_FLAG set
