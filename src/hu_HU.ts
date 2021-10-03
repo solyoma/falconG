@@ -429,7 +429,7 @@ Az ikon nem olvasható
     <message>
         <location filename="albums.cpp" line="2428"/>
         <source>Image id is 0! Try to remove text after image name in .struct file!</source>
-        <translation>A képazonosíto 0☺. Próbáld meg kitörölni a szövegeket a fájlnevek után
+        <translation>A képazonosíto 0!  Próbáld meg kitörölni a szövegeket a fájlnevek után
 a .struct fájlban!</translation>
     </message>
     <message>

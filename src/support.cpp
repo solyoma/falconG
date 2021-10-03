@@ -15,7 +15,7 @@ static void  WarningToFile(QString qs)
 	if (f.isOpen())
 	{
 		QTextStream ofs(&f);
-		ofs << QDateTime::currentDateTime().toString() << " - " << qs << "\n\n";
+		ofs << QDateTime::currentDateTime().toString() << " - " << qs << "\n";
 		f.close();
 	}
 }
@@ -897,7 +897,7 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 
 /*============================================================================
 * TASK:		resize images and add watermark
-* EXPECTS:	imgReader - reader with image already read
+* EXPECTS:	imgReader - reader with image data set
 *			dest - path of destination image
 *			thumb - process a thumbnail?
 *			ovr - overwrite image if it exists
@@ -921,15 +921,18 @@ int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb,
 		return -1;
 	}
 	QImageIOHandler::Transformations trans = imgReader.transformation();
-	QSize newSize = imgReader.imgSize;	// if tr then it may already transposed sizes (from camera, not from PS/LR)
+	QSize newSize = imgReader.imgSize;	// if 'trans' then it may already transposed sizes (from camera, not from PS/LR)
 	if (trans & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
 		newSize.transpose();
-	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
+	imgReader.setScaledSize(newSize);	// resclae to newSize when read, thumbSize used in write
 
 	if (!imgReader.isReady)			// not read yet
 	{								
-		if (!imgReader.read())			// scaled and possibly rotated image
+		if (!imgReader.read())		// scaled and possibly rotated image
+		{
+			_qsErrorMsg = imgReader.errorString() + "\n'" + imgReader.fileName() + "'\n";
 			return -2;
+		}
 
 		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
 		if (pwm)

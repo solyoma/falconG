@@ -2917,13 +2917,6 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 	// /debug
 	if (doProcess)
 	{
-		//		int btn;
-				//if (!QFile::exists(dst) && !config.bOvrImages)
-				//	if ((btn = QMessageBox(QMessageBox::Warning, FalconG::tr("falconG warning"), FalconG::tr("Image \n'%s'\n exists").arg(dst), QMessageBox::Yes | QMessageBox::Abort).exec()) == QMessageBox::Abort)
-				//	{ 
-				//			emit SignalToEnableEditTab(true);
-				//			return false;
-				//  }
 		++_structChanged;			// when image changes structure must be re-saved
 
 		WaterMark *pwm = nullptr;
