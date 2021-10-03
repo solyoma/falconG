@@ -419,7 +419,7 @@ Exiting</source>
     <message>
         <location filename="languages.cpp" line="197"/>
         <location filename="support.cpp" line="35"/>
-        <location filename="support.cpp" line="1123"/>
+        <location filename="support.cpp" line="1126"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -507,40 +507,40 @@ was not renamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="964"/>
+        <location filename="support.cpp" line="967"/>
         <source>Invalid sizes for thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1076"/>
+        <location filename="support.cpp" line="1079"/>
         <source>falconG - Question</source>
         <oldsource>falconG</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1078"/>
+        <location filename="support.cpp" line="1081"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1081"/>
+        <location filename="support.cpp" line="1084"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1122"/>
+        <location filename="support.cpp" line="1125"/>
         <source>Can&apos;t create folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1177"/>
+        <location filename="support.cpp" line="1180"/>
         <source>falconG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1177"/>
+        <location filename="support.cpp" line="1180"/>
         <source>Really remove %1 and all of its content?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -561,31 +561,11 @@ Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2941"/>
-        <source>Can&apos;t overwrite </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="albums.cpp" line="2943"/>
-        <source>Can&apos;t read </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="albums.cpp" line="2945"/>
-        <source>Can&apos;t write </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="albums.cpp" line="2946"/>
-        <source>Problem with </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="albums.cpp" line="2947"/>
-        <source> file
+        <location filename="albums.cpp" line="2933"/>
+        <source>Conversion error:
 &apos;%1&apos;
 Error code:%2
-%3</source>
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2930,14 +2930,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		int convRes = converter.Process(imgReader, dst, thumbName, pwm);
 		if (convRes < 0)		// converting error -1: can't overwrite, -2: read, -3: write
 		{
-			QString qs = convRes == -1 ? 
-								QMainWindow::tr("Can't overwrite ") : 
-								convRes == -2 ? 
-									QMainWindow::tr("Can't read ") :
-									convRes == -3 ? 
-										QMainWindow::tr("Can't write ") : 
-										QMainWindow::tr("Problem with ");
-			qs += QString(QMainWindow::tr(" file\n'%1'\nError code:%2\n%3")).arg(thumbName).arg(convRes).arg(converter.ErrorText());
+			QString qs = QString(QMainWindow::tr("Conversion error:\n'%1'\nError code:%2\n")).arg(converter.ErrorText()).arg(convRes);
 			ShowWarning(qs, frmMain);
 		}
 		else

@@ -563,7 +563,7 @@ Kilépek</translation>
     <message>
         <location filename="languages.cpp" line="197"/>
         <location filename="support.cpp" line="35"/>
-        <location filename="support.cpp" line="1123"/>
+        <location filename="support.cpp" line="1126"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -854,40 +854,40 @@ Az ideiglenes
         <translation>fájl létezik és nem szabad felülírnom!</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="964"/>
+        <location filename="support.cpp" line="967"/>
         <source>Invalid sizes for thumbnail</source>
         <translation>Érvénytelen kis-kép méretek</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1076"/>
+        <location filename="support.cpp" line="1079"/>
         <source>falconG - Question</source>
         <oldsource>falconG</oldsource>
         <translation>falconG - kérdés</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1078"/>
+        <location filename="support.cpp" line="1081"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1081"/>
+        <location filename="support.cpp" line="1084"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatja a kérdezést)</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1122"/>
+        <location filename="support.cpp" line="1125"/>
         <source>Can&apos;t create folder</source>
         <translation>A mappa nem hozható létre</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1177"/>
+        <location filename="support.cpp" line="1180"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="support.cpp" line="1177"/>
+        <location filename="support.cpp" line="1180"/>
         <source>Really remove %1 and all of its content?</source>
         <translation>Tényleg töröljem %1 -et a tartalmával együtt?</translation>
     </message>
@@ -1133,35 +1133,41 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <translation>Rendszerszínek</translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2941"/>
         <source>Can&apos;t overwrite </source>
-        <translation>Felülírhatatlan </translation>
+        <translation type="vanished">Felülírhatatlan </translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2943"/>
         <source>Can&apos;t read </source>
-        <translation>Olvashatatlan </translation>
+        <translation type="vanished">Olvashatatlan </translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2945"/>
         <source>Can&apos;t write </source>
-        <translation>Írhatatlan </translation>
+        <translation type="vanished">Írhatatlan </translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2946"/>
         <source>Problem with </source>
-        <translation>Problémás </translation>
+        <translation type="vanished">Problémás </translation>
     </message>
     <message>
-        <location filename="albums.cpp" line="2947"/>
         <source> file
 &apos;%1&apos;
 Error code:%2
 %3</source>
-        <translation>fájl. Neve
+        <translation type="vanished">fájl. Neve
 &apos;%1&apos;
 Hiba kód:%2
 %3</translation>
+    </message>
+    <message>
+        <location filename="albums.cpp" line="2933"/>
+        <source>Conversion error:
+&apos;%1&apos;
+Error code:%2
+</source>
+        <translation>Fájl konvertálási hiba.
+&apos;%1&apos;
+Hiba kód: %2
+</translation>
     </message>
 </context>
 <context>
