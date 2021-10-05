@@ -7,6 +7,7 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
+	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
 	PROGRAM_CONFIG::GetHomePath();
 
 	// after a new translation is added add language radio boxes

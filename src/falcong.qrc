@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>Resources/falconG-icon.png</file>
     <file>Resources/delete.png</file>
     <file>Resources/blue-unchecked.png</file>
     <file>Resources/blue-checked.png</file>

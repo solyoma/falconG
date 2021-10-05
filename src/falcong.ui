@@ -33,6 +33,10 @@
   <property name="windowTitle">
    <string>Falcon's Gallery Generator</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="falcong.qrc">
+    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true"/>
   </property>
