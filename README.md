@@ -4,8 +4,8 @@
 Hierarchical, multi language, multi platform photo gallery creator
     written in C++ and Qt 5
 
-(Hirerchikus tîbbnyelvu, platform fÅggetlen fot¢ galÇria kÇsz°to
-    c++ Çs QT 5 forr†ssal. A magyar le°r†st ld. az angol alatt)
+(Hirerchikus t√∂bbnyelv≈±, platform f√ºggetlen fot√≥ gal√©ria k√©sz√≠t≈ë
+    c++ √©s QT 5 forr√°ssal. A magyar le√≠r√°st ld. az angol alatt)
 
 **falconG** is a graphical program which can be compiled and 
 run on any operating system (Windows, OS-X, Linux, etc) where 
@@ -90,7 +90,7 @@ Two program languages can be used: US English and Hungarian.
    
 		>- run the commands above if they were not yet run
 		
-		  using the path of the release version of falconG
+		>  using the path of the release version of falconG
 		  
 		>- create a folder on the destination machine for the program
 		
@@ -132,109 +132,109 @@ new translations for these, however can be done in the program
 ******************************************************************
 
 
-## Magyar nyelvu le°r†s
+## Magyar nyelv≈± le√≠r√°s
 -----------------------
 falconG
 
-**falconG** egy grafikus felhaszn†l¢i felÅletu alkalmaz†s, ami
-b†rmely olyan oper†ci¢s rendszeren haszn†lhat¢, amelyiken
-a QT is Çs a QtWebEngine is fut (Windows, OS-X, linux, stb)
+**falconG** egy grafikus felhaszn√°l√≥i fel√ºlet≈± alkalmaz√°s, ami
+b√°rmely olyan oper√°ci√≥s rendszeren haszn√°lhat√≥, amelyiken
+a QT is √©s a QtWebEngine is fut (Windows, OS-X, linux, stb)
 
-## KÇpernyo kÇpek
+## K√©perny≈ë k√©pek
 ld. fent a **Screenshots** pont alatt
 
-Ezt a programot nagyon kînnyu haszn†lni Çs teljesen ingyenes
-(a jelenlegi †llapotr¢l a vÇgÇn olvashatsz)
+Ezt a programot nagyon k√∂nny≈± haszn√°lni √©s teljesen ingyenes
+(a jelenlegi √°llapotr√≥l a v√©g√©n olvashatsz)
 
-A program felÅlete jelenleg kÇt nyelven: magyarul Çs (amerikai) 
-angolul haszn†lhat¢.
+A program fel√ºlete jelenleg k√©t nyelven: magyarul √©s (amerikai) 
+angolul haszn√°lhat√≥.
 
-## A **falconG**-vel kÇsz°tett galÇri†k tulajdons†gai
+## A **falconG**-vel k√©sz√≠tett gal√©ri√°k tulajdons√°gai
 
- - A gener†lt albumok minden eszkîzîn (PC, telefon, tablet, stb)
-   az illeto eszkîznek megfeleloen jelennek meg
- - egy galÇria albumok, kÇpek Çs vide¢k hierarchikus rendszere,
- - ezek be†gyazhat¢ak b†rmely WEB oldalba, Çs
- - ak†rh†ny kÇpet, vide¢t Çs albumot tartalmazhatnak. Minden albumban
-   lehetnek kÇpek, vide¢k Çs albumok is, tetszoleges mÇlysÇgig.
- - egy speci†lis galÇri†t is lÇtre lehet hozni vele, amelyben 
-   megadhat¢ sz†m£, minden betîltÇsnÇl m†s Çs m†s, vÇletlenszeruen
-   kiv†lasztott kÇp jeleneik meg az ut¢lj†ra feltîltîttek kîzÅl.
- - a kÇpeknek Çs albumoknak c°meket Çs le°r†sokat adhatunk. Ezek 
-   tîbb (ak†rh†ny) nyelven megadhat¢ak, Çs mindegyik nyelvhez egy
-   kÅlîn WEB oldal gener†l¢dik.
- - minden oldalrol elÇrheto a tîbbi nyelvu oldal is
- - a nyelvv†laszt†st a bîngÇszo megjegyzi, az oldalak sÅtiket nem 
-   haszn†lnak
- - mivel minden albumnak saj†t WEB oldala van kînnyu r†juk hivatkozni
-   a szoci†lis mÇdiumokon (facebook hivatkoz†si link be†gyazhat¢ az oldalba)
- - Ugyanaz a kÇp ak†rh†ny albumban megjelenhet ugyanazokkal a 
-   szîvegekkel, Çs csak egy pÇld†nyban t†rol¢dik
- - V†laszthat¢ a Google Analytics Çs a facebook 'like' gomb haszn†lata az 
+ - A gener√°lt albumok minden eszk√∂z√∂n (PC, telefon, tablet, stb)
+   az illet≈ë eszk√∂znek megfelel≈ëen jelennek meg
+ - egy gal√©ria albumok, k√©pek √©s vide√≥k hierarchikus rendszere,
+ - ezek be√°gyazhat√≥ak b√°rmely WEB oldalba, √©s
+ - ak√°rh√°ny k√©pet, vide√≥t √©s albumot tartalmazhatnak. Minden albumban
+   lehetnek k√©pek, vide√≥k √©s albumok is, tetsz≈ëleges m√©lys√©gig.
+ - egy speci√°lis gal√©ri√°t is l√©tre lehet hozni vele, amelyben 
+   megadhat√≥ sz√°m√∫, minden bet√∂lt√©sn√©l m√°s √©s m√°s, v√©letlenszer≈±en
+   kiv√°lasztott k√©p jeleneik meg az ut√≥lj√°ra felt√∂lt√∂ttek k√∂z√ºl.
+ - a k√©peknek √©s albumoknak c√≠meket √©s le√≠r√°sokat adhatunk. Ezek 
+   t√∂bb (ak√°rh√°ny) nyelven megadhat√≥ak, √©s mindegyik nyelvhez egy
+   k√ºl√∂n WEB oldal gener√°l√≥dik.
+ - minden oldalr≈ël el√©rhet≈ë a t√∂bbi nyelv≈± oldal is
+ - a nyelvv√°laszt√°st a b√∂ng√©sz≈ë megjegyzi, az oldalak s√ºtiket nem 
+   haszn√°lnak
+ - mivel minden albumnak saj√°t WEB oldala van k√∂nny≈± r√°juk hivatkozni
+   a szoci√°lis m√©diumokon (facebook hivatkoz√°si link be√°gyazhat√≥ az oldalba)
+ - Ugyanaz a k√©p ak√°rh√°ny albumban megjelenhet ugyanazokkal a 
+   sz√∂vegekkel, √©s csak egy p√©ld√°nyban t√°rol√≥dik
+ - V√°laszthat√≥ a Google Analytics √©s a facebook 'like' gomb haszn√°lata az 
    albumokhoz
- - a kÇpekbe egy v°zjelet helyezhetÅnk el
- - a s†vszÇlessÇg minimaliz†l†s†ra kisebb mÇretu kÇpek vannak az oldalakon
-   a nagyobb felbont†s£ kÇpek csak a kis kÇpre kattint†sra tîltodnek le
- - a **falconG** †tmÇretezi a forr†skÇpeket, de egyes kÇpekkel (pl. panor†m†kkal)
-   kivÇtelt tehetÅnk. Azoknak a "nagyfelbont†s£" v†ltozata eredeti mÇretu lesz.
+ - a k√©pekbe egy v√≠zjelet helyezhet√ºnk el
+ - a s√°vsz√©less√©g minimaliz√°l√°s√°ra kisebb m√©ret≈± k√©pek vannak az oldalakon
+   a nagyobb felbont√°s√∫ k√©pek csak a kis k√©pre kattint√°sra t√∂lt≈ëdnek le
+ - a **falconG** √°tm√©retezi a forr√°sk√©peket, de egyes k√©pekkel (pl. panor√°m√°kkal)
+   kiv√©telt tehet√ºnk. Azoknak a "nagyfelbont√°s√∫" v√°ltozata eredeti m√©ret≈± lesz.
 
-## KinÇzet
- - beÇp°tett rendszersz°neket haszn†l¢, sîtÇt, fekete Çs kÇk kinÇzet (sÇma)
-   v†laszthat¢, de saj†t sÇm†kat is defini†lhatunk a programban mag†ban.
- - HTML - Amit L†tsz Azt Kapod WEB oldal szerkeszto
+## Kin√©zet
+ - be√©p√≠tett rendszersz√≠neket haszn√°l√≥, s√∂t√©t, fekete √©s k√©k kin√©zet (s√©ma)
+   v√°laszthat√≥, de saj√°t s√©m√°kat is defini√°lhatunk a programban mag√°ban.
+ - HTML - Amit L√°tsz Azt Kapod WEB oldal szerkeszt≈ë
 
-## GalÇria lÇtrehoz†sa
+## Gal√©ria l√©trehoz√°sa
 
- - Amit L†tsz Azt Kapod WEB oldal szerkeszto
- - az oldalakon haszn†lt sz°nek Çs betÅkÇszletek szabadon 
-   szerkeszthetoek az oldalak kÇpernyon megjeleno elokÇpevel
- - kÇpc°mek Çs le°r†sok ford°t†s†hoz egyszerre kÇt nyelvu szîveget 
-   mutat¢ c°m Çs le°r†s szerkeszto ad seg°tsÇget
- - egy gombnyom†sos gener†l†s, am†r feldolgozott kÇpeket nem dolgozza fel £jra
- - a galÇria egy darab, ember †ltal is olvashat¢ Çs szerkesztheto UTF-8
-   k¢dol†s£ f†jlban (**.struct**) van. A st°lusok Çs egyÇb inform†ci¢k 
-   egy m†sik f†jlban (**.ini**) vannak
- - a galÇri†ban szereplo kÇpek forr†sa b†rhol lehet, nem szÅksÇges azokat 
-   †tm†solni sehov†. Az eredeti kÇpeket a program nem v†ltozatja, nem m†solja
-   †t Çs nem is tîrli le.
- - v°zjel szerkeszto
- - kÇpek "H£zd Çs Dobd" hozz†ad†sa (mÇg nem mukîdik)
+ - Amit L√°tsz Azt Kapod WEB oldal szerkeszt≈ë
+ - az oldalakon haszn√°lt sz√≠nek √©s bet√ºk√©szletek szabadon 
+   szerkeszthet≈ëek az oldalak k√©perny≈ën megjelen≈ë el≈ëk√©pevel
+ - k√©pc√≠mek √©s le√≠r√°sok ford√≠t√°s√°hoz egyszerre k√©t nyelv≈± sz√∂veget 
+   mutat√≥ c√≠m √©s le√≠r√°s szerkeszt≈ë ad seg√≠ts√©get
+ - egy gombnyom√°sos gener√°l√°s, am√°r feldolgozott k√©peket nem dolgozza fel √∫jra
+ - a gal√©ria egy darab, ember √°ltal is olvashat√≥ √©s szerkeszthet≈ë UTF-8
+   k√≥dol√°s√∫ f√°jlban (**.struct**) van. A st√≠lusok √©s egy√©b inform√°ci√≥k 
+   egy m√°sik f√°jlban (**.ini**) vannak
+ - a gal√©ri√°ban szerepl≈ë k√©pek forr√°sa b√°rhol lehet, nem sz√ºks√©ges azokat 
+   √°tm√°solni sehov√°. Az eredeti k√©peket a program nem v√°ltozatja, nem m√°solja
+   √°t √©s nem is t√∂rli le.
+ - v√≠zjel szerkeszt≈ë
+ - k√©pek "H√∫zd √©s Dobd" hozz√°ad√°sa (m√©g nem m≈±k√∂dik)
  
-## A program telep°tÇse
- - mivel ez egy fejlesztÇs alatt †ll¢ ("WIP - Work In Progress", m†skÇnt 
-   alfa szoftver) neked kell leford°tani. A leford°tott program azonban 
-   haszn†lhat¢ olyan gÇpeken is, ahol sem ford°t¢ program sem a Qt nincs
-   telep°tve.
- - ehhez elo kell †ll°tani a futtat¢ kîrnyezetet. Windows-on ehhez
+## A program telep√≠t√©se
+ - mivel ez egy fejleszt√©s alatt √°ll√≥ ("WIP - Work In Progress", m√°sk√©nt 
+   alfa szoftver) neked kell leford√≠tani. A leford√≠tott program azonban 
+   haszn√°lhat√≥ olyan g√©peken is, ahol sem ford√≠t√≥ program sem a Qt nincs
+   telep√≠tve.
+ - ehhez el≈ë kell √°ll√≠tani a futtat√≥ k√∂rnyezetet. Windows-on ehhez
    a **windeployqt** programot kell futtatni. Ha a Microsoft Visual Studio
-   a ford°t¢program Çs a 64 bites verzi¢t haszn†ltuk, akkor a parancsok:
+   a ford√≠t√≥program √©s a 64 bites verzi√≥t haszn√°ltuk, akkor a parancsok:
    "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
    (ezt csak egyszer szabad futtatni), majd
    d:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe  --no-quick-import <path to falconG.exe>
 
- - nincs automatikus telep°tÇs, ezÇrt csak a kÇzi telep°tÇs lehetsÇges
-   a lÇpÇsek:
-		- futtasd a fenti parancsokat, vagy a linuxos Çs Mac OS-es megfelelojÅket
-		  a **falconG** kînyvt†r†ba
-		- m†sold a **falconGÅicon.png** f†jlt is oda
-		- m†sold a k°v†nt **.lang** f†jlokat is oda
-		- hozz lÇtre egy mapp†t a cÇlgÇpen, amin nincs Qt telep°tve
-		- m†solj †t minden f†jlt a falconG mapp†j†b¢l a cÇlgÇp mapp†j†ba
-		- hozz lÇtre egy parancsikont a cÇlgÇpen a **falconG** programra
-	Fontos: a Qt WebEngine nem fut h†l¢zati meghajt¢kr¢l, akkor sem
-			ha azok mag†n a helyi gÇpen levo mapp†k.
-## HIANYZIK (fontoss†gi sorrendben)
-	- kÇpek Çs albumok mozgat†sa a Fogd ês Vidd m¢dszerrel
-	- b†rmely album megjelîlÇse £jra feldolgoz†shoz
-	- telep°to program
-	- a lehetosÇg, hogy ugyanannak a kÇpnek m†s albumokban m†s c°me Çs
-	  le°r†sa lehessen
-	- a WEB tervezo Çs gener†l¢ beÇpÅlo modul rendszerben mukîdjîn
+ - nincs automatikus telep√≠t√©s, ez√©rt csak a k√©zi telep√≠t√©s lehets√©ges
+   a l√©p√©sek:
+		- futtasd a fenti parancsokat, vagy a linuxos √©s Mac OS-es megfelel≈ëj√ºket
+		  a **falconG** k√∂nyvt√°r√°ba
+		- m√°sold a **falconG√ºicon.png** f√°jlt is oda
+		- m√°sold a k√≠v√°nt **.lang** f√°jlokat is oda
+		- hozz l√©tre egy mapp√°t a c√©lg√©pen, amin nincs Qt telep√≠tve
+		- m√°solj √°t minden f√°jlt a falconG mapp√°j√°b√≥l a c√©lg√©p mapp√°j√°ba
+		- hozz l√©tre egy parancsikont a c√©lg√©pen a **falconG** programra
+	Fontos: a Qt WebEngine nem fut h√°l√≥zati meghajt√≥kr√≥l, akkor sem
+			ha azok mag√°n a helyi g√©pen lev≈ë mapp√°k.
+## HI√ÅNYZIK (fontoss√°gi sorrendben)
+	- k√©pek √©s albumok mozgat√°sa a Fogd √âs Vidd m√≥dszerrel
+	- b√°rmely album megjel√∂l√©se √∫jra feldolgoz√°shoz
+	- telep√≠t≈ë program
+	- a lehet≈ës√©g, hogy ugyanannak a k√©pnek m√°s albumokban m√°s c√≠me √©s
+	  le√≠r√°sa lehessen
+	- a WEB tervez≈ë √©s gener√°l√≥ be√©p√ºl≈ë modul rendszerben m≈±k√∂dj√∂n
 	
  
-Egy kÅlso oldalba †gyazott minta galÇri†t tal†lsz a  https://andreasfalco.com
+Egy k√ºls≈ë oldalba √°gyazott minta gal√©ri√°t tal√°lsz a  https://andreasfalco.com
 oldalon.
 
-** Ez egy folyamatban levo munka**
-A kÇpek Çs albumok f†jlja jelenleg kiz†s¢lag kÇzzel (egy UTF-8 at tud¢ 
-szîvegszerkesztovel) szerkesztheto, illetve az album mapp†kb¢l val¢ gener†l†s†val mukîdik. 
+** Ez egy folyamatban lev≈ë munka**
+A k√©pek √©s albumok f√°jlja jelenleg kiz√°s√≥lag k√©zzel (egy UTF-8 at tud√≥ 
+sz√∂vegszerkeszt≈ëvel) szerkeszthet≈ë, illetve az album mapp√°kb√≥l val√≥ gener√°l√°s√°val m≈±k√∂dik. 
