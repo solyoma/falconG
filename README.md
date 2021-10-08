@@ -88,24 +88,24 @@ Two program languages can be used: US English and Hungarian.
  - no installer exists at this point (TODO), so manual
    installation is possible only. The steps:
    
-		> run the commands above if they were not yet run
-		
-		>  using the path of the release version of falconG
-		 
-		> create a folder on the destination machine for the program
-		
-		> copy the file 'falconG-icon.png' into this directory  
-		
-		> copy the **.lang** files you want to use there too
-		
-		> create a folder for the program on the computer with
-		  no Qt
-		  
-		> copy everything from the Release folder to that folder on 
-		  the destination machine
-		  
-		> create a shortcut on the desktop of the destination machine
-		  to the falconG executable
+  > run the commands above if they were not yet run
+  
+  >  using the path of the release version of falconG
+  
+  > create a folder on the destination machine for the program
+  
+  > copy the file 'falconG-icon.png' into this directory  
+  
+  > copy the **.lang** files you want to use there too
+  
+  > create a folder for the program on the computer with
+  > no Qt
+   
+  > copy everything from the Release folder to that folder on 
+  > the destination machine
+   
+  > create a shortcut on the desktop of the destination machine
+  > to the falconG executable
 		  
 	Important: Qt WebEngine will not run from a network drive!
 
@@ -214,13 +214,13 @@ angolul használható.
 
  - nincs automatikus telepítés, ezért csak a kézi telepítés lehetséges
    a lépések:
-		- futtasd a fenti parancsokat, vagy a linuxos és Mac OS-es megfelelőjüket
-		  a **falconG** könyvtárába
-		- másold a **falconGüicon.png** fájlt is oda
-		- másold a kívánt **.lang** fájlokat is oda
-		- hozz létre egy mappát a célgépen, amin nincs Qt telepítve
-		- másolj át minden fájlt a falconG mappájából a célgép mappájába
-		- hozz létre egy parancsikont a célgépen a **falconG** programra
+	- futtasd a fenti parancsokat, vagy a linuxos és Mac OS-es megfelelőjüket
+	  a **falconG** könyvtárába
+	- másold a **falconG-icon.png** fájlt is oda
+	- másold a kívánt **.lang** fájlokat is oda
+	- hozz létre egy mappát a célgépen, amin nincs Qt telepítve
+	- másolj át minden fájlt a falconG mappájából a célgép mappájába
+	- hozz létre egy parancsikont a célgépen a **falconG** programra
 	Fontos: a Qt WebEngine nem fut hálózati meghajtókról, akkor sem
 			ha azok magán a helyi gépen levő mappák.
 ## HIÁNYZIK (fontossági sorrendben)
