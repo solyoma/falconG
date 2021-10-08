@@ -88,23 +88,23 @@ Two program languages can be used: US English and Hungarian.
  - no installer exists at this point (TODO), so manual
    installation is possible only. The steps:
    
-		>- run the commands above if they were not yet run
+		> run the commands above if they were not yet run
 		
 		>  using the path of the release version of falconG
-		  
-		>- create a folder on the destination machine for the program
+		 
+		> create a folder on the destination machine for the program
 		
-		>- copy the file 'falconG-icon.png' into this directory  
+		> copy the file 'falconG-icon.png' into this directory  
 		
-		>- copy the **.lang** files you want to use there too
+		> copy the **.lang** files you want to use there too
 		
-		>- create a folder for the program on the computer with
+		> create a folder for the program on the computer with
 		  no Qt
 		  
-		>- copy everything from the Release folder to that folder on 
+		> copy everything from the Release folder to that folder on 
 		  the destination machine
 		  
-		>- create a shortcut on the desktop of the destination machine
+		> create a shortcut on the desktop of the destination machine
 		  to the falconG executable
 		  
 	Important: Qt WebEngine will not run from a network drive!
