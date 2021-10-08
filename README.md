@@ -1,5 +1,5 @@
 # ![falconG-icon](https://user-images.githubusercontent.com/37068759/136534722-d22d903b-57bf-4dc9-8618-d746848eb892.png) falconG  
-Hierarchical, multi language, multi platform photo gallery creator
+# Hierarchical, multi language, multi platform photo gallery creator
     written in C++ and Qt 5
 
 (Hirerchikus többnyelvű, platform független fotó galéria készítő
