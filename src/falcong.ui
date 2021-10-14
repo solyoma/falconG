@@ -772,7 +772,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page(s). As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;The &amp;quot;About&amp;quot; menu is only generated when the checkbox is checked.&lt;/p&gt;&lt;p&gt;Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;about_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page(s). As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;The &amp;quot;About&amp;quot; menu is only generated when the checkbox is checked.&lt;/p&gt;&lt;p&gt;Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;about_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The content of the about pages are taken from files named '&lt;span style=&quot; font-style:italic;&quot;&gt;about_text&lt;/span&gt;XX&lt;span style=&quot; font-style:italic;&quot;&gt;.txt&lt;/span&gt;' in the source gallery directory, where XX stands for the language abbreviation, e.g. '_&lt;span style=&quot; font-style:italic;&quot;&gt;en&lt;/span&gt;'.&lt;/p&gt;&lt;p&gt;You may use any HTML element in these files, for instance &amp;lt;h1&amp;gt; for the title.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
                 <string>about.html</string>
@@ -1981,8 +1981,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
