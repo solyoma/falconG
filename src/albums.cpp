@@ -3140,13 +3140,104 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 	return s;
 }
 
+/*=============================================================
+ * TASK:	emit a nav bar for an about page
+ * PARAMS:	lang: index of language in Languages
+ * GLOBALS:	config, _ofs
+ * RETURNS: none
+ * REMARKS: - about.html file have a limited menu: to index_XX.html
+ *				to home (embedding page to select any language)
+ *				and for contact (if set)
+ *------------------------------------------------------------*/
+void AlbumGenerator::_OutputNavForAboutPage(int lang)
+{
+	auto outputMenuButton = [&](QString id, QString href, QString text, QString hint = QString())
+	{
+		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text << "</a>\n";
+	};
+	_ofs << "   <nav>\n";
+	outputMenuButton("uplink", RootNameFromBase(config.sMainPage.ToString(), lang), "&nbsp;", Languages::upOneLevel[lang]);
+	outputMenuButton("home", config.homeLink, Languages::toHomePage[lang]);
+	if (config.bMenuToContact)
+		outputMenuButton("contact", "mailto:" + config.sMailTo, Languages::toContact[lang]);
+	_ofs << "   </nav>\n";
+}
+
+/*=============================================================
+ * TASK:	copy texts into about pages
+ * PARAMS:	lang - actual language
+ * GLOBALS:	config, _ofs
+ * RETURNS:
+ * REMARKS: - about texts are in files in the gallery source
+ *			folder
+ *			- about texts must be stored in utf-8 encoded
+ *			files named
+ *				about_text_XX.txt
+ *			where _XX is the language abbreviation for more 
+ *			than one language and missing for one language
+ *			- the about text files may contain html tags
+ *			- Paragraphs in the text files are separated by empty lines
+ *			and may contain more than one line of text.
+ *			They need not be preceeded by <p> tags. 
+ *			-If they start with a '<X', where 'X' == 'p' or "h"
+ *			they will not be enclosed between <p class="about">...</p>
+ *			-class="about" is a max 600px wide
+ *			centered text with space after each paragraph
+ *------------------------------------------------------------*/
+int AlbumGenerator::_OutputAboutText(int lang)
+{
+	bool b = Languages::Count() != 1;
+	QString name = config.dsSrc.ToString() + "about_text" + (b ? Languages::abbrev[lang] : "") + ".txt";
+
+	QFile f(name);
+	if (!f.open(QIODevice::ReadOnly))
+		return -1;
+
+	QTextStream ifs(&f);
+	ifs.setCodec("UTF-8");
+
+	QString spara;
+	bool inPara=false;	// inside paragraph?
+	bool bp=false;	// paragraph's first line started with "<"?
+	while (!(spara = ifs.readLine()).isNull())
+	{
+		spara = spara.trimmed();	// starting/ending white space
+		if (spara.isEmpty())		// end of paragraph
+		{
+			inPara = false;
+			if (bp)
+			{
+				_ofs << "</p>\n";
+				bp = false;
+			}
+		}
+		else if (!inPara)
+		{
+			bp = spara.left(2) != "<h" && spara.left(2) != "<p";
+			if (bp)
+			{
+				spara = "<p class=about>" + spara;
+				inPara = true;
+			}
+			_ofs << spara;
+
+		}
+		else
+			_ofs << spara << "\n";
+	}
+	if(inPara)	// not yet closed paragraph
+		_ofs << "</p>\n";
+	f.close();
+	return 0;
+}
+
 /*========================================================
  * TASK:	emit the sticky menu line at the top of the window
  * EXPECTS: album - album to be created  
- *			uplink - page link ifany
+ *			uplink - page link if any
  * GLOBALS:	Languages, 'config'
  * RETURNS: nothing
- * REMARKS: -if and no uplink is given in config no UP button is generated
+ * REMARKS: - if no uplink is given in config no UP button is generated
  *-------------------------------------------------------*/
 void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 {
@@ -3535,7 +3626,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	emit SignalProgressPos(++processedCount, _albumMap.size() * Languages::Count());
 
 	_ofs << _PageHeadToString(album.ID)	// for root album set random thumbnail to most recent gallery
-		 << " <body onload = \"falconGLoad(" + QString(album.ID == ROOT_ALBUM_ID ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
+		 << " <body onload = \"falconGLoad(" + QString(album.ID == ROOT_ALBUM_ID  && !config.bFixedLatestThumbnail ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"
@@ -3670,6 +3761,73 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	return 0;
 }
 
+/*=============================================================
+ * TASK:	Creates "about" pages, as many as there are 
+ *			languages.
+ * PARAMS:
+ * GLOBALS: config
+ * RETURNS:
+ * REMARKS: Existing 'about pages' ARE overwritten!
+ *------------------------------------------------------------*/
+int AlbumGenerator::_CreateAboutPages()
+{
+	bool b = Languages::Count() != 1;
+
+	QString name = config.sAbout.ToString();
+	if (name.isEmpty())
+		name = "about.html";
+
+	QString path, fn, fext;
+	SeparateFileNamePath(name, path, fn, &fext);
+	path = (config.dsGallery + config.dsGRoot).ToString();
+
+	for (int i = 0; i < Languages::Count(); ++i)
+	{
+		if (b)
+			name = fn + Languages::abbrev[i] + fext;
+		name = path + name;
+
+		QFile f(name);
+		if (!f.open(QIODevice::WriteOnly))
+			return -1;
+
+		_ofs.setDevice(&f);
+		_ofs.setCodec("UTF-8");
+
+		_ofs << _PageHeadToString(ROOT_ALBUM_ID)
+			<< "<body>\n";
+		_ofs << "   <div class=\"header\">\n";
+
+		_OutputNavForAboutPage(i);
+		_ofs << "     <br><br>\n"
+			"    <a href=\"" << SiteLink(i) << "\">"
+			"<span class=\"falconG\">" << config.sGalleryTitle << "</span>"
+			"</a>&nbsp; &nbsp;";
+		if (b)
+		{
+			for (int j = 0; j < Languages::Count(); ++j)
+			{
+				if (j != i)
+				{
+					_ofs << "&nbsp;&nbsp;<a class = \"langs\" href=\"";
+					_ofs << path + fn + Languages::abbrev[j] + fext << "\">" << Languages::names[j];
+					_ofs << "</a>\n  </div>\n";
+				}
+			}
+		}
+
+		_OutputAboutText(i);
+
+		_ofs << "<footer class = \"footer\"><br>\n"
+			<< Languages::falconG[_actLanguage] << "<br>\n"
+			"</footer>\n";
+
+		_ofs << "</body>\n</html>\n";
+		f.close();
+	}
+	return 0;
+}
+
 /*============================================================================
 * TASK: Create a very basic home page
 * EXPECTS:	config fields are set, albums are read in (_albumMap, etc)
@@ -3795,6 +3953,7 @@ int AlbumGenerator::_DoPages()
 		_CreatePage(_albumMap[ROOT_ALBUM_ID], lang, uplink, cnt);	// all albums go into the same directory!
 	}
 	_CreateHomePage();
+	_CreateAboutPages();
 
 	return 0;
 }

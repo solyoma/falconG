@@ -506,6 +506,8 @@ private:
 					// write gallery files
 	void _WriteFacebookLink(QString linkName, ID_t ID);
 	QString _IncludeFacebookLibrary();
+	void _OutputNavForAboutPage(int lang);
+	int  _OutputAboutText(int lang);
 	void _OutputNav(Album &album, QString uplink);
 	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(Album &album);
@@ -516,6 +518,8 @@ private:
 	int _ProcessVideos(); // into 'vids' directory
 	int _CreateOneHtmlAlbum(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
+	int _CreateAboutPages();
+	int _CreateAboutPageForLanguage(int lang);	// 
 	int _CreateHomePage();
 
 	int _DoCopyRes();	// copy directory 'res', modify png colors

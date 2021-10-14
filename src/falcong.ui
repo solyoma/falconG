@@ -710,10 +710,10 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a link to like the albums on &lt;span style=&quot; text-decoration: underline;&quot;&gt;facebook.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a '&lt;span style=&quot; text-decoration: underline;&quot;&gt;Share on Facebook'&lt;/span&gt; link to albums.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;You must upload your gallery to a server for this to work!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Like on Facebook link</string>
+                <string>Share on Facebook link</string>
                </property>
               </widget>
              </item>
@@ -772,7 +772,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page. As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;About menu is only generated when the checkbox is checked.&lt;/p&gt;&lt;p&gt;Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;abut_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the &lt;span style=&quot; font-weight:600;&quot;&gt;About&lt;/span&gt; page(s). As many about pages are generated into the root, directory of the gallery as there are languages. For more than one language they will be named as &amp;lt;base name&amp;gt;_&amp;lt;language abbrev&amp;gt;.&amp;lt;extension&amp;gt;.&lt;/p&gt;&lt;p&gt;The &amp;quot;About&amp;quot; menu is only generated when the checkbox is checked.&lt;/p&gt;&lt;p&gt;Example: default name 'about' then with two languages: English (en) and Hungarian (hu).File names will be &lt;span style=&quot; font-style:italic;&quot;&gt;about_en.html&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;about_hu.html.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="placeholderText">
                 <string>about.html</string>
@@ -908,8 +908,8 @@
                <string>Latest Uploads Page</string>
               </property>
               <layout class="QGridLayout" name="gbLatestLayout">
-               <item row="0" column="4">
-                <widget class="QLabel" name="label_18">
+               <item row="0" column="2">
+                <widget class="QSpinBox" name="sbNewDays">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -917,8 +917,8 @@
                    <bold>false</bold>
                   </font>
                  </property>
-                 <property name="text">
-                  <string>Max. # of images: </string>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                 </widget>
                </item>
@@ -939,6 +939,24 @@
                  </property>
                 </widget>
                </item>
+               <item row="0" column="7">
+                <widget class="QCheckBox" name="chkFixedLatestThumbnail">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>If checked the album image will not be changed 
+every time you refresh the album page.</string>
+                 </property>
+                 <property name="text">
+                  <string>Fixed Thumbnail</string>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="3">
                 <widget class="QLabel" name="label_31">
                  <property name="font">
@@ -950,6 +968,41 @@
                  </property>
                  <property name="text">
                   <string>days</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="6">
+                <widget class="QCheckBox" name="chkSetLatest">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Will generate a web page for the last uploaded images.
+As many javascript (.js) files will be generated as you have languages
+(i.e. latestList.js for a single language, latestList_en.js, latestList_hu.js
+for two languages, English and Hungarian).
+</string>
+                 </property>
+                 <property name="text">
+                  <string>Generate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="4">
+                <widget class="QLabel" name="label_18">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Max. # of images: </string>
                  </property>
                 </widget>
                </item>
@@ -970,34 +1023,6 @@
                  </property>
                  <property name="value">
                   <number>10</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QSpinBox" name="sbNewDays">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QCheckBox" name="chkSetLatest">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Generate</string>
                  </property>
                 </widget>
                </item>
@@ -1956,8 +1981,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>719</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">

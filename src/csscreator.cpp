@@ -69,6 +69,11 @@ html, main {
 		<< R"(	height: 100%;
 	width: 100%;
 }
+/* for <p> in about.html */
+.about {
+	max-width:600px;
+	margin:0 auto 30px auto;
+}
 		
 a, a:visited {
 	text-decoration:none;

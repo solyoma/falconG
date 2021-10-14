@@ -1058,6 +1058,7 @@ public:
 		// next two bools will not be read from or saved into the configuration file
 	_CBool bGenerateAll = {false,"bGenerateAll"};		// must regenerate all pages regardless of status?
 	_CBool bButImages = {false,"bButImages"};			// used with 'generate All'
+	_CBool bFixedLatestThumbnail = { true, "bFixedLatestThumbnail" };
 
 	_CString sUplink = {"","sUplink"};			// path name of index.html file on server this gallery is embedded into.
 								// this page if set should have links into dsGRoot for all languages

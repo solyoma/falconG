@@ -1659,6 +1659,7 @@ void CONFIG::Read()		// synchronize with Write!
 	bMenuToAbout.Read(s);
 	bMenuToDescriptions.Read(s);
 	bMenuToToggleCaptions.Read(s);
+	bFixedLatestThumbnail.Read(s);
 
 	bRightClickProtected.Read(s);
 	bCanDownload.Read(s);
@@ -1798,6 +1799,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	bMenuToAbout.Write(s);
 	bMenuToDescriptions.Write(s);
 	bMenuToToggleCaptions.Write(s);
+	bFixedLatestThumbnail.Write(s);
 
 	bRightClickProtected.Write(s);
 	bCanDownload.Write(s);

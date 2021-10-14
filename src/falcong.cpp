@@ -936,6 +936,7 @@ void FalconG::_OtherToUi()
 	ui.chkKeepDuplicates->setChecked(config.bKeepDuplicates);
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
+	ui.chkFixedLatestThumbnail->setChecked(config.bFixedLatestThumbnail);
 	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
 	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
@@ -1904,6 +1905,23 @@ void FalconG::on_chkSetLatest_toggled(bool on)
 	if (_busy)
 		return;
 	config.bGenerateLatestUploads = on;
+	_SetConfigChanged(true);
+	_EnableButtons();
+}
+
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_chkFixedLatestThumbnail_toggled(bool b)
+{
+	if (_busy)
+		return;
+
+	config.bFixedLatestThumbnail = b;
 	_SetConfigChanged(true);
 	_EnableButtons();
 }

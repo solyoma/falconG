@@ -311,6 +311,7 @@ private slots:
 	void on_chkSeparateFoldersForLanguages_toggled(bool);
 	void on_chkSetAll_toggled(bool);			// background colors
 	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
+	void on_chkFixedLatestThumbnail_toggled(bool);
 	void on_chkShadowOn_toggled(bool on);
 	void on_chkSourceRelativePerSign_toggled(bool);
 	void on_chkTdLinethrough_toggled(bool);
