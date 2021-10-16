@@ -72,6 +72,9 @@
     <ClCompile Include="schemes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="textEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -92,12 +95,18 @@
     <QtMoc Include="structwriter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="textEditor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="falcong.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="sourcehistory.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="textEditor.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

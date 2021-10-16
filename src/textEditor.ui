@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TextEditorClass</class>
+ <widget class="QWidget" name="TextEditorClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>786</width>
+    <height>588</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QToolButton" name="tbOpen">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/fileopen.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/fileopen.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+O</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbSave">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/filesave.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/filesave.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+S</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbBold">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textbold.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textbold.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+B</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbItalic">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textitalic.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textitalic.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+I</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbUnderline">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textunder.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textunder.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+U</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbLeftAlign">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textleft.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textleft.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+L</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbCenterAlign">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textcenter.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textcenter.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+C</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbJustify">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textjustify.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textjustify.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+J</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbRightAlign">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textright.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/textright.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+R</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbIndent">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/format-indent-more.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/format-indent-more.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbUndent">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/format-indent-less.png</normaloff>D:/Qt/5.15.2/Src/qtbase/examples/widgets/richtext/textedit/images/mac/format-indent-less.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Font</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_27">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Family</string>
+        </property>
+        <property name="buddy">
+         <cstring>edtFontFamily</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="edtFontFamily">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="placeholderText">
+         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_28">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Si&amp;ze:</string>
+        </property>
+        <property name="buddy">
+         <cstring>cbPointSize</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cbPointSize">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="currentIndex">
+         <number>6</number>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>8pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>9pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>11pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>12pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>14pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>18pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>20pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>22pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>24pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>26pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>28pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>36pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>48pt</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>72pt</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>299</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="edtText"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

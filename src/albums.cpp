@@ -3259,7 +3259,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + Languages::upOneLevel[_actLanguage] + "\" alt=\""
 //		+ Languages::upOneLevel[_actLanguage] + "\"></a>\n";			  // UP link
 	outputMenuButton("home", updir + config.homeLink, Languages::toHomePage[_actLanguage]);
-	if (config.bMenuToAbout)
+	if (config.bMenuToAbout || !config.sAbout.IsEmpty())	// About menu is generated even when the checkbox is not checked but there's text in the field
 	{
 		QString s = config.sAbout;
 		if (s.isEmpty())
@@ -3871,7 +3871,7 @@ int AlbumGenerator::_CreateHomePage()
 	for (int i = 0; i < Languages::Count(); ++i)
 	{
 		// menu buttons
-		if (config.bMenuToAbout)
+		if (config.bMenuToAbout || !config.sAbout.IsEmpty())	// About menu is generated even when the checkbox is not checked but there's text in the field
 		{
 			_ofs << "<a href=\"";
 			_ofs << Languages::FileNameForLanguage(config.sAbout,i) << "\">" << Languages::toAboutPage[i];
@@ -3953,7 +3953,9 @@ int AlbumGenerator::_DoPages()
 		_CreatePage(_albumMap[ROOT_ALBUM_ID], lang, uplink, cnt);	// all albums go into the same directory!
 	}
 	_CreateHomePage();
-	_CreateAboutPages();
+
+	if(config.bMenuToAbout)		// only create about pages when the checkbox is checked
+		_CreateAboutPages();
 
 	return 0;
 }
