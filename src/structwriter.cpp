@@ -20,9 +20,9 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 		return;
 	LanguageTexts& text = texts[id];
 
-	for (int i = 0; i < Languages::Count(); ++i)
+	for (int i = 0; i < languages.LanguageCount(); ++i)
 	{
-		ofs << indent << "[" << what << Languages::language	[i] << ":";
+		ofs << indent << "[" << what << (*languages["language"])[i] << ":";
 		if (id != 0)
 			ofs << text[i];
 		ofs << "]";
@@ -60,10 +60,6 @@ void AlbumStructWriterThread::run()
 	QString p, n;
 	SeparateFileNamePath(config.dsSrc.ToString(), p, n);
 
-/*
-	QString s = QString(config.dsSrc.ToString()) + "gallery.struct",
-		stmp = QString(config.dsSrc.ToString()) + "gallery.tmp";
- */
 	QString sStructPath = config.dsSrc.ToString() + n + QString(".struct"),
 		sStructTmp = config.dsSrc.ToString() + n + QString(".tmp");
 	QFile f(sStructTmp);
@@ -78,36 +74,18 @@ void AlbumStructWriterThread::run()
 	_ofs.setCodec("UTF-8");
 
 	_ofs << versionStr << majorStructVersion << "." << minorStructVersion
-		<< "\n#  © - András Sólyom (2018)"  // default values may differ from 'config'
+		<< "\n#  © - András Sólyom (2018-2021)"  // default values may differ from 'config'
 		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()
 		<< "\n\n#Image rectangle: " << config.imageWidth << "x" << config.imageHeight
 		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight
-		<< "\n\n[Language count:" << Languages::Count() << "\n";
-	for (int i = 0; i < Languages::Count(); ++i)
+		<< "\n\n[Language count:" << languages.LanguageCount() << "\n";
+	for (int i = 0; i < languages.LanguageCount(); ++i)
 	{
-		_ofs << i << "\n"
-			<< "  about=" << Languages::toAboutPage[i] << "\n"
-			<< "  abbrev=" << Languages::abbrev[i] << "\n"
-			<< "  albums=" << Languages::albums[i] << "\n"
-			<< "  captions=" << Languages::coupleCaptions[i] << "\n"
-			<< "  contact=" << Languages::toContact[i] << "\n"
-			<< "  countOfImages=" << Languages::countOfImages[i] << "\n"
-			<< "  countryCode=" << Languages::countryCode[i] << "\n"
-			<< "  descriptions=" << Languages::showDescriptions[i] << "\n"
-			<< "  falconG=" << Languages::falconG[i] << "\n"
-			<< "  homePage=" << Languages::toHomePage[i] << "\n"
-			<< "  icon=" << Languages::icons[i] << "\n"
-			<< "  images=" << Languages::images[i] << "\n"
-			<< "  language=" << Languages::language[i] << "\n"
-			<< "  latestDesc=" << Languages::latestDesc[i] << "\n"
-			<< "  latestTitle=" << Languages::latestTitle[i] << "\n"
-			<< "  name=" << Languages::names[i] << "\n"
-			<< "  share=" << Languages::share[i] << "\n"
-			<< "  toAlbums=" << Languages::toAlbums[i] << "\n"
-			<< "  videos=" << Languages::videos[i] << "\n"
-			;
+		_ofs << i << "\n";
+		for(auto it=languages.begin(); it != languages.end(); ++it)
+			_ofs << " " << it.key() << "=" << (*it.value())[i];
 	}
 	_ofs << "]\n\n# Album structure:\n";
 

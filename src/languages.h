@@ -13,9 +13,13 @@ const QString sFalcongEnglishCopyright = QString(QMainWindow::tr("Site generated
 //*****************************************
 class LangConstList : public QStringList
 {
+	int _index;
+	QString _def;		// what is this?
 public:	
-	LangConstList(int size = 0) : QStringList() { Prepare(size); }
+	LangConstList(int index, QString definition, int size = 0) : QStringList(), _index(index), _def(definition) { Prepare(size); }
 
+	int Index() const { return _index; }
+	QString Definition() const { return _def; }
 	void Prepare(int languageCount) { clear();  for (int i = 0; i < languageCount; ++i) push_back(""); }
 	void Clear() { for (int i = 0; i < size(); ++i) (*this)[i].clear(); }
 	bool IsEmpty() {for (int i = 0; i < size(); ++i) if (!(*this)[i].isEmpty()) return false; return true;}
@@ -26,38 +30,52 @@ public:
 };
 //*****************************************
 
-struct Languages	// each language has a text file named <text from 'languages'>.php
+using LanguageMap = QMap<QString, LangConstList*>;
+
+struct Languages : public LanguageMap	// each language has a text file named <text from 'languages'>.php
 {					// or the languages are set in a .struct file
 		// these are read from language definition files '<xxx>.lang in program directory
-	static LangConstList abbrev;		// abbreviation for country code (e.g. for en_GB it may be '_gb')
-										// default: same as 'countryCode'
-	static LangConstList albums;		// album section in HTML files 'Albumok'
-	static LangConstList countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
-	static LangConstList countryCode;	// "en_US", "hu_HU", etc
-	static LangConstList coupleCaptions;	// 'Képcim+Leírás együtt'
-	static LangConstList falconG;		// "created by "
-	static LangConstList icons;			// icons to use instead of names
-	static LangConstList images;		// image section in HTML files 'Képek'
-	static LangConstList language;		// this is set in 'lang=XX' in HTML
-	static LangConstList latestDesc;		// 'Ebbe a könyvtárba...'
-	static LangConstList latestTitle;	// 'Kedvcsinálónak'
-	static LangConstList names;			// used on menus to switch language, eg. "Magyarul"
-	static LangConstList share;			// 'Megosztás'
-	static LangConstList showDescriptions;	// 'Képleírások'
-	static LangConstList toAboutPage;	// 'Rólam'
-	static LangConstList toAlbums;		// Jump to album section
-	static LangConstList toContact;		// 'Kapcsolat'
-	static LangConstList toHomePage;		// 'Kezdõlapra'
-	static LangConstList toTop;			// title of icon to jump to top of page
-	static LangConstList upOneLevel;	// title of icon jump to parent/up one level
-	static LangConstList videos;		// video section in HTML files 'Videók'
 
-	static int _Read(QString name);		// defult: single language, name: "English" countryCode: "en_US", no icon
-	static int Read();					// reads all language files from program directory
-	static void Clear(int newSize = 0);
-	static int Count() { return countryCode.size(); }
-	static QString FileNameForLanguage(QString name, int language);	// adds _<abbrev> to base name if more than one languages
-	static void SetTextFor(QString name, QString val, int lang);
+	Languages()
+	{
+		insert("abbrev", new LangConstList(0, QMainWindow::tr("Suffix, used in file names. e.g. \"_us\" for \"en_US\"")));
+		insert("albums", new LangConstList(1, QMainWindow::tr("Title of album section in HTML files")));
+		insert("countOfImages", new LangConstList(2, QMainWindow::tr("Text for image and album count display in footer. %1 and %2 are placeholders for image and album count respectively")));
+		insert("countryCode", new LangConstList(3, QMainWindow::tr("Country code. Examples: \"en_US\", \"hu_HU\", etc")));
+		insert("coupleCaptions", new LangConstList(4, QMainWindow::tr("Wether to hide image titles together with captions")));
+		insert("falconG", new LangConstList(5, QMainWindow::tr("Program Copyright Message. Do not change it please!")));
+		insert("icon", new LangConstList(6, QMainWindow::tr("Name of icon to use instead of names")));
+		insert("images", new LangConstList(7, QMainWindow::tr("Title for image section in HTML files")));
+		insert("language", new LangConstList(8, QMainWindow::tr("Two letter abbreviation for languages in HTML files, like 'lang=en'")));
+		insert("latestDesc", new LangConstList(9, QMainWindow::tr("Caption of 'Latest Uploads' album'")));
+		insert("latestTitle", new LangConstList(10, QMainWindow::tr("Title of Latest Uploads album")));
+		insert("name", new LangConstList(11, QMainWindow::tr("Text for language switch on page head. Example \"English\"")));
+		insert("share", new LangConstList(12, QMainWindow::tr("Text of facebook share button")));
+		insert("showDescriptions", new LangConstList(13, QMainWindow::tr("Text of image and album caption display toggle menu")));
+		insert("toAboutPage", new LangConstList(14, QMainWindow::tr("Text of 'About' menu")));
+		insert("toAlbums", new LangConstList(15, QMainWindow::tr("text of 'Jump to Album Section' menu")));
+		insert("toContact", new LangConstList(16, QMainWindow::tr("Text of 'Contact' menu. Example: \"About me\"")));
+		insert("toHomePage", new LangConstList(17, QMainWindow::tr("Text for 'To Home' menu")));
+		insert("toTop", new LangConstList(18, QMainWindow::tr("Text of menu Jump Top of Page")));
+		insert("upOneLevel", new LangConstList(19, QMainWindow::tr("Text for 'Level up' menu")));
+		insert("videos", new LangConstList(20, QMainWindow::tr("Title of video section in HTML files")));
+	}													
+	~Languages()
+	{
+		for (auto it = begin(); it != end(); ++it)
+			delete it.value();
+	}
+
+	int _Read(QString name);		// defult: single language, name: "English" countryCode: "en_US", no icon
+	int Read();					// reads all language files from program directory
+	void Clear(int newSize = 0);
+	int LanguageCount() 
+	{ 
+		return first()->size(); 
+	}
+	void SetTextFor(QString name, QString val, int lang);
+
+	QString FileNameForLanguage(QString name, int language);	// adds _<abbrev> to base name if more than one languages
 };
 
 //------------------------------------------
@@ -117,3 +135,4 @@ struct LanguageTexts				// both Album and Image uses this
 	bool IsEmpty() { return textsForAllLanguages.isEmpty(); }
 };
 
+extern Languages languages;

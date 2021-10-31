@@ -6,93 +6,34 @@ using namespace Enums;
 #include "config.h"
 
 /*--------------------- languages -------------------------*/
-LangConstList Languages::abbrev;		// used instead of country code in names. e.g. set "_us" for "en_US" here
-LangConstList Languages::albums;		// album section in HTML files
-LangConstList Languages::countryCode;	// "en_US", "hu_HU", etc
-LangConstList Languages::countOfImages;	// "%1 image(s) and %2 sub-album(s) in this album"
-LangConstList Languages::coupleCaptions;  // 'Képcímek'
-LangConstList Languages::falconG;		// "created by falconG"
-LangConstList Languages::icons;			// icons to use instead of names
-LangConstList Languages::images;		// image section in HTML files
-LangConstList Languages::language;		// this is set in 'lang=XX' in HTML
-LangConstList Languages::latestTitle;	// 'Kedvcsinálónak'
-LangConstList Languages::latestDesc;	// 'Ebbe a könyvtárba...'
-LangConstList Languages::names;			// used on menus to switchch language, eg. "Magyarul"
-LangConstList Languages::share;			// 'Megosztás'
-LangConstList Languages::showDescriptions;  // 'Képleírások'
-LangConstList Languages::toHomePage;	// 'Kezdõlapra'
-LangConstList Languages::toAboutPage;	// 'Rólam'
-LangConstList Languages::toAlbums;		// jump to album section
-LangConstList Languages::toContact;		// 'Kapcsolat'
-LangConstList Languages::toTop;			// top of page
-LangConstList Languages::upOneLevel;	// jump to parent
-LangConstList Languages::videos;		// video section in HTML files
 
+Languages languages;
 
 void Languages::SetTextFor(QString name, QString val,int lang)
 {
 	if (name == "")
-		;
-	else if (name == "abbrev")
-		abbrev[lang] = val;
-	else if (name == "about")
-		toAboutPage[lang] = val;
-	else if (name == "albums")
-		albums[lang] = val;
-	else if (name == "cdcaptions")
-		coupleCaptions[lang] = val;
-	else if (name == "contact")
-		toContact[lang] = val;
-	else if (name == "countofimages")
-		countOfImages[lang] = val;
-	else if (name == "countrycode")
-		countryCode[lang] = val;
-	else if (name == "descriptions")
-		showDescriptions[lang] = val;
-	else if (name == "falcong")
+		return;
+
+	if (name == "falcong")	// special for copyright
 	{
 		QString qsolyom = ToUTF8(QString("Sólyom"));
 		if (val.indexOf(qsolyom) < 0)
 			val = sFalcongEnglishCopyright;
-		falconG[lang] = val;
+		
 	}
-	else if (name == "homepage")
-		toHomePage[lang] = val;
-	else if (name == "icon")
-		icons[lang] = val;
-	else if (name == "images")
-		images[lang] = val;
-	else if (name == "language")
-		language[lang] = val;
-	else if (name == "latestdesc")
-		latestDesc[lang] = val;
-	else if (name == "latesttitle")
-		latestTitle[lang] = val;
-	else if (name == "name")
-		names[lang] = val;
-	else if (name == "share")
-		share[lang] = val;
-	else if (name == "toalbums")
-		toAlbums[lang] = val;
-	else if (name == "totop")
-		toTop[lang] = val;
-	else if (name == "uponelevel")
-		upOneLevel[lang] = val;
-	else if (name == "videos")
-		videos[lang] = val;
+	auto cit = constFind(name);
+	if (cit != constEnd())
+		(*cit.value())[lang] = val;
 }
+
 /*============================================================================
-* TASK:		reads language definitions from files in the
-*				a) source 
-*				b) destination directory or
-*				c) program directory
-*	in this order
+* TASK:		reads language definitions from files
 * EXPECTS:	name of file to read in
 * GLOBALS:  
 * RETURNS: 0: error, actual number of languages read so far: success
 * REMARKS:	- file names: <lang abbrev, eg. hu_HU>.lang	
-*			- the program reads all such file from directory
-*			- file formats:  
+*			- the program reads all such files from directory
+*			- file format:  
 *	   1st line		"falconG Language file"
 *  about     =&lt;text for the &apos;About&apos; button&gt;
 "  abbrev    =<text for 'countryCode' used in file names (def.:'countryCode')>\n"
@@ -122,29 +63,13 @@ int Languages::_Read(QString name)
 		return 0;
 
 	QString s;
-	int lang = names.size();
+	int lang = LanguageCount();	// this many languages has been read so far
 
-	abbrev.push_back(s);
-	albums.push_back(s);
-	countOfImages.push_back(s);
-	countryCode.push_back(s);
-	coupleCaptions.push_back(s);
-	falconG.push_back(s);
-	icons.push_back(s);
-	images.push_back(s);
-	language.push_back(s);
-	latestDesc.push_back(s);
-	latestTitle.push_back(s);
-	names.push_back(s);
-	share.push_back(s);
-	showDescriptions.push_back(s);
-	toAboutPage.push_back(s);
-	toAlbums.push_back(s);
-	toContact.push_back(s);
-	toHomePage.push_back(s);
-	toTop.push_back(s);			// title of icon to jump to top of page
-	upOneLevel.push_back(s);	// title of icon jump to parent/up one level
-	videos.push_back(s);
+	// before calling this first clear previous data !
+	// reserve place for as many strings as there are files/languages
+
+	for (auto it = begin(); it != end(); ++it)
+		it.value()->push_back(s);
 
 	QStringList sl;
 	while (!(line = reader.ReadLine()).isEmpty())
@@ -156,13 +81,17 @@ int Languages::_Read(QString name)
 }
 
 /*============================================================================
-* TASK:		reads all language definition files in program directory
+* TASK:		reads all language definition files  in the
+*				a) gallery source 
+*				b) user directory or
+*				c) program directory
+*	in this order
 * EXPECTS:	nothing
 * GLOBALS: config, static Language strings
 * RETURNS: the number of languages read
 * REMARKS:	- language files have extension ;.lang'
 *			- tries to read lnag files from the following directories:
-*				config.dsSrc, program directory
+*				config.dsSrc, destination directory, program directory
 *			- searches the directory for language files to read them all
 *			- if no language file exists sets a single language: English
 *			- when languages are set in the GUI we will use only those
@@ -175,20 +104,20 @@ int Languages::Read()
 	QFileInfoList list;
 	QStringList nameList; nameList << "*.lang";
 
-	QDir d = QDir::current();
+	QDir dc = QDir::current();
 
-	dir.setCurrent(config.dsSrc.ToString());
+	dir.setCurrent(config.dsSrc.ToString());					// gallery source
 	list = dir.entryInfoList(nameList, QDir::Files);
 	if (!list.size())
 	{
-		dir.setCurrent(config.dsGallery.ToString());
+		dir.setCurrent(PROGRAM_CONFIG::homePath);				// user folder
 		list = dir.entryInfoList(nameList, QDir::Files);
 	}
-	if (!list.size())
+	if (!list.size())											// current (program) folder
 	{
 		// actual program directory
-		list = d.entryInfoList(nameList, QDir::Files);
-		dir.setCurrent(d.path());	// go back to program directory
+		list = dc.entryInfoList(nameList, QDir::Files);
+		dir.setCurrent(dc.path());
 	}
 
 	if (list.size() == 0)	// no files: set single default language: English
@@ -199,23 +128,22 @@ int Languages::Read()
 						//	 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
 			QMainWindow::tr("No language (*.lang) files are found.\n"
 							"Do you want to cancel or continue with English as the single language?\n\n"
-							"To avoid this message either create language files and put them into the\n"
-							"    a) source\n"
-							"    b) destination or\n"
-							"    c) program directory\n"
+							"To avoid this message either create language files and put them into either\n"
+							"    a) the gallery source folder\n"
+							"    b) the user folder (Windows:Appdata/Local/falconG, linux: ~/.falconG) or\n"
+							"    c) the program folder\n"
 							"or write the language texts into the '.struct' file\n\n"
 							"A language file is a UTF-8 encoded text file starting with the line:\n"
 							"  'falconG Language file'\n"
 							"followed by definitions of the fixed texts used in the albums\n"
 							" The format of the lines is 'name=text'. The names\n"
 							"  and their texts are (the single quotes in the examples below are not used,"
-							"  and the examples are in braces):\n"
+							"  and the examples are in braces):\n\n"
 							"  abbrev      = <language abbrev. in file names if any (e.g.'_hu' for`album123_hu.html`)>\n"
 							"  albums      = <text header for the album section of the  actual album>\n"
-							"  coupleCaptions = <text for captions-toggled-with-descriptions toggle>\n"
 							"  countOfImages= %1 image(s) and %2 sub-album(s) in this album\n" //%1, %2 placeholders (videos are 'images')
 							"  countryCode	= <like 'en_US'> (usually part of this is abbrev and language)\n"
-							"  descriptions  =<text for the descriptionss toggle menu>\n"
+							"  coupleCaptions = <text for captions-toggled-with-descriptions toggle>\n"
 							"  falconG   =<my copyright message. Please do not remove or change this, just translate>\n"
 							"  icon      =<name of icon (.png) file for language> may be left empty\n"
 							"  images    =<text header for the images section of the actual album>\n"
@@ -224,6 +152,7 @@ int Languages::Read()
 							"  latestTitle=<title on album 'latest_en.html'>\n"
 							"  name	     =<language name to put on language switch menu>  ('to English')\n"
 							"  share     =<text for the facebook share button>"
+							"  showDescriptions  =<text for the descriptionss toggle menu>\n"
 							"  toAboutPage = <text for the 'About' button>\n"
 							"  toAlbums  = <menu text to jump to albums section>"
 							"  toContact   =<text for the 'contact' button\n"
@@ -242,27 +171,27 @@ int Languages::Read()
 					QMessageBox::Ok | QMessageBox::Cancel, nullptr).exec() == QMessageBox::Cancel)
 			return 0;
 
-		abbrev.push_back("");	// no need for abbrev if only one language
-		albums.push_back("Albums");
-		countOfImages.push_back("%1 image(s) and %2 sub-album(s) in this album");
-		countryCode.push_back("en_US");
-		coupleCaptions.push_back("Title&amp;Desc Coupled");	// captions and descriptions coupled
-		falconG.push_back(sFalcongEnglishCopyright);
-		icons.push_back("");
-		images.push_back("Images");
-		language.push_back("en");
-		latestDesc.push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
-		latestTitle.push_back("Latest uploads");
-		names.push_back("English");
-		share.push_back("Share");
-		showDescriptions.push_back("Descriptions");
-		toAboutPage.push_back("About");
-		toAlbums.push_back("to Albums");
-		toContact.push_back("Contact");
-		toHomePage.push_back("Home");
-		toTop.push_back("Jump to top of page");
-		upOneLevel.push_back("Up one level");
-		videos.push_back("Videos");
+		QMap::operator[]("abbrev")->push_back(""); // no need for abbrev if only one language
+		QMap::operator[]("albums")->push_back("Albums");
+		QMap::operator[]("countOfImages")->push_back("%1 image(s) and %2 sub-album(s) in this album");
+		QMap::operator[]("countryCode")->push_back("en_US");
+		QMap::operator[]("coupleCaptions")->push_back("Title&amp;Captions Coupled");
+		QMap::operator[]("falconG")->push_back(sFalcongEnglishCopyright);
+		QMap::operator[]("icon")->push_back("");
+		QMap::operator[]("images")->push_back("Images");
+		QMap::operator[]("language")->push_back("en");
+		QMap::operator[]("latestDesc")->push_back("Randomly selected max " + QString().setNum(config.nLatestCount) + "Latest uploads");
+		QMap::operator[]("latestTitle")->push_back("Latest uploads");
+		QMap::operator[]("name")->push_back("English");
+		QMap::operator[]("share")->push_back("Share");
+		QMap::operator[]("showDescriptions")->push_back("Descriptions");
+		QMap::operator[]("toAboutPage")->push_back("About");
+		QMap::operator[]("toAlbums")->push_back("to Albums");
+		QMap::operator[]("toContact")->push_back("Contact");
+		QMap::operator[]("toHomePage")->push_back("Home");
+		QMap::operator[]("toTop")->push_back("Jump to top of page");
+		QMap::operator[]("upOneLevel")->push_back("Up one level");
+		QMap::operator[]("videos")->push_back("Videos");
 		return 1;
 	}
 
@@ -270,7 +199,7 @@ int Languages::Read()
 	{
 		_Read(fi.fileName());
 	}
-	return falconG.size();
+	return LanguageCount();
 }
 
 /*============================================================================
@@ -282,27 +211,27 @@ int Languages::Read()
 *--------------------------------------------------------------------------*/
 void Languages::Clear(int newsize)
 {
-	abbrev.Prepare(newsize);
-	albums.Prepare(newsize);
-	countOfImages.Prepare(newsize);
-	countryCode.Prepare(newsize);
-	coupleCaptions.Prepare(newsize);
-	falconG.Prepare(newsize);
-	icons.Prepare(newsize);
-	images.Prepare(newsize);
-	language.Prepare(newsize);
-	latestDesc.Prepare(newsize);
-	latestTitle.Prepare(newsize);
-	names.Prepare(newsize);
-	share.Prepare(newsize);
-	showDescriptions.Prepare(newsize);
-	toAboutPage.Prepare(newsize);
-	toAlbums.Prepare(newsize);
-	toContact.Prepare(newsize);
-	toHomePage.Prepare(newsize);
-	toTop.Prepare(newsize);
-	upOneLevel.Prepare(newsize);
-	videos.Prepare(newsize);
+	QMap::operator[]("abbrev")->Prepare(newsize);
+	QMap::operator[]("albums")->Prepare(newsize);
+	QMap::operator[]("countOfImages")->Prepare(newsize);
+	QMap::operator[]("countryCode")->Prepare(newsize);
+	QMap::operator[]("coupleCaptions")->Prepare(newsize);
+	QMap::operator[]("falconG")->Prepare(newsize);
+	QMap::operator[]("icon")->Prepare(newsize);
+	QMap::operator[]("images")->Prepare(newsize);
+	QMap::operator[]("language")->Prepare(newsize);
+	QMap::operator[]("latestDesc")->Prepare(newsize);
+	QMap::operator[]("latestTitle")->Prepare(newsize);
+	QMap::operator[]("name")->Prepare(newsize);
+	QMap::operator[]("share")->Prepare(newsize);
+	QMap::operator[]("showDescriptions")->Prepare(newsize);
+	QMap::operator[]("toAboutPage")->Prepare(newsize);
+	QMap::operator[]("toAlbums")->Prepare(newsize);
+	QMap::operator[]("toContact")->Prepare(newsize);
+	QMap::operator[]("toHomePage")->Prepare(newsize);
+	QMap::operator[]("toTop")->Prepare(newsize);
+	QMap::operator[]("upOneLevel")->Prepare(newsize);
+	QMap::operator[]("videos")->Prepare(newsize);
 }
 /*============================================================================
   * TASK:	creates full file name for an HTML file for any language
@@ -318,15 +247,16 @@ void Languages::Clear(int newsize)
  *--------------------------------------------------------------------------*/
 QString Languages::FileNameForLanguage(QString s, int lang)
 {
-	if (Languages::Count() == 1)
+	if (languages.LanguageCount() == 1)
 		return s;
 	QString path, name, ext;
 	SeparateFileNamePath(s, path, name, &ext);
 
+
 	if (config.bSeparateFoldersForLanguages)
-		name = Languages::abbrev[lang] + "/" + s;	// e.g. _en/album123.html
+		name = (*operator[]("abbrev"))[lang] + "/" + s;	// e.g. _en/album123.html
 	else
-		name += Languages::abbrev[lang];		// album123_en_US.html
+		name += (*operator[]("abbrev"))[lang];		// album123_en.html
 	return path + name + ext;
 }
 

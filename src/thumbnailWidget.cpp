@@ -55,14 +55,14 @@ QString ThumbnailItem::_ImageToolTip() const
 {
     Album album = albumgen.Albums()[_albumId];
     Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos) );
-    return QString(pImg->FullName() + " \n(" + pImg->LinkName() + ")");
+    return QString(pImg->FullName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const
 {
     Album album = albumgen.Albums()[_albumId];
     Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
-    return QString(pVid->FullName() + " \n(" + pVid->LinkName() + ")");
+    return QString(pVid->FullName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
 }
 QString ThumbnailItem::_FolderToolTip() const
 {
@@ -103,21 +103,21 @@ QString ThumbnailItem::_ImageFileName() const
 {
     Album album = albumgen.Albums()[_albumId];
     Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
-    return QString(pImg->LinkName());
+    return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
 
 }
 QString ThumbnailItem::_VideoFileName() const
 {
     Album album = albumgen.Albums()[_albumId];
     Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
-    return QString(pVid->LinkName());
+    return QString(pVid->LinkName(config.bLowerCaseImageExtensions));
 }
 QString ThumbnailItem::_FolderFileName() const
 {
     Album album = albumgen.Albums()[_albumId];
     Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
     Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
-    return QString(pImg->LinkName()); 
+    return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
 }
 
 QString ThumbnailItem::FilePath() const

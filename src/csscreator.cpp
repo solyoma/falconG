@@ -64,9 +64,7 @@ void CssCreator::_CreateGlobals()
 }
 
 html, main {
-)";
-	_ofs 
-		<< R"(	height: 100%;
+	height: 100%;
 	width: 100%;
 }
 /* for <p> in about.html */
@@ -83,6 +81,8 @@ a, a:visited {
 	margin:0 6px;
 }
 )";
+	if (_forSamplePage)
+		_ofs << "#DEBUG {\n	font-size='12pt'\n}\n";
 
 	s = config.backgroundImage.ForStyleSheet(true);
 

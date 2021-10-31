@@ -277,8 +277,10 @@ private slots:
 	void on_cbBaseLanguage_currentIndexChanged(int index);
 	void on_cbLanguage_currentIndexChanged(int index);
 	void on_cbFonts_currentIndexChanged(int index);
-	void on_cbLineHeight_currentIndexChanged(int index);
-	void on_cbPointSize_currentTextChanged(const QString& txt);
+	void on_cbLineHeight_currentTextChanged(const QString& txt);
+	void on_cbFontSizeInPoints_currentTextChanged(const QString& txt);
+					// edit on translation page
+	void on_cbLanguageTextDef_currentTextChanged(QString text);
 
 	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
 	void on_chkAddDescToAll_toggled(bool);

@@ -299,29 +299,15 @@
         <property name="text">
          <string>Family</string>
         </property>
-        <property name="buddy">
-         <cstring>edtFontFamily</cstring>
-        </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="edtFontFamily">
+       <widget class="QComboBox" name="cbFontFamily">
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>24</height>
+          <width>200</width>
+          <height>0</height>
          </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="placeholderText">
-         <string>Example: &quot;Tms Rmn&quot;,Arial</string>
         </property>
        </widget>
       </item>

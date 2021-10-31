@@ -223,7 +223,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	restoreGeometry (s.value("wgeometry").toByteArray());
 	restoreState(s.value("wstate").toByteArray());
 
-	config.Read();				// to read config from
+	config.Read();				
+	languages.Read();
 
 	ui.designSplitter->setSizes({ PROGRAM_CONFIG::splitterLeft, PROGRAM_CONFIG::splitterRight } );
 // DEBUG
@@ -249,6 +250,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	int h = ui.tabEdit->height();
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
 
+	ui.edtAboutText->Setup();
 	_EnableButtons();
 }
 
@@ -724,7 +726,7 @@ void FalconG::_ActualSampleParamsToUi()
 	if (ix < 0) ix = 0;	// not found -> empty
 	ui.cbFonts->setCurrentIndex(ix);
 
-	ui.cbPointSize->setCurrentText(pElem->font.SizeStr());
+	ui.cbFontSizeInPoints->setCurrentText(pElem->font.SizeStr());
 	ui.cbLineHeight->setCurrentText(pElem->font.LineHeightStr());
 	ui.chkBold->setChecked(pElem->font.Bold());
 	ui.chkItalic->setChecked(pElem->font.Italic());
@@ -976,6 +978,9 @@ void FalconG::_OtherToUi()
 		ui.rbEnglish->setChecked(true);
 	else if (PROGRAM_CONFIG::lang == 1)
 		ui.rbMagyar->setChecked(true);
+
+
+	ui.edtAboutText->SetupWebFonts(config.sDefFonts + "|"+ config.sGoogleFonts);
 
 	--_busy;
 
@@ -1658,20 +1663,11 @@ void FalconG::on_sbThumbnailWidth_valueChanged(int val)
 	++_busy;
 	int h = config.thumbHeight;
 
-	//if (ui.btnLink->isChecked())
-	//{
-	//	h = val / _aspect;
-	//	ui.sbThumbnailHeight->setValue(h);
-	//	config.thumbHeight = h;
-	//	
-	//	h = 0; // no change in aspect ratio when linked!
-	//}
 	config.thumbWidth = val;
 	
 	if (h)	// else no change
 		_aspect = (double)val / (double)h;
 	--_busy;
-// ????	_ChangesToSample();
 }
 
 /*============================================================================
@@ -1690,21 +1686,12 @@ void FalconG::on_sbThumbnailHeight_valueChanged(int val)
 	++_busy;
 	int w = config.thumbWidth;
 
-	//if (ui.btnLink->isChecked())
-	//{
-	//	w = val * _aspect;		// new width
-	//	ui.sbThumbnailWidth->setValue(w);
-	//	config.thumbWidth = w;
-	//	
-	//	w = 0; // no change in aspect ratio when linked!
-	//}
 	config.thumbHeight = val;
 	
 	if (w && val)
 		_aspect = (double)w / (double)val;
 
 	--_busy;
-// ??????	_ChangesToSample();
 }
 
 /*=============================================================
@@ -1926,13 +1913,46 @@ void FalconG::on_chkFixedLatestThumbnail_toggled(bool b)
 	_EnableButtons();
 }
 
+void FalconG::on_cbLanguageTextDef_currentTextChanged(QString text)
+{
+	if (_busy || text.isEmpty())
+		return;
+	LangConstList *textList = languages[text];
+	ui.edtLanguageTextdefinition->setText(textList->Definition());
+	ui.edtLanguageTextText->setHtml((*textList)[ui.cbDefineLanguge->currentIndex()]);
+}
+
+void FalconG::on_chkDifferentFirstLine_toggled(bool b)
+{
+	if (_busy)
+		return;
+	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
+	_SetConfigChanged(true);
+	_ElemToSample(espFont);
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_cbPointSize_currentTextChanged(const QString & txt)
+void FalconG::on_cbLineHeight_currentTextChanged(const QString& txt)
+{
+	if (_busy || txt.isEmpty())
+		return;
+	_CElem* pElem = _PtrToElement(_aeActiveElement);
+	pElem->font.SetLineHeight(txt);
+	_FontToSample(pElem);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_cbFontSizeInPoints_currentTextChanged(const QString& txt)
 {
 	if (_busy)
 		return;
@@ -1953,18 +1973,9 @@ void FalconG::on_cbPointSize_currentTextChanged(const QString & txt)
 	_ElemToSample(espFont);
 }
 
-void FalconG::on_chkDifferentFirstLine_toggled(bool b)
-{
-	if (_busy)
-		return;
-	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
-}
-
 void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
 {
-	if (_busy)
+	if (_busy || txt.isEmpty())
 		return;
 	_CElem* pElem;
 
@@ -2818,31 +2829,6 @@ void FalconG::on_btnBorderColor_clicked()
 	_EnableButtons();
 }
 
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//void FalconG::on_btnLang_clicked()
-//{
-//	_aeActiveElement = aeLangButton;
-//	_ActualSampleParamsToUi();
-//}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//void FalconG::on_btnUplink_clicked()
-//{
-//	_aeActiveElement = aeMenuButtons;
-//	_ActualSampleParamsToUi();
-//}
-
-
 /*========================================================
  * TASK:	sets the uplink icon from resource
  *			colors it as set inconfig	for the uplink
@@ -2902,8 +2888,6 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnReload_clicked()
 {
-//	CssCreator cssCreator;
-//	cssCreator.Create(PROGRAM_CONFIG::samplePath + "css/falconG.css", true);	// program library
 	config.RestoreDesign();
 	_page.triggerAction(QWebEnginePage::Reload);
 	_ConfigToUI();
@@ -3828,17 +3812,6 @@ void FalconG::on_cbFonts_currentIndexChanged(int index)
 	ui.edtFontFamily->setText(s);
 	//ui.cbFonts->setCurrentIndex(-1);
 }
-
-void FalconG::on_cbLineHeight_currentIndexChanged(int index)
-{
-	if (_busy || index < 0)
-		return;
-	_CElem* pElem = _PtrToElement(_aeActiveElement);
-	pElem->font.SetLineHeight(ui.cbLineHeight->currentText());
-	_FontToSample(pElem);	
-
-}
-
 
 /*========================================================
  * TASK:	when scheme is changed but not yet applied asks
@@ -5119,17 +5092,24 @@ void FalconG::on_btnWmShadowColor_clicked()
 void FalconG::_SetupLanguagesToUI()
 {
 	ui.cbBaseLanguage->clear();
+	ui.cbBaseAboutLanguage->clear();
 	ui.cbLanguage->clear();
-	for (int i = 0; i < Languages::Count(); ++i)
+	ui.cbTranslatedAboutLanguage->clear();
+
+	for (int i = 0; i < languages.LanguageCount(); ++i)
 	{			 // edit texts page
-		ui.cbBaseLanguage->addItem(Languages::names[i] + " (" + Languages::countryCode[i] + ")");
-		ui.cbLanguage->addItem(Languages::names[i] + " (" + Languages::countryCode[i] + ")");
+		ui.cbBaseLanguage->addItem((*languages["name"])[i] + " (" + (*languages["countryCode"])[i] + ")");
+		ui.cbLanguage->addItem((*languages["name"])[i] + " (" + (*languages["countryCode"])[i] + ")");
+		ui.cbBaseAboutLanguage->addItem((*languages["name"])[i] + " (" + (*languages["countryCode"])[i] + ")");
+		ui.cbTranslatedAboutLanguage->addItem((*languages["name"])[i] + " (" + (*languages["countryCode"])[i] + ")");
 	}
 	++_busy;
-	if (Languages::Count() > 1)
+	if (languages.LanguageCount() > 1)
 	{
 		ui.cbBaseLanguage->setCurrentIndex(0);
 		ui.cbLanguage->setCurrentIndex(1);
+		ui.cbBaseAboutLanguage->setCurrentIndex(0);
+		ui.cbTranslatedAboutLanguage->setCurrentIndex(1);
 	}
 	--_busy;
 }

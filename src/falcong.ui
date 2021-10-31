@@ -48,123 +48,6 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout_20">
-    <item row="1" column="0">
-     <widget class="QWidget" name="pnlButtons" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>41</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QPushButton" name="btnGenerate">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Generate (F9)</string>
-         </property>
-         <property name="shortcut">
-          <string>F9</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkGenerateAll">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>&amp;all</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkButImages">
-         <property name="text">
-          <string>except i&amp;mages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnPreview">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Preview (F12)</string>
-         </property>
-         <property name="shortcut">
-          <string>F12</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>513</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveStyleSheet">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save CSS</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveConfig">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save con&amp;fig.</string>
-         </property>
-         <property name="shortcut">
-          <string>Ctrl+S</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkCleanUp">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Clean up and</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnExit">
-         <property name="text">
-          <string>E&amp;xit (Alt+X)</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+X</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabFalconG">
       <property name="minimumSize">
@@ -1984,7 +1867,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
+                         <width>476</width>
                          <height>719</height>
                         </rect>
                        </property>
@@ -2359,8 +2242,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
-                         <height>616</height>
+                         <width>476</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -3497,12 +3380,12 @@ This option then reverts to not checked.</string>
                               <string>Si&amp;ze:</string>
                              </property>
                              <property name="buddy">
-                              <cstring>cbPointSize</cstring>
+                              <cstring>cbFontSizeInPoints</cstring>
                              </property>
                             </widget>
                            </item>
                            <item row="1" column="1">
-                            <widget class="QComboBox" name="cbPointSize">
+                            <widget class="QComboBox" name="cbFontSizeInPoints">
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
@@ -3524,7 +3407,7 @@ This option then reverts to not checked.</string>
                               <number>6</number>
                              </property>
                              <property name="insertPolicy">
-                              <enum>QComboBox::NoInsert</enum>
+                              <enum>QComboBox::InsertAtTop</enum>
                              </property>
                              <item>
                               <property name="text">
@@ -3638,6 +3521,9 @@ This option then reverts to not checked.</string>
                              </property>
                              <property name="currentIndex">
                               <number>12</number>
+                             </property>
+                             <property name="insertPolicy">
+                              <enum>QComboBox::InsertAtTop</enum>
                              </property>
                              <item>
                               <property name="text">
@@ -3805,7 +3691,7 @@ This option then reverts to not checked.</string>
                               <number>6</number>
                              </property>
                              <property name="insertPolicy">
-                              <enum>QComboBox::NoInsert</enum>
+                              <enum>QComboBox::InsertAtTop</enum>
                              </property>
                              <item>
                               <property name="text">
@@ -7110,6 +6996,549 @@ all changes will be lost.</string>
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tabTranslations">
+       <attribute name="title">
+        <string>Translations</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
+        <item>
+         <widget class="QGroupBox" name="gbLanguage">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Languages</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>9</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QComboBox" name="cbDefineLanguge"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnAddLanguage">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnRemoveLanguage">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="gbLanguageTexts">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Language texts</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_23">
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QComboBox" name="cbLanguageTextDef">
+             <item>
+              <property name="text">
+               <string>abbrev</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>albums</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>albums</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>countOfImages</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>countryCode</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>coupleCaptions</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>falconG</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>icons</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>images</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>language</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>latestDesc</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>latestTitle</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>names</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>share</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>showDescriptions</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>toAboutPage</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>toAlbums</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>toContact</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>toHomePage</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>toTop</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>upOneLevel</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>videos</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QTextEdit" name="edtLanguageTextdefinition">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" rowspan="2">
+            <widget class="QTextEdit" name="edtLanguageTextText"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="gbAbout">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Texts for the 'About' pages</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_22">
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="gbAboutBase">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Base Language Text</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_20">
+              <property name="leftMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>2</number>
+              </property>
+              <property name="bottomMargin">
+               <number>2</number>
+              </property>
+              <item>
+               <widget class="QComboBox" name="cbBaseAboutLanguage">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>abbrev</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>albums</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>albums</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>countOfImages</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>countryCode</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>coupleCaptions</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>falconG</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>icons</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>images</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>language</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>latestDesc</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>latestTitle</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>names</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>share</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>showDescriptions</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>toAboutPage</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>toAlbums</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>toContact</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>toHomePage</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>toTop</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>upOneLevel</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>videos</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="textEdit_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="gbAboutTranslated">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Translated text</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <property name="rightMargin">
+               <number>2</number>
+              </property>
+              <property name="bottomMargin">
+               <number>2</number>
+              </property>
+              <item>
+               <widget class="QComboBox" name="cbTranslatedAboutLanguage">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="TextEditor" name="edtAboutText"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QWidget" name="pnlButtons" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>41</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QPushButton" name="btnGenerate">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Generate (F9)</string>
+         </property>
+         <property name="shortcut">
+          <string>F9</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkGenerateAll">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>&amp;all</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkButImages">
+         <property name="text">
+          <string>except i&amp;mages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPreview">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Preview (F12)</string>
+         </property>
+         <property name="shortcut">
+          <string>F12</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>513</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveStyleSheet">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save CSS</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save con&amp;fig.</string>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkCleanUp">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Clean up and</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnExit">
+         <property name="text">
+          <string>E&amp;xit (Alt+X)</string>
+         </property>
+         <property name="shortcut">
+          <string>Alt+X</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -7139,6 +7568,11 @@ all changes will be lost.</string>
    <class>ThumbnailWidget</class>
    <extends>QListView</extends>
    <header location="global">thumbnailWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TextEditor</class>
+   <extends>QTextEdit</extends>
+   <header location="global">textEditor.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
