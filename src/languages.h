@@ -42,7 +42,7 @@ struct Languages : public LanguageMap	// each language has a text file named <te
 		insert("albums", new LangConstList(1, QMainWindow::tr("Title of album section in HTML files")));
 		insert("countOfImages", new LangConstList(2, QMainWindow::tr("Text for image and album count display in footer. %1 and %2 are placeholders for image and album count respectively")));
 		insert("countryCode", new LangConstList(3, QMainWindow::tr("Country code. Examples: \"en_US\", \"hu_HU\", etc")));
-		insert("coupleCaptions", new LangConstList(4, QMainWindow::tr("Wether to hide image titles together with captions")));
+		insert("coupleCaptions", new LangConstList(4, QMainWindow::tr("Whether to hide image titles together with captions")));
 		insert("falconG", new LangConstList(5, QMainWindow::tr("Program Copyright Message. Do not change it please!")));
 		insert("icon", new LangConstList(6, QMainWindow::tr("Name of icon to use instead of names")));
 		insert("images", new LangConstList(7, QMainWindow::tr("Title for image section in HTML files")));
@@ -54,7 +54,7 @@ struct Languages : public LanguageMap	// each language has a text file named <te
 		insert("showDescriptions", new LangConstList(13, QMainWindow::tr("Text of image and album caption display toggle menu")));
 		insert("toAboutPage", new LangConstList(14, QMainWindow::tr("Text of 'About' menu")));
 		insert("toAlbums", new LangConstList(15, QMainWindow::tr("text of 'Jump to Album Section' menu")));
-		insert("toContact", new LangConstList(16, QMainWindow::tr("Text of 'Contact' menu. Example: \"About me\"")));
+		insert("toContact", new LangConstList(16, QMainWindow::tr("Text of 'Contact' menu. Example: \"Email me\"")));
 		insert("toHomePage", new LangConstList(17, QMainWindow::tr("Text for 'To Home' menu")));
 		insert("toTop", new LangConstList(18, QMainWindow::tr("Text of menu Jump Top of Page")));
 		insert("upOneLevel", new LangConstList(19, QMainWindow::tr("Text for 'Level up' menu")));
