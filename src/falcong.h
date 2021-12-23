@@ -212,77 +212,58 @@ private slots:
 
 // auto connected slots
 private slots:
+	void on_btnAddAndGenerateColorScheme_clicked();					// generate color scheme
+	void on_btnAlbumMatteColor_clicked();
+	void on_btnApplyColorScheme_clicked();
+	void on_btnBackground_clicked();
+	void on_btnBorderColor_clicked();
+	void on_btnBrowseDestination_clicked();
+	void on_btnBrowseForBackgroundImage();
+	void on_btnBrowseSource_clicked();
 	void on_btnDeleteColorScheme_clicked();
+	void on_btnDisplayHint_clicked();
+	void on_btnForeground_clicked();
 	void on_btnGenerate_clicked();
+	void on_btnGoToGoogleFontsPage_clicked();
+	void on_btnGradMiddleColor_clicked();
+	void on_btnGradStartColor_clicked();
+	void on_btnGradStopColor_clicked();
+	void on_btnImageBorderColor_clicked();
+	void on_btnImageMatteColor_clicked();
+	void on_btnMoveSchemeDown_clicked();
+	void on_btnMoveSchemeUp_clicked();
+	void on_btnOpenBckImage_clicked();
+	void on_btnPageBackground_clicked();
+	void on_btnPageColor_clicked();
+	void on_btnPreview_clicked();
+	void on_btnReload_clicked();
+	void on_btnResetColorScheme_clicked();
+	void on_btnResetDesign_clicked();
+	void on_btnResetDialogs_clicked();
+	void on_btnSaveConfig_clicked();
 	void on_btnSaveStyleSheet_clicked();
+	void on_btnSelectUplinkIcon_clicked();
 	void on_btnSelectWmFont_clicked();
+	void on_btnShadowColor_clicked();
 	void on_btnSourceHistory_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
-	void on_toolBox_currentChanged(int newIndex);
-
-	void on_btnPageColor_clicked();
-	void on_btnPageBackground_clicked();
-	void on_btnOpenBckImage_clicked();
-
-	void on_btnImageBorderColor_clicked();
-	void on_btnImageMatteColor_clicked();
-	void on_btnAlbumMatteColor_clicked();
-	void on_btnSelectUplinkIcon_clicked();
-
-	void on_btnReload_clicked();
-	void on_btnSaveConfig_clicked();
-
-	void on_btnBrowseSource_clicked();
-	void on_btnBrowseDestination_clicked();
-	// color buttons
-	void on_btnForeground_clicked();
-	void on_btnBackground_clicked();
-	void on_btnBrowseForBackgroundImage();
-	void on_btnGradStartColor_clicked();
-	void on_btnGradMiddleColor_clicked();
-	void on_btnGradStopColor_clicked();
-	void on_btnBorderColor_clicked();
-	void on_btnShadowColor_clicked();
-
-	void on_btnResetDesign_clicked();
-	void on_btnDisplayHint_clicked();
-	void on_btnPreview_clicked();
-
-	void on_btnGoToGoogleFontsPage_clicked();
-
-	void on_btnApplyColorScheme_clicked();
-	void on_btnResetColorScheme_clicked();
-	void on_btnMoveSchemeUp_clicked();
-	void on_btnMoveSchemeDown_clicked();
-
-	void on_btnResetDialogs_clicked();
-
+	
 	void on_cbActualItem_currentIndexChanged(int newIndex);
-
-
-	// generate color scheme
-	void on_btnAddAndGenerateColorScheme_clicked();
-
-	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
-	void on_cbImageBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
-
-	void on_lwColorScheme_currentRowChanged(int newIndex);
-					// image
-	void on_cbImageQuality_currentIndexChanged(int newIndex);
-					//  watermark
-	void on_cbWmVPosition_currentIndexChanged(int index);
-	void on_cbWmHPosition_currentIndexChanged(int index);
-					// edit text on structure page
 	void on_cbBaseLanguage_currentIndexChanged(int index);
-	void on_cbLanguage_currentIndexChanged(int index);
-	void on_cbFonts_currentIndexChanged(int index);
-	void on_cbLineHeight_currentTextChanged(const QString& txt);
+	void on_cbDefineLanguge_currentIndexChanged(int index);
+	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
 	void on_cbFontSizeInPoints_currentTextChanged(const QString& txt);
-					// edit on translation page
+	void on_cbFonts_currentIndexChanged(int index);
+	void on_cbImageBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
+	void on_cbImageQuality_currentIndexChanged(int newIndex);
 	void on_cbLanguageTextDef_currentTextChanged(QString text);
-
+	void on_cbLanguage_currentIndexChanged(int index);
+	void on_cbLineHeight_currentTextChanged(const QString& txt);
 	void on_cbPointSizeFirstLine_currentTextChanged(const QString& txt);
+	void on_cbWmHPosition_currentIndexChanged(int index);
+	void on_cbWmVPosition_currentIndexChanged(int index);
+	
 	void on_chkAddDescToAll_toggled(bool);
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkBackgroundOpacity_toggled(bool on);
@@ -295,6 +276,7 @@ private slots:
 	void on_chkDistortThumbnails_toggled(bool);
 	void on_chkDoNotEnlarge_toggled(bool);
 	void on_chkFacebook_toggled(bool);
+	void on_chkFixedLatestThumbnail_toggled(bool);
 	void on_chkForceSSL_toggled(bool);
 	void on_chkGenerateAll_toggled(bool);
 	void on_chkIconText_toggled(bool);
@@ -313,7 +295,6 @@ private slots:
 	void on_chkSeparateFoldersForLanguages_toggled(bool);
 	void on_chkSetAll_toggled(bool);			// background colors
 	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
-	void on_chkFixedLatestThumbnail_toggled(bool);
 	void on_chkShadowOn_toggled(bool on);
 	void on_chkSourceRelativePerSign_toggled(bool);
 	void on_chkTdLinethrough_toggled(bool);
@@ -324,7 +305,7 @@ private slots:
 	void on_chkUseGradient_toggled(bool on);
 	void on_chkUseWMShadow_toggled(bool);				// watermark
 	void on_chkUseWM_toggled(bool);				// watermark
-
+	
 	void on_edtAbout_textChanged();
 	void on_edtAlbumDir_textChanged();
 	void on_edtBaseName_textChanged();
@@ -353,7 +334,10 @@ private slots:
 	void on_edtWatermark_textChanged();
 	void on_edtWmHorizMargin_textChanged();
 	void on_edtWmVertMargin_textChanged();
-
+	
+	void on_hsImageSizeToShow_valueChanged(int val);
+	void on_lwColorScheme_currentRowChanged(int newIndex);
+	
 	void on_rbAllBorders_toggled(bool);
 	void on_rbBottomBorder_toggled(bool);
 	void on_rbCenterBckImage_toggled(bool);
@@ -379,6 +363,8 @@ private slots:
 	void on_sbAlbumMatteRadius_valueChanged(int val);
 	void on_sbAlbumMatteWidth_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
+	void on_sbBorderRadius_valueChanged(int val);
+	void on_sbBorderWidth_valueChanged(int val);
 	void on_sbGradMiddlePos_valueChanged(int val);
 	void on_sbGradStartPos_valueChanged(int val);
 	void on_sbGradStopPos_valueChanged(int val);
@@ -408,10 +394,7 @@ private slots:
 	void on_sbWmShadowHoriz_valueChanged(int val);
 	void on_sbWmShadowVert_valueChanged(int val);
 
-	void on_sbBorderWidth_valueChanged(int val);
-	void on_sbBorderRadius_valueChanged(int val);
-
-	void on_hsImageSizeToShow_valueChanged(int val);
+	void on_toolBox_currentChanged(int newIndex);
 };
 
 extern FalconG *frmMain;

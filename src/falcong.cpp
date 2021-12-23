@@ -818,6 +818,111 @@ void FalconG::_SetConfigChanged(bool on)
 	ui.btnSaveConfig->setEnabled(config.SetChanged(on));
 }
 
+/*========================================================
+ * TASK:	set text decorations
+ * PARAMS:	   decoration - enum (td...)
+ *			   on - turn on or off
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->decoration.SetDecoration(decoration, on);
+	on |= ui.chkTdUnderline->isChecked() || ui.chkTdOverline->isChecked() || ui.chkTdLinethrough->isChecked();
+	ui.gbDecorationStyle->setEnabled(on);
+	if (on)
+	{
+		ui.rbTdSolid->setEnabled(on);
+		ui.rbTdDotted->setEnabled(on);
+		ui.rbTdDashed->setEnabled(on);
+		ui.rbTdDouble->setEnabled(on);
+		ui.rbTdWavy->setEnabled(on);
+	}
+
+	_DecorationToSample(pElem);	// clear decorations if neither checkbox is checked
+	_SetConfigChanged(true);
+}
+
+void FalconG::_TextAlignToConfig(Align align, bool on)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	if (on)
+	{
+		pElem->alignment.v = align;
+		_SetConfigChanged(true);
+		_TextAlignToSample(pElem);	// clear decorations if neither checkbox is checked
+	}
+}
+
+void FalconG::_SlotForContextMenu(const QPoint& pt)
+{
+	std::unique_ptr<QSignalMapper> _popupMapper{ new QSignalMapper(this) };
+	//	std::unique_ptr<QMenu> menu { new QMenu(this) };
+	QMenu menu(this);
+	QAction* pa = new QAction(tr("Styles"), this);
+	pa->setEnabled(false);
+	menu.addAction(pa);
+	menu.addSeparator();
+	for (int i = 0; i < schemes.size(); ++i)
+	{
+		pa = menu.addAction(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang), _popupMapper.get(), SLOT(map()));
+		if (i == PROGRAM_CONFIG::schemeIndex)
+		{
+			pa->setCheckable(true);
+			pa->setChecked(true);
+		}
+		_popupMapper->setMapping(pa, i);
+	}
+	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeChange);
+	menu.exec(dynamic_cast<QWidget*>(sender())->mapToGlobal(pt));
+}
+
+void FalconG::_SlotForSchemeChange(int which)
+{
+	PROGRAM_CONFIG::schemeIndex = (which >= 0 && which < schemes.size()) ? which : 0;
+	QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	_SetProgramScheme();
+	_SetConfigChanged(true);
+	QGuiApplication::restoreOverrideCursor();
+}
+
+void FalconG::_EnableColorSchemeButtons()
+{
+	bool b = _bSchemeChanged;
+	ui.btnApplyColorScheme->setEnabled(b);
+	ui.btnResetColorScheme->setEnabled(b);
+	//	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.lwColorScheme->currentRow();
+	ui.btnDeleteColorScheme->setEnabled(schemes.size() > 2);
+	int i = ui.lwColorScheme->currentRow(); // is 2 less than  the real index in the schemes array
+	ui.btnMoveSchemeUp->setEnabled(i > 0);
+	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size() - 2 - 1);
+}
+
+void FalconG::_SlotForSchemeButtonClick(int which)
+{
+	StyleHandler sh((*_pSchemeButtons[which]).styleSheet());
+	QColor qc = sh.GetItem("", "background-color");
+	QColor qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew == qc || !qcNew.isValid())
+		return;
+	sh.SetItem("", "background-color", qcNew.name());
+	_pSchemeButtons[which]->setStyleSheet(sh.StyleSheet());
+	if (!which)
+		ui.pnlColorScheme->setStyleSheet("background-color:" + qcNew.name() + "; color:" + _tmpScheme.sTextColor);
+	else if (which == 1)
+		ui.pnlColorScheme->setStyleSheet("color:" + qcNew.name() + "; background-color:" + _tmpScheme.sBackground);
+	_bSchemeChanged |= true;	// might have been changed already
+	_tmpScheme[which] = qcNew.name();
+	_bSchemeChanged = true;
+	_EnableColorSchemeButtons();
+}
+
 
 /*========================================================
  * TASK:	set up controls on 'Global settings for Page' 
@@ -874,9 +979,9 @@ void FalconG::_DesignToUi()
 	--_busy;
 }
 
-static void _SetEditText(QLineEdit* pe, _CDirStr cs)
+static void _SetEditText(QLineEdit* pe, _CDirStr cs, bool force=true)
 {
-	if (cs.Changed())
+	if (cs.Changed() || force)
 		pe->setText(cs.ToString());
 }
 
@@ -893,12 +998,12 @@ void FalconG::_OtherToUi()
 {
 	++_busy;
 	ui.edtAbout->setText(config.sAbout);
-	_SetEditText(ui.edtAlbumDir, config.dsAlbumDir);
+	_SetEditText(ui.edtAlbumDir, config.dsAlbumDir, _busy);
 	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
 	ui.edtDescription->setText(config.sDescription);
 	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
 	ui.edtEmailTo->setText(config.sMailTo);
-	_SetEditText(ui.edtGalleryRoot, config.dsGRoot);
+	_SetEditText(ui.edtGalleryRoot, config.dsGRoot, _busy);
 	ui.edtGalleryTitle->setText(config.sGalleryTitle);
 	QString s = config.sGoogleFonts.ToString();
 	s.replace('|', ',');s.replace('+', ' ');
@@ -1015,377 +1120,6 @@ bool FalconG::_CreateAlbumDirs()
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtTrackingCode_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.googleAnalTrackingCode = ui.edtTrackingCode->text().trimmed();
-	 _SetConfigChanged(config.googleAnalTrackingCode.Changed());
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtDestGallery_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsGallery = ui.edtDestGallery->text().trimmed();
-	_SetConfigChanged(config.dsGallery.Changed());
-	_EnableButtons();
-}
-
-void FalconG::on_edtFontDir_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsFontDir = ui.edtFontDir->text().trimmed();
-	_SetConfigChanged(config.dsFontDir.Changed());
-}
-
-/*============================================================================
-* TASK:	   Handle source gallery changes
-* EXPECTS:
-* GLOBALS:	PROGRAM_CONFIG
-* REMARKS: Although the first .ToString()uct file will be saved into the source 
-*			directory
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtSourceGallery_textChanged()
-{	
-	if (_busy)
-		return;
-
-	QString src = QDir::cleanPath(ui.edtSourceGallery->text().trimmed()) + "/";
-	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != src)
-	{
-		config.dsSrc = src;
-		PROGRAM_CONFIG::indexOfLastUsed = -1;	// suppose new path, not used yet
-		for(int i = 0; i < PROGRAM_CONFIG::lastConfigs.size(); ++i )	// search if already exists
-			if (src == PROGRAM_CONFIG::lastConfigs[i])
-			{
-				PROGRAM_CONFIG::indexOfLastUsed = i;	// found a config for this source
-				break;							
-			}
-		QFile f(src + falconG_ini);
-		if (f.exists())
-		{
-			config.Read();
-			_ConfigToUI();	// edit values from config
-
-		}
-		else if(QFile::exists(src) )	// directory exists but no ini file inside yet
-		{
-			config.SetChanged(true);	// allow user to save config into this directory
-			_EnableButtons();
-		}
-	}
-	albumgen.Clear();
-}
-
-
-/*========================================================
- * TASK:
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_edtDescription_textChanged()
-{
-	if (_busy)
-		return;
-	config.sDescription = ui.edtDescription->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-
-/*========================================================
- * TASK:
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_edtKeywords_textChanged()
-{
-	if (_busy)
-		return;
-	config.sKeywords = ui.edtKeywords->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtAlbumDir_textChanged()
-{
-	if (_busy)
-		return;
-	++_busy;
-	config.dsAlbumDir = ui.edtAlbumDir->text().trimmed();
-	_SetConfigChanged(true);
-	--_busy;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtAbout_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.sAbout = ui.edtAbout->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtBckImageName_textChanged()
-{
-	if (_busy)
-		return;
-
-	QString name = QDir::fromNativeSeparators( ui.edtBckImageName->text());
-
-	if (QFile::exists(name))
-	{
-		if (name != config.backgroundImage.fileName)		 // read only once
-		{
-			_LoadBckImage(name);
-			config.backgroundImage.fileName = name;	// full path name for generator 
-		}
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// show image
-	}
-	else
-		_RunJavaScript("body", QString("background-image:"));	// show image
-
-	_SetConfigChanged(true);				// file is copied to /res
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtGalleryRoot_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsGRoot = ui. edtGalleryRoot->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtImg_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsImageDir = ui. edtImg->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtVid_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsVideoDir = ui.edtImg->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-  * TASK:
-  * EXcPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtServerAddress_textChanged()
-{
-	_EnableButtons();
-	if (_busy)
-		return;
-
-	config.sServerAddress = ui. edtServerAddress->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXcPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtGalleryTitle_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.sGalleryTitle = ui.edtGalleryTitle->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtGalleryLanguages_textChanged()
-{
-	config.sGalleryLanguages = ui.edtGalleryLanguages->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtGoogleFonts_editingFinished()
-{
-	if (_busy)
-		return;
-	QString s = ui.edtGoogleFonts->text().trimmed();
-// replace all spaces and commas NOT inside quotes
-		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
-		// regualr expression for this with lookahead feature:
-		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
-		// simpler and much faster one (not working, why?):
-		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
-//		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
-//	QStringList qsl = s.split(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"));
-	QStringList qsl = s.split(QRegularExpression(R"([,;] *)"));
-//	s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"), "|");
-	for (auto &qs : qsl)
-	{
-		qs.replace(' ', '+');
-		qs.remove('"');
-	}
-	s = qsl.join('|');
-	if (config.sGoogleFonts != s)
-	{
-		config.sGoogleFonts = s;
-		_SetConfigChanged(true);
-		_ModifyGoogleFontImport();
-		_ConfigToUI();
-	}
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtUplink_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.sUplink = ui. edtUplink->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtMainPage_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.sMainPage = ui.edtMainPage->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtEmailTo_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.sMailTo = ui.edtEmailTo->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtThumb_textChanged()
-{
-	if (_busy)
-		return;
-	
-	++_busy;
-	config.dsThumbDir = ui.edtThumb->text().trimmed();
-	--_busy;
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtBaseName_textChanged()
-{
-	if (_busy)
-		return;
-
-	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_edtDefaultFonts_textChanged()
-{
-	if (_busy)
-		return;
-	config.sDefFonts = ui.edtDefaultFonts->text().trimmed();
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtWatermark_textChanged()
-{
-	if (_busy)
-		return;
-	config.waterMark.SetText(ui.edtWatermark->text() );
-	config.waterMark.SetupMark();
-	if(config.waterMark.Text().isEmpty())
-		ui.lblWmSample->setText("Watermark Sample text");
-	else
-		ui.lblWmSample->setText(config.waterMark.Text());
-	_WaterMarkToSample();
-	
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
   * TASK:
   * EXPECTS:mx, my new margins.  -1 : do not set this margin
   * GLOBALS:
@@ -1409,26 +1143,6 @@ void FalconG::_UpdateWatermarkMargins(int mx, int my)
 	}
 	_SetConfigChanged(true);
 }
-void FalconG::on_edtWmHorizMargin_textChanged()
-{
-	if (_busy)
-		return;
-	_UpdateWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_edtWmVertMargin_textChanged()
-{
-	if (_busy)
-		return;
-	_UpdateWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
-}
-
 void FalconG::_SetupActualBorder(BorderSide side)
 {
 	_CElem* pElem = _PtrToElement();
@@ -1473,6 +1187,1988 @@ void FalconG::_PropagatePageColor()
 	_ConfigToSample(espColor);
 }
 
+//****************************************************************************
+
+void FalconG::_RestartRequired()
+{
+	QMessageBox::warning(this, tr("falconG - Warning"), QString(tr("Please restart the program to change the language!")));
+}
+
+bool FalconG::_DoOverWriteColorScheme(int i)
+{
+	QString qs = tr("There is a scheme \n'%1'\nwith a title which at least partially\nmatches the modified title.\n"
+		" Do you want to overwrite it?").arg(schemes[i].MenuTitle);
+	return QMessageBox::question(this, tr("falconG - Question"),
+		qs,
+		QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
+}
+
+bool FalconG::_LanguagesWarning()
+{
+	return QMessageBox::question(this, tr("falconG - Question"),
+		tr("No/not enough ':' in new name. The same name will be used for\n"
+			"all program languages. Is this what you want?")) == QMessageBox::Yes;
+}
+
+/*========================================================
+ * TASK:	sets the uplink icon from resource
+ *			colors it as set inconfig	for the uplink
+ *			menu web button and returns the rec-colored icon
+ *			to be saved
+ * PARAMS:	iconName - path name of icon or empty
+ *				when empty uses icon from resources
+ * GLOBALS:	config
+ * RETURNS: none, icon is set in btnUplink
+ * REMARKS: - if no name given does not load any icon: uses
+ *			  the one already set in the form file, just
+ *			  changes its color
+ *			- otherwise load file from the 'res' sub directory
+ *			- icon file must be flat 32 bit png file with
+ *				transparent and white pixels. The color of
+ *				the white pixels will be changed to
+ *				config.Menu
+ *-------------------------------------------------------*/
+QIcon FalconG::_SetUplinkIcon(QString iconName)
+{
+	if (iconName.isEmpty())
+		iconName = ":/icons/Resources/up-icon.png";
+	QIcon icon(iconName);
+	_lastUsedMenuForegroundColor = Qt::white;
+	_SetIconColor(icon, config.Menu);
+	return icon;
+}
+
+
+// ======================== Buttons
+
+void FalconG::on_btnAddAndGenerateColorScheme_clicked()
+{
+	bool ok;
+	QString qs = PROGRAM_CONFIG::LangNameListWDelim();
+	qs = tr("New Scheme Name\n (for ") + qs + ")";
+	QString sNewName = QInputDialog::getText(this, tr("falconG - Input"), qs, QLineEdit::Normal, QString(), &ok);
+	if (!ok || sNewName.isEmpty())
+		return;
+	if (PROGRAM_CONFIG::qslLangNames.size() != sNewName.count(':') + 1)
+	{
+		if (!_LanguagesWarning())
+			return;
+		sNewName = sNewName + ":" + sNewName;
+	}
+
+	int i = schemes.IndexOf(sNewName);
+	if (i >= 0)
+	{
+		if (i < 2)
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+		else if (_DoOverWriteColorScheme(i))
+		{
+			schemes[i].MenuTitle = sNewName;
+			schemes.Save();
+			delete ui.lwColorScheme->takeItem(i - 2);
+			ui.lwColorScheme->insertItem(i - 2, schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+			ui.lwColorScheme->setCurrentRow(i - 2);
+		}
+		return;
+	}
+
+	QColor qcBase = QColorDialog::getColor(qcBase, this, tr("Select background color."));
+	if (qcBase.isValid())
+	{
+		QColor qc;
+		_tmpScheme.MenuTitle = _tmpSchemeOrigName = sNewName;
+		_tmpScheme.sBackground = qcBase.name();
+		/*
+				_tmpScheme.sTextColor = ;
+				_tmpScheme.sBorderColor = ;
+				_tmpScheme.sFocusedInput = ;
+				_tmpScheme.sHoverColor = ;
+				_tmpScheme.sTabBorder = ;
+				_tmpScheme.sInputBackground = ;
+				_tmpScheme.sSelectedInputBgr = ;
+				_tmpScheme.sFocusedBorder = ;
+				_tmpScheme.sDisabledFg = ;
+				_tmpScheme.sDisabledBg = ;
+				_tmpScheme.sImageBackground = ;
+				_tmpScheme.sPressedBg = ;
+				_tmpScheme.sDefaultBg = ;
+				_tmpScheme.sProgressBarChunk = ;
+				_tmpScheme.sWarningColor = ;
+				_tmpScheme.sBoldTitleColor = ;
+		*/
+		ui.lwColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
+		schemes.push_back(_tmpScheme);
+		schemes.Save();
+		ui.lwColorScheme->setCurrentRow(schemes.size() - 2 - 1);	// 2 for default and system colors, 1: offset vs size
+		ui.btnApplyColorScheme->setEnabled(true);
+	}
+}
+
+void FalconG::on_btnAlbumMatteColor_clicked()
+{
+	StyleHandler handler(ui.btnAlbumMatteColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
+		config.albumMatteColor = qcNew.name();
+		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.v);
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnBorderColor_clicked()
+{
+	_CElem* pElem = _PtrToElement();
+	QColor qc(pElem->border.ColorStr(pElem->border.actSide)),
+		qcNew;
+	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew == qc || !qcNew.isValid())
+		return;
+
+	_SetConfigChanged(true);
+	pElem->border.SetColor(pElem->border.actSide, qcNew.name());
+	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
+
+	QString qs = pElem->border.ForStyleSheet(false);
+	_SetCssProperty(pElem, qs);
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnBrowseDestination_clicked()
+{
+	QString s = QFileDialog::getExistingDirectory(this, "Select Destination Directory", ui.edtDestGallery->text().isEmpty() ? "" : ui.edtDestGallery->text());
+	if (!s.isEmpty())
+		ui.edtDestGallery->setText(s);
+}
+
+/*========================================================
+ * TASK: browse for background image
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - should svae last directory into config
+ *-------------------------------------------------------*/
+void FalconG::on_btnBrowseForBackgroundImage()
+{
+	static QString _qsLastBackgroundImagePath = "./";
+	QString filename = QFileDialog::getOpenFileName(this,
+		tr("falconG - Open background image"),
+		_qsLastBackgroundImagePath,
+		"Image Files (*.png *.jpg)");
+	if (!filename.isEmpty())
+	{
+		ui.edtBckImageName->setText(filename);
+		QPixmap pm(filename);
+		ui.lblbckImage->setPixmap(pm);
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnBrowseSource_clicked()
+{
+	QString s = QFileDialog::getExistingDirectory(this, "Select Source Directory", ui.edtSourceGallery->text().isEmpty() ? "" : ui.edtSourceGallery->text());
+	if (!s.isEmpty())
+		ui.edtSourceGallery->setText(s);
+}
+
+/*========================================================
+ * TASK:	delete scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - the new actual scheme will be the actual (i.e. saved)
+ *			- config.styleIndex may change if it was the one or
+ *				the actual one
+ *			- when the actual selected scheme is deleted
+ *				it still remains active, so you may
+ *				restore it by writing the name into the combo box
+ *			- the first tow shemes (Default and System Colors)
+ *				cannot be deleted or edited!
+ *-------------------------------------------------------*/
+void FalconG::on_btnDeleteColorScheme_clicked()
+{
+	if (QMessageBox::warning(this, tr("falconG - Warning"),
+		tr("Do you really want to delete this color scheme?"),
+		QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+		return;
+
+	int i = ui.lwColorScheme->currentRow();
+	if (i + 2 < PROGRAM_CONFIG::schemeIndex)
+	{
+		PROGRAM_CONFIG::schemeIndex = PROGRAM_CONFIG::schemeIndex - 1;
+		if (PROGRAM_CONFIG::schemeIndex < 0)
+			PROGRAM_CONFIG::schemeIndex = 0;
+
+		PROGRAM_CONFIG::Write();
+	}
+	delete ui.lwColorScheme->takeItem(i);
+	schemes.remove(i + 2);
+	ui.lwColorScheme->setCurrentRow(PROGRAM_CONFIG::schemeIndex);
+	schemes.Save();
+	_EnableColorSchemeButtons();
+	_bSchemeChanged = false;
+}
+
+/*========================================================
+ * TASK:	Return the original web page, throwing away the
+ *			changes
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_btnReload_clicked()
+{
+	config.RestoreDesign();
+	_page.triggerAction(QWebEnginePage::Reload);
+	_ConfigToUI();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnSaveConfig_clicked()
+{
+	QList<int> splitterSizes = ui.designSplitter->sizes();
+	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
+	{
+		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
+		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
+	}
+	config.Write();
+
+	QString s = PROGRAM_CONFIG::NameForConfig(true, ".ini"),
+		sp = s.left(s.lastIndexOf('/'));	// path
+	s = s.mid(s.lastIndexOf('/') + 1);			// name
+	InformationMessage(false,
+		"falconG",
+		tr("Saved configuration\n'%1'\n into folder \n'%2'").arg(s).arg(sp),
+		dbSaveConfig,
+		tr("Don't ask again (use Options to re-enable)"),
+		this
+	);
+}
+
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnForeground_clicked()
+{
+	if (_busy)
+		return;
+
+	_CElem* pElem = _PtrToElement();
+
+	QColor qc(pElem->color.Name()),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (!qcNew.isValid() || qc == qcNew)
+		return;
+
+	pElem->color.SetColor(qcNew.name());
+	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
+
+	_SetConfigChanged(true);
+	_ElemToSample();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnBackground_clicked()
+{
+	if (_busy)
+		return;
+
+	_CElem* pElem = _PtrToElement();
+
+	QColor qc(pElem->background.Name()),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (!qcNew.isValid() || qc == qcNew)
+		return;
+
+	pElem->background.SetColor(qcNew.name());
+	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
+	_SetConfigChanged(true);
+	_ElemToSample();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnGradMiddleColor_clicked()
+{
+	_CElem* pElem = _PtrToElement();
+
+	QColor qc(pElem->gradient.Color(gsMiddle)),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (!qcNew.isValid() || qc == qcNew)
+		return;
+	pElem->gradient.Set(gsMiddle, ui.sbGradMiddlePos->value(), qcNew.name());
+	_SetGradientLabelColors(pElem);
+
+	_SetConfigChanged(true);
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnGradStartColor_clicked()
+{
+	_CElem* pElem = _PtrToElement();
+
+	QColor qc(pElem->gradient.Color(gsStart)),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (!qcNew.isValid() || qc == qcNew)
+		return;
+	pElem->gradient.Set(gsStart, ui.sbGradStartPos->value(), qcNew.name());
+	_SetGradientLabelColors(pElem);
+
+	_SetConfigChanged(true);
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnGradStopColor_clicked()
+{
+	_CElem* pElem = _PtrToElement();
+
+	QColor qc(pElem->gradient.Color(gsStop)),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (!qcNew.isValid() || qc == qcNew)
+		return;
+	pElem->gradient.Set(gsStop, ui.sbGradStopPos->value(), qcNew.name());
+	_SetGradientLabelColors(pElem);
+
+	_SetConfigChanged(true);
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnPageBackground_clicked()
+{
+	if (_busy)
+		return;
+
+	QColor qc(config.Web.background.Name()),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (qcNew.isValid())
+	{
+		config.Web.background.SetColor(qcNew.name());
+		config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
+		ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
+		_SetConfigChanged(true);
+		_PageBackgroundToSample();
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnPageColor_clicked()
+{
+	QColor qc(config.Web.color.Name()),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+
+	if (qcNew.isValid())
+	{
+		if (qc != qcNew)
+		{
+			config.Web.color.SetColor(qcNew.name());
+			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
+			_SetConfigChanged(true);
+		}
+		_PageColorToSample();
+	}
+	if (ui.chkSameForeground->isChecked())	// propagate color to all elements
+	{
+		_PropagatePageColor();
+		ui.chkSameForeground->setChecked(false);
+	}
+	// DEBUG
+	//	ShowStyleOf(ui.btnPageColor);
+}
+
+void FalconG::on_btnOpenBckImage_clicked()
+{
+	QString qs = QFileDialog::getOpenFileName(this, tr("falconG - Open Background Image"), QString(), tr("Image files (*.bmp *.gif *.jpg *.png)"));
+	if (!qs.isEmpty())
+		ui.edtBckImageName->setText(qs);
+}
+
+/*========================================================
+ * TASK:	set icon for uplink from 'res' directory
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - icon must be a simple 2 color image
+ *-------------------------------------------------------*/
+void FalconG::on_btnSelectUplinkIcon_clicked()
+{
+	QString dir = config.dsApplication.ToString() + "res/";
+	QString file = QFileDialog::getOpenFileName(this, "falconG - Select icon", dir, "*.png");
+	if (!file.isEmpty())
+	{
+		QIcon icon(file);
+		_lastUsedMenuForegroundColor = Qt::white;
+		_SetIconColor(icon, config.Menu);
+		// ??? TODO
+	}
+}
+
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnImageBorderColor_clicked()
+{
+	StyleHandler handler(ui.btnImageBorderColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
+		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
+		config.imageBorder.SetColor(side, qcNew.name());
+		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
+	}
+}
+
+void FalconG::on_btnImageMatteColor_clicked()
+{
+	StyleHandler handler(ui.btnImageMatteColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
+		config.imageMatteColor = qcNew.name();
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.v);
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnShadowColor_clicked()
+{
+	if (_busy)
+		return;
+
+	_CElem* pElem = _PtrToElement();
+	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
+	QColor qc = pElem->shadow1[which].Color(),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qc != qcNew)
+	{
+		ui.btnShadowColor->setStyleSheet("QToolButton {\nbackground-color:" + qc.name() + ";\n}\n");
+		_SetConfigChanged(true);
+	}
+	_ElemToSample();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnResetDesign_clicked()
+{
+	config.RestoreDesign();
+	_DesignToUi();
+
+	_aeActiveElement = aeWebPage;
+	ui.cbActualItem->setCurrentIndex(0);		// global page
+	_ConfigToSample();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnDisplayHint_clicked()
+{
+	QMessageBox(QMessageBox::Information, "falconG - Hint",
+		"<html><head/><body><p>With certain linux themes the color of some elements"
+		" on the right may differ from the ones you set on the left.<br>"
+		"A clear indication is a background mismatch between the color of the "
+		"<span style=\" font - style:italic;\">Gallery title</span> area on the top and the "
+		"main page area below it.</p></body></html>", QMessageBox::Ok, this).exec();
+}
+
+// ======================== Combo Boxes
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_cbFontSizeInPoints_currentTextChanged(const QString& txt)
+{
+	if (_busy)
+		return;
+	// test 'txt' for valid font size
+	QRegularExpression rex("^\\d+\\w*$");
+	if (txt.indexOf(rex) < 0)
+		return;
+
+	QString text = txt;
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetSize(txt);
+	if (!ui.chkDifferentFirstLine->isChecked())
+	{
+		ui.cbPointSizeFirstLine->setCurrentText(txt);
+		pElem->font.SetDifferentFirstLine(true, txt);
+	}
+	_SetConfigChanged(true);
+	_ElemToSample(espFont);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_cbLineHeight_currentTextChanged(const QString& txt)
+{
+	if (_busy || txt.isEmpty())
+		return;
+	_CElem* pElem = _PtrToElement(_aeActiveElement);
+	pElem->font.SetLineHeight(txt);
+	_FontToSample(pElem);
+}
+
+void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
+{
+	if (_busy || txt.isEmpty())
+		return;
+	_CElem* pElem;
+
+	QString qsClass;
+	pElem = _PtrToElement();
+	pElem->font.SetDifferentFirstLine(pElem->font.IsFirstLineDifferent(), txt);	// do not change first line font size
+	_SetConfigChanged(true);
+	_ElemToSample(espFont);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: saves changed texts
+*--------------------------------------------------------------------------*/
+void FalconG::on_cbWmHPosition_currentIndexChanged(int index)
+{
+	if (_busy)
+		return;
+	int o = config.waterMark.Origin();
+	o &= 0xF;
+	o += index << 4;
+	config.waterMark.SetPositioning(o);
+	config.waterMark.SetupMark();
+	ui.edtWmHorizMargin->setEnabled(index != 1);
+	_WaterMarkToSample();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: saves changed texts
+*--------------------------------------------------------------------------*/
+void FalconG::on_cbWmVPosition_currentIndexChanged(int index)
+{
+	if (_busy)
+		return;
+	int o = config.waterMark.Origin();
+	o &= 0xF0;
+	o += index;
+	config.waterMark.SetPositioning(o);
+	config.waterMark.SetupMark();
+	ui.edtWmVertMargin->setEnabled(index != 1);
+	_WaterMarkToSample();
+}
+
+/*=============================================================
+ * TASK:		 language 1 index changed
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_cbBaseLanguage_currentIndexChanged(int index)
+{
+	_GetTextsForEditing(wctBaseLangCombo);	// saves changes then get text for the other language
+	_selection.baseLang = index;
+}
+
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_cbDefineLanguge_currentIndexChanged(int index)
+{
+}
+
+void FalconG::on_cbLanguageTextDef_currentTextChanged(QString text)
+{
+	if (_busy || text.isEmpty())
+		return;
+	LangConstList* textList = languages[text];
+	ui.edtLanguageTextdefinition->setText(textList->Definition());
+	ui.edtLanguageTextText->setHtml((*textList)[ui.cbDefineLanguge->currentIndex()]);
+}
+
+/*=============================================================
+ * TASK:		language index #2 changed
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_cbLanguage_currentIndexChanged(int index)
+{
+	_GetTextsForEditing(wctLangCombo);	// saves changes then get text for the other language
+	_selection.edtLang = index;
+}
+
+void FalconG::on_cbFonts_currentIndexChanged(int index)
+{
+	if (_busy || index < 0)
+		return;
+	QString s = ui.cbFonts->currentText();
+	ui.edtFontFamily->setText(s);
+	//ui.cbFonts->setCurrentIndex(-1);
+}
+
+
+/*========================================================
+ * TASK:	when the index changes sets up _tmpScheme
+ *			and color buttons
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_lwColorScheme_currentRowChanged(int newIndex)
+{
+	if (_busy || newIndex < 0)
+		return;
+
+	if (_bSchemeChanged)
+		_AskForApply();
+	static const char* bckstr = "background-color:%1",
+		* bck_txt = "background-color:%1; color:%2";
+	_tmpScheme = schemes[newIndex + 2];	// default and system are not changed
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+	ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
+	for (int i = 0; i < _pSchemeButtons.size(); ++i)
+		_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
+	_EnableColorSchemeButtons();
+}
+
+
+void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
+{
+	if (_busy)
+		return;
+	config.imageQuality = newIndex ? (11 - newIndex) * 10 : 0;
+}
+
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnPreview_clicked()
+{
+	QString qs = "file:///" +
+		config.dsGallery.ToString() +
+		AlbumGenerator::RootNameFromBase(config.homeLink, 0, false);
+	if (!QDesktopServices::openUrl(QUrl(qs)))
+	{
+		QMessageBox(QMessageBox::Warning, tr("falconG - Warning"),
+			tr("Cannot open\n'%1'").arg(qs),
+			QMessageBox::Ok, this).exec();
+	}
+}
+
+void FalconG::on_btnGoToGoogleFontsPage_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://fonts.google.com/"));
+}
+
+
+/*========================================================
+ * TASK:	apply changes to color scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_btnApplyColorScheme_clicked()
+{
+
+	int i = schemes.IndexOf(_tmpSchemeOrigName);
+	if (i >= 0)	// then at least one language text of the title is matched
+	{
+		if (i < 2)
+		{
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+			return;
+		}
+		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _DoOverWriteColorScheme(i))// full or partial name matched
+		{
+			schemes[i] = _tmpScheme;
+			_bSchemeChanged = true;
+		}
+	}
+	else	// name did not exist save new
+	{
+		if (_tmpSchemeOrigName.indexOf(':') + 1 != PROGRAM_CONFIG::qslLangNames.size() && _LanguagesWarning())
+		{
+			_tmpScheme.MenuTitle = _tmpSchemeOrigName;
+			schemes.push_back(_tmpScheme);
+			ui.lwColorScheme->addItem(_tmpSchemeOrigName);
+			ui.lwColorScheme->setCurrentRow(ui.lwColorScheme->count() - 1);
+		}
+	}
+	if (_bSchemeChanged)
+		schemes.Save();
+
+	_bSchemeChanged = false;
+	_EnableColorSchemeButtons();
+	_SetProgramScheme();
+}
+
+
+/*========================================================
+ * TASK:	undo change for actual color scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - no reset after apply!
+ *-------------------------------------------------------*/
+void FalconG::on_btnResetColorScheme_clicked()
+{
+	_tmpScheme = schemes[ui.lwColorScheme->currentRow() + 2];
+	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
+	ui.lwColorScheme->setCurrentRow(0);
+	_bSchemeChanged = false;
+	_EnableColorSchemeButtons();
+	_SetProgramScheme();
+}
+
+
+/*========================================================
+ * TASK:	moves up the actual scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - no need to change in display changes,
+ *				but need to s change the order of schemes
+ *-------------------------------------------------------*/
+void FalconG::on_btnMoveSchemeUp_clicked()
+{
+	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
+		j = i + 2;							  // index in schemes (default and system can't be changed)
+	if (!i)
+		return;
+
+	if (j == PROGRAM_CONFIG::schemeIndex)
+	{
+		PROGRAM_CONFIG::schemeIndex = j - 1;
+		PROGRAM_CONFIG::Write();
+	}
+	else if (j == PROGRAM_CONFIG::schemeIndex + 1)
+	{
+		PROGRAM_CONFIG::schemeIndex = j + 1;
+		PROGRAM_CONFIG::Write();
+	}
+
+	FalconGScheme sty = schemes[j];
+	schemes.replace(j, schemes[j - 1]);
+	schemes.replace(--j, sty);
+
+	++_busy;
+	QListWidgetItem* plwi = ui.lwColorScheme->takeItem(i);
+	ui.lwColorScheme->insertItem(i - 1, plwi);
+	ui.lwColorScheme->setCurrentRow(i - 1);
+	--_busy;
+	_EnableColorSchemeButtons();
+	schemes.Save();
+}
+
+/*========================================================
+ * TASK:	moves down the actual scheme
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - no need to change in display changes,
+ *				but need to s change the order of schemes
+ *-------------------------------------------------------*/
+void FalconG::on_btnMoveSchemeDown_clicked()
+{
+	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
+		j = i + 2;							 // index in schemes (default and system can't be changed)
+	if (i == schemes.size() - 2 - 1)
+		return;
+
+	if (j == PROGRAM_CONFIG::schemeIndex)
+	{
+		PROGRAM_CONFIG::schemeIndex = j + 1;
+		PROGRAM_CONFIG::Write();
+	}
+	else if (j == PROGRAM_CONFIG::schemeIndex - 1)
+	{
+		PROGRAM_CONFIG::schemeIndex = j - 1;
+		PROGRAM_CONFIG::Write();
+	}
+
+	FalconGScheme sty = schemes[j];
+	schemes.replace(j, schemes[j + 1]);
+	schemes.replace(++j, sty);
+
+	++_busy;
+	QListWidgetItem* plwi = ui.lwColorScheme->takeItem(i);
+	ui.lwColorScheme->insertItem(i + 1, plwi);
+	ui.lwColorScheme->setCurrentRow(i + 1);
+	--_busy;
+	schemes.Save();
+	_EnableColorSchemeButtons();
+}
+
+void FalconG::on_btnResetDialogs_clicked()
+{
+	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
+		config.doNotShowTheseDialogs = 0;
+}
+
+
+// ======================== Checkboxes
+
+void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
+{
+	if (_busy)
+		return;
+
+	++_busy;
+	_aeActiveElement = (AlbumElement)newIndex;
+	ui.gbGradient->setEnabled(newIndex);
+	ui.gbBorder->setEnabled(newIndex);
+	int page = newIndex == aeThumb ? 2 : newIndex ? 1 : 0;
+	ui.toolBox->setCurrentIndex(page);	// to settings
+	_ActualSampleParamsToUi();
+	--_busy;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkAddDescToAll_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bAddDescriptionsToAll = on;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkAddTitlesToAll_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bAddTitlesToAll = on;
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkBackgroundOpacity_toggled(bool on)
+{
+	if (_busy)
+		return;
+	ui.sbBackgroundOpacity->setEnabled(on);
+	_CElem* pElem = _PtrToElement();
+	int val = ui.sbBackgroundOpacity->value();
+	pElem->background.SetOpacity(val, on, true);	// in percent
+	_SetConfigChanged(true);
+	_ElemToSample(espBackground);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkBold_toggled(bool on)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetFeature(fBold, on);
+	_SetConfigChanged(true);
+	_FontToSample(pElem);
+}
+
+void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
+{
+	if (_busy)
+		return;
+
+	_CElem* pElem = _PtrToElement();
+	_CBorder& border = pElem->border;
+	border.SetStyleIndex(pElem->border.actSide, newIndex);
+	border.SetUsed(border.actSide, newIndex);
+
+	_SetConfigChanged(true);
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkButImages_toggled(bool on)
+{
+	if (_busy)
+		return;
+	if (config.bButImages != on)
+	{
+		config.bButImages = on;
+
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkCanDownload_toggled(bool b)
+{
+	if (_busy)
+		return;
+	config.bCanDownload = b;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+void FalconG::on_chkCropThumbnails_toggled(bool b)
+{
+	if (_busy)
+		return;
+	++_busy;
+	config.bCropThumbnails = b;
+	if (config.bDistrortThumbnails && b)
+		config.bDistrortThumbnails = false;
+	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
+	ui.sbThumbnailWidth->setEnabled(config.bDistrortThumbnails || b);
+	--_busy;
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_chkDebugging_toggled(bool b)
+{
+	config.bDebugging = b;
+}
+
+void FalconG::on_chkDifferentFirstLine_toggled(bool b)
+{
+	if (_busy)
+		return;
+	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
+	_SetConfigChanged(true);
+	_ElemToSample(espFont);
+}
+
+void FalconG::on_chkDistortThumbnails_toggled(bool b)
+{
+	if (_busy)
+		return;
+	++_busy;
+	config.bDistrortThumbnails = b;
+	if (b && config.bCropThumbnails)
+		config.bCropThumbnails = false;
+	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
+	ui.sbThumbnailWidth->setEnabled(b || config.bCropThumbnails);
+	--_busy;
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkDoNotEnlarge_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.doNotEnlarge = on;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*=============================================================
+ * TASK:
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_chkGenerateAll_toggled(bool on)
+{
+	if (_busy)
+		return;
+	if (config.bGenerateAll != on)
+	{
+		config.bGenerateAll = on;
+
+		ui.chkButImages->setChecked(false);
+	}
+}
+
+void FalconG::on_chkFacebook_toggled(bool on)
+{
+	config.bFacebookLink.v = on;
+}
+
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_chkFixedLatestThumbnail_toggled(bool b)
+{
+	if (_busy)
+		return;
+
+	config.bFixedLatestThumbnail = b;
+	_SetConfigChanged(true);
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkForceSSL_toggled(bool b)
+{
+	if (_busy)
+		return;
+	config.bForceSSL = b;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS: disabled, not used
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkIconText_toggled(bool)
+{
+	if (_busy)
+		return;
+	_SetConfigChanged(true);
+	_ElemToSample(espLinkIcon);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS: disabled, not used
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkIconTop_toggled(bool)
+{
+	if (_busy)
+		return;
+	_SetConfigChanged(true);
+	_ElemToSample();
+}
+
+void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
+{
+	if (!_busy)
+	{
+		config.imageBorder.SetUsed(sdAll, newIndex);
+		config.imageBorder.SetStyleIndex(sdAll, newIndex);
+		_SetConfigChanged(true);
+		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(false));
+	}
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkItalic_toggled(bool on)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->font.SetFeature(fItalic, on);
+	_SetConfigChanged(true);
+	_FontToSample(pElem);
+}
+
+void FalconG::on_chkKeepDuplicates_toggled(bool yes)
+{
+	config.bKeepDuplicates = yes;
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkLowerCaseImageExtensions_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bLowerCaseImageExtensions = on;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: on 'Gallery' page
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkMenuToAbout_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bMenuToAbout = on;
+	_RunJavaScript("menu-item#about", QString("display") + (on ? "inline-block" : "none"));
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: on 'Gallery' page
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkMenuToContact_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bMenuToContact = on;
+	_RunJavaScript("menu-item#contact", QString("display:") + (on ? "inline-block" : "none"));
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: on 'Gallery' page
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkMenuToDescriptions_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bMenuToDescriptions = on;
+	_RunJavaScript("menu-item#desc", QString("display") + (on ? "inline-block" : "none"));
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS: on 'Gallery' page
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkMenuToToggleCaptions_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bMenuToToggleCaptions = on;
+	_RunJavaScript("menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkOvrImages_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bOvrImages = on;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkReadFromGallery_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bReadFromGallery = on;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:	toggle state of structure disregard gallery struct box
+* EXPECTS:	on - new state
+* GLOBALS:
+* REMARKS:	this bool is not saved into the configuration
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkReadJAlbum_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bReadFromDirs = on;
+	//	_SetConfigChanged(true);	no configuration change!
+
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkRightClickProtected_toggled(bool b)
+{
+	if (_busy)
+		return;
+	config.bRightClickProtected = b;
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
+{
+	config.bSeparateFoldersForLanguages = ui.chkSeparateFoldersForLanguages->isChecked();
+}
+
+void FalconG::on_chkSetAll_toggled(bool)
+{
+	_PageBackgroundToSample();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkShadowOn_toggled(bool on)
+{
+	if (_busy)
+		return;
+	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
+	_PtrToElement()->shadow1[which].Set(spUse, on);	// used flag
+	_PtrToElement()->shadow2[which].Set(spUse, on);	// used flag
+	_ElemToSample(espShadow);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkSourceRelativePerSign_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bSourceRelativePerSign = on;
+	_SetConfigChanged(true);
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkTextOpacity_toggled(bool on)
+{
+	if (_busy)
+		return;
+	ui.sbTextOpacity->setEnabled(on);
+	_CElem* pElem = _PtrToElement();
+	int val = ui.sbTextOpacity->value();
+	pElem->color.SetOpacity(val, on, true);	// in percent
+	_SetConfigChanged(true);
+	_ElemToSample();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkSetLatest_toggled(bool on)
+{
+
+	if (_busy)
+		return;
+	config.bGenerateLatestUploads = on;
+	_SetConfigChanged(true);
+	_EnableButtons();
+}
+
+void FalconG::on_chkTdLinethrough_toggled(bool on) { _TextDecorationToConfig(tdLinethrough, on); }
+void FalconG::on_chkTdUnderline_toggled(bool on) { _TextDecorationToConfig(tdUnderline, on); }
+void FalconG::on_chkTdOverline_toggled(bool on) { _TextDecorationToConfig(tdOverline, on); }
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkUseGoogleAnalytics_toggled(bool b)
+{
+	if (_busy)
+		return;
+	config.googleAnalyticsOn = b; // ui.chkUseGoogleAnalytics->isChecked();
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_chkUseGradient_toggled(bool on)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->gradient.used = on;
+
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkUseWM_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.waterMark.used = on;
+	_WaterMarkToSample();
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_chkUseWMShadow_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.waterMark.SetShadowOn(on);
+	config.waterMark.SetupMark();
+	_WaterMarkToSample();
+	_SetConfigChanged(true);
+
+	_EnableButtons();
+}
+
+// ======================== LineEdits
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtAbout_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.sAbout = ui.edtAbout->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtAlbumDir_textChanged()
+{
+	if (_busy)
+		return;
+	++_busy;
+	config.dsAlbumDir = ui.edtAlbumDir->text().trimmed();
+	_SetConfigChanged(true);
+	--_busy;
+}
+
+void FalconG::on_edtBaseName_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*========================================================
+ * TASK:
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_edtBckImageName_textChanged()
+{
+	if (_busy)
+		return;
+
+	QString name = QDir::fromNativeSeparators( ui.edtBckImageName->text());
+
+	if (QFile::exists(name))
+	{
+		if (name != config.backgroundImage.fileName)		 // read only once
+		{
+			_LoadBckImage(name);
+			config.backgroundImage.fileName = name;	// full path name for generator 
+		}
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// show image
+	}
+	else
+		_RunJavaScript("body", QString("background-image:"));	// show image
+
+	_SetConfigChanged(true);				// file is copied to /res
+}
+
+void FalconG::on_edtDefaultFonts_textChanged()
+{
+	if (_busy)
+		return;
+	config.sDefFonts = ui.edtDefaultFonts->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*=============================================================
+* TASK:	decsription text for language 2 changed
+* EXPECTS:
+* GLOBALS:
+* RETURNS:
+* REMARKS:
+*------------------------------------------------------------*/
+void FalconG::on_edtDescriptionText_textChanged()
+{
+	if (_busy)
+		return;
+	++_busy;
+	_selection.changed |= fsDescription;
+	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
+		ui.edtBaseDescription->setPlainText(ui.edtDescriptionText->toPlainText());
+	ui.btnSaveChangedDescription->setEnabled(true);
+	--_busy;
+}
+
+void FalconG::on_edtDescription_textChanged()
+{
+	if (_busy)
+		return;
+	config.sDescription = ui.edtDescription->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtDestGallery_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsGallery = ui.edtDestGallery->text().trimmed();
+	_SetConfigChanged(config.dsGallery.Changed());
+	_EnableButtons();
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtEmailTo_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.sMailTo = ui.edtEmailTo->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtFontDir_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsFontDir = ui.edtFontDir->text().trimmed();
+	_SetConfigChanged(config.dsFontDir.Changed());
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtFontFamily_textChanged()
+{
+	if (_busy)
+		return;
+	_CElem* pElem;
+	pElem = _PtrToElement();
+	pElem->font.SetFamily(ui.edtFontFamily->text());
+	_SetConfigChanged(true);
+	_FontToSample(pElem);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtGalleryLanguages_textChanged()
+{
+	config.sGalleryLanguages = ui.edtGalleryLanguages->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtGalleryRoot_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsGRoot = ui. edtGalleryRoot->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXcPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtGalleryTitle_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.sGalleryTitle = ui.edtGalleryTitle->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtGoogleFonts_editingFinished()
+{
+	if (_busy)
+		return;
+	QString s = ui.edtGoogleFonts->text().trimmed();
+// replace all spaces and commas NOT inside quotes
+		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
+		// regualr expression for this with lookahead feature:
+		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
+		// simpler and much faster one (not working, why?):
+		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
+//		s.replace(QRegularExpression(R"(\\"|"(?:\\"|[^"])*"|([ ,]+)"),"|");
+//	QStringList qsl = s.split(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"));
+	QStringList qsl = s.split(QRegularExpression(R"([,;] *)"));
+//	s.replace(QRegularExpression(R"([ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$))"), "|");
+	for (auto &qs : qsl)
+	{
+		qs.replace(' ', '+');
+		qs.remove('"');
+	}
+	s = qsl.join('|');
+	if (config.sGoogleFonts != s)
+	{
+		config.sGoogleFonts = s;
+		_SetConfigChanged(true);
+		_ModifyGoogleFontImport();
+		_ConfigToUI();
+	}
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtImg_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsImageDir = ui. edtImg->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*========================================================
+ * TASK:
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_edtKeywords_textChanged()
+{
+	if (_busy)
+		return;
+	config.sKeywords = ui.edtKeywords->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtMainPage_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.sMainPage = ui.edtMainPage->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+  * TASK:
+  * EXcPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtServerAddress_textChanged()
+{
+	_EnableButtons();
+	if (_busy)
+		return;
+
+	config.sServerAddress = ui. edtServerAddress->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+* TASK:	   Handle source gallery changes
+* EXPECTS:
+* GLOBALS:	PROGRAM_CONFIG
+* REMARKS: Although the first .ToString()uct file will be saved into the source 
+*			directory
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtSourceGallery_textChanged()
+{	
+	if (_busy)
+		return;
+
+	QString src = QDir::cleanPath(ui.edtSourceGallery->text().trimmed()) + "/";
+	if (!config.dsSrc.ToString().isEmpty() && config.dsSrc.ToString() != src)
+	{
+		config.dsSrc = src;
+		PROGRAM_CONFIG::indexOfLastUsed = -1;	// suppose new path, not used yet
+		for(int i = 0; i < PROGRAM_CONFIG::lastConfigs.size(); ++i )	// search if already exists
+			if (src == PROGRAM_CONFIG::lastConfigs[i])
+			{
+				PROGRAM_CONFIG::indexOfLastUsed = i;	// found a config for this source
+				break;							
+			}
+		QFile f(src + falconG_ini);
+		if (f.exists())
+		{
+			config.Read();
+			_ConfigToUI();	// edit values from config
+
+		}
+		else if(QFile::exists(src) )	// directory exists but no ini file inside yet
+		{
+			config.SetChanged(true);	// allow user to save config into this directory
+			_EnableButtons();
+		}
+	}
+	albumgen.Clear();
+}
+
+void FalconG::on_edtThumb_textChanged()
+{
+	if (_busy)
+		return;
+	
+	++_busy;
+	config.dsThumbDir = ui.edtThumb->text().trimmed();
+	--_busy;
+	_SetConfigChanged(true);
+}
+
+/*=============================================================
+* TASK:	 title text for language 2 is changed
+* EXPECTS:
+* GLOBALS:
+* RETURNS:
+* REMARKS:
+*------------------------------------------------------------*/
+void FalconG::on_edtTitleText_textChanged()
+{
+	if (_busy)
+		return;
+	++_busy;
+	_selection.changed |= fsTitle;
+	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
+		ui.edtBaseTitle->setPlainText(ui.edtTitleText->toPlainText());
+	ui.btnSaveChangedTitle->setEnabled(true);
+	--_busy;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_edtTrackingCode_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.googleAnalTrackingCode = ui.edtTrackingCode->text().trimmed();
+	 _SetConfigChanged(config.googleAnalTrackingCode.Changed());
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtUplink_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.sUplink = ui. edtUplink->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtVid_textChanged()
+{
+	if (_busy)
+		return;
+
+	config.dsVideoDir = ui.edtImg->text().trimmed();
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtWatermark_textChanged()
+{
+	if (_busy)
+		return;
+	config.waterMark.SetText(ui.edtWatermark->text() );
+	config.waterMark.SetupMark();
+	if(config.waterMark.Text().isEmpty())
+		ui.lblWmSample->setText("Watermark Sample text");
+	else
+		ui.lblWmSample->setText(config.waterMark.Text());
+	_WaterMarkToSample();
+	
+	_SetConfigChanged(true);
+}
+
+void FalconG::on_edtWmHorizMargin_textChanged()
+{
+	if (_busy)
+		return;
+	_UpdateWatermarkMargins(ui.edtWmHorizMargin->text().toInt(), -1);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+void FalconG::on_edtWmVertMargin_textChanged()
+{
+	if (_busy)
+		return;
+	_UpdateWatermarkMargins(-1, ui.edtWmVertMargin->text().toInt());
+}
+
+// ========================  ???
+void FalconG::on_hsImageSizeToShow_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	config.backgroundImage.size = val;
+	_RunJavaScript("body", config.backgroundImage.Size(false));
+}
+
+// ======================== Radio buttons
+
 /*=============================================================
  * TASK:	the next 5 functions select the border of an element
  *			except images
@@ -1488,11 +3184,59 @@ void FalconG::on_rbAllBorders_toggled(bool on)
 	_SetupActualBorder(sdAll);
 }
 
-void FalconG::on_rbTopBorder_toggled(bool on)
+void FalconG::on_rbBottomBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdTop);
+	_SetupActualBorder(sdBottom);
+}
+
+void FalconG::on_rbCenterBckImage_toggled(bool b)
+{
+	if (!_busy && b)
+	{
+		config.backgroundImage.v = hAuto;
+		_SetConfigChanged(true);
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+	}
+}
+void FalconG::on_rbCoverBckImage_toggled(bool b)
+{
+	if (!_busy && b)
+	{
+		config.backgroundImage.v = hCover;
+		_SetConfigChanged(true);
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+	}
+}
+void FalconG::on_rbEnglish_toggled(bool b)
+{
+	if (_busy || !b)
+		return;
+	PROGRAM_CONFIG::lang = -1;	// English
+	_RestartRequired();
+}
+void FalconG::on_rbLeftBorder_toggled(bool on)
+{
+	if (!on || _busy)
+		return;
+	_SetupActualBorder(sdLeft);
+}
+void FalconG::on_rbMagyar_toggled(bool b)
+{
+	if (_busy || !b)
+		return;
+	PROGRAM_CONFIG::lang = 1;	// Hungarian
+	_RestartRequired();
+}
+void FalconG::on_rbNoBackgroundImage_toggled(bool b)
+{
+	if (!_busy && b)
+	{
+		config.backgroundImage.v = hNotUsed;
+		_SetConfigChanged(true);
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+	}
 }
 
 void FalconG::on_rbRightBorder_toggled(bool on)
@@ -1502,54 +3246,156 @@ void FalconG::on_rbRightBorder_toggled(bool on)
 	_SetupActualBorder(sdRight);
 }
 
-void FalconG::on_rbBottomBorder_toggled(bool on)
+void FalconG::on_rbTdDashed_toggled(bool on) { _TextDecorationToConfig(tdDashed, on); }
+void FalconG::on_rbTdDotted_toggled(bool on) { _TextDecorationToConfig(tdDotted, on); }
+void FalconG::on_rbTdDouble_toggled(bool on) { _TextDecorationToConfig(tdDouble, on); }
+void FalconG::on_rbTdSolid_toggled(bool on) { _TextDecorationToConfig(tdSolid, on); }
+void FalconG::on_rbTdWavy_toggled(bool on) { _TextDecorationToConfig(tdWavy, on); }
+void FalconG::on_rbTextAlignNone_toggled(bool on) { _TextAlignToConfig(alNone, on); }
+void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
+void FalconG::on_rbTextLeft_toggled(bool on) { _TextAlignToConfig(alLeft, on); }
+void FalconG::on_rbTextRight_toggled(bool on) { _TextAlignToConfig(alRight, on); }
+
+void FalconG::on_rbTextShadow_toggled(bool b)
+{
+	_CElem* pElem = _PtrToElement();
+	int n = b ? 0 : 1;	// text or box shadow
+	_ShadowForElementToUI(pElem, n);
+	config.waterMark.SetupMark();
+}
+void FalconG::on_rbTileBckImage_toggled(bool b)
+{
+	if (!_busy && b)
+	{
+		config.backgroundImage.v = hTile;
+		_SetConfigChanged(true);
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+	}
+}
+
+void FalconG::on_rbTopBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdBottom);
+	_SetupActualBorder(sdTop);
 }
 
-void FalconG::on_rbLeftBorder_toggled(bool on)
-{
-	if (!on || _busy)
-		return;
-	_SetupActualBorder(sdLeft);
-}
+// ========================  Spin boxes
 
-/*============================================================================
-  * TASK:	change the image width in config to new width and
-  *			for linked image sizes change the value in the height box
-  * EXPECTS: val: new image width
-  * GLOBALS:
-  * REMARKS: - when linked the scpoect ratio will not change
-  *			 - when not linked, the height will not change
-  *			 - does not modify the thumbnail
- *--------------------------------------------------------------------------*/
-void FalconG::on_sbImageWidth_valueChanged(int val)
+/*=============================================================
+ * TASK:	changes radius of image border inside matte
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_sbAlbumMatteRadius_valueChanged(int w)
 {
 	if (_busy)
 		return;
-	++_busy;
-	int h = config.imageHeight;
+	config.albumMatteRadius = w;
+	_SetConfigChanged(true);
+	_RunJavaScript("athumb", QString("border-radius:%1px").arg(w) );
+}
 
-	if (ui.btnLink->isChecked())
-	{
-		h = val / _aspect;
-		ui.sbImageHeight->setValue(h);
-		config.imageHeight = h;
-		
-		h = 0; // no change in aspect ratio when linked!
-	}
-	config.imageWidth = val;
-	config.waterMark.GetMarkDimensions();
-	config.waterMark.SetupMark();
-	if (config.waterMark.v)
-		_page.triggerAction(QWebEnginePage::Reload);
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	config.albumMatte = val;
+	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.v);
+	if(!val)
+		_RunJavaScript("amatte", QString("padding:"));
+	else
+		_RunJavaScript("amatte", QString("padding: %1px").arg(val));
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbBackgroundOpacity_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	_OpacityChanged(val, 2, ui.chkBackgroundOpacity->isChecked());
+}
+
+void FalconG::on_sbBorderRadius_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->border.SetRadius(ui.sbBorderRadius->value());
+	_SetConfigChanged(true);
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+}
+
+void FalconG::on_sbBorderWidth_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	_CElem* pElem = _PtrToElement();
+	pElem->border.SetWidth(pElem->border.actSide, val);
+	_SetConfigChanged(true);
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbGradMiddlePos_valueChanged(int val)
+{
+	_CElem* pElem = _PtrToElement();
+
+	pElem->gradient.Set(gsMiddle, val, pElem->gradient.Color(gsMiddle));
+	_SetGradientLabelColors(pElem);
+	_SetConfigChanged(true);
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbGradStartPos_valueChanged(int val)
+{
+	_CElem* pElem = _PtrToElement();
+
+	pElem->gradient.Set(gsStart, val, pElem->gradient.Color(gsStart));
+	_SetGradientLabelColors(pElem);
+	_SetConfigChanged(true);
+	_SetLinearGradient(pElem);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbGradStopPos_valueChanged(int val)
+{
+	_CElem* pElem = _PtrToElement();
 	
-	if(h)	// else no change
-		_aspect = (double)val / (double)h;
-	--_busy;
-// ????	_ChangesToSample(dp);
+	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
+	_SetGradientLabelColors(pElem);
+	_SetConfigChanged(true);
+	_ElemToSample(espGradient);
 }
 
 /*=============================================================
@@ -1569,36 +3415,22 @@ void FalconG::on_sbImageBorderRadius_valueChanged(int r)
 	_RunJavaScript("amatte", QString("border-radius:%1px").arg(r));
 }
 
-/*=============================================================
- * TASK:	changes radius of image border inside matte
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_sbImageMatteRadius_valueChanged(int w)
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	config.imageMatteRadius = w;
-	_SetConfigChanged(true);
-	_RunJavaScript("thumb", QString("border-radius:%1px").arg(w) );
-}
 
-/*=============================================================
- * TASK:	changes radius of image border inside matte
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_sbAlbumMatteRadius_valueChanged(int w)
-{
-	if (_busy)
-		return;
-	config.albumMatteRadius = w;
+	config.imageBorder.SetWidth(sdAll, val);
+	QString qs = config.imageBorder.ForStyleSheetShort(false);
+	_RunJavaScript("imatte", qs);
+	_RunJavaScript("amatte", qs);
 	_SetConfigChanged(true);
-	_RunJavaScript("athumb", QString("border-radius:%1px").arg(w) );
 }
 
 /*============================================================================
@@ -1647,649 +3479,78 @@ void FalconG::on_sbImageMargin_valueChanged(int m)
 	_RunJavaScript("img-container", QString(m ? "margin: 0 %1;" : "margin:0;").arg(m));
 }
 
-/*============================================================================
-  * TASK:	change the thumbnail width in config to new width and
-  *			for linked thumbnail sizes change the value in the height box
-  * EXPECTS: val: new  thumbnail width
-  * GLOBALS:
-  * REMARKS: - when linked the aspect ratio will not change
-  *			 - when not linked, the height will not change
-  *			 - does not modify the thumbnail
- *--------------------------------------------------------------------------*/
-void FalconG::on_sbThumbnailWidth_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	++_busy;
-	int h = config.thumbHeight;
-
-	config.thumbWidth = val;
-	
-	if (h)	// else no change
-		_aspect = (double)val / (double)h;
-	--_busy;
-}
-
-/*============================================================================
-  * TASK:	change the thumbnail height in config to new height and
-  *			for linked thumbnail sizes change the value in the width box
-  * EXPECTS: val - new thumbnail height
-  * GLOBALS:
-  * REMARKS: - when linked the aspect ratio will not change
-  *			 - when not linked, the width will not change
-  *			 - does not modify the thumbnail
- *--------------------------------------------------------------------------*/
-void FalconG::on_sbThumbnailHeight_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	++_busy;
-	int w = config.thumbWidth;
-
-	config.thumbHeight = val;
-	
-	if (w && val)
-		_aspect = (double)w / (double)val;
-
-	--_busy;
-}
-
 /*=============================================================
- * TASK:
+ * TASK:	changes radius of image border inside matte
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::on_chkGenerateAll_toggled(bool on)
+void FalconG::on_sbImageMatteRadius_valueChanged(int w)
 {
 	if (_busy)
 		return;
-	if (config.bGenerateAll != on)
-	{
-		config.bGenerateAll = on;
-		
-		ui.chkButImages->setChecked(false);
-	}
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkButImages_toggled(bool on)
-{
-	if (_busy)
-		return;
-	if (config.bButImages != on)
-	{
-		config.bButImages = on;
-		
-	}
-}
-
-void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
-{
-	config.bSeparateFoldersForLanguages = ui.chkSeparateFoldersForLanguages->isChecked();
-}
-
-void FalconG::on_chkSetAll_toggled(bool)
-{
-	_PageBackgroundToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkAddTitlesToAll_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bAddTitlesToAll = on;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkLowerCaseImageExtensions_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bLowerCaseImageExtensions = on;
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkAddDescToAll_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bAddDescriptionsToAll = on;
+	config.imageMatteRadius = w;
 	_SetConfigChanged(true);
-
-	_EnableButtons();
+	_RunJavaScript("thumb", QString("border-radius:%1px").arg(w) );
 }
 
-/*============================================================================
-* TASK:	toggle state of structure disregard gallery struct box
-* EXPECTS:	on - new state
-* GLOBALS:
-* REMARKS:	this bool is not saved into the configuration
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkReadJAlbum_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bReadFromDirs = on;
-//	_SetConfigChanged(true);	no configuration change!
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkReadFromGallery_toggled(bool on )
-{
-	if (_busy)
-		return;
-	config.bReadFromGallery = on;
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkRightClickProtected_toggled(bool b)
-{
-	if (_busy)
-		return;
-	config.bRightClickProtected = b;
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkCanDownload_toggled(bool b)
-{
-	if (_busy)
-		return;
-	config.bCanDownload = b;
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkForceSSL_toggled(bool b)
-{
-	if (_busy)
-		return;
-	config.bForceSSL = b;
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkUseGoogleAnalytics_toggled(bool b)
-{
-	if (_busy)
-		return;
-	config.googleAnalyticsOn = b; // ui.chkUseGoogleAnalytics->isChecked();
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkSetLatest_toggled(bool on)
-{
-	
-	if (_busy)
-		return;
-	config.bGenerateLatestUploads = on;
-	_SetConfigChanged(true);
-	_EnableButtons();
-}
-
-/*=============================================================
+/*========================================================
  * TASK:
  * PARAMS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_chkFixedLatestThumbnail_toggled(bool b)
-{
-	if (_busy)
-		return;
-
-	config.bFixedLatestThumbnail = b;
-	_SetConfigChanged(true);
-	_EnableButtons();
-}
-
-void FalconG::on_cbLanguageTextDef_currentTextChanged(QString text)
-{
-	if (_busy || text.isEmpty())
-		return;
-	LangConstList *textList = languages[text];
-	ui.edtLanguageTextdefinition->setText(textList->Definition());
-	ui.edtLanguageTextText->setHtml((*textList)[ui.cbDefineLanguge->currentIndex()]);
-}
-
-void FalconG::on_chkDifferentFirstLine_toggled(bool b)
-{
-	if (_busy)
-		return;
-	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_cbLineHeight_currentTextChanged(const QString& txt)
-{
-	if (_busy || txt.isEmpty())
-		return;
-	_CElem* pElem = _PtrToElement(_aeActiveElement);
-	pElem->font.SetLineHeight(txt);
-	_FontToSample(pElem);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_cbFontSizeInPoints_currentTextChanged(const QString& txt)
-{
-	if (_busy)
-		return;
-	// test 'txt' for valid font size
-	QRegularExpression rex("^\\d+\\w*$");
-	if (txt.indexOf(rex) < 0)
-		return;
-
-	QString text = txt;
-	_CElem* pElem = _PtrToElement();
-	pElem->font.SetSize(txt);
-	if (!ui.chkDifferentFirstLine->isChecked())
-	{
-		ui.cbPointSizeFirstLine->setCurrentText(txt);
-		pElem->font.SetDifferentFirstLine(true, txt);
-	}
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
-}
-
-void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
-{
-	if (_busy || txt.isEmpty())
-		return;
-	_CElem* pElem;
-
-	QString qsClass;
-	pElem = _PtrToElement();
-	pElem->font.SetDifferentFirstLine(pElem->font.IsFirstLineDifferent(), txt);	// do not change first line font size
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_edtFontFamily_textChanged()
-{
-	if (_busy)
-		return;
-	_CElem *pElem;
-	pElem = _PtrToElement();
-	pElem->font.SetFamily(ui.edtFontFamily->text());
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS: disabled, not used
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkIconText_toggled(bool)
-{
-	if (_busy)
-		return;
-	_SetConfigChanged(true);
-	_ElemToSample(espLinkIcon);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS: disabled, not used
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkIconTop_toggled(bool)
-{
-	if (_busy)
-		return;
-	_SetConfigChanged(true);
-	_ElemToSample();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkBold_toggled(bool on)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->font.SetFeature(fBold, on);
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkItalic_toggled(bool on)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->font.SetFeature(fItalic, on);
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
-}
-
-void FalconG::on_chkKeepDuplicates_toggled(bool yes)
-{
-	config.bKeepDuplicates = yes;
-	_SetConfigChanged(true);
-}
-
-
-void FalconG::_TextAlignToConfig(Align align, bool on)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	if (on)
-	{
-		pElem->alignment.v = align;
-		_SetConfigChanged(true);
-		_TextAlignToSample(pElem);	// clear decorations if neither checkbox is checked
-	}
-}
-
-void FalconG::_SlotForContextMenu(const QPoint& pt)
-{
-	std::unique_ptr<QSignalMapper> _popupMapper{ new QSignalMapper(this) };
-//	std::unique_ptr<QMenu> menu { new QMenu(this) };
-	QMenu menu(this);
-	QAction* pa = new QAction(tr("Styles"),this);
-	pa->setEnabled(false);
-	menu.addAction(pa);
-	menu.addSeparator();
-	for (int i = 0; i < schemes.size(); ++i)
-	{
-		pa = menu.addAction(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang), _popupMapper.get(), SLOT(map()));
-		if (i == PROGRAM_CONFIG::schemeIndex)
-		{
-			pa->setCheckable(true);
-			pa->setChecked(true);
-		}
-		_popupMapper->setMapping(pa, i);
-	}
-	connect(_popupMapper.get(), &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeChange);
-	menu.exec(dynamic_cast<QWidget*>(sender())->mapToGlobal(pt));
-}
-
-void FalconG::_SlotForSchemeChange(int which)
-{
-	PROGRAM_CONFIG::schemeIndex = (which >= 0 && which < schemes.size()) ? which : 0;
-	 QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	_SetProgramScheme();
-	_SetConfigChanged(true);
-	QGuiApplication::restoreOverrideCursor();
-}
-
-void FalconG::_EnableColorSchemeButtons()
-{
-	bool b = _bSchemeChanged;
-	ui.btnApplyColorScheme->setEnabled(b);
-	ui.btnResetColorScheme->setEnabled(b);
-//	b = (PROGRAM_CONFIG::schemeIndex > 2); // - 2) != ui.lwColorScheme->currentRow();
-	ui.btnDeleteColorScheme->setEnabled(schemes.size() > 2);
-	int i = ui.lwColorScheme->currentRow(); // is 2 less than  the real index in the schemes array
-	ui.btnMoveSchemeUp->setEnabled(i > 0);
-	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size()-2-1);
-}
-
-void FalconG::_SlotForSchemeButtonClick(int which)
-{
-	StyleHandler sh( (*_pSchemeButtons[which]).styleSheet());
-	QColor qc = sh.GetItem("", "background-color");
-	QColor qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew == qc || !qcNew.isValid())
-		return;
-	sh.SetItem("", "background-color", qcNew.name());
-	_pSchemeButtons[which]->setStyleSheet(sh.StyleSheet());
-	if (!which)
-		ui.pnlColorScheme->setStyleSheet("background-color:" + qcNew.name()+"; color:"+_tmpScheme.sTextColor);
-	else if(which == 1)
-		ui.pnlColorScheme->setStyleSheet("color:" + qcNew.name()+"; background-color:"+_tmpScheme.sBackground);
-	_bSchemeChanged |= true;	// might have been changed already
-	_tmpScheme[which] = qcNew.name();
-	_bSchemeChanged = true;
-	_EnableColorSchemeButtons();
-}
-
-/*========================================================
- * TASK:	set text decorations
- * PARAMS:	   decoration - enum (td...)
- *			   on - turn on or off
- * GLOBALS:
- * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
+void FalconG::on_sbImageMatteWidth_valueChanged(int val)
+{
+	if (_busy || config.imageMatte == val )
+		return;
+
+	config.imageMatte = val;
+	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.v);
+	if (!val)
+		_RunJavaScript("imatte",QString("padding:"));
+	else	
+		_RunJavaScript("imatte",QString("padding: %1px").arg(val));
+
+	_SetConfigChanged(true);
+}
+
+/*============================================================================
+  * TASK:	change the image width in config to new width and
+  *			for linked image sizes change the value in the height box
+  * EXPECTS: val: new image width
+  * GLOBALS:
+  * REMARKS: - when linked the scpoect ratio will not change
+  *			 - when not linked, the height will not change
+  *			 - does not modify the thumbnail
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbImageWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->decoration.SetDecoration(decoration, on);
-	on |= ui.chkTdUnderline->isChecked() || ui.chkTdOverline->isChecked() || ui.chkTdLinethrough->isChecked();
-	ui.gbDecorationStyle->setEnabled(on);
-	if (on)
+	++_busy;
+	int h = config.imageHeight;
+
+	if (ui.btnLink->isChecked())
 	{
-		ui.rbTdSolid->setEnabled(on);
-		ui.rbTdDotted->setEnabled(on);
-		ui.rbTdDashed->setEnabled(on);
-		ui.rbTdDouble->setEnabled(on);
-		ui.rbTdWavy->setEnabled(on);
+		h = val / _aspect;
+		ui.sbImageHeight->setValue(h);
+		config.imageHeight = h;
+		
+		h = 0; // no change in aspect ratio when linked!
 	}
-
-	_DecorationToSample(pElem);	// clear decorations if neither checkbox is checked
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_chkTdLinethrough_toggled(bool on) { 	_TextDecorationToConfig(tdLinethrough, on); }
-void FalconG::on_chkTdUnderline_toggled(bool on) { _TextDecorationToConfig(tdUnderline, on); }
-void FalconG::on_chkTdOverline_toggled(bool on) {	_TextDecorationToConfig(tdOverline, on);}
-void FalconG::on_rbTdSolid_toggled  (bool on) { _TextDecorationToConfig(tdSolid, on); }
-void FalconG::on_rbTdDotted_toggled(bool on) { _TextDecorationToConfig(tdDotted, on); }
-void FalconG::on_rbTdDashed_toggled (bool on) { _TextDecorationToConfig(tdDashed, on); }
-void FalconG::on_rbTdDouble_toggled (bool on) { _TextDecorationToConfig(tdDouble, on); }
-void FalconG::on_rbTdWavy_toggled   (bool on) { _TextDecorationToConfig(tdWavy, on); }
-void FalconG::on_rbTextAlignNone_toggled  (bool on) { _TextAlignToConfig(alNone, on); }
-void FalconG::on_rbTextLeft_toggled  (bool on) { _TextAlignToConfig(alLeft, on); }
-void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
-void FalconG::on_rbTextRight_toggled( bool on) { _TextAlignToConfig(alRight, on); }
-
-void FalconG::on_rbTextShadow_toggled(bool b)
-{
-	_CElem* pElem = _PtrToElement();
-	int n = b ? 0 : 1;	// text or box shadow
-	_ShadowForElementToUI(pElem, n);
+	config.imageWidth = val;
+	config.waterMark.GetMarkDimensions();
 	config.waterMark.SetupMark();
-}
-
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkUseWM_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.waterMark.used = on;
-	_WaterMarkToSample();
-	_SetConfigChanged(true);
+	if (config.waterMark.v)
+		_page.triggerAction(QWebEnginePage::Reload);
 	
-	_EnableButtons();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkUseWMShadow_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.waterMark.SetShadowOn(on);
-	config.waterMark.SetupMark();
-	_WaterMarkToSample();
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkOvrImages_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bOvrImages = on;
-	_SetConfigChanged(true);
-	
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkDoNotEnlarge_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.doNotEnlarge = on;
-	_SetConfigChanged(true);
-
-	_EnableButtons();
-}
-
-void FalconG::on_chkCropThumbnails_toggled(bool b)
-{
-	if (_busy)
-		return;
-	++_busy;
-	config.bCropThumbnails = b;
-	if (config.bDistrortThumbnails && b)
-		config.bDistrortThumbnails = false;
-	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
-	ui.sbThumbnailWidth->setEnabled(config.bDistrortThumbnails || b);
+	if(h)	// else no change
+		_aspect = (double)val / (double)h;
 	--_busy;
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_chkDistortThumbnails_toggled(bool b)
-{
-	if (_busy)
-		return;
-	++_busy;
-	config.bDistrortThumbnails = b;
-	if (b && config.bCropThumbnails)
-		config.bCropThumbnails = false;
-	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
-	ui.sbThumbnailWidth->setEnabled(b || config.bCropThumbnails);
-	--_busy;
-	_SetConfigChanged(true);
+// ????	_ChangesToSample(dp);
 }
 
 /*============================================================================
@@ -2298,141 +3559,11 @@ void FalconG::on_chkDistortThumbnails_toggled(bool b)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_chkSourceRelativePerSign_toggled(bool on)
+void FalconG::on_sbLatestCount_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	config.bSourceRelativePerSign = on;
-	_SetConfigChanged(true);
-	_EnableButtons();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkTextOpacity_toggled(bool on)
-{
-	if (_busy)
-		return;
-	ui.sbTextOpacity->setEnabled(on);
-	_CElem* pElem = _PtrToElement();
-	int val = ui.sbTextOpacity->value();
-	pElem->color.SetOpacity(val, on, true);	// in percent
-	_SetConfigChanged(true);
-	_ElemToSample();
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkBackgroundOpacity_toggled(bool on)
-{
-	if (_busy)
-		return;
-	ui.sbBackgroundOpacity->setEnabled(on);
-	_CElem* pElem = _PtrToElement();
-	int val = ui.sbBackgroundOpacity->value();
-	pElem->background.SetOpacity(val, on, true);	// in percent
-	_SetConfigChanged(true);
-	_ElemToSample(espBackground);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkUseGradient_toggled(bool on)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->gradient.used = on;
-
-	_SetLinearGradient(pElem);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-void FalconG::on_chkShadowOn_toggled(bool on)
-{
-	if (_busy)
-		return;
-	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
-	_PtrToElement()->shadow1[which].Set(spUse, on);	// used flag
-	_PtrToElement()->shadow2[which].Set(spUse, on);	// used flag
-	_ElemToSample(espShadow);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: on 'Gallery' page
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkMenuToContact_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bMenuToContact = on;
-	_RunJavaScript("menu-item#contact",QString("display:")+ (on ? "inline-block" : "none"));
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: on 'Gallery' page
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkMenuToAbout_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bMenuToAbout = on;
-	_RunJavaScript("menu-item#about",QString("display") + (on? "inline-block" : "none"));
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: on 'Gallery' page
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkMenuToDescriptions_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bMenuToDescriptions = on;
-	_RunJavaScript("menu-item#desc",QString("display") + (on? "inline-block" : "none") );
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: on 'Gallery' page
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkMenuToToggleCaptions_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bMenuToToggleCaptions = on;
-	_RunJavaScript("menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
+	config.nLatestCount = val;
 	_SetConfigChanged(true);
 }
 
@@ -2456,12 +3587,24 @@ void FalconG::on_sbNewDays_valueChanged(int val)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_sbLatestCount_valueChanged(int val)
+void FalconG::on_sbShadowBlur1_valueChanged(int val)
 {
-	if (_busy)
-		return;
-	config.nLatestCount = val;
-	_SetConfigChanged(true);
+	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
+	_PtrToElement()->shadow1[which].Set(spBlurR, val);
+	_ElemToSample(espShadow1);
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbShadowBlur2_valueChanged(int val)
+{
+	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
+	_PtrToElement()->shadow2[which].Set(spBlurR, val);
+	_ElemToSample(espShadow2);
 }
 
 /*============================================================================
@@ -2523,32 +3666,6 @@ void FalconG::on_sbShadowVert2_valueChanged(int val)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_sbShadowBlur1_valueChanged(int val)
-{
-	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
-	_PtrToElement()->shadow1[which].Set(spBlurR, val);
-	_ElemToSample(espShadow1);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbShadowBlur2_valueChanged(int val)
-{
-	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
-	_PtrToElement()->shadow2[which].Set(spBlurR, val);
-	_ElemToSample(espShadow2);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowSpread1_valueChanged(int val)
 {
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
@@ -2568,52 +3685,91 @@ void FalconG::on_sbShadowSpread2_valueChanged(int val)
 	_ElemToSample(espShadow1);
 }
 
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbGradStartPos_valueChanged(int val)
+void FalconG::on_sbSpaceAfter_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	_CElem* pElem = _PtrToElement();
-
-	pElem->gradient.Set(gsStart, val, pElem->gradient.Color(gsStart));
-	_SetGradientLabelColors(pElem);
+	pElem->spaceAfter = val;
 	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_SpaceAfterToSample(pElem);
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
+  * TASK:
+  * EXPECTS:
+  * GLOBALS:
+  * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_sbGradMiddlePos_valueChanged(int val)
+void FalconG::on_sbTextOpacity_valueChanged(int val)
 {
-	_CElem* pElem = _PtrToElement();
-
-	pElem->gradient.Set(gsMiddle, val, pElem->gradient.Color(gsMiddle));
-	_SetGradientLabelColors(pElem);
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	if (_busy)
+		return;
+	_OpacityChanged(val, 1, ui.chkTextOpacity->isChecked());
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbGradStopPos_valueChanged(int val)
+  * TASK:	change the thumbnail width in config to new width and
+  *			for linked thumbnail sizes change the value in the height box
+  * EXPECTS: val: new  thumbnail width
+  * GLOBALS:
+  * REMARKS: - when linked the aspect ratio will not change
+  *			 - when not linked, the height will not change
+  *			 - does not modify the thumbnail
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailWidth_valueChanged(int val)
 {
-	_CElem* pElem = _PtrToElement();
+	if (_busy)
+		return;
+	++_busy;
+	int h = config.thumbHeight;
+
+	config.thumbWidth = val;
 	
-	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
-	_SetGradientLabelColors(pElem);
+	if (h)	// else no change
+		_aspect = (double)val / (double)h;
+	--_busy;
+}
+
+/*============================================================================
+  * TASK:	change the thumbnail height in config to new height and
+  *			for linked thumbnail sizes change the value in the width box
+  * EXPECTS: val - new thumbnail height
+  * GLOBALS:
+  * REMARKS: - when linked the aspect ratio will not change
+  *			 - when not linked, the width will not change
+  *			 - does not modify the thumbnail
+ *--------------------------------------------------------------------------*/
+void FalconG::on_sbThumbnailHeight_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	++_busy;
+	int w = config.thumbWidth;
+
+	config.thumbHeight = val;
+	
+	if (w && val)
+		_aspect = (double)w / (double)val;
+
+	--_busy;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbWmOpacity_valueChanged(int val)
+{
+	if (_busy)
+		return;
+	config.waterMark.SetOpacity(val, true);
+	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
-	_ElemToSample(espGradient);
+	_RunJavaScript("thumb::after","color"+ config.waterMark.ColorToCss());
+	_WaterMarkToSample();
 }
 
 /*============================================================================
@@ -2658,606 +3814,7 @@ void FalconG::on_sbWmShadowBlur_valueChanged(int val)
 	_ElemToSample();
 }
 
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbImageBorderWidth_valueChanged(int val)
-{
-	if (_busy)
-		return;
 
-	config.imageBorder.SetWidth(sdAll, val);
-	QString qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("imatte", qs);
-	_RunJavaScript("amatte", qs);
-	_SetConfigChanged(true);
-}
-
-
-/*========================================================
- * TASK:
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_sbImageMatteWidth_valueChanged(int val)
-{
-	if (_busy || config.imageMatte == val )
-		return;
-
-	config.imageMatte = val;
-	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.v);
-	if (!val)
-		_RunJavaScript("imatte",QString("padding:"));
-	else	
-		_RunJavaScript("imatte",QString("padding: %1px").arg(val));
-
-	_SetConfigChanged(true);
-}
-
-void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	config.albumMatte = val;
-	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.v);
-	if(!val)
-		_RunJavaScript("amatte", QString("padding:"));
-	else
-		_RunJavaScript("amatte", QString("padding: %1px").arg(val));
-	_SetConfigChanged(true);
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbTextOpacity_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	_OpacityChanged(val, 1, ui.chkTextOpacity->isChecked());
-}
-
-/*============================================================================
-  * TASK:
-  * EXPECTS:
-  * GLOBALS:
-  * REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbBackgroundOpacity_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	_OpacityChanged(val, 2, ui.chkBackgroundOpacity->isChecked());
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_sbWmOpacity_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	config.waterMark.SetOpacity(val, true);
-	config.waterMark.SetupMark();
-	_SetConfigChanged(true);
-	_RunJavaScript("thumb::after","color"+ config.waterMark.ColorToCss());
-	_WaterMarkToSample();
-}
-
-void FalconG::on_sbSpaceAfter_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->spaceAfter = val;
-	_SetConfigChanged(true);
-	_SpaceAfterToSample(pElem);
-}
-
-void FalconG::on_sbBorderWidth_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->border.SetWidth(pElem->border.actSide, val);
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
-}
-
-void FalconG::on_sbBorderRadius_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	_CElem* pElem = _PtrToElement();
-	pElem->border.SetRadius(ui.sbBorderRadius->value());
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
-}
-
-void FalconG::on_hsImageSizeToShow_valueChanged(int val)
-{
-	if (_busy)
-		return;
-	config.backgroundImage.size = val;
-	_RunJavaScript("body", config.backgroundImage.Size(false));
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-//void FalconG::on_btnHome_clicked()
-//{
-//	_aeActiveElement = aeMenuButtons;
-//	_ActualSampleParamsToUi();
-//}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnBorderColor_clicked()
-{
-	_CElem* pElem = _PtrToElement();
-	QColor qc(pElem->border.ColorStr(pElem->border.actSide)),
-			qcNew;
-	qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew == qc || !qcNew.isValid())
-		return;
-
-	_SetConfigChanged(true);
-	pElem->border.SetColor(pElem->border.actSide, qcNew.name());
-	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
-
-	QString qs = pElem->border.ForStyleSheet(false);
-	_SetCssProperty(pElem, qs);
-	_EnableButtons();
-}
-
-/*========================================================
- * TASK:	sets the uplink icon from resource
- *			colors it as set inconfig	for the uplink
- *			menu web button and returns the rec-colored icon
- *			to be saved
- * PARAMS:	iconName - path name of icon or empty
- *				when empty uses icon from resources
- * GLOBALS:	config
- * RETURNS: none, icon is set in btnUplink
- * REMARKS: - if no name given does not load any icon: uses
- *			  the one already set in the form file, just
- *			  changes its color
- *			- otherwise load file from the 'res' sub directory
- *			- icon file must be flat 32 bit png file with 
- *				transparent and white pixels. The color of 
- *				the white pixels will be changed to 
- *				config.Menu
- *-------------------------------------------------------*/
-QIcon FalconG::_SetUplinkIcon(QString iconName)
-{
-	if (iconName.isEmpty() )
-		iconName = ":/icons/Resources/up-icon.png";
-	QIcon icon(iconName);
-	_lastUsedMenuForegroundColor = Qt::white;
-	_SetIconColor(icon, config.Menu);
-	return icon;
-}
-
-/*========================================================
- * TASK:	set icon for uplink from 'res' directory
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - icon must be a simple 2 color image
- *-------------------------------------------------------*/
-void FalconG::on_btnSelectUplinkIcon_clicked()
-{
-	QString dir = config.dsApplication.ToString() + "res/";
-	QString file = QFileDialog::getOpenFileName(this, "falconG - Select icon", dir, "*.png");
-	if (!file.isEmpty())
-	{
-		QIcon icon(file);	 
-		_lastUsedMenuForegroundColor = Qt::white;
-		_SetIconColor(icon, config.Menu);
-// ??? TODO
-	}
-}
-
-
-/*========================================================
- * TASK:	Return the original web page, throwing away the
- *			changes
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_btnReload_clicked()
-{
-	config.RestoreDesign();
-	_page.triggerAction(QWebEnginePage::Reload);
-	_ConfigToUI();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnSaveConfig_clicked()
-{
-	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
-	{
-		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
-		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
-	}
-	config.Write();
-
-	QString s	 = PROGRAM_CONFIG::NameForConfig(true, ".ini"),
-			sp = s.left(s.lastIndexOf('/'));	// path
-	s = s.mid(s.lastIndexOf('/') + 1);			// name
-	InformationMessage(false, 
-						"falconG", 
-						tr("Saved configuration\n'%1'\n into folder \n'%2'").arg(s).arg(sp), 
-						dbSaveConfig, 
-						tr("Don't ask again (use Options to re-enable)"),
-						this
-					   );
-}
-
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnBrowseSource_clicked()
-{
-	QString s = QFileDialog::getExistingDirectory(this, "Select Source Directory", ui.edtSourceGallery->text().isEmpty() ? "": ui.edtSourceGallery->text());
-	if (!s.isEmpty())
-		ui.edtSourceGallery->setText(s);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnBrowseDestination_clicked()
-{
-	QString s = QFileDialog::getExistingDirectory(this, "Select Destination Directory", ui.edtDestGallery->text().isEmpty() ? "": ui.edtDestGallery->text());
-	if (!s.isEmpty())
-		ui.edtDestGallery->setText(s);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnForeground_clicked()
-{
-	if (_busy)
-		return;
-
-	_CElem* pElem = _PtrToElement();
-
-	QColor qc(pElem->color.Name()),
-		   qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-
-	pElem->color.SetColor(qcNew.name());
-	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
-
-	_SetConfigChanged(true);
-	_ElemToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnBackground_clicked()
-{
-	if (_busy)
-		return;
-
-	_CElem* pElem = _PtrToElement();
-
-	QColor qc(pElem->background.Name()),
-		   qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-
-	pElem->background.SetColor(qcNew.name());
-	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
-	_SetConfigChanged(true);
-	_ElemToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnPageColor_clicked()
-{
-	QColor qc(config.Web.color.Name()),
-		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if(qcNew.isValid() )
-	{
-		if (qc != qcNew)
-		{
-			config.Web.color.SetColor(qcNew.name());
-			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
-			_SetConfigChanged(true);
-		}
-		_PageColorToSample();
-	}
-	if (ui.chkSameForeground->isChecked())	// propagate color to all elements
-	{
-		_PropagatePageColor();
-		ui.chkSameForeground->setChecked(false);
-	}
-// DEBUG
-//	ShowStyleOf(ui.btnPageColor);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnPageBackground_clicked()
-{
-	if (_busy)
-		return;
-
-	QColor qc(config.Web.background.Name()),
-		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (qcNew.isValid())
-	{
-		config.Web.background.SetColor(qcNew.name());
-		config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
-		ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
-		_SetConfigChanged(true);
-		_PageBackgroundToSample();
-	}
-}
-
-void FalconG::on_btnOpenBckImage_clicked()
-{
-	QString qs = QFileDialog::getOpenFileName(this, tr("falconG - Open Background Image"), QString(), tr("Image files (*.bmp *.gif *.jpg *.png)"));
-	if (!qs.isEmpty())
-		ui.edtBckImageName->setText(qs);
-}
-
-
-/*========================================================
- * TASK: browse for background image
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - should svae last directory into config
- *-------------------------------------------------------*/
-void FalconG::on_btnBrowseForBackgroundImage()
-{
-	static QString _qsLastBackgroundImagePath = "./";
-	QString filename = QFileDialog::getOpenFileName(this,
-													tr("falconG - Open background image"), 
-													_qsLastBackgroundImagePath,
-													"Image Files (*.png *.jpg)");
-	if (!filename.isEmpty())
-	{
-		ui.edtBckImageName->setText(filename);
-		QPixmap pm(filename);
-		ui.lblbckImage->setPixmap(pm);
-	}
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnGradStartColor_clicked()
-{
-	_CElem* pElem = _PtrToElement();
-
-	QColor qc(pElem->gradient.Color(gsStart)),
-		   qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-	pElem->gradient.Set(gsStart, ui.sbGradStartPos->value(), qcNew.name());
-	_SetGradientLabelColors(pElem);
-
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnGradMiddleColor_clicked()
-{
-	_CElem* pElem = _PtrToElement();
-
-	QColor qc(pElem->gradient.Color(gsMiddle)),
-		   qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-	pElem->gradient.Set(gsMiddle, ui.sbGradMiddlePos->value(), qcNew.name());
-	_SetGradientLabelColors(pElem);
-
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnGradStopColor_clicked()
-{
-	_CElem* pElem = _PtrToElement();
-
-	QColor qc(pElem->gradient.Color(gsStop)),
-		   qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-
-	if (!qcNew.isValid() || qc == qcNew)
-		return;
-	pElem->gradient.Set(gsStop, ui.sbGradStopPos->value(), qcNew.name());
-	_SetGradientLabelColors(pElem);
-
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnImageBorderColor_clicked()
-{
-	StyleHandler handler(ui.btnImageBorderColor->styleSheet());
-
-	QColor qc(handler.GetItem("QToolButton", "background-color")),
-			qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew.isValid() && qc != qcNew)
-	{
-		handler.SetItem("QToolButton", "background-color", qcNew.name());
-		handler.SetItem("QToolButton", "color", config.Web.background.Name());
-		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
-		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
-		config.imageBorder.SetColor(side, qcNew.name());
-		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
-	}
-}
-
-void FalconG::on_btnImageMatteColor_clicked()
-{
-	StyleHandler handler(ui.btnImageMatteColor->styleSheet());
-
-	QColor qc(handler.GetItem("QToolButton", "background-color")),
-			qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew.isValid() && qc != qcNew)
-	{
-		handler.SetItem("QToolButton", "background-color", qcNew.name());
-		handler.SetItem("QToolButton", "color", config.Web.background.Name());
-		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
-		config.imageMatteColor = qcNew.name();
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.v);
-	}
-}
-
-void FalconG::on_btnAlbumMatteColor_clicked()
-{
-	StyleHandler handler(ui.btnAlbumMatteColor->styleSheet());
-
-	QColor qc(handler.GetItem("QToolButton", "background-color")),
-		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew.isValid() && qc != qcNew)
-	{
-		handler.SetItem("QToolButton", "background-color", qcNew.name());
-		handler.SetItem("QToolButton", "color", config.Web.background.Name());
-		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
-		config.albumMatteColor = qcNew.name();
-		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.v);
-	}
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnShadowColor_clicked()
-{
-	if (_busy)
-		return;
-
-	_CElem *pElem = _PtrToElement();
-	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
-	QColor qc = pElem->shadow1[which].Color(),
-			qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qc != qcNew)
-	{
-		ui.btnShadowColor->setStyleSheet("QToolButton {\nbackground-color:" + qc.name() + ";\n}\n");
-		_SetConfigChanged(true);
-	}
-	_ElemToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnResetDesign_clicked()
-{
-	config.RestoreDesign();
-	_DesignToUi();
-
-	_aeActiveElement = aeWebPage;
-	ui.cbActualItem->setCurrentIndex(0);		// global page
-	_ConfigToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnDisplayHint_clicked()
-{
-	QMessageBox(QMessageBox::Information, "falconG - Hint",
-				 "<html><head/><body><p>With certain linux themes the color of some elements"
-				 " on the right may differ from the ones you set on the left.<br>"
-				 "A clear indication is a background mismatch between the color of the "
-				 "<span style=\" font - style:italic;\">Gallery title</span> area on the top and the "
-				 "main page area below it.</p></body></html>", QMessageBox::Ok, this).exec();
-}
 
 
 /*========================================================
@@ -3739,80 +4296,6 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 	_selection.selectedImage = _selection.newImage = 0;
 
 }
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: saves changed texts
-*--------------------------------------------------------------------------*/
-void FalconG::on_cbWmHPosition_currentIndexChanged(int index)
-{
-	if (_busy)
-		return;
-	int o = config.waterMark.Origin();
-	o &= 0xF;
-	o += index << 4;
-	config.waterMark.SetPositioning(o);
-	config.waterMark.SetupMark();
-	ui.edtWmHorizMargin->setEnabled(index != 1);
-	_WaterMarkToSample();
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS: saves changed texts
-*--------------------------------------------------------------------------*/
-void FalconG::on_cbWmVPosition_currentIndexChanged(int index)
-{
-	if (_busy)
-		return;
-	int o = config.waterMark.Origin();
-	o &= 0xF0;
-	o += index;
-	config.waterMark.SetPositioning(o);
-	config.waterMark.SetupMark();
-	ui.edtWmVertMargin->setEnabled(index != 1);
-	_WaterMarkToSample();
-}
-
-/*=============================================================
- * TASK:		 language 1 index changed
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_cbBaseLanguage_currentIndexChanged(int index)
-{
-	_GetTextsForEditing(wctBaseLangCombo);	// saves changes then get text for the other language
-	_selection.baseLang = index;
-}
-
-/*=============================================================
- * TASK:		language index #2 changed
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_cbLanguage_currentIndexChanged(int index)
-{
-	_GetTextsForEditing(wctLangCombo);	// saves changes then get text for the other language
-	_selection.edtLang = index;
-}
-
-void FalconG::on_cbFonts_currentIndexChanged(int index)
-{
-	if (_busy || index < 0)
-		return;
-	QString s = ui.cbFonts->currentText();
-	ui.edtFontFamily->setText(s);
-	//ui.cbFonts->setCurrentIndex(-1);
-}
-
 /*========================================================
  * TASK:	when scheme is changed but not yet applied asks
  *				for apply
@@ -3831,479 +4314,6 @@ void FalconG::_AskForApply()
 	--_busy;
 }
 
-
-/*========================================================
- * TASK:	when the index changes sets up _tmpScheme
- *			and color buttons
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_lwColorScheme_currentRowChanged(int newIndex)
-{
-	if (_busy || newIndex < 0)
-		return;
-
-	if (_bSchemeChanged)
-		_AskForApply();
-	static const char* bckstr = "background-color:%1",
-		* bck_txt = "background-color:%1; color:%2";
-	_tmpScheme = schemes[newIndex + 2];	// default and system are not changed
-	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-	ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
-	for (int i = 0; i < _pSchemeButtons.size(); ++i)
-		_pSchemeButtons[i]->setStyleSheet(QString(bckstr).arg(_tmpScheme[i]));
-	_EnableColorSchemeButtons();
-}
-
-
-void FalconG::on_cbImageQuality_currentIndexChanged(int newIndex)
-{
-	if (_busy)
-		return;
-	config.imageQuality = newIndex ? (11 - newIndex)*10 : 0;
-}
-
-
-/*=============================================================
-* TASK:	 title text for language 2 is changed
-* EXPECTS:
-* GLOBALS:
-* RETURNS:
-* REMARKS:
-*------------------------------------------------------------*/
-void FalconG::on_edtTitleText_textChanged()
-{
-	if (_busy)
-		return;
-	++_busy;
-	_selection.changed |= fsTitle;
-	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
-		ui.edtBaseTitle->setPlainText(ui.edtTitleText->toPlainText());
-	ui.btnSaveChangedTitle->setEnabled(true);
-	--_busy;
-}
-
-/*=============================================================
-* TASK:	decsription text for language 2 changed
-* EXPECTS:
-* GLOBALS:
-* RETURNS:
-* REMARKS:
-*------------------------------------------------------------*/
-void FalconG::on_edtDescriptionText_textChanged()
-{
-	if (_busy)
-		return;
-	++_busy;
-	_selection.changed |= fsDescription;
-	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
-		ui.edtBaseDescription->setPlainText(ui.edtDescriptionText->toPlainText());
-	ui.btnSaveChangedDescription->setEnabled(true);
-	--_busy;
-}
-
-//****************************************************************************
-
-void FalconG::on_rbNoBackgroundImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hNotUsed;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
-}
-
-void FalconG::on_rbCenterBckImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{		
-		config.backgroundImage.v = hAuto;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
-}
-void FalconG::on_rbCoverBckImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hCover;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
-}
-
-void FalconG::_RestartRequired()
-{
-	QMessageBox::warning(this, tr("falconG - Warning"), QString(tr("Please restart the program to change the language!")));
-}
-
-bool FalconG::_DoOverWriteColorScheme(int i)
-{
-	QString qs = tr("There is a scheme \n'%1'\nwith a title which at least partially\nmatches the modified title.\n"
-					" Do you want to overwrite it?").arg(schemes[i].MenuTitle);
-	return QMessageBox::question(this, tr("falconG - Question"),
-				qs,
-				QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
-}
-
-bool FalconG::_LanguagesWarning()
-{
-	return QMessageBox::question(this, tr("falconG - Question"),
-				tr("No/not enough ':' in new name. The same name will be used for\n"
-				"all program languages. Is this what you want?")) == QMessageBox::Yes;
-}
-
-void FalconG::on_rbEnglish_toggled(bool b)
-{
-	if (_busy || !b)
-		return;
-	PROGRAM_CONFIG::lang = -1;	// English
-	_RestartRequired();
-}
-
-void FalconG::on_rbMagyar_toggled(bool b)
-{
-	if (_busy || !b)
-		return;
-	PROGRAM_CONFIG::lang = 1;	// Hungarian
-	_RestartRequired();
-}
-
-void FalconG::on_rbTileBckImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hTile;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::on_btnPreview_clicked()
-{
-	QString qs = "file:///" +
-		config.dsGallery.ToString() +
-		AlbumGenerator::RootNameFromBase(config.homeLink, 0, false);
-	if (!QDesktopServices::openUrl(QUrl(qs)))
-	{
-		QMessageBox(QMessageBox::Warning, tr("falconG - Warning"),
-						tr("Cannot open\n'%1'").arg(qs),
-							QMessageBox::Ok, this).exec();
-	}
-}
-
-void FalconG::on_btnGoToGoogleFontsPage_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://fonts.google.com/"));
-}
-
-
-/*========================================================
- * TASK:	apply changes to color scheme
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_btnApplyColorScheme_clicked()
-{
-
-	int i = schemes.IndexOf(_tmpSchemeOrigName);
-	if (i >= 0)	// then at least one language text of the title is matched
-	{
-		if (i < 2)
-		{
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
-			return;
-		}
-		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _DoOverWriteColorScheme(i))// full or partial name matched
-		{
-			schemes[i] = _tmpScheme;
-			_bSchemeChanged = true;
-		}
-	}
-	else	// name did not exist save new
-	{
-		if (_tmpSchemeOrigName.indexOf(':') + 1 != PROGRAM_CONFIG::qslLangNames.size() && _LanguagesWarning())
-		{
-			_tmpScheme.MenuTitle = _tmpSchemeOrigName;
-			schemes.push_back(_tmpScheme);
-			ui.lwColorScheme->addItem(_tmpSchemeOrigName);
-			ui.lwColorScheme->setCurrentRow(ui.lwColorScheme->count() - 1);
-		}
-	}
-	if(_bSchemeChanged)
-		schemes.Save();
-
-	_bSchemeChanged = false;
-	_EnableColorSchemeButtons();
-	_SetProgramScheme();
-}
-
-
-/*========================================================
- * TASK:	undo change for actual color scheme
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - no reset after apply!
- *-------------------------------------------------------*/
-void FalconG::on_btnResetColorScheme_clicked()
-{
-	_tmpScheme = schemes[ui.lwColorScheme->currentRow() + 2];
-	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
-	ui.lwColorScheme->setCurrentRow(0);
-	_bSchemeChanged = false;
-	_EnableColorSchemeButtons();
-	_SetProgramScheme();
-}
-
-
-/*========================================================
- * TASK:	moves up the actual scheme
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - no need to change in display changes, 
- *				but need to s change the order of schemes
- *-------------------------------------------------------*/
-void FalconG::on_btnMoveSchemeUp_clicked()
-{
-	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
-		j = i+2;							  // index in schemes (default and system can't be changed)
-	if (!i)
-		return;
-
-	if (j == PROGRAM_CONFIG::schemeIndex )
-	{
-		PROGRAM_CONFIG::schemeIndex = j - 1;
-		PROGRAM_CONFIG::Write();
-	}
-	else if(j == PROGRAM_CONFIG::schemeIndex+1 )
-	{
-		PROGRAM_CONFIG::schemeIndex = j + 1;
-		PROGRAM_CONFIG::Write();
-	}
-
-	FalconGScheme sty = schemes[j];
-	schemes.replace(j, schemes[j - 1]);
-	schemes.replace(--j, sty);
-
-	++_busy;
-	QListWidgetItem*plwi = ui.lwColorScheme->takeItem(i);
-	ui.lwColorScheme->insertItem(i-1, plwi);
-	ui.lwColorScheme->setCurrentRow(i-1);
-	--_busy;
-	_EnableColorSchemeButtons();
-	schemes.Save();
-}
-
-/*========================================================
- * TASK:	moves down the actual scheme
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - no need to change in display changes,
- *				but need to s change the order of schemes
- *-------------------------------------------------------*/
-void FalconG::on_btnMoveSchemeDown_clicked()
-{
-	int i = ui.lwColorScheme->currentRow(),  //0: corresponds to real index 2 in 'schemes'
-		j = i + 2;							 // index in schemes (default and system can't be changed)
-	if (i == schemes.size() - 2 - 1)
-		return;
-
-	if (j == PROGRAM_CONFIG::schemeIndex)
-	{
-		PROGRAM_CONFIG::schemeIndex = j + 1;
-		PROGRAM_CONFIG::Write();
-	}
-	else if (j == PROGRAM_CONFIG::schemeIndex - 1)
-	{
-		PROGRAM_CONFIG::schemeIndex = j - 1;
-		PROGRAM_CONFIG::Write();
-	}
-
-	FalconGScheme sty = schemes[j];
-	schemes.replace(j, schemes[j + 1]);
-	schemes.replace(++j, sty);
-
-	++_busy;
-	QListWidgetItem*plwi = ui.lwColorScheme->takeItem(i);
-	ui.lwColorScheme->insertItem(i+1, plwi);
-	ui.lwColorScheme->setCurrentRow(i+1);
-	--_busy;
-	schemes.Save();
-	_EnableColorSchemeButtons();
-}
-
-void FalconG::on_btnResetDialogs_clicked()
-{
-	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
-		config.doNotShowTheseDialogs = 0;
-}
-
-
-/*========================================================
- * TASK:	delete scheme
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: - the new actual scheme will be the actual (i.e. saved)
- *			- config.styleIndex may change if it was the one or 
- *				the actual one
- *			- when the actual selected scheme is deleted
- *				it still remains active, so you may
- *				restore it by writing the name into the combo box
- *			- the first tow shemes (Default and System Colors)
- *				cannot be deleted or edited!
- *-------------------------------------------------------*/
-void FalconG::on_btnDeleteColorScheme_clicked()
-{
-	if (QMessageBox::warning(this,	tr("falconG - Warning"), 
-									tr("Do you really want to delete this color scheme?"), 
-										QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
-		return;
-
-	int i = ui.lwColorScheme->currentRow();
-	if (i+2 < PROGRAM_CONFIG::schemeIndex)
-	{
-		PROGRAM_CONFIG::schemeIndex = PROGRAM_CONFIG::schemeIndex - 1;
-		if (PROGRAM_CONFIG::schemeIndex < 0)
-			PROGRAM_CONFIG::schemeIndex = 0;
-
-		PROGRAM_CONFIG::Write();
-	}
-	delete ui.lwColorScheme->takeItem(i);
-	schemes.remove(i + 2);
-	ui.lwColorScheme->setCurrentRow(PROGRAM_CONFIG::schemeIndex);
-	schemes.Save();
-	_EnableColorSchemeButtons();
-	_bSchemeChanged = false;
-}
-
-void FalconG::on_btnAddAndGenerateColorScheme_clicked()
-{
-	bool ok;
-	QString qs = PROGRAM_CONFIG::LangNameListWDelim();
-	qs = tr("New Scheme Name\n (for ")+qs+")";
-	QString sNewName = QInputDialog::getText(this, tr("falconG - Input"), qs, QLineEdit::Normal, QString(), &ok);
-	if (!ok || sNewName.isEmpty())
-		return;
-	if (PROGRAM_CONFIG::qslLangNames.size() != sNewName.count(':')+1)
-	{
-		if (!_LanguagesWarning())
-			return;
-		sNewName = sNewName + ":" + sNewName;
-	}
-
-	int i = schemes.IndexOf(sNewName);
-	if (i >= 0)
-	{
-		if(i < 2)
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
-		else if (_DoOverWriteColorScheme(i))
-		{
-			schemes[i].MenuTitle = sNewName;
-			schemes.Save();
-			delete ui.lwColorScheme->takeItem(i-2);
-			ui.lwColorScheme->insertItem(i - 2, schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
-			ui.lwColorScheme->setCurrentRow(i - 2);
-		}
-		return;
-	}
-
-	QColor qcBase = QColorDialog::getColor(qcBase, this, tr("Select background color."));
-	if (qcBase.isValid())
-	{
-		QColor qc;
-		_tmpScheme.MenuTitle = _tmpSchemeOrigName = sNewName;
-		_tmpScheme.sBackground = qcBase.name();
-/*
-		_tmpScheme.sTextColor = ;
-		_tmpScheme.sBorderColor = ;
-		_tmpScheme.sFocusedInput = ;
-		_tmpScheme.sHoverColor = ;
-		_tmpScheme.sTabBorder = ;
-		_tmpScheme.sInputBackground = ;
-		_tmpScheme.sSelectedInputBgr = ;
-		_tmpScheme.sFocusedBorder = ;
-		_tmpScheme.sDisabledFg = ;
-		_tmpScheme.sDisabledBg = ;
-		_tmpScheme.sImageBackground = ;
-		_tmpScheme.sPressedBg = ;
-		_tmpScheme.sDefaultBg = ;
-		_tmpScheme.sProgressBarChunk = ;
-		_tmpScheme.sWarningColor = ;
-		_tmpScheme.sBoldTitleColor = ;
-*/
-		ui.lwColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
-		schemes.push_back(_tmpScheme);
-		schemes.Save();
-		ui.lwColorScheme->setCurrentRow(schemes.size() - 2-1);	// 2 for default and system colors, 1: offset vs size
-		ui.btnApplyColorScheme->setEnabled(true);
-	}
-}
-
-//***************************************************************************
-void FalconG::on_cbActualItem_currentIndexChanged(int newIndex)
-{
-	if (_busy)
-		return;
-
-	++_busy;
-	_aeActiveElement = (AlbumElement)newIndex;
-	ui.gbGradient->setEnabled(newIndex);
-	ui.gbBorder->setEnabled(newIndex);
-	int page = newIndex == aeThumb ? 2 : newIndex ? 1 : 0;
-	ui.toolBox->setCurrentIndex(page);	// to settings
-	_ActualSampleParamsToUi();
-	--_busy;
-}
-
-void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
-{
-	if (_busy)
-		return;
-
-	_CElem* pElem = _PtrToElement();
-	_CBorder& border = pElem->border;
-	border.SetStyleIndex(pElem->border.actSide, newIndex);
-	border.SetUsed(border.actSide, newIndex);
-
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
-}
-
-void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
-{
-	if (!_busy)
-	{
-		config.imageBorder.SetUsed(sdAll, newIndex);
-		config.imageBorder.SetStyleIndex(sdAll, newIndex);
-		_SetConfigChanged(true);
-		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(false));
-	}
-}
-
-void FalconG::on_chkFacebook_toggled(bool on)
-{
-	config.bFacebookLink.v = on;
-}
-
-void FalconG::on_chkDebugging_toggled(bool b)
-{
-	config.bDebugging = b;
-}
 
 /*============================================================================
 * TASK:		Creates QT stylesheet gradinet string

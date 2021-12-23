@@ -1867,7 +1867,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>476</width>
+                         <width>431</width>
                          <height>719</height>
                         </rect>
                        </property>
@@ -2242,8 +2242,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>476</width>
-                         <height>719</height>
+                         <width>392</width>
+                         <height>616</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7100,11 +7100,6 @@ all changes will be lost.</string>
              </item>
              <item>
               <property name="text">
-               <string>albums</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>countOfImages</string>
               </property>
              </item>
@@ -7261,116 +7256,6 @@ all changes will be lost.</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>abbrev</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>albums</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>albums</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>countOfImages</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>countryCode</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>coupleCaptions</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>falconG</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>icons</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>images</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>language</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>latestDesc</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>latestTitle</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>names</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>share</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>showDescriptions</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>toAboutPage</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>toAlbums</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>toContact</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>toHomePage</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>toTop</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>upOneLevel</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>videos</string>
-                 </property>
-                </item>
                </widget>
               </item>
               <item>

@@ -65,9 +65,8 @@ template <class T> struct _CFG_ITEM
 		if(!group.isEmpty())
 			s.beginGroup(group);
 
-		v = Value(s, itemName, vd);
+		v0 = v = Value(s, itemName, vd);	// not changed
 		_Setup();	// may modify 'v'
-		v0 = v;
 
 		if (!group.isEmpty())
 			s.endGroup();

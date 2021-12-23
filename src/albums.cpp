@@ -1756,7 +1756,7 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 	for (int lang = 0; lang < langcnt; ++lang)
 	{
 		while((sl = reader.ReadLine().split('=')).size() == 2 ) // finished when next language index is read in
-			languages.SetTextFor(sl[0].toLower(), sl[1], lang);
+			languages.SetTextFor(sl[0], sl[1], lang);
 	}
 	if ((*languages["countryCode"])[0].isEmpty())
 	{
@@ -3069,7 +3069,7 @@ QString AlbumGenerator::_IncludeFacebookLibrary()
     </script>
 */
 	return QString(
-		R"(<!--get facebooks js code-->
+		R"(\n<!--get facebooks js code-->
 	<script async defer crossorigin = "anonymous"
 			src = "https://connect.facebook.net/)") + (*languages["countryCode"])[_actLanguage] + 
 					QString( R"(/sdk.js#xfbml=1&version=v8.0" nonce = "ouGJwYtd">
@@ -3126,9 +3126,9 @@ QString AlbumGenerator::_PageHeadToString(ID_t id)
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "\"/>\n");
 
 	s += QString(sCssLink + "falconG.css\">\n");
-	if (id == ROOT_ALBUM_ID)
-		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>" +
-		"<script type=\"text/javascript\" src=\"" + supdir + "js/latest.js\"></script>";
+	if (id == ROOT_ALBUM_ID && config.bGenerateLatestUploads)
+		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>\n" +
+				"<script type=\"text/javascript\" src=\"" + supdir + "js/latest.js\"></script>";
 
 	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
 
@@ -3255,7 +3255,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	// menu buttons
 	_ofs << "   <nav>\n";
 	if (!updir.isEmpty() && !uplink.isEmpty())
-		outputMenuButton("uplink", qsParent, "&nbsp;", (*languages["upOneLevel"])[_actLanguage]);
+		outputMenuButton("uplink", uplink.isEmpty() ? qsParent : uplink, "&nbsp;", (*languages["upOneLevel"])[_actLanguage]);
 //		<< "\"><img src=\"" + updir + "res/up-icon.png\" style=\"height:14px;\" title=\"" + (*languages["upOneLevel"])[_actLanguage] + "\" alt=\""
 //		+ (*languages["upOneLevel"])[_actLanguage] + "\"></a>\n";			  // UP link
 	outputMenuButton("home", updir + config.homeLink, (*languages["toHomePage"])[_actLanguage]);
@@ -3626,7 +3626,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	emit SignalProgressPos(++processedCount, _albumMap.size() * languages.LanguageCount());
 
 	_ofs << _PageHeadToString(album.ID)	// for root album set random thumbnail to most recent gallery
-		 << " <body onload = \"falconGLoad(" + QString(album.ID == ROOT_ALBUM_ID  && !config.bFixedLatestThumbnail ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
+		 << " <body onload = \"falconGLoad(" + QString(album.ID == ROOT_ALBUM_ID  && !config.bFixedLatestThumbnail && config.bGenerateLatestUploads ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"

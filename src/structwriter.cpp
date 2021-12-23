@@ -85,7 +85,7 @@ void AlbumStructWriterThread::run()
 	{
 		_ofs << i << "\n";
 		for(auto it=languages.begin(); it != languages.end(); ++it)
-			_ofs << " " << it.key() << "=" << (*it.value())[i];
+			_ofs << " " << it.key() << "=" << (*it.value())[i] << "\n";
 	}
 	_ofs << "]\n\n# Album structure:\n";
 
