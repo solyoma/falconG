@@ -65,8 +65,8 @@ struct IABase
 	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
 
 	bool Valid() const { return ID > 0; }
-	QString FullName() const { return path + name; }				// does not end with '/'
-	QString ShortPathName();	// cuts the common part of paths (config.dsSrc)
+	QString FullSourceName() const { return path + name; }				// does not end with '/'
+	QString ShortSourcePathName();	// cuts the common part of paths (config.dsSrc)
 	IABase &operator=(const IABase &a)
 	{
 		ID		=  a.ID		;
@@ -147,7 +147,7 @@ struct Image : public IABase
 	enum SearchCond : int { byID,		// ID only
 							byBaseID,	// ID for image w. o path: compare names (no path) as well
 							byName,		// just image name
-							byFullName	// full image path
+							byFullSourceName	// full image path
 						  };
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -168,7 +168,7 @@ struct Image : public IABase
 			return _aspect;
 	}
 
-	QString LinkName(bool bLCExtension = false) const 
+	QString LinkName(bool bLCExtension = false) const		// used in HTML files, not the source name
 	{ 
 		if (ID)
 		{
@@ -215,11 +215,11 @@ struct Video : IABase			// format: MP4, OOG, WebM
 		byID,		// ID only
 		byBaseID,	// ID for image w. o path: compare names (no path) as well
 		byName,		// just image name
-		byFullName	// full image path
+		byFullSourceName	// full image path
 	};
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
-	QString LinkName(bool bLCExtension = false) const
+	QString LinkName(bool bLCExtension = false) const		// used in HTML files, not the source name
 	{
 		if (ID)
 		{
@@ -252,10 +252,10 @@ struct Video : IABase			// format: MP4, OOG, WebM
 
 		switch (type)
 		{
-			case vtWebM: return QString(vs).arg(width).arg(height).arg(FullName()).arg("webm");
-			case vtOgg: return QString(vs).arg(width).arg(height).arg(FullName()).arg("ogg");
+			case vtWebM: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("webm");
+			case vtOgg: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("ogg");
 			default:
-			case vtMp4: return QString(vs).arg(width).arg(height).arg(FullName()).arg("mp4");
+			case vtMp4: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("mp4");
 		}
 	}
 
@@ -322,7 +322,7 @@ public:
 	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
 
 	Image& Find(ID_t id, bool useBase = true);
-	Image& Find(QString FullName);
+	Image& Find(QString FullSourceName);
 	ID_t Add(QString image, bool &added);	// returns ID and if added
 	Image &Item(int index);
 };
@@ -339,7 +339,7 @@ public:
 									// an video by its name (relative to this path) only
 
 	Video& Find(ID_t id, bool useBase = true);
-	Video& Find(QString FullName);
+	Video& Find(QString FullSourceName);
 	ID_t Add(QString image, bool& added);	// returns ID and if added
 	Video& Item(int index);
 };

@@ -550,10 +550,10 @@ bool Image::operator==(const Image &i)
 *--------------------------------------------------------------------------*/
 QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 {
-	QString fullName = FullName();
+	QString fullSourceName = FullSourceName();
 	int len = config.dsSrc.Length();
-	if (fullName.mid(0, len) == config.dsSrc.ToString())
-		fullName = fullName.mid(len);
+	if (fullSourceName.mid(0, len) == config.dsSrc.ToString())
+		fullSourceName = fullSourceName.mid(len);
 	if (exists)
 	{
 		_ofs << LinkName() << " ("
@@ -562,7 +562,7 @@ QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 			<< osize.width() << "x" << osize.height() << ","
 			// ISO 8601 extended format: either yyyy-MM-dd for dates or 
 			<< uploadDate.toString(Qt::ISODate)
-			<< ") => " << fullName << "\n";
+			<< ") => " << fullSourceName << "\n";
 	}
 	else
 		_ofs << name << "# not found\n";
@@ -588,16 +588,16 @@ Image &ImageMap::Find(ID_t id, bool useBase)
 
 /*============================================================================
 * TASK:		searches for image by its path name.
-* EXPECTS: FullName - absolute or source relative path of image
+* EXPECTS: FullSourceName - absolute or source relative path of image
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-Image &ImageMap::Find(QString FullName)
+Image &ImageMap::Find(QString FullSourceName)
 {
 	Image img;
-	SeparateFileNamePath(FullName, img.path, img.name);
+	SeparateFileNamePath(FullSourceName, img.path, img.name);
 
-	Image::searchBy = Image::byFullName;
+	Image::searchBy = Image::byFullSourceName;
 	for (auto i = begin(); i != end(); ++i)
 		if (i.value() == img)
 			return i.value();
@@ -1236,7 +1236,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_ReadFromDirsFile(Album &ab)
 {
-	QString path = ab.FullName();  
+	QString path = ab.FullSourceName();  
 	if(path[path.length()-1] != '/') 
 		path += '/';
 
@@ -1355,7 +1355,7 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_ReadJCommentFile(Album &ab)
 {
-	QString path = ab.FullName();
+	QString path = ab.FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1407,7 +1407,7 @@ bool AlbumGenerator::_ReadJCommentFile(Album &ab)
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_ReadJMetaFile(Album &ab)
 {
-	QString path = ab.FullName();
+	QString path = ab.FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1530,7 +1530,7 @@ void AlbumGenerator::_JReadInfoFile(Album &ab, QString & path, QString name)
 *----------------------------------------------------------------*/
 bool AlbumGenerator::_JReadInfo(Album & ab)
 {
-	QString path = ab.FullName();
+	QString path = ab.FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1577,11 +1577,11 @@ void AlbumGenerator::_ReadOneLevelOfDirs(Album &ab)
 
 	// Append images and albums from disk 
 
-	// at path 'ab.FullName()' and add
+	// at path 'ab.FullSourceName()' and add
 	// those not yet listed in 'albumfile.txt' to the list of files and albums
 	// in the order they appear
 
-	QDir dir(ab.FullName());
+	QDir dir(ab.FullSourceName());
 	dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 	dir.setSorting(QDir::NoSort);
 	QFileInfoList list = dir.entryInfoList();	// get all files and sub directories
@@ -2369,15 +2369,15 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		else // n==3 -> name, ID and path
 		{
 			album.path = sl[2];	// images are inside this album
-			lastUsedAlbumPath = album.FullName() + "/";
+			lastUsedAlbumPath = album.FullSourceName() + "/";
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
-		if (_albumMap.contains(id) && _albumMap[id].FullName() != album.FullName() )
+		if (_albumMap.contains(id) && _albumMap[id].FullSourceName() != album.FullSourceName() )
 			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id & ID_MASK) + FalconG::tr(" - duplicated album ID"));
 
 
 		album.ID = id;				// has ALBUM_ID_FLAG set
-		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullName());
+		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullSourceName());
 	}
 
 	reader.NextLine(); // next line after an album definition line
@@ -4395,7 +4395,7 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-QString IABase::ShortPathName()
+QString IABase::ShortSourcePathName()
 {
 	return config.RemoveSourceFromPath(path + name);
 }
@@ -4410,12 +4410,12 @@ Video& VideoMap::Find(ID_t id, bool useBase)
 	return invalid;
 }
 
-Video& VideoMap::Find(QString FullName)
+Video& VideoMap::Find(QString FullSourceName)
 {
 	Video vid;
-	SeparateFileNamePath(FullName, vid.path, vid.name);
+	SeparateFileNamePath(FullSourceName, vid.path, vid.name);
 
-	Video::searchBy = Video::byFullName;
+	Video::searchBy = Video::byFullSourceName;
 	for (auto i = begin(); i != end(); ++i)
 		if (i.value() == vid)
 			return i.value();

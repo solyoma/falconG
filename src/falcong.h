@@ -189,7 +189,7 @@ private slots:
 	void _CreateUplinkIcon(QString destPath, QString destName);
 	void _SetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
 	void _ThumbNailViewerIsLoading(bool yes);
-	void _TrvCountChanged();
+	void _TnvCountChanged();
 	void _TnvStatusChanged(QString &); // thumbnail view status changed
 	void _TnvSelectionChanged(QString );		// name of selected item or "" for no or multiple items
 	void _TnvNewThumbs();		// previous seingle selection is the new thumbnail for actual album

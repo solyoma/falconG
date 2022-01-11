@@ -1367,6 +1367,7 @@ void CONFIG::ClearChanged()
 
 	dsImageDir.ClearChanged();
 	dsVideoDir.ClearChanged();
+	dsLastImageDir.ClearChanged();
 	dsCssDir.ClearChanged();
 	dsFontDir.ClearChanged();
 	sDefFonts.ClearChanged();
@@ -1670,6 +1671,7 @@ void CONFIG::Read()		// synchronize with Write!
 
 	dsImageDir.Read(s);
 	dsVideoDir.Read(s);
+	dsLastImageDir.Read(s);
 	dsCssDir.Read(s);
 	dsFontDir.Read(s);
 	sDefFonts.Read(s);
@@ -1810,6 +1812,7 @@ void CONFIG::_WriteIni(QString sIniName)
 
 	dsImageDir.Write(s);
 	dsVideoDir.Write(s);
+	dsLastImageDir.Write(s);
 	dsCssDir.Write(s);
 	dsFontDir.Write(s);
 	sDefFonts.Write(s);

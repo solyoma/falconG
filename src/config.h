@@ -1045,6 +1045,7 @@ public:
 	_CDirStr dsImageDir = {"imgs/","dsImageDir"};		// images on server AND or destination
 	_CDirStr dsThumbDir = {"thumbs/","dsThumbDir"};		// thumbnail directory on server AND or destination
 	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
+	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// lats new image is loaded from here
 
 
 	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};

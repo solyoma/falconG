@@ -449,7 +449,7 @@ void FalconG::on_btnGenerate_clicked()
 		if (!albumgen.Read())		// any error
 			--_running, _phase = -1;
 		QGuiApplication::restoreOverrideCursor();
-		_TrvCountChanged();			// show in lblTotalCount (page: Edit)
+		_TnvCountChanged();			// show in lblTotalCount (page: Edit)
 
 			// WRITE album
 		if (_running)
@@ -5247,7 +5247,7 @@ void FalconG::_ThumbNailViewerIsLoading(bool yes)
 	QApplication::processEvents();
 }
 
-void FalconG::_TrvCountChanged()
+void FalconG::_TnvCountChanged()
 {
 	ui.lblTotalCount->setText(QString("%1 Albums, %2 images").arg(albumgen.Albums().size()).arg(albumgen.Images().size()) );
 }

@@ -41,9 +41,13 @@ class ThumbnailItem : public QStandardItem
 {
 public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
+	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
+
 private:
+	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
 	Type _itemType;
 
+	Album	*_ActAlbum() const { return &albumgen.Albums()[_albumId]; }
 	QString _ImageToolTip() const;
 	QString _VideoToolTip() const;
 	QString _FolderToolTip() const;
@@ -52,21 +56,21 @@ private:
 	QString _VideoFilePath() const;
 	QString _FolderFilePath() const;
 
-	QString _ImageFileName() const;
-	QString _VideoFileName() const;
-	QString _FolderFileName() const;
+	QString _ImageFileName() const;	// returns: link name. for original name use FullSourceName()
+	QString _VideoFileName() const;	// returns: link name
+	QString _FolderFileName() const;// returns: link name
 
-	QString _ImageFullName() const;
-	QString _VideoFullName() const;
-	QString _FolderFullName() const;
-	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
+	QString _ImageFullSourceName() const;
+	QString _VideoFullSourceName() const;
+	QString _FolderFullSourceName() const;
 	static int _thumbHeight;
-public:
-	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
 
 public:
 	int type() const { return _itemType; }
-	void SetType(Type typ) { _itemType = typ; }
+	void SetType(Type typ) 
+	{ 
+		_itemType = typ; 
+	}
 
 	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none);
 	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
@@ -88,8 +92,10 @@ public:
 	QString text() const;		// text displayed on item, or full image file path to show thumbnail for
 	QVariant data(int role = Qt::UserRole + 1) const;
 	QString ToolTip() const;
-	QString FilePath() const;
-	QString FileName() const;
+	QString FilePath() const;	// for destination file
+	QString FileName() const;	// - " - 
+	QString FullSourcePath() const;
+
 
 };
 #else

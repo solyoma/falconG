@@ -44,8 +44,14 @@ QVariant ThumbnailItem::data(int role) const
         case TypeRole:          return _itemType;
         case FilePathRole:      return FilePath();
         case FileNameRole:      return FileName();
-        case Qt::DecorationRole:              // to show the icons (when QListView is set for it)
-                                return QIcon(FilePath() + FileName());
+        case Qt::DecorationRole:  {            // to show the icons (when QListView is set for it)
+                                    if (QFile::exists(FilePath() + FileName()))
+                                        return QIcon(FilePath() + FileName());
+                                    else if (QFile::exists(FullSourcePath()))
+                                        return FullSourcePath();
+                                    else
+                                        return QString(":/Preview/Resources/NoImage.jpg");
+                                  }
         case FullNameRole:      return FilePath() + FileName();
     }
     return QVariant();
@@ -53,22 +59,21 @@ QVariant ThumbnailItem::data(int role) const
 
 QString ThumbnailItem::_ImageToolTip() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos) );
-    return QString(pImg->FullName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItemOfType(IMAGE_ID_FLAG, itemPos) );
+    return QString(pImg->FullSourceName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
-    return QString(pVid->FullName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
+    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    return QString(pVid->FullSourceName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
 }
 QString ThumbnailItem::_FolderToolTip() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
-    return QString(pAlbum->FullName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")");
+    Album* pAlbum = albumgen.AlbumForID(_ActAlbum()->IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
+
+    QString s = pAlbum->FullSourceName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")";
+    return s;
 }
 
 
@@ -99,17 +104,24 @@ QString ThumbnailItem::_FolderFilePath() const
     return QString((config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString());
 
 }
+/*=============================================================
+ * TASK:    these functions return two strings: 
+ *          the original file name w.o. path 
+ *          and the generated file name w.o. path
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
 QString ThumbnailItem::_ImageFileName() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
-    return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+	return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
 
 }
 QString ThumbnailItem::_VideoFileName() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
     return QString(pVid->LinkName(config.bLowerCaseImageExtensions));
 }
 QString ThumbnailItem::_FolderFileName() const
@@ -144,37 +156,39 @@ QString ThumbnailItem::FileName() const
     return QString();
 }
 
-QString ThumbnailItem::_ImageFullName() const
+QString ThumbnailItem::_ImageFullSourceName() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Image* pImg = albumgen.ImageAt(album.IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
-    return QString(pImg->FullName());
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+    return pImg->FullSourceName();
 }
-QString ThumbnailItem::_VideoFullName() const
+QString ThumbnailItem::_VideoFullSourceName() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Video* pVid = albumgen.VideoAt(album.IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
-    return pVid->FullName();
+    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    return pVid->FullSourceName();
 }
-QString ThumbnailItem::_FolderFullName() const
+QString ThumbnailItem::_FolderFullSourceName() const
 {
-    Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
-    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
-    return pImg->FullName();
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->thumbnail);
+    return pImg->FullSourceName();
 }
 
 QString ThumbnailItem::text()  const
 {
+    return FullSourcePath();
+}
+
+QString ThumbnailItem::FullSourcePath() const
+{
     switch (_itemType)
     {
-        case image: return   _ImageFullName();
-        case video: return   _VideoFullName();
-        case folder: return _FolderFullName();
+        case image: return   _ImageFullSourceName();
+        case video: return   _VideoFullSourceName();
+        case folder: return  _FolderFullSourceName();
         default: break;
     }
     return QString();
 }
+
 #endif // #ifndef _USE_QSTANDARDITEM 
 
 // ****************** ThumbnailWidget ******************
@@ -881,9 +895,6 @@ void ThumbnailWidget::_InitThumbs()
 	int thumbsAddedCounter = 1;
     Album &album = albumgen.Albums()[_albumId];
 
-    QString thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
-	QString imageFullPath;
-
     auto TypeFor = [](ID_t id) { return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));  };
     // Add images
 	for (fileIndex = 0; fileIndex < album.items.size(); ++fileIndex)
@@ -1232,6 +1243,16 @@ void ThumbnailWidget::UndoDelete()
  *------------------------------------------------------------*/
 void ThumbnailWidget::AddImages()
 {
+    QString dir = config.dsLastImageDir.ToString();
+    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add image"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
+    if (qslFileNames.isEmpty())
+        return;
+    // get all file names into  _imageMap or _videoMap,
+    // plus into the actual album into albumgen's _albumMap
+    // plus into _thumbnailWidgetModel
+    // and display it
+    config.dsLastImageDir = dir;
+
 }
 
 /*=============================================================
