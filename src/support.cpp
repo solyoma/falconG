@@ -1399,14 +1399,16 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 
 bool ImageMarker::Read()
 {
-	constexpr int margin = 10;	// 2 x 5 in pixels
+	constexpr int margin = 10;	// both sides, in pixels
 	static QPixmap folderIcon;
 	if (folderIcon.isNull())
-		folderIcon = QPixmap(":/icons/Resources/foldericon.png");
+		folderIcon = QPixmap(":/icons/Resources/folderIcon.png");
 
 	QImageReader reader(name);
 	reader.setAutoTransform(true);
-	QColor cbck = (isFolder ? config.albumMatteColor : config.imageMatteColor).v;
+	QColor cbck = (isFolder ? config.albumMatteColor : config.imageMatteColor).Name();
+	if (!cbck.isValid())
+		return false;
 	reader.setBackgroundColor(cbck);
 
 	pxmp = QPixmap(size, size);
@@ -1424,7 +1426,7 @@ bool ImageMarker::Read()
 	}
 	else
 	{
-		dsize.setHeight(size - margin);
+		dsize.setHeight(size - 2*margin);
 		dsize.setWidth((double)(size - 2*margin) / (double)(osize.height()) * osize.width());
 	}
 

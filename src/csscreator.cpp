@@ -235,9 +235,9 @@ img {
 	_ofs << ".imatte {\n"
 			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"\tposition:relative;\n";
-	if (config.imageMatte.v)	// width not 0
+	if (config.imageMatteWidth.v)	// width not 0
 		_ofs << "\tbackground-color:" << config.imageMatteColor.v << ";\n"
-			 << "\tpadding:" << config.imageMatte.v << "px;\n";
+			 << "\tpadding:" << config.imageMatteWidth.v << "px;\n";
 	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);	// image border on matte
 
 	if (config.imageBorder.Radius() > 0)							// also on matte
@@ -248,9 +248,9 @@ img {
 	_ofs << ".amatte {\n"
 			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"\tposition:relative;\n";
-	if (config.albumMatte.v)	// width not 0 ?
+	if (config.albumMatteWidth.v)	// width not 0 ?
 		_ofs << "\tbackground-color:" << config.albumMatteColor.Name() << ";\n"
-			 << "\tpadding:" << config.albumMatte.v << "px;\n";
+			 << "\tpadding:" << config.albumMatteWidth.v << "px;\n";
 	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);
 	if (config.imageBorder.Radius() > 0)
 		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";

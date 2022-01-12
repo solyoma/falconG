@@ -956,11 +956,15 @@ void FalconG::_DesignToUi()
 	ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAll));
 	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
 	ui.sbImageBorderRadius->setValue(config.imageBorder.Radius());
-	ui.sbImageMatteWidth->setValue(config.imageMatte);
+	ui.sbImageMatteWidth->setValue(config.imageMatteWidth);
 	ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
 
+	ui.btnImageMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.imageMatteColor.Name()));
+
 	ui.sbAlbumMatteRadius->setValue(config.albumMatteRadius);
-	ui.sbAlbumMatteWidth->setValue(config.albumMatte);
+	ui.sbAlbumMatteWidth->setValue(config.albumMatteWidth);
+
+	ui.btnAlbumMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.albumMatteColor.Name()));
 
 	ui.sbSpaceAfter->setValue(0);
 
@@ -1316,7 +1320,8 @@ void FalconG::on_btnAlbumMatteColor_clicked()
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
 		config.albumMatteColor = qcNew.name();
-		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.v);
+		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.Name());
+		_SetConfigChanged(true);
 	}
 }
 
@@ -1693,6 +1698,7 @@ void FalconG::on_btnImageBorderColor_clicked()
 		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.imageBorder.SetColor(side, qcNew.name());
 		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
+		_SetConfigChanged(true);
 	}
 }
 
@@ -1708,7 +1714,8 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
 		config.imageMatteColor = qcNew.name();
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.v);
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name());
+		_SetConfigChanged(true);
 	}
 }
 
@@ -3308,8 +3315,8 @@ void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
 {
 	if (_busy)
 		return;
-	config.albumMatte = val;
-	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.v);
+	config.albumMatteWidth = val;
+	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.Name());
 	if(!val)
 		_RunJavaScript("amatte", QString("padding:"));
 	else
@@ -3504,11 +3511,11 @@ void FalconG::on_sbImageMatteRadius_valueChanged(int w)
  *-------------------------------------------------------*/
 void FalconG::on_sbImageMatteWidth_valueChanged(int val)
 {
-	if (_busy || config.imageMatte == val )
+	if (_busy || config.imageMatteWidth == val )
 		return;
 
-	config.imageMatte = val;
-	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.v);
+	config.imageMatteWidth = val;
+	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.Name());
 	if (!val)
 		_RunJavaScript("imatte",QString("padding:"));
 	else	

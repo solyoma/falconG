@@ -430,7 +430,7 @@ private:
 	void _Prepare() override		// v from internal (changed) variables
 	{
 		v = _colorName;			  // name w.o. opacity: #RRGGBB
-		v = "#" + QString("%1").arg(_opacity, 2, 16, QChar('0')) + v.mid(1);	// name w. o. opacity
+		v = "#" + QString("%1").arg(_opacity, 2, 16, QChar('0')) + v.mid(1);	// name with opacity
 		if (!_opacityUsed)				  // name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
 			v = v + '-';
 	}
@@ -1151,10 +1151,10 @@ public:
 	_CBool iconInfoOn = {false, "iconInfoOn"};
 	_CInt  imageMargin = { 2, "imageMargin" };			// on img-container
 	_CBorder imageBorder = {"0|2|0|#EAA41E", "imageBorder"};
-	_CInt imageMatte = { 0, "imageMatte" };					  // width
+	_CInt imageMatteWidth = { 0, "imageMatteWidth" };					  // width
 	_CInt imageMatteRadius = { 0, "imgMRad" };
 	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
-	_CInt albumMatte = { 0, "albumMatte" };					  // width
+	_CInt albumMatteWidth = { 0, "albumMatteWidth" };					  // width
 	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
 	_CInt albumMatteRadius = { 0, "abMRad" };
 				// 	Watermarks

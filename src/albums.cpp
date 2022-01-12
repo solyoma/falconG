@@ -3515,7 +3515,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		</div>
 	</div>
 
-)").arg((isAlbum ? "imatte" : "amatte"))							// 1
+)").arg((isAlbum ? "amatte" : "imatte"))							// 1
 	.arg(pImage->ID & ID_MASK)										// 2
 	.arg(pImage->tsize.width())										// 3
 	.arg(pImage->tsize.height())									// 4

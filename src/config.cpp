@@ -1394,10 +1394,10 @@ void CONFIG::ClearChanged()
 
 	imageMargin.ClearChanged();
 	imageBorder.ClearChanged();
-	imageMatte.ClearChanged();
+	imageMatteWidth.ClearChanged();
 	imageMatteRadius.ClearChanged();
 	imageMatteColor.ClearChanged();
-	albumMatte.ClearChanged();
+	albumMatteWidth.ClearChanged();
 	albumMatteRadius.ClearChanged();
 	albumMatteColor.ClearChanged();
 
@@ -1570,11 +1570,11 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 
 	imageMargin = cfg.imageMargin;
 	imageBorder = cfg.imageBorder;
-	imageMatte = cfg.imageMatte;
+	imageMatteWidth = cfg.imageMatteWidth;
 	imageMatteColor = cfg.imageMatteColor;
 	imageMatteRadius = cfg.imageMatteRadius;
 
-	albumMatte = cfg.albumMatte;
+	albumMatteWidth = cfg.albumMatteWidth;
 	albumMatteColor = cfg.albumMatteColor;
 	albumMatteRadius = cfg.albumMatteRadius;
 }
@@ -1688,11 +1688,11 @@ void CONFIG::Read()		// synchronize with Write!
 	// image decoration
 	imageMargin.Read(s);
 	imageBorder.Read(s);
-	imageMatte.Read(s);
+	imageMatteWidth.Read(s);
 	imageMatteColor.Read(s);
 	imageMatteRadius.Read(s);
 	// album decoration
-	albumMatte.Read(s);
+	albumMatteWidth.Read(s);
 	imageMatteRadius.Read(s);
 	albumMatteColor.Read(s);
 	albumMatteRadius.Read(s);
@@ -1829,10 +1829,10 @@ void CONFIG::_WriteIni(QString sIniName)
 	// image decoration
 	imageMargin.Write(s);
 	imageBorder.Write(s);
-	imageMatte.Write(s);
+	imageMatteWidth.Write(s);
 	imageMatteColor.Write(s);
 	// album decoration
-	albumMatte.Write(s);
+	albumMatteWidth.Write(s);
 	imageMatteRadius.Write(s);
 	albumMatteColor.Write(s);
 	albumMatteRadius.Write(s);
