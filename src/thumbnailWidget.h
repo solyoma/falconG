@@ -44,6 +44,7 @@ public:
 	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
 
 private:
+	static int _thumbHeight;
 	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
 	Type _itemType;
 
@@ -63,7 +64,6 @@ private:
 	QString _ImageFullSourceName() const;
 	QString _VideoFullSourceName() const;
 	QString _FolderFullSourceName() const;
-	static int _thumbHeight;
 
 public:
 	int type() const { return _itemType; }
@@ -95,8 +95,7 @@ public:
 	QString FilePath() const;	// for destination file
 	QString FileName() const;	// - " - 
 	QString FullSourcePath() const;
-
-
+	QIcon   IconForFile() const;		// uses _albumId and itemPos
 };
 #else
 using ThumbnailItem = QStandardItem;

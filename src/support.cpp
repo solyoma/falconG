@@ -1397,3 +1397,47 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 	return *this;
 }
 
+bool ImageMarker::Read()
+{
+	constexpr int margin = 10;	// 2 x 5 in pixels
+	static QPixmap folderIcon;
+	if (folderIcon.isNull())
+		folderIcon = QPixmap(":/icons/Resources/foldericon.png");
+
+	QImageReader reader(name);
+	reader.setAutoTransform(true);
+	QColor cbck = (isFolder ? config.albumMatteColor : config.imageMatteColor).v;
+	reader.setBackgroundColor(cbck);
+
+	pxmp = QPixmap(size, size);
+	pxmp.fill(cbck);
+
+	QSize osize = reader.size(),
+		  dsize;
+	if (!osize.isValid())
+		return false;
+		
+	if (osize.width() >= osize.height())	// portrait
+	{
+		dsize.setWidth(size - 2*margin);
+		dsize.setHeight((double)(size - 2*margin) / (double)(osize.width()) * osize.height());
+	}
+	else
+	{
+		dsize.setHeight(size - margin);
+		dsize.setWidth((double)(size - 2*margin) / (double)(osize.height()) * osize.width());
+	}
+
+	reader.setScaledSize(dsize);
+
+	static QImage img;
+	if(!reader.read(&img))		// maybe error display?
+		return false;
+	QPainter painter(&pxmp);	// leave the margin outside
+	int xm =(pxmp.width() - dsize.width()) / 2, ym = (pxmp.height() - dsize.height()) / 2;
+	painter.drawImage(xm, ym, img);
+
+	if (isFolderIcon)
+		painter.drawPixmap(size - folderIcon.width() - margin, margin, folderIcon);
+	return true;
+}

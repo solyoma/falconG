@@ -35,6 +35,37 @@ ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ) : QStandardItem(p
     QSize hintSize = QSize(_thumbHeight, _thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
     setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
 }
+
+QIcon ThumbnailItem::IconForFile() const
+{
+    Album* pAlbum = _ActAlbum();
+    ID_t itemId = pAlbum->items[itemPos];
+    bool exists = false;
+    bool bIsFolderIcon = false;
+    bool isImageOrVideo = itemId & (IMAGE_ID_FLAG | VIDEO_ID_FLAG);
+    bool isFolder = itemId & ALBUM_ID_FLAG;
+
+
+    if (isFolder)
+        bIsFolderIcon = (albumgen.Albums()[itemId].thumbnail == pAlbum->thumbnail);
+
+    itemId &= ID_MASK;
+    if (isImageOrVideo)
+        bIsFolderIcon = (itemId == pAlbum->thumbnail);
+
+    QString imageName;
+    if ((exists=QFile::exists(FilePath() + FileName())))
+        imageName = FilePath() + FileName();
+    else if ((exists=QFile::exists(FullSourcePath())))
+        imageName = FullSourcePath();
+    else
+        imageName = QString(":/Preview/Resources/NoImage.jpg");
+    
+    ImageMarker imageMarker(imageName, 300, bIsFolderIcon, exists, isFolder);
+    return imageMarker.Read() ? imageMarker.ToIcon() : QIcon();
+}
+
+
 QVariant ThumbnailItem::data(int role) const
 {
     switch (role)
@@ -44,14 +75,8 @@ QVariant ThumbnailItem::data(int role) const
         case TypeRole:          return _itemType;
         case FilePathRole:      return FilePath();
         case FileNameRole:      return FileName();
-        case Qt::DecorationRole:  {            // to show the icons (when QListView is set for it)
-                                    if (QFile::exists(FilePath() + FileName()))
-                                        return QIcon(FilePath() + FileName());
-                                    else if (QFile::exists(FullSourcePath()))
-                                        return FullSourcePath();
-                                    else
-                                        return QString(":/Preview/Resources/NoImage.jpg");
-                                  }
+        case SourcePathNameRole: return FullSourcePath();		 // full path name of image source
+        case Qt::DecorationRole: return IconForFile();           // to show the icons (when QListView is set for it)
         case FullNameRole:      return FilePath() + FileName();
     }
     return QVariant();
@@ -75,7 +100,6 @@ QString ThumbnailItem::_FolderToolTip() const
     QString s = pAlbum->FullSourceName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")";
     return s;
 }
-
 
 QString ThumbnailItem::ToolTip() const
 {
@@ -1132,7 +1156,7 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent * event)
 }
 
 /*=============================================================
- * TASK: Event handler for right floating menu
+ * TASK: Event handler for right floating popup menu
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -1143,43 +1167,20 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	QMenu menu(this);
 	QAction *pact;
 
-
-	pact = new QAction(tr("Add Images.."), this);
-	pact->setEnabled(true);
-	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
-	menu.addAction(pact);
-
-	pact = new QAction(tr("Add Folder.."), this);
-	pact->setEnabled(true);
-	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
-	menu.addAction(pact);
-
-    menu.addSeparator();
-
-	pact = new QAction(tr("Set As Album Thumbnail"), this);
+	pact = new QAction(tr("Set As Album &Thumbnail"), this);
 	bool b = selectionModel()->selectedIndexes().size() == 1;
 	pact->setEnabled(b);
 	if(b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
 	menu.addAction(pact);
-	
+
 	b = selectionModel()->selectedIndexes().size();
-	pact = new QAction(tr("&Delete"), this);
+	pact = new QAction(tr("&Remove"), this);
 	pact->setEnabled(b);
 	if (b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
 	menu.addAction(pact);
-
-#if 0
-    // how to make it work?
-    pact = new QAction(tr("&Undo Delete"), this);
-#define CAN_UNDO(a) (a && !a->NothingToUndo())
-	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
-	pact->setEnabled(undo);
-	if (undo)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
-	menu.addAction(pact);
-#endif
+	
 	menu.addSeparator();
 
 	pact = new QAction(tr("Copy &Name(s)"), this);
@@ -1193,7 +1194,29 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	if (b)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyOriginalNamesToClipboard);
 	menu.addAction(pact);
+    
+    menu.addSeparator();
 
+	pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
+	pact->setEnabled(true);
+	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
+	menu.addAction(pact);
+
+	pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
+	pact->setEnabled(true);                          // the album need not be physical
+	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
+	menu.addAction(pact);
+
+#if 0
+    // how to make it work?
+    pact = new QAction(tr("&Undo Delete"), this);
+#define CAN_UNDO(a) (a && !a->NothingToUndo())
+	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
+	pact->setEnabled(undo);
+	if (undo)
+		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
+	menu.addAction(pact);
+#endif
 
 	menu.exec(pevent->globalPos());
 }
@@ -1251,6 +1274,7 @@ void ThumbnailWidget::AddImages()
     // plus into the actual album into albumgen's _albumMap
     // plus into _thumbnailWidgetModel
     // and display it
+
     config.dsLastImageDir = dir;
 
 }
@@ -1297,7 +1321,7 @@ void ThumbnailWidget::CopyOriginalNamesToClipboard()
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
 	for (auto i : list)
-		s += selectionModel()->model()->data(i, Qt::DisplayRole).toString() + "\n";
+		s += selectionModel()->model()->data(i, SourcePathNameRole).toString() + "\n";
 	QClipboard *clipboard = QGuiApplication::clipboard();
 	clipboard->clear();
 	clipboard->setText(s);

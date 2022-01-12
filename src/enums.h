@@ -80,9 +80,10 @@ namespace Enums
 	enum FrfFlags { frfNormal, frfAllLines, frfEmptyLines = 2, frfCommentLines = 4, frfLtrim = 8, frfRtrim = 8, frfTrim = 12, frfNoWhiteSpaceLines = 32, frfNeedUtf8 = 64 };
 	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
 	enum UserRoles {
-		FileNameRole = Qt::UserRole + 1,		 // file name w.o. path, e.g. 12345.jpg
-		FilePathRole,							 // path of file ending in '/'
-		FullNameRole,
+		FileNameRole = Qt::UserRole + 1,		 // file name of generated image/video w.o. path, e.g. 12345.jpg 
+		FilePathRole,							 // path of generated image directory ending in '/' relative to server root
+		FullNameRole,							 // path name of generated image/video relative to server root
+		SourcePathNameRole,						 // path name of image source either relative to source folder or full path
 		SortRole,
 		LoadedRole,
 		TypeRole								// return type of item (none, image, video, album)

@@ -193,6 +193,25 @@ struct ImageReader : public QImageReader
 		setFormat(format);		 // e.g. "jpg" (same as "JPG"), empty: cycle through supported formats until one found
 	}
 };
+//*****************************************
+// read an image from disk or resource, rotate it on read if needed, 
+//  resize it to w and h keeping aspect ratio
+//  add a square icon overlay at given postion from the right
+struct ImageMarker
+{
+	QPixmap pxmp;			// square pixmap for images with a border
+	QString name;			// full path name
+	int		size;		// image inside this keeping aspect ratio
+	bool isFolderIcon;		// if yes: mark the image
+	bool exists;			// if not, mark the image
+	bool isFolder;			// different border
+
+	ImageMarker(QString name,  int size, bool isFolderIcon, bool exists, bool isFolder) : 
+			name(name), size(size), isFolderIcon(isFolderIcon), exists(exists), isFolder(isFolder) {}
+	bool Read();			// transforms possibly rotated image on read to pixmap which has the enclosing size
+	QIcon ToIcon() { return QIcon(pxmp); }
+};
+QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
 
 //*****************************************
 struct ImageConverter
@@ -219,6 +238,7 @@ private:
 	void _AddWatermark(WaterMark &wm);		// to pImg using data from config
 };
 
+//*****************************************
 QString TimeToHMSStr(time_t t);
 QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
