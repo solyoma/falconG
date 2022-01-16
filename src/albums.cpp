@@ -625,10 +625,7 @@ Image &ImageMap::Find(QString FullSourceName)
 *--------------------------------------------------------------------------*/
 ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 {
-	QString basePath;
-
-	if (!QDir::isAbsolutePath(path))			// common part of path is not stored
-		basePath = config.dsSrc.ToString();		// but we need it
+	QString basePath = config.dsSrc.ToString();	// common part of path is not stored
 
 	Image img;
 
@@ -637,6 +634,9 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 
 	if (img.path.isEmpty())
 		img.path = ImageMap::lastUsedPath;
+
+	if (img.path.left(basePath.length()) == basePath)	// cut common path from image
+		img.path = img.path.mid(basePath.length());
 
 	QDir dir;
 	img.exists = dir.exists(basePath + img.path + img.name);
@@ -1627,12 +1627,20 @@ void AlbumGenerator::Clear()
 }
 
 /*==========================================================================
-* TASK:		reads whole album hierarchy starting at directory 'root'
+* TASK:		reads or creates whole album hierarchy
+*				if a corresponding '.struct' file exists and not yet read into
+*					memory then tries to read it. If the read is unsuccessfull
+*					then all data is cleared from memory
+*				if 'config.bReadFromDirs' is checked always reads the list of
+*					all images (using JAlbum's files too if they exist)
+*					starting at directory 'root'
+* PARAMS:	'bMustReRead' must read original '.struct' file even when one 
+*					is already in memory
 * EXPECTS: 'root' path name of uppermost source album directory
 * RETURNS: success
 * REMARKS: - prepares _root album and recursively processes all levels
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::Read()
+bool AlbumGenerator::Read(bool bMustReRead)
 {
 	_processing = true;
 
@@ -1648,7 +1656,7 @@ bool AlbumGenerator::Read()
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
-	if(!config.bReadFromDirs && QFileInfo::exists(s))
+	if(!config.bReadFromDirs && QFileInfo::exists(s) && (bMustReRead || !AlbumCount()))
 	{
 		try
 		{
@@ -1656,9 +1664,7 @@ bool AlbumGenerator::Read()
 		}
 		catch (.../*BadStruct b*/)
 		{
-			_imageMap.clear();		  // reading aborted
-			_textMap.clear();
-			_albumMap.clear();
+			Clear();		  // reading aborted
 		}
 	}
 	else
@@ -2045,6 +2051,53 @@ QStringList __imageMapStructLineToList(QString s)
 
 	sl.push_back(s.mid(pos + 1));		// index #6 or #10 - original path 
 	return sl;
+}
+
+/*=============================================================
+ * TASK:	add new image or video to 'album', 
+ * PARAMS:	'fullFilePath': 
+ *			'album' - image or video is in this album
+ *			'pos' -	position of new image or video in album
+ *					-1: append, other: insert before this position
+ * GLOBALS: config
+ * RETURNS: sucess or failure of the operation
+ * REMARKS: C.f. :_ImageOrVideoFromStruct()
+ *			marks album as changed, so it's get regenerated
+ *------------------------------------------------------------*/
+bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& album, int pos)
+{
+	Image img;
+	Video vid;
+
+	FileTypeImageVideo type = IsImageOrVideoFile(fullFilePath);
+	if (type == ftUnknown)
+	{
+		QMessageBox::warning(frmMain, "falconG - Warning", QString(tr("Unkknown file type")));
+		return false;
+	}
+
+	bool added;
+	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // to maps has type flag set
+	album.changed = true;			// set it as changed always 
+	if (type == ftImage)
+	{
+		img = _imageMap[id];
+		if (added && !img.path.isEmpty())
+			ImageMap::lastUsedPath = img.path;
+	}
+	else
+	{
+		vid = _videoMap[id];
+		if (added && !vid.path.isEmpty())
+			VideoMap::lastUsedPath = vid.path;
+	}
+	// add it to album
+	UndeletableItem<ID_t> item(id);
+	if (pos < 0)
+		album.items.push_back(item);
+	else
+		album.items.insert(pos, item);
+	return true;
 }
 
 /*==========================================================================
@@ -3519,7 +3572,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	.arg(pImage->ID & ID_MASK)										// 2
 	.arg(pImage->tsize.width())										// 3
 	.arg(pImage->tsize.height())									// 4
-	.arg(isAlbum ? "thumb" : "athumb")								// 5
+	.arg(isAlbum ? "athumb" : "thumb")								// 5
 	.arg(idIndex > 2 ? "data-src":"src")							// 6
 	.arg(sThumbnailPath)											// 7
 	.arg(title)														// 8
@@ -3835,7 +3888,7 @@ int AlbumGenerator::_CreateAboutPages()
 * GLOBALS:	'config
 * RETURNS: 0: OK, -1: error writing file
 * REMARKS: file is named <main gallery page name> except when it is the same
-*			as the config.sUplink, in which case it has an anderscore at the front
+*			as the config.sUplink, in which case it has an underscore at the front
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_CreateHomePage()
 {

@@ -123,6 +123,8 @@ private:
 	void _SetIconColor(QIcon &icon, _CElem &elem);
 	QIcon _SetUplinkIcon(QString iconName = QString());
 
+	void _ReadLastAlbumStructure();	// use after config read
+
 	void _EnableGradient(bool ena);
 	void _EnableButtons();
 	void _GlobalsToUi();

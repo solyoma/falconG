@@ -236,7 +236,7 @@ img {
 			"\tmargin: 0 " << config.imageMargin << ";\n"
 			"\tposition:relative;\n";
 	if (config.imageMatteWidth.v)	// width not 0
-		_ofs << "\tbackground-color:" << config.imageMatteColor.v << ";\n"
+		_ofs << "\tbackground-color:" << config.imageMatteColor.Name() << ";\n"
 			 << "\tpadding:" << config.imageMatteWidth.v << "px;\n";
 	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);	// image border on matte
 

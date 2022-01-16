@@ -381,10 +381,9 @@ class AlbumGenerator : public QObject
 public:
 	static QString lastUsedAlbumPath;	// config.dsSrc relative path to image so that we can add 
 										// an image by its name (relative to this path) only
-
 	AlbumGenerator() {};
 	void Clear();
-	bool Read();	 // reads all albums recursively from Config::dsSrc
+	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool keep=false);		
 	bool StructWritten() const { return _structWritten; }
@@ -412,6 +411,8 @@ public:
 	AlbumMap &Albums() { return _albumMap; }
 	Album *AlbumForID(ID_t id) { return &_albumMap[id]; }
 	QString SiteLink(int language);
+
+	bool AddImageOrVideoFromString(QString inpstr, Album& album, int pos = -1);
 
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);

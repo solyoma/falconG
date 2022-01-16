@@ -225,6 +225,14 @@ template<typename T> class UndeletableItemList : public QVector<UndeletableItem<
 		++_changed;
 	}
 
+	void insert(int pos, const T& t)
+	{
+		const UndeletableItem<T> dti(t);
+		BaseClassType::insert(pos, dti);
+		++_size;
+		++_changed;
+	}
+
 	bool NothingToUndo() const { return _size == 0; }
 	bool Changed() const { return _changed; }
 };

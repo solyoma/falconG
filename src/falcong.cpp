@@ -251,6 +251,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
 
 	ui.edtAboutText->Setup();
+
+	_ReadLastAlbumStructure();
+
 	_EnableButtons();
 }
 
@@ -379,6 +382,9 @@ void FalconG::on_btnSourceHistory_clicked()
 				--_busy;
 			}
 			_ConfigToSample();
+
+			_ReadLastAlbumStructure();
+
 		}
 		if (SourceHistory::Changed())
 			PROGRAM_CONFIG::Write();
@@ -446,7 +452,7 @@ void FalconG::on_btnGenerate_clicked()
 		_phase = 0;
 
 				// READ album
-		if (!albumgen.Read())		// any error
+		if (!albumgen.Read(false))		// any error
 			--_running, _phase = -1;
 		QGuiApplication::restoreOverrideCursor();
 		_TnvCountChanged();			// show in lblTotalCount (page: Edit)
@@ -480,9 +486,11 @@ void FalconG::on_btnGenerate_clicked()
 		ui.actionExit->setEnabled(true);
 
 		--_running;
-		if(_phase != -1 )
+		if (_phase != -1)
+		{
 			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
-
+			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0,0));
+		}
 		albumgen.SetRecrateAlbumFlag(config.bGenerateAll);	// not until relevant changes
 	}
 
@@ -1240,6 +1248,22 @@ QIcon FalconG::_SetUplinkIcon(QString iconName)
 	_lastUsedMenuForegroundColor = Qt::white;
 	_SetIconColor(icon, config.Menu);
 	return icon;
+}
+
+void FalconG::_ReadLastAlbumStructure()
+{
+	// read last album structure
+	if (PROGRAM_CONFIG::indexOfLastUsed >= 0)
+	{
+		QString qs = PROGRAM_CONFIG::NameForConfig(false, ".struct");
+		if (QFile::exists(qs) && albumgen.Read(true))
+		{
+			_AlbumStructureSelectionChanged(QItemSelection(), QItemSelection());
+			_TnvCountChanged();			// show in lblTotalCount (page: Edit)
+			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
+		}
+	}
+
 }
 
 

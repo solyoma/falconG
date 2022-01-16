@@ -136,7 +136,10 @@ public:
 		endResetModel();
 		return old; 
 	}
-	int rowCount() { return QStandardItemModel::rowCount() + _dummyPosition >= 0 ? 1 : 0; }
+	int rowCount() 
+	{ 
+		return QStandardItemModel::rowCount() + (_dummyPosition >= 0 ? 1 : 0); 
+	}
 
 	ThumbnailItem*	item(int row, int column = 0) const
 	{
@@ -240,6 +243,10 @@ private:
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
 	bool _IsAllowedToDrop(const QDropEvent *event);
+	inline ThumbnailItem::Type _TypeFor(ID_t id) const
+	{
+		return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));
+	}
 
 signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
