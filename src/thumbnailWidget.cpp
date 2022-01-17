@@ -42,14 +42,15 @@ QIcon ThumbnailItem::IconForFile() const
     ID_t itemId = pAlbum->items[itemPos];
     bool exists = false;
     bool bIsFolderIcon = false;
-    bool isImageOrVideo = itemId & (IMAGE_ID_FLAG | VIDEO_ID_FLAG);
+    //bool isImageOrVideo = itemId & (IMAGE_ID_FLAG | VIDEO_ID_FLAG);
     bool isFolder = itemId & ALBUM_ID_FLAG;
 
     ID_t imgId = itemId;
     if (isFolder)
     {
+        Album* parent = _ParentAlbum();
         imgId = albumgen.Albums()[itemId].thumbnail;
-        bIsFolderIcon = (pAlbum->parent && albumgen.Albums()[pAlbum->parent].thumbnail == imgId);
+        bIsFolderIcon = (parent && parent->thumbnail == imgId);
     }
     else //    if (isImageOrVideo)
         bIsFolderIcon = (itemId == pAlbum->thumbnail);
@@ -1183,13 +1184,6 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
 	menu.addAction(pact);
 
-	b = selectionModel()->selectedIndexes().size();
-	pact = new QAction(tr("&Remove"), this);
-	pact->setEnabled(b);
-	if (b)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
-	menu.addAction(pact);
-	
 	menu.addSeparator();
 
 	pact = new QAction(tr("Copy &Name(s)"), this);
@@ -1215,6 +1209,15 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	pact->setEnabled(true);                          // the album need not be physical
 	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
 	menu.addAction(pact);
+
+	menu.addSeparator();
+
+    b = selectionModel()->selectedIndexes().size();
+    pact = new QAction(tr("&Remove"), this);
+    pact->setEnabled(b);
+    if (b)
+        connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
+    menu.addAction(pact);
 
 #if 0
     // how to make it work?
@@ -1251,8 +1254,34 @@ void ThumbnailWidget::DeleteSelected()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
-	for (auto i : list)
-		s += selectionModel()->model()->data(i, FileNameRole).toString();
+    if (list.isEmpty())
+        return;
+
+    QString plurali = tr("s"), plurala = tr("s");   // plural for image and album. May differ in other languages
+    QString qs = QMainWindow::tr("Do you want to delete selected image%1 / album%1 from disk, or just to remove them from gallery?").arg(list.size() > 1 ? plurali :"").arg(list.size() > 1 ? plurala : "");
+    QMessageBox msg;
+    msg.setWindowTitle(tr("falconG - Question"));
+    msg.setText(qs);
+    msg.addButton(tr("Delete"),QMessageBox::YesRole);
+    msg.addButton(tr("Remove"),QMessageBox::NoRole);
+    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);
+    msg.setDefaultButton(QMessageBox::Cancel);
+    msg.setIcon(QMessageBox::Question);
+    int res = msg.exec();
+
+    if (res == QMessageBox::Cancel)
+        return;
+
+    Album &album = albumgen.Albums()[_albumId];
+    int ix;
+    for (auto mi : list)
+    {
+        ix = mi.row();
+        album.items.remove(ix);
+    }
+    reLoad();
+
+    emit selectionChanged(QItemSelection(), QItemSelection());
 }
 
 /*=============================================================
@@ -1289,14 +1318,13 @@ void ThumbnailWidget::AddImages()
     int i;
     for (i=0; i < qslFileNames.size(); ++i)
     {
-        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], albumgen.Albums()[_albumId],pos);
+        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], *_ActAlbum(), pos);
         if (!res)
             break;
     }
     reLoad();
 
-    if (i)
-        emit selectionChanged(QItemSelection(), QItemSelection());
+    emit selectionChanged(QItemSelection(), QItemSelection());
     config.dsLastImageDir = dir;
 
 }
@@ -1358,9 +1386,24 @@ void ThumbnailWidget::CopyOriginalNamesToClipboard()
  *--------------------------------------------------------------------------*/
 void ThumbnailWidget::SetAsAlbumThumbnail()
 {
-	emit SignalNewThumbnail();
+    int pos = currentIndex().row();     // new thumbnail index
+
+    Album& album = albumgen.Albums()[_albumId];
+    int cthix = -1;// old thumbnail index in 'items'. -1: not from current album
+    for (int i = 0; i < album.items.size(); ++i)
+        if (album.thumbnail)
+            cthix = i;
+    if (cthix == pos)       // no change
+        return;
+
+    ID_t th = album.items[pos];
+
+    album.thumbnail = th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID;
+
+    reLoad();
 }
 
-void ThumbnailWidget::setNeedToScroll(bool needToScroll) {
+void ThumbnailWidget::setNeedToScroll(bool needToScroll) 
+{
     this->_isNeedToScroll = needToScroll;
 }

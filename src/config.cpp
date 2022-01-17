@@ -811,7 +811,7 @@ void _CGradient::_Setup()	// what was read from settings into v
 
 void _CGradient::_Prepare()		// to store in settings
 {
-	v = QString("%1|%2|%3|%4|%5|%6").arg(used)
+	v = QString("%1|%2|%3|%4|%5|%6|%7").arg(used)
 									.arg(gs[0].percent).arg(gs[0].color)
 									.arg(gs[1].percent).arg(gs[1].color)
 									.arg(gs[2].percent).arg(gs[2].color);

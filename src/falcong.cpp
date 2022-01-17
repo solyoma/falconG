@@ -199,7 +199,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailWidget::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailWidget::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalStatusChanged,	this, &FalconG::_TnvStatusChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalNewThumbnail,		this, &FalconG::_TnvNewThumbs);
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
 
@@ -5212,14 +5211,15 @@ int FalconG::GetProgressBarPos()
  *--------------------------------------------------------------------------*/
 void FalconG::_SetProgressBarPos(int count, int maxCount)
 {
+	ui.lblProgress->setText(QString("%1 / %2").arg(count).arg(maxCount));
+	ui.progressBar->setValue(count);
+
 	static int cnt = 0;
 	if (++cnt == 10)
 	{
 		QApplication::processEvents();
 		cnt = 0;
 	}
-	ui.lblProgress->setText(QString("%1 / %2").arg(count).arg(maxCount));
-	ui.progressBar->setValue(count);
 }
 
 /*============================================================================
@@ -5302,18 +5302,6 @@ void FalconG::_TnvSelectionChanged(QString s)
 	_GetTextsForEditing(wctSelection);
 }
 
-/*============================================================================
- * TASK:
- * EXPECTS:
- * RETURNS:
- * GLOBALS:
- * REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::_TnvNewThumbs()
-{
-	if (_selection.actAlbum && _selection.selectedImage)
-		albumgen.Albums()[_selection.actAlbum].thumbnail = _selection.selectedImage;
-}
 
 /*=============================================================
  * TASK:	  save the changed texts: slot for two buttons

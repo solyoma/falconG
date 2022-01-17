@@ -1656,16 +1656,21 @@ bool AlbumGenerator::Read(bool bMustReRead)
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
-	if(!config.bReadFromDirs && QFileInfo::exists(s) && (bMustReRead || !AlbumCount()))
+	if(!config.bReadFromDirs && QFileInfo::exists(s))
 	{
-		try
+		if ((bMustReRead || !AlbumCount()))
 		{
-			result = _ReadStruct(s);
+			try
+			{
+				result = _ReadStruct(s);
+			}
+			catch (.../*BadStruct b*/)
+			{
+				Clear();		  // reading aborted
+			}
 		}
-		catch (.../*BadStruct b*/)
-		{
-			Clear();		  // reading aborted
-		}
+		else
+			result = true;
 	}
 	else
 		result = _ReadFromDirs();
@@ -2072,7 +2077,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	FileTypeImageVideo type = IsImageOrVideoFile(fullFilePath);
 	if (type == ftUnknown)
 	{
-		QMessageBox::warning(frmMain, "falconG - Warning", QString(tr("Unkknown file type")));
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Unkknown file type")));
 		return false;
 	}
 
@@ -2092,11 +2097,10 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 			VideoMap::lastUsedPath = vid.path;
 	}
 	// add it to album
-	UndeletableItem<ID_t> item(id);
 	if (pos < 0)
-		album.items.push_back(item);
+		album.items.push_back(id);
 	else
-		album.items.insert(pos, item);
+		album.items.insert(pos, id);
 	return true;
 }
 
@@ -2579,9 +2583,10 @@ bool AlbumGenerator::_ReadFromDirs()
 			// first languages from en.lang, etc
 	emit SignalSetLanguagesToUI();
 
-			// get number of sub albums for display only
+			// get number of sub albums for display only, iterator points BEFORE first entry
 	QDirIterator dirIter(config.dsSrc.ToString(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);	// count directories
-	int directoryCount = 0;												// iterator points BEFORE first entry
+	int directoryCount = 0;	// this many valid directory
+	int omittedDirectoryCount = 0;
 	QString s;
 	emit SignalToSetProgressParams(0, 0, 0, 0);	// phase 0
 	while (dirIter.hasNext())
@@ -2595,10 +2600,12 @@ bool AlbumGenerator::_ReadFromDirs()
 				++directoryCount;
 				emit SignalProgressPos(directoryCount, directoryCount);
 			}
+			else if(s != "." && s != "..")
+				++omittedDirectoryCount;
 		}
 	}
 
-	emit SetDirectoryCountTo(directoryCount);
+	emit SetDirectoryCountTo(directoryCount + omittedDirectoryCount);
 	emit SignalToSetProgressParams(0, directoryCount, 0, 0);	// phase 0
 
 
@@ -2620,7 +2627,7 @@ bool AlbumGenerator::_ReadFromDirs()
 
 	_albumMap[_root.ID] = _root;	// a copy of _root is first on list	
 
-	_remDsp.Init(directoryCount);
+	_remDsp.Init(directoryCount + omittedDirectoryCount);
 	_ReadOneLevelOfDirs(_albumMap[rootId] );	// recursive read of all levels
 	if (!_processing)
 		return false;
@@ -3122,7 +3129,8 @@ QString AlbumGenerator::_IncludeFacebookLibrary()
     </script>
 */
 	return QString(
-		R"(\n<!--get facebooks js code-->
+		R"(
+<!--get facebooks js code-->
 	<script async defer crossorigin = "anonymous"
 			src = "https://connect.facebook.net/)") + (*languages["countryCode"])[_actLanguage] + 
 					QString( R"(/sdk.js#xfbml=1&version=v8.0" nonce = "ouGJwYtd">
@@ -3435,7 +3443,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	if (idIndex >= 0 && idList.isEmpty())
 		return isAlbum ? -1 : -2;
 
-	ID_t id = idIndex >= 0?  idList[idIndex].t : RECENT_ALBUM_ID;	// const non const values
+	ID_t id = idIndex >= 0 ? idList[idIndex] : RECENT_ALBUM_ID; 
 	if ((id & typeFlag) == 0)	// not this type
 		return 0;
 
@@ -3467,8 +3475,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		if (idIndex >= 0)
 			thumb = ThumbnailID(_albumMap[id], _albumMap);
 		else
-			if(_latestImages.list.size())
-				thumb = _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size())].t;
+			if (_latestImages.list.size())
+				thumb = _latestImages.list[QRandomGenerator::global()->generate() % (_latestImages.list.size())]; //with undeletableitemlist it was  .t; at the end
 
 		if (thumb)
 		{
@@ -3700,7 +3708,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
 	}
 	// get number of images and sub-albums
-	if (album.ImageCount())
+	if (album.ImageCount(true) )		// force count calculation as images mey have been added or removed in the GUI
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
 			<< "    <div id=\"images\" class=\"fgsection\">" << (*languages["images"])[_actLanguage] << "</div>\n"
@@ -3712,7 +3720,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
-	if (album.VideoCount() > 0)
+	if (album.VideoCount(true))		// force count calculation as images mey have been added or removed in the GUI
 	{
 		_ofs << "<!--start section videos -->\n"
 			 << "    <div id=\"videos\" class=\"fgsection\">" << (*languages["videos"])[_actLanguage] << "</div>\n"
@@ -3724,7 +3732,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
 
-	if (album.SubAlbumCount() > 0)
+	if (album.SubAlbumCount(true))		// force count calculation as images mey have been added or removed in the GUI
 	{
 		_ofs << "<!--start section albums -->\n"
 			<< "    <div id=\"albums\" class=\"fgsection\">" << (*languages["albums"])[_actLanguage] << "</div>\n"
@@ -4400,14 +4408,14 @@ void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString s
 {
 	if (!s.isEmpty())		// then error message
 	{
-		QMessageBox(QMessageBox::Warning, "falconG - Generate", s, QMessageBox::Close, frmMain).exec();
+		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
 		return;
 	}
 
 	_structWritten = true;
 	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
 	if(!s.isEmpty())
-		QMessageBox(QMessageBox::Warning, "falconG - Generate", s, QMessageBox::Close, frmMain).exec();
+		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
 }
 
 
@@ -4436,6 +4444,8 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 	tAct = time(nullptr) - t0;
 	if (tAct != tprev)
 	{
+		if (!cnt)
+			++cnt;
 		tTot = (time_t)((double)tAct / (double)cnt * max);
 		tprev = tAct;
 	}

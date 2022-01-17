@@ -23,7 +23,6 @@
 #include <QtWidgets>
 #include "enums.h"
 #include "schemes.h"
-#include "deletableitems.h"
 #include "albums.h"
 
 const int BAD_IMAGE_SIZE = 64;
@@ -48,7 +47,12 @@ private:
 	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
 	Type _itemType;
 
-	Album	*_ActAlbum() const { return &albumgen.Albums()[_albumId]; }
+	Album	*_ActAlbum() const { return albumgen.AlbumForID(_albumId); }
+	Album   *_ParentAlbum() const 
+	{ 
+		Album* pa = _ActAlbum();
+		return pa->parent ? albumgen.AlbumForID(pa->parent) : nullptr;
+	}
 	QString _ImageToolTip() const;
 	QString _VideoToolTip() const;
 	QString _FolderToolTip() const;
@@ -238,6 +242,7 @@ private:
     int _thumbsRangeLast;
 
 private:
+	Album	*_ActAlbum() const { return &albumgen.Albums()[_albumId]; }
     void _InitThumbs();
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();
@@ -253,7 +258,6 @@ signals:
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
 	void SingleSelection(QString path);			// name of selected thumbnail
-	void SignalNewThumbnail();					// last selected 
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments

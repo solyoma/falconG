@@ -194,7 +194,6 @@ private slots:
 	void _TnvCountChanged();
 	void _TnvStatusChanged(QString &); // thumbnail view status changed
 	void _TnvSelectionChanged(QString );		// name of selected item or "" for no or multiple items
-	void _TnvNewThumbs();		// previous seingle selection is the new thumbnail for actual album
 	void _SaveChangedTitleDescription();
 
 	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow

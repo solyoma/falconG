@@ -128,9 +128,6 @@
     <ClInclude Include="languages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="deletableitems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="support.h">
       <Filter>Header Files</Filter>
     </ClInclude>

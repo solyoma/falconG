@@ -225,7 +225,7 @@ void CssCreator::_CreateForImagesAndAlbums()
 }
 
 img {
-	display:box;
+	display:block;
 	cursor:pointer;
 }
 

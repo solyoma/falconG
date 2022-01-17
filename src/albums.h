@@ -21,7 +21,6 @@
 #endif
 
 #include "support.h"
-#include "deletableitems.h"
 #include "config.h"
 #include "crc32.h"
 #include "stylehandler.h"
@@ -35,7 +34,7 @@ const QString THUMBNAIL_TAG = "Icon";	// "album icon"
 
 #define ID_T_DEFINED
 using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
-using IdList = UndeletableItemList<ID_t>;
+using IdList = QVector<ID_t>; 
 
 const ID_t EXCLUDED_FLAG = 0x8000000000000000ull;
 const ID_t ALBUM_ID_FLAG = 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
