@@ -102,6 +102,8 @@ private:
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
+	QModelIndex _currentTreeViewIndex;
+
 	bool _isWebPageLoaded = false;
 	int _phase = 0;			// processing phase. set by 'SetProgressBar()'
 	AlbumElement _aeActiveElement = aeWebPage;
@@ -202,6 +204,7 @@ private slots:
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
 	void _SlotForSchemeChange(int which);
+	void _SlotForChangeToFolderWithID(ID_t id);	// inside actual folder in ui.trvAlbums
 
 	void _SlotForSchemeButtonClick(int which);
 	void _AskForApply();	// when color scheme changed and not yet applied

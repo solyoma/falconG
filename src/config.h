@@ -986,6 +986,7 @@ public:
 	CONFIG &operator=(const CONFIG &cfg);
 
 	QString RemoveSourceFromPath(QString path);
+	QString AddSourceToPath(QString path);	// conditionally
 
 	void FromDesign(const CONFIG &cfg);	// set designer part of cfg 
 	void FromOther(const CONFIG &cfg);	// set other part from cfg

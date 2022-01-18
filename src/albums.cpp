@@ -876,7 +876,7 @@ ID_t Album::IdOfItemOfType(int64_t type, int index, int startPos)
 
 /*============================================================================
 * TASK: Create full link name of album
-* EXPECTS: language -  index of language
+* EXPECTS: language -  index of language, -1: no language or extension
 *			http - true: http or https prefix plus add albumdir to the 
 *			front true: needed, false: just name
 * GLOBALS: config
@@ -884,14 +884,13 @@ ID_t Album::IdOfItemOfType(int64_t type, int index, int startPos)
 *--------------------------------------------------------------------------*/
 QString Album::LinkName(int language, bool http) const
 {
-	QString s;
+	QString s = NameFromID(ID, language, http);
 	if (http)
 	{
 		if (config.sServerAddress.ToString().toLower().left(4) == "http")
-			s = config.sServerAddress + "/";
+			s = config.sServerAddress + "/" + s;
 		else
-			s = (config.bForceSSL ? "https://" : "http://") + config.sServerAddress + "/";
-        s += NameFromID(ID, language, http);
+			s = (config.bForceSSL ? "https://" : "http://") + config.sServerAddress + "/" + s;
 	}
 	return s;
 }
@@ -910,7 +909,7 @@ QString Album::BareName()
 /*============================================================================
 * TASK: Create album name for given ID
 * EXPECTS: id - album id
-*			  - language -  index of language
+*			  - language -  index of language or -1: no language added
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -928,7 +927,11 @@ QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
 	else
 	{
 		if (id == 2)	// recent uploads
-			s = "latest" + (*languages["abbrev"])[language] + ".html";
+		{
+			s = "latest";
+			if(language >= 0) 
+				s += (*languages["abbrev"])[language] + ".html";
+		}
 		else
 			s = languages.FileNameForLanguage(QString("%1%2.html").arg(config.sBaseName.ToString()).arg(id), language);
 
@@ -4455,6 +4458,11 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 	}
 }
 
+QString IABase::FullSourceName() const
+{
+	return config.AddSourceToPath(path + name);				// does not end with '/'
+}
+
 /*============================================================================
   * TASK:	 Returns the path name relative to dsSrc
   * EXPECTS:
@@ -4465,6 +4473,26 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 QString IABase::ShortSourcePathName()
 {
 	return config.RemoveSourceFromPath(path + name);
+}
+
+QString IABase::LinkName(bool bLCExtension) const
+{
+	if (ID)
+	{
+		int pos = name.lastIndexOf('.');
+		QString ext = name.mid(pos);
+		if (bLCExtension)
+			ext = ext.toLower();
+		return QString().setNum(ID & ID_MASK) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
+	}
+	else
+		return name;
+}
+
+QString IABase::FullLinkName(bool bLCExtension) const
+{
+	QString s = LinkName(bLCExtension);
+	return config.dsGallery.ToString() + s;
 }
 
 Video& VideoMap::Find(ID_t id, bool useBase)
@@ -4597,3 +4625,21 @@ bool Video::operator==(const Video& i)
 		default: return path + name == i.path + i.name;
 	}
 }
+
+QString Video::AsString(int width, int height)
+{
+	const char* vs = "<video width=\"%1\" height=\"%2\" controls>/n"
+		" <source src=\"%3\" type=\"video/%4\">\n"
+		"</video>";
+	if (height < 0)
+		height = width * 1080 / 1920;
+
+	switch (type)
+	{
+		case vtWebM: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("webm");
+		case vtOgg: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("ogg");
+		default:
+		case vtMp4: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("mp4");
+	}
+}
+

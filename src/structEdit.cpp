@@ -146,6 +146,11 @@ void AlbumTreeModel::ModelChanged()
 	endResetModel();
 }
 
+//void AlbumTreeModel::MoveToItemWithID(ID_t id)
+//{
+//	; // TODO
+//}
+
 /*============================================================================
   * TASK:	return property flags for index
   * EXPECTS:

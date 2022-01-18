@@ -127,7 +127,7 @@ ERR:
 	QMessageBox::critical(nullptr, "falconG", serr.arg(name).arg(destDir));
 	exit(1);
 }
-
+// ============================================================================================================
 /*============================================================================
 * TASK:		construct a FalconG object, read its parameters, set up controls
 *			and sample web page
@@ -170,6 +170,11 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.setupUi(this);
 	ui.pnlProgress->setVisible(false);
 
+#if defined Q_OS_WINDOWS
+	ui.chkSourceRelativePerSign->setChecked(true);
+	ui.chkSourceRelativePerSign->setEnabled(false);
+#endif
+
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::LinkClicked);
 	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::WebPageLoaded);
 
@@ -186,7 +191,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_AlbumStructureSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailWidget::SingleSelection, this, &FalconG::_TnvSelectionChanged);
 	// connect with albumgen's 
-	connect(this,	   &FalconG::CancelRun,						&albumgen, &AlbumGenerator::Cancelled);
+	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
 	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SetProgressBar);
 	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SetProgressBarPos);
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
@@ -194,13 +199,14 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
-	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,	this, &FalconG::_CreateUplinkIcon);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_CreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SetDirectoryCountTo);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailWidget::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalStatusChanged,	this, &FalconG::_TnvStatusChanged);
-	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
-	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,  this, &FalconG::_SaveChangedTitleDescription);
+	connect(ui.tnvImages, &ThumbnailWidget::SignalFolderChanged,	this, &FalconG::_SlotForChangeToFolderWithID);	
+	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
+	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 
 	// read styles
 
@@ -897,6 +903,13 @@ void FalconG::_SlotForSchemeChange(int which)
 	_SetProgramScheme();
 	_SetConfigChanged(true);
 	QGuiApplication::restoreOverrideCursor();
+}
+
+void FalconG::_SlotForChangeToFolderWithID(ID_t id)
+{
+	QModelIndex &cix = _currentTreeViewIndex;	// shorthand
+	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->CreateIndex(cix.row(), cix.column()+1, id);
+	// ?? todo
 }
 
 void FalconG::_EnableColorSchemeButtons()
@@ -4323,8 +4336,8 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 	{
 		// collect its images into list
 //		ui.tnvImages->thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
-
-		ID_t id = ID_t(current.indexes()[0].internalPointer());	// store ID of last selected album
+		_currentTreeViewIndex = current.indexes()[0];
+		ID_t id = ID_t(_currentTreeViewIndex.internalPointer());	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
 		_selection.newAlbum = id;	// only single selection is used

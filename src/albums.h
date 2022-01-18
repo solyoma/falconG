@@ -64,8 +64,6 @@ struct IABase
 	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
 
 	bool Valid() const { return ID > 0; }
-	QString FullSourceName() const { return path + name; }				// does not end with '/'
-	QString ShortSourcePathName();	// cuts the common part of paths (config.dsSrc)
 	IABase &operator=(const IABase &a)
 	{
 		ID		=  a.ID		;
@@ -76,6 +74,10 @@ struct IABase
 		path    =  a.path   ;
 		return *this;
 	}
+	QString FullSourceName() const;
+	QString ShortSourcePathName();	// cuts the common part of paths (config.dsSrc)
+	QString LinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
+	QString FullLinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
 };
 //------------------------------------------
 struct Image : public IABase
@@ -167,19 +169,6 @@ struct Image : public IABase
 			return _aspect;
 	}
 
-	QString LinkName(bool bLCExtension = false) const		// used in HTML files, not the source name
-	{ 
-		if (ID)
-		{
-			int pos = name.lastIndexOf('.');
-			QString ext = name.mid(pos);
-			if (bLCExtension)
-				ext = ext.toLower();
-			return QString().setNum(ID & ID_MASK) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
-		}
-		else
-			return name;
-	}	
 	QTextStream & WriteInfo(QTextStream &ofs) const;
 	void SetResizeType()
 	{
@@ -218,19 +207,6 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	};
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
-	QString LinkName(bool bLCExtension = false) const		// used in HTML files, not the source name
-	{
-		if (ID)
-		{
-			int pos = name.lastIndexOf('.');
-			QString s = name.mid(pos);
-			if (bLCExtension)
-				s = s.toLower();
-			return QString().setNum(ID & ID_MASK) + s;	// e.g. 12345.mp4
-		}
-		else
-			return name;
-	}
 
 	int operator<(const Video& i);		 // uses searchBy
 	bool operator==(const Video &i);
@@ -241,23 +217,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	//	type = ((Video&)a).type;
 	//}
 
-	QString AsString(int width=320, int height=-1) 
-	{ 
-		const char* vs = "<video width=\"%1\" height=\"%2\" controls>/n"
-						 " <source src=\"%3\" type=\"video/%4\">\n"
-						 "</video>";
-		if (height < 0)
-			height = width * 1080 / 1920;
-
-		switch (type)
-		{
-			case vtWebM: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("webm");
-			case vtOgg: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("ogg");
-			default:
-			case vtMp4: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("mp4");
-		}
-	}
-
+	QString AsString(int width = 320, int height = -1);
 };
 
 //------------------------------------------
@@ -287,7 +247,7 @@ struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
-	QString LinkName(int language, bool addHttpOrsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
+	QString LinkName(int language, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
 private:
 	int _imageCount = -1;	// these are not equal to the count of the corresponding items

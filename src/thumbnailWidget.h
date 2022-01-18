@@ -99,6 +99,8 @@ public:
 	QString FilePath() const;	// for destination file
 	QString FileName() const;	// - " - 
 	QString FullSourcePath() const;
+	QString FullLinkName() const;
+	QString DisplayName() const;
 	QIcon   IconForFile() const;		// uses _albumId and itemPos
 };
 #else
@@ -258,6 +260,7 @@ signals:
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
 	void SingleSelection(ID_t id);				// may be album or image or video
+	void SignalFolderChanged(ID_t newFolderId);	// move to next level  in tree list inside actual folder
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
@@ -284,6 +287,7 @@ public slots:
 	void CopyOriginalNamesToClipboard();
 	void SetAsAlbumThumbnail();			// from existing image/album image
 	void SelectAsAlbumThumbnail();
+	void ItemDoubleClicked(const QModelIndex &);
 
 private slots:
     void loadThumbsRange();

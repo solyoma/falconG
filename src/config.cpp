@@ -1437,13 +1437,35 @@ QString CONFIG::RemoveSourceFromPath(QString s)
 	QString sd = dsSrc.ToString();
 	QString sp = s;
 
+	// letter case doesn't matter in windows or Mac
 #if defined(_MSC_VER) || defined(WIN32) || defined(WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
-	// letter case doesn't matter in windows
 	sp = sp.toLower();
 	sd = sd.toLower();
+#elif defined()
 #endif
 	if (sp.left(sd.length()) == sd)
 		s = s.mid(sd.length());
+	return s;
+}
+
+QString CONFIG::AddSourceToPath(QString s)
+{
+	QString sd = dsSrc.ToString();
+	QString sp = s;
+
+	bool isAbsName = QDir::isAbsolutePath(s);
+	// letter case doesn't matter in Windows or on a Mac
+#if defined(Q_OS_WINDOWS) || defined (Q_OS_MACOS)
+	sp = sp.toLower();
+	sd = sd.toLower();
+#endif
+#if !defined Q_OS_WINDOWS
+	// on linux or OS X abs. paths starts with '/'
+	if (config.bSourceRelativePerSign)
+		isAbsName = false;
+#endif
+	if (!isAbsName && sp.left(sd.length()) != sd)
+		s = dsSrc.ToString() + s;
 	return s;
 }
 /*===========================================================================

@@ -252,11 +252,17 @@ QString Languages::FileNameForLanguage(QString s, int lang)
 	QString path, name, ext;
 	SeparateFileNamePath(s, path, name, &ext);
 
-
-	if (config.bSeparateFoldersForLanguages)
-		name = (*operator[]("abbrev"))[lang] + "/" + s;	// e.g. _en/album123.html
+	if (lang >= 0)
+	{
+		if (config.bSeparateFoldersForLanguages)
+			name = (*operator[]("abbrev"))[lang] + "/" + s;	// e.g. _en/album123.html
+		else
+			name += (*operator[]("abbrev"))[lang];		// album123_en.html
+		return path + name + ext;
+	}
 	else
-		name += (*operator[]("abbrev"))[lang];		// album123_en.html
-	return path + name + ext;
+	{
+		return name;
+	}
 }
 

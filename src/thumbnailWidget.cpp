@@ -54,8 +54,8 @@ QIcon ThumbnailItem::IconForFile() const
 //    imgId &= ID_MASK;
     Image &img = albumgen.Images()[imgId];
     QString imageName;
-    if ((exists=QFile::exists(FilePath() + img.LinkName())))
-        imageName = FilePath() + img.LinkName();
+    if ((exists=QFile::exists(img.FullLinkName())))
+        imageName = img.FullLinkName();
     else if ((exists=QFile::exists(img.FullSourceName())))
         imageName = img.FullSourceName();
     else
@@ -73,15 +73,15 @@ QVariant ThumbnailItem::data(int role) const
 {
     switch (role)
     {
-        case Qt::DisplayRole:   return FileName();              // destination (generated) file or directory name w.o. path
+        case Qt::DisplayRole:   return DisplayName();              // destination (generated) file or directory name w.o. path
         case Qt::ToolTipRole:   return ToolTip();               // string of full source name and destination name
         case Qt::DecorationRole: return IconForFile();          // the icon of files or albums (used when QListView is set for it)
 
         case TypeRole:          return _itemType;               // folder, image or video
         case FilePathRole:      return FilePath();              // destination path
-        case FileNameRole:      return FileName();              // destination (generated) file or directory name
+        case FileNameRole:      return FileName();              // destination (generated) file or directory name w.o. path or source path if no dest. file
         case SourcePathNameRole: return FullSourcePath();		// full path name of image source
-        case FullNameRole:      return FilePath() + FileName(); // full destination path name
+        case FullNameRole:      return FullLinkName(); // full destination path name
     }
     return QVariant();
 }
@@ -89,19 +89,19 @@ QVariant ThumbnailItem::data(int role) const
 QString ThumbnailItem::_ImageToolTip() const    // only called for images
 {
     Image* pImg = albumgen.ImageAt(_ActAlbum()->items[itemPos] );
-    return QString(pImg->FullSourceName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
+    return QString(pImg->ShortSourcePathName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const    // only called for videos
 {
     Video* pVid = albumgen.VideoAt(_ActAlbum()->items[itemPos]);
-    return QString(pVid->FullSourceName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
+    return QString(pVid->ShortSourcePathName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
 }
 QString ThumbnailItem::_FolderToolTip() const   // only called for folders
 {
     Album* pAlbum = albumgen.AlbumForID(_ActAlbum()->items[itemPos]);
 
-    QString s = pAlbum->FullSourceName() + " \n(" + pAlbum->LinkName(albumgen.ActLanguage(), true) + ")";
+    QString s = pAlbum->ShortSourcePathName() + " \n(" + pAlbum->LinkName(-1, true) + ")";
     return s;
 }
 
@@ -133,7 +133,8 @@ QString ThumbnailItem::_FolderFilePath() const
 
 }
 /*=============================================================
- * TASK:    these functions return the generated file name w.o. path
+ * TASK:    these functions return the generated file name 
+ *          w.o. path if it exists or the source name if it is not
  * PARAMS:
  * GLOBALS: 'itemPos' absolute index of the item
  * RETURNS:
@@ -142,20 +143,25 @@ QString ThumbnailItem::_FolderFilePath() const
 QString ThumbnailItem::_ImageFileName() const
 {
     Image* pImg = albumgen.ImageAt(_ActAlbum()->items[itemPos]);
-	return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
-
+    if (QFileInfo::exists(pImg->FullLinkName()))
+        return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
+    else
+        return pImg->name;      // source name
 }
+
 QString ThumbnailItem::_VideoFileName() const
 {
     Video* pVid = albumgen.VideoAt(_ActAlbum()->items[itemPos]);
-    return QString(pVid->LinkName(config.bLowerCaseImageExtensions));
+    if (QFileInfo::exists(pVid->FullLinkName()))
+        return QString(pVid->LinkName(config.bLowerCaseImageExtensions));
+    else
+        return pVid->name;      // source name
 }
+
 QString ThumbnailItem::_FolderFileName() const
 {
     Album album = albumgen.Albums()[_albumId];
-    Album* pAlbum = albumgen.AlbumForID(album.IdOfItemOfType(ALBUM_ID_FLAG, itemPos));
-    Image* pImg = albumgen.ImageAt(pAlbum->thumbnail);
-    return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
+   return album.LinkName(-1); // no language and extension
 }
 
 QString ThumbnailItem::FilePath() const
@@ -194,8 +200,9 @@ QString ThumbnailItem::_VideoFullSourceName() const
 }
 QString ThumbnailItem::_FolderFullSourceName() const
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->thumbnail);
-    return pImg->FullSourceName();
+    //Image* pImg = albumgen.ImageAt(_ActAlbum()->thumbnail);
+    //return pImg->FullSourceName();
+    return albumgen.AlbumForID(_ActAlbum()->items[itemPos])->FullSourceName();
 }
 
 QString ThumbnailItem::text()  const
@@ -210,6 +217,25 @@ QString ThumbnailItem::FullSourcePath() const
         case image: return   _ImageFullSourceName();
         case video: return   _VideoFullSourceName();
         case folder: return  _FolderFullSourceName();
+        default: break;
+    }
+    return QString();
+}
+
+QString ThumbnailItem::FullLinkName() const
+{
+    if(QFile::exists(FilePath() + FileName()))
+        return FilePath() + FileName();
+    return FullSourcePath();
+}
+
+QString ThumbnailItem::DisplayName() const
+{
+    switch (_itemType)
+    {
+        case image: return _ImageFileName();
+        case video: return _VideoFileName();
+        case folder: return albumgen.AlbumForID(_ActAlbum()->items[itemPos])->name;
         default: break;
     }
     return QString();
@@ -266,11 +292,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(loadVisibleThumbs(int)));
     connect(this->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(onSelectionChanged(QItemSelection)));
-/*------
-	connect(this, SIGNAL(doubleClicked(
-                                 const QModelIndex &)), parent, SLOT(loadSelectedThumbImage(
-                                                                             const QModelIndex &)));
-*-----*/
+
+	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), parent, SLOT(itemDoubleClicked(const QModelIndex &)));
+
 
     _fileFilters = new QStringList;
 
@@ -1436,6 +1460,17 @@ void ThumbnailWidget::SelectAsAlbumThumbnail()
         Album* parent = albumgen.AlbumForID(album.parent);
         parent->changed = true;
     }
+}
+
+void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
+{
+    int row = mix.row();
+    ID_t id = _ActAlbum()->items[row];
+    if (id & ALBUM_ID_FLAG)
+    {
+        emit SignalFolderChanged(id);
+    }
+    // else        // display full image in window      
 }
 
 void ThumbnailWidget::setNeedToScroll(bool needToScroll) 

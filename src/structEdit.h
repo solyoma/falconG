@@ -24,6 +24,13 @@ public:
 	QModelIndex parent(const QModelIndex &index) const;
 
 	void ModelChanged();
+// these are moving around
+	QModelIndex CreateIndex(int row, int column, int64_t id)	// ID_t
+	{
+		return createIndex(row, column, quintptr(id));
+	}
+//	void MoveToItemWithID(ID_t id);
+	
 // These are for editing
 	Qt::ItemFlags flags(const QModelIndex &index) const override;
 	bool setData(const QModelIndex &index, const QVariant &value,
