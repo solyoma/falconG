@@ -3959,19 +3959,35 @@ void FalconG::_GetTextsForEditing(whoChangedTheText who)
 		_selection.newAlbum = _selection.actAlbum;
 	}
 
-	bool readItFromDisk = _selection.newAlbum || _selection.newImage;
-
 	++_busy;						// semaphore
-	if (who == wctSelection && !readItFromDisk)	   // selection cleared: clear editing
+	if (who == wctSelection)
 	{
-		ui.edtBaseTitle->clear();
-		ui.edtBaseDescription->clear();
-		ui.edtTitleText->clear();
-		ui.edtDescriptionText->clear();
+		if (!_selection.newAlbum && !_selection.newImage)	   // selection cleared: show texts for album
+		{
+			ui.edtBaseTitle->clear();
+			ui.edtBaseDescription->clear();
+			ui.edtTitleText->clear();
+			ui.edtDescriptionText->clear();
 
-		_selection.actAlbum = _selection.selectedImage = 0;
-		--_busy;
-		return;
+			_selection.actAlbum = _selection.selectedImage = 0;
+			--_busy;
+			return;
+		}
+		else
+		{
+			if (_selection.newAlbum)
+			{
+				Album& album = *albumgen.AlbumForID(_selection.newAlbum);
+				_selection.title = albumgen.Texts()[album.titleID];
+				_selection.description = albumgen.Texts()[album.descID];
+			}
+			else
+			{
+				Image& image = *albumgen.ImageAt(_selection.newImage);
+				_selection.title = albumgen.Texts()[image.titleID];
+				_selection.description = albumgen.Texts()[image.descID];
+			}
+		}
 	}
 
 	// indices for base and actual languages
@@ -4310,16 +4326,13 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 
 		ID_t id = ID_t(current.indexes()[0].internalPointer());	// store ID of last selected album
 
-		_selection.newAlbum = id;	// only single selection is used
-		_GetTextsForEditing(wctSelection);	 // reads new text into _currentTexts and _originalTexts for album
-											 // before the image list is read
 		ui.tnvImages->Setup(id);
+		_selection.newAlbum = id;	// only single selection is used
+								    // before the image list is read
 	}
 	else
-	{
-		_selection.newAlbum = 0;			// nothing/multiple albums selected
-		_GetTextsForEditing(wctSelection);	 // reads new text into _currentTexts and _originalTexts for album
-	}
+		_selection.newAlbum = 0;	// nothing/multiple albums selected
+
 
 	ui.tnvImages->reLoad();
 	ui.tnvImages->clearSelection();	// no selection
@@ -5296,9 +5309,12 @@ void FalconG::_TnvStatusChanged(QString &s)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::_TnvSelectionChanged(QString s)
+void FalconG::_TnvSelectionChanged(ID_t id)
 {
-	_selection.newImage = s.isEmpty() ? ID_t(-1) : s.left(s.lastIndexOf('.')).toULongLong();
+	if (id & IMAGE_ID_FLAG)
+		_selection.newImage = id;
+	else if(id)
+		_selection.newAlbum = id;
 	_GetTextsForEditing(wctSelection);
 }
 

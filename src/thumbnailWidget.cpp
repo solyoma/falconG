@@ -473,7 +473,7 @@ bool ThumbnailWidget::setCurrentIndexByItem(int row)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: emits signal 'SingleSelection ' with selected file name
+ * REMARKS: emits signal 'SingleSelection ' with selected item id
  *------------------------------------------------------------*/
 void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 {
@@ -481,14 +481,11 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
     int selectedCount = indexesList.size();
 	if (selectedCount == 1)
 	{
-		int current_row = indexesList.first().row();
-		QString thumbFullPath = _thumbnailWidgetModel->item(current_row)->data(FileNameRole).toString();
-		setCurrentItem(current_row);
-		//  do something
-		emit SingleSelection(thumbFullPath);
+        setCurrentItem(indexesList.first().row());
+		emit SingleSelection(_ActAlbum()->items[_currentItem]);
 	}
 	else
-		emit SingleSelection("");
+		emit SingleSelection(_ActAlbum()->ID);
 
     if (selectedCount >= 1) 
 	{

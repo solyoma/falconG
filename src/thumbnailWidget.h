@@ -257,7 +257,7 @@ signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
-	void SingleSelection(QString path);			// name of selected thumbnail
+	void SingleSelection(ID_t id);				// may be album or image or video
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
