@@ -1082,27 +1082,6 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 }
 
 /*==========================================================================
-* TASK:		add a sub-album or an image to global arrays and to album 'ab'
-* EXPECTS:	ab - album to add data to (parent)
-*			path - full path name relative to  album root '_root' or absolute path
-*			pos: - put position in images or in albums here
-*			folderIcon: if the file should be used as album thumbnail for this album
-* RETURNS:	ID of new or already present album or image
-* REMARKS:	does not set/modify the title and description IDs
-*--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
-{
-	if (!QDir::isAbsolutePath(path))
-		path = _root.path + path;
-	QFileInfo fi(path);
-	ID_t id = _AddImageOrAlbum(ab, fi);
-	if ( id > 0  && folderIcon)	// an album can be a folder icon which means that its
-		ab.thumbnail = id;		// folder icon is used here. This will be resolved later on
-
-	return id;
-}
-
-/*==========================================================================
 * TASK:		add a sub-album or an image to global arrays and album 'ab'
 *			from directory unless they are excluded
 * EXPECTS:	ab - album to add images and sub albums to
@@ -1114,7 +1093,7 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QString path, bool folderIcon)
 *			- adds new images/videos and id's to the corresponding id list of 'ab'
 *			- shows progress using frmMain's progress bar
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk*/)
+ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
 {
 	ID_t id = 0;
 	
@@ -1139,13 +1118,16 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi/*, bool fromDisk
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
 
 	}
-	if ((id & ID_MASK) && ! (id & EXCLUDED_FLAG) )
-		ab.items.push_back(id);	// add to ordered item list for this album
+	if (!doNotAddToAlbumItemList && (id & ID_MASK) && ! (id & EXCLUDED_FLAG) )
+		ab.items.push_back(id);		// add to ordered item list for this album except if you must not or excluded
 	// progress bar
-	emit SignalProgressPos(_albumMap.size(), _ItemSize() );	  // both changes
+	if (signalElapsedTime)
+	{
+		emit SignalProgressPos(_albumMap.size(), _ItemSize());	  // both changes
 
-	_remDsp.Update(_albumMap.size());
-	emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _ItemSize(), false);
+		_remDsp.Update(_albumMap.size());
+		emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _ItemSize(), false);
+	}
 	return id;
 }
 
@@ -1259,7 +1241,7 @@ bool AlbumGenerator::_ReadFromDirsFile(Album &ab)
 		else
 			line = QDir().cleanPath(sl[1]);			// else this is the real full name
 
-		ID_t id = _AddImageOrAlbum(ab, line);   // to lists (_albumMap or _imageMap) and (albums or images) and order
+		ID_t id = AddImageOrAlbum(ab, line);   // to lists (_albumMap or _imageMap) and (albums or images) and order
 		if (excluded)
 			id |= EXCLUDED_FLAG;
 
@@ -1377,7 +1359,7 @@ bool AlbumGenerator::_ReadJCommentFile(Album &ab)
 		if(line.isEmpty())
 			continue;
 
-		id = _AddImageOrAlbum(ab, path + ianame, false);
+		id = AddImageOrAlbum(ab, path + ianame, false);	// not thumbnail
 		type = id & VIDEO_ID_FLAG ? ftVideo : ftImage;
 		if (id)		// then image existed
 		{			// set text to image or album description
@@ -1434,8 +1416,8 @@ bool AlbumGenerator::_ReadJMetaFile(Album &ab)
 			continue;					// don't care
 		else if (ianame[0] == 'f')		// folder icon
 		{
-			(void) _AddImageOrAlbum(ab, path + line, true);	// add image or folder
-			continue;														// as folder thumbnail too
+			(void) AddImageOrAlbum(ab, path + line, true);	// add image or folder
+			continue;										// as folder thumbnail too
 		}
 		else if (ianame[0] != 'd')			// safety
 			continue;			
@@ -2056,6 +2038,27 @@ QStringList __imageMapStructLineToList(QString s)
 
 	sl.push_back(s.mid(pos + 1));		// index #6 or #10 - original path 
 	return sl;
+}
+
+/*==========================================================================
+* TASK:		add a sub-album or an image to global arrays and to album 'ab'
+* EXPECTS:	ab - album to add data to (parent)
+*			path - full path name relative to  album root '_root' or absolute path
+*			pos: - put position in images or in albums here
+*			folderIcon: if the file should be used as album thumbnail for this album
+* RETURNS:	ID of new or already present album or image
+* REMARKS:	does not set/modify the title and description IDs
+*--------------------------------------------------------------------------*/
+ID_t AlbumGenerator::AddImageOrAlbum(Album& ab, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList)
+{
+	if (!QDir::isAbsolutePath(path))
+		path = _root.path + path;
+	QFileInfo fi(path);
+	ID_t id = _AddImageOrAlbum(ab, fi, doSignalElapsedTime, doNotAddToAlbumItemList);
+	if (id > 0 && isThumbnail)	// an album can be a folder icon which means that its
+		ab.thumbnail = id;		// folder icon is used here. This will be resolved later on
+
+	return id;
 }
 
 /*=============================================================
@@ -4362,7 +4365,7 @@ int AlbumGenerator::Write()
 						// determine image dimensions and latest upload date
 	_ProcessVideos();
 	if(_processing)
-		if (_structChanged)		// do not save after read of structure
+		if (_structChanged || !_slAlbumsModified.isEmpty())		// do not save after read of structure
 			WriteDirStruct();   // all album and image data is read in
 
 	int i = 0;					// returns:
@@ -4383,6 +4386,7 @@ int AlbumGenerator::Write()
 	_structChanged = 0;
 	_processing = false;
 
+	_slAlbumsModified.clear();
 	return i;
 }
 

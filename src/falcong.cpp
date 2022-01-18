@@ -427,7 +427,7 @@ void FalconG::on_btnGenerate_clicked()
 		}
 
 		PROGRAM_CONFIG::Write();
-		albumgen.SetRecrateAlbumFlag(config.bGenerateAll || config.Changed());
+		albumgen.SetRecrateAllAlbumFlag(config.bGenerateAll || config.Changed());
 
 		++_running;
 		_edited = false;
@@ -488,9 +488,9 @@ void FalconG::on_btnGenerate_clicked()
 		if (_phase != -1)
 		{
 			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
-			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0,0));
+//			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0,0));
 		}
-		albumgen.SetRecrateAlbumFlag(config.bGenerateAll);	// not until relevant changes
+		albumgen.SetRecrateAllAlbumFlag(config.bGenerateAll);	// not until relevant changes
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);

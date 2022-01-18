@@ -282,7 +282,8 @@ public slots:
 	void AddFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
-	void SetAsAlbumThumbnail();
+	void SetAsAlbumThumbnail();			// from existing image/album image
+	void SelectAsAlbumThumbnail();
 
 private slots:
     void loadThumbsRange();

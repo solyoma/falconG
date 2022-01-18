@@ -388,7 +388,9 @@ public:
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
 	int SaveStyleSheets();
-	void SetRecrateAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
+	void SetRecrateAllAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
+
+	void SetGalleryModified(ID_t albumId) { _slAlbumsModified << albumId; }
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	int ActLanguage() const { return _actLanguage; }
@@ -411,6 +413,7 @@ public:
 	Album *AlbumForID(ID_t id) { return &_albumMap[id]; }
 	QString SiteLink(int language);
 
+	ID_t AddImageOrAlbum(Album &ab, QString path, bool isThumbnail=false, bool doSignalElapsedTime=true, bool doNotAddToAlbumItemList = false);
 	bool AddImageOrVideoFromString(QString inpstr, Album& album, int pos = -1);
 
 signals:
@@ -439,7 +442,7 @@ private:
 	} _remDsp;
 
 	bool _processing = false;
-
+	QList<ID_t> _slAlbumsModified;
 	QString _upLink;		// to parent page if there's one
 	TextMap _textMap;		// all texts for all albums and images
 	AlbumMap _albumMap;		// all source albums			id has ALBUM_ID_FLAG set!
@@ -496,8 +499,7 @@ private:
 	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
 	bool _JReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
 	void _ReadOneLevelOfDirs(Album &ab);
-	ID_t _AddImageOrAlbum(Album &ab, QString path, bool hidden=false);
-	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi/*, bool fromDisk = false*/);
+	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()

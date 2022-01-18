@@ -42,18 +42,14 @@ QIcon ThumbnailItem::IconForFile() const
     ID_t itemId = pAlbum->items[itemPos];
     bool exists = false;
     bool bIsFolderIcon = false;
-    //bool isImageOrVideo = itemId & (IMAGE_ID_FLAG | VIDEO_ID_FLAG);
+    
     bool isFolder = itemId & ALBUM_ID_FLAG;
 
-    ID_t imgId = itemId;
+    ID_t imgId = itemId;     // add marker for image that is the folder thumbnail (shown in parent)
+//    Album* parent = _ParentAlbum();
     if (isFolder)
-    {
-        Album* parent = _ParentAlbum();
         imgId = albumgen.Albums()[itemId].thumbnail;
-        bIsFolderIcon = (parent && parent->thumbnail == imgId);
-    }
-    else //    if (isImageOrVideo)
-        bIsFolderIcon = (itemId == pAlbum->thumbnail);
+    bIsFolderIcon = (pAlbum->thumbnail == imgId);
 
 //    imgId &= ID_MASK;
     Image &img = albumgen.Images()[imgId];
@@ -1180,8 +1176,12 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	pact = new QAction(tr("Set As Album &Thumbnail"), this);
 	bool b = selectionModel()->selectedIndexes().size() == 1;
 	pact->setEnabled(b);
-	if(b)
+	if(b)                           // select from existing image
 		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
+    menu.addAction(pact);           // select any image
+
+	pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
+	connect(pact, &QAction::triggered, this, &ThumbnailWidget::SelectAsAlbumThumbnail);
 	menu.addAction(pact);
 
 	menu.addSeparator();
@@ -1378,11 +1378,17 @@ void ThumbnailWidget::CopyOriginalNamesToClipboard()
 }
 
 /*============================================================================
-  * TASK:	signal set current file name as album thumbnail
+  * TASK:	slot to set current file name as album thumbnail, shown on
+  *         parents aimage list
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
-  * REMARKS: only called when there is exactly one selected image
+  * REMARKS: - only called when there is exactly one selected image
+  *          - if the selected item is an album with valid thumbnail,
+  *             its thumbnail is used
+  *          - if the selected item is an album with no valid thumbnail 
+  *             (e.g. new album just added), the album id is used as thumbnail
+  *             in the database. such thumbnails are not shown
  *--------------------------------------------------------------------------*/
 void ThumbnailWidget::SetAsAlbumThumbnail()
 {
@@ -1391,7 +1397,7 @@ void ThumbnailWidget::SetAsAlbumThumbnail()
     Album& album = albumgen.Albums()[_albumId];
     int cthix = -1;// old thumbnail index in 'items'. -1: not from current album
     for (int i = 0; i < album.items.size(); ++i)
-        if (album.thumbnail)
+        if (album.thumbnail == album.items[i])
             cthix = i;
     if (cthix == pos)       // no change
         return;
@@ -1399,8 +1405,40 @@ void ThumbnailWidget::SetAsAlbumThumbnail()
     ID_t th = album.items[pos];
 
     album.thumbnail = th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID;
+    album.changed = true;
+    if(album.parent)
+    {
+        Album * parent = albumgen.AlbumForID(album.parent);
+        parent->changed = true;
+    }
+    albumgen.SetGalleryModified(_albumId);
+}
+/*=============================================================
+ * TASK:    slot to select an image from any image on disk
+ *          and set it as album thumbnail shown on parent's
+ *          image list
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailWidget::SelectAsAlbumThumbnail()
+{
+    QString thname = QFileDialog::getOpenFileName(this, 
+                                            tr("falconG - Select Thumbnail Image"),
+                                            albumgen.Images().lastUsedPath,
+                                            "Image files (*.jpg *.png)");
+    if (thname.isEmpty())
+        return;
+    // add as thumbnail to this album, but do not signal elapsed time and do not add to items
+    Album& album = *_ActAlbum();
 
-    reLoad();
+    albumgen.AddImageOrAlbum(album, thname, true, false, true);
+    if (album.parent)
+    {
+        Album* parent = albumgen.AlbumForID(album.parent);
+        parent->changed = true;
+    }
 }
 
 void ThumbnailWidget::setNeedToScroll(bool needToScroll) 
