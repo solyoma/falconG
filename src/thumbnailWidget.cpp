@@ -293,7 +293,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     connect(this->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(onSelectionChanged(QItemSelection)));
 
-	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), parent, SLOT(itemDoubleClicked(const QModelIndex &)));
+	connect(this, &QListView::doubleClicked, this, &ThumbnailWidget::ItemDoubleClicked);
 
 
     _fileFilters = new QStringList;
@@ -497,24 +497,39 @@ bool ThumbnailWidget::setCurrentIndexByItem(int row)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: emits signal 'SingleSelection ' with selected item id
+ * REMARKS: emits signal 'SignalSingleSelection ' with selected item id
  *------------------------------------------------------------*/
 void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 {
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     int selectedCount = indexesList.size();
-	if (selectedCount == 1)
+	if(!selectedCount)
+		emit SignalSingleSelection(_ActAlbum()->ID);
+    else if (selectedCount == 1)
 	{
         setCurrentItem(indexesList.first().row());
-		emit SingleSelection(_ActAlbum()->items[_currentItem]);
+		emit SignalSingleSelection(_ActAlbum()->items[_currentItem]);
 	}
-	else
-		emit SingleSelection(_ActAlbum()->ID);
+    else
+    {
+        IdList idList, 
+               &items = _ActAlbum()->items;
+        for (auto e : indexesList)
+        {
+            ID_t id = items[e.row()];
+            if (idList.indexOf(id) < 0)
+                idList << items[e.row()];
+
+            emit SignalMultipleSelection(idList);
+        }
+    }
 
     if (selectedCount >= 1) 
 	{
+        int rcnt = _thumbnailWidgetModel->rowCount();
         statusStr = tr("Selected %1 of %2").arg(QString::number(selectedCount))
-                .arg(tr(" %n image(s)", "", _thumbnailWidgetModel->rowCount()));
+                .arg(tr(" %n %3", "", rcnt))
+                .arg(rcnt == 1 ? tr("item") :tr("items"));
     } 
 	else if (!selectedCount) 
 	{
@@ -1193,52 +1208,67 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 {
 	QMenu menu(this);
 	QAction *pact;
+    int nSelSize = selectionModel()->selectedIndexes().size();
 
-	pact = new QAction(tr("Set As Album &Thumbnail"), this);
-	bool b = selectionModel()->selectedIndexes().size() == 1;
-	pact->setEnabled(b);
-	if(b)                           // select from existing image
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
-    menu.addAction(pact);           // select any image
+    if (nSelSize == 0)
+    {
+	    pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
+	    connect(pact, &QAction::triggered, this, &ThumbnailWidget::SelectAsAlbumThumbnail);
+	    menu.addAction(pact);
 
-	pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
-	connect(pact, &QAction::triggered, this, &ThumbnailWidget::SelectAsAlbumThumbnail);
-	menu.addAction(pact);
+	    menu.addSeparator();
+    }
+    else
+    {
+        if (nSelSize == 1)
+        {
+            pact = new QAction(tr("Set As Album &Thumbnail"), this);
+            // select from existing image
+            connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
+            menu.addAction(pact);           // select any image
+        }
 
-	menu.addSeparator();
 
-	pact = new QAction(tr("Copy &Name(s)"), this);
-	pact->setEnabled(b);
-	if (b)
-		connect(pact, &QAction::triggered, this,  &ThumbnailWidget::CopyNamesToClipboard);
-	menu.addAction(pact);
+        if (nSelSize)
+        {
+            pact = new QAction(tr("Copy &Name(s)"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyNamesToClipboard);
+            menu.addAction(pact);
 
-	pact = new QAction(tr("Copy &Original Name(s)"), this);
-	pact->setEnabled(b);
-	if (b)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyOriginalNamesToClipboard);
-	menu.addAction(pact);
-    
-    menu.addSeparator();
+            pact = new QAction(tr("Copy &Original Name(s)"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyOriginalNamesToClipboard);
+            menu.addAction(pact);
 
+            menu.addSeparator();
+        }
+    }
 	pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 	pact->setEnabled(true);
 	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
 	menu.addAction(pact);
 
 	pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
-	pact->setEnabled(true);                          // the album need not be physical
 	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
 	menu.addAction(pact);
 
-	menu.addSeparator();
+    if(nSelSize > 1)
+    {
+	    menu.addSeparator();
 
-    b = selectionModel()->selectedIndexes().size();
-    pact = new QAction(tr("&Remove"), this);
-    pact->setEnabled(b);
-    if (b)
+        pact = new QAction(tr("&Synchronize texts"), this);
+        connect(pact, &QAction::triggered, this, &ThumbnailWidget::SynchronizeTexts);
+        menu.addAction(pact);
+    }
+
+
+    if (nSelSize)
+    {
+	    menu.addSeparator();
+        pact = new QAction(tr("&Remove"), this);
         connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
-    menu.addAction(pact);
+        menu.addAction(pact);
+    }
+
 
 #if 0
     // how to make it work?
@@ -1273,10 +1303,10 @@ void ThumbnailWidget::invertSelection()
  *------------------------------------------------------------*/
 void ThumbnailWidget::DeleteSelected()
 {
-	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
     if (list.isEmpty())
         return;
+	QString s;
 
     QString plurali = tr("s"), plurala = tr("s");   // plural for image and album. May differ in other languages
     QString qs = QMainWindow::tr("Do you want to delete selected image%1 / album%1 from disk, or just to remove them from gallery?").arg(list.size() > 1 ? plurali :"").arg(list.size() > 1 ? plurala : "");
@@ -1303,6 +1333,58 @@ void ThumbnailWidget::DeleteSelected()
     reLoad();
 
     emit selectionChanged(QItemSelection(), QItemSelection());
+}
+
+/*=============================================================
+ * TASK:    When multiple images selected synchronize texts 
+ *          between them by replacing adding the texts set for 
+ *          the first selected items to all items
+ *          This is not undoable
+ * PARAMS:
+ * GLOBALS: selectionModel
+ * RETURNS:
+ * REMARKS: - order in selectionModel reflects the selection order
+ *------------------------------------------------------------*/
+void ThumbnailWidget::SynchronizeTexts()
+{
+    QModelIndexList list = selectionModel()->selectedIndexes();
+    if (list.isEmpty())
+        return;
+
+
+    if (QMessageBox::question(this, tr("falconG - Question"),
+        tr("This will set the same texts to all selected items\n\n"
+            "This action cannot be undone!\n\n"
+            "Do you really want to do this?"),
+        QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+    {
+        IABase* pItem = nullptr;
+        Album* pAlbum = _ActAlbum();
+
+        QModelIndexList::iterator it = list.begin();
+        auto Item = [&](int r)
+        {
+            ID_t id = pAlbum->items[r];
+            if (id & ALBUM_ID_FLAG)
+                pItem = albumgen.AlbumForID(id);
+            else if (id & IMAGE_ID_FLAG)
+                pItem = albumgen.ImageAt(id);
+            else
+                pItem = albumgen.VideoAt(id);
+
+            return pItem;
+        };
+
+        pItem = Item(it->row());
+        ID_t titleId = pItem->titleID,
+                descrId = pItem->descID;
+        while (++it != list.end())
+        {
+            pItem = Item(it->row());
+            pItem->titleID = titleId;
+            pItem->descID = descrId;
+        }
+    }
 }
 
 /*=============================================================
@@ -1468,7 +1550,7 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
     ID_t id = _ActAlbum()->items[row];
     if (id & ALBUM_ID_FLAG)
     {
-        emit SignalFolderChanged(id);
+        emit SignalFolderChanged(row);
     }
     // else        // display full image in window      
 }

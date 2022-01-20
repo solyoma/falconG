@@ -259,8 +259,9 @@ signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
-	void SingleSelection(ID_t id);				// may be album or image or video
-	void SignalFolderChanged(ID_t newFolderId);	// move to next level  in tree list inside actual folder
+	void SignalSingleSelection(ID_t id);		// may be album or image or video
+	void SignalMultipleSelection(IdList);		// all selected items
+	void SignalFolderChanged(int row);	// move to next level  in tree list inside actual folder
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
@@ -280,6 +281,7 @@ public slots:
     void onSelectionChanged(const QItemSelection &selection);
     void invertSelection();
 	void DeleteSelected();
+	void SynchronizeTexts();
 	void UndoDelete();
 	void AddImages();
 	void AddFolder();

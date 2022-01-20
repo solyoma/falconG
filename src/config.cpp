@@ -21,7 +21,7 @@ QString PROGRAM_CONFIG::samplePath;
 int PROGRAM_CONFIG::maxSavedConfigs;		// last 10 configuration directory is stored
 QStringList PROGRAM_CONFIG::lastConfigs;
 
-int PROGRAM_CONFIG::indexOfLastUsed;		// this was the last one used
+int PROGRAM_CONFIG::indexOfLastUsed;		// last directory used
 CONFIG *PROGRAM_CONFIG::parent = nullptr;
 
 int PROGRAM_CONFIG::lang = -1;

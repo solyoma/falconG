@@ -195,7 +195,8 @@ private slots:
 	void _ThumbNailViewerIsLoading(bool yes);
 	void _TnvCountChanged();
 	void _TnvStatusChanged(QString &); // thumbnail view status changed
-	void _TnvSelectionChanged(ID_t);		// name of selected item or "" for no or multiple items
+	void _TnvSelectionChanged(ID_t);		// ID of selected item or ID of enclosing album for no items
+	void _TnvMultipleSelection(IdList);		// list of ID of selected items for multiple items
 	void _SaveChangedTitleDescription();
 
 	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
@@ -204,7 +205,7 @@ private slots:
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
 	void _SlotForSchemeChange(int which);
-	void _SlotForChangeToFolderWithID(ID_t id);	// inside actual folder in ui.trvAlbums
+	void _SlotForChangeToFolderWithID(int row);	// inside actual folder in ui.trvAlbums
 
 	void _SlotForSchemeButtonClick(int which);
 	void _AskForApply();	// when color scheme changed and not yet applied

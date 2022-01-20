@@ -189,7 +189,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_AlbumStructureSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SingleSelection, this, &FalconG::_TnvSelectionChanged);
+	connect(ui.tnvImages, &ThumbnailWidget::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
+	connect(ui.tnvImages, &ThumbnailWidget::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
 	// connect with albumgen's 
 	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
 	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SetProgressBar);
@@ -372,6 +373,8 @@ void FalconG::on_btnSourceHistory_clicked()
 	if (SourceHistory::Changed() || (SourceHistory::Selected() >= 0 &&
 		SourceHistory::Selected() != PROGRAM_CONFIG::indexOfLastUsed) )
 	{
+		albumgen.Clear();	
+
 		if (SourceHistory::Selected() >= 0)
 		{
 			PROGRAM_CONFIG::indexOfLastUsed = SourceHistory::Selected();
@@ -395,7 +398,6 @@ void FalconG::on_btnSourceHistory_clicked()
 			PROGRAM_CONFIG::Write();
 	}
 	_EnableButtons();
-	albumgen.Clear();
 }
 
 
@@ -905,11 +907,11 @@ void FalconG::_SlotForSchemeChange(int which)
 	QGuiApplication::restoreOverrideCursor();
 }
 
-void FalconG::_SlotForChangeToFolderWithID(ID_t id)
+void FalconG::_SlotForChangeToFolderWithID(int row)
 {
 	QModelIndex &cix = _currentTreeViewIndex;	// shorthand
-	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->CreateIndex(cix.row(), cix.column()+1, id);
-	// ?? todo
+	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->index(row, 0, cix);
+	ui.trvAlbums->selectionModel()->select(mix, QItemSelectionModel::ClearAndSelect);
 }
 
 void FalconG::_EnableColorSchemeButtons()
@@ -5315,9 +5317,9 @@ void FalconG::_TnvStatusChanged(QString &s)
 }
 
 /*=============================================================
- * TASK:   slot to receive name of selected thumbnal (in image dir)
- * EXPECTS:	 s: name of image (format: <ID>.<ext> for single image
- *				selection: empty if no selection
+ * TASK:   slot to receive ID of selected thumbnal (in image dir)
+ * EXPECTS:	 id: id of item for single selection: 
+ *				ID of parent album if no selection
  * GLOBALS:
  * RETURNS:
  * REMARKS:
@@ -5329,6 +5331,18 @@ void FalconG::_TnvSelectionChanged(ID_t id)
 	else if(id)
 		_selection.newAlbum = id;
 	_GetTextsForEditing(wctSelection);
+}
+
+/*=============================================================
+ * TASK:	
+ * PARAMS:	list - list of selected items' IDs
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::_TnvMultipleSelection(IdList list)
+{
+	int n = list.size();
 }
 
 
