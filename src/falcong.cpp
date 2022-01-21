@@ -1069,7 +1069,6 @@ void FalconG::_OtherToUi()
 // not saved/restored:
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
 //	ui.chkReadJAlbum->setChecked(config.bReadFromDirs);	  
-	ui.chkKeepDuplicates->setChecked(config.bKeepDuplicates);
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
 	ui.chkFixedLatestThumbnail->setChecked(config.bFixedLatestThumbnail);
@@ -2471,7 +2470,6 @@ void FalconG::on_chkItalic_toggled(bool on)
 
 void FalconG::on_chkKeepDuplicates_toggled(bool yes)
 {
-	config.bKeepDuplicates = yes;
 	_SetConfigChanged(true);
 }
 

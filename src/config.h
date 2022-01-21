@@ -139,77 +139,6 @@ private:
 };
 
 //--------------------------------------------------------------------------------------------
-#if 0
-struct _CBool
-{
-	QString itemName;	// in settings
-	bool vd,			// default value
-		 v0,			// original value
-		 v;			// actual value	read from settings file
-
-		// vd must be first otherwise problems with actual declarations
-	_CBool(bool vd, QString namestr) : itemName(namestr), vd(vd), v0(vd), v(vd) {}
-
-	_CBool() : _CBool(false, "cbool") {}
-
-	operator bool() const { return v; }
-	QString ToString() const { return v ? "true" : "false"; }
-
-	virtual bool Changed() const
-	{
-		return v != v0;
-	}
-
-	virtual void ClearChanged()
-	{
-		v0 = v;
-	}
-
-	virtual void Write(QSettings& s, QString group = QString())	// into settings, always
-	{
-		if (!group.isEmpty())
-			s.beginGroup(group);
-
-		if (v == vd)
-			s.remove(itemName);		// from current group!
-		else
-			s.setValue(itemName, v);
-
-		if (!group.isEmpty())
-			s.endGroup();
-	}
-	virtual void Read(QSettings& s, QString group = QString())
-	{
-		if (!group.isEmpty())
-			s.beginGroup(group);
-
-		v = Value(s, itemName, vd);
-		_Setup();	// may modify 'v'
-		v0 = v;
-
-		if (!group.isEmpty())
-			s.endGroup();
-	}
-	_CBool& operator=(const bool o)
-	{
-		v = o;
-		_Setup();
-		return *this;
-	}
-	_CBool& operator=(const _CBool o)
-	{
-		v = o.v; v0 = o.v0, vd = o.vd;
-		_Setup();
-		return *this;
-	}
-
-	virtual bool operator==(const _CBool& other) { return v == other.v; }
-	virtual bool operator!=(const _CBool& other) { return !((const bool )v == other.v); }
-protected:
-	virtual void _Setup() {}		// preprocess after read from settings  v and v0 when created
-	virtual void _Prepare() {}		// preprocess before write to settings
-};
-#else
 struct _CBool : public _CFG_ITEM<bool>
 {
 	_CBool(bool def, QString namestr) : _CFG_ITEM(def, namestr) {}
@@ -219,7 +148,6 @@ struct _CBool : public _CFG_ITEM<bool>
 	QString ToString() const { return v ? "true" : "false"; }
 	_CBool& operator=(const bool s) { _CFG_ITEM<bool>::operator=(s); return *this; }	// w. this template function is not used
 };
-#endif
 
 //--------------------------------------------------------------------------------------------
 
@@ -1050,7 +978,6 @@ public:
 
 
 	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};
-	_CBool bKeepDuplicates = { false, "bKeepDuplicates" }; // when tru duplicates are kept
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase

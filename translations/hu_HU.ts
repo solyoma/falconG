@@ -1584,7 +1584,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="../src/thumbnailWidget.cpp" line="1292"/>
         <source>Copy &amp;Name(s)</source>
-        <translation>Copy &amp;Név/nevek</translation>
+        <translation>&amp;Név/nevek vágólapra</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/thumbnailWidget.cpp" line="587"/>
@@ -1616,7 +1616,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="../src/thumbnailWidget.cpp" line="1296"/>
         <source>Copy &amp;Original Name(s)</source>
-        <translation>Copy &amp;Eredeti név / nevek</translation>
+        <translation>&amp;Eredeti név / nevek vágólapra</translation>
     </message>
     <message>
         <location filename="../src/thumbnailWidget.cpp" line="1303"/>
@@ -1688,7 +1688,7 @@ This action cannot be undone!
 Do you really want to do this?</source>
         <translation>Ezután az összes kiválasztott elem címe és leírása ugyanaz lesz.
 
- Ezt nem visszavonható változtatás
+ Ezt nem visszavonható változtatás!
 
 Biztos, hogy akarod?</translation>
     </message>

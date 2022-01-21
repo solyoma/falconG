@@ -32,7 +32,6 @@ struct BadStruct
 
 // static members
 LanguageTexts TextMap::invalid;
-Image ImageMap::invalid;
 Video VideoMap::invalid;
 QString ImageMap::lastUsedPath;		// first check if next pathless image
 QString VideoMap::lastUsedPath;		// or video is here
@@ -571,19 +570,36 @@ QTextStream & Image::WriteInfo(QTextStream & _ofs) const
 
 /**************************** ImageMap *****************************/
 /*============================================================================
-* TASK:
-* EXPECTS:
+* TASK:		loop through map to see if image is already there
+* EXPECTS:	id: full image id
+*			onlyBase: only use base part of ID to find image, otherwise full id
+*				is used
+*			foundPos: if not nullptr
+*				IN: 0,1,...start checking in map by key from here
+*				OUT:	where the search found the value
 * GLOBALS:
-* REMARKS:
+* RETURNS:	reference to found image or dummy (invalid) image
+* REMARKS: - if 'onlyBase' is false no need to use 'foundPos' as we will
+*			only find one item or none
 *--------------------------------------------------------------------------*/
-Image &ImageMap::Find(ID_t id, bool useBase)
+Image *ImageMap::Find(ID_t id, bool onlyBase, int *foundPos)
 {
-	ID_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
+	int pos = foundPos ? *foundPos : 0;
+	ID_t mask = onlyBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
 	Image im; im.ID = id;
-	for (auto i = begin(); i != end(); ++i)
-		if ( (i.key() & mask)  == (im.ID & mask) )
-			return i.value();
-	return invalid;
+	auto i = begin();
+	while (pos && i != end())
+		--pos, ++i;
+	for ( ; i != end(); ++i, ++pos)
+		if ((i.key() & mask) == (im.ID & mask))
+		{	
+			if (foundPos)
+				*foundPos = *foundPos + pos;
+			return &i.value();
+		}
+	if (foundPos)
+		*foundPos = -1;		// not found
+	return nullptr;
 }
 
 /*============================================================================
@@ -592,7 +608,7 @@ Image &ImageMap::Find(ID_t id, bool useBase)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-Image &ImageMap::Find(QString FullSourceName)
+Image *ImageMap::Find(QString FullSourceName)
 {
 	Image img;
 	SeparateFileNamePath(FullSourceName, img.path, img.name);
@@ -600,28 +616,24 @@ Image &ImageMap::Find(QString FullSourceName)
 	Image::searchBy = Image::byFullSourceName;
 	for (auto i = begin(); i != end(); ++i)
 		if (i.value() == img)
-			return i.value();
+			return &i.value();
 
-	return invalid;
+	return nullptr;
 }
 
 /*============================================================================
-* TASK: Add an image to the list of all images
-* EXPECTS:  path - full or config.dsSrc relative path name of the image
-*			added- output parameter: was this a new image?
+* TASK: Add an image to the list (map) of all images
+* EXPECTS:  IN: path - full or config.dsSrc relative path name of the image
+*			OUT: added- was this a new image just added now?
 * GLOBALS: config
 * RETURNS: Id of image
-* REMARKS: - Id of image is the CRC32 of the file name only
-*		   - If two images have the same name then 'config.bKeepDuplicates`
-*			determines what happens
-*				- when it is true and the two images are of different sizes
-*				or have different file sizes the newer or larger will be used
-*				- when it is false each image will have a different ID
-*		   - when collisions occur adds a unique value above 0xFFFFFFFF to the ID
+* REMARKS: - the base Id of image is the CRC32 of the file name only
+*		   - if the CRC values are the same the ids will differ
+*				in a unique value above 0xFFFFFFFF added to the ID
+*		   - two images in different folders are considered different
+*				even when they have the same name and content
 *		   - even non-existing images are added to map
-*		   - if an image with the same name, but with different path is found
-*				and the one in the data base does not exist, replace the one
-*				in the data base with the new image even when it also does not exist
+*		   - the same image may appear in more then one album
 *--------------------------------------------------------------------------*/
 ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 {
@@ -647,41 +659,29 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 	}
 
 	added = false;
-	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just by name. CRC can but id can never be 0 
+	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just base ID from name. CRC can, but id can never be 0 
 
 	QFileInfo fi(path);		   // new (?) image to add
 
-	Image *found = &Find(id); // check if a file with this same base id is already in data base? 
+	int foundPos = 0;
+	Image *found = Find(id, true, &foundPos); // check if a file with this same ** base id ** is already in data base? 
 							  // can't use reference as we may want to modify 'found' below
 							  
-	if( found->Valid())		  // yes an image with the same base ID as this image was found
-	{						  // the ID can still be different from the id of the found image though
-		if (config.bKeepDuplicates)
+	if( found)				  // yes an image with the same ** base ID ** as this image was found
+	{		// the full ID can still be different from the id of the found image though
+		do	 // loop thorugh all images with the same base ID			
 		{
-			do
-				id += ID_INCREMENT;
-			while (Find(id, false).Valid()); // full by ID
-		}
-		else
-		{
-			do					  // loop thorugh all images with the same base ID			
+			if (found->name == img.name && found->path == img.path)		// then same image	
 			{
-				if (found->name == img.name)	// if name is the same too then same image	
-				{								// even when they are in different directories!
-					if (found->exists)
-						if (!img.exists || (img.exists && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
-							return found->ID;	  // do not change path as image already existed
-
-					id = found->ID;		// else found image did not exist,
-					break;				// replace it with this image but with the same ID as the old one 
-				}
-				else						// same ID, different name - new image
-					id += ID_INCREMENT;
-				// repeat until a matching name with the new ID is found or no more images
-			} while ((found = &Find(id, false))->Valid()); // full by ID
+				++found->usageCounter;
+				return found->ID;
+			}
+			++foundPos;
 		}
+		while ((found = Find(id, true, &foundPos))); // full by ID
 	}
-	// now I have a new image to add
+
+	// not found - now I have a new image to add
 	// new image: 
 	if (img.exists)
 	{
@@ -701,13 +701,13 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-Image &ImageMap::Item(int index)
+Image *ImageMap::Item(int index)
 {
 	if (index < 0 || index > size())
-		return invalid;
+		return nullptr;
 	iterator it = begin();
 	it += index;
-	return *it;
+	return &it.value();
 }
 
 /**************************** AlbumMap *****************************/
@@ -989,6 +989,7 @@ ID_t AlbumMap::Add(QString path, bool &added)
 		AlbumGenerator::lastUsedAlbumPath = ab.path + ab.name + "/";
 	ab.exists = true; // no need for real directoy to exist --  QFileInfo::exists(path);
 	added = true;		// always add, even when it does not exist
+	++ab.usageCounter;
 	(*this)[ab.ID] = ab;
 	return ab.ID;
 }
@@ -1496,9 +1497,9 @@ void AlbumGenerator::_JReadInfoFile(Album &ab, QString & path, QString name)
 		else			   // image
 		{
 			name = name.left(name.length() - 5);
-			Image &img = _imageMap.Find(path + name);
-			if (img.Valid())
-				img.titleID = tid;
+			Image *img = _imageMap.Find(path + name);
+			if (img->Valid())
+				img->titleID = tid;
 		}
 	}
 }
@@ -4495,17 +4496,27 @@ QString IABase::FullLinkName(bool bLCExtension) const
 	return config.dsGallery.ToString() + s;
 }
 
-Video& VideoMap::Find(ID_t id, bool useBase)
+Video* VideoMap::Find(ID_t id, bool onlyBase, int* foundPos)
 {
-	ID_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
-	Video vid; vid.ID = id;
-	for (auto i = begin(); i != end(); ++i)
-		if ((i.key() & mask) == (vid.ID & mask))
-			return i.value();
-	return invalid;
+	int pos = foundPos ? *foundPos : 0;
+	ID_t mask = onlyBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
+	Image im; im.ID = id;
+	auto i = begin();
+	while (pos && i != end())
+		--pos, ++i;
+	for (; i != end(); ++i, ++pos)
+		if ((i.key() & mask) == (im.ID & mask))
+		{
+			if (foundPos)
+				*foundPos = *foundPos + pos;
+			return &i.value();
+		}
+	if (foundPos)
+		*foundPos = -1;		// not found
+	return nullptr;
 }
 
-Video& VideoMap::Find(QString FullSourceName)
+Video* VideoMap::Find(QString FullSourceName)
 {
 	Video vid;
 	SeparateFileNamePath(FullSourceName, vid.path, vid.name);
@@ -4513,9 +4524,9 @@ Video& VideoMap::Find(QString FullSourceName)
 	Video::searchBy = Video::byFullSourceName;
 	for (auto i = begin(); i != end(); ++i)
 		if (i.value() == vid)
-			return i.value();
+			return &i.value();
 
-	return invalid;
+	return nullptr;
 }
 
 /*============================================================================
@@ -4553,34 +4564,20 @@ ID_t VideoMap::Add(QString path, bool& added)
 
 	QFileInfo fi(path);
 
-	Video* found = &Find(id); // check if a file with this same base id is already in data base? 
+	int foundPos = 0;
+	Video* found = Find(id); // check if a file with this same base id is already in data base? 
 							  // can't use reference as we may want to modify 'found' below
-	if (config.bKeepDuplicates)
-	{
-		do
-			id += ID_INCREMENT;
-		while (Find(id, false).Valid()); // full by ID
-	}
-	else
-	{
-		if (found->Valid())		  // yes an video with the same base ID as this video was found
-		{						  // the ID can still be different from the id of the found video though
-			do					  // loop thorugh all videos with the same base ID			
+	if (found)				  // yes an image with the same ** base ID ** as this image was found
+	{		// the full ID can still be different from the id of the found image though
+		do	 // loop thorugh all images with the same base ID			
+		{
+			if (found->name == vid.name && found->path == vid.path)		// then same image	
 			{
-				if (found->name == vid.name)	// if name is the same too then same video	
-				{								// even when they are in different directories!
-					if (found->exists)
-						if (!vid.exists || (vid.exists && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
-							return found->ID;	  // do not change path as video already existed
-
-					id = found->ID;		// else found video did not exist,
-					break;				// replace it with this video but with the same ID as the old one 
-				}
-				else						// same ID, different name - new video
-					id += ID_INCREMENT;
-				// repeat until a matching name with the new ID is found or no more videos
-			} while ((found = &Find(id, false))->Valid()); // full by ID
-		}
+				++found->usageCounter;
+				return found->ID;
+			}
+			++foundPos;
+		} while ((found = Find(id, true, &foundPos))); // full by ID
 	}
 	// now I have a new video to add
 	// new video: 
@@ -4596,13 +4593,13 @@ ID_t VideoMap::Add(QString path, bool& added)
 	return id;
 }
 
-Video& VideoMap::Item(int index)
+Video* VideoMap::Item(int index)
 {
 	if (index < 0 || index > size())
-		return invalid;
+		return nullptr;
 	iterator it = begin();
 	it += index;
-	return *it;
+	return &*it;
 }
 
 int Video::operator<(const Video& i)
