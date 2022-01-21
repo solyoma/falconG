@@ -85,6 +85,7 @@ public:
 
 signals:
 	void CancelRun();
+	void SignalThumSizeChanged(int newSize);
 private:
 
 	Ui::falconGClass ui;
@@ -398,6 +399,9 @@ private slots:
 	void on_sbWmShadowBlur_valueChanged(int val);
 	void on_sbWmShadowHoriz_valueChanged(int val);
 	void on_sbWmShadowVert_valueChanged(int val);
+
+	void on_sldIconSize_valueChanged(int newSize);
+
 
 	void on_toolBox_currentChanged(int newIndex);
 };

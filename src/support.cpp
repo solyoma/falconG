@@ -1397,12 +1397,29 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 	return *this;
 }
 
-bool ImageMarker::Read()
+// =================================================================
+QPixmap *MarkedIcon::folderThumbMark = nullptr;
+QPixmap *MarkedIcon::noImageMark = nullptr;
+int MarkedIcon::thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
+int MarkedIcon::borderWidth = thumbSize / THUMBNAIL_BORDER_FACTOR;				// in pixels portrait image: right and left, landscape image top and bottom
+bool MarkedIcon::initted = false;				// images for icons read?
+
+
+/*=============================================================
+ * TASK:	reads an image into 'pxmp' member from file and
+ *			shows it on a square pixmap with 'thumbSize' side
+ *			on a background whose color depends on the type of
+ *			the image (folder thumbnail or image thumbnail)
+ * PARAMS:	name: file name to read image from
+ *			is_folder: if this will be for a folder
+ * GLOBALS:	static members are set
+ * RETURNS:	if file read was successfull
+ * REMARKS: if read is unsuccessfull the pixmap still valid
+ *------------------------------------------------------------*/
+bool MarkedIcon::Read(QString fname, bool is_folder)
 {
-	constexpr int margin = 10;	// both sides, in pixels
-	static QPixmap folderIcon;
-	if (folderIcon.isNull())
-		folderIcon = QPixmap(":/icons/Resources/folderIcon.png");
+	name = fname;
+	isFolder = is_folder;
 
 	QImageReader reader(name);
 	reader.setAutoTransform(true);
@@ -1411,8 +1428,10 @@ bool ImageMarker::Read()
 		return false;
 	reader.setBackgroundColor(cbck);
 
-	pxmp = QPixmap(size, size);
+	pxmp = QPixmap(thumbSize, thumbSize);
 	pxmp.fill(cbck);
+
+	exists = false;
 
 	QSize osize = reader.size(),
 		  dsize;
@@ -1421,13 +1440,13 @@ bool ImageMarker::Read()
 		
 	if (osize.width() >= osize.height())	// portrait
 	{
-		dsize.setWidth(size - 2*margin);
-		dsize.setHeight((double)(size - 2*margin) / (double)(osize.width()) * osize.height());
+		dsize.setWidth(thumbSize - 2*borderWidth);
+		dsize.setHeight((double)(thumbSize - 2*borderWidth) / (double)(osize.width()) * osize.height());
 	}
 	else
 	{
-		dsize.setHeight(size - 2*margin);
-		dsize.setWidth((double)(size - 2*margin) / (double)(osize.height()) * osize.width());
+		dsize.setHeight(thumbSize - 2*borderWidth);
+		dsize.setWidth((double)(thumbSize - 2*borderWidth) / (double)(osize.height()) * osize.width());
 	}
 
 	reader.setScaledSize(dsize);
@@ -1435,11 +1454,36 @@ bool ImageMarker::Read()
 	static QImage img;
 	if(!reader.read(&img))		// maybe error display?
 		return false;
-	QPainter painter(&pxmp);	// leave the margin outside
+
+	exists = true;
+
+	QPainter painter(&pxmp);	// leave the border outside
 	int xm =(pxmp.width() - dsize.width()) / 2, ym = (pxmp.height() - dsize.height()) / 2;
 	painter.drawImage(xm, ym, img);
 
-	if (isFolderIcon)
-		painter.drawPixmap(size - folderIcon.width() - margin, margin, folderIcon);
 	return true;
+}
+
+/*=============================================================
+ * TASK:	returns an icon with markers *folder Thumb an exists) on them
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS: an icon for image read. 
+ * REMARKS: If no markers are to be set on this item returns just 
+ *			the pixmap 'pxmp'
+ *------------------------------------------------------------*/
+QIcon MarkedIcon::ToIcon()
+{
+	if (exists && !isFolderThumb)	// no markers on image
+		return QIcon(pxmp);
+
+	QPixmap tmppxmp(thumbSize, thumbSize);
+	QPainter painter(&tmppxmp);
+	painter.drawPixmap(0,0, pxmp);		// image with border
+	if (isFolderThumb)
+		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *folderThumbMark);
+	if(!exists)
+		painter.drawPixmap(thumbSize - 2*noImageMark->width() - borderWidth, borderWidth, *noImageMark);
+
+	return QIcon(tmppxmp);
 }

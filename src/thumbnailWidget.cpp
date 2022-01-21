@@ -26,13 +26,66 @@
 
 
 // ****************** ThumbnailItem ******************
-#ifndef _USE_QSTANDARDITEM 
-
-int ThumbnailItem::_thumbHeight;
-
-ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
+static struct FileIcons
 {
-    QSize hintSize = QSize(_thumbHeight, _thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
+    QList<MarkedIcon> iconList;
+    int posFolderIcon = -1;
+
+    void Clear()
+    {
+		posFolderIcon = -1;
+		iconList.clear();
+        MarkedIcon::Init(); // only reads images if not yet initted
+    }
+    void SetMaximumSizes(int thumbsize=THUMBNAIL_SIZE, int borderwidth = 10)
+    {
+        MarkedIcon::SetMaximumSizes(thumbsize, borderwidth);
+    }
+
+    bool HasIconFor(int pos)
+    {
+        return pos < iconList.size();
+    }
+
+    void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false)
+    {
+        // pos-th item MUST exist
+        MarkedIcon& micon = iconList[pos];
+		if (posFolderIcon >= 0)         // erase original folder icon
+			micon.isFolderThumb = false;
+
+		micon.isFolderThumb = bIsFolderThumbnail;    // and set this
+		if (bIsFolderThumbnail)
+			posFolderIcon = pos;
+    }
+
+	QIcon IconForPosition(int pos, bool isFolder, bool isFolderThumb, QString imageName = QString())
+	{
+
+		if (pos < 0)
+			return QIcon();
+
+		if (pos >= iconList.size())
+		{
+			MarkedIcon icon;
+			icon.Read(imageName, isFolder);
+			iconList.push_back(icon);
+		}
+        // pos-th item MUST exist
+        MarkedIcon& micon = iconList[pos];
+        micon.isFolderThumb = isFolderThumb;
+		return micon.ToIcon();
+	}
+} fileIcons;
+
+int ThumbnailItem::thumbHeight=150;
+
+ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ, QIcon icon) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
+{
+    QSize hintSize = QSize(thumbHeight, thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
+
+//    fileIcons.SetSizes(thumbHeight, thumbHeight/ THUMBNAIL_BORDER_FACTOR);
+
     setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
 }
 
@@ -41,15 +94,21 @@ QIcon ThumbnailItem::IconForFile() const
     Album* pAlbum = _ActAlbum();
     ID_t itemId = pAlbum->items[itemPos];
     bool exists = false;
-    bool bIsFolderIcon = false;
     
     bool isFolder = itemId & ALBUM_ID_FLAG;
+    bool bIsFolderIcon = false;
 
     ID_t imgId = itemId;     // add marker for image that is the folder thumbnail (shown in parent)
 //    Album* parent = _ParentAlbum();
     if (isFolder)
         imgId = albumgen.Albums()[itemId].thumbnail;
+
     bIsFolderIcon = (pAlbum->thumbnail == imgId);
+
+    if (fileIcons.HasIconFor(itemPos))
+        return fileIcons.IconForPosition(itemPos, isFolder, bIsFolderIcon);
+            // else read and create icon
+
 
 //    imgId &= ID_MASK;
     Image &img = albumgen.Images()[imgId];
@@ -64,8 +123,7 @@ QIcon ThumbnailItem::IconForFile() const
     // DEBUG
     // qDebug((QString("icon for file:'%1' of ID:%2, name:'%3'").arg(imageName).arg(itemId).arg(img.FullSourceName())).toStdString().c_str());
     // /DEBUG
-    ImageMarker imageMarker(imageName, 300, bIsFolderIcon, exists, isFolder);
-    return imageMarker.Read() ? imageMarker.ToIcon() : QIcon();
+    return fileIcons.IconForPosition(itemPos, isFolder, bIsFolderIcon, imageName);
 }
 
 
@@ -76,7 +134,6 @@ QVariant ThumbnailItem::data(int role) const
         case Qt::DisplayRole:   return DisplayName();              // destination (generated) file or directory name w.o. path
         case Qt::ToolTipRole:   return ToolTip();               // string of full source name and destination name
         case Qt::DecorationRole: return IconForFile();          // the icon of files or albums (used when QListView is set for it)
-
         case TypeRole:          return _itemType;               // folder, image or video
         case FilePathRole:      return FilePath();              // destination path
         case FileNameRole:      return FileName();              // destination (generated) file or directory name w.o. path or source path if no dest. file
@@ -241,8 +298,6 @@ QString ThumbnailItem::DisplayName() const
     return QString();
 }
 
-#endif // #ifndef _USE_QSTANDARDITEM 
-
 // ****************** ThumbnailWidget ******************
 
  /*=============================================================
@@ -254,10 +309,8 @@ QString ThumbnailItem::DisplayName() const
   * REMARKS:	SA
   *				- connects slots and sets up scrollbar
   *------------------------------------------------------------*/
-ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(parent), _thumbHeight(thumbheight)
+ThumbnailWidget::ThumbnailWidget(QWidget *parent/*, int thumbheight*/) : QListView(parent)/*, _thumbHeight(thumbheight)*/
 {
-    ThumbnailItem::SetThumbHeight(thumbheight);
-
     // prepare spacer for Drag & Drop into tnvImages
     float spacerWidth = 50; // pixel
     _insertPosImage = QImage(spacerWidth, _thumbHeight, QImage::Format_ARGB32);
@@ -281,6 +334,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent, int thumbheight) : QListView(p
     setWordWrap(true);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setUniformItemSizes(false);
+
+    int thumbheight = ThumbnailItem::thumbHeight;   // mod
+    setIconSize(QSize(thumbheight, thumbheight));
 // experiment:
 //	setMovement(QListView::Free);
 //	setDragDropMode(QAbstractItemView::InternalMove);
@@ -938,9 +994,11 @@ void ThumbnailWidget::Setup(ID_t aid)
 
 void ThumbnailWidget::loadPrepare()
 {
+    fileIcons.Clear();
+//    fileIcons.SetSizes(_thumbHeight, 10);
 
     _thumbnailWidgetModel->clear();
-    setIconSize(QSize(_thumbHeight, _thumbHeight));
+
     setSpacing(QFontMetrics(font()).height());
 
     if (_isNeedToScroll) {
@@ -1553,6 +1611,11 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
         emit SignalFolderChanged(row);
     }
     // else        // display full image in window      
+}
+
+void ThumbnailWidget::ThumbnailSizeChanged(int newSize)
+{
+    setIconSize(QSize(newSize, newSize));
 }
 
 void ThumbnailWidget::setNeedToScroll(bool needToScroll) 

@@ -209,6 +209,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 
+	connect(this, &FalconG::SignalThumSizeChanged, ui.tnvImages, &ThumbnailWidget::ThumbnailSizeChanged);
+
 	// read styles
 
 	// setup style change menus. _SlotForContextMenus sets up a signal mapping for style menus
@@ -3843,6 +3845,11 @@ void FalconG::on_sbWmShadowVert_valueChanged(int val)
 	config.waterMark.SetupMark();
 	_SetConfigChanged(true);
 	_ElemToSample();
+}
+
+void FalconG::on_sldIconSize_valueChanged(int newSize)
+{
+	emit SignalThumSizeChanged(newSize);
 }
 
 /*============================================================================

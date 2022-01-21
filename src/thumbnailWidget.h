@@ -27,25 +27,26 @@
 
 const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;
-const int THUMBNAIL_SIZE = 150;
+const int THUMBNAIL_SIZE = 600;	// maximum size
+const int THUMBNAIL_BORDER_FACTOR = 30;	// border width = thumbnail size /this factor
 
 using IntList = QVector<int>;
 
 /*=============================================================
  * info stored for items in view
  *------------------------------------------------------------*/
-//#define _USE_QSTANDARDITEM = 1
-#ifndef _USE_QSTANDARDITEM 
+
 class ThumbnailItem : public QStandardItem
 {
 public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
 	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
+	static int thumbHeight;
 
 private:
-	static int _thumbHeight;
 	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
 	Type _itemType;
+	QIcon _icon;
 
 	Album	*_ActAlbum() const { return albumgen.AlbumForID(_albumId); }
 	Album   *_ParentAlbum() const 
@@ -76,9 +77,9 @@ public:
 		_itemType = typ; 
 	}
 
-	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none);
-	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
-	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType) {}
+	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none, QIcon icon = QIcon());
+	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
+	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
 	ThumbnailItem &operator=(const ThumbnailItem& other) 
 	{ 
 		QStandardItem::operator=(other); 
@@ -88,7 +89,7 @@ public:
 		return *this;
 	}
 	// set this only once for each run (static)
-	static void SetThumbHeight(int thumbHeight) {_thumbHeight = thumbHeight;  }
+	static void SetThumbHeight(int th) {thumbHeight = th;  }
 		// use this after constructing 
 	void SetOwnerId(ID_t id) { _albumId = id;}
 
@@ -103,9 +104,7 @@ public:
 	QString DisplayName() const;
 	QIcon   IconForFile() const;		// uses _albumId and itemPos
 };
-#else
-using ThumbnailItem = QStandardItem;
-#endif
+ 
 /*=============================================================
  * my Mime Type for Drag & Drop
  *------------------------------------------------------------*/
@@ -182,7 +181,7 @@ class ThumbnailWidget : public QListView
 Q_OBJECT
 
 public:
-    ThumbnailWidget(QWidget *parent, int thumbsize = THUMBNAIL_SIZE);
+    ThumbnailWidget(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
 
 	void Setup(ID_t aid);
 	void Clear() { _pIds = nullptr; _albumId = 0; }
@@ -290,6 +289,7 @@ public slots:
 	void SetAsAlbumThumbnail();			// from existing image/album image
 	void SelectAsAlbumThumbnail();
 	void ItemDoubleClicked(const QModelIndex &);
+	void ThumbnailSizeChanged(int thumbSize);
 
 private slots:
     void loadThumbsRange();

@@ -197,19 +197,57 @@ struct ImageReader : public QImageReader
 // read an image from disk or resource, rotate it on read if needed, 
 //  resize it to w and h keeping aspect ratio
 //  add a square icon overlay at given postion from the right
-struct ImageMarker
+struct MarkedIcon
 {
-	QPixmap pxmp;			// square pixmap for images with a border
-	QString name;			// full path name
-	int		size;		// image inside this keeping aspect ratio
-	bool isFolderIcon;		// if yes: mark the image
-	bool exists;			// if not, mark the image
-	bool isFolder;			// different border
+	QString name;			// full path name of image for which we want an icon
+	QPixmap pxmp;			// square pixmap contains image with a 'margin' wide border
+	bool isFolderThumb = false;		// if yes: mark the image
+	bool exists = false;			// if not, mark the image
+	bool isFolder = false;			// different border
+		// these ar used for each thumbnail
+		// QPixmaps can only be initialized after the GUI initilize (QT quirk)
+		// so we need pointers here
+	static QPixmap *folderThumbMark;	// if folder thumbnail mark with this	
+	static QPixmap *noImageMark;	// image does not exist
+	static int thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
+	static int borderWidth;		
+	static bool initted;
 
-	ImageMarker(QString name,  int size, bool isFolderIcon, bool exists, bool isFolder) : 
-			name(name), size(size), isFolderIcon(isFolderIcon), exists(exists), isFolder(isFolder) {}
-	bool Read();			// transforms possibly rotated image on read to pixmap which has the enclosing size
-	QIcon ToIcon() { return QIcon(pxmp); }
+	MarkedIcon()
+	{
+		if (!initted)
+			Init();
+	}
+
+	MarkedIcon(const MarkedIcon& other)
+	{
+		isFolder = other.isFolder;
+		isFolderThumb = other.isFolderThumb;
+		exists = other.exists;
+		name = other.name;
+		pxmp = other.pxmp;
+	}
+	void SetAsFolderThumb(bool setth)
+	{
+		isFolderThumb = setth;
+	}
+	static void Init()
+	{
+		if (initted)
+			return;
+
+		folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
+		noImageMark		= new QPixmap(":/icons/Resources/noImageMark.png");
+		initted = true;
+	}
+	static void SetMaximumSizes(int size, int margin)
+	{
+		thumbSize = size; 
+		borderWidth = margin;
+	}
+
+	bool Read(QString name, bool isFolder);	// to pxmp, transforms rotated image on read, sets 'exists'
+	QIcon ToIcon();
 };
 QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
 
