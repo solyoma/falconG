@@ -260,7 +260,8 @@ signals:
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
 	void SignalSingleSelection(ID_t id);		// may be album or image or video
 	void SignalMultipleSelection(IdList);		// all selected items
-	void SignalFolderChanged(int row);	// move to next level  in tree list inside actual folder
+	void SignalFolderChanged(int row);			// move to next level  in tree list inside actual folder
+	void SignalFolderAdded();					// add the new album to tree view as well
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments

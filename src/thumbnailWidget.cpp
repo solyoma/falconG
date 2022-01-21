@@ -1487,7 +1487,6 @@ void ThumbnailWidget::AddImages()
 
     emit selectionChanged(QItemSelection(), QItemSelection());
     config.dsLastImageDir = dir;
-
 }
 
 /*=============================================================
@@ -1500,6 +1499,21 @@ void ThumbnailWidget::AddImages()
  *------------------------------------------------------------*/
 void ThumbnailWidget::AddFolder()
 {
+    Album* pAlbum = _ActAlbum();
+    QString dir = pAlbum->path;
+    QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
+    if (qs.isEmpty())
+        return;
+    bool added;
+    ID_t id = albumgen.Albums().Add(qs,added);
+    if (added)
+    {
+        pAlbum->items.push_back(id);
+        emit SignalFolderAdded();
+        reLoad();
+    }
+    else
+        QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
 }
 
 /*============================================================================

@@ -957,7 +957,7 @@ QString Album::NameFromID(int language)
 /*============================================================================
 * TASK:	  Add an album to the album map if it is not already in there
 * EXPECTS: path:  IN - either absolute path or relative to source directory (!)
-*          added: OUT - et when this is added
+*          added: OUT - set when this is added
 * RETURNS: id of album ORed with ALBUM_ID_FLAG
 * GLOBALS:
 * REMARKS:	path may contains a logical name only it need not exist

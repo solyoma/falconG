@@ -198,6 +198,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
 	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_EnableEditTab);
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
+	connect(ui.tnvImages, &ThumbnailWidget::SignalFolderAdded,		this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_CreateUplinkIcon);
