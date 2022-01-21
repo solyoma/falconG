@@ -1366,8 +1366,10 @@ void ThumbnailWidget::DeleteSelected()
         return;
 	QString s;
 
-    QString plurali = tr("s"), plurala = tr("s");   // plural for image and album. May differ in other languages
-    QString qs = QMainWindow::tr("Do you want to delete selected image%1 / album%1 from disk, or just to remove them from gallery?").arg(list.size() > 1 ? plurali :"").arg(list.size() > 1 ? plurala : "");
+    QString plurali = tr("images"), plurala = tr("albums");   // plural for image and album. May differ in other languages
+    QString qs = QMainWindow::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
+                                    .arg(list.size() > 1 ? plurali :tr("image"))
+                                    .arg(list.size() > 1 ? plurala : tr("album"));
     QMessageBox msg;
     msg.setWindowTitle(tr("falconG - Question"));
     msg.setText(qs);
