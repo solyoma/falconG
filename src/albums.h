@@ -62,8 +62,6 @@ struct IABase
 	ID_t descID = 0;	// default text ID of image description
 	QString name;		// without path but with extension and no ending '/' even for albums
 	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
-	int usageCounter = 1;	// incremented when image or video is used. Those are deleted from disk if
-							// noone is using them
 
 	bool Valid() const { return ID > 0; }
 	IABase &operator=(const IABase &a)
@@ -279,12 +277,13 @@ class ImageMap : public QMap<ID_t, Image>
 	//friend class ALbumGenerator; miert nem volt eleg
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
+	static Image invalid;
 	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
 
-	Image *Find(ID_t id, bool onlyBase = true, int* foundPos = nullptr);
-	Image *Find(QString FullSourceName);
+	Image& Find(ID_t id, bool useBase = true);
+	Image& Find(QString FullSourceName);
 	ID_t Add(QString image, bool &added);	// returns ID and if added
-	Image *Item(int index);
+	Image &Item(int index);
 };
 
 //------------------------------------------
@@ -298,10 +297,10 @@ public:
 	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
 									// an video by its name (relative to this path) only
 
-	Video* Find(ID_t id, bool onlyBase = true, int* foundPos = nullptr);
-	Video* Find(QString FullSourceName);
-	ID_t Add(QString image, bool& added);	// returns ID and wether it was added
-	Video* Item(int index);
+	Video& Find(ID_t id, bool useBase = true);
+	Video& Find(QString FullSourceName);
+	ID_t Add(QString image, bool& added);	// returns ID and if added
+	Video& Item(int index);
 };
 
 //------------------------------------------

@@ -75,9 +75,6 @@
     <ClCompile Include="textEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageviewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -112,9 +109,6 @@
     <QtUic Include="textEditor.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="imageViewer.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="falcong.qrc">
@@ -144,9 +138,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="schemes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imageviewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

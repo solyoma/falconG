@@ -206,7 +206,6 @@
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="schemes.cpp" />
-    <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="structEdit.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sourcehistory.cpp" />
@@ -225,7 +224,6 @@
     </QtUic>
     <QtUic Include="sourcehistory.ui" />
     <QtUic Include="textEditor.ui" />
-    <QtUic Include="imageViewer.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="falcong.qrc" />
@@ -245,7 +243,6 @@
     <QtMoc Include="structEdit.h" />
     <QtMoc Include="sourcehistory.h" />
     <ClInclude Include="enums.h" />
-    <ClInclude Include="imageviewer.h" />
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>

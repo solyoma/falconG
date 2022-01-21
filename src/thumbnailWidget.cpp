@@ -1357,14 +1357,7 @@ void ThumbnailWidget::invertSelection()
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - folders can only be removed from gallery but not 
- *             deleted
- *          - folders can occur in data base only once and when
- *              removed must be removed from database too
- *          - images and videos remain on database until the
- *              structure is written to disk, but because they
- *              can appear in many albums, they may still remain
- *              on disk
+ * REMARKS:
  *------------------------------------------------------------*/
 void ThumbnailWidget::DeleteSelected()
 {
@@ -1374,23 +1367,20 @@ void ThumbnailWidget::DeleteSelected()
 	QString s;
 
     QString plurali = tr("images"), plurala = tr("albums");   // plural for image and album. May differ in other languages
-    QString qs = QMainWindow::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?\n\n"
-                                 "For safety reasons folders will not be deleted from disk.\n"
-                                 "Also images and videos are only deleted if they are not used\n"
-                                 "anywhere else.")
+    QString qs = QMainWindow::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
                                     .arg(list.size() > 1 ? plurali :tr("image"))
                                     .arg(list.size() > 1 ? plurala : tr("album"));
     QMessageBox msg;
     msg.setWindowTitle(tr("falconG - Question"));
     msg.setText(qs);
-    msg.addButton(tr("Delete too"),QMessageBox::YesRole);   // 0th button
-    msg.addButton(tr("Remove only"),QMessageBox::NoRole);   // 1st button
-    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);    // 2nd button
+    msg.addButton(tr("Delete"),QMessageBox::YesRole);
+    msg.addButton(tr("Remove"),QMessageBox::NoRole);
+    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);
     msg.setDefaultButton(QMessageBox::Cancel);
     msg.setIcon(QMessageBox::Question);
     int res = msg.exec();
 
-    if (res == 2)       // 3rd button (Cancel) pressed
+    if (res == QMessageBox::Cancel)
         return;
 
     Album &album = albumgen.Albums()[_albumId];
@@ -1398,44 +1388,6 @@ void ThumbnailWidget::DeleteSelected()
     for (auto mi : list)
     {
         ix = mi.row();
-		ID_t id = album.items[ix];
-		QString pathName = albumgen.AlbumForID(id)->FullSourceName();
-		if (res == 0)       // yes: delete to recycle bin
-		{
-			if ((id & ALBUM_ID_FLAG) == 0)      // image or video
-			{
-                if( ((id & IMAGE_ID_FLAG) && --albumgen.ImageAt(id)->usageCounter) ||
-                    ((id & VIDEO_ID_FLAG) && --albumgen.VideoAt(id)->usageCounter) )
-                    continue;   // do not delete if anyone uses it anywhere
-
-				QString pathInTrash;
-				if (!QFile::moveToTrash(pathName, &pathInTrash))
-				{
-					int res1 = QMessageBox::question(this, tr("falconG - Warning"),
-						tr("Can't move file\n'%1'\n to trash.\n\n"
-							"Should I delete such files directly?\n"
-							"If you select 'No', the files will remain on disk."),
-                            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel
-                        );
-					if (res1 == 0)
-					{
-						res = 1;    // no more questions
-						QFile f(pathName);
-						f.remove();
-                    }
-                    else if (res == 2)
-                        break;
-				}
-			}
-            else    //  album: remove from albums() only
-                albumgen.Albums().remove(id);
-		}
-		else        // only remove image / video file from album
-		{
-			QFile f(pathName);
-			f.remove();
-		}
-            // but always remove from gallery
         album.items.remove(ix);
     }
     reLoad();
