@@ -15,7 +15,6 @@ ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName
     _CreateActions();
     _requiredWidgetSize = _screenSize * 3 / 5;
     sizePolicy().setHeightForWidth(true);
-    ui.statusFrame->setStyleSheet(QString("background-color:%1").arg(Qt::transparent));
 }
 
 bool ImageViewer::LoadFile()
