@@ -189,14 +189,6 @@ void ImageViewer::paintEvent(QPaintEvent* event)
         wh = height() - 2 * (IMAGE_BORDER + IMAGE_MARGIN);
 
     painter.drawImage(x0, y0, _scaledImage, spt.x(), spt.y(), ww, wh);
-
-    // DEBUG
-    ui.lblDebug->setText(QString("Left:%1, top:%2, scale:%3, fit:%4, info:%5")
-        .arg(_topLeftOfVisibleImage.x())
-        .arg(_topLeftOfVisibleImage.y())
-        .arg(_scaleFactor)
-        .arg(_windowScalesWithImage ?"yes":"no")
-        .arg(_infoOverlayOn ? "on" : "off"));
 }
 
 //void ImageViewer::showEvent(QShowEvent* event)
@@ -444,7 +436,8 @@ void ImageViewer::_Help()
            "<p><b>0</b> - zoom to fit window</p>"
            "<p><b>+</b> - zoom in 25%</p>"
            "<p><b>-</b> - zoom out 25%</p>"
-           "<p><b>f</b> - toggle fit window to image</p>"
+           "<p><b>F11</b> - Full screen toggle</p>"
+           "<p><b>F</b> - toggle fit window to image</p>"
            "<p><b>arrow keys</b> - pan the image</p>"
            "<p><b>Mouse</b> - Use the wheel to zoom in or out<br>"
             "Press and hold the <b>left</b> mouse button while"
@@ -456,17 +449,17 @@ void ImageViewer::_ToggleStatus()
 {
     _infoOverlayOn = !_infoOverlayOn;
     if (_infoOverlayOn)
-        ui.statusFrame->hide(), _statusAct->setChecked(true);
+        ui.statusFrame->show(), _statusAct->setChecked(true);
     else
-        ui.statusFrame->show(), _statusAct->setChecked(false);
+        ui.statusFrame->hide(), _statusAct->setChecked(false);
 }
 
 void ImageViewer::_MoveImage(QPoint dp)
 {
     _topLeftOfVisibleImage += dp;
 
-    int w = width() - 2 * (IMAGE_MARGIN + IMAGE_BORDER),
-        h = height() - 2 * (IMAGE_MARGIN + IMAGE_BORDER);
+    //int w = width() - 2 * (IMAGE_MARGIN + IMAGE_BORDER),
+    //    h = height() - 2 * (IMAGE_MARGIN + IMAGE_BORDER);
     if (_topLeftOfVisibleImage.x() < 0)
         _topLeftOfVisibleImage.setX(0);
     //else if (_scaledImage.width() - _topLeftOfVisibleImage.x() < w)
