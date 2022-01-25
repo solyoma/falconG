@@ -80,7 +80,7 @@
     <item>
      <widget class="QLabel" name="lblSize">
       <property name="text">
-       <string>lblSize</string>
+       <string>9999 x 9999</string>
       </property>
      </widget>
     </item>
@@ -123,6 +123,13 @@
        </size>
       </property>
      </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>'?' - Help</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
