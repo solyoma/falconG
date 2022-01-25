@@ -57,7 +57,7 @@ private:
 	bool _notResized = true;						// widget was not resized?
 	QSize _screenSize, 
 		  _requiredWidgetSize;
-	bool _InfoOverlayOn = false;					// image info overlay visible?
+	bool _infoOverlayOn = true;					// image info overlay visible?
 	QRect _lastNotFullScreenRect;
 
 
@@ -89,6 +89,7 @@ private:
 	double _GetFitFactor(QSize wsize);	// for widget size
 	void _Help();
 	void _ToggleStatus();
+	void _MoveImage(QPoint dp);
 
 	void _SetImage(const QImage& newImage);
 };

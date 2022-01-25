@@ -59,7 +59,7 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
         else if (event->key() == Qt::Key_Minus)
             _CalcScaleFactor(0.8, true, true);
         else if (event->key() == Qt::Key_F)
-            _fitToWindow = !_fitToWindow;
+            _FitToWindow();
         else if (event->key() == Qt::Key_F11 || (event->modifiers().testFlag(Qt::AltModifier) && event->key() == Qt::EnterKeyReturn))
             _SetFullScreen(!_isFullScreen);
         else if (event->key() == Qt::Key_Question)
@@ -68,29 +68,23 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
             _ToggleStatus();
         else if (_IsImageMoveable())
         {
-            if (event->key() == Qt::Key_Left && _topLeftOfVisibleImage.x())
-                _topLeftOfVisibleImage.setX(_topLeftOfVisibleImage.x() - 10);
-            else if (event->key() == Qt::Key_Right && 
-                    ( (_image.width() - _topLeftOfVisibleImage.x())*_scaleFactor > width()) )
-                _topLeftOfVisibleImage.setX(_topLeftOfVisibleImage.x()+10);
-            else if (event->key() == Qt::Key_Down && _topLeftOfVisibleImage.y())
-                _topLeftOfVisibleImage.setY(_topLeftOfVisibleImage.y() - 10);
-            else if (event->key() == Qt::Key_Up && 
-                    ((_image.height() - _topLeftOfVisibleImage.y()) * _scaleFactor > height()) )
-                _topLeftOfVisibleImage.setY(_topLeftOfVisibleImage.y() + 10);
-
-            if(_topLeftOfVisibleImage.x() < 0)
-                _topLeftOfVisibleImage.setX(0);
-            if(_topLeftOfVisibleImage.y() < 0)
-                _topLeftOfVisibleImage.setY(0);
-            _CalcScaleFactor(0);     // leave scale factor
+            QPoint dp;
+            if (event->key() == Qt::Key_Left)
+                dp.setX(-10);
+            else if (event->key() == Qt::Key_Right)
+                dp.setX(10);
+            else if (event->key() == Qt::Key_Up)
+                dp.setY( - 10);
+            else if (event->key() == Qt::Key_Down)
+                dp.setY(10);
+            _MoveImage(dp);
         }
     }
 }
 
 void ImageViewer::mousePressEvent(QMouseEvent* event)
 {
-    if (_fitToWindow && event->button() == Qt::LeftButton)
+    if (!_fitToWindow && event->button() == Qt::LeftButton && _IsImageMoveable())
     {
         _mouseLeftButtonPressed = true;
         _mousePos = event->pos();
@@ -107,7 +101,9 @@ void ImageViewer::mouseMoveEvent(QMouseEvent* event)
 {
     if (_mouseLeftButtonPressed)
     {
-        QPoint dp = event->pos() - _mousePos;
+        QPoint dp = -event->pos() + _mousePos;
+        _MoveImage(dp);
+        _mousePos = event->pos();
     }
 }
 
@@ -189,10 +185,18 @@ void ImageViewer::paintEvent(QPaintEvent* event)
     y1 -= IMAGE_BORDER;
 
     QPoint spt = _topLeftOfVisibleImage * _scaleFactor; // coord in _scaledImage
-    int ww = width()  - 2 * (IMAGE_BORDER + IMAGE_MARGIN) - spt.x(), 
-        wh = height() - 2 * (IMAGE_BORDER + IMAGE_MARGIN) - spt.y();
+    int ww = width()  - 2 * (IMAGE_BORDER + IMAGE_MARGIN), 
+        wh = height() - 2 * (IMAGE_BORDER + IMAGE_MARGIN);
 
     painter.drawImage(x0, y0, _scaledImage, spt.x(), spt.y(), ww, wh);
+
+    // DEBUG
+    ui.lblDebug->setText(QString("Left:%1, top:%2, scale:%3, fit:%4, info:%5")
+        .arg(_topLeftOfVisibleImage.x())
+        .arg(_topLeftOfVisibleImage.y())
+        .arg(_scaleFactor)
+        .arg(_windowScalesWithImage ?"yes":"no")
+        .arg(_infoOverlayOn ? "on" : "off"));
 }
 
 //void ImageViewer::showEvent(QShowEvent* event)
@@ -304,7 +308,9 @@ void ImageViewer::_NormalSize()
 
 void ImageViewer::_FitToWindow()
 {
-    _CalcScaleFactor(-1.0, true, true);
+    _windowScalesWithImage = !_windowScalesWithImage;
+    _fitToWindowAct->setChecked(_windowScalesWithImage);
+    _CalcScaleFactor(_windowScalesWithImage ? -1.0 : 0.0, true, true);
 }
 
 bool ImageViewer::_SetFullScreen(bool setIt)
@@ -448,10 +454,28 @@ void ImageViewer::_Help()
 
 void ImageViewer::_ToggleStatus()
 {
-    static bool isOn = false;
-
-    if (isOn)
-        ui.statusFrame->hide(), isOn = false, _statusAct->setChecked(false);
+    _infoOverlayOn = !_infoOverlayOn;
+    if (_infoOverlayOn)
+        ui.statusFrame->hide(), _statusAct->setChecked(true);
     else
-        ui.statusFrame->show(), isOn = true, _statusAct->setChecked(true);
+        ui.statusFrame->show(), _statusAct->setChecked(false);
+}
+
+void ImageViewer::_MoveImage(QPoint dp)
+{
+    _topLeftOfVisibleImage += dp;
+
+    int w = width() - 2 * (IMAGE_MARGIN + IMAGE_BORDER),
+        h = height() - 2 * (IMAGE_MARGIN + IMAGE_BORDER);
+    if (_topLeftOfVisibleImage.x() < 0)
+        _topLeftOfVisibleImage.setX(0);
+    //else if (_scaledImage.width() - _topLeftOfVisibleImage.x() < w)
+    //    _topLeftOfVisibleImage.setX(w - _scaledImage.width());
+    if (_topLeftOfVisibleImage.y() < 0)
+        _topLeftOfVisibleImage.setY(0);
+    //else if (_scaledImage.height() - _topLeftOfVisibleImage.y() < h)
+    //    _topLeftOfVisibleImage.setY(h - _scaledImage.width());
+
+    update();
+
 }
