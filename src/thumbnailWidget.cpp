@@ -23,6 +23,7 @@
 #include "thumbnailWidget.h"
 #include <QIcon>
 #include "config.h"
+#include "imageviewer.h"
 
 
 // ****************** ThumbnailItem ******************
@@ -1626,7 +1627,17 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
     {
         emit SignalFolderChanged(row);
     }
-    // else        // display full image in window      
+    else        // display full image in window      
+    {
+        IABase *pb = id & IMAGE_ID_FLAG ? (IABase*)albumgen.ImageAt(id) : (IABase*)albumgen.VideoAt(id);
+        QString name = pb->FullSourceName();
+        ImageViewer* pViewer = new ImageViewer(name);
+        pViewer->setAttribute(Qt::WA_DeleteOnClose);
+        if(pViewer->LoadFile())
+            pViewer->show();
+        else
+            pViewer->close();
+    }
 }
 
 void ThumbnailWidget::ThumbnailSizeChanged(int newSize)

@@ -931,6 +931,9 @@ void FalconG::_EnableColorSchemeButtons()
 
 void FalconG::_SlotForSchemeButtonClick(int which)
 {
+	if (_pSchemeButtons.isEmpty())
+		return;
+
 	StyleHandler sh((*_pSchemeButtons[which]).styleSheet());
 	QColor qc = sh.GetItem("", "background-color");
 	QColor qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
@@ -4104,7 +4107,7 @@ void FalconG::_ResetScheme()
 
 
 /*========================================================
- * TASK:	Add all sacheme color selection buttons to 
+ * TASK:	Add all scheme color selection buttons to 
  *			editor
  * PARAMS:
  * GLOBALS:
@@ -4283,7 +4286,7 @@ void FalconG::_AddSchemeButtons()
 
 	connect(_pSchemeMapper, &QSignalMapper::mappedInt, this, &FalconG::_SlotForSchemeButtonClick);
 
-	on_lwColorScheme_currentRowChanged(0);
+	ui.lwColorScheme->setCurrentRow(0);
 }
 
 
@@ -4934,6 +4937,10 @@ QTabBar::tab:selected {
     border-bottom-color:%1; /* %1 - background */
 }
 
+#pnlColorScheme {
+	background-color:%1; /* %1 - background */
+}
+
 QToolButton,
 QTextEdit, 
 QLineEdit,
@@ -5024,18 +5031,9 @@ QCheckBox::indicator:unchecked {
 	image: url(":/icons/Resources/blue-unchecked.png");
 }
 )");
-// DEBUG
-//			DEBUG_LOG_NEW(ss)
-
 		// setStyleSheet(ss);	 // sometimes this does not cascade down to dialogs
 		// use this instead:
 		((QApplication*)(QApplication::instance()))->setStyleSheet(ss);
-
-		//QFile f("style.txt");
-		//f.open(QIODevice::WriteOnly);
-		//QTextStream textstream(&f);
-		//textstream << ss;
-
 	}
 	else
 		((QApplication*)(QApplication::instance()))->setStyleSheet("");
