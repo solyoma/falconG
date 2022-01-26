@@ -234,16 +234,16 @@ void ImageViewer::_CreateActions()
 {
     _popupMenu = new QMenu(this);
 
-    _zoomInAct = _popupMenu->addAction(tr("Zoom &In (25%)"), this, &ImageViewer::_ZoomIn);
+    _zoomInAct = _popupMenu->addAction(tr("Zoom &In"), this, &ImageViewer::_ZoomIn);
     _zoomInAct->setShortcut(QKeySequence::ZoomIn);
 
-    _zoomOutAct = _popupMenu->addAction(tr("Zoom &Out (25%)"), this, &ImageViewer::_ZoomOut);
+    _zoomOutAct = _popupMenu->addAction(tr("Zoom &Out"), this, &ImageViewer::_ZoomOut);
     _zoomOutAct->setShortcut(QKeySequence::ZoomOut);
 
     _normalSizeAct = _popupMenu->addAction(tr("&100%"), this, &ImageViewer::_NormalSize);
     _normalSizeAct->setShortcut(tr("Ctrl+1"));
 
-    _fitToWindowAct = _popupMenu->addAction(tr("&Fit to Window"), this, &ImageViewer::_FitToWindow);
+    _fitToWindowAct = _popupMenu->addAction(tr("Fit to &Window"), this, &ImageViewer::_FitToWindow);
     _fitToWindowAct->setShortcut(tr("Ctrl+0"));
     _fitToWindowAct->setCheckable(true);
     _fitToWindowAct->setChecked(true);
@@ -418,18 +418,18 @@ void ImageViewer::_SetImage(const QImage& newImage)
 void ImageViewer::_Help()
 {
     QMessageBox::about(this, tr("falconG - Help"),
-        tr("<p><b>Keyboard and Mouse for the image viewr</b></p>"
+        tr("<p><b>Keyboard and Mouse for the image viewer</b></p>"
            "<p><b>?</b> - show this help</p>"
            "<p><b>I</b> - toggle status display</p>"
            "<p><b>1</b> - zoom to 100%</p>"
            "<p><b>0</b> - zoom to fit window</p>"
-           "<p><b>+</b> - zoom in 25%</p>"
-           "<p><b>-</b> - zoom out 25%</p>"
+           "<p><b>+</b> - zoom in</p>"
+           "<p><b>-</b> - zoom out</p>"
            "<p><b>F11</b> - Full screen toggle</p>"
            "<p><b>F</b> - toggle fit window to image</p>"
            "<p><b>arrow keys</b> - pan the image</p>"
            "<p><b>Mouse</b> - Use the wheel to zoom in or out<br>"
-            "Press and hold the <b>left</b> mouse button while"
+            "Press and hold the <b>left</b> mouse button while<br>"
             "moving the mouse to pan the image</p>"
         ));
 }

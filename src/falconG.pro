@@ -11,6 +11,7 @@ HEADERS += ./albums.h \
     ./deletableitems.h \
     ./enums.h \
     ./falcong.h \
+	./imageviewer.h \
     ./languages.h \
     ./schemes.h \
     ./sourcehistory.h \
@@ -24,6 +25,7 @@ SOURCES += ./albums.cpp \
     ./crc32.cpp \
     ./csscreator.cpp \
     ./falcong.cpp \
+	./imageviewer.cpp \
     ./languages.cpp \
     ./main.cpp \
     ./schemes.cpp \

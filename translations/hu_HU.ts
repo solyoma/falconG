@@ -95,24 +95,24 @@ Idáig %1 sort olvastam.</translation>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="936"/>
-        <location filename="../src/falcong.cpp" line="1357"/>
-        <location filename="../src/falcong.cpp" line="1380"/>
-        <location filename="../src/falcong.cpp" line="1537"/>
-        <location filename="../src/falcong.cpp" line="1563"/>
-        <location filename="../src/falcong.cpp" line="1585"/>
-        <location filename="../src/falcong.cpp" line="1607"/>
-        <location filename="../src/falcong.cpp" line="1629"/>
-        <location filename="../src/falcong.cpp" line="1652"/>
-        <location filename="../src/falcong.cpp" line="1673"/>
-        <location filename="../src/falcong.cpp" line="1733"/>
-        <location filename="../src/falcong.cpp" line="1751"/>
-        <location filename="../src/falcong.cpp" line="1777"/>
+        <location filename="../src/falcong.cpp" line="939"/>
+        <location filename="../src/falcong.cpp" line="1360"/>
+        <location filename="../src/falcong.cpp" line="1383"/>
+        <location filename="../src/falcong.cpp" line="1540"/>
+        <location filename="../src/falcong.cpp" line="1566"/>
+        <location filename="../src/falcong.cpp" line="1588"/>
+        <location filename="../src/falcong.cpp" line="1610"/>
+        <location filename="../src/falcong.cpp" line="1632"/>
+        <location filename="../src/falcong.cpp" line="1655"/>
+        <location filename="../src/falcong.cpp" line="1676"/>
+        <location filename="../src/falcong.cpp" line="1736"/>
+        <location filename="../src/falcong.cpp" line="1754"/>
+        <location filename="../src/falcong.cpp" line="1780"/>
         <source>Select Color</source>
         <translation>Színválasztás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1515"/>
+        <location filename="../src/falcong.cpp" line="1518"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -123,124 +123,124 @@ A  mentés mappája:
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1696"/>
+        <location filename="../src/falcong.cpp" line="1699"/>
         <source>falconG - Open Background Image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1696"/>
+        <location filename="../src/falcong.cpp" line="1699"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1417"/>
+        <location filename="../src/falcong.cpp" line="1420"/>
         <source>falconG - Open background image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4136"/>
+        <location filename="../src/falcong.cpp" line="4139"/>
         <source>Background color</source>
         <translation>Háttérszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4148"/>
+        <location filename="../src/falcong.cpp" line="4151"/>
         <source>Foreground (Text) color</source>
         <translation>Szöveg színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4156"/>
+        <location filename="../src/falcong.cpp" line="4159"/>
         <source>Border color</source>
         <translation>Keret színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4164"/>
+        <location filename="../src/falcong.cpp" line="4167"/>
         <source>Focused Input color</source>
         <translation>Aktuális szövegszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4172"/>
+        <location filename="../src/falcong.cpp" line="4175"/>
         <source>Hover color</source>
         <translation>Mutató alatti szín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4180"/>
+        <location filename="../src/falcong.cpp" line="4183"/>
         <source>Tab Border color</source>
         <translation>Fül keretszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4188"/>
+        <location filename="../src/falcong.cpp" line="4191"/>
         <source>Input Background</source>
         <translation>Bevitel háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4196"/>
+        <location filename="../src/falcong.cpp" line="4199"/>
         <source>Selected Background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4204"/>
+        <location filename="../src/falcong.cpp" line="4207"/>
         <source>Focused Border color</source>
         <translation>Fokuszált elem keretszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4212"/>
+        <location filename="../src/falcong.cpp" line="4215"/>
         <source>Disabled Foreground</source>
         <translation>Érvénytelen mező betűszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4220"/>
+        <location filename="../src/falcong.cpp" line="4223"/>
         <source>Disabled Background</source>
         <translation>Érvénytelen mező háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4228"/>
+        <location filename="../src/falcong.cpp" line="4231"/>
         <source>Image Background</source>
         <translation>Kép háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4236"/>
+        <location filename="../src/falcong.cpp" line="4239"/>
         <source>Button Pressed Bg</source>
         <translation>Lenyomott gomb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4244"/>
+        <location filename="../src/falcong.cpp" line="4247"/>
         <source>Default Background</source>
         <translation>Alapértelmezett háttér</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4252"/>
+        <location filename="../src/falcong.cpp" line="4255"/>
         <source>Progressbar Chunk color</source>
         <translation>Haladásjelző színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4260"/>
+        <location filename="../src/falcong.cpp" line="4263"/>
         <source>Warning color</source>
         <translation>Figyelmeztetés színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4268"/>
+        <location filename="../src/falcong.cpp" line="4271"/>
         <source>Groupbox Title Color</source>
         <translation>Doboz címének színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4276"/>
+        <location filename="../src/falcong.cpp" line="4279"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4378"/>
+        <location filename="../src/falcong.cpp" line="4381"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4378"/>
+        <location filename="../src/falcong.cpp" line="4381"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmazta.
 Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1238"/>
+        <location filename="../src/falcong.cpp" line="1241"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <oldsource>No &apos;:&apos; found in new name. so the same name will be used for
@@ -249,12 +249,12 @@ all program languages. Is this what you want?</oldsource>
 több program nyelvre. Ezt akarja?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1223"/>
-        <location filename="../src/falcong.cpp" line="1308"/>
-        <location filename="../src/falcong.cpp" line="1457"/>
-        <location filename="../src/falcong.cpp" line="2016"/>
-        <location filename="../src/falcong.cpp" line="2043"/>
-        <location filename="../src/falcong.cpp" line="2169"/>
+        <location filename="../src/falcong.cpp" line="1226"/>
+        <location filename="../src/falcong.cpp" line="1311"/>
+        <location filename="../src/falcong.cpp" line="1460"/>
+        <location filename="../src/falcong.cpp" line="2019"/>
+        <location filename="../src/falcong.cpp" line="2046"/>
+        <location filename="../src/falcong.cpp" line="2172"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -278,7 +278,7 @@ El akarod menteni ezeket?</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="304"/>
-        <location filename="../src/falcong.cpp" line="1517"/>
+        <location filename="../src/falcong.cpp" line="1520"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatja a kérdezést)</translation>
     </message>
@@ -293,18 +293,18 @@ El akarod menteni ezeket?</translation>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatja a kérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1223"/>
+        <location filename="../src/falcong.cpp" line="1226"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztatta a program nyelvét. Kérem indítsa újra a myelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1230"/>
-        <location filename="../src/falcong.cpp" line="1237"/>
+        <location filename="../src/falcong.cpp" line="1233"/>
+        <location filename="../src/falcong.cpp" line="1240"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1228"/>
+        <location filename="../src/falcong.cpp" line="1231"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -325,112 +325,112 @@ all program languages. This is what you want&lt;</oldsource>
 Ezt akarja?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1308"/>
-        <location filename="../src/falcong.cpp" line="2043"/>
+        <location filename="../src/falcong.cpp" line="1311"/>
+        <location filename="../src/falcong.cpp" line="2046"/>
         <source>Invalid new name. Please use another!</source>
         <translation>Érvénytelen név. Kérem adjon egy másikat!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2169"/>
+        <location filename="../src/falcong.cpp" line="2172"/>
         <source>This will reset all dialogs.
 Do you want to proceed?</source>
         <translation>Valóba alaphelyzetbeakarja állítani az összes párbeszéd ablakot?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1458"/>
+        <location filename="../src/falcong.cpp" line="1461"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarja ezt a színösszeállítást?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1293"/>
+        <location filename="../src/falcong.cpp" line="1296"/>
         <source>New Scheme Name
  (for </source>
         <translation>Új séma név a következő nyelvekre:
 ( </translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1294"/>
+        <location filename="../src/falcong.cpp" line="1297"/>
         <source>falconG - Input</source>
         <translation>falconG - Bevitel</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1320"/>
+        <location filename="../src/falcong.cpp" line="1323"/>
         <source>Select background color.</source>
         <translation>Válasszon háttérszínt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5082"/>
+        <location filename="../src/falcong.cpp" line="5080"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5083"/>
+        <location filename="../src/falcong.cpp" line="5081"/>
         <source>Don&apos;t show again (use Options to re-enable)</source>
         <translation>Ne mutassa mégegyszer (A Beállításokban visszakapcsolhatja)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5108"/>
+        <location filename="../src/falcong.cpp" line="5106"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5127"/>
+        <location filename="../src/falcong.cpp" line="5125"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5152"/>
+        <location filename="../src/falcong.cpp" line="5150"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5207"/>
+        <location filename="../src/falcong.cpp" line="5205"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5208"/>
+        <location filename="../src/falcong.cpp" line="5206"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5219"/>
+        <location filename="../src/falcong.cpp" line="5217"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5220"/>
+        <location filename="../src/falcong.cpp" line="5218"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5224"/>
+        <location filename="../src/falcong.cpp" line="5222"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5225"/>
+        <location filename="../src/falcong.cpp" line="5223"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="328"/>
-        <location filename="../src/falcong.cpp" line="5081"/>
-        <location filename="../src/falcong.cpp" line="5290"/>
+        <location filename="../src/falcong.cpp" line="5079"/>
+        <location filename="../src/falcong.cpp" line="5288"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2017"/>
+        <location filename="../src/falcong.cpp" line="2020"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
 nem megnyitható</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5290"/>
+        <location filename="../src/falcong.cpp" line="5288"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -499,6 +499,105 @@ Hibát találtam a &apos;.struct&apos; fájlban
 A feldolgozás folytatása elrontaná azt, ezért nem folytatom
 a feldolgozást!
 Idáig %1 sort olvastam. </translation>
+    </message>
+</context>
+<context>
+    <name>ImageViewer</name>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="33"/>
+        <source>Cannot load %1: %2</source>
+        <translation>%1 nem tölthető be: %2</translation>
+    </message>
+    <message>
+        <source>Zoom &amp;In (25%)</source>
+        <translation type="vanished">&amp;Nagyítás</translation>
+    </message>
+    <message>
+        <source>Zoom &amp;Out (25%)</source>
+        <translation type="vanished">&amp;Kicsinyítés</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="243"/>
+        <source>&amp;100%</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="244"/>
+        <source>Ctrl+1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;Fit to Window</source>
+        <translation type="vanished">&amp;Ablakba illeszt</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="237"/>
+        <source>Zoom &amp;In</source>
+        <translation>&amp;Nagyítás</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="240"/>
+        <source>Zoom &amp;Out</source>
+        <translation>&amp;Kicsinyítés</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="246"/>
+        <source>Fit to &amp;Window</source>
+        <translation>&amp;Ablakba illeszt</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="247"/>
+        <source>Ctrl+0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="251"/>
+        <source>&amp;Full screen</source>
+        <translation>&amp;Teljes képernyőre</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="252"/>
+        <source>Ctrl+F</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="257"/>
+        <source>&amp;Image info</source>
+        <translation>Kép &amp;információ</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="258"/>
+        <source>I</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="262"/>
+        <source>Image Viewer &amp;Help</source>
+        <translation>A képnéző &amp;súgója</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="266"/>
+        <source>C&amp;lose</source>
+        <translation>Be&amp;zárás</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="267"/>
+        <source>Ctrl+Q</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="420"/>
+        <source>falconG - Help</source>
+        <translation>falconG - Súgó</translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.cpp" line="421"/>
+        <source>&lt;p&gt;&lt;b&gt;Keyboard and Mouse for the image viewer&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b&gt;?&lt;/b&gt; - show this help&lt;/p&gt;&lt;p&gt;&lt;b&gt;I&lt;/b&gt; - toggle status display&lt;/p&gt;&lt;p&gt;&lt;b&gt;1&lt;/b&gt; - zoom to 100%&lt;/p&gt;&lt;p&gt;&lt;b&gt;0&lt;/b&gt; - zoom to fit window&lt;/p&gt;&lt;p&gt;&lt;b&gt;+&lt;/b&gt; - zoom in&lt;/p&gt;&lt;p&gt;&lt;b&gt;-&lt;/b&gt; - zoom out&lt;/p&gt;&lt;p&gt;&lt;b&gt;F11&lt;/b&gt; - Full screen toggle&lt;/p&gt;&lt;p&gt;&lt;b&gt;F&lt;/b&gt; - toggle fit window to image&lt;/p&gt;&lt;p&gt;&lt;b&gt;arrow keys&lt;/b&gt; - pan the image&lt;/p&gt;&lt;p&gt;&lt;b&gt;Mouse&lt;/b&gt; - Use the wheel to zoom in or out&lt;br&gt;Press and hold the &lt;b&gt;left&lt;/b&gt; mouse button while&lt;br&gt;moving the mouse to pan the image&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Billentyűzet és egér&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b&gt;?&lt;/b&gt; - e súgó mutatása&lt;/p&gt;&lt;p&gt;&lt;b&gt;I&lt;/b&gt; -informáci ki/bekapcsolása&lt;/p&gt;&lt;p&gt;&lt;b&gt;1&lt;/b&gt; - 100%-os nézet&lt;/p&gt;&lt;p&gt;&lt;b&gt;0&lt;/b&gt; -ablakba illesztett nézet&lt;/p&gt;&lt;p&gt;&lt;b&gt;+&lt;/b&gt; - belenagyítás&lt;/p&gt;&lt;p&gt;&lt;b&gt;-&lt;/b&gt; - kicsinyítés&lt;/p&gt;&lt;p&gt;&lt;b&gt;F11&lt;/b&gt; - teljes képernyő ki/be&lt;/p&gt;&lt;p&gt;&lt;b&gt;F&lt;/b&gt; - az ablak képhez igazítása&lt;/p&gt;&lt;p&gt;a &lt;b&gt;nyíl gombok&lt;/b&gt; - a kép mozgatása&lt;/p&gt;&lt;p&gt;&lt;b&gt; Egérrel&lt;/b&gt; - nagyítás/kicsinyítés a forgató gombbal&lt;br&gt;Nyomd be és tartsd nyomva &lt;b&gt;bal&lt;/b&gt; bal egér gombot a kép mozgatásához.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Keyboard and Mouse for the image viewr&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b&gt;?&lt;/b&gt; - show this help&lt;/p&gt;&lt;p&gt;&lt;b&gt;I&lt;/b&gt; - toggle status display&lt;/p&gt;&lt;p&gt;&lt;b&gt;1&lt;/b&gt; - zoom to 100%&lt;/p&gt;&lt;p&gt;&lt;b&gt;0&lt;/b&gt; - zoom to fit window&lt;/p&gt;&lt;p&gt;&lt;b&gt;+&lt;/b&gt; - zoom in 25%&lt;/p&gt;&lt;p&gt;&lt;b&gt;-&lt;/b&gt; - zoom out 25%&lt;/p&gt;&lt;p&gt;&lt;b&gt;F11&lt;/b&gt; - Full screen toggle&lt;/p&gt;&lt;p&gt;&lt;b&gt;F&lt;/b&gt; - toggle fit window to image&lt;/p&gt;&lt;p&gt;&lt;b&gt;arrow keys&lt;/b&gt; - pan the image&lt;/p&gt;&lt;p&gt;&lt;b&gt;Mouse&lt;/b&gt; - Use the wheel to zoom in or out&lt;br&gt;Press and hold the &lt;b&gt;left&lt;/b&gt; mouse button whilemoving the mouse to pan the image&lt;/p&gt;</source>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Billentyűzet és egér&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b&gt;?&lt;/b&gt; - e súgó mutatása&lt;/p&gt;&lt;p&gt;&lt;b&gt;I&lt;/b&gt; -informáci ki/bekapcsolása&lt;/p&gt;&lt;p&gt;&lt;b&gt;1&lt;/b&gt; - 100%-os nézet&lt;/p&gt;&lt;p&gt;&lt;b&gt;0&lt;/b&gt; -ablakba illesztett nézet&lt;/p&gt;&lt;p&gt;&lt;b&gt;+&lt;/b&gt; - belenagyítás&lt;/p&gt;&lt;p&gt;&lt;b&gt;-&lt;/b&gt; - kicsinyítés&lt;/p&gt;&lt;p&gt;&lt;b&gt;F11&lt;/b&gt; - teljes képernyő ki/be&lt;/p&gt;&lt;p&gt;&lt;b&gt;F&lt;/b&gt; - az ablak képhez igazítása&lt;/p&gt;&lt;p&gt;a &lt;b&gt;nyíl gombok&lt;/b&gt; - a kép mozgatása&lt;/p&gt;&lt;p&gt;&lt;b&gt; Egérrel&lt;/b&gt; - nagyítás/kicsinyítés a forgató gombbal&lt;br&gt;Nyomd be és tartsd nyomva &lt;b&gt;bal&lt;/b&gt; bal egér gombot a kép mozgatásához.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1440,7 +1539,7 @@ Hiba kód: %2
 </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1370"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1371"/>
         <source>Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?</source>
         <translation>A kiválasztott %1 / %2 elemeket &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
     </message>
@@ -1538,7 +1637,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
 <context>
     <name>ThumbnailWidget</name>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="586"/>
+        <location filename="../src/thumbnailWidget.cpp" line="587"/>
         <source>Selected %1 of %2</source>
         <translation>%1 képet választott ki a %2-ből</translation>
     </message>
@@ -1549,14 +1648,14 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/thumbnailWidget.cpp" line="1052"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1053"/>
         <source>%n image(s)</source>
         <translation>
             <numerusform>%n kép</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1054"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1055"/>
         <source>No images</source>
         <translation>Nincsenek képek</translation>
     </message>
@@ -1577,110 +1676,110 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <translation type="vanished">Törlés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1333"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1334"/>
         <source>&amp;Undo Delete</source>
         <translation>Visszavonás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1292"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1293"/>
         <source>Copy &amp;Name(s)</source>
         <translation>Copy &amp;Név/nevek</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/thumbnailWidget.cpp" line="587"/>
+        <location filename="../src/thumbnailWidget.cpp" line="588"/>
         <source> %n %3</source>
         <translation>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="588"/>
+        <location filename="../src/thumbnailWidget.cpp" line="589"/>
         <source>item</source>
         <translation>elem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="588"/>
+        <location filename="../src/thumbnailWidget.cpp" line="589"/>
         <source>items</source>
         <translation>elemek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1273"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1274"/>
         <source>Select Album Thumbnail...</source>
         <translation>Album kiskép...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1283"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1284"/>
         <source>Set As Album &amp;Thumbnail</source>
         <translation>&amp;Beállítás album kisképként</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1296"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1297"/>
         <source>Copy &amp;Original Name(s)</source>
         <translation>Copy &amp;Eredeti név / nevek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1303"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1304"/>
         <source>Add &amp;Images...</source>
         <translation>&amp;Képek hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1308"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1309"/>
         <source>Add &amp;Folder...</source>
         <translation>&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1316"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1317"/>
         <source>&amp;Synchronize texts</source>
         <translation>S&amp;zövegek szinkronizálása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1325"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1326"/>
         <source>&amp;Remove</source>
         <translation>&amp;Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1369"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1370"/>
         <source>images</source>
         <translation>képek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1369"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1370"/>
         <source>albums</source>
         <translation>albumok</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1371"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1372"/>
         <source>image</source>
         <translation>kép</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1372"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1373"/>
         <source>album</source>
         <translation>album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1374"/>
-        <location filename="../src/thumbnailWidget.cpp" line="1415"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1375"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1416"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1376"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1377"/>
         <source>Delete</source>
         <translation>Törlés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1377"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1378"/>
         <source>Remove</source>
         <translation>Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1378"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1379"/>
         <source>Cancel</source>
         <translation>Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1416"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1417"/>
         <source>This will set the same texts to all selected items
 
 This action cannot be undone!
@@ -1693,22 +1792,22 @@ Do you really want to do this?</source>
 Biztos, hogy akarod?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1471"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1472"/>
         <source>flaconG - Add image</source>
         <translation>falconG - Kép kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1506"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1507"/>
         <source>falconG - Add Directory</source>
         <translation>falconG - Mappa kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1518"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1519"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1518"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1519"/>
         <source>Adding new album failed!
 
 Maybe the album is already in the gallery.</source>
@@ -1717,7 +1816,7 @@ Maybe the album is already in the gallery.</source>
 Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailWidget.cpp" line="1605"/>
+        <location filename="../src/thumbnailWidget.cpp" line="1606"/>
         <source>falconG - Select Thumbnail Image</source>
         <translation>falconG - Kiskép kiválasztása</translation>
     </message>
@@ -2220,6 +2319,11 @@ A színkiválasztás után ez a jelölőnégyzet újra jelöletlenné válik.</t
         <location filename="../src/falcong.ui" line="6356"/>
         <source>Size of thumbnails:</source>
         <translation>Kisképek mérete:</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.ui" line="6691"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;A szín séma  kiválasztható itt, vagy bármely másik oldal szabad területén &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;egy jobb kattintással.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. sötétk)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Az &apos;Alapértelmezett&apos; és &apos;Rendszer színek&apos; nem változtathatóak meg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/falcong.ui" line="7066"/>
@@ -3763,10 +3867,9 @@ generálása, akkor is, ha jó volt.</translation>
         <translation>Albumok</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6691"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;on the free area on any page to select the program style.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;A szín séma  kiválasztható bármely oldal szabad területén &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;egy jobb kattintással.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Az &apos;Alapértelmezett&apos; és &apos;Rendszer színek&apos; nem változtathatóak meg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;A szín séma  kiválasztható bármely oldal szabad területén &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;egy jobb kattintással.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Az &apos;Alapértelmezett&apos; és &apos;Rendszer színek&apos; nem változtathatóak meg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/falcong.ui" line="6741"/>
