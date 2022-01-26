@@ -90,6 +90,7 @@ private:
 	void _Help();
 	void _ToggleStatus();
 	void _MoveImage(QPoint dp);
+	void _Update(bool dont);
 
 	void _SetImage(const QImage& newImage);
 };

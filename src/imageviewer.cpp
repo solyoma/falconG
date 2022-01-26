@@ -8,6 +8,12 @@
 #include "imageviewer.h"
 #include "schemes.h"
 
+constexpr double SCALE_UP = 1.1,
+                 SCALE_DOWN = 0.909091,
+                 SCALE_FULL = 1.0,
+                 SCALE_FIT  = -1.0,
+                 NO_SCALE = 0.0;
+
 ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName), QWidget(parent)
 {
     ui.setupUi(this);
@@ -29,7 +35,7 @@ bool ImageViewer::LoadFile()
         return false;
     }
     _SetImage(newImage);
-    _CalcScaleFactor(-1.0, true, true);
+    _CalcScaleFactor(SCALE_FIT, true, true);
     ui.lblIName->setText(_fileName);
     ui.lblSize->setText(QString("%1 x %2").arg(_image.width()).arg(_image.height()));
     return true;
@@ -51,13 +57,13 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
     else 
     {
         if (event->key() == Qt::Key_0)
-            _CalcScaleFactor(-1.0, true, true);
+            _CalcScaleFactor(SCALE_FIT, true, true);
         else if (event->key() == Qt::Key_1)
-            _CalcScaleFactor(1.0, true, true);
+            _CalcScaleFactor(SCALE_FULL, true, true);
         else if (event->key() == Qt::Key_Plus)
-            _CalcScaleFactor(1.25, true, true);
+            _CalcScaleFactor(SCALE_UP, true, true);
         else if (event->key() == Qt::Key_Minus)
-            _CalcScaleFactor(0.8, true, true);
+            _CalcScaleFactor(SCALE_DOWN, true, true); // 1 /1.10
         else if (event->key() == Qt::Key_F)
             _FitToWindow();
         else if (event->key() == Qt::Key_F11 || (event->modifiers().testFlag(Qt::AltModifier) && event->key() == Qt::EnterKeyReturn))
@@ -112,7 +118,7 @@ void ImageViewer::wheelEvent(QWheelEvent* event)
     QPoint numPixels = event->pixelDelta();
     QPoint numDegrees = event->angleDelta() / 8;
 
-    double factor = -1.0;
+    double factor = SCALE_FIT;
     if (!numPixels.isNull()) 
     {
         double dy = numPixels.y()/100.0;
@@ -141,9 +147,9 @@ void ImageViewer::contextMenuEvent(QContextMenuEvent* pevent)
 
 void ImageViewer::resizeEvent(QResizeEvent* event)
 {
-    if (_windowScalesWithImage && size() != _requiredWidgetSize)
+    if ( _windowScalesWithImage && size() != _requiredWidgetSize)
     {
-        _CalcScaleFactor(0.0);
+        _CalcScaleFactor(_windowScalesWithImage ? SCALE_FIT : SCALE_FULL, true);
     }
     int lw = 2 * (IMAGE_MARGIN + IMAGE_BORDER);
     int w = width() - 2 * lw;
@@ -191,32 +197,11 @@ void ImageViewer::paintEvent(QPaintEvent* event)
     painter.drawImage(x0, y0, _scaledImage, spt.x(), spt.y(), ww, wh);
 }
 
-//void ImageViewer::showEvent(QShowEvent* event)
-//{
-//    //static bool shown = false;
-//    //if (!shown)
-//    //{
-//    //    _CalcScaleFactor(-1.0);      // fit
-//    //    shown = true;
-//    //}
-//}
-//
 
 bool ImageViewer::_IsImageMoveable()
 {
-    return !_windowScalesWithImage && !_fitToWindow;
+    return (!_windowScalesWithImage || _isFullScreen) && !_fitToWindow;
 }
-
-//void ImageViewer::_Resize()    // resize window does not change image in imageFrame
-//{   
-//    QSize siz = size();
-//    if (siz != _requiredWidgetSize)
-//    {
-//        resize(_requiredWidgetSize);
-//        ui.statusFrame->setGeometry(0, 0, width(), height());
-//    }
-//
-//}
 
 QSize ImageViewer::_TransformedSizeToWidgetSize(QSize reqSize)
 {
@@ -240,8 +225,8 @@ QSize ImageViewer::_CalcRequiredSize()
     QSize widgetSize = _TransformedSizeToWidgetSize(QSize(sw, sh));
 
     _needsFullScreen = widgetSize.width() >= _screenSize.width() || widgetSize.height() >= _screenSize.height();
-    //if (_needsFullScreen)
-    //    return _screenSize;
+    if (_needsFullScreen)
+        return _screenSize;
     return widgetSize;
 }
 
@@ -285,24 +270,26 @@ void ImageViewer::_CreateActions()
 
 void ImageViewer::_ZoomIn()
 {
-    _CalcScaleFactor(1.25, true, true);
+    _CalcScaleFactor(SCALE_UP, true, true);
 }
 
 void ImageViewer::_ZoomOut()
 {
-    _CalcScaleFactor(0.8, true, true);
+    _CalcScaleFactor(SCALE_DOWN, true, true);
 }
 
 void ImageViewer::_NormalSize()
 {
-    _CalcScaleFactor(1.0, true, true);
+    _CalcScaleFactor(SCALE_FULL, true, true);
 }
 
 void ImageViewer::_FitToWindow()
 {
-    _windowScalesWithImage = !_windowScalesWithImage;
-    _fitToWindowAct->setChecked(_windowScalesWithImage);
-    _CalcScaleFactor(_windowScalesWithImage ? -1.0 : 0.0, true, true);
+    if(!_isFullScreen)  //else fit to window has no effect
+        _windowScalesWithImage = !_windowScalesWithImage;
+    bool b = _windowScalesWithImage && !_isFullScreen;
+    _fitToWindowAct->setChecked(b);
+    _CalcScaleFactor(b ? SCALE_FIT : NO_SCALE, true, true);
 }
 
 bool ImageViewer::_SetFullScreen(bool setIt)
@@ -323,10 +310,9 @@ bool ImageViewer::_SetFullScreen(bool setIt)
 		flg |= Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
 		_fullScreenAct->setChecked(true);
 		_isFullScreen = true;
-		setWindowFlags(flg);
         _lastNotFullScreenRect = geometry();
-        move(0,0);
-        resize(_screenSize);
+		setWindowFlags(flg);
+        setGeometry(0,0,_screenSize.width(),_screenSize.height());
         show();                // when changed Qt hides window
 		return true;
 	}
@@ -357,8 +343,8 @@ double ImageViewer::_GetFitFactor(QSize wsize)
 /*=============================================================
  * TASK:    show scaled image in window
  * PARAMS:  factor - scale _image with this factor. Special cases:
- *                   0.0: just redisplay with current parameters
- *                  -1.0: fit in window
+ *                  NO_SCALE: just redisplay with current parameters
+ *                  SCALE_FIT: fit in window
  * GLOBALS: _scaleFactor
  *          popup actions
  *          _requiredWidgetSize
@@ -373,9 +359,9 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
 
     if (factor < 0)
         _scaleFactor = fitfact; // from actual widget size
-    else if (factor == 1.0)
-        _scaleFactor = 1.0;
-    else if (factor != 0.0)
+    else if (factor == SCALE_FULL)
+        _scaleFactor = SCALE_FULL;
+    else if (factor != NO_SCALE)
         _scaleFactor *= factor;
 
     QSize newSize = _CalcRequiredSize();    // widget size for _scaleFactor
@@ -405,14 +391,17 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
     }
 
     _requiredWidgetSize = _TransformedSizeToWidgetSize(QSize(sw, sh));
+    if (_requiredWidgetSize.width() > _screenSize.width())
+        _requiredWidgetSize.setWidth(_screenSize.width());
+    if (_requiredWidgetSize.height() > _screenSize.height())
+        _requiredWidgetSize.setHeight(_screenSize.height());
 
     ui.lblZoom->setText(QString("%1%").arg(_scaleFactor * 100.0, 10, 'f', 0));
     if (doResize && _windowScalesWithImage && size() != _requiredWidgetSize)
     {
-        resize(_requiredWidgetSize);
+        resize(_requiredWidgetSize);    // automatic paint event after resize
     }
-
-    if (showImage)
+    else if (showImage)
         update();
 
 }

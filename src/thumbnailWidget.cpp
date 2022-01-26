@@ -1619,6 +1619,7 @@ void ThumbnailWidget::SelectAsAlbumThumbnail()
     }
 }
 
+
 void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
 {
     int row = mix.row();
@@ -1629,9 +1630,11 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
     }
     else        // display full image in window      
     {
+
         IABase *pb = id & IMAGE_ID_FLAG ? (IABase*)albumgen.ImageAt(id) : (IABase*)albumgen.VideoAt(id);
         QString name = pb->FullSourceName();
-        ImageViewer* pViewer = new ImageViewer(name);
+        
+        ImageViewer* pViewer = new ImageViewer(name, nullptr);
         pViewer->setAttribute(Qt::WA_DeleteOnClose);
         if(pViewer->LoadFile())
             pViewer->show();
