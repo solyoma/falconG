@@ -512,6 +512,39 @@ could destroy your old .struct file!
     </message>
 </context>
 <context>
+    <name>ImageViewerClass</name>
+    <message>
+        <location filename="../src/imageviewer.ui" line="20"/>
+        <source>falconG - Image Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.ui" line="63"/>
+        <source>lblName</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.ui" line="83"/>
+        <source>9999 x 9999</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.ui" line="103"/>
+        <source>Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.ui" line="110"/>
+        <source>25%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/imageviewer.ui" line="130"/>
+        <source>&apos;?&apos; - Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QMainWindow</name>
     <message>
         <location filename="../src/falcong.cpp" line="126"/>
@@ -878,6 +911,169 @@ Error code:%2
     <message>
         <location filename="../src/sourcehistory.ui" line="162"/>
         <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TextEditorClass</name>
+    <message>
+        <location filename="../src/textEditor.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="23"/>
+        <location filename="../src/textEditor.ui" line="43"/>
+        <location filename="../src/textEditor.ui" line="76"/>
+        <location filename="../src/textEditor.ui" line="99"/>
+        <location filename="../src/textEditor.ui" line="122"/>
+        <location filename="../src/textEditor.ui" line="145"/>
+        <location filename="../src/textEditor.ui" line="171"/>
+        <location filename="../src/textEditor.ui" line="197"/>
+        <location filename="../src/textEditor.ui" line="223"/>
+        <location filename="../src/textEditor.ui" line="249"/>
+        <location filename="../src/textEditor.ui" line="266"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="36"/>
+        <source>Ctrl+O</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="56"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="89"/>
+        <source>Ctrl+B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="112"/>
+        <source>Ctrl+I</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="135"/>
+        <source>Ctrl+U</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="158"/>
+        <source>Ctrl+L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="184"/>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="210"/>
+        <source>Ctrl+J</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="236"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="286"/>
+        <source>Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="300"/>
+        <source>Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="325"/>
+        <source>Si&amp;ze:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="359"/>
+        <source>8pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="364"/>
+        <source>9pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="369"/>
+        <source>10pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="374"/>
+        <source>11pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="379"/>
+        <source>12pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="384"/>
+        <source>14pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="389"/>
+        <source>16pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="394"/>
+        <source>18pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="399"/>
+        <source>20pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="404"/>
+        <source>22pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="409"/>
+        <source>24pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="414"/>
+        <source>26pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="419"/>
+        <source>28pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="424"/>
+        <source>36pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="429"/>
+        <source>48pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/textEditor.ui" line="434"/>
+        <source>72pt</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

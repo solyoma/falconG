@@ -37,7 +37,10 @@ SOURCES += ./albums.cpp \
     ./thumbnailWidget.cpp
 
 FORMS += ./falcong.ui \
-    ./sourcehistory.ui
+	./imageviewer.ui \
+    ./sourcehistory.ui \
+	./textEditor.ui
+	
 RESOURCES += falcong.qrc
 QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter
 #QT += widgets webenginewidgets
