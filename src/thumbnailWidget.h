@@ -40,38 +40,16 @@ class ThumbnailItem : public QStandardItem
 {
 public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
-	int itemPos;		// original position of this item in one of the image, video or lists of the actual album
+	int itemPos=-1;		// original position of this item in one of the image, 
+						// video or album lists of the album with '_albumId'
 	static int thumbHeight;
-
-private:
-	ID_t _albumId=0xFFFFFFFFu;	// set before anything else
-	Type _itemType;
-	QIcon _icon;
-
-	Album	*_ActAlbum() const { return albumgen.AlbumForID(_albumId); }
-	Album   *_ParentAlbum() const 
-	{ 
-		Album* pa = _ActAlbum();
-		return pa->parent ? albumgen.AlbumForID(pa->parent) : nullptr;
-	}
-	QString _ImageToolTip() const;
-	QString _VideoToolTip() const;
-	QString _FolderToolTip() const;
-
-	QString _ImageFilePath() const;
-	QString _VideoFilePath() const;
-	QString _FolderFilePath() const;
-
-	QString _ImageFileName() const;	// returns: link name. for original name use FullSourceName()
-	QString _VideoFileName() const;	// returns: link name
-	QString _FolderFileName() const;// returns: link name
-
-	QString _ImageFullSourceName() const;
-	QString _VideoFullSourceName() const;
-	QString _FolderFullSourceName() const;
 
 public:
 	int type() const { return _itemType; }
+	ID_t id() const 
+	{ 
+		return _albumId == 0xFFFFFFFFFFFFFFFFu || itemPos < 0 ? 0 : _ActAlbum()->items[itemPos];
+	}
 	void SetType(Type typ) 
 	{ 
 		_itemType = typ; 
@@ -103,6 +81,33 @@ public:
 	QString FullLinkName() const;
 	QString DisplayName() const;
 	QIcon   IconForFile() const;		// uses _albumId and itemPos
+
+private:
+	ID_t _albumId=0xFFFFFFFFFFFFFFFFu;	// for parent album, set before anything else
+	Type _itemType;
+	QIcon _icon;
+
+	Album	*_ActAlbum() const { return albumgen.AlbumForID(_albumId); }
+	Album   *_ParentAlbum() const 
+	{ 
+		Album* pa = _ActAlbum();
+		return pa->parent ? albumgen.AlbumForID(pa->parent) : nullptr;
+	}
+	QString _ImageToolTip() const;
+	QString _VideoToolTip() const;
+	QString _FolderToolTip() const;
+
+	QString _ImageFilePath() const;
+	QString _VideoFilePath() const;
+	QString _FolderFilePath() const;
+
+	QString _ImageFileName() const;	// returns: link name. for original name use FullSourceName()
+	QString _VideoFileName() const;	// returns: link name
+	QString _FolderFileName() const;// returns: link name
+
+	QString _ImageFullSourceName() const;
+	QString _VideoFullSourceName() const;
+	QString _FolderFullSourceName() const;
 };
  
 /*=============================================================
@@ -112,7 +117,8 @@ class ThumbMimeData : public QMimeData
 {
 	Q_OBJECT
 public:
-	QList<ThumbnailItem> thumbList;  // all selected items
+		// IDs must be are added to this list with the << operator
+	IntList thumbList;  // indices in actual album's 'items' for all selected items
 	ThumbMimeData() {
 		QMimeData::setData("application/x-thumb", "thumb"); // my type
 	}
@@ -210,7 +216,7 @@ public:
     QString getSingleSelectionFilename();
 
 	// DEBUG
-	QLabel* pDragDropLabel = nullptr;
+//	QLabel* pDragDropLabel = nullptr;
 
 	QString statusStr;		// get status messages from here
 	QString title;			// use for window title
@@ -248,7 +254,9 @@ private:
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
-	bool _IsAllowedToDrop(const QDropEvent *event);
+	bool _IsAllowedTypeToDrop(const QDropEvent *event);
+	void _AddImagesFromList(QStringList qslFileNames, int row);
+	void _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
 		return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));
@@ -260,14 +268,16 @@ signals:
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
 	void SignalSingleSelection(ID_t id);		// may be album or image or video
 	void SignalMultipleSelection(IdList);		// all selected items
-	void SignalFolderChanged(int row);			// move to next level  in tree list inside actual folder
+	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalFolderAdded();					// add the new album to tree view as well
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
 	void dragEnterEvent(QDragEnterEvent *event);	// when a drag enters this widget
 	void dragLeaveEvent(QDragLeaveEvent *event);
-	void dragMoveEvent(QDragMoveEvent *event);	
+	void dragMoveEvent(QDragMoveEvent *event);
+
+	void _DropFromExternalSource(const ThumbMimeData *mimeData, int row);
 	void dropEvent(QDropEvent *event);			// when item is dropped
 
     void wheelEvent(QWheelEvent *event);

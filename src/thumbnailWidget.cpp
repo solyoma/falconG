@@ -647,10 +647,11 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
 	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailWidgetModel->item(f.row())->type() );
 		urls << QUrl(thumbRec.FileName());
 		thumbRec.itemPos = f.row();
-		mimeData->thumbList << thumbRec;
+		mimeData->thumbList << f.row();
 	}
 
-    drag->setMimeData(mimeData);
+    drag->setMimeData(mimeData);    // to move items
+    // now generate visual representations of images dragged
     QPixmap pix;
     if (indexesList.count() > 1) 
 	{
@@ -693,7 +694,8 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
 	drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::MoveAction);
 }
 
-QString __DropActionToStr(QDragMoveEvent *event)    // QDragEnterEvent inherits this
+#ifdef DEBUG_ME
+QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEvent inherits this
 {
 	const Qt::DropAction action = event->proposedAction();
     QString qs = "Accepted actions are: ";
@@ -717,34 +719,38 @@ QString __DropActionToStr(QDragMoveEvent *event)    // QDragEnterEvent inherits 
     };
     qs += QString("\nAt position(%1,%2) with").arg(event->pos().x()).arg(event->pos().y()) + MimeDataType();
 
+    qDebug() << qs;
     return qs;
 }
+#else
+    #define __DebugPrintDragAndDrop(e)
+#endif
 
 /*=============================================================
  * TASK:	 sent when dragging is in progress
  * EXPECTS: either a list of file names or a mime data of type 
- *			thumbs
+ *			x-thumbs
  * GLOBALS:
  * RETURNS:	none
  * REMARKS: follewd immediately by a dragMoveEvent()
  *------------------------------------------------------------*/
 void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
 {
-	if (_IsAllowedToDrop(event) )
+	if (_IsAllowedTypeToDrop(event) )
 	{
 // DEBUG
 #if 1
 // DEBUG
-        if (pDragDropLabel)
-		{
-			delete pDragDropLabel;
-            pDragDropLabel = nullptr;
-		}
+  //      if (pDragDropLabel)
+		//{
+		//	delete pDragDropLabel;
+  //          pDragDropLabel = nullptr;
+		//}
 // /DEBUG
 // DEBUG
-        QString qs = __DropActionToStr(event);
-        pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
-		pDragDropLabel->setVisible(true);
+        QString qs = __DebugPrintDragAndDrop(event);
+  //      pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
+		//pDragDropLabel->setVisible(true);
 // /DEBUG
 #endif
 		event->acceptProposedAction();
@@ -761,11 +767,11 @@ void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
 void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
 {
 // DEBUG
-    if (pDragDropLabel)
-    {
-        delete pDragDropLabel;
-        pDragDropLabel = nullptr;
-    }
+    //if (pDragDropLabel)
+    //{
+    //    delete pDragDropLabel;
+    //    pDragDropLabel = nullptr;
+    //}
 // /DEBUG
     //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(-1);
 //	QListView::dragLeaveEvent(event);
@@ -780,7 +786,7 @@ void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 {
-	if (!_IsAllowedToDrop(event))
+	if (!_IsAllowedTypeToDrop(event))
 		return;
 
 	QModelIndex index = indexAt(event->pos());
@@ -788,20 +794,20 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 #if 1
 //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(row);
 // DEBUG
-    if (pDragDropLabel)
-	{
-		delete pDragDropLabel;
-        pDragDropLabel = nullptr;
-	}
+ //   if (pDragDropLabel)
+	//{
+	//	delete pDragDropLabel;
+ //       pDragDropLabel = nullptr;
+	//}
 // /DEBUG
 // 
 	int row = index.row();
 //	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
 //	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailWidgetModel *>(model())->DummyPosition());
 // DEBUG
-    QString qs = __DropActionToStr(event) + QString(" r:%1").arg(row);
-    pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
-    pDragDropLabel->setVisible(true);
+    QString qs = __DebugPrintDragAndDrop(event) + QString(" r:%1").arg(row);
+    //pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
+    //pDragDropLabel->setVisible(true);
     // /DEBUG
 #endif
 // /DEBUG
@@ -823,34 +829,129 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 }
 
 /*=============================================================
- * TASK:
- * EXPECTS:
- * GLOBALS:
+ * TASK:    drop files and folders from disk
+ * PARAMS:  ThumbMimeData poiter containing an URL list
+ * GLOBALS: _albumID
  * RETURNS:
- * REMARKS:
+ * REMARKS: - Files and folders are not moved physically
+ *          - Files and folders already in gallery are not
+ *              added again. 
+ *          - TODO: add folders as virtual folders
+ *------------------------------------------------------------*/
+void ThumbnailWidget::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
+{
+    QStringList qsl, qslF;      // for files and Folders
+    auto what = [&](QString s)  {
+        QFileInfo fi(s);
+        if (fi.isDir())
+        {
+            return 0;   // folder
+        }
+        else // file
+        {
+            QString ext;
+            int ld = s.lastIndexOf('.');
+            if (ld >= 0)
+                ext = s.mid(ld + 1);
+            return ext == "jpg" || ext == "png" || ext == "mp4" || ext == "ogg" ? 1 : -1;   // file
+        }
+        return -1; // can't use'
+    };
+
+    for (auto u : mimeData->urls())
+    {
+        auto s = u.toLocalFile();
+        int w = what(s);
+        if (w > 0)      // file
+            qsl << s;
+        else if (!w)    // folder
+            qslF << s;
+    }
+    _AddImagesFromList(qsl, row);
+    row += qsl.size();  // position for folders
+    _AddFoldersFromList(qslF, row);
+}
+
+/*=============================================================
+ * TASK:    moves images/folders or add new images and folders
+ *          to the data base at the given position
+ * PARAMS:  event - contains mimeData with either an URL list or
+ *              a list of indexes in actual albums items' list
+ * GLOBALS: 
+ * RETURNS:
+ * REMARKS: - on move images
+ *              order in thumbList depends on selection order
+ *              images can be put to the same position they 
+ *              were before
  *------------------------------------------------------------*/
 void ThumbnailWidget::dropEvent(QDropEvent * event)
 {
-	if (!_IsAllowedToDrop(event))
+	if (!_IsAllowedTypeToDrop(event))
 		return;
 
 	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData *>(event->mimeData());
-	if (mimeData->thumbList.isEmpty())
-		return;
-// DEBUG
-    if (pDragDropLabel)
-        delete pDragDropLabel;
-    pDragDropLabel = nullptr;
-// /DEBUG
+    if (!mimeData)      // why does it occur?
+        return;
 	// get drop position
 	QModelIndex index = indexAt(event->pos());
-	if (_dragFromHereInProgress)	// then remove from old spot
+
+    int row = index.row();
+
+    if (mimeData->hasUrls())
+        _DropFromExternalSource(mimeData, row);
+    else
 	{
+		if (mimeData->thumbList.isEmpty())
+			return;
 
-    }
+        IntList thl = mimeData->thumbList;  // thum list items to move
+        IntList thl0 = thl;                 // original thumblist to check items against
+        // reorder list of actual album
+        Album* pAlbum = const_cast<Album*>(_ActAlbum());
+        IdList &items = pAlbum->items;      // original ordered items
+        IdList idl;                         // new ordered items
+        idl.resize(items.size());
+        int si = 0,     // index in pAlbum's item (ID) list
+            di = 0;     // index in idl
 
-    // put files at new spot
+        while(si < idl.size())          // di <= si
+        {
+            if (!thl.size())           // no more moved items
+            {
+                if(thl0.indexOf(si) < 0)    // don't move twice
+                    idl[di++] = items[si];
+                ++si;
+            }
+            else
+            {
+                if (si == row)
+                {
+                    for (int j = 0; j < thl.size(); ++j)
+                        idl[di++] = items[thl[j]];
+                    thl.clear();
+                }
+                if (thl0.indexOf(si) < 0)
+                    idl[di++] = items[si++];
+            }
+        }
 
+		if (_dragFromHereInProgress)	// then remove from old spot
+		{
+
+		}
+        items = idl;
+        pAlbum->changed = true;
+        reLoad();
+		// DEBUG
+		//if (pDragDropLabel)
+		//	delete pDragDropLabel;
+		//pDragDropLabel = nullptr;
+		// /DEBUG
+
+		// put files at new spot
+
+	}
+//    emit SignalFolderAdded();
 }
 
 /*=============================================================
@@ -1062,13 +1163,68 @@ void ThumbnailWidget::_UpdateThumbsCount()
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
+ * REMARKS: does not check if the files or folders in an url list
+ *          ar acceptable, just see the allowed type
+ *------------------------------------------------------------*/
+bool ThumbnailWidget::_IsAllowedTypeToDrop(const QDropEvent *event)
+{
+    // DEBUG
+    qDebug() << "Mime text: " << event->mimeData()->text() 
+             << ", hasUrls ? " << event->mimeData()->hasUrls()
+             << ", hasImage ? " << event->mimeData()->hasImage()
+             << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
+        ;
+     return (indexAt(event->pos()).row() >= 0) && 
+            (event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName
+            event->mimeData()->hasImage() ||    // image/...
+		    event->mimeData()->hasFormat("application/x-thumb")     // drag and drop inside this application
+                );
+}
+
+/*=============================================================
+ * TASK:    get all file names into  _imageMap or _videoMap,
+ *          plus into the actual album into albumgen's _albumMap
+ *          plus into _thumbnailWidgetModel
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailWidget::_IsAllowedToDrop(const QDropEvent *event)
+void ThumbnailWidget::_AddImagesFromList(QStringList qslFileNames,int row)
 {
-     return (indexAt(event->pos()).row() >= 0) && 
-            (event->mimeData()->hasUrls() ||
-		    event->mimeData()->hasFormat("application/x-thumb"));
+    bool res = true;
+
+    int i;
+    for (i = 0; i < qslFileNames.size(); ++i)
+    {
+        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], *_ActAlbum(), row);
+        if (!res)
+            break;
+    }
+}
+
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailWidget::_AddFoldersFromList(QStringList qslFolders, int row)
+{
+    int i;
+    ID_t id;
+    bool added;
+    for (i = 0; i < qslFolders.size(); ++i)
+    {
+        id = albumgen.Albums().Add(qslFolders[i], added);
+        if (!added)     // then already used somewehere // TODO: virtual albums
+        {
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
+            continue;
+        }
+        _ActAlbum()->items.insert(row++, id);
+    }
 }
 
 /*=============================================================
@@ -1459,6 +1615,7 @@ void ThumbnailWidget::UndoDelete()
 {
 }
 
+
 /*=============================================================
  * TASK:   Display dialog box to add images to image list
  * EXPECTS:
@@ -1472,20 +1629,7 @@ void ThumbnailWidget::AddImages()
     QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add image"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
-    // get all file names into  _imageMap or _videoMap,
-    // plus into the actual album into albumgen's _albumMap
-    // plus into _thumbnailWidgetModel
-    // and display it
-    int pos = currentIndex().row();
-    bool res = true;
-
-    int i;
-    for (i=0; i < qslFileNames.size(); ++i)
-    {
-        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], *_ActAlbum(), pos);
-        if (!res)
-            break;
-    }
+    _AddImagesFromList(qslFileNames, currentIndex().row());
     reLoad();
 
     emit selectionChanged(QItemSelection(), QItemSelection());
