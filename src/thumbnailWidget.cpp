@@ -96,7 +96,7 @@ QIcon ThumbnailItem::IconForFile() const
 
     Album* pAlbum = _ActAlbum();
 
-    ID_t itemId = pAlbum->items.isEmpty() ? 0 : pAlbum->items[itemPos];
+    ID_t itemId = pAlbum->IdOfItem(itemPos);
     bool exists = false;
     
     bool isFolder = itemId & ALBUM_ID_FLAG;
@@ -148,18 +148,18 @@ QVariant ThumbnailItem::data(int role) const
 
 QString ThumbnailItem::_ImageToolTip() const    // only called for images
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->items[itemPos] );
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItem(itemPos) );
     return QString(pImg->ShortSourcePathName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const    // only called for videos
 {
-    Video* pVid = albumgen.VideoAt(_ActAlbum()->items[itemPos]);
+    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItem(itemPos));
     return QString(pVid->ShortSourcePathName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
 }
 QString ThumbnailItem::_FolderToolTip() const   // only called for folders
 {
-    Album* pAlbum = albumgen.AlbumForID(_ActAlbum()->items[itemPos]);
+    Album* pAlbum = albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos));
 
     QString s = pAlbum->ShortSourcePathName() + " \n(" + pAlbum->LinkName(-1, true) + ")";
     return s;
@@ -202,7 +202,7 @@ QString ThumbnailItem::_FolderFilePath() const
  *------------------------------------------------------------*/
 QString ThumbnailItem::_ImageFileName() const
 {
-    Image* pImg = _ActAlbum()->items.isEmpty() ? nullptr : albumgen.ImageAt(_ActAlbum()->items[itemPos]);
+    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItem(itemPos));
     if (!pImg)
         return QString();
     if (QFileInfo::exists(pImg->FullLinkName()))
@@ -213,7 +213,7 @@ QString ThumbnailItem::_ImageFileName() const
 
 QString ThumbnailItem::_VideoFileName() const
 {
-    Video* pVid = _ActAlbum()->items.isEmpty() ? nullptr : albumgen.VideoAt(_ActAlbum()->items[itemPos]);
+    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItem(itemPos));
     if (!pVid)
         return QString();
 
@@ -267,7 +267,7 @@ QString ThumbnailItem::_FolderFullSourceName() const
 {
     //Image* pImg = albumgen.ImageAt(_ActAlbum()->thumbnail);
     //return pImg->FullSourceName();
-    return albumgen.AlbumForID(_ActAlbum()->items[itemPos])->FullSourceName();
+    return albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos))->FullSourceName();
 }
 
 QString ThumbnailItem::text()  const
@@ -300,7 +300,7 @@ QString ThumbnailItem::DisplayName() const
     {
         case image: return _ImageFileName();
         case video: return _VideoFileName();
-        case folder: return albumgen.AlbumForID(_ActAlbum()->items[itemPos])->name;
+        case folder: return albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos))->name;
         default: break;
     }
     return QString();

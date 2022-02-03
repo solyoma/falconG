@@ -225,10 +225,12 @@ struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 {
 	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
 						// this album changes. Must be modified when this album is moved into another one(**TODO**)
-	IdList items;		// for all images, videos and albums in this album
 	ID_t thumbnail = 0;	// image ID	or 0
 
 	bool changed = false;	// set to true when: any text, album thumbnail, images, albums, exluded changed
+
+	IdList items;			// for all images, videos and albums in this album GET item for position using IdOfItem!!
+	ID_t IdOfItem(int pos) { return items.isEmpty() ? 0 : items[pos]; }
 
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -243,6 +245,8 @@ struct Album : IABase			// ID == 1+ALBUM_ID_FLAG root  (0: invalid)
 	int SubAlbumCount(bool forced=false);	// only non excluded existing albums (removes excluded albums) = count of children
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
+
+
 	ID_t IdOfItemOfType(int64_t type, int index, int startPos = 0);
 
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
