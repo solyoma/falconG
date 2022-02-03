@@ -202,7 +202,9 @@ QString ThumbnailItem::_FolderFilePath() const
  *------------------------------------------------------------*/
 QString ThumbnailItem::_ImageFileName() const
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->items[itemPos]);
+    Image* pImg = _ActAlbum()->items.isEmpty() ? nullptr : albumgen.ImageAt(_ActAlbum()->items[itemPos]);
+    if (!pImg)
+        return QString();
     if (QFileInfo::exists(pImg->FullLinkName()))
         return QString(pImg->LinkName(config.bLowerCaseImageExtensions));
     else
@@ -211,7 +213,10 @@ QString ThumbnailItem::_ImageFileName() const
 
 QString ThumbnailItem::_VideoFileName() const
 {
-    Video* pVid = albumgen.VideoAt(_ActAlbum()->items[itemPos]);
+    Video* pVid = _ActAlbum()->items.isEmpty() ? nullptr : albumgen.VideoAt(_ActAlbum()->items[itemPos]);
+    if (!pVid)
+        return QString();
+
     if (QFileInfo::exists(pVid->FullLinkName()))
         return QString(pVid->LinkName(config.bLowerCaseImageExtensions));
     else
@@ -220,7 +225,7 @@ QString ThumbnailItem::_VideoFileName() const
 
 QString ThumbnailItem::_FolderFileName() const
 {
-    Album album = albumgen.Albums()[_albumId];
+   Album album = albumgen.Albums()[_albumId];
    return album.LinkName(-1); // no language and extension
 }
 
