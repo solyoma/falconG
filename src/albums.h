@@ -346,6 +346,7 @@ public:
 										// an image by its name (relative to this path) only
 	AlbumGenerator() {};
 	void Clear();
+	void AddDirsRecursively(Album& ab);	// for existing album when structure modified
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool keep=false);		
@@ -406,6 +407,7 @@ private:
 	} _remDsp;
 
 	bool _processing = false;
+	bool _signalProgress = true;
 	QList<ID_t> _slAlbumsModified;
 	QString _upLink;		// to parent page if there's one
 	TextMap _textMap;		// all texts for all albums and images
@@ -457,7 +459,7 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadFromDirsFile(Album &ab);		// albumfiles.txt
+	bool _ReadFromJAlbumTxtFile(Album &ab);		// albumfiles.txt
 	bool _ReadJCommentFile(Album &ab);	// comments.properties
 	bool _ReadJMetaFile(Album &ab);		// meta.properties
 	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
@@ -502,6 +504,7 @@ private:
 	bool _LanguageFromStruct(FileReader &reader);
 	ID_t _ImageOrVideoFromStruct(FileReader &reader, int level, Album &album, bool thumbnail);
 	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level);
+	void _AddAlbumThumbnail(Album &album, ID_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 

@@ -833,6 +833,13 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 	//...
 	// call original ?
 //	QListView::dragMoveEvent(event);
+	int posy = verticalScrollBar()->pos().y(),
+		pose = event->pos().y();
+
+	if (pose < 30)
+		verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+	else if (pose > height() - 30)
+		verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 }
 
 /*=============================================================
@@ -1415,7 +1422,6 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
  *------------------------------------------------------------*/
 void ThumbnailWidget::mouseMoveEvent(QMouseEvent * event)
 {
-
 	QListView::mouseMoveEvent(event);	// original handler
 }
 
@@ -1663,6 +1669,7 @@ void ThumbnailWidget::AddFolder()
     if (added)
     {
         pAlbum->items.push_back(id);
+        albumgen.AddDirsRecursively(albumgen.Albums()[id]);
         emit SignalFolderAdded();
         reLoad();
     }

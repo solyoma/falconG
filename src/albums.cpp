@@ -1219,7 +1219,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
  *        	- images/albums not mentioned in file are added to the end of
  *				the ordered list of images
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadFromDirsFile(Album &ab)
+bool AlbumGenerator::_ReadFromJAlbumTxtFile(Album &ab)
 {
 	QString path = ab.FullSourceName();  
 	if(path[path.length()-1] != '/') 
@@ -1557,7 +1557,7 @@ void AlbumGenerator::_ReadOneLevelOfDirs(Album &ab)
 {
 	// TODO justChanges
 	_isAJAlbum = false;		// set only if jalbum's file are in this directory
-	_isAJAlbum |= _ReadFromDirsFile(ab);		// ordering set in file ( including exlusions and real names)
+	_isAJAlbum |= _ReadFromJAlbumTxtFile(ab);		// ordering set in file ( including exlusions and real names)
 	_isAJAlbum |= _ReadJMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk 
@@ -1584,10 +1584,11 @@ void AlbumGenerator::_ReadOneLevelOfDirs(Album &ab)
 			if (_albumMap[id].exists)
 				_ReadOneLevelOfDirs(_albumMap[id]);
 		}
-		emit SignalProgressPos(_albumMap.size(), _imageMap.size());
+		if(_signalProgress)
+			emit SignalProgressPos(_albumMap.size(), _imageMap.size());
 		if (!_processing)
 			return;
-	}
+	}																
 	_isAJAlbum |= _ReadJCommentFile(ab);	// descriptions for files and folders in ab
 	_isAJAlbum |= _JReadInfo(ab);			// titles for album and images inside
 	(void)ab.ImageCount();	// removes excluded ID s of 'ab.images'
@@ -1609,6 +1610,15 @@ void AlbumGenerator::Clear()
 	im.ID = 0 | IMAGE_ID_FLAG;
 	im.dsize = im.osize = QSize(800, 800);
 	_imageMap[0] = im;
+}
+
+void AlbumGenerator::AddDirsRecursively(Album& ab)
+{
+	_signalProgress = false;
+	 _ReadOneLevelOfDirs(ab);
+	 _AddAlbumThumbnail(ab, 0);	// only adds if no thumbnail exists
+	_signalProgress = true;
+	return;
 }
 
 /*==========================================================================
@@ -2456,8 +2466,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 					album.titleID = ids.titleID;
 				if (ids.descID)
 					album.descID = ids.descID;
-				if (ids.thumbnailID)
-					album.thumbnail = ids.thumbnailID;
+				_AddAlbumThumbnail(album, ids.thumbnailID);
 				ids.Clear();
 			}
 			while(reader.Ok() && reader.l().isEmpty())	// drop all consecutive empty lines
@@ -2508,6 +2517,15 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	_albumMap[id] = album;
 
 	return id;
+}
+
+void AlbumGenerator::_AddAlbumThumbnail(Album& album, ID_t id)
+{
+	if (album.thumbnail)
+		return;
+	album.thumbnail = id ? id : (album.items.isEmpty() ? 0 : album.items[0]);
+	if (!id)
+		album.changed = true;
 }
 
 /*==========================================================================
