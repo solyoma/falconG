@@ -92,8 +92,11 @@ ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ, QIcon icon) : QSt
 
 QIcon ThumbnailItem::IconForFile() const
 {
+    QString imageName;
+
     Album* pAlbum = _ActAlbum();
-    ID_t itemId = pAlbum->items[itemPos];
+
+    ID_t itemId = pAlbum->items.isEmpty() ? 0 : pAlbum->items[itemPos];
     bool exists = false;
     
     bool isFolder = itemId & ALBUM_ID_FLAG;
@@ -113,7 +116,6 @@ QIcon ThumbnailItem::IconForFile() const
 
 //    imgId &= ID_MASK;
     Image &img = albumgen.Images()[imgId];
-    QString imageName;
     if ((exists=QFile::exists(img.FullLinkName())))
         imageName = img.FullLinkName();
     else if ((exists=QFile::exists(img.FullSourceName())))
