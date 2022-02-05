@@ -3,15 +3,15 @@
 # end edited by A.S. originally at 2018.09.23.
 # Latest: 2021.08.05.
 # ------------------------------------------------------
+INCLUDE += ./GeneratedFiles/
 
 HEADERS += ./albums.h \
     ./config.h \
     ./crc32.h \
     ./csscreator.h \
-    ./deletableitems.h \
     ./enums.h \
     ./falcong.h \
-	./imageviewer.h \
+    ./imageviewer.h \
     ./languages.h \
     ./schemes.h \
     ./sourcehistory.h \
@@ -25,7 +25,7 @@ SOURCES += ./albums.cpp \
     ./crc32.cpp \
     ./csscreator.cpp \
     ./falcong.cpp \
-	./imageviewer.cpp \
+    ./imageviewer.cpp \
     ./languages.cpp \
     ./main.cpp \
     ./schemes.cpp \
@@ -37,9 +37,10 @@ SOURCES += ./albums.cpp \
     ./thumbnailWidget.cpp
 
 FORMS += ./falcong.ui \
-	./imageviewer.ui \
-    ./sourcehistory.ui \
-	./textEditor.ui
+        ./imageViewer.ui \
+        ./sourcehistory.ui \
+	./textEditor.ui \
+        ./imageViewer.ui
 	
 RESOURCES += falcong.qrc
 QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter

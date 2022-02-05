@@ -2116,7 +2116,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	if (pos < 0)
 		album.items.push_back(id);
 	else
-		album.items.insert(pos, id);
+		album.items.insert(pos, id);		// add BEFORE pos
 	return true;
 }
 

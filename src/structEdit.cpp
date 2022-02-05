@@ -20,9 +20,9 @@
 //			 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 /*============================================================================
-* TASK:  return raw count for parent
-* EXPECTS:
-* GLOBALS:
+* TASK:		return row count for parent (count of albums in it)
+* EXPECTS:	parent - model index of parent album or empty model index for root
+* GLOBALS:	albumgen.AlbumMap()
 * REMARKS: model indices are relativ to parent
 *--------------------------------------------------------------------------*/
 int AlbumTreeModel::rowCount(const QModelIndex & parent) const
@@ -85,7 +85,7 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 		QString s = ab.name;
 		if (s.isEmpty())
 			s = "/";
-		return s + " ( " + ab.BareName() + " )";  // no language and extension
+		return s + " ( " + ab.BareName() + " )";  // no language or extension
 	}
 	return QVariant();
 }

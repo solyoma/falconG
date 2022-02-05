@@ -5,8 +5,11 @@
 /*============================================================================
   * TASK:		model for tree view of albums
   * REMARKS:	- uses the data stored in the map AlbumMap (albums.h)
-  *				- columnCount is the maximum depth of the hierarchy
-  *				- rowCount
+  *				- columnCount() = 1 is the maximum depth of the hierarchy
+  *					for parent
+  *				- rowCount() is either the total size of _albumMap(albumgen)
+  *						or the count of sub-albums in 'parent'
+  *				- internal pointer is the ID of the album
  *--------------------------------------------------------------------------*/
 class AlbumTreeModel : public QAbstractItemModel
 {

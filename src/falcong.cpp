@@ -188,6 +188,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
+
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_AlbumStructureSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailWidget::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
@@ -210,7 +211,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 
-	connect(this, &FalconG::SignalThumSizeChanged, ui.tnvImages, &ThumbnailWidget::ThumbnailSizeChanged);
+	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailWidget::ThumbnailSizeChanged);
 
 	// read styles
 
@@ -3853,7 +3854,7 @@ void FalconG::on_sbWmShadowVert_valueChanged(int val)
 
 void FalconG::on_sldIconSize_valueChanged(int newSize)
 {
-	emit SignalThumSizeChanged(newSize);
+	emit SignalThumbSizeChanged(newSize);
 }
 
 /*============================================================================
@@ -4360,7 +4361,7 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 		_selection.newAlbum = 0;	// nothing/multiple albums selected
 
 
-	ui.tnvImages->reLoad();
+	ui.tnvImages->Load();
 	ui.tnvImages->clearSelection();	// no selection
 	_selection.selectedImage = _selection.newImage = 0;
 

@@ -1867,8 +1867,8 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>719</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -6381,7 +6381,7 @@ the last CSS save.</string>
                         <number>150</number>
                        </property>
                        <property name="tracking">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>

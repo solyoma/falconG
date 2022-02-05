@@ -192,8 +192,8 @@ public:
 	void Setup(ID_t aid);
 	void Clear() { _pIds = nullptr; _albumId = 0; }
 
-    void loadPrepare();
-    void reLoad();
+    void Load();
+	void Reload();
     void loadFileList();
     bool setCurrentIndexByName(QString &fileName);
     bool setCurrentIndexByItem(int itemIndex);	   
@@ -226,7 +226,6 @@ private:
 	ID_t   _albumId = 0;	// show thumbs from this album (0: root)
 	IdList *_pIds = nullptr;	    // images in this album
 
-    int _thumbHeight;
     QImage _insertPosImage;	// shows insert position
 // /SA
 

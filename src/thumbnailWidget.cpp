@@ -27,16 +27,24 @@
 
 
 // ****************** ThumbnailItem ******************
-static struct FileIcons
+static class FileIcons
 {
-    QList<MarkedIcon> iconList;
+
+    QList<MarkedIcon> _iconList;     // all icons for actual album
+    QVector<int> _iconOrder;         // indirection through this
+public:
     int posFolderIcon = -1;
 
     void Clear()
     {
 		posFolderIcon = -1;
-		iconList.clear();
+		_iconList.clear();
+        _iconOrder.clear();
         MarkedIcon::Init(); // only reads images if not yet initted
+    }
+    int Size() const 
+    { 
+        return _iconList.size(); 
     }
     void SetMaximumSizes(int thumbsize=THUMBNAIL_SIZE, int borderwidth = 10)
     {
@@ -45,13 +53,13 @@ static struct FileIcons
 
     bool HasIconFor(int pos)
     {
-        return pos < iconList.size();
+        return pos < _iconList.size();
     }
 
     void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false)
     {
         // pos-th item MUST exist
-        MarkedIcon& micon = iconList[pos];
+        MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
 		if (posFolderIcon >= 0)         // erase original folder icon
 			micon.isFolderThumb = false;
 
@@ -66,17 +74,22 @@ static struct FileIcons
 		if (pos < 0)
 			return QIcon();
 
-		if (pos >= iconList.size())
+		if (pos >= _iconList.size())
 		{
 			MarkedIcon icon;
 			icon.Read(imageName, isFolder);
-			iconList.push_back(icon);
+            _iconOrder.push_back(_iconList.size());
+			_iconList.push_back(icon);
 		}
         // pos-th item MUST exist
-        MarkedIcon& micon = iconList[pos];
+        MarkedIcon& micon = _iconList[_iconOrder[pos]];
         micon.isFolderThumb = isFolderThumb;
 		return micon.ToIcon();
 	}
+    void SetIconOrder(QVector<int>& order)
+    {
+        _iconOrder = order;
+    }
 } fileIcons;
 
 int ThumbnailItem::thumbHeight=150;
@@ -84,8 +97,6 @@ int ThumbnailItem::thumbHeight=150;
 ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ, QIcon icon) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
 {
     QSize hintSize = QSize(thumbHeight, thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
-
-//    fileIcons.SetSizes(thumbHeight, thumbHeight/ THUMBNAIL_BORDER_FACTOR);
 
     setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
 }
@@ -317,11 +328,11 @@ QString ThumbnailItem::DisplayName() const
   * REMARKS:	SA
   *				- connects slots and sets up scrollbar
   *------------------------------------------------------------*/
-ThumbnailWidget::ThumbnailWidget(QWidget *parent/*, int thumbheight*/) : QListView(parent)/*, _thumbHeight(thumbheight)*/
+ThumbnailWidget::ThumbnailWidget(QWidget *parent) : QListView(parent)
 {
     // prepare spacer for Drag & Drop into tnvImages
     float spacerWidth = 50; // pixel
-    _insertPosImage = QImage(spacerWidth, _thumbHeight, QImage::Format_ARGB32);
+    _insertPosImage = QImage(spacerWidth, ThumbnailItem::thumbHeight, QImage::Format_ARGB32);
     QPainter *painter = new QPainter(&_insertPosImage);
     _insertPosImage.fill(Qt::transparent);
     painter->setBrush(Qt::NoBrush);
@@ -329,9 +340,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent/*, int thumbheight*/) : QListVi
     pen.setColor(schemes[PROGRAM_CONFIG::schemeIndex].sSpacerColor);
     pen.setWidth(10);
     painter->setPen(pen);
-    painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, _thumbHeight);
+    painter->drawLine(spacerWidth / 2.0, 0, spacerWidth / 2.0, ThumbnailItem::thumbHeight);
     painter->drawLine(0, 0, spacerWidth, 0);
-    painter->drawLine(0, _thumbHeight, spacerWidth, _thumbHeight);
+    painter->drawLine(0, ThumbnailItem::thumbHeight, spacerWidth, ThumbnailItem::thumbHeight);
     delete painter;
 
     _currentItem = 0;
@@ -353,9 +364,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent/*, int thumbheight*/) : QListVi
     _thumbnailWidgetModel->setSortRole(SortRole);
     setModel(_thumbnailWidgetModel);
 
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(loadVisibleThumbs(int)));
-    connect(this->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(onSelectionChanged(QItemSelection)));
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ThumbnailWidget::loadVisibleThumbs);
+    connect(this->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &ThumbnailWidget::onSelectionChanged);
 
 	connect(this, &QListView::doubleClicked, this, &ThumbnailWidget::ItemDoubleClicked);
 
@@ -833,8 +844,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 	//...
 	// call original ?
 //	QListView::dragMoveEvent(event);
-	int posy = verticalScrollBar()->pos().y(),
-		pose = event->pos().y();
+	int pose = event->pos().y();
 
 	if (pose < 30)
 		verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
@@ -897,6 +907,8 @@ void ThumbnailWidget::_DropFromExternalSource(const ThumbMimeData* mimeData, int
  *              order in thumbList depends on selection order
  *              images can be put to the same position they 
  *              were before
+ *          - changes the icon order in 'fileIcons' too
+ *          - 
  *------------------------------------------------------------*/
 void ThumbnailWidget::dropEvent(QDropEvent * event)
 {
@@ -918,22 +930,29 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
 		if (mimeData->thumbList.isEmpty())
 			return;
 
-        IntList thl = mimeData->thumbList;  // thum list items to move
-        IntList thl0 = thl;                 // original thumblist to check items against
+        IntList thl = mimeData->thumbList;  // index in thumbList items to move
+        IntList thl0 = thl;                 // original index array of thumblist to check items against
         // reorder list of actual album
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
         IdList &items = pAlbum->items;      // original ordered items
-        IdList idl;                         // new ordered items
-        idl.resize(items.size());
-        int si = 0,     // index in pAlbum's item (ID) list
+
+        QVector<int> iconOrder;             // new icon order indexes
+        iconOrder.resize(items.size());     // original indexes are 0,1,2...
+
+        // special handling for drops one item to the right
+        // simply exchanges items
+        if (thl.size() == 1 && thl[0] == row - 1)
+            ++row;
+
+        int si = 0,     // original index
             di = 0;     // index in idl
 
-        while(si < idl.size())          // di <= si
+        while(si < iconOrder.size())          // di <= si
         {
             if (!thl.size())           // no more moved items
             {
                 if(thl0.indexOf(si) < 0)    // don't move twice
-                    idl[di++] = items[si];
+                    iconOrder[di++] = si;
                 ++si;
             }
             else
@@ -941,13 +960,22 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
                 if (si == row)
                 {
                     for (int j = 0; j < thl.size(); ++j)
-                        idl[di++] = items[thl[j]];
+                        iconOrder[di++] = thl[j];
                     thl.clear();
                 }
                 if (thl0.indexOf(si) < 0)
-                    idl[di++] = items[si++];
+                    iconOrder[di++] = si;
+                ++si;
             }
         }
+        // new order in 'iconOrder' set
+        IdList idl;                         // new ordered items
+        idl.resize(items.size());
+
+        for (int i = 0; i < iconOrder.size(); ++i)
+            idl[i] = items[iconOrder[i]];
+        fileIcons.SetIconOrder(iconOrder);
+
 
 		if (_dragFromHereInProgress)	// then remove from old spot
 		{
@@ -955,7 +983,7 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
 		}
         items = idl;
         pAlbum->changed = true;
-        reLoad();
+        Reload();
 		// DEBUG
 		//if (pDragDropLabel)
 		//	delete pDragDropLabel;
@@ -1082,23 +1110,31 @@ void ThumbnailWidget::loadFileList()
 	emit SignalInProcessing(false);
 }
 
-void ThumbnailWidget::reLoad() 
+void ThumbnailWidget::Load() 
 {
+    fileIcons.Clear();  // clear all icons in memory
+    Reload();
+}
+
+void ThumbnailWidget::Reload()
+{
+    _isAbortThumbsLoading = false;
+    _thumbsRangeFirst = -1;
+    _thumbsRangeLast = -1;
+
     _isBusy = true;
-    loadPrepare();
+    _thumbnailWidgetModel->clear(); // clearing occurs between 'beginResetModel()' and 'endResetModel()'
 
-/*      never get inside as loadPrepare clears model
-    if (model()->rowCount())
-	{
-        loadFileList();
-        return;
-    }
-*/
+    setSpacing(QFontMetrics(font()).height());
 
-     _InitThumbs();
+    //if (_isNeedToScroll) 
+    //{
+    //    scrollToTop();
+    //}
+
+    _InitThumbs();
     _UpdateThumbsCount();
     loadVisibleThumbs(0);
-
     _isBusy = false;
 }
 
@@ -1106,25 +1142,6 @@ void ThumbnailWidget::Setup(ID_t aid)
 {
     _albumId = aid;
 //    _InitThumbs();
-}
-
-void ThumbnailWidget::loadPrepare()
-{
-    fileIcons.Clear();
-//    fileIcons.SetSizes(_thumbHeight, 10);
-
-    _thumbnailWidgetModel->clear();
-
-    setSpacing(QFontMetrics(font()).height());
-
-    if (_isNeedToScroll) {
-        scrollToTop();
-    }
-
-    _isAbortThumbsLoading = false;
-
-    _thumbsRangeFirst = -1;
-    _thumbsRangeLast = -1;
 }
 
 void ThumbnailWidget::_InitThumbs()
@@ -1141,7 +1158,7 @@ void ThumbnailWidget::_InitThumbs()
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
 		_thumbnailWidgetModel->appendRow(thumbItem);
 		++thumbsAddedCounter;
-		if (thumbsAddedCounter > 100)
+		if (thumbsAddedCounter > 10)
 		{
 			thumbsAddedCounter = 1;
 			QApplication::processEvents();
@@ -1199,7 +1216,8 @@ bool ThumbnailWidget::_IsAllowedTypeToDrop(const QDropEvent *event)
  * TASK:    get all file names into  _imageMap or _videoMap,
  *          plus into the actual album into albumgen's _albumMap
  *          plus into _thumbnailWidgetModel
- * PARAMS:
+ * PARAMS:  qslFileNames - file names to add
+ *          row - add before this row
  * GLOBALS:
  * RETURNS:
  * REMARKS:
@@ -1300,8 +1318,8 @@ void ThumbnailWidget::loadThumbsRange()
 
         if (currentThumbSize.isValid()) 
 		{
-            if (currentThumbSize.width() > _thumbHeight || currentThumbSize.height() > _thumbHeight) 
-                currentThumbSize.scale(QSize(_thumbHeight, _thumbHeight), Qt::KeepAspectRatio);
+            if (currentThumbSize.width() > ThumbnailItem::thumbHeight || currentThumbSize.height() > ThumbnailItem::thumbHeight) 
+                currentThumbSize.scale(QSize(ThumbnailItem::thumbHeight, ThumbnailItem::thumbHeight), Qt::KeepAspectRatio);
         
             thumbReader.setScaledSize(currentThumbSize);
             imageReadOk = thumbReader.read(&thumb);
@@ -1314,7 +1332,7 @@ void ThumbnailWidget::loadThumbsRange()
 		 {
             _thumbnailWidgetModel->item(currThumb)->setIcon(QIcon::fromTheme("image-missing",
                                                               QIcon(":/Preview/Resources/NoImage.jpg")).pixmap(
-                                                                  _thumbHeight, _thumbHeight));
+                                                                  ThumbnailItem::thumbHeight, ThumbnailItem::thumbHeight));
 															           //BAD_IMAGE_SIZE, BAD_IMAGE_SIZE));
             //currentThumbSize.setHeight(BAD_IMAGE_SIZE);
             //currentThumbSize.setWidth(BAD_IMAGE_SIZE);
@@ -1350,8 +1368,8 @@ void ThumbnailWidget::addThumb(int which, ThumbnailItem::Type type)
     currThumbSize = thumbReader.size();
     if (currThumbSize.isValid()) 
 	{
-        if (currThumbSize.width() > _thumbHeight || currThumbSize.height() > _thumbHeight) 
-            currThumbSize.scale(QSize(_thumbHeight, _thumbHeight), Qt::KeepAspectRatio);
+        if (currThumbSize.width() > ThumbnailItem::thumbHeight || currThumbSize.height() > ThumbnailItem::thumbHeight) 
+            currThumbSize.scale(QSize(ThumbnailItem::thumbHeight, ThumbnailItem::thumbHeight), Qt::KeepAspectRatio);
 
         thumbReader.setScaledSize(currThumbSize);
         QImage thumb = thumbReader.read();
@@ -1393,10 +1411,13 @@ void ThumbnailWidget::SetInsertPos(int here)
  *------------------------------------------------------------*/
 void ThumbnailWidget::wheelEvent(QWheelEvent *event)
 {
+
+    int step = verticalScrollBar()->maximum() / _ActAlbum()->items.size() * width() / (ThumbnailItem::thumbHeight + spacing());
+
     if (event->angleDelta().y() < 0) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + _thumbHeight);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + step);
     } else {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - _thumbHeight);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - step);
     }
 }
 
@@ -1560,7 +1581,7 @@ void ThumbnailWidget::DeleteSelected()
         ix = mi.row();
         album.items.remove(ix);
     }
-    reLoad();
+    Load();
 
     emit selectionChanged(QItemSelection(), QItemSelection());
 }
@@ -1643,7 +1664,7 @@ void ThumbnailWidget::AddImages()
     if (qslFileNames.isEmpty())
         return;
     _AddImagesFromList(qslFileNames, currentIndex().row());
-    reLoad();
+    Reload();
 
     emit selectionChanged(QItemSelection(), QItemSelection());
     config.dsLastImageDir = dir;
@@ -1668,10 +1689,15 @@ void ThumbnailWidget::AddFolder()
     ID_t id = albumgen.Albums().Add(qs,added);
     if (added)
     {
-        pAlbum->items.push_back(id);
+        int pos = currentIndex().row();
+        if(pos < 0)
+            pAlbum->items.push_back(id);
+        else
+            pAlbum->items.insert(pos, id);
         albumgen.AddDirsRecursively(albumgen.Albums()[id]);
         emit SignalFolderAdded();
-        reLoad();
+        emit selectionChanged(QItemSelection(), QItemSelection());
+        Reload();
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
@@ -1804,6 +1830,7 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
 void ThumbnailWidget::ThumbnailSizeChanged(int newSize)
 {
     setIconSize(QSize(newSize, newSize));
+    ThumbnailItem::SetThumbHeight(newSize);
 }
 
 void ThumbnailWidget::setNeedToScroll(bool needToScroll) 

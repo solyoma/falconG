@@ -85,7 +85,7 @@ public:
 
 signals:
 	void CancelRun();
-	void SignalThumSizeChanged(int newSize);
+	void SignalThumbSizeChanged(int newSize);
 private:
 
 	Ui::falconGClass ui;
