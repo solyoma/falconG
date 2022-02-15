@@ -199,7 +199,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
 	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_EnableEditTab);
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalFolderAdded,		this, &FalconG::_AlbumMapChanged);
+	connect(ui.tnvImages, &ThumbnailWidget::SignalAlbumStructChanged,		this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_CreateUplinkIcon);
@@ -1573,6 +1573,15 @@ void FalconG::on_btnBackground_clicked()
 	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
 	_SetConfigChanged(true);
 	_ElemToSample();
+}
+
+void FalconG::on_btnBackToParentAlbum_clicked()
+{
+	QModelIndex mix = ui.trvAlbums->currentIndex();
+	if (!mix.isValid() || !mix.parent().isValid())
+		return;
+
+	ui.trvAlbums->setCurrentIndex(mix.parent()); // ???
 }
 
 /*============================================================================
@@ -4893,6 +4902,14 @@ QTreeView,
 QListView {
     border-radius: 10px;
 }
+						/* these 2 do not work */
+QTreeView::branch:open:has-children {
+	color %2;
+
+}
+QTreeView::branch:closed:has-children {
+	color:%2;
+}
         
 /* ------------------ borders ----------------------*/   
 QTabWidget:pane,     
@@ -5349,7 +5366,7 @@ void FalconG::_TnvSelectionChanged(ID_t id)
  *------------------------------------------------------------*/
 void FalconG::_TnvMultipleSelection(IdList list)
 {
-	int n = list.size();
+//	int n = list.size();
 }
 
 
@@ -5452,6 +5469,7 @@ void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 void FalconG::_AlbumMapChanged()
 {
 	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->ModelChanged();
+//	ui.trvAlbums->expandToDepth(0);
 	ui.trvAlbums->expandAll();
 }
 

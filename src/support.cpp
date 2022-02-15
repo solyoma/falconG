@@ -742,6 +742,15 @@ int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString
 	}
 	return res;
 }
+
+QString CutSourceRoot(QString path)
+{
+	QString qs = config.dsSrc.ToString();
+	int sl = qs.length();
+	if (sl <= path.length() && path.left(sl) == qs)
+		path = path.mid(sl);
+	return path;
+}
 /*============================================================================
 * TASK:		check if file with name and info is an image OR a video file
 * EXPECTS:	name - file name

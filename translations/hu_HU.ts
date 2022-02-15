@@ -1574,7 +1574,7 @@ Hiba kód: %2
     <message>
         <location filename="../src/thumbnailWidget.cpp" line="1371"/>
         <source>Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?</source>
-        <translation>A kiválasztott %1 / %2 elemeket &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
+        <translation>A kiválasztott %1 / %2 elemet &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
     </message>
 </context>
 <context>
@@ -1835,7 +1835,7 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     <message>
         <location filename="../src/thumbnailWidget.cpp" line="587"/>
         <source>Selected %1 of %2</source>
-        <translation>%1 képet választott ki a %2-ből</translation>
+        <translation>%1 elemet választott ki a %2-ből</translation>
     </message>
     <message numerus="yes">
         <source> %n image(s)</source>

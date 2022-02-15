@@ -39,7 +39,7 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 * TASK:	   Create a model index for parent's  child
 * EXPECTS:	row - parent relative index (< count of parent's children)
 *			column: 0
-*			parent: index of parent whose row-th child's index required
+*			parent: index of parent whose row-th child's index is required
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/

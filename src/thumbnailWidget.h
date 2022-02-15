@@ -46,10 +46,10 @@ public:
 
 public:
 	int type() const { return _itemType; }
-	ID_t id() const 
-	{ 
-		return _albumId == 0xFFFFFFFFFFFFFFFFu || itemPos < 0 ? 0 : _ActAlbum()->items[itemPos];
-	}
+	//ID_t id() const 
+	//{ 
+	//	return (_albumId == 0xFFFFFFFFFFFFFFFFu || itemPos < 0) ? 0 : _ActAlbum()->items[itemPos];
+	//}
 	void SetType(Type typ) 
 	{ 
 		_itemType = typ; 
@@ -130,9 +130,9 @@ public:
  *------------------------------------------------------------*/
 class ThumbnailWidgetModel : public QStandardItemModel
 {
+	ThumbnailItem _dummyItem;	// empty item to show at insert position
 	int _dummyPosition = -1;	// used during drag to signal possible drop position
-								// -1: not used
-	ThumbnailItem _dummyItem;
+								// -1: not used else position of _dummyItem
 public:
 	ThumbnailWidgetModel(QWidget *pw) : QStandardItemModel(pw) 
 	{
@@ -161,10 +161,8 @@ public:
 			if (row == _dummyPosition)
 				return const_cast<ThumbnailItem*>(&_dummyItem);
 		}
-		// DEBUG
 		ThumbnailItem *result = dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row, 0));
 		return result;
-		// return dynamic_cast<ThumbnailItem*>(QStandardItemModel::item(row,0) );
 	}
 
 	QStandardItem *itemFromIndex(const QModelIndex &index) const
@@ -194,26 +192,26 @@ public:
 
     void Load();
 	void Reload();
-    void loadFileList();
-    bool setCurrentIndexByName(QString &fileName);
+    void LoadFileList();
+    bool SetCurrentIndexByName(QString &fileName);
     bool setCurrentIndexByItem(int itemIndex);	   
-    void setCurrentItem(int itemIndex);
-	void setTitle();
+    void SetCurrentItem(int itemIndex);
+	void SetTitle();
     void setNeedToScroll(bool needToScroll);
     void selectCurrentIndex();
-    void addThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
+    void AddThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
 	void SetInsertPos(int here);		// into the model
     void abort();
     void selectThumbByItem(int itemIndex);
-    int getNextItem();
-    int getPrevItem();
-    int getLastItem();
-    int getRandomItem();
-    int getCurrentItem();
+    int GetNextItem();
+    int GetPrevItem();
+    int GetLastItem();
+    int GetRandomItem();
+    int GetCurrentItem();
 
-    QStringList getSelectedThumbsList();
+    QStringList GetSelectedThumbsList();
 
-    QString getSingleSelectionFilename();
+    QString GetSingleSelectionFilename();
 
 	// DEBUG
 //	QLabel* pDragDropLabel = nullptr;
@@ -268,7 +266,7 @@ signals:
 	void SignalSingleSelection(ID_t id);		// may be album or image or video
 	void SignalMultipleSelection(IdList);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
-	void SignalFolderAdded();					// add the new album to tree view as well
+	void SignalAlbumStructChanged();					// add the new album to tree view as well
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments

@@ -227,6 +227,11 @@ struct MarkedIcon
 		name = other.name;
 		pxmp = other.pxmp;
 	}
+
+	~MarkedIcon()
+	{
+
+	}
 	void SetAsFolderThumb(bool setth)
 	{
 		isFolderThumb = setth;
@@ -277,9 +282,10 @@ private:
 };
 
 //*****************************************
+int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
+QString CutSourceRoot(QString path);
 QString TimeToHMSStr(time_t t);
 QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
-int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
 FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi = nullptr);
 QString ToUTF8(QString string);
 QStringList ToUTF8(QStringList &string);

@@ -30,7 +30,9 @@
 static class FileIcons
 {
 
-    QList<MarkedIcon> _iconList;     // all icons for actual album
+    QList<MarkedIcon> _iconList;     // all icons for actual album, 
+                                     // order never changes when items added or moved around
+                                     // only when deleted
     QVector<int> _iconOrder;         // indirection through this
 public:
     int posFolderIcon = -1;
@@ -75,20 +77,44 @@ public:
 			return QIcon();
 
 		if (pos >= _iconList.size())
-		{
-			MarkedIcon icon;
-			icon.Read(imageName, isFolder);
-            _iconOrder.push_back(_iconList.size());
-			_iconList.push_back(icon);
-		}
+            Insert(-1, isFolder, isFolderThumb, imageName);    
+
         // pos-th item MUST exist
         MarkedIcon& micon = _iconList[_iconOrder[pos]];
         micon.isFolderThumb = isFolderThumb;
 		return micon.ToIcon();
 	}
+    QVector<int> IconOrder() const
+    {
+        return _iconOrder;
+    }
     void SetIconOrder(QVector<int>& order)
     {
         _iconOrder = order;
+    }
+    void Insert(int pos, bool isFolder, bool isFolderThumb, QString imageName = QString())
+    {
+		MarkedIcon icon;
+		icon.Read(imageName, isFolder);
+
+		if (pos < 0)
+            _iconOrder.push_back(_iconList.size());
+        else
+            _iconOrder.insert(pos, _iconList.size());
+
+		_iconList.push_back(icon);
+    }
+    void Remove(int pos)    // remove items _iconOrder[pos]
+    {
+        if (pos < 0 || pos > _iconList.size())
+            return;
+        int removed = _iconOrder[pos];
+        _iconList.removeAt(removed);
+        _iconOrder.removeAt(pos);
+        // all larger indexes must be decreased
+        for (int i = 0; i < _iconOrder.size(); ++i)
+            if (_iconOrder[i] > removed)
+                --_iconOrder[i];
     }
 } fileIcons;
 
@@ -424,7 +450,7 @@ void ThumbnailWidget::selectCurrentIndex()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-QString ThumbnailWidget::getSingleSelectionFilename()
+QString ThumbnailWidget::GetSingleSelectionFilename()
 {
     if (selectionModel()->selectedIndexes().size() == 1)
         return _thumbnailWidgetModel->item(selectionModel()->selectedIndexes().first().row())->data(
@@ -440,7 +466,7 @@ QString ThumbnailWidget::getSingleSelectionFilename()
  * RETURNS:	new row or -1 when no more rows
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getNextItem()
+int ThumbnailWidget::GetNextItem()
 {
     if (_currentItem == _thumbnailWidgetModel->rowCount() - 1) 
         return -1;
@@ -455,7 +481,7 @@ int ThumbnailWidget::getNextItem()
 * RETURNS:	new row or -1 when no previous row
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::getPrevItem()
+int ThumbnailWidget::GetPrevItem()
 {
     if (_currentItem == 0) 
         return -1;
@@ -470,7 +496,7 @@ int ThumbnailWidget::getPrevItem()
  * RETURNS: image count -1
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getLastItem()
+int ThumbnailWidget::GetLastItem()
 {
     return _thumbnailWidgetModel->rowCount() - 1;
 }
@@ -482,7 +508,7 @@ int ThumbnailWidget::getLastItem()
 * RETURNS: ordinal of random thumbnail
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::getRandomItem()
+int ThumbnailWidget::GetRandomItem()
 {
     return QRandomGenerator::global()->generate() % (_thumbnailWidgetModel->rowCount());
 }
@@ -494,12 +520,12 @@ int ThumbnailWidget::getRandomItem()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::getCurrentItem()
+int ThumbnailWidget::GetCurrentItem()
 {
     return _currentItem;
 }
 
-void ThumbnailWidget::setCurrentItem(int index) 
+void ThumbnailWidget::SetCurrentItem(int index) 
 {
     if (index >= 0) 
         _currentItem = index;
@@ -515,7 +541,7 @@ void ThumbnailWidget::setCurrentItem(int index)
  * RETURNS:
  * REMARKS: emits signal 'TitleChanged'
  *------------------------------------------------------------*/
-void ThumbnailWidget::setTitle()
+void ThumbnailWidget::SetTitle()
 {
     title = _thumbnailWidgetModel->item(_currentItem)->data(Qt::DisplayRole).toString()
                     + " - ["
@@ -534,13 +560,13 @@ void ThumbnailWidget::setTitle()
  * RETURNS:	whether it is found
  * REMARKS:	sets _currentIndex and current thumbnail only when found
  *------------------------------------------------------------*/
-bool ThumbnailWidget::setCurrentIndexByName(QString &fileName)
+bool ThumbnailWidget::SetCurrentIndexByName(QString &fileName)
 {
     QModelIndexList indexList = _thumbnailWidgetModel->match(_thumbnailWidgetModel->index(0, 0), FileNameRole, fileName);
     if (indexList.size()) 
 	{
         _currentIndex = indexList[0];
-        setCurrentItem(_currentIndex.row());
+        SetCurrentItem(_currentIndex.row());
         return true;
     }
 
@@ -560,7 +586,7 @@ bool ThumbnailWidget::setCurrentIndexByItem(int row)
 	if (idx.isValid()) 
 	{
 		_currentIndex = idx;
-		setCurrentItem(idx.row());
+		SetCurrentItem(idx.row());
 		return true;
 	}
 
@@ -582,7 +608,7 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 		emit SignalSingleSelection(_ActAlbum()->ID);
     else if (selectedCount == 1)
 	{
-        setCurrentItem(indexesList.first().row());
+        SetCurrentItem(indexesList.first().row());
 		emit SignalSingleSelection(_ActAlbum()->items[_currentItem]);
 	}
     else
@@ -621,7 +647,7 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
  * RETURNS: list of path names of selected files
  * REMARKS:
  *------------------------------------------------------------*/
-QStringList ThumbnailWidget::getSelectedThumbsList()
+QStringList ThumbnailWidget::GetSelectedThumbsList()
 {
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     QStringList SelectedThumbsPaths;
@@ -936,8 +962,8 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
         IdList &items = pAlbum->items;      // original ordered items
 
-        QVector<int> iconOrder;             // new icon order indexes
-        iconOrder.resize(items.size());     // original indexes are 0,1,2...
+        QVector<int> itemOrder;             // new item order indexes
+        itemOrder.resize(items.size());     // original indexes are 0,1,2...
 
         // special handling for drops one item to the right
         // simply exchanges items
@@ -946,13 +972,13 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
 
         int si = 0,     // original index
             di = 0;     // index in idl
-
-        while(si < iconOrder.size())          // di <= si
+        // rearrange 0,1,2,... to new order
+        while(si < itemOrder.size())          // di <= si
         {
             if (!thl.size())           // no more moved items
             {
                 if(thl0.indexOf(si) < 0)    // don't move twice
-                    iconOrder[di++] = si;
+                    itemOrder[di++] = si;
                 ++si;
             }
             else
@@ -960,22 +986,30 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
                 if (si == row)
                 {
                     for (int j = 0; j < thl.size(); ++j)
-                        iconOrder[di++] = thl[j];
+                        itemOrder[di++] = thl[j];
                     thl.clear();
                 }
                 if (thl0.indexOf(si) < 0)
-                    iconOrder[di++] = si;
+                    itemOrder[di++] = si;
                 ++si;
             }
         }
-        // new order in 'iconOrder' set
+        // new order in 'itemOrder' set
         IdList idl;                         // new ordered items
         idl.resize(items.size());
 
-        for (int i = 0; i < iconOrder.size(); ++i)
-            idl[i] = items[iconOrder[i]];
-        fileIcons.SetIconOrder(iconOrder);
+        for (int i = 0; i < itemOrder.size(); ++i)
+            idl[i] = items[itemOrder[i]];
 
+        // modify original stored itemOrder
+        QVector<int> origOrder = fileIcons.IconOrder();  // original order might have been changed
+                                                         // so we must rearrange that according to 'itemOrder'
+        QVector<int> iconOrder;                          // new icon order indexes
+        iconOrder.resize(items.size());     
+        for (int i = 0; i < itemOrder.size(); ++i)
+            iconOrder[i] = origOrder[itemOrder[i]];
+
+        fileIcons.SetIconOrder(iconOrder);
 
 		if (_dragFromHereInProgress)	// then remove from old spot
 		{
@@ -1096,11 +1130,11 @@ int ThumbnailWidget::_GetLastVisibleThumb()
     return -1;
 }
 
-void ThumbnailWidget::loadFileList() 
+void ThumbnailWidget::LoadFileList() 
 {
 	emit SignalInProcessing(true);
     for (int i = 0; i < model()->rowCount(); i++) 
-        addThumb(i, (ThumbnailItem::Type)model()->data(model()->index(i,0), TypeRole).toInt());
+        AddThumb(i, (ThumbnailItem::Type)model()->data(model()->index(i,0), TypeRole).toInt());
     
     _UpdateThumbsCount();
 
@@ -1167,9 +1201,6 @@ void ThumbnailWidget::_InitThumbs()
 
 	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
 		selectThumbByItem(0);
-
-	emit SignalStatusChanged(statusStr);
-	emit SignalTitleChanged(title);
 }
 
 /*=============================================================
@@ -1202,6 +1233,7 @@ bool ThumbnailWidget::_IsAllowedTypeToDrop(const QDropEvent *event)
     // DEBUG
     qDebug() << "Mime text: " << event->mimeData()->text() 
              << ", hasUrls ? " << event->mimeData()->hasUrls()
+             << "mimeData is null?" << (event->mimeData() ? "no":"yes")
              << ", hasImage ? " << event->mimeData()->hasImage()
              << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
         ;
@@ -1230,8 +1262,13 @@ void ThumbnailWidget::_AddImagesFromList(QStringList qslFileNames,int row)
     for (i = 0; i < qslFileNames.size(); ++i)
     {
         res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], *_ActAlbum(), row);
-        if (!res)
-            break;
+        if (!res)     // then already used somewehere // TODO: virtual albums
+        {
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new image / video failed!"));
+            continue;
+        }
+        else
+            fileIcons.Insert(row, false, false, qslFileNames[i]);
     }
 }
 
@@ -1256,6 +1293,7 @@ void ThumbnailWidget::_AddFoldersFromList(QStringList qslFolders, int row)
             continue;
         }
         _ActAlbum()->items.insert(row++, id);
+        fileIcons.Insert(row, true, false, qslFolders[i]);
     }
 }
 
@@ -1358,7 +1396,7 @@ void ThumbnailWidget::loadThumbsRange()
  * RETURNS:	nothing
  * REMARKS:	- sets 
  *------------------------------------------------------------*/
-void ThumbnailWidget::addThumb(int which, ThumbnailItem::Type type)
+void ThumbnailWidget::AddThumb(int which, ThumbnailItem::Type type)
 {
     ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId, type);
     QImageReader thumbReader;
@@ -1579,11 +1617,20 @@ void ThumbnailWidget::DeleteSelected()
     for (auto mi : list)
     {
         ix = mi.row();
+        if (album.items[ix] & ALBUM_ID_FLAG)    // remove recursively
+        {
+            albumgen.Albums().RemoveRecursively(album.items[ix]);
+        }
         album.items.remove(ix);
+        fileIcons.Remove(ix);
     }
-    Load();
-
-    emit selectionChanged(QItemSelection(), QItemSelection());
+    if (res == QMessageBox::Yes)     // then delete from disk too
+    {
+        // TODO
+    }
+    emit SignalAlbumStructChanged();
+    Reload();
+//    emit selectionChanged(QItemSelection(), QItemSelection());
 }
 
 /*=============================================================
@@ -1663,7 +1710,8 @@ void ThumbnailWidget::AddImages()
     QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add image"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
-    _AddImagesFromList(qslFileNames, currentIndex().row());
+    int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
+    _AddImagesFromList(qslFileNames, pos);
     Reload();
 
     emit selectionChanged(QItemSelection(), QItemSelection());
@@ -1680,8 +1728,8 @@ void ThumbnailWidget::AddImages()
  *------------------------------------------------------------*/
 void ThumbnailWidget::AddFolder()
 {
-    Album* pAlbum = _ActAlbum();
-    QString dir = pAlbum->path;
+    Album* pParentAlbum = _ActAlbum();
+    QString dir = pParentAlbum->path;
     QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
     if (qs.isEmpty())
         return;
@@ -1689,22 +1737,44 @@ void ThumbnailWidget::AddFolder()
     ID_t id = albumgen.Albums().Add(qs,added);
     if (added)
     {
-        int pos = currentIndex().row();
+        pParentAlbum->changed = true;
+        Album &album = *albumgen.AlbumForID(id);
+        albumgen.AddDirsRecursively(album);
+
+        int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
         if(pos < 0)
-            pAlbum->items.push_back(id);
+            pParentAlbum->items.push_back(id);
         else
-            pAlbum->items.insert(pos, id);
-        albumgen.AddDirsRecursively(albumgen.Albums()[id]);
-        emit SignalFolderAdded();
-        emit selectionChanged(QItemSelection(), QItemSelection());
+            pParentAlbum->items.insert(pos, id);
+
+        bool isThumb = true;
+        ID_t idth = album.thumbnail && album.thumbnail & IMAGE_ID_FLAG ? album.thumbnail : 0;
+        if (!idth)
+        {
+            isThumb = false;
+            for (auto iid : album.items)
+                if (iid & IMAGE_ID_FLAG)
+                {
+                    idth = iid;
+                    break;
+                }
+        }
+        if (idth)
+            qs = albumgen.Images()[idth].FullSourceName();
+        else
+            qs.clear();
+        fileIcons.Insert(pos, true, isThumb, qs);
+
         Reload();
+        emit SignalAlbumStructChanged();
+        //emit selectionChanged(QItemSelection(), QItemSelection());
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
 }
 
 /*============================================================================
-  * TASK:	copy names of all selected thumbnail names to clipboard
+  * TASK:	copy names of all selected thumbnail to clipboard
   * EXPECTS:
   * RETURNS:
   * GLOBALS:
@@ -1714,8 +1784,11 @@ void ThumbnailWidget::CopyNamesToClipboard()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
-	for (auto i : list)
-		s += selectionModel()->model()->data(i, FileNameRole).toString() + "\n"; 
+    for (auto i : list)
+    {
+        ID_t id = _ActAlbum()->items[i.row()];// ID_t(i.internalPointer());
+        s += QString("%1%2").arg(id & ALBUM_ID_FLAG ? config.sBaseName.ToString() : "").arg(id & BASE_ID_MASK) + "\n";
+    }
 	QClipboard *clipboard = QGuiApplication::clipboard();
 	clipboard->clear();
 	clipboard->setText(s);

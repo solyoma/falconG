@@ -222,6 +222,7 @@ private slots:
 	void on_btnAlbumMatteColor_clicked();
 	void on_btnApplyColorScheme_clicked();
 	void on_btnBackground_clicked();
+	void on_btnBackToParentAlbum_clicked();
 	void on_btnBorderColor_clicked();
 	void on_btnBrowseDestination_clicked();
 	void on_btnBrowseForBackgroundImage();

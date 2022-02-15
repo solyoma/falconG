@@ -145,7 +145,7 @@ void PROGRAM_CONFIG::GetHomePath()
  *-------------------------------------------------------*/
 QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 {
-	QString sDefault = homePath;	// set before calling this in Read()
+	QString sDefault = homePath;	// set before calling at program start: path of user directory
 	if (sExt == ".ini")
 		sDefault += falconG_ini;
 	else

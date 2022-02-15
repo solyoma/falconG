@@ -6257,7 +6257,17 @@ the last CSS save.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QTreeView" name="trvAlbums"/>
+                   <widget class="QTreeView" name="trvAlbums">
+                    <property name="editTriggers">
+                     <set>QAbstractItemView::NoEditTriggers</set>
+                    </property>
+                    <property name="dragEnabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="dragDropMode">
+                     <enum>QAbstractItemView::DragDrop</enum>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="lblTotalCount">
@@ -6328,6 +6338,20 @@ the last CSS save.</string>
                      </size>
                     </property>
                     <layout class="QHBoxLayout" name="horizontalLayout_25">
+                     <item>
+                      <widget class="QToolButton" name="btnBackToParentAlbum">
+                       <property name="toolTip">
+                        <string>Jump to the album that contains this one</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="falcong.qrc">
+                         <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
                      <item>
                       <widget class="QLabel" name="lblImageCount">
                        <property name="sizePolicy">

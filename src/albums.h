@@ -318,6 +318,7 @@ public:
 	Album &Find(QString albumPath);
 	ID_t Add(QString relativeAlbumPath, bool &added);			// returns ID and if it was added
 	Album &Item(int index);
+	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums
 };
 
 struct IdsFromStruct
@@ -459,12 +460,12 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadFromJAlbumTxtFile(Album &ab);		// albumfiles.txt
-	bool _ReadJCommentFile(Album &ab);	// comments.properties
-	bool _ReadJMetaFile(Album &ab);		// meta.properties
-	void _JReadInfoFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
-	bool _JReadInfo(Album &ab);			// album and image titles in hidden .jalbum sub directories
-	void _ReadOneLevelOfDirs(Album &ab);
+	bool _ReadFromJAlbumOrderFile(Album &ab);		// albumfiles.txt
+	bool _ReadJAlbumCommentFile(Album &ab);	// comments.properties
+	bool _ReadJAlbumMetaFile(Album &ab);		// meta.properties
+	void _ReadJAlbumInfoFileFile(Album &ab, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
+	bool _ReadJAlbumInfoFile(Album &ab);			// album and image titles in hidden .jalbum sub directories
+	void _RecursivelyReadSubAlbums(Album &ab);
 	ID_t _AddImageOrAlbum(Album &ab, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
 
