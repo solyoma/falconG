@@ -1,5 +1,5 @@
 #include "sourcehistory.h"
-#include <QAbstractItemModel>
+#include <QStandardItemModel>
 
 // ************************ class Model ********************************
 

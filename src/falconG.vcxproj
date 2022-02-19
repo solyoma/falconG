@@ -214,7 +214,7 @@
     <ClCompile Include="stylehandler.cpp" />
     <ClCompile Include="support.cpp" />
     <ClCompile Include="textEditor.cpp" />
-    <ClCompile Include="thumbnailWidget.cpp" />
+    <ClCompile Include="thumbnailView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
@@ -238,7 +238,7 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtAngle;$(QTDIR)\include\QtConcurrent;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
     </QtMoc>
-    <QtMoc Include="thumbnailWidget.h" />
+    <QtMoc Include="thumbnailView.h" />
     <QtMoc Include="albums.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="crc32.h" />

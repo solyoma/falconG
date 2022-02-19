@@ -69,7 +69,12 @@ public:
 	// set this only once for each run (static)
 	static void SetThumbHeight(int th) {thumbHeight = th;  }
 		// use this after constructing 
-	void SetOwnerId(ID_t id) { _albumId = id;}
+	void SetOwnerId(ID_t id) 
+	{ 
+		if (!id) 
+			id = ROOT_ALBUM_ID; 
+		_albumId = id; 
+	}
 
 
 	QString text() const;		// text displayed on item, or full image file path to show thumbnail for
@@ -128,17 +133,17 @@ public:
 /*=============================================================
  * my thumb model
  *------------------------------------------------------------*/
-class ThumbnailWidgetModel : public QStandardItemModel
+class ThumbnailViewModel : public QStandardItemModel
 {
 	ThumbnailItem _dummyItem;	// empty item to show at insert position
 	int _dummyPosition = -1;	// used during drag to signal possible drop position
 								// -1: not used else position of _dummyItem
 public:
-	ThumbnailWidgetModel(QWidget *pw) : QStandardItemModel(pw) 
+	ThumbnailViewModel(QWidget *pw) : QStandardItemModel(pw) 
 	{
 		_dummyItem.setData(QString(), Qt::UserRole + 1);		// FileNameRole
 	}
-	virtual ~ThumbnailWidgetModel() {}
+	virtual ~ThumbnailViewModel() {}
 	int SetDummyPos(int newPos) 
 	{ 
 		int old = _dummyPosition; 
@@ -170,25 +175,26 @@ public:
 		return item(index.row(), 0);
 	}
 	int DummyPosition() const { return _dummyPosition;  }
+	void Clear();
 	
 };
 #else
-using ThumbnailWidgetModel = QStandardItemModel;
+using ThumbnailViewModel = QStandardItemModel;
 #endif
  /*=============================================================
  * my list view that shows icons
  * REMARKS:	In a QListView 'index' gives the 0 based index of the icon
  *------------------------------------------------------------*/
 
-class ThumbnailWidget : public QListView 
+class ThumbnailView : public QListView 
 {
 Q_OBJECT
 
 public:
-    ThumbnailWidget(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
+    ThumbnailView(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
 
 	void Setup(ID_t aid);
-	void Clear() { _pIds = nullptr; _albumId = 0; }
+	void Clear();
 
     void Load();
 	void Reload();
@@ -221,14 +227,14 @@ public:
 
 private:
 // SA
-	ID_t   _albumId = 0;	// show thumbs from this album (0: root)
+	ID_t   _albumId = ROOT_ALBUM_ID;	// show thumbs from this album (0: root)
 	IdList *_pIds = nullptr;	    // images in this album
 
     QImage _insertPosImage;	// shows insert position
 // /SA
 
     QStringList *_fileFilters;
-    ThumbnailWidgetModel *_thumbnailWidgetModel;
+    ThumbnailViewModel *_thumbnailViewModel;
 	QModelIndex _dragStartIndex;				// started drag from here
 	int _insertPos = -1;						// put a spacer at this position
     QDir::SortFlags _thumbsSortFlags;
@@ -246,7 +252,7 @@ private:
     int _thumbsRangeLast;
 
 private:
-	Album	*_ActAlbum() const { return &albumgen.Albums()[_albumId]; }
+	Album	*_ActAlbum() const { return _albumId ? &albumgen.Albums()[_albumId] : nullptr; }
     void _InitThumbs();
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();

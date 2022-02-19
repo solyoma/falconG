@@ -57,7 +57,7 @@
     <ClCompile Include="structEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thumbnailWidget.cpp">
+    <ClCompile Include="thumbnailView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="languages.cpp">
@@ -92,7 +92,7 @@
     <QtMoc Include="structEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="thumbnailWidget.h">
+    <QtMoc Include="thumbnailView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="structwriter.h">

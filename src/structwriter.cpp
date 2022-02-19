@@ -90,7 +90,7 @@ void AlbumStructWriterThread::run()
 	_ofs << "]\n\n# Album structure:\n";
 
 	QString indent;	// for directory structure file: indent line with spaces to indicate hierarchy
-	_WriteStructAlbums(_albumMap[1+ALBUM_ID_FLAG], indent);
+	_WriteStructAlbums(_albumMap[ROOT_ALBUM_ID], indent);
 	_ofs.flush();
 	f.close();
 

@@ -6323,7 +6323,7 @@ the last CSS save.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="ThumbnailWidget" name="tnvImages">
+                   <widget class="ThumbnailView" name="tnvImages">
                     <property name="viewMode">
                      <enum>QListView::IconMode</enum>
                     </property>
@@ -7539,9 +7539,9 @@ all changes will be lost.</string>
    <header location="global">QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
   <customwidget>
-   <class>ThumbnailWidget</class>
+   <class>ThumbnailView</class>
    <extends>QListView</extends>
-   <header location="global">thumbnailWidget.h</header>
+   <header location="global">ThumbnailView.h</header>
   </customwidget>
   <customwidget>
    <class>TextEditor</class>

@@ -20,7 +20,7 @@
  *  along with Phototonic.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "thumbnailWidget.h"
+#include "thumbnailView.h"
 #include <QIcon>
 #include "config.h"
 #include "imageviewer.h"
@@ -343,7 +343,7 @@ QString ThumbnailItem::DisplayName() const
     return QString();
 }
 
-// ****************** ThumbnailWidget ******************
+// ****************** ThumbnailView ******************
 
  /*=============================================================
   * TASK:		constructor
@@ -354,7 +354,7 @@ QString ThumbnailItem::DisplayName() const
   * REMARKS:	SA
   *				- connects slots and sets up scrollbar
   *------------------------------------------------------------*/
-ThumbnailWidget::ThumbnailWidget(QWidget *parent) : QListView(parent)
+ThumbnailView::ThumbnailView(QWidget *parent) : QListView(parent)
 {
     // prepare spacer for Drag & Drop into tnvImages
     float spacerWidth = 50; // pixel
@@ -386,15 +386,15 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent) : QListView(parent)
 //	setMovement(QListView::Free);
 //	setDragDropMode(QAbstractItemView::InternalMove);
 
-    _thumbnailWidgetModel = new ThumbnailWidgetModel(this);
-    _thumbnailWidgetModel->setSortRole(SortRole);
-    setModel(_thumbnailWidgetModel);
+    _thumbnailViewModel = new ThumbnailViewModel(this);
+    _thumbnailViewModel->setSortRole(SortRole);
+    setModel(_thumbnailViewModel);
 
-    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ThumbnailWidget::loadVisibleThumbs);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ThumbnailView::loadVisibleThumbs);
     connect(this->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &ThumbnailWidget::onSelectionChanged);
+            this, &ThumbnailView::onSelectionChanged);
 
-	connect(this, &QListView::doubleClicked, this, &ThumbnailWidget::ItemDoubleClicked);
+	connect(this, &QListView::doubleClicked, this, &ThumbnailView::ItemDoubleClicked);
 
 
     _fileFilters = new QStringList;
@@ -408,7 +408,7 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent) : QListView(parent)
 	setDropIndicatorShown(true);
 }
 
-//void ThumbnailWidget::setThumbColors() {
+//void ThumbnailView::setThumbColors() {
 //    QString backgroundColor = "background: rgb(%1, %2, %3); ";
 //    backgroundColor = backgroundColor.arg(Settings::thumbsBackgroundColor.red())
 //            .arg(Settings::thumbsBackgroundColor.green())
@@ -433,9 +433,9 @@ ThumbnailWidget::ThumbnailWidget(QWidget *parent) : QListView(parent)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void ThumbnailWidget::selectCurrentIndex()
+void ThumbnailView::selectCurrentIndex()
 {
-    if (_currentIndex.isValid() && _thumbnailWidgetModel->rowCount() > 0) 
+    if (_currentIndex.isValid() && _thumbnailViewModel->rowCount() > 0) 
 	{
         scrollTo(_currentIndex);
         setCurrentIndex(_currentIndex);
@@ -450,10 +450,10 @@ void ThumbnailWidget::selectCurrentIndex()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-QString ThumbnailWidget::GetSingleSelectionFilename()
+QString ThumbnailView::GetSingleSelectionFilename()
 {
     if (selectionModel()->selectedIndexes().size() == 1)
-        return _thumbnailWidgetModel->item(selectionModel()->selectedIndexes().first().row())->data(
+        return _thumbnailViewModel->item(selectionModel()->selectedIndexes().first().row())->data(
                 FileNameRole).toString();
 
     return ("");
@@ -466,9 +466,9 @@ QString ThumbnailWidget::GetSingleSelectionFilename()
  * RETURNS:	new row or -1 when no more rows
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::GetNextItem()
+int ThumbnailView::GetNextItem()
 {
-    if (_currentItem == _thumbnailWidgetModel->rowCount() - 1) 
+    if (_currentItem == _thumbnailViewModel->rowCount() - 1) 
         return -1;
 
     return _currentItem + 1;
@@ -481,7 +481,7 @@ int ThumbnailWidget::GetNextItem()
 * RETURNS:	new row or -1 when no previous row
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::GetPrevItem()
+int ThumbnailView::GetPrevItem()
 {
     if (_currentItem == 0) 
         return -1;
@@ -496,9 +496,9 @@ int ThumbnailWidget::GetPrevItem()
  * RETURNS: image count -1
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::GetLastItem()
+int ThumbnailView::GetLastItem()
 {
-    return _thumbnailWidgetModel->rowCount() - 1;
+    return _thumbnailViewModel->rowCount() - 1;
 }
 
 /*=============================================================
@@ -508,9 +508,9 @@ int ThumbnailWidget::GetLastItem()
 * RETURNS: ordinal of random thumbnail
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailWidget::GetRandomItem()
+int ThumbnailView::GetRandomItem()
 {
-    return QRandomGenerator::global()->generate() % (_thumbnailWidgetModel->rowCount());
+    return QRandomGenerator::global()->generate() % (_thumbnailViewModel->rowCount());
 }
 
 /*=============================================================
@@ -520,12 +520,12 @@ int ThumbnailWidget::GetRandomItem()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailWidget::GetCurrentItem()
+int ThumbnailView::GetCurrentItem()
 {
     return _currentItem;
 }
 
-void ThumbnailWidget::SetCurrentItem(int index) 
+void ThumbnailView::SetCurrentItem(int index) 
 {
     if (index >= 0) 
         _currentItem = index;
@@ -541,13 +541,13 @@ void ThumbnailWidget::SetCurrentItem(int index)
  * RETURNS:
  * REMARKS: emits signal 'TitleChanged'
  *------------------------------------------------------------*/
-void ThumbnailWidget::SetTitle()
+void ThumbnailView::SetTitle()
 {
-    title = _thumbnailWidgetModel->item(_currentItem)->data(Qt::DisplayRole).toString()
+    title = _thumbnailViewModel->item(_currentItem)->data(Qt::DisplayRole).toString()
                     + " - ["
                     + QString::number(_currentItem + 1)
                     + "/"
-                    + QString::number(_thumbnailWidgetModel->rowCount())
+                    + QString::number(_thumbnailViewModel->rowCount())
                     + "]";
 	emit SignalTitleChanged(title);
 }
@@ -560,9 +560,9 @@ void ThumbnailWidget::SetTitle()
  * RETURNS:	whether it is found
  * REMARKS:	sets _currentIndex and current thumbnail only when found
  *------------------------------------------------------------*/
-bool ThumbnailWidget::SetCurrentIndexByName(QString &fileName)
+bool ThumbnailView::SetCurrentIndexByName(QString &fileName)
 {
-    QModelIndexList indexList = _thumbnailWidgetModel->match(_thumbnailWidgetModel->index(0, 0), FileNameRole, fileName);
+    QModelIndexList indexList = _thumbnailViewModel->match(_thumbnailViewModel->index(0, 0), FileNameRole, fileName);
     if (indexList.size()) 
 	{
         _currentIndex = indexList[0];
@@ -580,9 +580,9 @@ bool ThumbnailWidget::SetCurrentIndexByName(QString &fileName)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailWidget::setCurrentIndexByItem(int row)
+bool ThumbnailView::setCurrentIndexByItem(int row)
 {
-	QModelIndex idx = _thumbnailWidgetModel->indexFromItem(_thumbnailWidgetModel->item(row));
+	QModelIndex idx = _thumbnailViewModel->indexFromItem(_thumbnailViewModel->item(row));
 	if (idx.isValid()) 
 	{
 		_currentIndex = idx;
@@ -600,7 +600,7 @@ bool ThumbnailWidget::setCurrentIndexByItem(int row)
  * RETURNS:
  * REMARKS: emits signal 'SignalSingleSelection ' with selected item id
  *------------------------------------------------------------*/
-void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
+void ThumbnailView::onSelectionChanged(const QItemSelection &)
 {
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     int selectedCount = indexesList.size();
@@ -627,7 +627,7 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
 
     if (selectedCount >= 1) 
 	{
-        int rcnt = _thumbnailWidgetModel->rowCount();
+        int rcnt = _thumbnailViewModel->rowCount();
         statusStr = tr("Selected %1 of %2").arg(QString::number(selectedCount))
                 .arg(tr(" %n %3", "", rcnt))
                 .arg(rcnt == 1 ? tr("item") :tr("items"));
@@ -647,14 +647,14 @@ void ThumbnailWidget::onSelectionChanged(const QItemSelection &)
  * RETURNS: list of path names of selected files
  * REMARKS:
  *------------------------------------------------------------*/
-QStringList ThumbnailWidget::GetSelectedThumbsList()
+QStringList ThumbnailView::GetSelectedThumbsList()
 {
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     QStringList SelectedThumbsPaths;
 
     for (int tn = indexesList.size() - 1; tn >= 0; --tn) 
 	{
-        SelectedThumbsPaths << _thumbnailWidgetModel->item(indexesList[tn].row())->data(FileNameRole).toString();
+        SelectedThumbsPaths << _thumbnailViewModel->item(indexesList[tn].row())->data(FileNameRole).toString();
     }
 
     return SelectedThumbsPaths;
@@ -667,7 +667,7 @@ QStringList ThumbnailWidget::GetSelectedThumbsList()
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:	- called by ThumbnailWidget (QListView)
+ * REMARKS:	- called by ThumbnailView (QListView)
  *			- overrides 'startDrag()' of QListView
  *			- sets all file names as URLs into the mimeData of
  *				the drag
@@ -677,7 +677,7 @@ QStringList ThumbnailWidget::GetSelectedThumbsList()
  *			- executes drag with allowing all actions with a 
  *				default of ignoring the drop
  *------------------------------------------------------------*/
-void ThumbnailWidget::startDrag(Qt::DropActions)
+void ThumbnailView::startDrag(Qt::DropActions)
 {
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     if (indexesList.isEmpty()) 
@@ -688,7 +688,7 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
     QList<QUrl> urls;	// create pixmap from this list of names
 	for (auto f : indexesList)
 	{
-	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailWidgetModel->item(f.row())->type() );
+	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type() );
 		urls << QUrl(thumbRec.FileName());
 		thumbRec.itemPos = f.row();
 		mimeData->thumbList << f.row();
@@ -707,7 +707,7 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
         int x = 0, y = 0, xMax = 0, yMax = 0;
         for (int i = 0; i < qMin(5, indexesList.count()); ++i) 
 		{
-            QPixmap pix1 = _thumbnailWidgetModel->item(indexesList.at(i).row())->icon().pixmap(72);
+            QPixmap pix1 = _thumbnailViewModel->item(indexesList.at(i).row())->icon().pixmap(72);
             if (i == 4) 
 			{
                 x = (xMax - pix1.width()) / 2;
@@ -726,7 +726,7 @@ void ThumbnailWidget::startDrag(Qt::DropActions)
     } 
 	else 
 	{
-        pix = _thumbnailWidgetModel->item(indexesList.at(0).row())->icon().pixmap(128);
+        pix = _thumbnailViewModel->item(indexesList.at(0).row())->icon().pixmap(128);
         drag->setPixmap(pix);
     }
     drag->setHotSpot(QPoint(pix.width() / 2, pix.height() / 2));
@@ -778,7 +778,7 @@ QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEvent inh
  * RETURNS:	none
  * REMARKS: follewd immediately by a dragMoveEvent()
  *------------------------------------------------------------*/
-void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
+void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
 {
 	if (_IsAllowedTypeToDrop(event) )
 	{
@@ -808,7 +808,7 @@ void ThumbnailWidget::dragEnterEvent(QDragEnterEvent * event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
+void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
 {
 // DEBUG
     //if (pDragDropLabel)
@@ -817,7 +817,7 @@ void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
     //    pDragDropLabel = nullptr;
     //}
 // /DEBUG
-    //	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(-1);
+    //	dynamic_cast<ThumbnailViewModel *>(model())->SetDummyPos(-1);
 //	QListView::dragLeaveEvent(event);
 }
 
@@ -828,7 +828,7 @@ void ThumbnailWidget::dragLeaveEvent(QDragLeaveEvent * event)
  * RETURNS:
  * REMARKS:QDragMoveEvent is a descendant of QDropEvent
  *------------------------------------------------------------*/
-void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
+void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 {
 	if (!_IsAllowedTypeToDrop(event))
 		return;
@@ -836,7 +836,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 	QModelIndex index = indexAt(event->pos());
 // DEBUG
 #if 1
-//	dynamic_cast<ThumbnailWidgetModel *>(model())->SetDummyPos(row);
+//	dynamic_cast<ThumbnailViewModel *>(model())->SetDummyPos(row);
 // DEBUG
  //   if (pDragDropLabel)
 	//{
@@ -847,7 +847,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
 // 
 	int row = index.row();
 //	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
-//	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailWidgetModel *>(model())->DummyPosition());
+//	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailViewModel *>(model())->DummyPosition());
 // DEBUG
     QString qs = __DebugPrintDragAndDrop(event) + QString(" r:%1").arg(row);
     //pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
@@ -888,7 +888,7 @@ void ThumbnailWidget::dragMoveEvent(QDragMoveEvent * event)
  *              added again. 
  *          - TODO: add folders as virtual folders
  *------------------------------------------------------------*/
-void ThumbnailWidget::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
+void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
 {
     QStringList qsl, qslF;      // for files and Folders
     auto what = [&](QString s)  {
@@ -936,7 +936,7 @@ void ThumbnailWidget::_DropFromExternalSource(const ThumbMimeData* mimeData, int
  *          - changes the icon order in 'fileIcons' too
  *          - 
  *------------------------------------------------------------*/
-void ThumbnailWidget::dropEvent(QDropEvent * event)
+void ThumbnailView::dropEvent(QDropEvent * event)
 {
 	if (!_IsAllowedTypeToDrop(event))
 		return;
@@ -1037,7 +1037,7 @@ void ThumbnailWidget::dropEvent(QDropEvent * event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::abort()
+void ThumbnailView::abort()
 {
     _isAbortThumbsLoading = true;
 }
@@ -1049,7 +1049,7 @@ void ThumbnailWidget::abort()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
+void ThumbnailView::loadVisibleThumbs(int scrollBarValue)
 {
 #if 0
     static int lastScrollBarValue = 0;
@@ -1070,8 +1070,8 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
         if (_scrolledForward) 
 		{
 			lastVisible += ((lastVisible - firstVisible) * 3); // (Settings::thumbsPagesReadCount + 1));
-            if (lastVisible >= _thumbnailWidgetModel->rowCount()) 
-                lastVisible = _thumbnailWidgetModel->rowCount() - 1;
+            if (lastVisible >= _thumbnailViewModel->rowCount()) 
+                lastVisible = _thumbnailViewModel->rowCount() - 1;
             
         } 
 		else 
@@ -1081,8 +1081,8 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
                 firstVisible = 0;
 
             lastVisible += 10;
-            if (lastVisible >= _thumbnailWidgetModel->rowCount()) 
-                lastVisible = _thumbnailWidgetModel->rowCount() - 1;
+            if (lastVisible >= _thumbnailViewModel->rowCount()) 
+                lastVisible = _thumbnailViewModel->rowCount() - 1;
         }
 
         if (_thumbsRangeFirst == firstVisible && _thumbsRangeLast == lastVisible) 
@@ -1101,13 +1101,13 @@ void ThumbnailWidget::loadVisibleThumbs(int scrollBarValue)
 	emit SignalInProcessing(false);
 }
 
-int ThumbnailWidget::_GetFirstVisibleThumb() 
+int ThumbnailView::_GetFirstVisibleThumb() 
 {
     QModelIndex idx;
 
-    for (int currThumb = 0; currThumb < _thumbnailWidgetModel->rowCount(); ++currThumb) 
+    for (int currThumb = 0; currThumb < _thumbnailViewModel->rowCount(); ++currThumb) 
 	{
-        idx = _thumbnailWidgetModel->indexFromItem(_thumbnailWidgetModel->item(currThumb));
+        idx = _thumbnailViewModel->indexFromItem(_thumbnailViewModel->item(currThumb));
         if (viewport()->rect().contains(QPoint(0, visualRect(idx).y() + visualRect(idx).height() + 1))) 
             return idx.row();
         
@@ -1116,13 +1116,13 @@ int ThumbnailWidget::_GetFirstVisibleThumb()
     return -1;
 }
 
-int ThumbnailWidget::_GetLastVisibleThumb() 
+int ThumbnailView::_GetLastVisibleThumb() 
 {
     QModelIndex idx;
 
-    for (int currThumb = _thumbnailWidgetModel->rowCount() - 1; currThumb >= 0; --currThumb) 
+    for (int currThumb = _thumbnailViewModel->rowCount() - 1; currThumb >= 0; --currThumb) 
 	{
-        idx = _thumbnailWidgetModel->indexFromItem(_thumbnailWidgetModel->item(currThumb));
+        idx = _thumbnailViewModel->indexFromItem(_thumbnailViewModel->item(currThumb));
         if (viewport()->rect().contains(QPoint(0, visualRect(idx).y() + visualRect(idx).height() + 1))) 
             return idx.row();
     }
@@ -1130,7 +1130,7 @@ int ThumbnailWidget::_GetLastVisibleThumb()
     return -1;
 }
 
-void ThumbnailWidget::LoadFileList() 
+void ThumbnailView::LoadFileList() 
 {
 	emit SignalInProcessing(true);
     for (int i = 0; i < model()->rowCount(); i++) 
@@ -1144,20 +1144,21 @@ void ThumbnailWidget::LoadFileList()
 	emit SignalInProcessing(false);
 }
 
-void ThumbnailWidget::Load() 
+void ThumbnailView::Load() 
 {
     fileIcons.Clear();  // clear all icons in memory
     Reload();
 }
 
-void ThumbnailWidget::Reload()
+void ThumbnailView::Reload()
 {
     _isAbortThumbsLoading = false;
     _thumbsRangeFirst = -1;
     _thumbsRangeLast = -1;
 
     _isBusy = true;
-    _thumbnailWidgetModel->clear(); // clearing occurs between 'beginResetModel()' and 'endResetModel()'
+    _thumbnailViewModel->Clear(); // clearing occurs between 'beginResetModel()' and 'endResetModel()'
+//    fileIcons.Clear();
 
     setSpacing(QFontMetrics(font()).height());
 
@@ -1172,13 +1173,20 @@ void ThumbnailWidget::Reload()
     _isBusy = false;
 }
 
-void ThumbnailWidget::Setup(ID_t aid)
+void ThumbnailView::Setup(ID_t aid)
 {
     _albumId = aid;
 //    _InitThumbs();
 }
 
-void ThumbnailWidget::_InitThumbs()
+void ThumbnailView::Clear()
+{
+     _pIds = nullptr; 
+     _albumId = ROOT_ALBUM_ID;
+    _thumbnailViewModel->Clear();
+}
+
+void ThumbnailView::_InitThumbs()
 {
 	static QStandardItem *thumbItem;
 	static int fileIndex;
@@ -1190,7 +1198,7 @@ void ThumbnailWidget::_InitThumbs()
 	for (fileIndex = 0; fileIndex < album.items.size(); ++fileIndex)
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
-		_thumbnailWidgetModel->appendRow(thumbItem);
+		_thumbnailViewModel->appendRow(thumbItem);
 		++thumbsAddedCounter;
 		if (thumbsAddedCounter > 10)
 		{
@@ -1210,10 +1218,10 @@ void ThumbnailWidget::_InitThumbs()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::_UpdateThumbsCount()
+void ThumbnailView::_UpdateThumbsCount()
 {
-    if (_thumbnailWidgetModel->rowCount() > 0) 
-        statusStr = tr("%n image(s)", "", _thumbnailWidgetModel->rowCount());
+    if (_thumbnailViewModel->rowCount() > 0) 
+        statusStr = tr("%n image(s)", "", _thumbnailViewModel->rowCount());
     else 
 		statusStr = tr("No images");
 	emit SignalStatusChanged(statusStr);
@@ -1228,7 +1236,7 @@ void ThumbnailWidget::_UpdateThumbsCount()
  * REMARKS: does not check if the files or folders in an url list
  *          ar acceptable, just see the allowed type
  *------------------------------------------------------------*/
-bool ThumbnailWidget::_IsAllowedTypeToDrop(const QDropEvent *event)
+bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
 {
     // DEBUG
     qDebug() << "Mime text: " << event->mimeData()->text() 
@@ -1247,14 +1255,14 @@ bool ThumbnailWidget::_IsAllowedTypeToDrop(const QDropEvent *event)
 /*=============================================================
  * TASK:    get all file names into  _imageMap or _videoMap,
  *          plus into the actual album into albumgen's _albumMap
- *          plus into _thumbnailWidgetModel
+ *          plus into _thumbnailViewModel
  * PARAMS:  qslFileNames - file names to add
  *          row - add before this row
  * GLOBALS:
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::_AddImagesFromList(QStringList qslFileNames,int row)
+void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
 {
     bool res = true;
 
@@ -1279,7 +1287,7 @@ void ThumbnailWidget::_AddImagesFromList(QStringList qslFileNames,int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::_AddFoldersFromList(QStringList qslFolders, int row)
+void ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
 {
     int i;
     ID_t id;
@@ -1304,7 +1312,7 @@ void ThumbnailWidget::_AddFoldersFromList(QStringList qslFolders, int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::selectThumbByItem(int row)
+void ThumbnailView::selectThumbByItem(int row)
 {
     setCurrentIndexByItem(row);
     selectCurrentIndex();
@@ -1317,7 +1325,7 @@ void ThumbnailWidget::selectThumbByItem(int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::loadThumbsRange()
+void ThumbnailView::loadThumbsRange()
 {
     static bool isInProgress = false;
     QImageReader thumbReader;
@@ -1336,20 +1344,20 @@ void ThumbnailWidget::loadThumbsRange()
     }
 
     isInProgress = true;
-    _currentItemCount = _thumbnailWidgetModel->rowCount();
+    _currentItemCount = _thumbnailViewModel->rowCount();
 
     for (_scrolledForward ? currThumb = _thumbsRangeFirst : currThumb = _thumbsRangeLast;
          (_scrolledForward ? currThumb <= _thumbsRangeLast : currThumb >= _thumbsRangeFirst);
          _scrolledForward ? ++currThumb : --currThumb) 
 	{
 
-        if (_isAbortThumbsLoading || _thumbnailWidgetModel->rowCount() != _currentItemCount || currThumb < 0)
+        if (_isAbortThumbsLoading || _thumbnailViewModel->rowCount() != _currentItemCount || currThumb < 0)
             break;
 
-        if (_thumbnailWidgetModel->item(currThumb)->data(LoadedRole).toBool())
+        if (_thumbnailViewModel->item(currThumb)->data(LoadedRole).toBool())
             continue;
 
-        imageFileName = _thumbnailWidgetModel->item(currThumb)->data(FileNameRole).toString();
+        imageFileName = _thumbnailViewModel->item(currThumb)->data(FileNameRole).toString();
         thumbReader.setFileName(imageFileName);
         currentThumbSize = thumbReader.size();
         imageReadOk = false;
@@ -1365,10 +1373,10 @@ void ThumbnailWidget::loadThumbsRange()
 
         if (imageReadOk) 
 		
-            _thumbnailWidgetModel->item(currThumb)->setIcon(QPixmap::fromImage(thumb));
+            _thumbnailViewModel->item(currThumb)->setIcon(QPixmap::fromImage(thumb));
          else 
 		 {
-            _thumbnailWidgetModel->item(currThumb)->setIcon(QIcon::fromTheme("image-missing",
+            _thumbnailViewModel->item(currThumb)->setIcon(QIcon::fromTheme("image-missing",
                                                               QIcon(":/Preview/Resources/NoImage.jpg")).pixmap(
                                                                   ThumbnailItem::thumbHeight, ThumbnailItem::thumbHeight));
 															           //BAD_IMAGE_SIZE, BAD_IMAGE_SIZE));
@@ -1376,7 +1384,7 @@ void ThumbnailWidget::loadThumbsRange()
             //currentThumbSize.setWidth(BAD_IMAGE_SIZE);
         }
 
-        _thumbnailWidgetModel->item(currThumb)->setData(true, LoadedRole);
+        _thumbnailViewModel->item(currThumb)->setData(true, LoadedRole);
         QApplication::processEvents();
     }
 
@@ -1396,13 +1404,13 @@ void ThumbnailWidget::loadThumbsRange()
  * RETURNS:	nothing
  * REMARKS:	- sets 
  *------------------------------------------------------------*/
-void ThumbnailWidget::AddThumb(int which, ThumbnailItem::Type type)
+void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
 {
     ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId, type);
     QImageReader thumbReader;
     QSize currThumbSize;
 
-    thumbReader.setFileName(reinterpret_cast<ThumbnailWidgetModel*>(model())->item(which,0)->text());
+    thumbReader.setFileName(reinterpret_cast<ThumbnailViewModel*>(model())->item(which,0)->text());
     currThumbSize = thumbReader.size();
     if (currThumbSize.isValid()) 
 	{
@@ -1423,7 +1431,7 @@ void ThumbnailWidget::AddThumb(int which, ThumbnailItem::Type type)
         currThumbSize.setWidth(BAD_IMAGE_SIZE);
     }
 
-    _thumbnailWidgetModel->appendRow(thumbItem);
+    _thumbnailViewModel->appendRow(thumbItem);
 }
 
 
@@ -1434,7 +1442,7 @@ void ThumbnailWidget::AddThumb(int which, ThumbnailItem::Type type)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void ThumbnailWidget::SetInsertPos(int here)
+void ThumbnailView::SetInsertPos(int here)
 {
     _insertPos = here;
 }
@@ -1447,7 +1455,7 @@ void ThumbnailWidget::SetInsertPos(int here)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::wheelEvent(QWheelEvent *event)
+void ThumbnailView::wheelEvent(QWheelEvent *event)
 {
 
     int step = verticalScrollBar()->maximum() / _ActAlbum()->items.size() * width() / (ThumbnailItem::thumbHeight + spacing());
@@ -1466,7 +1474,7 @@ void ThumbnailWidget::wheelEvent(QWheelEvent *event)
  * RETURNS:
  * REMARKS: - it does nothing new yet
  *------------------------------------------------------------*/
-void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
+void ThumbnailView::mousePressEvent(QMouseEvent *event)
 {
 	QListView::mousePressEvent(event);
 }
@@ -1479,7 +1487,7 @@ void ThumbnailWidget::mousePressEvent(QMouseEvent *event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::mouseMoveEvent(QMouseEvent * event)
+void ThumbnailView::mouseMoveEvent(QMouseEvent * event)
 {
 	QListView::mouseMoveEvent(event);	// original handler
 }
@@ -1491,19 +1499,22 @@ void ThumbnailWidget::mouseMoveEvent(QMouseEvent * event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
+void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 {
 	QMenu menu(this);
 	QAction *pact;
     int nSelSize = selectionModel()->selectedIndexes().size();
 
     if (nSelSize == 0)
-    {
-	    pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
-	    connect(pact, &QAction::triggered, this, &ThumbnailWidget::SelectAsAlbumThumbnail);
-	    menu.addAction(pact);
+    {       // 2 albums always added to AlbumMap: root and latest
+        if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
+        {
+            pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
+            connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);
+            menu.addAction(pact);
 
-	    menu.addSeparator();
+            menu.addSeparator();
+        }
     }
     else
     {
@@ -1511,7 +1522,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
         {
             pact = new QAction(tr("Set As Album &Thumbnail"), this);
             // select from existing image
-            connect(pact, &QAction::triggered, this, &ThumbnailWidget::SetAsAlbumThumbnail);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::SetAsAlbumThumbnail);
             menu.addAction(pact);           // select any image
         }
 
@@ -1519,11 +1530,11 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
         if (nSelSize)
         {
             pact = new QAction(tr("Copy &Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyNamesToClipboard);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
             menu.addAction(pact);
 
             pact = new QAction(tr("Copy &Original Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailWidget::CopyOriginalNamesToClipboard);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyOriginalNamesToClipboard);
             menu.addAction(pact);
 
             menu.addSeparator();
@@ -1531,11 +1542,11 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
     }
 	pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 	pact->setEnabled(true);
-	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddImages);
+	connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
 	menu.addAction(pact);
 
 	pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
-	connect(pact, &QAction::triggered, this, &ThumbnailWidget::AddFolder);
+	connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
 	menu.addAction(pact);
 
     if(nSelSize > 1)
@@ -1543,7 +1554,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	    menu.addSeparator();
 
         pact = new QAction(tr("&Synchronize texts"), this);
-        connect(pact, &QAction::triggered, this, &ThumbnailWidget::SynchronizeTexts);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::SynchronizeTexts);
         menu.addAction(pact);
     }
 
@@ -1552,7 +1563,7 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
     {
 	    menu.addSeparator();
         pact = new QAction(tr("&Remove"), this);
-        connect(pact, &QAction::triggered, this, &ThumbnailWidget::DeleteSelected);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
         menu.addAction(pact);
     }
 
@@ -1564,18 +1575,18 @@ void ThumbnailWidget::contextMenuEvent(QContextMenuEvent * pevent)
 	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
 	pact->setEnabled(undo);
 	if (undo)
-		connect(pact, &QAction::triggered, this, &ThumbnailWidget::UndoDelete);
+		connect(pact, &QAction::triggered, this, &ThumbnailView::UndoDelete);
 	menu.addAction(pact);
 #endif
 
 	menu.exec(pevent->globalPos());
 }
 
-void ThumbnailWidget::invertSelection() 
+void ThumbnailView::invertSelection() 
 {
     QItemSelection toggleSelection;
-    QModelIndex firstIndex = _thumbnailWidgetModel->index(0, 0);
-    QModelIndex lastIndex = _thumbnailWidgetModel->index(_thumbnailWidgetModel->rowCount() - 1, 0);
+    QModelIndex firstIndex = _thumbnailViewModel->index(0, 0);
+    QModelIndex lastIndex = _thumbnailViewModel->index(_thumbnailViewModel->rowCount() - 1, 0);
     toggleSelection.select(firstIndex, lastIndex);
     selectionModel()->select(toggleSelection, QItemSelectionModel::Toggle);
 }
@@ -1588,7 +1599,7 @@ void ThumbnailWidget::invertSelection()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::DeleteSelected()
+void ThumbnailView::DeleteSelected()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
     if (list.isEmpty())
@@ -1643,7 +1654,7 @@ void ThumbnailWidget::DeleteSelected()
  * RETURNS:
  * REMARKS: - order in selectionModel reflects the selection order
  *------------------------------------------------------------*/
-void ThumbnailWidget::SynchronizeTexts()
+void ThumbnailView::SynchronizeTexts()
 {
     QModelIndexList list = selectionModel()->selectedIndexes();
     if (list.isEmpty())
@@ -1692,7 +1703,7 @@ void ThumbnailWidget::SynchronizeTexts()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::UndoDelete()
+void ThumbnailView::UndoDelete()
 {
 }
 
@@ -1704,7 +1715,7 @@ void ThumbnailWidget::UndoDelete()
  * RETURNS:
  * REMARKS: connected to popup menu
  *------------------------------------------------------------*/
-void ThumbnailWidget::AddImages()
+void ThumbnailView::AddImages()
 {
     QString dir = config.dsLastImageDir.ToString();
     QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add image"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
@@ -1719,14 +1730,14 @@ void ThumbnailWidget::AddImages()
 }
 
 /*=============================================================
- * TASK:   Display dialog box to add one folder into this 
- *          album
+ * TASK:   Display dialog box to add one folder into the 
+ *          actual album
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:
+ * REMARKS: - actual album is parent of new album folder
  *------------------------------------------------------------*/
-void ThumbnailWidget::AddFolder()
+void ThumbnailView::AddFolder()
 {
     Album* pParentAlbum = _ActAlbum();
     QString dir = pParentAlbum->path;
@@ -1736,10 +1747,12 @@ void ThumbnailWidget::AddFolder()
     bool added;
     ID_t id = albumgen.Albums().Add(qs,added);
     if (added)
-    {
+    {   
+        pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
         pParentAlbum->changed = true;
         Album &album = *albumgen.AlbumForID(id);
-        albumgen.AddDirsRecursively(album);
+        album.parent = _albumId;
+        albumgen.AddDirsRecursively(id);
 
         int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
         if(pos < 0)
@@ -1748,25 +1761,18 @@ void ThumbnailWidget::AddFolder()
             pParentAlbum->items.insert(pos, id);
 
         bool isThumb = true;
-        ID_t idth = album.thumbnail && album.thumbnail & IMAGE_ID_FLAG ? album.thumbnail : 0;
+        ID_t idth = album.ThumbID();
         if (!idth)
         {
             isThumb = false;
-            for (auto iid : album.items)
-                if (iid & IMAGE_ID_FLAG)
-                {
-                    idth = iid;
-                    break;
-                }
-        }
-        if (idth)
-            qs = albumgen.Images()[idth].FullSourceName();
-        else
             qs.clear();
+        }
+        else
+            qs = albumgen.Images()[idth].FullSourceName();
         fileIcons.Insert(pos, true, isThumb, qs);
 
-        Reload();
         emit SignalAlbumStructChanged();
+        Reload();
         //emit selectionChanged(QItemSelection(), QItemSelection());
     }
     else
@@ -1780,7 +1786,7 @@ void ThumbnailWidget::AddFolder()
   * GLOBALS:
   * REMARKS: never called when there is no selection
  *--------------------------------------------------------------------------*/
-void ThumbnailWidget::CopyNamesToClipboard()
+void ThumbnailView::CopyNamesToClipboard()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
@@ -1801,7 +1807,7 @@ void ThumbnailWidget::CopyNamesToClipboard()
 * GLOBALS:
 * REMARKS: never called when there is no selection
 *--------------------------------------------------------------------------*/
-void ThumbnailWidget::CopyOriginalNamesToClipboard()
+void ThumbnailView::CopyOriginalNamesToClipboard()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
@@ -1825,7 +1831,7 @@ void ThumbnailWidget::CopyOriginalNamesToClipboard()
   *             (e.g. new album just added), the album id is used as thumbnail
   *             in the database. such thumbnails are not shown
  *--------------------------------------------------------------------------*/
-void ThumbnailWidget::SetAsAlbumThumbnail()
+void ThumbnailView::SetAsAlbumThumbnail()
 {
     int pos = currentIndex().row();     // new thumbnail index
 
@@ -1857,7 +1863,7 @@ void ThumbnailWidget::SetAsAlbumThumbnail()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailWidget::SelectAsAlbumThumbnail()
+void ThumbnailView::SelectAsAlbumThumbnail()
 {
     QString thname = QFileDialog::getOpenFileName(this, 
                                             tr("falconG - Select Thumbnail Image"),
@@ -1866,9 +1872,10 @@ void ThumbnailWidget::SelectAsAlbumThumbnail()
     if (thname.isEmpty())
         return;
     // add as thumbnail to this album, but do not signal elapsed time and do not add to items
+    albumgen.AddImageOrAlbum(_albumId, thname, true, false, true);
+
     Album& album = *_ActAlbum();
 
-    albumgen.AddImageOrAlbum(album, thname, true, false, true);
     if (album.parent)
     {
         Album* parent = albumgen.AlbumForID(album.parent);
@@ -1877,7 +1884,7 @@ void ThumbnailWidget::SelectAsAlbumThumbnail()
 }
 
 
-void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
+void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
 {
     int row = mix.row();
     ID_t id = _ActAlbum()->items[row];
@@ -1900,13 +1907,21 @@ void ThumbnailWidget::ItemDoubleClicked(const QModelIndex& mix)
     }
 }
 
-void ThumbnailWidget::ThumbnailSizeChanged(int newSize)
+void ThumbnailView::ThumbnailSizeChanged(int newSize)
 {
     setIconSize(QSize(newSize, newSize));
     ThumbnailItem::SetThumbHeight(newSize);
 }
 
-void ThumbnailWidget::setNeedToScroll(bool needToScroll) 
+void ThumbnailView::setNeedToScroll(bool needToScroll) 
 {
     this->_isNeedToScroll = needToScroll;
+}
+
+void ThumbnailViewModel::Clear()
+{
+    beginResetModel();
+    fileIcons.Clear();
+    QStandardItemModel::clear();
+    endResetModel();
 }

@@ -190,8 +190,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.trvAlbums->setModel(new AlbumTreeModel());
 
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_AlbumStructureSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
+	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
 	// connect with albumgen's 
 	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
 	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SetProgressBar);
@@ -199,19 +199,19 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
 	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_EnableEditTab);
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalAlbumStructChanged,		this, &FalconG::_AlbumMapChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,		this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_CreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SetDirectoryCountTo);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
-//	connect(ui.tnvImages, &ThumbnailWidget::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalStatusChanged,	this, &FalconG::_TnvStatusChanged);
-	connect(ui.tnvImages, &ThumbnailWidget::SignalFolderChanged,	this, &FalconG::_SlotForChangeToFolderWithID);	
+	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
+//	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,	this, &FalconG::_TnvStatusChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,	this, &FalconG::_SlotForChangeToFolderWithID);	
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 
-	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailWidget::ThumbnailSizeChanged);
+	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::ThumbnailSizeChanged);
 
 	// read styles
 
@@ -234,6 +234,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	restoreState(s.value("wstate").toByteArray());
 
 	config.Read();				
+
 	languages.Read();
 
 	ui.designSplitter->setSizes({ PROGRAM_CONFIG::splitterLeft, PROGRAM_CONFIG::splitterRight } );
@@ -378,6 +379,8 @@ void FalconG::on_btnSourceHistory_clicked()
 		SourceHistory::Selected() != PROGRAM_CONFIG::indexOfLastUsed) )
 	{
 		albumgen.Clear();	
+		((AlbumTreeModel*)ui.trvAlbums->model())->ModelChanged();
+		ui.tnvImages->Clear();
 
 		if (SourceHistory::Selected() >= 0)
 		{
@@ -397,6 +400,8 @@ void FalconG::on_btnSourceHistory_clicked()
 
 			_ReadLastAlbumStructure();
 
+			Album *root = albumgen.AlbumForID(ROOT_ALBUM_ID);
+			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
 		}
 		if (SourceHistory::Changed())
 			PROGRAM_CONFIG::Write();
@@ -1279,6 +1284,10 @@ void FalconG::_ReadLastAlbumStructure()
 		QString qs = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 		if (QFile::exists(qs) && albumgen.Read(true))
 		{
+
+			Album *root = albumgen.AlbumForID(ROOT_ALBUM_ID);
+			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
+
 			_AlbumStructureSelectionChanged(QItemSelection(), QItemSelection());
 			_TnvCountChanged();			// show in lblTotalCount (page: Edit)
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
@@ -3074,7 +3083,7 @@ void FalconG::on_edtServerAddress_textChanged()
 * TASK:	   Handle source gallery changes
 * EXPECTS:
 * GLOBALS:	PROGRAM_CONFIG
-* REMARKS: Although the first .ToString()uct file will be saved into the source 
+* REMARKS: Although the first .struct file will be saved into the source 
 *			directory
 *--------------------------------------------------------------------------*/
 void FalconG::on_edtSourceGallery_textChanged()
@@ -3105,6 +3114,8 @@ void FalconG::on_edtSourceGallery_textChanged()
 			config.SetChanged(true);	// allow user to save config into this directory
 			_EnableButtons();
 		}
+		Album* root = albumgen.AlbumForID(ROOT_ALBUM_ID);
+		SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
 	}
 	albumgen.Clear();
 }

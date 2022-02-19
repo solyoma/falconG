@@ -79,12 +79,14 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid())				// root id for tree element
 		return QVariant();
 
+
 	if (!_busy && role == Qt::DisplayRole)
 	{
-		Album &ab = albumgen.Albums()[(ID_t)index.internalPointer()];
+		ID_t id = (ID_t)index.internalPointer();
+		Album &ab = albumgen.Albums()[id];
 		QString s = ab.name;
-		if (s.isEmpty())
-			s = "/";
+		if (id == ROOT_ALBUM_ID)
+			return s = "/ ( " + ab.name + " )";;
 		return s + " ( " + ab.BareName() + " )";  // no language or extension
 	}
 	return QVariant();

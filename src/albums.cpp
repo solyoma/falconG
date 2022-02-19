@@ -596,7 +596,6 @@ Image &ImageMap::Find(QString FullSourceName)
 {
 	Image img;
 	FullSourceName = CutSourceRoot(FullSourceName);
-
 	SeparateFileNamePath(FullSourceName, img.path, img.name);
 
 	Image::searchBy = Image::byFullSourceName;
@@ -631,6 +630,7 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 
 	Image img;
 
+	path = CutSourceRoot(path);
 	SeparateFileNamePath(path, img.path, img.name);
 	img.SetResizeType();	// using img.name, handles '!!'
 
@@ -641,12 +641,13 @@ ID_t ImageMap::Add(QString path, bool &added)	// path name of source image
 		img.path = img.path.mid(basePath.length());
 
 	QDir dir;
-	img.exists = dir.exists(basePath + img.path + img.name);
-	if (!img.exists)
+	img.exists = dir.exists(path);
+	if (!img.exists && !QDir::isAbsolutePath(path) )
 	{
 		img.path = AlbumGenerator::lastUsedAlbumPath;
 		img.exists = dir.exists(basePath + img.path + img.name);
 	}
+	AlbumGenerator::lastUsedAlbumPath = img.path;
 
 	added = false;
 	ID_t id = CalcCrc(img.name, false) | IMAGE_ID_FLAG;	// just by name. CRC can but id can never be 0 
@@ -789,6 +790,8 @@ int Album::VideoCount(bool forced)
 *--------------------------------------------------------------------------*/
 int Album::SubAlbumCount(bool forced)
 {
+	if (items.isEmpty())
+		return 0;		// but don't modify _albumCount
 	if (forced || _albumCount < 0)
 	{
 		_albumCount = 0;
@@ -850,6 +853,23 @@ int Album::DescCount()
 				++_descCount;
 	}
 	return _descCount;
+}
+
+ID_t Album::ThumbID()
+{
+	ID_t id = thumbnail;
+	if (id)
+		return thumbnail;
+	if (items.isEmpty())
+		return 0;
+	for (auto iid : items)
+		if (iid & IMAGE_ID_FLAG)
+			return thumbnail = iid;
+	// if here then no image inside album, just sub-albums
+	for (auto iid : items)
+		if ((id = albumgen.AlbumForID(iid)->ThumbID()))
+			return thumbnail = id;
+	return ID_t();
 }
 
 
@@ -969,25 +989,26 @@ ID_t AlbumMap::Add(QString path, bool &added)
 {
 	Album ab;
 
-	Album &found = Find(path);		// already in database?
 	added = false;
+	Album &found = Find(path);		// already in database?
 	if (found.Valid())
 		return found.ID;	// same base ID, same name then same album
 
+	path = CutSourceRoot(path);
 	SeparateFileNamePath(path, ab.path, ab.name);
-	ab.ID = GetUniqueID(*this, path, false) | ALBUM_ID_FLAG;   // using full path name only
-	if(!QDir::isAbsolutePath(path) )
-		ab.exists = QFile::exists((config.dsSrc + path).ToString());
-	else
+	ab.ID = GetUniqueID(*this, path, false) | ALBUM_ID_FLAG;   // using full path name only and not file content
+	if(QDir::isAbsolutePath(path) )
 		ab.exists = QFile::exists(path);
-	if (!ab.exists)	// but maybe its parent does
+	else
+		ab.exists = QFile::exists((config.dsSrc + path).ToString());
+	if (!ab.exists)	// maybe its parent with full name of ab.path does
 	{				// in that case get path from its parent
-		if (!QDir::isAbsolutePath(ab.path))
-			ab.exists = QFile::exists((config.dsSrc + ab.path).ToString());
-		else
+		if (QDir::isAbsolutePath(ab.path))
 			ab.exists = QFile::exists(ab.path);
+		else
+			ab.exists = QFile::exists((config.dsSrc + ab.path).ToString());
 	}
-	if (ab.exists)
+	else
 		AlbumGenerator::lastUsedAlbumPath = ab.path + ab.name + "/";
 	ab.exists = true; // no need for real directoy to exist --  QFileInfo::exists(path);
 	added = true;		// always add, even when it does not exist
@@ -1114,19 +1135,22 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 }
 
 /*==========================================================================
-* TASK:		add a sub-album or an image to global arrays and album 'ab'
+* TASK:		add a sub-album or an image to global arrays and album 'parentID'
 *			from directory unless they are excluded
-* EXPECTS:	ab - album to add images and sub albums to
+* EXPECTS:	albumId - ID of album to add images and sub albums to
 *			fi - info of a file and album
+* GLOBALS:	_isAJAlbum
 * RETURNS:	id of data , for albums with ALBUM_ID_FLAG, 
 *				with videos with VIDEO_ID_FLAG set
-* REMARKS:  - 'exists' member of not excluded old or new images and sub-albums 
+* REMARKS:  - must use id because album address may change in _albumMap
+*			- 'exists' member of not excluded old or new images and sub-albums 
 *				are set to true when 'fromDisk' is true
 *			- adds new images/videos and id's to the corresponding id list of 'ab'
 *			- shows progress using frmMain's progress bar
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
+ID_t AlbumGenerator::_AddImageOrAlbum(ID_t parentID, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
 {
+	Album* ab = AlbumForID(parentID);
 	ID_t id = 0;
 	
 	QString s = fi.filePath();
@@ -1138,9 +1162,10 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi, bool signalElap
 	if (fi.isDir())
 	{
 		QString ds = fi.fileName();
-		if (ds[0] == '.' || ds == "res" || ds == "cache" || ds == "thumbs")
+		if (ds == "res" || ds == "cache" || ds == "thumbs")
 			return 0;
-		id = _albumMap.Add(s, added);	// add new album to global album list
+		id = _albumMap.Add(s, added);		// add new album to global album list
+		ab = AlbumForID(parentID);	// might have change item in memory
 	}
 	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
 	{
@@ -1150,8 +1175,10 @@ ID_t AlbumGenerator::_AddImageOrAlbum(Album &ab, QFileInfo & fi, bool signalElap
 			id = _videoMap.Add(s, added);	// add new video to global video list or get id of existing
 
 	}
-	if (!doNotAddToAlbumItemList && (id & ID_MASK) && ! (id & EXCLUDED_FLAG) )
-		ab.items.push_back(id);		// add to ordered item list for this album except if you must not or excluded
+	
+	doNotAddToAlbumItemList |= !(id & ID_MASK) || (id & EXCLUDED_FLAG) || (ab->items.indexOf(id) >= 0);
+	if (!doNotAddToAlbumItemList)
+		ab->items.push_back(id);		// add to ordered item list for this album except if you must not or excluded
 	// progress bar
 	if (signalElapsedTime)
 	{
@@ -1168,7 +1195,7 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 	if (a.ID & EXCLUDED_FLAG)
 		return true;
 
-	if (a.ImageCount() == 0)	// just sub-albums
+	if (a.ImageCount() == 0 && a.VideoCount() == 0)	// just sub-albums
 	{
 		for (auto b : a.items)
 			if (!_IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]))
@@ -1182,8 +1209,9 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 }
 
 /*=============================================================
- * TASK:	set excluded for all empty albums and on albums which
- *			only has empty albums inside it to any depth
+ * TASK:	set excluded flag for all empty albums except the
+ * 			root and latest pre-defined albums and all albums 
+ *			which only has empty albums inside it
  * PARAMS:
  * GLOBALS: _albumMap
  * RETURNS:
@@ -1191,31 +1219,41 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
  *------------------------------------------------------------*/
 void AlbumGenerator::_CleanupAlbums()
 {
-		// pass #1: mark empty albums with no items
-	for (Album &a : _albumMap)
-		if (a.items.isEmpty())
-			a.ID |= EXCLUDED_FLAG;
+		// pass #1: mark empty albums with no items	
+	auto it = _albumMap.begin();	// root ID (smallest)
+	++it;							// last used (dummy)
+	for (++it; it != _albumMap.end() ; ++it)	// first album
+		if (it.value().items.isEmpty())
+			it.value().ID |= EXCLUDED_FLAG;
 		// pass #2: mark non empty albums which only contain empty albums recursively
-	for (Album &a : _albumMap)
-		if (!(a.ID & EXCLUDED_FLAG) && _IsAlbumAndItsSubAlbumsEmpty(a))
-			a.ID |= EXCLUDED_FLAG;
+	it = _albumMap.begin();
+	++it;							// last used (dummy)
+	for (++it; it != _albumMap.end(); ++it)	// first album
+		if (!(it.value().ID & EXCLUDED_FLAG) && _IsAlbumAndItsSubAlbumsEmpty(it.value()))
+			it.value().ID |= EXCLUDED_FLAG;
 }
 
 /*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
+* TASK:		checks if given 
+* EXPECTS:	ab - album whose items list we check
+*			name - name of info file, e.g. alma.jpg.info
+* GLOBALS:	maps
 * REMARKS:
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_IsExcluded(const Album &ab, QString name)
 {
-	ID_t id;
+	if (name.size() == 5)	// "file: .info
+		return true;
+
+	name = name.left(name.lastIndexOf('.'));	// cut ".info" from file name
 	for (auto i : ab.items)
 	{
-		if (((i & ALBUM_ID_FLAG) && _albumMap[id].name == name) ||
-			((i & IMAGE_ID_FLAG) && _imageMap[id].name == name) ||
-			((i & VIDEO_ID_FLAG) && _videoMap[id].name == name))
-			return i > 0;
+		if ((i & ALBUM_ID_FLAG) && _albumMap[i].name == name)
+			return _albumMap[i].ID & EXCLUDED_FLAG;
+		else if ((i & IMAGE_ID_FLAG) && _imageMap[i].name == name)
+			return _imageMap[i].ID & EXCLUDED_FLAG;
+		else if ((i & VIDEO_ID_FLAG) && _videoMap[i].name == name)
+			return _videoMap[i].ID & EXCLUDED_FLAG;
 	}
 
 	return false;
@@ -1231,6 +1269,7 @@ bool AlbumGenerator::_IsExcluded(const Album &ab, QString name)
 void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
 {
 	QString p, n;
+	path = CutSourceRoot(path);
 	SeparateFileNamePath(path, p, n);
 	ltl.Fill(n);
 }
@@ -1238,7 +1277,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
 /*==========================================================================
  * TASK:	read 'albumfiles.txt' (custom file filtering and ordering)
  *			if exists from the directory 'path' into
- * EXPECTS:	ab: existing Album
+ * EXPECTS:	parentID: existing album
  * RETURNS:	true: data read into 'images' and 'albums' without calculating CRC
  *			false no such file
  * REMARKS: - 'albumfiles.txt' 
@@ -1248,19 +1287,22 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
  *        	- images/albums not mentioned in file are added to the end of
  *				the ordered list of images
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadFromJAlbumOrderFile(Album &ab)
+bool AlbumGenerator::_ReadFromJAlbumOrderFile(ID_t parentID)
 {
-	QString path = ab.FullSourceName();  
+	Album *ab = AlbumForID(parentID);
+	QString path = ab->FullSourceName();  
 	if(path[path.length()-1] != '/') 
 		path += '/';
 
 	FileReader fr(path + "albumfiles.txt", frfTrim);
 	if (!fr.Ok())
 		return false;
+
+
 	QString line;
 	QStringList sl;
 	bool excluded = false;
-	
+	_isAJAlbum = true;
 
 	while (!(line = fr.ReadLine()).isEmpty())
 	{
@@ -1273,11 +1315,11 @@ bool AlbumGenerator::_ReadFromJAlbumOrderFile(Album &ab)
 		else
 			line = QDir().cleanPath(sl[1]);			// else this is the real full name
 
-		ID_t id = AddImageOrAlbum(ab, line);   // to lists (_albumMap or _imageMap) and (albums or images) and order
+		ID_t id = AddImageOrAlbum(parentID, line, false, _signalProgress);   // to lists (_albumMap or _imageMap) and (albums or images) and order
 		if (excluded)
 			id |= EXCLUDED_FLAG;
 
-		ab.items.push_back(id);
+		// ab.items.push_back(id); already added
 	}
 	return true;
 }
@@ -1359,7 +1401,7 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 /*==========================================================================
 * TASK:	read dexcriptions for images and albums in the given album and
 *		fills in data
-* EXPECTS: ab - existing album
+* EXPECTS: albumId - existing album
 * RETURNS: success or error
 * REMARKS: - if an image or sub-album was not set earlier it is created here
 *		   - structure of file:
@@ -1367,9 +1409,10 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 *		   - languages ar separated by double '@' characters
 *		   - only as many languages are used as are set in global 'Languages'
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumCommentFile(Album &ab)
+bool AlbumGenerator::_ReadJAlbumCommentFile(ID_t albumId)
 {
-	QString path = ab.FullSourceName();
+	Album* ab = AlbumForID(albumId);
+	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1391,7 +1434,12 @@ bool AlbumGenerator::_ReadJAlbumCommentFile(Album &ab)
 		if(line.isEmpty())
 			continue;
 
-		id = AddImageOrAlbum(ab, path + ianame, false);	// not thumbnail
+		id = AddImageOrAlbum(albumId, path + ianame, false);	// not thumbnail
+
+		// DEBUG
+		if (_albumMap.size() > 10)
+			id = id;
+
 		type = id & VIDEO_ID_FLAG ? ftVideo : ftImage;
 		if (id)		// then image existed
 		{			// set text to image or album description
@@ -1419,9 +1467,10 @@ bool AlbumGenerator::_ReadJAlbumCommentFile(Album &ab)
 *				'folderIcon'=<image file name for 'ab'>
 *				'descript'=<description for 'ab'>
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumMetaFile(Album &ab)
+bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
 {
-	QString path = ab.FullSourceName();
+	Album* ab = AlbumForID(albumId);
+	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1448,7 +1497,8 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(Album &ab)
 			continue;					// don't care
 		else if (ianame[0] == 'f')		// folder icon
 		{
-			(void) AddImageOrAlbum(ab, path + line, true);	// add image or folder
+			(void) AddImageOrAlbum(albumId, path + line, true);	// add image or folder
+			ab = AlbumForID(albumId);		// might hace changed
 			continue;										// as folder thumbnail too
 		}
 		else if (ianame[0] != 'd')			// safety
@@ -1461,7 +1511,7 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(Album &ab)
 		if (slSize)
 		{
 			ID_t tid = _textMap.Add(sl, added);	  // more languages than texts
-			ab.descID = tid;			  // description to sub-album
+			ab->descID = tid;			  // description to sub-album
 		}
 	}
 	return true;
@@ -1483,8 +1533,9 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(Album &ab)
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-void AlbumGenerator::_ReadJAlbumInfoFileFile(Album &ab, QString & path, QString name)
+void AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId, QString & path, QString name)
 {
+	Album* ab = AlbumForID(albumId);
 	QString line;
 	FileReader reader(path + ".jalbum/" + name, frfNeedUtf8 | frfTrim);  // name of .info file
 
@@ -1511,7 +1562,7 @@ void AlbumGenerator::_ReadJAlbumInfoFileFile(Album &ab, QString & path, QString 
 		if (name == ".info")			// just for the album
 		{
 			_TitleFromPath(path, ltl);
-			ab.titleID = _textMap.Add(ltl, added);
+			ab->titleID = _textMap.Add(ltl, added);
 		}
 	}
 	else
@@ -1521,7 +1572,7 @@ void AlbumGenerator::_ReadJAlbumInfoFileFile(Album &ab, QString & path, QString 
 		ID_t tid = _textMap.Add(sl, added);	// same id for all languages
 
 		if (name[0] == '.') //  ".info"	fo actual album
-			ab.titleID = tid;
+			ab->titleID = tid;
 		else			   // image
 		{
 			name = name.left(name.length() - 5);
@@ -1536,15 +1587,16 @@ void AlbumGenerator::_ReadJAlbumInfoFileFile(Album &ab, QString & path, QString 
 * TASK: put album and image title texts from '*.info' files in 
 *		the '.jalbum' subdirectory of the album's directory into
 *		ab and the images inside it
-* EXPECTS:	ab - album (already on global album list '_albumMap')
+* EXPECTS:	albumId - album (already on global album list '_albumMap')
 * RETURNS: true...
 * REMARKS:  - use after reading all image files and comments
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumInfoFile(Album & ab)
+bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
 {
-	QString path = ab.FullSourceName();
+	Album* ab = AlbumForID(albumId);
+	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
 
@@ -1558,8 +1610,8 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(Album & ab)
 
 		for (QString &s : list)
 		{
-			if(!_IsExcluded(ab, s))
-				_ReadJAlbumInfoFileFile(ab, path, s);
+			if(!_IsExcluded(*ab, s)) // check if the file this info entry refers to is excluded
+				_ReadJAlbumInfoFile(albumId, path, s);
 		}
 	}
 	return true;
@@ -1568,11 +1620,11 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(Album & ab)
 /*=================================================================
  * TASK: read a directory tree of images and order them into an album
  *		  hierarchy recursively
- * Reads whole gallery hierarchy starting at 'ab'
+ *			Reads whole gallery hierarchy starting at 'albumId'
  *			If it is a JAlbum directory with corresponding files
  *			adds only images and albums set in those files
  *			otherwise adds each image and sub-folders to it
- * EXPECTS:		ab - album (must already be on the global album list '_albumMap')
+ * EXPECTS: album (must already be on the global album list '_albumMap')
  * GLOBALS: _justChanges
  * REMARKS: - first reads meta.properties and set parameters for this album
  *			- then reads file 'albumfiles.txt' if it exists and adds
@@ -1582,18 +1634,25 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(Album & ab)
  *			- then reads comments.properties and sets them for images and sub-albums
  *			- then call itself recursively for sub-folders
  *----------------------------------------------------------------*/
-void AlbumGenerator::_RecursivelyReadSubAlbums(Album &ab)
+void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 {
+	// get number of images and albums already read in
 	// TODO justChanges
+	bool isParentJAlbum = _isAJAlbum;
 	_isAJAlbum = false;		// set only if jalbum's file are in this directory
-	_isAJAlbum |= _ReadFromJAlbumOrderFile(ab);		// ordering set in file ( including exlusions and real names)
-	_isAJAlbum |= _ReadJAlbumMetaFile(ab);		// thumbnail (image or sub-album) ID and description for the actual album
+	_ReadFromJAlbumOrderFile(albumId);	// ordering set in file ( including exlusions and real names)
+	// if there was a JAlbum 'albumfiles.txt' file in the folder then all images and albums stored in it are
+	// added to the corresponding map and _isJAlbum is set to true, else it is false
+
+	_isAJAlbum |= _ReadJAlbumMetaFile(albumId);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk 
 
 	// at path 'ab.FullSourceName()' and add
 	// those not yet listed in 'albumfile.txt' to the list of files and albums
 	// in the order they appear
+
+	Album &ab = _albumMap[albumId];
 
 	QDir dir(ab.FullSourceName());
 	dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
@@ -1604,36 +1663,50 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(Album &ab)
 
 	ID_t id;
 			
+
+	static int debugCnt = 0;
 	for (auto fi : list)		// elements in directory
 	{
-		if( (id = _AddImageOrAlbum(ab, fi)) == 0)	// nothing added? (hidden file)
+		++debugCnt;
+		if( (id = _AddImageOrAlbum(albumId, fi,_signalProgress)) == 0)	// nothing added? (hidden file)
 			continue;
 		if (id & ALBUM_ID_FLAG)		// sub album
 		{
 			Album& subA = _albumMap[id];
-			subA.parent = ab.ID;	// signals this sub-album is in 'ab' 
+			subA.parent = albumId;	// signals this sub-album is in 'ab' 
 											// Must change when sub-albums moved to other album
 			if (subA.exists)
-				_RecursivelyReadSubAlbums(subA);
+				_RecursivelyReadSubAlbums(id);
 		}
 		if(_signalProgress)
 			emit SignalProgressPos(_albumMap.size(), _imageMap.size());
 		if (!_processing)
-			return;
+			break;
 	}																
-	_isAJAlbum |= _ReadJAlbumCommentFile(ab);	// descriptions for files and folders in ab
-	_isAJAlbum |= _ReadJAlbumInfoFile(ab);			// titles for album and images inside
-	(void)ab.ImageCount();		// removes excluded ID s of 'ab.images'
-	(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
-	_AddAlbumThumbnail(ab, 0);	// only if there's no thumbnail already
+	if (_processing)
+	{
+		_isAJAlbum |= _ReadJAlbumCommentFile(albumId);	// descriptions for files and folders in ab
+		_isAJAlbum |= _ReadJAlbumInfoFile(   albumId);			// titles for album and images inside
+		(void)ab.ImageCount();		// removes excluded ID s of 'ab.images'
+		(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
+		_AddAlbumThumbnail(ab, 0);	// only if there's no thumbnail already
+	}
+	_isAJAlbum = isParentJAlbum;	// restore for parent
 }
 
-void AlbumGenerator::Clear()
+void AlbumGenerator::Init()
 {
-	_imageMap.clear();
-	_textMap.clear();
-	_videoMap.clear();
-	_albumMap.clear();
+	Album album;			
+	// add root album with ID 1
+	album.ID  = ROOT_ALBUM_ID;
+	album.exists = true;		// do not check: virtual!
+	_albumMap[ROOT_ALBUM_ID] = album;		// and not with _albumMap.Add
+	
+	// add "latest" album if required
+
+	album.ID = RECENT_ALBUM_ID;
+	_albumMap[RECENT_ALBUM_ID] = album;
+
 	// add default image when no image is found This is the only one with id == 0
 	// the file 'NoImage.jpg' must be put into the 'res' directory
 	Image im;
@@ -1642,14 +1715,31 @@ void AlbumGenerator::Clear()
 	im.ID = 0 | IMAGE_ID_FLAG;
 	im.dsize = im.osize = QSize(800, 800);
 	_imageMap[0] = im;
+
 }
 
-void AlbumGenerator::AddDirsRecursively(Album& ab)
+void AlbumGenerator::Clear()
+{
+	_imageMap.clear();
+	_textMap.clear();
+	_videoMap.clear();
+	_albumMap.clear();
+	Init();
+}
+
+void AlbumGenerator::AddDirsRecursively(ID_t albumId)
 {
 	_signalProgress = false;
-	 _RecursivelyReadSubAlbums(ab);
+	_processing = true;
+	 RecursivelyAddAlbums(albumId);
+	_processing = false;
 	_signalProgress = true;
 	return;
+}
+
+void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
+{
+	_RecursivelyReadSubAlbums(albumId);
 }
 
 /*==========================================================================
@@ -1664,7 +1754,7 @@ void AlbumGenerator::AddDirsRecursively(Album& ab)
 *					is already in memory
 * EXPECTS: 'root' path name of uppermost source album directory
 * RETURNS: success
-* REMARKS: - prepares _root album and recursively processes all levels
+* REMARKS: - prepares root album and recursively processes all levels
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::Read(bool bMustReRead)
 {
@@ -2087,20 +2177,20 @@ QStringList __imageMapStructLineToList(QString s)
 /*==========================================================================
 * TASK:		add a sub-album or an image to global arrays and to album 'ab'
 * EXPECTS:	ab - album to add data to (parent)
-*			path - full path name relative to  album root '_root' or absolute path
+*			path - full path name relative to  album root  or absolute path
 *			pos: - put position in images or in albums here
 *			folderIcon: if the file should be used as album thumbnail for this album
 * RETURNS:	ID of new or already present album or image
 * REMARKS:	does not set/modify the title and description IDs
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::AddImageOrAlbum(Album& ab, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList)
+ID_t AlbumGenerator::AddImageOrAlbum(ID_t albumId, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList)
 {
 	if (!QDir::isAbsolutePath(path))
-		path = _root.path + path;
+		path = _albumMap[ROOT_ALBUM_ID].path + path;
 	QFileInfo fi(path);
-	ID_t id = _AddImageOrAlbum(ab, fi, doSignalElapsedTime, doNotAddToAlbumItemList);
+	ID_t id = _AddImageOrAlbum(albumId, fi, doSignalElapsedTime, doNotAddToAlbumItemList);
 	if (id > 0 && isThumbnail)	// an album can be a folder icon which means that its
-		ab.thumbnail = id;		// folder icon is used here. This will be resolved later on
+		_albumMap[albumId].thumbnail = id;		// folder icon is used here. This will be resolved later on
 
 	return id;
 }
@@ -2349,8 +2439,8 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 
 	if (pos == 0)			// root album
 	{
-		changed = (s.at(pos0).unicode() == 'C');
-		return sl;
+		changed = (s.at(pos0).unicode() != 'A');
+		return sl;		// empty => root album, line was: (A:1)
 	}
 
 	if (pos < 0)			 // full (virtual) path name of new album w.o. ID 
@@ -2360,7 +2450,7 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 		return sl;
 	}
 
-	changed = s[pos0].unicode() == 'A' ? false : true;
+	changed = s[pos0].unicode() != 'A';
 
 	if(pos)
 		sl.push_back(s.mid(0, pos));			// album name
@@ -2385,7 +2475,8 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 *						album definition line: 
 *							<name>(A:id)'/'<original path>
 *							or <original path>'/'<name>
-*           parent: ID of parent
+*           parent: ID of parent, 
+*					Set to 0 for root album and NOT ROOT_ALBUM_ID !
 *			level:	album level (number of spaces before name)
 * RETURNS:	ID of new album from structure
 * REMARKS:	-if an album id line is in reader then the id inside it must be new
@@ -2394,13 +2485,13 @@ QStringList __albumMapStructLineToList(QString s, bool &changed)
 *			- album definitions are delimited with a single empty line
 *			- each album line starts with as many spaces as its level
 *			- if the next album definition is on the same level
-*			- as this album, then returns
+*				as this album, then returns
 *			- expects a single root album
 *			- albums are added to '_albumMap' as soon as they are identified
-*				and that record is modified iater by adding the images and 
+*				and that record is modified later by adding the images and 
 *				albums to it
-*		   - throws 'BadStruct' on error
-*			- the album created here must be added to _albumMap in caller
+*			- throws 'BadStruct' on error
+*			- album created here must be added to _albumMap in caller
 *				therefore it will be added later than its sub albums
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level)
@@ -2428,30 +2519,21 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	if (albumDefnitelyChanged)		// type was 'C' and not 'A'
 	{								// in this case immediate parent must be changed too
 		album.changed = true;
-		if (parent != 0)
+		if (aParent != nullptr)
 			aParent->changed = true;
 		++_structChanged;
 	}
 
 	int	changeCountBefore = _structChanged;		// save to determine if album changed
 												// if any text or the icon ID is new then _structChanged incremented
-	ID_t id;
-	if (n == 0)		// root album
+	ID_t id = ROOT_ALBUM_ID;	// n == 0 => root album, already added;
+
+	if (!n)						 // else root album with no name
+		album = _albumMap[ROOT_ALBUM_ID];
+	else	if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
 	{
-			// dummy album for latest Images must come first as sets album's ID
-		album.ID = id = (2 | ALBUM_ID_FLAG);
-		album.exists = true;		// do not check: virtual!
-		_albumMap[id] = album;
-				// root album with ID 1
-		album.ID = id = ROOT_ALBUM_ID;
-		album.exists = true;		// do not check: virtual!
-		_albumMap[id] = album;		// and not with _albumMap.Add
-	}
-	else if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
-	{
-		if (parent != 0)
-			aParent->changed = true;
-		if(QFile::exists(sl[0]))				// then images are inside this (not virtual directory)
+		aParent->changed = true;		// aParent must exist for each non-root album
+		if (QFile::exists(sl[0]))		// then not virtual directory => images are inside this folder
 			lastUsedAlbumPath = sl[0] + "/";
 
 		bool added;
@@ -2476,7 +2558,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			lastUsedAlbumPath = album.FullSourceName() + "/";
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
-		if (_albumMap.contains(id) && _albumMap[id].FullSourceName() != album.FullSourceName() )
+		if (_albumMap.contains(id) && _albumMap[id].FullSourceName() != album.FullSourceName())
 			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id & ID_MASK) + FalconG::tr(" - duplicated album ID"));
 
 
@@ -2564,7 +2646,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 void AlbumGenerator::_AddAlbumThumbnail(Album& album, ID_t id)
 {
 
-	if (album.thumbnail)
+	if (album.thumbnail || album.ID == ROOT_ALBUM_ID)
 		return;
 
 	album.changed = true;
@@ -2632,7 +2714,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 				throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
 					// recursive album read. there is only one top level album
 					// with id == ROOT_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
-			_ReadAlbumFromStruct(reader, 0, 0); 
+			_ReadAlbumFromStruct(reader, 0, 0);	// parent ID is 0 for root album! 
 			if (error)
 				throw BadStruct(reader.ReadCount(),"Error");
 		}
@@ -2701,26 +2783,22 @@ bool AlbumGenerator::_ReadFromDirs()
 	QDir dir(root);
 
 	// dummy album for latest Images must come first as sets album's ID
-	_root.Clear();
-	_root.ID = RECENT_ALBUM_ID;
-	_root.exists = true;		// do not check: virtual!
-	_albumMap[_root.ID] = _root;
+	Album tmp;
+	// tmp has no name and no path it is inside config.dsSrc
+	tmp.ID = ROOT_ALBUM_ID;							// id = 1 (id = 0 -> invalid)
+	tmp.exists = true;
+	_albumMap[ROOT_ALBUM_ID] = tmp;	// a copy of _root is first on list	
 
-	ID_t rootId = ROOT_ALBUM_ID;
-	_root.Clear();
-	_root.ID = rootId;							// id = 1 (id = 0 -> invalid)
-	_root.path = root;
-	// root has no name and no path it is inside config.dsSrc
-	_root.exists = true;
-
-	_albumMap[_root.ID] = _root;	// a copy of _root is first on list	
+	tmp.Clear();
+	tmp.ID = RECENT_ALBUM_ID;
+	tmp.exists = true;		// do not check: virtual!
+	_albumMap[RECENT_ALBUM_ID] = tmp;
 
 	_remDsp.Init(directoryCount + omittedDirectoryCount);
-	_RecursivelyReadSubAlbums(_albumMap[rootId] );	// recursive read of all levels
+	_RecursivelyReadSubAlbums(ROOT_ALBUM_ID);	// recursive read of all levels
 	if (!_processing)
 		return false;
 
-	_root = _albumMap[rootId];	// get values stored in hierarchy back to _root
 	++_structChanged;					// i.e. must write 'gallery.struct'
 	return true;
 }
@@ -3517,7 +3595,7 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 *							-1: this is an image for  the latest uploads
 * GLOBALS: config, Languages, _actLanguage
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
-* REMARKS:  - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, others
+* REMARKS:  - root albums (ID == ROOT_ALBUM_ID) are written into gallery root, others
 *			  are put into directory 'albums' 
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
@@ -3755,7 +3833,7 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 *				homeLink - The 'home' button links to this page
 *
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, all others in 'albums'
+* REMARKS: - root albums (ID == ROOT_ALBUM_ID) are written into gallery root, all others in 'albums'
 *			  so sub-album links must point into the 'albums' sub -directory EXCEPT for
 *		   - non root
 *--------------------------------------------------------------------------*/
@@ -3863,7 +3941,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 *				homeLink - The 'home' button links to this page
 *
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: - root albums (ID == 1+ALBUM_ID_FLAG) are written into gallery root, all others in 'albums'
+* REMARKS: - root albums (ID == ROOT_ALBUM_ID) are written into gallery root, all others in 'albums'
 *			  so sub-album links must point into the 'albums' sub -directory EXCEPT for
 *		   - non root: when it not changed and need not re-create all albums, just signals
 *			 it processed the album
@@ -4621,7 +4699,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 		basePath = config.dsSrc.ToString();		// but we need it
 
 	Video vid;
-
+	path = CutSourceRoot(path);
 	SeparateFileNamePath(path, vid.path, vid.name);
 
 	QDir dir;

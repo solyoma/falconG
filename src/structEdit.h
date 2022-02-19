@@ -20,7 +20,7 @@ public:
 	AlbumTreeModel(QObject *parent = Q_NULLPTR) : QAbstractItemModel(parent) {}
 
 // these are for reading
-	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

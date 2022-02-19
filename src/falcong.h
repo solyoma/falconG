@@ -13,7 +13,7 @@ using namespace Enums;
 #include "config.h"
 #include "stylehandler.h"
 #include "albums.h"
-#include "thumbnailWidget.h"
+#include "thumbnailView.h"
 #include "schemes.h"
 #include "ui_falcong.h"
 

@@ -609,11 +609,11 @@ void _CShadow::_Setup()
 
 	switch (_details.size())			// no 'breaks'!
 	{
-		case 3:
+		case 3: 
 			_details.push_back("0");	// blur radius
-		case 4:
+		case 4: 
 			_details.push_back("0");	// shadow spread
-		case 5:
+		case 5: 
 			_details.push_back("#000");	// color
 		default:
 			break;
@@ -1219,7 +1219,7 @@ QString _CBackgroundImage::Url(bool addSemicolon) const
 	{					// when image must be copied into /res
 		QString p, n;
 		SeparateFileNamePath(fileName, p, n);
-		// must ide \" instead of ' because the whole string will be in ''
+		// must use \" instead of ' because the whole string will be in ''
 		// when _RunJavaScript is called in falconG.cpp
 		qsN = QString("background-image:url(\"/res/%1\")").arg(n);
 	}

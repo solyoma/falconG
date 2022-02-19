@@ -132,7 +132,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Sort</string>
+          <string>S&amp;ort</string>
          </property>
         </widget>
        </item>
@@ -152,7 +152,7 @@
        <item>
         <widget class="QPushButton" name="btnSelect">
          <property name="text">
-          <string>&amp;Ok</string>
+          <string>&amp;Select</string>
          </property>
         </widget>
        </item>
