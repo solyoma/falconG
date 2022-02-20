@@ -99,9 +99,9 @@ ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
 		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
 			return 0;
 		if (!album.ImageCount() && !album.VideoCount()) // then get thumbnail for first sub-album
-			return ThumbnailID(albums[album.IdOfItemOfType(ALBUM_ID_FLAG,0,0)], albums);
+			return ThumbnailID(albums[album.IdOfItemOfType(ALBUM_ID_FLAG,0)], albums);
 		else
-			return album.IdOfItemOfType(IMAGE_ID_FLAG | VIDEO_ID_FLAG, 0, 0);
+			return album.IdOfItemOfType(IMAGE_ID_FLAG | VIDEO_ID_FLAG, 0);
 	}
 	return album.thumbnail;
 }
@@ -884,12 +884,12 @@ ID_t Album::ThumbID()
  * REMARKS: - does not change or store startPos
  *			- 'index' must be less than 'items.size()'
  *-------------------------------------------------------*/
-ID_t Album::IdOfItemOfType(int64_t type, int index, int startPos)
+ID_t Album::IdOfItemOfType(int64_t type, int index)
 {
 	if (index >= items.size())
 		return -1;		// MUST NOT 
 
-	for (; startPos < items.size(); ++startPos)
+	for (int startPos = 0; startPos < items.size(); ++startPos)
 		if (items[startPos] & type)
 			if(!index--)
 				return items[startPos];
@@ -2501,10 +2501,10 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	bool albumDefnitelyChanged;
 	QStringList sl = __albumMapStructLineToList(reader.l().mid(level), albumDefnitelyChanged);
 	int n = sl.size();		// should 0,1,2 or 3
-							//	0: root album
+							//	0: root album w.o. names - up to version 1.2, not used in or after 1.2.1
 							//	1: sl[0] = path name (not yet processed)
 							//	2: top level album, sl[0] = album name sl[1] = ID
-							//	3: sub album, sl[0] = album name sl[1] = ID, sl[2]= album path
+							//	3: sub album, sl[0] = album name sl[1] = ID, sl[2]= album path	  - also for root album since 1.2.1
 	if (n > 3)
 		throw BadStruct(reader.ReadCount(),"Wrong album parameter count");
 
@@ -2513,7 +2513,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	{
 		album.name = sl[0];
 		album.parent = parent;
-		aParent = &_albumMap[parent];
+		if(parent)
+			aParent = &_albumMap[parent];
 	}
 
 	if (albumDefnitelyChanged)		// type was 'C' and not 'A'
@@ -2528,9 +2529,9 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 												// if any text or the icon ID is new then _structChanged incremented
 	ID_t id = ROOT_ALBUM_ID;	// n == 0 => root album, already added;
 
-	if (!n)						 // else root album with no name
+	if (!n)						 // else the root album has a name and source path
 		album = _albumMap[ROOT_ALBUM_ID];
-	else	if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
+	else if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
 	{
 		aParent->changed = true;		// aParent must exist for each non-root album
 		if (QFile::exists(sl[0]))		// then not virtual directory => images are inside this folder
@@ -2558,7 +2559,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			lastUsedAlbumPath = album.FullSourceName() + "/";
 		}
 		id = sl[1].toULongLong() | ALBUM_ID_FLAG;
-		if (_albumMap.contains(id) && _albumMap[id].FullSourceName() != album.FullSourceName())
+		if (id!= ROOT_ALBUM_ID && _albumMap.contains(id) && _albumMap[id].FullSourceName() != album.FullSourceName())
 			throw BadStruct(reader.ReadCount(), QString("'%1'").arg(id & ID_MASK) + FalconG::tr(" - duplicated album ID"));
 
 
@@ -2698,20 +2699,28 @@ bool AlbumGenerator::_ReadStruct(QString from)
 		else
 		{
 			line = line.mid(versionStr.length());
-			int pos = line.indexOf('.');
+			int pos = line.indexOf('.'), pos1 = line.lastIndexOf('.');
 			if(pos < 0)
 				throw BadStruct(reader.ReadCount(), FalconG::tr("Missing '.' from version"));
 
 			config.majorStructVersion = line.left(pos).toInt();
-			config.minorStructVersion = line.mid(pos+1).toInt();
+			config.minorStructVersion = line.mid(pos+1, pos1 - pos - 1).toInt(); // if no sub version: all after pos
 
 			_LanguageFromStruct(reader);  // throws when error
 			emit SignalSetLanguagesToUI();
 
 			// from now on we need the empty lines as well
 			reader.ReadLine();		// discard empty and comment
-			if (reader.l()[0] != '(' || (reader.l()[1] != 'A' && reader.l()[1] != 'C'))
-				throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
+			// root directory may also contain name and path
+			QString rline = reader.l();
+			if (rline[0] != '(' || rline[1] != 'A' && rline[1] != 'C')	// old type?
+			{
+				bool b;
+				QStringList sl1 = __albumMapStructLineToList(rline, b);
+				if(sl1.size() > 2 && sl1[1] != "1")
+					throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
+			}
+	
 					// recursive album read. there is only one top level album
 					// with id == ROOT_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, 0, 0);	// parent ID is 0 for root album! 

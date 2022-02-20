@@ -207,7 +207,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,	this, &FalconG::_TnvStatusChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,	this, &FalconG::_SlotForChangeToFolderWithID);	
+	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,	this, &FalconG::_SlotChangeToFolderAt);	
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
 
@@ -916,10 +916,17 @@ void FalconG::_SlotForSchemeChange(int which)
 	QGuiApplication::restoreOverrideCursor();
 }
 
-void FalconG::_SlotForChangeToFolderWithID(int row)
-{
+void FalconG::_SlotChangeToFolderAt(int row)		// called from thumbnailView.cpp
+{														// row: item index
 	QModelIndex &cix = _currentTreeViewIndex;	// shorthand
-	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->index(row, 0, cix);
+	// get folder (album) index for row
+	Album *album = albumgen.AlbumForID((ID_t)cix.internalPointer());
+	int aix = 0;
+	for (int i = 0; i < row; ++i)
+		if (album->items[i] & ALBUM_ID_FLAG)
+			++aix;
+
+	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->index(aix, 0, cix);
 	ui.trvAlbums->selectionModel()->select(mix, QItemSelectionModel::ClearAndSelect);
 }
 
@@ -4355,7 +4362,7 @@ void FalconG::WebPageLoaded(bool ready)
  *				description texts into edit fields
  * EXPECTS:	current:  to this model index
  *			previous: from this model index
- * GLOBALS:
+ * GLOBALS:	_selection: FalconGEditTabSelection
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/

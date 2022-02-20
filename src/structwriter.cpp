@@ -73,8 +73,8 @@ void AlbumStructWriterThread::run()
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << versionStr << majorStructVersion << "." << minorStructVersion
-		<< "\n#  © - András Sólyom (2018-2021)"  // default values may differ from 'config'
+	_ofs << versionStr << majorStructVersion << "." << minorStructVersion << "." << subStructVersion
+		<< "\n#  © - András Sólyom (2018-2022)"  // default values may differ from 'config'
 		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()

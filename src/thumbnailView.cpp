@@ -1624,10 +1624,11 @@ void ThumbnailView::DeleteSelected()
         return;
 
     Album &album = albumgen.Albums()[_albumId];
-    int ix;
-    for (auto mi : list)
+    // list is ordered by ascending row's and we need delete descending
+    for (int i = list.size()-1; i >= 0; --i)
     {
-        ix = mi.row();
+        int ix;
+        ix = list[i].row();
         if (album.items[ix] & ALBUM_ID_FLAG)    // remove recursively
         {
             albumgen.Albums().RemoveRecursively(album.items[ix]);

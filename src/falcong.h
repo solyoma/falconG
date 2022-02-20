@@ -172,7 +172,7 @@ private:
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
-	void _GetTextsForEditing(whoChangedTheText who); // using '_selection'
+	void _GetTextsForEditing(whoChangedTheText who); // using '_selection :FalconGEditTabSelection'
 	void _LoadBckImage(QString name);	// from config
 
 	void _AddSchemeButtons();
@@ -206,7 +206,7 @@ private slots:
 	void _TextAlignToConfig(Align align, bool on);
 	void _SlotForContextMenu(const QPoint& pt);
 	void _SlotForSchemeChange(int which);
-	void _SlotForChangeToFolderWithID(int row);	// inside actual folder in ui.trvAlbums
+	void _SlotChangeToFolderAt(int row);	// inside actual folder in ui.trvAlbums
 
 	void _SlotForSchemeButtonClick(int which);
 	void _AskForApply();	// when color scheme changed and not yet applied

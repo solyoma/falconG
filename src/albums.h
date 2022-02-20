@@ -247,7 +247,7 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	int DescCount();		// sets/returns descCount
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
 
-	ID_t IdOfItemOfType(int64_t type, int index, int startPos = 0);
+	ID_t IdOfItemOfType(int64_t type, int index);
 
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);

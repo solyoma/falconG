@@ -965,7 +965,9 @@ class CONFIG
 public:
 	CONFIG();
 
-	int majorStructVersion = 1, minorStructVersion = 2;		// 1.2
+	int majorStructVersion = 1, 		// version read from config file 1.2.1
+		minorStructVersion = 2,			// C.f. support.h constexpr with same names
+		subStructVersion = 1;			// 	
 	StyleHandler styleHandler;	// for the main window with all of its elements
 
 	void Read();

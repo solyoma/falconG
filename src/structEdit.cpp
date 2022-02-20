@@ -21,23 +21,23 @@
 
 /*============================================================================
 * TASK:		return row count for parent (count of albums in it)
-* EXPECTS:	parent - model index of parent album or empty model index for root
-* GLOBALS:	albumgen.AlbumMap()
+* EXPECTS:	parent - model index of parent album or invalid model index for root
+* GLOBALS:	albumgen.Albums()
 * REMARKS: model indices are relativ to parent
 *--------------------------------------------------------------------------*/
 int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 {
 	if (_busy) return 0;
 	AlbumMap &map = albumgen.Albums();
-	if (!parent.isValid())		   // root element: it has 1 sub-item
-		return map.size() ? 1 : 0;
+	if (!parent.isValid())		   // root element: it has at least 2 sub-items, only one matters
+		return	map[ROOT_ALBUM_ID].items.size();		// map.size() ? 1 : 0;
 	ID_t id = (ID_t)(parent.internalPointer());
 	return map[id].SubAlbumCount();
 }
 
 /*============================================================================
-* TASK:	   Create a model index for parent's  child
-* EXPECTS:	row - parent relative index (< count of parent's children)
+* TASK:	   Create a model index for parent's row-th child
+* EXPECTS:	row - parent relative index of albums (< parent's AlbumCount())
 *			column: 0
 *			parent: index of parent whose row-th child's index is required
 * GLOBALS:
@@ -45,14 +45,15 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & parent) const
 {
+	ID_t idParent = (ID_t)parent.internalPointer();
+
 	AlbumMap &map = albumgen.Albums();
-	if (column || row < 0 || row >= map.size())
+	if (column || row < 0)
 		return QModelIndex();
 
 	if (!parent.isValid())				// root id for tree element
 		return createIndex(row, column, quintptr( (map.size() ? ROOT_ALBUM_ID : 0)) );
-	ID_t id = (ID_t)parent.internalPointer();
-	id = map[id].IdOfItemOfType(ALBUM_ID_FLAG,row);
+	ID_t id = map[idParent].IdOfItemOfType(ALBUM_ID_FLAG,row);
 	return createIndex(row, column, quintptr(id));
 }
 

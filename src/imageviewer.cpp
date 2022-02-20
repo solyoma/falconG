@@ -19,7 +19,7 @@ ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName
     ui.setupUi(this);
     _screenSize = QGuiApplication::primaryScreen()->availableSize();
     _CreateActions();
-    _requiredWidgetSize = _screenSize * 3 / 5;
+    _requiredWidgetSize = _screenSize * 3 / 4;
     sizePolicy().setHeightForWidth(true);
 }
 
