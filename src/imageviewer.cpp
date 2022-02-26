@@ -30,12 +30,23 @@ bool ImageViewer::LoadFile()
     const QImage newImage = reader.read();
     if (newImage.isNull()) {
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-            tr("Cannot load %1: %2")
+            tr("Cannot load %1: %2"
+                "<br>It is possible, that the image added was<br>"
+                "in the data base already but moved to a different folder outside<br/>"
+                "this program. Remove it and try to add with the <b>Keep duplicates</b><br>"
+                "box checked on the <i>Gallery</i> page.")
             .arg(QDir::toNativeSeparators(_fileName), reader.errorString()));
         return false;
     }
+    double scaleTo = SCALE_FIT;
+    if (_requiredWidgetSize.width() > newImage.width() && _screenSize.width() > newImage.width() &&
+        _requiredWidgetSize.height() > newImage.height() && _screenSize.height() > newImage.height())
+    {
+        _requiredWidgetSize = newImage.size();
+        scaleTo = SCALE_FULL;
+    }
     _SetImage(newImage);
-    _CalcScaleFactor(SCALE_FIT, true, true);
+    _CalcScaleFactor(scaleTo, true, true);
     ui.lblIName->setText(_fileName);
     ui.lblSize->setText(QString("%1 x %2").arg(_image.width()).arg(_image.height()));
     return true;
@@ -56,23 +67,23 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
         close();
     else 
     {
-        if (event->key() == Qt::Key_0)
+        if (event->key() == Qt::Key_0)                          //scale image to fit in window, may resize window
             _CalcScaleFactor(SCALE_FIT, true, true);
-        else if (event->key() == Qt::Key_1)
-            _CalcScaleFactor(SCALE_FULL, true, true);
-        else if (event->key() == Qt::Key_Plus)
+        else if (event->key() == Qt::Key_1)                     // 100%
+            _CalcScaleFactor(SCALE_FULL, true, false);          // do not resize window
+        else if (event->key() == Qt::Key_Plus)                  // zoom in
             _CalcScaleFactor(SCALE_UP, true, true);
-        else if (event->key() == Qt::Key_Minus)
+        else if (event->key() == Qt::Key_Minus)                 // zoom out
             _CalcScaleFactor(SCALE_DOWN, true, true); // 1 /1.10
-        else if (event->key() == Qt::Key_F)
-            _FitToWindow();
+        else if (event->key() == Qt::Key_F)                     // fit to window
+            _FitToWindow();                                     // v- full screen
         else if (event->key() == Qt::Key_F11 || (event->modifiers().testFlag(Qt::AltModifier) && event->key() == Qt::EnterKeyReturn))
             _SetFullScreen(!_isFullScreen);
-        else if (event->key() == Qt::Key_Question)
+        else if (event->key() == Qt::Key_Question)              // help
             _Help();
-        else if (event->key() == Qt::Key_I)
+        else if (event->key() == Qt::Key_I)                     // toggle info panel
             _ToggleStatus();
-        else if (_IsImageMoveable())
+        else if (_IsImageMoveable())                            // move image
         {
             QPoint dp;
             if (event->key() == Qt::Key_Left)
@@ -345,6 +356,8 @@ double ImageViewer::_GetFitFactor(QSize wsize)
  * PARAMS:  factor - scale _image with this factor. Special cases:
  *                  NO_SCALE: just redisplay with current parameters
  *                  SCALE_FIT: fit in window
+ *          showImage: display image even when no size changes
+ *          doResize: should resize window when image size changes?
  * GLOBALS: _scaleFactor
  *          popup actions
  *          _requiredWidgetSize
@@ -355,7 +368,7 @@ double ImageViewer::_GetFitFactor(QSize wsize)
  *------------------------------------------------------------*/
 void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
 {
-    double fitfact = _GetFitFactor( size() );  // with tis image will fit into the actual widget
+    double fitfact = _GetFitFactor( _requiredWidgetSize );  // with this image will fit into the actual widget
 
     if (factor < 0)
         _scaleFactor = fitfact; // from actual widget size
@@ -364,9 +377,11 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
     else if (factor != NO_SCALE)
         _scaleFactor *= factor;
 
-    QSize newSize = _CalcRequiredSize();    // widget size for _scaleFactor
+    QSize newSize = // debug line!
+    _CalcRequiredSize();    // widget size for _scaleFactor, sets _needFullScreen
 
-    _SetFullScreen(_needsFullScreen);       // does nothing when no change
+    if(doResize && _needsFullScreen)
+        _SetFullScreen(_needsFullScreen);       // does nothing when no change
 
     if (_scaleFactor > 3.0)
         _scaleFactor = 3;
@@ -390,16 +405,19 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
         _prevScaleFactor = _scaleFactor;
     }
 
-    _requiredWidgetSize = _TransformedSizeToWidgetSize(QSize(sw, sh));
-    if (_requiredWidgetSize.width() > _screenSize.width())
-        _requiredWidgetSize.setWidth(_screenSize.width());
-    if (_requiredWidgetSize.height() > _screenSize.height())
-        _requiredWidgetSize.setHeight(_screenSize.height());
-
-    ui.lblZoom->setText(QString("%1%").arg(_scaleFactor * 100.0, 10, 'f', 0));
-    if (doResize && _windowScalesWithImage && size() != _requiredWidgetSize)
+    if (doResize)
     {
-        resize(_requiredWidgetSize);    // automatic paint event after resize
+        _requiredWidgetSize = _TransformedSizeToWidgetSize(QSize(sw, sh));
+        if (_requiredWidgetSize.width() > _screenSize.width())
+            _requiredWidgetSize.setWidth(_screenSize.width());
+        if (_requiredWidgetSize.height() > _screenSize.height())
+            _requiredWidgetSize.setHeight(_screenSize.height());
+
+        ui.lblZoom->setText(QString("%1%").arg(_scaleFactor * 100.0, 10, 'f', 0));
+        if (_windowScalesWithImage && size() != _requiredWidgetSize)
+        {
+            resize(_requiredWidgetSize);    // automatic paint event after resize
+        }
     }
     else if (showImage)
         update();
@@ -409,8 +427,16 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
 void ImageViewer::_SetImage(const QImage& newImage)
 {
     _image = newImage;
-    if (_image.colorSpace().isValid())
-        _image.convertToColorSpace(QColorSpace::SRgb);
+    try                         // for some images Qt's convertToColorSpace generate out of range exception
+    {                           // even with valid original color space
+        if (_image.colorSpace().isValid())
+            _image.convertToColorSpace(QColorSpace::SRgb);
+
+    }
+    catch (const std::exception&)
+    {
+        ;
+    }
 //    ->setPixmap(QPixmap::fromImage(_image));
     _aspect = double(_image.width()) / double(_image.height());
 }

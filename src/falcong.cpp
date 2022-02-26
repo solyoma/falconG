@@ -4784,7 +4784,8 @@ void FalconG::_SaveChangedTexts()
 		}
 	}
 
-	_selection.changed = fsNothing;				// all changes saved
+	albumgen.AlbumForID(_selection.actAlbum)->changed = true;
+	_selection.changed = fsNothing;		// all changes saved
 
 	albumgen.WriteDirStruct(true);		// keep previous backup file
 }

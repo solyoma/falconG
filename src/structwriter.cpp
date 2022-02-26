@@ -213,7 +213,7 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	ID_t thumbnail = album.thumbnail = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << "(A:" << (album.ID & ID_MASK) << ")" << s << "\n";
+		<< album.name << "(A:" << (album.ID & ID_MASK) << ")" << s << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 

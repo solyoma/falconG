@@ -19,6 +19,7 @@ HEADERS += ./albums.h \
     ./structwriter.h \
     ./stylehandler.h \
     ./support.h \
+	./textEditor.h \
     ./thumbnailWidget.h
 SOURCES += ./albums.cpp \
     ./config.cpp \
@@ -34,13 +35,13 @@ SOURCES += ./albums.cpp \
     ./structwriter.cpp \
     ./stylehandler.cpp \
     ./support.cpp \
+	./textEditor.cpp \
     ./thumbnailWidget.cpp
 
 FORMS += ./falcong.ui \
-        ./imageViewer.ui \
+        ./imageviewer.ui \
         ./sourcehistory.ui \
-	./textEditor.ui \
-        ./imageViewer.ui
+		./textEditor.ui
 	
 RESOURCES += falcong.qrc
 QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter

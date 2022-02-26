@@ -86,6 +86,7 @@ struct Image : public IABase
 								// check this and create a new struct file on disk if any image changed
 								// inside any albums. Alse set the album changed flag if any of its
 								// images/thu,bnails, etc changed
+	int usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
@@ -196,6 +197,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 								// check this and create a new struct file on disk if any image changed
 								// inside any albums. Alse set the album changed flag if any of its
 								// images/thu,bnails, etc changed
+	int usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)

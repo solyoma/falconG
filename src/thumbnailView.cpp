@@ -1627,12 +1627,25 @@ void ThumbnailView::DeleteSelected()
     // list is ordered by ascending row's and we need delete descending
     for (int i = list.size()-1; i >= 0; --i)
     {
-        int ix;
-        ix = list[i].row();
-        if (album.items[ix] & ALBUM_ID_FLAG)    // remove recursively
+        int ix = list[i].row();
+        ID_t id = album.items[ix];
+        if (id & ALBUM_ID_FLAG)    // remove recursively
         {
-            albumgen.Albums().RemoveRecursively(album.items[ix]);
+            albumgen.Albums().RemoveRecursively(id);
         }
+        else if (id & IMAGE_ID_FLAG)    // remove recursively
+        {
+            Image *img = albumgen.ImageAt(id);
+            if (!--img->usageCount)
+                albumgen.Images().remove(id);
+        }
+        else if (id & VIDEO_ID_FLAG)    // remove recursively
+        {
+            Video *vid = albumgen.VideoAt(id);
+            if (!--vid->usageCount)
+                albumgen.Videos().remove(id);
+        }
+        
         album.items.remove(ix);
         fileIcons.Remove(ix);
     }
