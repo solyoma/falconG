@@ -1,5 +1,6 @@
 #include <QColorSpace>
 #include <QGuiApplication>
+#include <QStyle>
 #include <QMenu>
 #include <QAction>
 #include <QScrollBar>
@@ -17,10 +18,12 @@ constexpr double SCALE_UP = 1.1,
 ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName), QWidget(parent)
 {
     ui.setupUi(this);
-    _screenSize = QGuiApplication::primaryScreen()->availableSize();
-    _CreateActions();
-    _requiredWidgetSize = _screenSize * 3 / 4;
     sizePolicy().setHeightForWidth(true);
+    _screenSize = QGuiApplication::primaryScreen()->availableSize();
+    _requiredWidgetSize = _screenSize * 3 / 4;
+    _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+    _CreateActions();
+    connect(qGuiApp, &QGuiApplication::primaryScreenChanged, this, &ImageViewer::_PrimaryScreenChanged);
 }
 
 bool ImageViewer::LoadFile()
@@ -38,7 +41,11 @@ bool ImageViewer::LoadFile()
             .arg(QDir::toNativeSeparators(_fileName), reader.errorString()));
         return false;
     }
+    _aspect = (double)newImage.width() / (double)newImage.height();
+    _SetMaxWidgetSizeForImageAspectRatio();
+
     double scaleTo = SCALE_FIT;
+    // shrink widget for image if it was too large
     if (_requiredWidgetSize.width() > newImage.width() && _screenSize.width() > newImage.width() &&
         _requiredWidgetSize.height() > newImage.height() && _screenSize.height() > newImage.height())
     {
@@ -46,9 +53,18 @@ bool ImageViewer::LoadFile()
         scaleTo = SCALE_FULL;
     }
     _SetImage(newImage);
-    _CalcScaleFactor(scaleTo, true, true);
-    ui.lblIName->setText(_fileName);
+    _CalcScaleFactor(scaleTo, imReshowImage | imResizeWithImage);  
+
+    _ToggleStatus();    // hide info overlay as 
+        // this text may change with widget size
+    QString qsel = _ElideFileName(ui.lblIName->font(), width() - 4 * (IMAGE_MARGIN + IMAGE_BORDER));
+    ui.lblIName->setText(qsel);
+
+    _SetElidedInfoText();
+        // original image size this text will not change
     ui.lblSize->setText(QString("%1 x %2").arg(_image.width()).arg(_image.height()));
+
+    _ShowStatusInfo();
     return true;
 }
 
@@ -60,6 +76,12 @@ int ImageViewer::heightForWidth(int w)
     return -1;  // no dependence
 }
 
+static  ImageViewer::ImageFlags  __GetFlags(ImageViewer::ImageFlags flgBase, bool doFit)
+{
+    if (doFit)
+        flgBase.setFlag(ImageViewer::imResizeWithImage);
+    return flgBase;
+};
 
 void ImageViewer::keyPressEvent(QKeyEvent* event)
 {
@@ -67,16 +89,27 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
         close();
     else 
     {
+
         if (event->key() == Qt::Key_0)                          //scale image to fit in window, may resize window
-            _CalcScaleFactor(SCALE_FIT, true, true);
+        {
+            _windowScalesWithImage = true;                    // automatic scale with window
+            _topLeftOfVisibleImage = { 0,0 };
+            _needsFullScreen = false;
+            _CalcScaleFactor(SCALE_FIT, __GetFlags(imReshowImage, true));
+        }
         else if (event->key() == Qt::Key_1)                     // 100%
-            _CalcScaleFactor(SCALE_FULL, true, false);          // do not resize window
+        {
+            _windowScalesWithImage = false;                    // automatic fit to window
+            _CalcScaleFactor(SCALE_FULL, __GetFlags(imReshowImage, false));          // do not resize window
+        }
         else if (event->key() == Qt::Key_Plus)                  // zoom in
-            _CalcScaleFactor(SCALE_UP, true, true);
+            _CalcScaleFactor(SCALE_UP, __GetFlags(imReshowImage, !_windowScalesWithImage));
         else if (event->key() == Qt::Key_Minus)                 // zoom out
-            _CalcScaleFactor(SCALE_DOWN, true, true); // 1 /1.10
+            _CalcScaleFactor(SCALE_DOWN, __GetFlags(imReshowImage, !_windowScalesWithImage)); // 1 /1.10
         else if (event->key() == Qt::Key_F)                     // fit to window
-            _FitToWindow();                                     // v- full screen
+            _FitImageToWindow();                                     // v- full screen
+        else if (event->key() == Qt::Key_T)
+            _ToggleTitleBar();
         else if (event->key() == Qt::Key_F11 || (event->modifiers().testFlag(Qt::AltModifier) && event->key() == Qt::EnterKeyReturn))
             _SetFullScreen(!_isFullScreen);
         else if (event->key() == Qt::Key_Question)              // help
@@ -101,11 +134,13 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
 
 void ImageViewer::mousePressEvent(QMouseEvent* event)
 {
-    if (!_fitToWindow && event->button() == Qt::LeftButton && _IsImageMoveable())
+    if (event->button() == Qt::LeftButton && _IsImageMoveable())
     {
         _mouseLeftButtonPressed = true;
         _mousePos = event->pos();
     }
+        // /DEBUG
+    //qDebug("mousePressEvent: _isImageFitToWindow:%d, _mouseLeftButtonPressed:%d", _isImageFitToWindow, _mouseLeftButtonPressed);
 }
 
 void ImageViewer::mouseReleaseEvent(QMouseEvent* event)
@@ -145,7 +180,7 @@ void ImageViewer::wheelEvent(QWheelEvent* event)
         double dy = numSteps.y() / 24.0;
         factor = 1.0 + dy;
     }
-    _CalcScaleFactor(factor, true, true);
+    _CalcScaleFactor(factor, __GetFlags(imReshowImage, _windowScalesWithImage));
 
     event->accept();
 
@@ -158,19 +193,23 @@ void ImageViewer::contextMenuEvent(QContextMenuEvent* pevent)
 
 void ImageViewer::resizeEvent(QResizeEvent* event)
 {
-    if ( _windowScalesWithImage && size() != _requiredWidgetSize)
+    if (!_isFullScreen && (_windowScalesWithImage || size() != _requiredWidgetSize) )
     {
-        _CalcScaleFactor(_windowScalesWithImage ? SCALE_FIT : SCALE_FULL, true);
+        _requiredWidgetSize = size();
+        _CalcScaleFactor(_windowScalesWithImage ? SCALE_FIT : NO_SCALE, imReshowImage);
     }
     int lw = 2 * (IMAGE_MARGIN + IMAGE_BORDER);
     int w = width() - 2 * lw;
     ui.statusFrame->setGeometry(lw, lw, w, height()-2*lw);
     w -= 500;
     if (w < 0)
-        w = 50;
-    QFontMetrics fm(ui.lblIName->font());
-    QString qs = fm.elidedText(_fileName, Qt::ElideLeft, w);
+        w = 150;
+    QString qs = _ElideFileName(ui.lblIName->font(), w);
     ui.lblIName->setText(qs);
+
+    _SetElidedInfoText();
+    if (!_infoOverlayOn)
+        _ShowStatusInfo();
 }
 
 void ImageViewer::paintEvent(QPaintEvent* event)
@@ -211,9 +250,31 @@ void ImageViewer::paintEvent(QPaintEvent* event)
 
 bool ImageViewer::_IsImageMoveable()
 {
-    return (!_windowScalesWithImage || _isFullScreen) && !_fitToWindow;
+    QSize is = _TransformedSizeToWidgetSize(_requiredWidgetSize);
+    // DEBUG
+    //bool moveable = !_windowScalesWithImage ||
+    //    (
+    //        !_isImageFitToWindow &&
+    //        (width() < is.width() || height() < is.height())
+    //        );
+    //qDebug("_IsImageMoveable: _isImageFitToWindow:%d, _windowScalesWithImage: %d, transfw: %d x%d, moveable:%d", 
+    //            _isImageFitToWindow, _windowScalesWithImage, is.width(), is.height(), moveable);
+    // /DEBUG
+    return !_windowScalesWithImage ||
+        (
+            !_isImageFitToWindow &&
+            (width() < is.width() || height() < is.height())
+        );
 }
 
+/*=============================================================
+ * TASK:    get widget's client area size for scaled image
+ *          (without window borders or title bar)
+ * PARAMS:  reqSize - required image size
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: the image will have a border and amrgin around it
+ *------------------------------------------------------------*/
 QSize ImageViewer::_TransformedSizeToWidgetSize(QSize reqSize)
 {
     int ilh = reqSize.height() + 2 * IMAGE_MARGIN + IMAGE_BORDER,
@@ -221,24 +282,72 @@ QSize ImageViewer::_TransformedSizeToWidgetSize(QSize reqSize)
     return QSize(ilw,ilh);
 }
 
+/*=============================================================
+ * TASK:    get image size for widget clent area 
+ *          (without window borders or title bar)
+ * PARAMS:  wsize: client area size
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: image aspect ratio remains the same
+ *------------------------------------------------------------*/
 QSize ImageViewer::_WidgetSizeToImageSize(QSize wsize)
 {
     int ilh = wsize.height() - 2 * IMAGE_MARGIN + IMAGE_BORDER,
         ilw = wsize.width()  - 2 * IMAGE_MARGIN + IMAGE_BORDER;
+    double waspect = (double)ilw / (double)ilh;
+    if (waspect > _aspect)   // set width to height
+        ilw = ilh * _aspect;
+    else
+        ilh = ilw / _aspect;
+
     return QSize(ilw,ilh);
 }
 
-QSize ImageViewer::_CalcRequiredSize()
+QSize ImageViewer::_CalcRequiredWidgetSize()
 {
     double  sw = _image.width() * _scaleFactor,     // image size after scaling
             sh = _image.height() * _scaleFactor;
 //    QSize widgetSize = QSize(sw, sh);
     QSize widgetSize = _TransformedSizeToWidgetSize(QSize(sw, sh));
 
-    _needsFullScreen = widgetSize.width() >= _screenSize.width() || widgetSize.height() >= _screenSize.height();
+    _needsFullScreen = //_windowScalesWithImage &&
+                       (widgetSize.width() >= _screenSize.width() || widgetSize.height() >= _screenSize.height() );
     if (_needsFullScreen)
-        return _screenSize;
+        widgetSize=_maxFullScreenSize;
     return widgetSize;
+}
+
+/*=============================================================
+ * TASK:    shows \ hides title bar
+ * PARAMS:
+ * GLOBALS: _showTitleBar
+ * RETURNS: none
+ * REMARKS:if title bar is shown the no need for info bar
+ *------------------------------------------------------------*/
+void ImageViewer::_ToggleTitleBar()
+{
+    Qt::WindowFlags flg = windowFlags();
+
+    _showTitleBar = !_showTitleBar;
+
+    if (_showTitleBar)
+    {
+        _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+        setWindowTitle(_infoOverlayOn ? "falconG - Image Viewer" : _elidedInfoText);
+        flg |= Qt::FramelessWindowHint;
+    }
+    else
+        flg &= ~Qt::FramelessWindowHint;
+
+
+    setWindowFlags(flg);
+    show();
+}
+
+QString ImageViewer::_ElideFileName(const QFont& font, int w)
+{
+    QFontMetrics fm(font);
+    return fm.elidedText(_fileName, Qt::ElideLeft, w);
 }
 
 void ImageViewer::_CreateActions()
@@ -254,10 +363,10 @@ void ImageViewer::_CreateActions()
     _normalSizeAct = _popupMenu->addAction(tr("&100%"), this, &ImageViewer::_NormalSize);
     _normalSizeAct->setShortcut(tr("Ctrl+1"));
 
-    _fitToWindowAct = _popupMenu->addAction(tr("Fit to &Window"), this, &ImageViewer::_FitToWindow);
-    _fitToWindowAct->setShortcut(tr("Ctrl+0"));
-    _fitToWindowAct->setCheckable(true);
-    _fitToWindowAct->setChecked(true);
+    _isImageFitToWindowAct = _popupMenu->addAction(tr("Fit to &Window"), this, &ImageViewer::_FitImageToWindow);
+    _isImageFitToWindowAct->setShortcut(tr("Ctrl+0"));
+    _isImageFitToWindowAct->setCheckable(true);
+    _isImageFitToWindowAct->setChecked(true);
 
     _fullScreenAct = _popupMenu->addAction(tr("&Full screen"), this, &ImageViewer::_SetFullScreen);
     _fullScreenAct->setShortcut(tr("Ctrl+F"));
@@ -281,60 +390,85 @@ void ImageViewer::_CreateActions()
 
 void ImageViewer::_ZoomIn()
 {
-    _CalcScaleFactor(SCALE_UP, true, true);
+    _CalcScaleFactor(SCALE_UP, imReshowImage | imResizeWithImage);
 }
 
 void ImageViewer::_ZoomOut()
 {
-    _CalcScaleFactor(SCALE_DOWN, true, true);
+    _CalcScaleFactor(SCALE_DOWN, imReshowImage | imResizeWithImage);
 }
 
 void ImageViewer::_NormalSize()
 {
-    _CalcScaleFactor(SCALE_FULL, true, true);
+    _CalcScaleFactor(SCALE_FULL, imReshowImage | imResizeWithImage);
 }
 
-void ImageViewer::_FitToWindow()
+void ImageViewer::_FitImageToWindow()
 {
+    if (_isFullScreen)
+        _SetFullScreen(false);
     if(!_isFullScreen)  //else fit to window has no effect
         _windowScalesWithImage = !_windowScalesWithImage;
+
     bool b = _windowScalesWithImage && !_isFullScreen;
-    _fitToWindowAct->setChecked(b);
-    _CalcScaleFactor(b ? SCALE_FIT : NO_SCALE, true, true);
+    _isImageFitToWindowAct->setChecked(b);
+    if (_windowScalesWithImage)
+        _topLeftOfVisibleImage = { 0,0 };
+    _CalcScaleFactor(b ? SCALE_FIT : NO_SCALE, imReshowImage | imResizeWithImage);
 }
 
+/*=============================================================
+ * TASK:    Toggles full screen status
+ * PARAMS:  setIt - set or reset it
+ *          reqSize - is the required widget size for a given image
+ *              may be (0,0)
+ * GLOBALS: _isFullScreen, _lastNotFullScreenRect
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
 bool ImageViewer::_SetFullScreen(bool setIt)
 {
-	Qt::WindowFlags flg;
-	if (!setIt && _isFullScreen)
+    Qt::WindowFlags flg = windowFlags();
+
+    // DEBUG
+    bool isf = isFullScreen();
+    bool result = false;
+    if (!setIt && _isFullScreen)    // then reset to window
 	{
-		flg = windowFlags() & ~(Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint);
+        flg &= ~Qt::FramelessWindowHint;
+        setWindowFlags(flg);   // when changed Qt hides window
+        _showTitleBar = true;
 		_fullScreenAct->setChecked(false);
 		_isFullScreen = false;
-		setWindowFlags(flg);
         setGeometry(_lastNotFullScreenRect);
-        show();                // when changed Qt hides window
-		return true;
+        show();                
+        _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+        setWindowTitle(_infoOverlayOn ? "falconG - Image Viewer" : _elidedInfoText);
+		result = true;
 	}
-	else if (setIt & !_isFullScreen)
+	else if (setIt & !_isFullScreen)    // set window to full screen (hide top bar)
 	{
-		flg |= Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
+        _showTitleBar = false;
 		_fullScreenAct->setChecked(true);
 		_isFullScreen = true;
         _lastNotFullScreenRect = geometry();
-		setWindowFlags(flg);
-        setGeometry(0,0,_screenSize.width(),_screenSize.height());
-        show();                // when changed Qt hides window
-		return true;
+        int w = _screenSize.width() - _maxFullScreenSize.width();
+        if (w < 0)
+            w = 0;
+        flg |= Qt::FramelessWindowHint;
+        setWindowFlags(flg);   // when changed Qt hides window
+                               // must come before setGeometry
+        show();                // when flags changed Qt hides window
+        setGeometry( w /2,0,_maxFullScreenSize.width(),_maxFullScreenSize.height());
+        result = true;
 	}
-	return false;
-
+	return result;
 }
 
 /*=============================================================
  * TASK:    determine the scale factor which will make w
  *          the image fit into the image frame of the widget
- * PARAMS:  wsize: widget size
+ * PARAMS:  wsize: widget size (client area)
  * GLOBALS:
  * RETURNS:
  * REMARKS: uses the layout margins 
@@ -356,18 +490,22 @@ double ImageViewer::_GetFitFactor(QSize wsize)
  * PARAMS:  factor - scale _image with this factor. Special cases:
  *                  NO_SCALE: just redisplay with current parameters
  *                  SCALE_FIT: fit in window
- *          showImage: display image even when no size changes
- *          doResize: should resize window when image size changes?
+ *          flags: ORED value of image flags:
+                    imReshowImage: showImage: display image even when no size changes
+ *                  imResizeWithImage : should resize window when image size changes
  * GLOBALS: _scaleFactor
  *          popup actions
  *          _requiredWidgetSize
  * RETURNS:
  * REMARKS: - if the window scales with the image the image always
  *              fills the window
- *          -
+ *          -  _isImageFitToWindow is cleared for SCALE_FULL (user button '1')
+ *          -  _isImageFitToWindow is set for SCALE_FIT image (user button '0')
  *------------------------------------------------------------*/
-void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
+void ImageViewer::_CalcScaleFactor(double factor, QFlags<ImageFlag> flags)
 {
+    bool showImage = flags.testFlag(imReshowImage),
+         doResize = flags.testFlag(imResizeWithImage);
     double fitfact = _GetFitFactor( _requiredWidgetSize );  // with this image will fit into the actual widget
 
     if (factor < 0)
@@ -377,21 +515,21 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
     else if (factor != NO_SCALE)
         _scaleFactor *= factor;
 
-    QSize newSize = // debug line!
-    _CalcRequiredSize();    // widget size for _scaleFactor, sets _needFullScreen
-
-    if(doResize && _needsFullScreen)
-        _SetFullScreen(_needsFullScreen);       // does nothing when no change
-
     if (_scaleFactor > 3.0)
-        _scaleFactor = 3;
+        _scaleFactor = 3.0;
     else if (_scaleFactor < 0.1)
         _scaleFactor = 0.1;
+
+    QSize reqSize = _CalcRequiredWidgetSize();    // widget size for _scaleFactor, sets _needFullScreen
+
+    if(doResize)
+        _SetFullScreen(_needsFullScreen);       // does nothing when no change
 
     _zoomInAct->setEnabled(_scaleFactor < 3.0);
     _zoomOutAct->setEnabled(_scaleFactor > 0.1);
 
-    _fitToWindowAct->setChecked(_fitToWindow = _scaleFactor == fitfact);
+    _isImageFitToWindow = _scaleFactor == fitfact;
+    _isImageFitToWindowAct->setChecked(_isImageFitToWindow );
 
     double  w = _image.width(),     // width of original image
             h = _image.height();
@@ -413,14 +551,30 @@ void ImageViewer::_CalcScaleFactor(double factor, bool showImage, bool doResize)
         if (_requiredWidgetSize.height() > _screenSize.height())
             _requiredWidgetSize.setHeight(_screenSize.height());
 
-        ui.lblZoom->setText(QString("%1%").arg(_scaleFactor * 100.0, 10, 'f', 0));
-        if (_windowScalesWithImage && size() != _requiredWidgetSize)
+        ui.lblZoom->setText(QString("%1% (%2 x %3)").arg(_scaleFactor * 100.0, 10, 'f', 0)
+                                    .arg(_scaledImage.width()).arg(_scaledImage.height()));
+        _SetElidedInfoText();
+        if (!_isFullScreen && (_windowScalesWithImage || factor == SCALE_FIT) && size() != _requiredWidgetSize)
         {
             resize(_requiredWidgetSize);    // automatic paint event after resize
         }
+        else
+            update();
     }
     else if (showImage)
+    {
+        if (_scaledImage.width() - _topLeftOfVisibleImage.x() < width() - 2 * (IMAGE_MARGIN + IMAGE_BORDER))
+            _topLeftOfVisibleImage.setX(_scaledImage.width() - width() + 2 * (IMAGE_MARGIN + IMAGE_BORDER));
+        if (_topLeftOfVisibleImage.x() < 0)
+            _topLeftOfVisibleImage.setX(0);
+        if (_scaledImage.height() - _topLeftOfVisibleImage.x() < height() - 2 * (IMAGE_MARGIN + IMAGE_BORDER))
+            _topLeftOfVisibleImage.setY(_scaledImage.height() - height() + 2 * (IMAGE_MARGIN + IMAGE_BORDER));
+        if (_topLeftOfVisibleImage.x() < 0)
+            _topLeftOfVisibleImage.setY(0);
+
+        ui.lblZoom->setText(QString("%1%").arg(_scaleFactor * 100.0, 10, 'f', 0));
         update();
+    }
 
 }
 
@@ -438,16 +592,16 @@ void ImageViewer::_SetImage(const QImage& newImage)
         ;
     }
 //    ->setPixmap(QPixmap::fromImage(_image));
-    _aspect = double(_image.width()) / double(_image.height());
+// already set on load and does not change    _aspect = double(_image.width()) / double(_image.height());
 }
 
 void ImageViewer::_Help()
 {
-    QMessageBox::about(this, tr("falconG - Help"),
+    QMessageBox::about(this, tr("falconG - Image Viewer Help"),
         tr("<p><b>Keyboard and Mouse for the image viewer</b></p>"
            "<p><b>?</b> - show this help</p>"
            "<p><b>I</b> - toggle status display</p>"
-           "<p><b>1</b> - zoom to 100%</p>"
+           "<p><b>1</b> - zoom to 100% (enforce no scale window to image)</p>"
            "<p><b>0</b> - zoom to fit window</p>"
            "<p><b>+</b> - zoom in</p>"
            "<p><b>-</b> - zoom out</p>"
@@ -457,16 +611,30 @@ void ImageViewer::_Help()
            "<p><b>Mouse</b> - Use the wheel to zoom in or out<br>"
             "Press and hold the <b>left</b> mouse button while<br>"
             "moving the mouse to pan the image</p>"
+            "<p><b>Right click</b>: popup menu</p>"
         ));
+}
+
+void ImageViewer::_ShowStatusInfo()
+{
+    if (_infoOverlayOn)
+    {
+        ui.statusFrame->show();
+        _statusAct->setChecked(true);
+        setWindowTitle("falconG - Image Viewer");
+    }
+    else
+    {
+        ui.statusFrame->hide();
+        _statusAct->setChecked(false);
+        setWindowTitle(_elidedInfoText);
+    }
 }
 
 void ImageViewer::_ToggleStatus()
 {
     _infoOverlayOn = !_infoOverlayOn;
-    if (_infoOverlayOn)
-        ui.statusFrame->show(), _statusAct->setChecked(true);
-    else
-        ui.statusFrame->hide(), _statusAct->setChecked(false);
+    _ShowStatusInfo();
 }
 
 void ImageViewer::_MoveImage(QPoint dp)
@@ -485,5 +653,50 @@ void ImageViewer::_MoveImage(QPoint dp)
     //    _topLeftOfVisibleImage.setY(h - _scaledImage.width());
 
     update();
+
+}
+
+// This size is the maximum widget size that still contains the whole image.
+// when full screen mode requested. If before reaching full screen mode the
+// size of the image is smaller than or equal to this size then the image is enlarged
+// to fill this widget. However if the image size is already larger than this size
+// then the image is not resized
+// so that it still fits into the screen (without a title bar) In full screen mode if the scaled image
+// zooming in such an image may increase this size to encompass the whole
+// screen
+// height is considerd first and width is determined based on image aspect ratio
+// however this may give an image partially outsize of the screen
+void ImageViewer::_SetMaxWidgetSizeForImageAspectRatio()
+{
+    Q_ASSERT(_aspect != 0.0);
+
+    double asp = _aspect < 1.0 ? _aspect : 1 / _aspect,
+          sasp = _screenSize.width() / _screenSize.height();
+
+    _maxFullScreenSize = _screenSize;
+    if (qAbs(sasp - asp) > 1.301e-4)   //1 pixel difference on 8K (size: 7680 x 4320) screen is 1.302e-4
+        _maxFullScreenSize.setWidth(_screenSize.height() * _aspect);
+
+    // get maximum size a widget may occupy on the screen
+    if (_maxFullScreenSize.width() > _screenSize.width())
+        _maxFullScreenSize.setWidth(_screenSize.width());
+}
+
+void ImageViewer::_PrimaryScreenChanged(QScreen* pScreen)
+{
+    _screenSize = QGuiApplication::primaryScreen()->availableSize();
+    _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
+    _requiredWidgetSize = _screenSize * 3 / 4;
+    sizePolicy().setHeightForWidth(true);
+    _SetMaxWidgetSizeForImageAspectRatio();
+}
+
+void ImageViewer::_SetElidedInfoText()
+{
+    QString qsel = _ElideFileName(ui.lblIName->font(), width() - 4 * (IMAGE_MARGIN + IMAGE_BORDER));
+
+    _elidedInfoText = QString(" %1,    Size:%2 x %3,    Zoom: %4% (%5 x %6)   - '?'= Help").arg(qsel)
+        .arg(_image.width()).arg(_image.height()).arg(_scaleFactor * 100.0, 10, 'f', 0)
+        .arg(_scaledImage.width()).arg(_scaledImage.height());
 
 }

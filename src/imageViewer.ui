@@ -78,6 +78,13 @@
      </spacer>
     </item>
     <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Image size:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="lblSize">
       <property name="text">
        <string>9999 x 9999</string>
@@ -98,7 +105,7 @@
      </spacer>
     </item>
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="lblZoom_2">
       <property name="text">
        <string>Zoom:</string>
       </property>
@@ -125,7 +132,7 @@
      </spacer>
     </item>
     <item>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="lblHelp">
       <property name="text">
        <string>'?' - Help</string>
       </property>
