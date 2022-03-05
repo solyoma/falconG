@@ -431,7 +431,7 @@ bool ImageViewer::_SetFullScreen(bool setIt)
     Qt::WindowFlags flg = windowFlags();
 
     // DEBUG
-    bool isf = isFullScreen();
+    // bool isf = isFullScreen();
     bool result = false;
     if (!setIt && _isFullScreen)    // then reset to window
 	{
@@ -581,13 +581,14 @@ void ImageViewer::_CalcScaleFactor(double factor, QFlags<ImageFlag> flags)
 void ImageViewer::_SetImage(const QImage& newImage)
 {
     _image = newImage;
-    try                         // for some images Qt's convertToColorSpace generate out of range exception
+    try                         // for some images where the colorSpace() is 0
+                                // Qt's convertToColorSpace generate out of range ASSERT
     {                           // even with valid original color space
-        if (_image.colorSpace().isValid())
+        if (_image.colorSpace().isValid() && _image.colorSpace().operator QVariant().toInt() != 0 && _image.colorSpace() != QColorSpace::SRgb)
             _image.convertToColorSpace(QColorSpace::SRgb);
 
     }
-    catch (const std::exception&)
+    catch (...)
     {
         ;
     }
