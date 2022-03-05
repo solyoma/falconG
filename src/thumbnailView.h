@@ -259,7 +259,8 @@ private:
     void _UpdateThumbsCount();
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
 	void _AddImagesFromList(QStringList qslFileNames, int row);
-	void _AddFoldersFromList(QStringList qslFolders, int row);
+	bool _AddFolder(QString folderName);	// returns if folder was added
+	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
 		return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));

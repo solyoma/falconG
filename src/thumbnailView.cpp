@@ -30,9 +30,10 @@
 static class FileIcons
 {
 
-    QList<MarkedIcon> _iconList;     // all icons for actual album, 
+    QVector<MarkedIcon> _iconList;   // all icons for actual album,  
+                                     // (not QLIst as in Qt6 QList is the same as QVector)
                                      // order never changes when items added or moved around
-                                     // only when deleted
+                                     // access elements through _iconOrder
     QVector<int> _iconOrder;         // indirection through this
 public:
     int posFolderIcon = -1;
@@ -77,9 +78,11 @@ public:
 			return QIcon();
 
 		if (pos >= _iconList.size())
-            Insert(-1, isFolder, isFolderThumb, imageName);    
+            Insert(-1, isFolder, imageName);    
 
         // pos-th item MUST exist
+        Q_ASSERT(pos < _iconOrder.size());
+
         MarkedIcon& micon = _iconList[_iconOrder[pos]];
         micon.isFolderThumb = isFolderThumb;
 		return micon.ToIcon();
@@ -92,7 +95,7 @@ public:
     {
         _iconOrder = order;
     }
-    void Insert(int pos, bool isFolder, bool isFolderThumb, QString imageName = QString())
+    MarkedIcon * Insert(int pos, bool isFolder, QString imageName = QString())
     {
 		MarkedIcon icon;
 		icon.Read(imageName, isFolder);
@@ -103,6 +106,7 @@ public:
             _iconOrder.insert(pos, _iconList.size());
 
 		_iconList.push_back(icon);
+        return &_iconList[_iconList.size() - 1];
     }
     void Remove(int pos)    // remove items _iconOrder[pos]
     {
@@ -919,7 +923,12 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
     }
     _AddImagesFromList(qsl, row);
     row += qsl.size();  // position for folders
-    _AddFoldersFromList(qslF, row);
+    if (_AddFoldersFromList(qslF, row))
+    {
+
+        emit SignalAlbumStructChanged();
+        Reload();
+    }
 }
 
 /*=============================================================
@@ -1260,7 +1269,7 @@ bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
  *          row - add before this row
  * GLOBALS:
  * RETURNS:
- * REMARKS:
+ * REMARKS: no thumbnail flag is set for any of the icons
  *------------------------------------------------------------*/
 void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
 {
@@ -1276,7 +1285,7 @@ void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
             continue;
         }
         else
-            fileIcons.Insert(row, false, false, qslFileNames[i]);
+            (void)fileIcons.Insert(row, false, qslFileNames[i]);  
     }
 }
 
@@ -1287,22 +1296,13 @@ void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
+bool ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
 {
-    int i;
-    ID_t id;
-    bool added;
-    for (i = 0; i < qslFolders.size(); ++i)
-    {
-        id = albumgen.Albums().Add(qslFolders[i], added);
-        if (!added)     // then already used somewehere // TODO: virtual albums
-        {
-            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
-            continue;
-        }
-        _ActAlbum()->items.insert(row++, id);
-        fileIcons.Insert(row, true, false, qslFolders[i]);
-    }
+    bool atLeastOneFolderWasAdded = false;
+    for (auto folderName: qslFolders)
+            atLeastOneFolderWasAdded |= _AddFolder(folderName);
+
+    return atLeastOneFolderWasAdded;
 }
 
 /*=============================================================
@@ -1743,25 +1743,23 @@ void ThumbnailView::AddImages()
     config.dsLastImageDir = dir;
 }
 
+
 /*=============================================================
- * TASK:   Display dialog box to add one folder into the 
- *          actual album
- * EXPECTS:
+ * TASK:    internal function that adds a folder recursively
+ * PARAMS:  folderName - name of folder to add
  * GLOBALS:
- * RETURNS:
- * REMARKS: - actual album is parent of new album folder
+ * RETURNS: if folder was added
+ * REMARKS: does not send signal 
  *------------------------------------------------------------*/
-void ThumbnailView::AddFolder()
+bool ThumbnailView::_AddFolder(QString folderName)
 {
     Album* pParentAlbum = _ActAlbum();
-    QString dir = pParentAlbum->path;
-    QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
-    if (qs.isEmpty())
-        return;
-    bool added;
-    ID_t id = albumgen.Albums().Add(qs,added);
+
+    bool added, atLeastOneFolderWasAdded = false;
+    ID_t id = albumgen.Albums().Add(folderName,added);
     if (added)
     {   
+        atLeastOneFolderWasAdded = true;
         pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
         pParentAlbum->changed = true;
         Album &album = *albumgen.AlbumForID(id);
@@ -1774,23 +1772,41 @@ void ThumbnailView::AddFolder()
         else
             pParentAlbum->items.insert(pos, id);
 
-        bool isThumb = true;
         ID_t idth = album.ThumbID();
         if (!idth)
-        {
-            isThumb = false;
-            qs.clear();
-        }
+            folderName.clear();
         else
-            qs = albumgen.Images()[idth].FullSourceName();
-        fileIcons.Insert(pos, true, isThumb, qs);
-
-        emit SignalAlbumStructChanged();
-        Reload();
+            folderName = albumgen.Images()[idth].FullSourceName();
+        (void)fileIcons.Insert(pos, true,folderName);
         //emit selectionChanged(QItemSelection(), QItemSelection());
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
+
+    return atLeastOneFolderWasAdded;
+}
+
+/*=============================================================
+ * TASK:   Display dialog box to add one folder into the 
+ *          actual album
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - actual album is parent of new album folder
+ *          - no thumbnail flag is set
+ *------------------------------------------------------------*/
+void ThumbnailView::AddFolder()
+{
+    Album* pParentAlbum = _ActAlbum();
+    QString dir = pParentAlbum->path;
+    QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
+    if (qs.isEmpty())
+        return;
+    if (_AddFolder(qs))
+    {
+        emit SignalAlbumStructChanged();
+        Reload();
+    }
 }
 
 /*============================================================================
