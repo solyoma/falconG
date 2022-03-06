@@ -796,7 +796,7 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
 		//}
 // /DEBUG
 // DEBUG
-        QString qs = __DebugPrintDragAndDrop(event);
+//        QString qs = __DebugPrintDragAndDrop(event);
   //      pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
 		//pDragDropLabel->setVisible(true);
 // /DEBUG
@@ -853,7 +853,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 //	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
 //	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailViewModel *>(model())->DummyPosition());
 // DEBUG
-    QString qs = __DebugPrintDragAndDrop(event) + QString(" r:%1").arg(row);
+    // QString qs = __DebugPrintDragAndDrop(event) + QString(" r:%1").arg(row);
     //pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
     //pDragDropLabel->setVisible(true);
     // /DEBUG
