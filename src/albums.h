@@ -57,7 +57,13 @@ struct IABase
 {
 	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
 	bool exists = false;	// set to true if it exists on the disk somewhere
-							// some image names may come from comment files
+	bool changed = false;	// Images (or videos): true: image is recreated (dimensions or file size or data changed)
+							//		check this and create a new struct file on disk if any image changed
+							//		inside any albums. 
+							// Alse set the album changed flag if any of its
+							//		images/thumbnails, etc changed
+							//		some image names may come from comment files
+							// albums: set to true when any text, album thumbnail, images, albums, exluded changed
 	ID_t titleID = 0;	// default text ID of image title
 	ID_t descID = 0;	// default text ID of image description
 	QString name;		// without path but with extension and no ending '/' even for albums
@@ -82,10 +88,6 @@ struct IABase
 //------------------------------------------
 struct Image : public IABase
 {
-	bool changed = false;		// true: image is recreated (dimensions or file size or data changed)
-								// check this and create a new struct file on disk if any image changed
-								// inside any albums. Alse set the album changed flag if any of its
-								// images/thu,bnails, etc changed
 	int usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
@@ -193,10 +195,6 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	// If no such file is present a default jpg will be supplied
 	enum Type {vtMp4, vtOgg, vtWebM} type;
 
-	bool changed = false;		// true: video and thumbnail is recreated (dimensions or file size or data changed)
-								// check this and create a new struct file on disk if any image changed
-								// inside any albums. Alse set the album changed flag if any of its
-								// images/thu,bnails, etc changed
 	int usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
@@ -228,8 +226,6 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
 						// this album changes. Must be modified when this album is moved into another one(**TODO**)
 	ID_t thumbnail = 0;	// image ID	or 0
-
-	bool changed = false;	// set to true when: any text, album thumbnail, images, albums, exluded changed
 
 	IdList items;			// for all images, videos and albums in this album GET item for position using IdOfItem!!
 	ID_t IdOfItem(int pos) { return items.isEmpty() ? 0 : items[pos]; }
@@ -350,11 +346,12 @@ public:
 	AlbumGenerator() { Init();  };
 	void Init();
 	void Clear();
+	void SetChangesWritten();
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
 	void RecursivelyAddAlbums(ID_t albumId);
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
-	int WriteDirStruct(bool keep=false);		
+	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false);		
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
 	int SaveStyleSheets();

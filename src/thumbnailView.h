@@ -251,6 +251,8 @@ private:
     int _thumbsRangeFirst;
     int _thumbsRangeLast;
 
+	QStringList _slSearchPaths;		// paths to search missing images against
+
 private:
 	Album	*_ActAlbum() const { return _albumId ? &albumgen.Albums()[_albumId] : nullptr; }
     void _InitThumbs();
@@ -273,7 +275,8 @@ signals:
 	void SignalSingleSelection(ID_t id);		// may be album or image or video
 	void SignalMultipleSelection(IdList);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
-	void SignalAlbumStructChanged();					// add the new album to tree view as well
+	void SignalAlbumStructChanged();			// add the new album to tree view as well
+	void SignalAlbumChanged();					// add the new album to tree view as well
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
@@ -305,6 +308,7 @@ public slots:
 	void SelectAsAlbumThumbnail();
 	void ItemDoubleClicked(const QModelIndex &);
 	void ThumbnailSizeChanged(int thumbSize);
+	void FindMissingImageOrVideo();		// maybe it was moved from its position
 
 private slots:
     void loadThumbsRange();

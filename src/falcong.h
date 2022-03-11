@@ -180,8 +180,8 @@ private:
 	void _EnableColorSchemeButtons();
 
 private slots:
-	void LinkClicked(QString s);		// from sample page
-	void WebPageLoaded(bool ready);
+	void _LinkClicked(QString s);		// from sample page
+	void _WebPageLoaded(bool ready);
 
 	void _AlbumStructureSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
 	void _SetProgressBar(int min, int max, int pos, int phase);
@@ -190,6 +190,7 @@ private slots:
 	void _EnableEditTab(bool on);
 
 	void _AlbumMapChanged();
+	void _AlbumChanged();	// e.g. image or album added to it, image name/path changed
 	void _ShowRemainingTime(time_t actual, time_t total, int count, bool speed);
 	void _CreateUplinkIcon(QString destPath, QString destName);
 	void _SetDirectoryCountTo(int cnt) { _directoryCount = cnt; }

@@ -849,7 +849,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 	//}
 // /DEBUG
 // 
-	int row = index.row();
+//	int row = index.row();
 //	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
 //	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailViewModel *>(model())->DummyPosition());
 // DEBUG
@@ -1520,10 +1520,33 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     {
         if (nSelSize == 1)
         {
-            pact = new QAction(tr("Set As Album &Thumbnail"), this);
-            // select from existing image
-            connect(pact, &QAction::triggered, this, &ThumbnailView::SetAsAlbumThumbnail);
-            menu.addAction(pact);           // select any image
+            int pos = currentIndex().row();     
+            Album& album = albumgen.Albums()[_albumId];
+            
+            ID_t id = album.items[pos];
+            IABase* pItem = nullptr;
+            if (id & IMAGE_ID_FLAG)
+                pItem = albumgen.ImageAt(id);
+            else if (id & VIDEO_ID_FLAG)
+                pItem = albumgen.VideoAt(id);
+            else
+                pItem = albumgen.AlbumForID(id);
+
+            bool exists = QFile::exists(pItem->FullSourceName());
+
+            if (exists)
+            {
+                pact = new QAction(tr("Set As Album &Thumbnail"), this);
+                // select from existing image
+                connect(pact, &QAction::triggered, this, &ThumbnailView::SetAsAlbumThumbnail);
+                menu.addAction(pact);           // select any image
+            }
+            else
+            {
+                pact = new QAction(tr("Find missing item"), this);
+                connect(pact, &QAction::triggered, this, &ThumbnailView::FindMissingImageOrVideo);
+                menu.addAction(pact);
+            }
         }
 
 
@@ -1739,6 +1762,7 @@ void ThumbnailView::AddImages()
     _AddImagesFromList(qslFileNames, pos);
     Reload();
 
+    emit SignalAlbumChanged();
     emit selectionChanged(QItemSelection(), QItemSelection());
     config.dsLastImageDir = dir;
 }
@@ -1778,7 +1802,6 @@ bool ThumbnailView::_AddFolder(QString folderName)
         else
             folderName = albumgen.Images()[idth].FullSourceName();
         (void)fileIcons.Insert(pos, true,folderName);
-        //emit selectionChanged(QItemSelection(), QItemSelection());
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
@@ -1941,6 +1964,91 @@ void ThumbnailView::ThumbnailSizeChanged(int newSize)
 {
     setIconSize(QSize(newSize, newSize));
     ThumbnailItem::SetThumbHeight(newSize);
+}
+
+/*=============================================================
+ * TASK:    slot for missing image\video search
+ * PARAMS:
+ * GLOBALS: _searchPaths
+ * RETURNS:
+ * REMARKS: - only used when a single missing image/video 
+ *              selected
+ *          - appends the path (w.o. name of file) to search 
+ *              paths then goes through all missing 
+ *              images/videos and tries to find them in any
+ *              folder in the search paths
+ *------------------------------------------------------------*/
+void ThumbnailView::FindMissingImageOrVideo()
+{
+    int pos = currentIndex().row();
+    Album& album = albumgen.Albums()[_albumId];
+    ID_t id = album.items[pos];
+    QString name, path;
+    IABase* pItem = nullptr;
+
+    auto __getItem = [&](ID_t id) {
+        if (id & IMAGE_ID_FLAG)
+            pItem = albumgen.ImageAt(id);
+        else if (id & IMAGE_ID_FLAG)
+            pItem = albumgen.VideoAt(id);
+        return pItem;
+    };
+    auto __getNameAndPath = [&](ID_t id, QString& n, QString& p) {
+        __getItem(id);
+		n = pItem->name;
+		p = pItem->path;
+	};
+
+    auto __pathindex = [&]() {
+        for(int i = 0; i < _slSearchPaths.size(); ++i)
+            if (QFile::exists(_slSearchPaths[i] + pItem->name))
+                return i;
+        return -1;
+    };
+
+    __getNameAndPath(id, name, path);
+    QString caption = tr("falconG - Find file: ") + name;
+    QFileDialog fd(this, caption, path);
+    fd.setFileMode(QFileDialog::ExistingFile);
+    fd.setNameFilter("*" + name.right(4));
+    fd.selectFile(name);
+    QString foundName;
+    if (fd.exec())
+    {
+        foundName = fd.selectedFiles()[0];
+
+    //if (!foundName.isEmpty())
+    //{
+        QString n, p;
+        SeparateFileNamePath(foundName, p, n);
+        if (n != name)
+        {
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("File names do not match. "));
+            return;
+        }
+        _slSearchPaths.push_back(p);
+        pItem->path = p;     // replace path
+        pItem->exists = QFile::exists(pItem->FullSourceName());
+        pItem->changed = true;
+        album.changed = true;
+        emit SignalAlbumChanged();
+
+        // check all missing files against search paths
+        for (auto id1 : album.items)
+        {
+            __getItem(id1);
+            if (!QFile::exists(pItem->FullSourceName()))
+            {
+                int j = __pathindex();
+                if (j >= 0)
+                {
+                    pItem->path = _slSearchPaths[j];
+                    pItem->exists = true;
+                }
+            }
+        }
+        Reload();
+    }
 }
 
 void ThumbnailView::setNeedToScroll(bool needToScroll) 

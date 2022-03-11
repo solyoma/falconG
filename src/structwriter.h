@@ -25,6 +25,7 @@ class AlbumStructWriterThread : public QThread
 	ImageMap& _imageMap;	// all images for all albums
 	VideoMap& _videoMap;	// all videos for all albums
 	Album _root;			// top level album (first in '_albumMap', ID = 1|ALBUM_ID_FLAG)
+	bool _recordChanges=false;	// when true then all changed albums will be marked as such
 	QTextStream _ofs;
 
 	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
@@ -34,7 +35,7 @@ signals:
 	void resultReady(QString s, QString sStructPath, QString sStructTmp);
 public:
 	void run() override;  // the actual writing
-	AlbumStructWriterThread(AlbumGenerator& generator, QObject* parent = Q_NULLPTR);
+	AlbumStructWriterThread(AlbumGenerator& generator, bool keepChanged = true, QObject* parent = Q_NULLPTR);
 };
 //------------------------------------------
 #endif

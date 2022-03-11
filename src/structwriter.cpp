@@ -40,8 +40,10 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 
 //***************************** class AlbumStructWriterThread ****************
-AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator& generator, QObject* parent) :
-	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), _videoMap(generator.Videos()),QThread(parent)
+AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator& generator, bool recordChanges, QObject* parent) :
+	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), 
+	_videoMap(generator.Videos()), _recordChanges(recordChanges),
+	QThread(parent)
 {
 }
 
@@ -125,9 +127,8 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 		{
 			pImg = &_imageMap[id];
 			if (pImg->changed)
-			{
 				album.changed = true;
-			}
+
 			if (pImg->exists)
 			{
 				if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
@@ -213,7 +214,7 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	ID_t thumbnail = album.thumbnail = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << "(A:" << (album.ID & ID_MASK) << ")" << s << "\n"; // always write album unchanged, but do not modify' changed' flag
+		<< album.name << ( album.changed ? "(C:" :"(A:") << (album.ID & ID_MASK) << ")" << s << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 

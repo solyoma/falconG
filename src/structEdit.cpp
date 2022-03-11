@@ -30,7 +30,7 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 	if (_busy) return 0;
 	AlbumMap &map = albumgen.Albums();
 	if (!parent.isValid())		   // root element: it has at least 2 sub-items, only one matters
-		return	map[ROOT_ALBUM_ID].items.size();		// map.size() ? 1 : 0;
+		return	1; //  map[ROOT_ALBUM_ID].items.size();		// map.size() ? 1 : 0;
 	ID_t id = (ID_t)(parent.internalPointer());
 	return map[id].SubAlbumCount();
 }
@@ -45,14 +45,15 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & parent) const
 {
-	ID_t idParent = (ID_t)parent.internalPointer();
-
-	AlbumMap &map = albumgen.Albums();
 	if (column || row < 0)
 		return QModelIndex();
 
-	if (!parent.isValid())				// root id for tree element
-		return createIndex(row, column, quintptr( (map.size() ? ROOT_ALBUM_ID : 0)) );
+	AlbumMap &map = albumgen.Albums();
+
+	ID_t idParent = (ID_t)parent.internalPointer();
+
+	if (!parent.isValid())				// only the root item has invalid parent
+		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? ROOT_ALBUM_ID : 0)) );
 	ID_t id = map[idParent].IdOfItemOfType(ALBUM_ID_FLAG,row);
 	return createIndex(row, column, quintptr(id));
 }
@@ -120,7 +121,7 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 	Album &ab = map[(ID_t)ind.internalPointer()];
 	ID_t aParent = ab.parent;				   // get ID of parent
 	if (aParent == 0)						   // no parent: topmost element
-		return index(0, ind.column());		   // it is the first and only such
+		return QModelIndex(); // invalid index(0, ind.column());		   // it is the first and only such
 
 	Album &abp = map[aParent];				  // parent album
 	ID_t bParent = abp.parent;				  // parent's parent
@@ -212,7 +213,7 @@ bool AlbumTreeModel::setHeaderData(int section, Qt::Orientation orientation, con
  *--------------------------------------------------------------------------*/
 bool AlbumTreeModel::insertColumns(int position, int columns, const QModelIndex & parent)
 {
-	return false;
+	return true;
 }
 
 /*============================================================================
@@ -224,7 +225,7 @@ bool AlbumTreeModel::insertColumns(int position, int columns, const QModelIndex 
  *--------------------------------------------------------------------------*/
 bool AlbumTreeModel::removeColumns(int position, int columns, const QModelIndex & parent)
 {
-	return false;
+	return true;
 }
 
 /*============================================================================

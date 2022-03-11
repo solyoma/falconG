@@ -1731,6 +1731,23 @@ void AlbumGenerator::Clear()
 	Init();
 }
 
+/*=============================================================
+ * TASK:	clears all changed flags
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void AlbumGenerator::SetChangesWritten()
+{
+	for (auto a : _albumMap)
+		a.changed = false;
+	for (auto a : _imageMap)
+		a.changed = false;
+	for (auto a : _videoMap)
+		a.changed = false;
+}
+
 void AlbumGenerator::AddDirsRecursively(ID_t albumId)
 {
 	_signalProgress = false;
@@ -2317,65 +2334,76 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 		{
 			id |= IMAGE_ID_FLAG;
 			if (_imageMap.contains(id))
-				img = _imageMap[id];
-
-			img.name = sl[0];
-			img.SetResizeType();	// handle starting '!!'
-
-			img.ID = id;
-			img.dsize = QSize(sl[3].toInt(), sl[4].toInt());	// scaled size from .struct file
-			img.osize = QSize(sl[5].toInt(), sl[6].toInt());	// original size - " -
-
-	// calculated when asked for		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
-			img.uploadDate = DateFromString(sl[7]);
-			if (img.uploadDate > _latestDateLimit)
-				_latestDateLimit = img.uploadDate;
-			// DEBUG:
-			if (img.uploadDate.toJulianDay() < 0)
-				return 0;
-
-			img.fileSize = sl[8].toULongLong();
-			if (n == 10)
-				ImageMap::lastUsedPath = sl[9];
-
-			img.path = ImageMap::lastUsedPath;
-			if (!img.fileSize)	// maybe file does not exist
 			{
-				QString sn = img.path + img.name;
-				if (!QDir::isAbsolutePath(sn))
-					sn = config.dsSrc.ToString() + sn;
-				QFile f(sn);
-				if (f.exists())
-				{
-					img.fileSize = f.size();
-					++_structChanged;
-				}
+				img = _imageMap[id];
+				++img.usageCount;
+				++_structChanged;
 			}
+			else
+			{
+				img.name = sl[0];
+				img.SetResizeType();	// handle starting '!!'
 
-			img.exists = (img.fileSize != 0);	// non existing images have 0 size
+				img.ID = id;
+				img.dsize = QSize(sl[3].toInt(), sl[4].toInt());	// scaled size from .struct file
+				img.osize = QSize(sl[5].toInt(), sl[6].toInt());	// original size - " -
+
+		// calculated when asked for		img.aspect = img.height ? (double)img.width / (double)img.height : 1;
+				img.uploadDate = DateFromString(sl[7]);
+				if (img.uploadDate > _latestDateLimit)
+					_latestDateLimit = img.uploadDate;
+				// DEBUG:
+				if (img.uploadDate.toJulianDay() < 0)
+					return 0;
+
+				img.fileSize = sl[8].toULongLong();
+				if (n == 10)
+					ImageMap::lastUsedPath = sl[9];
+
+				img.path = ImageMap::lastUsedPath;
+				if (!img.fileSize)	// maybe file does not exist
+				{
+					QString sn = img.path + img.name;
+					if (!QDir::isAbsolutePath(sn))
+						sn = config.dsSrc.ToString() + sn;
+					QFile f(sn);
+					if (f.exists())
+					{
+						img.fileSize = f.size();
+						++_structChanged;
+					}
+				}
+
+				img.exists = (img.fileSize != 0);	// non existing images have 0 size
+			}
 		}
 		else		// video
 		{
 			id |= VIDEO_ID_FLAG;
 			if (_videoMap.contains(id))
+			{
 				vid = _videoMap[id];
+				++vid.usageCount;
+			}
+			else
+			{
+				vid.name = sl[0];
+				vid.ID = id;
+				vid.uploadDate = DateFromString(sl[3]);
+				if (vid.uploadDate > _latestDateLimit)
+					_latestDateLimit = vid.uploadDate;
+				// DEBUG:
+				if (vid.uploadDate.toJulianDay() < 0)
+					return 0;
 
-			vid.name = sl[0];
-			vid.ID = id;
-			vid.uploadDate = DateFromString(sl[3]);
-			if (vid.uploadDate > _latestDateLimit)
-				_latestDateLimit = vid.uploadDate;
-			// DEBUG:
-			if (vid.uploadDate.toJulianDay() < 0)
-				return 0;
+				vid.fileSize = sl[4].toULongLong();
+				if (n == 6)
+					VideoMap::lastUsedPath = sl[5];
 
-			vid.fileSize = sl[4].toULongLong();
-			if (n == 6)
-				VideoMap::lastUsedPath = sl[5];
+				vid.path = VideoMap::lastUsedPath;
 
-			vid.path = VideoMap::lastUsedPath;
-
-			vid.exists = (vid.fileSize != 0);	// non existing videos have 0 size
+				vid.exists = (vid.fileSize != 0);	// non existing videos have 0 size
+			}
 		}
 	}
 	IdsFromStruct ids;
@@ -2654,12 +2682,13 @@ void AlbumGenerator::_AddAlbumThumbnail(Album& album, ID_t id)
 	if (album.thumbnail || album.ID == ROOT_ALBUM_ID)
 		return;
 
-	album.changed = true;
 	if (id)
 	{
 		album.thumbnail = id;
 		return;
 	}
+
+	album.changed = true;	 // when id given thombnail is from structure file
 	for(auto a : album.items)
 		if (a & IMAGE_ID_FLAG)
 		{
@@ -2905,12 +2934,13 @@ int AlbumGenerator::_DoCopyRes()
 int AlbumGenerator::WriteDirStruct(bool keep)
 {
 	_structWritten = false;
-	pWriteStructThread = new AlbumStructWriterThread(*this);
+	pWriteStructThread = new AlbumStructWriterThread(*this, keep);
 	connect(pWriteStructThread, &AlbumStructWriterThread::resultReady, this, &AlbumGenerator::_WriteStructReady);
 	connect(pWriteStructThread, &AlbumStructWriterThread::finished, pWriteStructThread, &QObject::deleteLater);
 	_keepPreviousBackup = keep;
 
-	pWriteStructThread->start();
+// DEBUG 	pWriteStructThread->start();
+	pWriteStructThread->run();
 	return 0;
 }
 /*============================================================================
@@ -4537,12 +4567,12 @@ int AlbumGenerator::Write()
 	if (!_CreateDirectories()) // from 'config'
 		return 64;
 
+	if (_structChanged || !_slAlbumsModified.isEmpty())		// do not save after read of structure
+		emit SignalAlbumStructChanged();   // all album and image data
+
 	_ProcessImages();	// copy from from source into image directory
 						// determine image dimensions and latest upload date
 	_ProcessVideos();
-	if(_processing)
-		if (_structChanged || !_slAlbumsModified.isEmpty())		// do not save after read of structure
-			WriteDirStruct();   // all album and image data is read in
 
 	int i = 0;					// returns:
 	if (_processing)
@@ -4586,16 +4616,19 @@ int AlbumGenerator::SaveStyleSheets()
 *--------------------------------------------------------------------------*/
 void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString sStructTmp)
 {
+	_structWritten = true;
+
 	if (!s.isEmpty())		// then error message
 	{
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
 		return;
 	}
 
-	_structWritten = true;
 	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
-	if(!s.isEmpty())
+	if (!s.isEmpty())
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
+	else
+		SetChangesWritten();	// clear all changes flag
 }
 
 
