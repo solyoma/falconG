@@ -1448,6 +1448,22 @@ void ThumbnailView::SetInsertPos(int here)
 }
 
 
+
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailView::keyReleaseEvent(QKeyEvent* event)
+{
+    if (currentIndex().isValid() && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
+        DeleteSelected();
+    else
+        QListView::keyReleaseEvent(event);
+}
+
 /*=============================================================
  * TASK:	modifies scrollbar position for wheel events
  * EXPECTS:
@@ -1754,8 +1770,8 @@ void ThumbnailView::UndoDelete()
  *------------------------------------------------------------*/
 void ThumbnailView::AddImages()
 {
-    QString dir = config.dsLastImageDir.ToString();
-    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add image"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
+    QString dir = _ActAlbum()->FullSourceName();
+    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;

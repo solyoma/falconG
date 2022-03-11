@@ -287,6 +287,7 @@ protected:
 	void _DropFromExternalSource(const ThumbMimeData *mimeData, int row);
 	void dropEvent(QDropEvent *event);			// when item is dropped
 
+	void keyReleaseEvent(QKeyEvent* event);
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
