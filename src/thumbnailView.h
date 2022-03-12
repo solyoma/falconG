@@ -31,6 +31,7 @@ const int THUMBNAIL_SIZE = 600;	// maximum size
 const int THUMBNAIL_BORDER_FACTOR = 30;	// border width = thumbnail size /this factor
 
 using IntList = QVector<int>;
+class ImageViewer;
 
 /*=============================================================
  * info stored for items in view
@@ -277,6 +278,7 @@ signals:
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructChanged();			// add the new album to tree view as well
 	void SignalAlbumChanged();					// add the new album to tree view as well
+	void SignalImageViewerAdded(ImageViewer* pv);
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments

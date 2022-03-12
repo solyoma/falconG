@@ -1155,7 +1155,8 @@ void ThumbnailView::LoadFileList()
 
 void ThumbnailView::Load() 
 {
-    fileIcons.Clear();  // clear all icons in memory
+    fileIcons.Clear();      // clear all icons in memory
+    _slSearchPaths.clear(); // and all search paths for missing images inside previous folder
     Reload();
 }
 
@@ -1230,9 +1231,9 @@ void ThumbnailView::_InitThumbs()
 void ThumbnailView::_UpdateThumbsCount()
 {
     if (_thumbnailViewModel->rowCount() > 0) 
-        statusStr = tr("%n image(s)", "", _thumbnailViewModel->rowCount());
+        statusStr = tr("%1 item(s)").arg(_thumbnailViewModel->rowCount());
     else 
-		statusStr = tr("No images");
+		statusStr = tr("No items");
 	emit SignalStatusChanged(statusStr);
 	emit SignalTitleChanged(title);
 }
@@ -1771,7 +1772,7 @@ void ThumbnailView::UndoDelete()
 void ThumbnailView::AddImages()
 {
     QString dir = _ActAlbum()->FullSourceName();
-    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("flaconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
+    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
@@ -1969,10 +1970,16 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
         
         ImageViewer* pViewer = new ImageViewer(name, nullptr);
         pViewer->setAttribute(Qt::WA_DeleteOnClose);
-        if(pViewer->LoadFile())
+        if (pViewer->LoadFile())
+        {
             pViewer->show();
+            emit SignalImageViewerAdded(pViewer);
+        }
         else
+        {
             pViewer->close();
+            delete pViewer;
+        }
     }
 }
 

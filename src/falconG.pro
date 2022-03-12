@@ -20,7 +20,7 @@ HEADERS += ./albums.h \
     ./stylehandler.h \
     ./support.h \
 	./textEditor.h \
-    ./thumbnailWidget.h
+    ./thumbnailView.h
 SOURCES += ./albums.cpp \
     ./config.cpp \
     ./crc32.cpp \
@@ -36,7 +36,7 @@ SOURCES += ./albums.cpp \
     ./stylehandler.cpp \
     ./support.cpp \
 	./textEditor.cpp \
-    ./thumbnailWidget.cpp
+    ./thumbnailView.cpp
 
 FORMS += ./falcong.ui \
         ./imageviewer.ui \

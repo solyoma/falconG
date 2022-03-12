@@ -19,6 +19,8 @@ using namespace Enums;
 
 #include <memory>
 
+class ImageViewer;	// in imageviewer.h
+
 // ************************ helper **********************
 QStringList GetTranslations();	// list of translation files
 // ************************ /helper ********************** 
@@ -96,6 +98,7 @@ private:
 	FalconGScheme _tmpScheme;	// used for editing
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
+	QList<ImageViewer*> _lstActiveViewers;		// visible image viewers
 	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
@@ -216,6 +219,7 @@ private slots:
 	bool _LanguagesWarning();
 	void _SetupActualBorder(BorderSide side);
 	void _PropagatePageColor();	// to all items
+	void _SlotImageViewerAdded(ImageViewer* pViewer);
 
 // auto connected slots
 private slots:
@@ -228,6 +232,7 @@ private slots:
 	void on_btnBrowseDestination_clicked();
 	void on_btnBrowseForBackgroundImage();
 	void on_btnBrowseSource_clicked();
+	void on_btnCloseAllViewers_clicked();
 	void on_btnDeleteColorScheme_clicked();
 	void on_btnDisplayHint_clicked();
 	void on_btnForeground_clicked();

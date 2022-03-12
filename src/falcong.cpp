@@ -17,6 +17,7 @@
 #include "structEdit.h"
 #include "sourcehistory.h"
 #include "csscreator.h"
+#include "imageviewer.h"
 
 
 #define DEBUG_LOG(qs) \
@@ -211,6 +212,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_TnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotChangeToFolderAt);	
+	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,		this, &FalconG::_SlotImageViewerAdded);	
 
 	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::ThumbnailSizeChanged);
 
@@ -280,6 +282,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 *--------------------------------------------------------------------------*/
 FalconG::~FalconG()
 {
+	on_btnCloseAllViewers_clicked();
 }
 
 /*============================================================================
@@ -526,6 +529,24 @@ void FalconG::on_btnGenerate_clicked()
 	ui.btnSaveStyleSheet->setEnabled(!_running);
 	if (!_running)
 		ui.chkReadJAlbum->setChecked(false);
+}
+
+/*=============================================================
+ * TASK:	close all open image viewers
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_btnCloseAllViewers_clicked()
+{
+	for (auto p : _lstActiveViewers)
+	{
+		p->close();
+		delete p;
+	}
+	_lstActiveViewers.clear();
+	ui.btnCloseAllViewers->setEnabled(false);
 }
 
 /*============================================================================
@@ -1380,6 +1401,12 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 		ui.lwColorScheme->setCurrentRow(schemes.size() - 2 - 1);	// 2 for default and system colors, 1: offset vs size
 		ui.btnApplyColorScheme->setEnabled(true);
 	}
+}
+
+void FalconG::_SlotImageViewerAdded(ImageViewer* pViewer)
+{
+	_lstActiveViewers.push_back(pViewer);
+	ui.btnCloseAllViewers->setEnabled(true);
 }
 
 void FalconG::on_btnAlbumMatteColor_clicked()
@@ -5364,7 +5391,7 @@ void FalconG::_ThumbNailViewerIsLoading(bool yes)
 
 void FalconG::_TnvCountChanged()
 {
-	ui.lblTotalCount->setText(QString("%1 Albums, %2 images").arg(albumgen.Albums().size()).arg(albumgen.Images().size()) );
+	ui.lblTotalCount->setText(tr("%1 Albums, %2 images").arg(albumgen.Albums().size()).arg(albumgen.Images().size()) );
 }
 
 void FalconG::_TnvStatusChanged(QString &s)

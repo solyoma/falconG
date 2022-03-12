@@ -32,10 +32,11 @@ protected:
 	int heightForWidth(int w);
 
 	void keyPressEvent(QKeyEvent* event);
-	void mousePressEvent(QMouseEvent* event);
-	void mouseReleaseEvent(QMouseEvent* event);
-	void mouseMoveEvent(QMouseEvent* event);
-	void wheelEvent(QWheelEvent* event);
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent* event)	override;
+	void mouseReleaseEvent(QMouseEvent* event)	override;
+	void mouseMoveEvent(QMouseEvent* event)		override;
+	void wheelEvent(QWheelEvent* event)			override;
 	void contextMenuEvent(QContextMenuEvent* pevent);
 //	void showEvent(QShowEvent* event);
 	void resizeEvent(QResizeEvent* event);

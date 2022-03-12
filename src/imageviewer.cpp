@@ -36,8 +36,7 @@ bool ImageViewer::LoadFile()
             tr("Cannot load %1: %2"
                 "<br>It is possible, that the image added was<br>"
                 "in the data base already but moved to a different folder outside<br/>"
-                "this program. Remove it and try to add with the <b>Keep duplicates</b><br>"
-                "box checked on the <i>Gallery</i> page.")
+                "this program. Use the <i>Find missing item</i> popup menu to find it.")
             .arg(QDir::toNativeSeparators(_fileName), reader.errorString()));
         return false;
     }
@@ -130,6 +129,11 @@ void ImageViewer::keyPressEvent(QKeyEvent* event)
             _MoveImage(dp);
         }
     }
+}
+
+void ImageViewer::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    close();
 }
 
 void ImageViewer::mousePressEvent(QMouseEvent* event)
