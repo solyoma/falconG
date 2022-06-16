@@ -1012,7 +1012,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 		//}
         items = idl;
         pAlbum->changed = true;
-        Reload();
+        //Reload();
 		// DEBUG
 		//if (pDragDropLabel)
 		//	delete pDragDropLabel;
