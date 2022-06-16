@@ -6,6 +6,7 @@
 #include <QScrollBar>
 #include <QContextMenuEvent>
 
+#include "thumbnailView.h"
 #include "imageviewer.h"
 #include "schemes.h"
 
@@ -15,7 +16,7 @@ constexpr double SCALE_UP = 1.1,
                  SCALE_FIT  = -1.0,
                  NO_SCALE = 0.0;
 
-ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName), QWidget(parent)
+ImageViewer::ImageViewer(QString fileName, ThumbnailView* creator, QWidget* parent) : _owner(creator), _fileName(fileName), QWidget(parent)
 {
     ui.setupUi(this);
     sizePolicy().setHeightForWidth(true);
@@ -24,6 +25,11 @@ ImageViewer::ImageViewer(QString fileName, QWidget* parent) : _fileName(fileName
     _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
     _CreateActions();
     connect(qGuiApp, &QGuiApplication::primaryScreenChanged, this, &ImageViewer::_PrimaryScreenChanged);
+}
+
+ImageViewer::~ImageViewer()
+{
+    _owner->RemoveViewer(this);
 }
 
 bool ImageViewer::LoadFile()

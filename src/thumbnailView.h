@@ -196,6 +196,7 @@ public:
 
 	void Setup(ID_t aid);
 	void Clear();
+	void RemoveViewer(ImageViewer* pv);
 
     void Load();
 	void Reload();
@@ -232,6 +233,9 @@ private:
 	IdList *_pIds = nullptr;	    // images in this album
 
     QImage _insertPosImage;	// shows insert position
+
+	bool _dontRemoveImageViewerFromList = false; // used when all viewers are removed by user
+	QList<ImageViewer*> _lstActiveViewers;		// visible image viewers
 // /SA
 
     QStringList *_fileFilters;
@@ -269,6 +273,8 @@ private:
 		return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
 
+	void _RemoveAllViewers();
+
 signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
@@ -278,7 +284,7 @@ signals:
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructChanged();			// add the new album to tree view as well
 	void SignalAlbumChanged();					// add the new album to tree view as well
-	void SignalImageViewerAdded(ImageViewer* pv);
+	void SignalImageViewerAdded(bool enableclosebutton);
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments
@@ -312,6 +318,7 @@ public slots:
 	void ItemDoubleClicked(const QModelIndex &);
 	void ThumbnailSizeChanged(int thumbSize);
 	void FindMissingImageOrVideo();		// maybe it was moved from its position
+	void SlotToRemoveAllViewers();
 
 private slots:
     void loadThumbsRange();

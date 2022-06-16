@@ -88,6 +88,7 @@ public:
 signals:
 	void CancelRun();
 	void SignalThumbSizeChanged(int newSize);
+	void SignalToCloseAllViewers();
 private:
 
 	Ui::falconGClass ui;
@@ -98,7 +99,6 @@ private:
 	FalconGScheme _tmpScheme;	// used for editing
 	QString _tmpSchemeOrigName;	// if not the same what was before it has been changed
 	QList<QPushButton*> _pSchemeButtons;		// buttons added to options page
-	QList<ImageViewer*> _lstActiveViewers;		// visible image viewers
 	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
@@ -219,7 +219,8 @@ private slots:
 	bool _LanguagesWarning();
 	void _SetupActualBorder(BorderSide side);
 	void _PropagatePageColor();	// to all items
-	void _SlotImageViewerAdded(ImageViewer* pViewer);
+
+	void _SlotForEanbleCloseAllViewers(bool enable);
 
 // auto connected slots
 private slots:

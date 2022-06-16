@@ -15,6 +15,7 @@
 constexpr int IMAGE_MARGIN = 9;		// pixel
 constexpr int IMAGE_BORDER = 4;
 
+class ThumbnailView;
 class ImageViewer : public QWidget
 {
 	Q_OBJECT
@@ -25,9 +26,11 @@ public:
 	enum ImageFlag {imNone, imReshowImage, imResizeWithImage};
 	Q_DECLARE_FLAGS(ImageFlags, ImageFlag);
 public:
-	ImageViewer(QString fileName, QWidget* parent=nullptr);
-	~ImageViewer() {}
+	ImageViewer(QString fileName, ThumbnailView *creator,QWidget* parent=nullptr);
+	~ImageViewer();
 	bool LoadFile();
+signals:
+	void SignalImageViewerClosed(ImageViewer* self);
 protected:
 	int heightForWidth(int w);
 
@@ -43,6 +46,7 @@ protected:
 	void paintEvent(QPaintEvent* event);
 private:
 
+	ThumbnailView* _owner;
 	QString _fileName;
 	QString _elidedInfoText;						// info on the title bar
 	QImage _image;
@@ -71,7 +75,6 @@ private:
 
 	bool _infoOverlayOn = true;						// image info overlay visible?
 	QRect _lastNotFullScreenRect;
-
 
 	QMenu*	 _popupMenu;
 	QAction* _closeAct;

@@ -159,16 +159,16 @@ public:
 	// setters	: each regenerates watermark image and saves it into 'res/'
 	void SetPositioning(int pos) { _origin = pos; }
 	void SetBackground(unsigned bck) { _background = bck; }
+	void SetColorWithOpacity(int colorWOpacity);
+	void SetColorWithOpacity(QString sColorWOpacity);
 	void SetFont(QFont& qfont);
 	void SetMarginX(int mx) { _marginX = mx; }
 	void SetMarginY(int my) { _marginY = my; }
 	void SetText(QString  qs);
-	void SetColorWithOpacity(int colorWOpacity);
-	void SetColorWithOpacity(QString sColorWOpacity);
+	void SetOpacity(int val, bool percent); // val is in percent (0..100) or not(0..255)?
 	void SetShadowColor(unsigned color) { _shadowColor = color; }
 	void SetShadowOn(bool on) { _shadowOn = on; }
 	void SetShadowBlur(int blur) { _shadowBlur = blur; }
-	void SetOpacity(int val, bool percent); // val is in percent (0..100) or not(0..255)?
 };
 
 //*****************************************																			

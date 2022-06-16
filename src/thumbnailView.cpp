@@ -1196,6 +1196,30 @@ void ThumbnailView::Clear()
     _thumbnailViewModel->Clear();
 }
 
+void ThumbnailView::RemoveViewer(ImageViewer* pv)
+{
+    if (!_dontRemoveImageViewerFromList)
+    {
+        int n = _lstActiveViewers.indexOf(pv);
+        if (n >= 0)
+            _lstActiveViewers.removeAt(n);
+    }
+    emit SignalImageViewerAdded(!_lstActiveViewers.isEmpty());
+}
+
+void ThumbnailView::_RemoveAllViewers()
+{
+    _dontRemoveImageViewerFromList = true;
+    for (auto p : _lstActiveViewers)
+    {
+        p->close();
+        delete p;
+    }
+    _lstActiveViewers.clear();
+    _dontRemoveImageViewerFromList = false;
+    emit SignalImageViewerAdded(false);
+}
+
 void ThumbnailView::_InitThumbs()
 {
 	static QStandardItem *thumbItem;
@@ -1968,12 +1992,14 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
         IABase *pb = id & IMAGE_ID_FLAG ? (IABase*)albumgen.ImageAt(id) : (IABase*)albumgen.VideoAt(id);
         QString name = pb->FullSourceName();
         
-        ImageViewer* pViewer = new ImageViewer(name, nullptr);
+        ImageViewer* pViewer = new ImageViewer(name, this, nullptr);
         pViewer->setAttribute(Qt::WA_DeleteOnClose);
         if (pViewer->LoadFile())
         {
             pViewer->show();
-            emit SignalImageViewerAdded(pViewer);
+            _lstActiveViewers.push_back(pViewer);
+
+            emit SignalImageViewerAdded(true);
         }
         else
         {
@@ -2072,6 +2098,11 @@ void ThumbnailView::FindMissingImageOrVideo()
         }
         Reload();
     }
+}
+
+void ThumbnailView::SlotToRemoveAllViewers()
+{
+    _RemoveAllViewers();
 }
 
 void ThumbnailView::setNeedToScroll(bool needToScroll) 

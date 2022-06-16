@@ -212,7 +212,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_TnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotChangeToFolderAt);	
-	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,		this, &FalconG::_SlotImageViewerAdded);	
+	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEanbleCloseAllViewers);
+
+	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToRemoveAllViewers);
 
 	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::ThumbnailSizeChanged);
 
@@ -540,13 +542,7 @@ void FalconG::on_btnGenerate_clicked()
  *------------------------------------------------------------*/
 void FalconG::on_btnCloseAllViewers_clicked()
 {
-	for (auto p : _lstActiveViewers)
-	{
-		p->close();
-		delete p;
-	}
-	_lstActiveViewers.clear();
-	ui.btnCloseAllViewers->setEnabled(false);
+	emit SignalToCloseAllViewers();
 }
 
 /*============================================================================
@@ -1048,6 +1044,7 @@ void FalconG::_DesignToUi()
 	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.Color()).name());
 	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.BorderColor().name()) );
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
+	ui.chkUseWM->setChecked(config.waterMark.used);
 	ui.sbWmOpacity->setValue( (int)(config.waterMark.Opacity(true)));
 	//ui.btnWmColor->setStyleSheet(QString("QToolButton { background-color:#%1}").arg(config.waterMark.Color(),8,16,QChar('0')));
 	if(config.waterMark.ShadowColor() >= 0)
@@ -1131,6 +1128,7 @@ void FalconG::_OtherToUi()
 	ui.chkMenuToToggleCaptions->setChecked(config.bMenuToToggleCaptions);
 	ui.chkOvrImages->setChecked(config.bOvrImages);
 	ui.chkUseGoogleAnalytics->setChecked(config.googleAnalyticsOn);
+
 	ui.btnLink->setChecked(config.imageSizesLinked);
 
 	int h = (int)config.imageHeight ? (int)config.imageHeight : 1;
@@ -1264,6 +1262,11 @@ void FalconG::_PropagatePageColor()
 	config.Footer.color = config.Web.color.Name();
  
 	_ConfigToSample(espColor);
+}
+
+void FalconG::_SlotForEanbleCloseAllViewers(bool enable)
+{
+	ui.btnCloseAllViewers->setEnabled(enable);
 }
 
 //****************************************************************************
@@ -1401,12 +1404,6 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 		ui.lwColorScheme->setCurrentRow(schemes.size() - 2 - 1);	// 2 for default and system colors, 1: offset vs size
 		ui.btnApplyColorScheme->setEnabled(true);
 	}
-}
-
-void FalconG::_SlotImageViewerAdded(ImageViewer* pViewer)
-{
-	_lstActiveViewers.push_back(pViewer);
-	ui.btnCloseAllViewers->setEnabled(true);
 }
 
 void FalconG::on_btnAlbumMatteColor_clicked()

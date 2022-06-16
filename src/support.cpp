@@ -1243,7 +1243,7 @@ QString WaterMark::PositionToStyle(int width, int height, double ratio, POS pos)
 
 unsigned WaterMark::Color() const 
 {
-	return _colorWOpacity & 0xFFFFFF; 
+	return _colorWOpacity; 
 }
 double WaterMark::Opacity(bool percent) const		// 0..255 (!percent) or 0..100 (percent)
 {
