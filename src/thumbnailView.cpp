@@ -956,53 +956,39 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 	// get drop position
 	QModelIndex index = indexAt(event->pos());
 
-    int row = index.row();
+    int row = index.row();      // -1: drop after the last item
 
     if (mimeData->hasUrls())
         _DropFromExternalSource(mimeData, row);
-    else
+    else  if (!mimeData->thumbList.isEmpty()) // perform drops from thumbnail list
 	{
-		if (mimeData->thumbList.isEmpty())
-			return;
-
-        IntList thl = mimeData->thumbList;  // index in thumbList items to move
+        IntList thl = mimeData->thumbList;  // indices in actual album's items to move
         IntList thl0 = thl;                 // original index array of thumblist to check items against
-        // reorder list of actual album
+        // reorder items of actual album
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
         IdList &items = pAlbum->items;      // original ordered items
 
         QVector<int> itemOrder;             // new item order indexes
-        itemOrder.resize(items.size());     // original indexes are 0,1,2...
-
-        // special handling for drops one item to the right
-        // simply exchanges items
-        if (thl.size() == 1 && thl[0] == row - 1)
-            ++row;
+        itemOrder.resize(items.size());     // and original indexes are 0,1,2...
 
         int si = 0,     // original index
             di = 0;     // index in idl
-        // rearrange 0,1,2,... to new order
-        while(si < itemOrder.size())          // di <= si
-        {
-            if (!thl.size())           // no more moved items
-            {
-                if(thl0.indexOf(si) < 0)    // don't move twice
-                    itemOrder[di++] = si;
-                ++si;
-            }
-            else
-            {
-                if (si == row)
-                {
-                    for (int j = 0; j < thl.size(); ++j)
-                        itemOrder[di++] = thl[j];
-                    thl.clear();
-                }
-                if (thl0.indexOf(si) < 0)
-                    itemOrder[di++] = si;
-                ++si;
-            }
-        }
+
+        // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
+        if (row < 0)
+            row = items.size();
+
+        for (  ; si < items.size() && si < row; ++si)
+            if (thl.indexOf(si) < 0)
+                itemOrder[di++] = si;
+
+        for (int i = 0; i < thl.size(); ++i)
+            itemOrder[di++] = thl[i];
+
+        for ( si = row ; si < items.size(); ++si)
+            if (thl.indexOf(si) < 0)
+                itemOrder[di++] = si;
+
         // new order in 'itemOrder' set
         IdList idl;                         // new ordered items
         idl.resize(items.size());
@@ -1020,10 +1006,10 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
         fileIcons.SetIconOrder(iconOrder);
 
-		if (_dragFromHereInProgress)	// then remove from old spot
-		{
+		//if (_dragFromHereInProgress)	// then remove from old spot
+		//{
 
-		}
+		//}
         items = idl;
         pAlbum->changed = true;
         Reload();
@@ -1268,18 +1254,20 @@ void ThumbnailView::_UpdateThumbsCount()
  * GLOBALS:
  * RETURNS:
  * REMARKS: does not check if the files or folders in an url list
- *          ar acceptable, just see the allowed type
+ *          are acceptable, just looks at the allowed types
  *------------------------------------------------------------*/
 bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
 {
     // DEBUG
-    qDebug() << "Mime text: " << event->mimeData()->text() 
-             << ", hasUrls ? " << event->mimeData()->hasUrls()
-             << "mimeData is null?" << (event->mimeData() ? "no":"yes")
-             << ", hasImage ? " << event->mimeData()->hasImage()
-             << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
-        ;
-     return (indexAt(event->pos()).row() >= 0) && 
+    //qDebug() << "Mime text: " << event->mimeData()->text() 
+    //         << ", hasUrls ? " << event->mimeData()->hasUrls()
+    //         << "mimeData is null?" << (event->mimeData() ? "no":"yes")
+    //         << ", hasImage ? " << event->mimeData()->hasImage()
+    //         << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
+    //    ;
+    // qDebug() << "IsAllowedTypeToDrop: row=" << indexAt(event->pos()).row();
+
+     return /* (indexAt(event->pos()).row() >= 0) && */
             (event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName
             event->mimeData()->hasImage() ||    // image/...
 		    event->mimeData()->hasFormat("application/x-thumb")     // drag and drop inside this application
