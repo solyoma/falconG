@@ -1148,26 +1148,38 @@ bool CreateDir(QString sdir) // only create if needed
  * RETURNS:
  * REMARKS: - https://nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
  *-------------------------------------------------------*/
-static bool __RemoveFolder(QString name)
+bool RemoveFolderRecursively(QString name, bool tryToTrash)
 {
-	bool result = true;
+	bool result = false;
 	QDir dir(name);
 
 	if (dir.exists(name)) 
 	{
-		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-			if (info.isDir()) {
-				result = __RemoveFolder(info.absoluteFilePath());
+		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) 
+		{
+			if (info.isDir()) 
+			{
+				if (tryToTrash)
+					result = QFile::moveToTrash(info.absoluteFilePath());
+				if(!result)
+					result = RemoveFolderRecursively(info.absoluteFilePath(), tryToTrash);
 			}
-			else {
-				result = QFile::remove(info.absoluteFilePath());
+			else 
+			{
+				if (tryToTrash)
+					result = QFile::moveToTrash(info.absoluteFilePath());
+				if(!result)
+					result = QFile::remove(info.absoluteFilePath());
 			}
 
-			if (!result) {
+			if (!result) 
 				return result;
-			}
+			
 		}
-		result = dir.rmdir(name);
+		if (tryToTrash)
+			result = QFile::moveToTrash(name);
+		if(!result)
+			result = dir.rmdir(name);
 	}
 
 	return result;
@@ -1182,14 +1194,14 @@ static bool __RemoveFolder(QString name)
  * REMARKS: - NO NEED: QSir.removeRecursively() does this
  *				except asking for it
  *-------------------------------------------------------*/
-bool RemoveDir(QString name, bool ask)
+bool RemoveDir(QString name, bool ask, bool tryToTrash)
 {
 	if (ask)
 	{
 		if (QMessageBox::question(nullptr, QMainWindow::tr("falconG"), QString(QMainWindow::tr("Really remove %1 and all of its content?")).arg(name)) != QMessageBox::Yes)
 			return false;
 	}
-	return __RemoveFolder(name);
+	return RemoveFolderRecursively(name, tryToTrash);
 }
 
 // ************* sturct Watermark ************
@@ -1409,6 +1421,7 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 // =================================================================
 QPixmap *MarkedIcon::folderThumbMark = nullptr;
 QPixmap *MarkedIcon::noImageMark = nullptr;
+QPixmap *MarkedIcon::noresizeMark = nullptr;
 int MarkedIcon::thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
 int MarkedIcon::borderWidth = thumbSize / THUMBNAIL_BORDER_FACTOR;				// in pixels portrait image: right and left, landscape image top and bottom
 bool MarkedIcon::initted = false;				// images for icons read?
@@ -1483,12 +1496,14 @@ bool MarkedIcon::Read(QString fname, bool is_folder)
  *------------------------------------------------------------*/
 QIcon MarkedIcon::ToIcon()
 {
-	if (exists && !isFolderThumb)	// no markers on image
+	if (exists && !isFolderThumb && !dontResize)	// no markers on image
 		return QIcon(pxmp);
 
 	QPixmap tmppxmp(thumbSize, thumbSize);
 	QPainter painter(&tmppxmp);
 	painter.drawPixmap(0,0, pxmp);		// image with border
+	if (dontResize)
+		painter.drawPixmap(borderWidth, borderWidth, *noresizeMark);
 	if (isFolderThumb)
 		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *folderThumbMark);
 	if(!exists)

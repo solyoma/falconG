@@ -30,8 +30,36 @@ const int WINDOW_ICON_SIZE = 48;
 const int THUMBNAIL_SIZE = 600;	// maximum size
 const int THUMBNAIL_BORDER_FACTOR = 30;	// border width = thumbnail size /this factor
 
-using IntList = QVector<int>;
 class ImageViewer;
+
+class FileIcons
+{
+
+	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
+									 // (not QList as in Qt6 QList is the same as QVector)
+									 // order never changes when items added or moved around
+									 // access elements through _iconOrder
+	QVector<int> _iconOrder;         // indirection through this
+public:
+	enum Flag { fiFolder, fiThumb, fiDontResize};
+	using Flags = QFlags<Flag>;
+
+	int posFolderIcon = -1;
+
+	void Clear();
+	int Size() const;
+	void SetMaximumSizes(int thumbsize = THUMBNAIL_SIZE, int borderwidth = 10);
+	bool HasIconFor(int pos);
+	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
+
+	QIcon IconForPosition(int pos, Flags flags, QString imageName = QString());
+	QVector<int> IconOrder() const;
+	void SetIconOrder(QVector<int>& order);
+	MarkedIcon* Insert(int pos, bool isFolder, QString imageName = QString());
+	void Remove(int pos);    // remove items _iconOrder[pos];
+};
+
+extern FileIcons fileIcons;
 
 /*=============================================================
  * info stored for items in view
@@ -314,6 +342,7 @@ public slots:
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
 	void SetAsAlbumThumbnail();			// from existing image/album image
+	void ToggleDontResizeFlag();
 	void SelectAsAlbumThumbnail();
 	void ItemDoubleClicked(const QModelIndex &);
 	void ThumbnailSizeChanged(int thumbSize);

@@ -30,6 +30,7 @@ class AlbumStructWriterThread : public QThread
 
 	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
 	void _WriteStructAlbums(Album& album, QString indent);
+	void WriteOrphanThumbnails();
 
 signals:
 	void resultReady(QString s, QString sStructPath, QString sStructTmp);

@@ -29,6 +29,7 @@
 const QString TITLE_TAG = "Title-";	// used in 'struct' files
 const QString DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
 const QString THUMBNAIL_TAG = "Icon";	// "album icon"
+const QString ORPHAN_ID = "[Thumbnails not in any album";	// closed with a line only having a ']'
 //const QString SAVED_IMAGE_DESCRIPTIONS = "images.desc";
 //const QString TEMP_SAVED_IMAGE_DESCRIPTIONS = "images.tmp";
 
@@ -42,13 +43,14 @@ const ID_t ALBUM_ID_FLAG	= 0x4000000000000000ull;	// when set ID is for an album
 const ID_t ROOT_ALBUM_ID	= 0x4000000000000001ull;
 const ID_t RECENT_ALBUM_ID	= 0x4000000000000002ull;
 
-const ID_t VIDEO_ID_FLAG = 0x2000000000000000ull;	// when set ID is for a video
-const ID_t IMAGE_ID_FLAG = 0x1000000000000000ull;	// when set ID is for a video
-const ID_t BASE_ID_MASK	 = 0xF0000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC + image/video/album flag
-const ID_t ID_MASK		 = 0x0FFFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
-const ID_t ID_INCREMENT  = 0x0000000100000000ull;	// when image id clash add this to id 
-const ID_t MAX_ID = 0xFFFFFFFFFFFFFFFFull ^ (ALBUM_ID_FLAG | VIDEO_ID_FLAG);	 
-const int ID_COLLISION_FACTOR = 32;		// id >> ID_COLLISION_FACTOR = overflow index
+const ID_t VIDEO_ID_FLAG	= 0x2000000000000000ull;	// when set ID is for a video
+const ID_t IMAGE_ID_FLAG	= 0x1000000000000000ull;	// when set ID is for a image
+const ID_t THUMBNAL_ID_FLAG = 0x0800000000000000ull;	// for images: this image is not in any album, it's just an album thumbnail
+const ID_t BASE_ID_MASK		= 0xF8000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC + image/thumbnail/video/album flag
+const ID_t ID_MASK			= 0x07FFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
+const ID_t ID_INCREMENT		= 0x0000000100000000ull;	// when image id clash add this to id 
+const ID_t MAX_ID			= 0x07FFFFFFFFFFFFFFull;	 
+const int TEXT_ID_COLLISION_FACTOR = 32;		// id >> TEXT_ID_COLLISION_FACTOR = overflow index
 
 extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
 
@@ -88,7 +90,8 @@ struct IABase
 //------------------------------------------
 struct Image : public IABase
 {
-	int usageCount = 1;			// can be removed when this is 0
+	int usageCount = 0;			// can be removed only if this is 0
+	int thumbnailCount = 0;		// and this is also 0	Orphan thumbnails must have 0 usageCount
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
@@ -244,6 +247,7 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
+	ID_t SetThumbnail(ID_t id); // sets album thumbnail and increase the usage count of it
 
 	ID_t IdOfItemOfType(int64_t type, int index);
 
@@ -284,7 +288,7 @@ public:
 
 	Image& Find(ID_t id, bool useBase = true);
 	Image& Find(QString FullSourceName);
-	ID_t Add(QString image, bool &added);	// returns ID and if added
+	ID_t Add(QString image, bool &added, ID_t orphanID=0);	// returns ID and if added
 	Image &Item(int index);
 };
 
@@ -350,6 +354,14 @@ public:
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
 	void RecursivelyAddAlbums(ID_t albumId);
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
+
+	void RemoveItems(ID_t albumID, IntList ilx, bool fromdisk);
+
+	void AddThumbnailBeforeImageRead(ID_t id)
+	{
+		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
+	}
+
 	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false);		
 	bool StructWritten() const { return _structWritten; }
@@ -371,18 +383,28 @@ public:
 	// careful: these are not const so that their elements could be modified
 	Album &AlbumRoot()  { return _albumMap[ROOT_ALBUM_ID]; }
 	ImageMap &Images() { return _imageMap; }
-	Image* ImageAt(ID_t id) { return &_imageMap[id]; }
+	bool Contains(ID_t id)	// inside albumgen
+	{	
+		return ( (id & ALBUM_ID_FLAG) && _albumMap.contains(id)  ||
+				 (id & IMAGE_ID_FLAG) && _imageMap.contains(id)  ||
+				 (id & VIDEO_ID_FLAG) && _videoMap.contains(id) ) ;
+	}
+	Image* ImageAt(ID_t id) 
+	{ 
+		return &_imageMap[id]; 
+	}
 	VideoMap& Videos() { return _videoMap; }
 	Video* VideoAt(ID_t id) { return &_videoMap[id]; }
 	TextMap &Texts()   { return _textMap;  }
 	LanguageTexts *TextsAt(ID_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
-	Album *AlbumForID(ID_t id) { 
+	Album *AlbumForID(ID_t id) 
+	{ 
 		return &_albumMap[id]; 
 	}
 	QString SiteLink(int language);
 
-	ID_t AddImageOrAlbum(ID_t albumId, QString path, bool isThumbnail=false, bool doSignalElapsedTime=true, bool doNotAddToAlbumItemList = false);
+	ID_t AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail=false, bool doSignalElapsedTime=true, bool doNotAddToAlbumItemList = false);
 	bool AddImageOrVideoFromString(QString inpstr, Album& album, int pos = -1);
 
 signals:
@@ -418,6 +440,8 @@ private:
 	AlbumMap _albumMap;		// all source albums			id has ALBUM_ID_FLAG set!
 	ImageMap _imageMap;		// all images for all albums	id has IMAGE_ID_FLAG set!
 	VideoMap _videoMap;		// all videos from all albums	id has ALBUM_ID_FLAG set!
+
+	IdList	_addedThumbnailIDsForImagesNotYetRead;
 	// ID of top level album (first in '_albumMap', ROOT_ALBUM_ID)
 		// --------- latest images collection
 	QDate _latestDateLimit = QDate::fromJulianDay(0); // date of latest upload for generating the latest files
@@ -469,7 +493,7 @@ private:
 	void _ReadJAlbumInfoFile(ID_t albumId, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
 	bool _ReadJAlbumInfoFile(ID_t albumId);			// album and image titles in hidden .jalbum sub directories
 	void _RecursivelyReadSubAlbums(ID_t albumId);
-	ID_t _AddImageOrAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
+	ID_t _AddItemToAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
@@ -517,6 +541,7 @@ private:
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
+	void _RemoveItems(ID_t albumID, IntList ilx, bool fromdisk);
 };
 
 extern AlbumGenerator albumgen;

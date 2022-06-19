@@ -8,8 +8,6 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-#include "imageviewer.h"
-
 #include "ui_imageviewer.h"
 
 constexpr int IMAGE_MARGIN = 9;		// pixel

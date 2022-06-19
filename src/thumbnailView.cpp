@@ -25,103 +25,95 @@
 #include "config.h"
 #include "imageviewer.h"
 
+// ************************ FileIcons *************************
+
+FileIcons fileIcons;
+
+void FileIcons::Clear()
+{
+	posFolderIcon = -1;
+	_iconList.clear();
+    _iconOrder.clear();
+    MarkedIcon::Init(); // only reads images if not yet initted
+}
+int FileIcons::Size() const
+{ 
+    return _iconList.size(); 
+}
+void FileIcons::SetMaximumSizes(int thumbsize, int borderwidth)
+{
+    MarkedIcon::SetMaximumSizes(thumbsize, borderwidth);
+}
+
+bool FileIcons::HasIconFor(int pos)
+{
+    return pos < _iconList.size();
+}
+
+void FileIcons::SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail)
+{
+    // pos-th item MUST exist
+    MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
+	if (posFolderIcon >= 0)         // erase original folder icon
+		micon.isFolderThumb = false;
+
+	micon.isFolderThumb = bIsFolderThumbnail;    // and set this
+	if (bIsFolderThumbnail)
+		posFolderIcon = pos;
+}
+
+QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
+{
+	if (pos < 0)
+		return QIcon();
+
+	if (pos >= _iconList.size())
+        Insert(-1, flags.testFlag(fiFolder), imageName);
+
+    // pos-th item MUST exist
+    Q_ASSERT(pos < _iconOrder.size());
+
+    MarkedIcon& micon = _iconList[_iconOrder[pos]];
+    micon.isFolderThumb = flags.testFlag(fiThumb);
+    micon.dontResize = flags.testFlag(fiDontResize);
+	return micon.ToIcon();
+}
+
+QVector<int> FileIcons::IconOrder() const
+{
+    return _iconOrder;
+}
+void FileIcons::SetIconOrder(QVector<int>& order)
+{
+    _iconOrder = order;
+}
+MarkedIcon * FileIcons::Insert(int pos, bool isFolder, QString imageName)
+{
+	MarkedIcon icon;
+	icon.Read(imageName, isFolder);
+
+	if (pos < 0)
+        _iconOrder.push_back(_iconList.size());
+    else
+        _iconOrder.insert(pos, _iconList.size());
+
+	_iconList.push_back(icon);
+    return &_iconList[_iconList.size() - 1];
+}
+void FileIcons::Remove(int pos)    // remove items _iconOrder[pos]
+{
+    if (pos < 0 || pos > _iconList.size())
+        return;
+    int removed = _iconOrder[pos];
+    _iconList.removeAt(removed);
+    _iconOrder.removeAt(pos);
+    // all larger indexes must be decreased
+    for (int i = 0; i < _iconOrder.size(); ++i)
+        if (_iconOrder[i] > removed)
+            --_iconOrder[i];
+}
 
 // ****************** ThumbnailItem ******************
-static class FileIcons
-{
-
-    QVector<MarkedIcon> _iconList;   // all icons for actual album,  
-                                     // (not QLIst as in Qt6 QList is the same as QVector)
-                                     // order never changes when items added or moved around
-                                     // access elements through _iconOrder
-    QVector<int> _iconOrder;         // indirection through this
-public:
-    int posFolderIcon = -1;
-
-    void Clear()
-    {
-		posFolderIcon = -1;
-		_iconList.clear();
-        _iconOrder.clear();
-        MarkedIcon::Init(); // only reads images if not yet initted
-    }
-    int Size() const 
-    { 
-        return _iconList.size(); 
-    }
-    void SetMaximumSizes(int thumbsize=THUMBNAIL_SIZE, int borderwidth = 10)
-    {
-        MarkedIcon::SetMaximumSizes(thumbsize, borderwidth);
-    }
-
-    bool HasIconFor(int pos)
-    {
-        return pos < _iconList.size();
-    }
-
-    void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false)
-    {
-        // pos-th item MUST exist
-        MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
-		if (posFolderIcon >= 0)         // erase original folder icon
-			micon.isFolderThumb = false;
-
-		micon.isFolderThumb = bIsFolderThumbnail;    // and set this
-		if (bIsFolderThumbnail)
-			posFolderIcon = pos;
-    }
-
-	QIcon IconForPosition(int pos, bool isFolder, bool isFolderThumb, QString imageName = QString())
-	{
-
-		if (pos < 0)
-			return QIcon();
-
-		if (pos >= _iconList.size())
-            Insert(-1, isFolder, imageName);    
-
-        // pos-th item MUST exist
-        Q_ASSERT(pos < _iconOrder.size());
-
-        MarkedIcon& micon = _iconList[_iconOrder[pos]];
-        micon.isFolderThumb = isFolderThumb;
-		return micon.ToIcon();
-	}
-    QVector<int> IconOrder() const
-    {
-        return _iconOrder;
-    }
-    void SetIconOrder(QVector<int>& order)
-    {
-        _iconOrder = order;
-    }
-    MarkedIcon * Insert(int pos, bool isFolder, QString imageName = QString())
-    {
-		MarkedIcon icon;
-		icon.Read(imageName, isFolder);
-
-		if (pos < 0)
-            _iconOrder.push_back(_iconList.size());
-        else
-            _iconOrder.insert(pos, _iconList.size());
-
-		_iconList.push_back(icon);
-        return &_iconList[_iconList.size() - 1];
-    }
-    void Remove(int pos)    // remove items _iconOrder[pos]
-    {
-        if (pos < 0 || pos > _iconList.size())
-            return;
-        int removed = _iconOrder[pos];
-        _iconList.removeAt(removed);
-        _iconOrder.removeAt(pos);
-        // all larger indexes must be decreased
-        for (int i = 0; i < _iconOrder.size(); ++i)
-            if (_iconOrder[i] > removed)
-                --_iconOrder[i];
-    }
-} fileIcons;
-
 int ThumbnailItem::thumbHeight=150;
 
 ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ, QIcon icon) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
@@ -151,23 +143,46 @@ QIcon ThumbnailItem::IconForFile() const
     bIsFolderIcon = (pAlbum->thumbnail == imgId);
 
     if (fileIcons.HasIconFor(itemPos))
-        return fileIcons.IconForPosition(itemPos, isFolder, bIsFolderIcon);
+    {
+        FileIcons::Flags flags;
+        if (isFolder)
+            flags.setFlag(FileIcons::fiFolder);
+        if (bIsFolderIcon)
+            flags.setFlag(FileIcons::fiThumb);
+        if(albumgen.ImageAt(imgId)->dontResize)
+            flags.setFlag(FileIcons::fiDontResize);
+
+        return fileIcons.IconForPosition(itemPos, flags);
+    }
             // else read and create icon
 
 
 //    imgId &= ID_MASK;
     Image &img = albumgen.Images()[imgId];
-    if ((exists=QFile::exists(img.FullLinkName())))
-        imageName = img.FullLinkName();
-    else if ((exists=QFile::exists(img.FullSourceName())))
-        imageName = img.FullSourceName();
+    if (!img.name.isEmpty())
+    {
+        if ((exists = QFile::exists(img.FullLinkName())))
+            imageName = img.FullLinkName();
+        else if ((exists = QFile::exists(img.FullSourceName())))
+            imageName = img.FullSourceName();
+        else
+            imageName = QString(":/Preview/Resources/NoImage.jpg");
+    }
     else
         imageName = QString(":/Preview/Resources/NoImage.jpg");
     
     // DEBUG
     // qDebug((QString("icon for file:'%1' of ID:%2, name:'%3'").arg(imageName).arg(itemId).arg(img.FullSourceName())).toStdString().c_str());
     // /DEBUG
-    return fileIcons.IconForPosition(itemPos, isFolder, bIsFolderIcon, imageName);
+    FileIcons::Flags flags;
+    if (isFolder)
+        flags.setFlag(FileIcons::fiFolder);
+    if (bIsFolderIcon)
+        flags.setFlag(FileIcons::fiThumb);
+    if (albumgen.ImageAt(imgId)->dontResize)
+        flags.setFlag(FileIcons::fiDontResize);
+
+    return fileIcons.IconForPosition(itemPos, flags, imageName);
 }
 
 
@@ -1012,15 +1027,8 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 		//}
         items = idl;
         pAlbum->changed = true;
-        //Reload();
-		// DEBUG
-		//if (pDragDropLabel)
-		//	delete pDragDropLabel;
-		//pDragDropLabel = nullptr;
-		// /DEBUG
 
-		// put files at new spot
-
+        albumgen.WriteDirStruct(true);
 	}
 //    emit SignalFolderAdded();
 }
@@ -1545,12 +1553,13 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
         }
     }
-    else
+    else // album(s) or image(s) is(are) selected
     {
+        Album& album = albumgen.Albums()[_albumId];
+
         if (nSelSize == 1)
         {
             int pos = currentIndex().row();     
-            Album& album = albumgen.Albums()[_albumId];
             
             ID_t id = album.items[pos];
             IABase* pItem = nullptr;
@@ -1581,6 +1590,23 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 
         if (nSelSize)
         {
+            
+            QModelIndexList list = selectionModel()->selectedIndexes();
+            ID_t id;
+            for (auto i : list) // if at least a single image then this is valid
+            {
+                id = album.items[i.row()];
+
+                if (id & IMAGE_ID_FLAG)
+                {
+                    pact = new QAction(tr("Toggle 'Keep Original Size'"));
+                    connect(pact, &QAction::triggered, this, &ThumbnailView::ToggleDontResizeFlag);
+                    menu.addAction(pact);           // select any image
+                    break;
+                }
+            }
+            menu.addSeparator();
+
             pact = new QAction(tr("Copy &Name(s)"), this);
             connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
             menu.addAction(pact);
@@ -1649,7 +1675,9 @@ void ThumbnailView::invertSelection()
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:
+ * REMARKS: does not delete generated images, videos and albums 
+ *          from disk!
+ *          Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
 void ThumbnailView::DeleteSelected()
 {
@@ -1665,46 +1693,25 @@ void ThumbnailView::DeleteSelected()
     QMessageBox msg;
     msg.setWindowTitle(tr("falconG - Question"));
     msg.setText(qs);
-    msg.addButton(tr("Delete"),QMessageBox::YesRole);
-    msg.addButton(tr("Remove"),QMessageBox::NoRole);
-    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);
+    msg.addButton(tr("From disk"),QMessageBox::YesRole);                // 0
+    msg.addButton(tr("Just remove"),QMessageBox::NoRole);               // 1
+    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);                // 2
     msg.setDefaultButton(QMessageBox::Cancel);
     msg.setIcon(QMessageBox::Question);
     int res = msg.exec();
 
-    if (res == QMessageBox::Cancel)
+    if (res == 2)                   // Cancel
         return;
 
-    Album &album = albumgen.Albums()[_albumId];
-    // list is ordered by ascending row's and we need delete descending
-    for (int i = list.size()-1; i >= 0; --i)
-    {
-        int ix = list[i].row();
-        ID_t id = album.items[ix];
-        if (id & ALBUM_ID_FLAG)    // remove recursively
-        {
-            albumgen.Albums().RemoveRecursively(id);
-        }
-        else if (id & IMAGE_ID_FLAG)    // remove recursively
-        {
-            Image *img = albumgen.ImageAt(id);
-            if (!--img->usageCount)
-                albumgen.Images().remove(id);
-        }
-        else if (id & VIDEO_ID_FLAG)    // remove recursively
-        {
-            Video *vid = albumgen.VideoAt(id);
-            if (!--vid->usageCount)
-                albumgen.Videos().remove(id);
-        }
-        
-        album.items.remove(ix);
-        fileIcons.Remove(ix);
-    }
-    if (res == QMessageBox::Yes)     // then delete from disk too
-    {
-        // TODO
-    }
+    bool fromDisk = res == 0;       //  Yes
+            // needs reverse order   (?)
+
+    IntList ilx(list.size());
+    for (int i= list.size()-1; i>= 0; --i)
+        ilx[i] = list[i].row();
+
+    albumgen.RemoveItems(_albumId, ilx, fromDisk);  // also remove cached file icons
+
     emit SignalAlbumStructChanged();
     Reload();
 //    emit selectionChanged(QItemSelection(), QItemSelection());
@@ -1790,6 +1797,7 @@ void ThumbnailView::AddImages()
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
     _AddImagesFromList(qslFileNames, pos);
     Reload();
+    albumgen.WriteDirStruct(true);
 
     emit SignalAlbumChanged();
     emit selectionChanged(QItemSelection(), QItemSelection());
@@ -1831,6 +1839,8 @@ bool ThumbnailView::_AddFolder(QString folderName)
         else
             folderName = albumgen.Images()[idth].FullSourceName();
         (void)fileIcons.Insert(pos, true,folderName);
+
+        albumgen.WriteDirStruct(true);
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
@@ -1927,7 +1937,7 @@ void ThumbnailView::SetAsAlbumThumbnail()
 
     ID_t th = album.items[pos];
 
-    album.thumbnail = th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID;
+    album.SetThumbnail(th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID );
     album.changed = true;
     if(album.parent)
     {
@@ -1936,6 +1946,32 @@ void ThumbnailView::SetAsAlbumThumbnail()
     }
     albumgen.SetGalleryModified(_albumId);
 }
+
+/*=============================================================
+ * TASK:    toggles images don't resize flag
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailView::ToggleDontResizeFlag()
+{
+    Album& album = albumgen.Albums()[_albumId];
+
+    QModelIndexList list = selectionModel()->selectedIndexes();
+    Image* pImage;
+    for (auto i : list)
+    {
+        ID_t id = album.items[i.row()];
+        if (id & IMAGE_ID_FLAG)     // toggle original size for image
+        {
+            pImage = albumgen.ImageAt(id);
+            pImage->dontResize = !pImage->dontResize;
+        }
+    }
+//    Reload();   // ???
+}
+
 /*=============================================================
  * TASK:    slot to select an image from any image on disk
  *          and set it as album thumbnail shown on parent's
@@ -1954,7 +1990,7 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     if (thname.isEmpty())
         return;
     // add as thumbnail to this album, but do not signal elapsed time and do not add to items
-    albumgen.AddImageOrAlbum(_albumId, thname, true, false, true);
+    albumgen.AddItemToAlbum(_albumId, thname, true, false, true);
 
     Album& album = *_ActAlbum();
 

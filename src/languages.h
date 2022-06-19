@@ -101,7 +101,7 @@ class TextMap;			// in albums.h, used in text for ID calculation
 struct LanguageTexts				// both Album and Image uses this
 {
 	ID_t ID = 0;		// same for all translations of this in all languages (0: invalid)
-	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << ID_COLLISION_FACTOR)
+	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << TEXT_ID_COLLISION_FACTOR)
 	QVector<int> lenghts;	// set to have as many elements as there are languages, lang ID is index in text
 	QString textsForAllLanguages; //concatenated language texts
 	UsageCount usageCount; // how many times this same text is added to list

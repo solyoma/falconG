@@ -105,3 +105,6 @@ namespace Enums
 		espBackgroundImage
 	};
 }
+
+// not ENUM, but common
+using IntList = QVector<int>;

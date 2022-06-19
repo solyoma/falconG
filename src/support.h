@@ -202,14 +202,16 @@ struct MarkedIcon
 {
 	QString name;			// full path name of image for which we want an icon
 	QPixmap pxmp;			// square pixmap contains image with a 'margin' wide border
-	bool isFolderThumb = false;		// if yes: mark the image
-	bool exists = false;			// if not, mark the image
 	bool isFolder = false;			// different border
+	bool isFolderThumb = false;		// if yes: mark the image
+	bool dontResize = false;		// - " -
+	bool exists = false;			// - " -
 		// these ar used for each thumbnail
 		// QPixmaps can only be initialized after the GUI initilize (QT quirk)
 		// so we need pointers here
 	static QPixmap *folderThumbMark;	// if folder thumbnail mark with this	
 	static QPixmap *noImageMark;	// image does not exist
+	static QPixmap *noresizeMark;	// do not resize image
 	static int thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
 	static int borderWidth;		
 	static bool initted;
@@ -237,6 +239,10 @@ struct MarkedIcon
 	{
 		isFolderThumb = setth;
 	}
+	void SetNoResize(bool noresize) 
+	{ 
+		dontResize = noresize;  
+	}
 	static void Init()
 	{
 		if (initted)
@@ -244,6 +250,7 @@ struct MarkedIcon
 
 		folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
 		noImageMark		= new QPixmap(":/icons/Resources/noImageMark.png");
+		noresizeMark	= new QPixmap(":/icons/Resources/noresizeMark.png");
 		initted = true;
 	}
 	static void SetMaximumSizes(int size, int margin)
@@ -332,4 +339,5 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge 
 
 bool CopyOneFile(QString src, QString dest, bool overWrite = true);
 bool CreateDir(QString sdir); // recursive creation of directories, returns 0: error, 1: created, -1: cancelled
-bool RemoveDir(QString name, bool ask = false);
+bool RemoveFolderRecursively(QString name, bool tryToTrash=true);			// won't ask
+bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);

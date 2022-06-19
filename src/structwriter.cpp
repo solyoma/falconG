@@ -32,7 +32,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 		ofs << "\n";
 
 		//if (id & ~BASE_ID_MASK)			// then collision: save level
-		//	ofs << "*" << (id >> ID_COLLISION_FACTOR)  << "\n";
+		//	ofs << "*" << (id >> TEXT_ID_COLLISION_FACTOR)  << "\n";
 	}
 }
 
@@ -221,4 +221,21 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << (thumbnail & ID_MASK) << "]\n"; // ID may be 0!
 
 	_WriteStructImagesThenSubAlbums(album, indent + " ");
+}
+
+void AlbumStructWriterThread::WriteOrphanThumbnails()
+{
+	bool orphanHeaderWritten = false;
+   for(auto &img : _imageMap)
+	   if (!img.usageCount && img.thumbnailCount)
+	   {
+		   if (!orphanHeaderWritten)
+		   {
+			   _ofs << ORPHAN_ID << "\n";
+			   orphanHeaderWritten = true;
+		   }
+		   _ofs << img.ShortSourcePathName() << ":" << (img.ID & ID_MASK) << "\n";
+	   }
+   if (orphanHeaderWritten)
+	   _ofs << "]\n\n";
 }
