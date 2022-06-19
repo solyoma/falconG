@@ -1957,6 +1957,7 @@ void ThumbnailView::SetAsAlbumThumbnail()
 void ThumbnailView::ToggleDontResizeFlag()
 {
     Album& album = albumgen.Albums()[_albumId];
+    bool changed = false;
 
     QModelIndexList list = selectionModel()->selectedIndexes();
     Image* pImage;
@@ -1967,9 +1968,11 @@ void ThumbnailView::ToggleDontResizeFlag()
         {
             pImage = albumgen.ImageAt(id);
             pImage->dontResize = !pImage->dontResize;
+            changed = true;
         }
     }
-//    Reload();   // ???
+    if(changed)
+        emit SignalAlbumStructChanged();
 }
 
 /*=============================================================
