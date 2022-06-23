@@ -39,13 +39,13 @@ typedef UsageCount Semaphore;
 struct FalconGEditTabSelection
 {										// what can be changed:
 									    // these fields are used when editing image/album texts
-	ID_t actAlbum = 0,				// actual selected album
-		 newAlbum = 0;				// replace data from actAlbum with data from newAlbum
-	ID_t selectedImage = 0,				// actual selected image
-		 newImage = 0;					// new image
+	ID_t actAlbum = 0;					// actual selected album
+	ID_t selectedImage = 0;				// actual selected folder, image or video
+
 	QFlags<Changed> changed;			// title or description in either language has changed
+
 	int baseLang = 0, edtLang = 0;		// index of actual languages before the text change
-	LanguageTexts title, description;			// title or description texts for any languages
+	LanguageTexts title, description;	// title and description texts for each languages
 };
 
 //--------------------------------------------------------
@@ -168,14 +168,19 @@ private:
 	void _SetConfigChanged(bool on);
 	
 	void _OpacityChanged(int val, int which, bool used);	// which = 0 -> color, 1: background
-	void _SaveChangedTexts();  // when texts are edited and changed
 
 	void _SetLayoutMargins(int which);
 	void _SetProgramScheme();
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts
-	void _GetTextsForEditing(whoChangedTheText who); // using '_selection :FalconGEditTabSelection'
+
+	void _GetBaseTexts(int index);				// from _selection into base text widgets
+	void _GetLangTexts(int index);				// from _selection into actual text widgets
+	void _SaveEditedTextsIntoSelection();		// from edtTitle and edtSiteDescription
+	void _StoreLanguageTexts(LanguageTexts& texts);
+	void _SaveChangedTexts();			// when texts in '_selection' are edited and changed
+	void _GetTextsForEditing();			// using '_selection :FalconGEditTabSelection'
 	void _LoadBckImage(QString name);	// from config
 
 	void _AddSchemeButtons();
@@ -282,7 +287,7 @@ private slots:
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkBackgroundOpacity_toggled(bool on);
 	void on_chkBold_toggled(bool);
-	void on_chkButImages_toggled(bool);
+	void on_chkRegenAllImages_toggled(bool);
 	void on_chkCanDownload_toggled(bool);
 	void on_chkCropThumbnails_toggled(bool);
 	void on_chkDebugging_toggled(bool);
@@ -292,7 +297,7 @@ private slots:
 	void on_chkFacebook_toggled(bool);
 	void on_chkFixedLatestThumbnail_toggled(bool);
 	void on_chkForceSSL_toggled(bool);
-	void on_chkGenerateAll_toggled(bool);
+	void on_chkGenerateAllPages_toggled(bool);
 	void on_chkIconText_toggled(bool);
 	void on_chkIconTop_toggled(bool);
 	void on_chkItalic_toggled(bool);
@@ -326,7 +331,7 @@ private slots:
 	void on_edtBckImageName_textChanged();
 	void on_edtDefaultFonts_textChanged();
 	void on_edtDescriptionText_textChanged();
-	void on_edtDescription_textChanged();
+	void on_edtSiteDescription_textChanged();
 	void on_edtDestGallery_textChanged();
 	void on_edtEmailTo_textChanged();
 	void on_edtFontDir_textChanged();

@@ -41,7 +41,7 @@ class FileIcons
 									 // access elements through _iconOrder
 	QVector<int> _iconOrder;         // indirection through this
 public:
-	enum Flag { fiFolder, fiThumb, fiDontResize};
+	enum Flag { fiFolder=1, fiThumb=2, fiDontResize=4};
 	using Flags = QFlags<Flag>;
 
 	int posFolderIcon = -1;
@@ -287,7 +287,10 @@ private:
 	QStringList _slSearchPaths;		// paths to search missing images against
 
 private:
-	Album	*_ActAlbum() const { return _albumId ? &albumgen.Albums()[_albumId] : nullptr; }
+	Album	*_ActAlbum() const 
+	{ 
+		return _albumId ? &albumgen.Albums()[_albumId] : nullptr; 
+	}
     void _InitThumbs();
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();

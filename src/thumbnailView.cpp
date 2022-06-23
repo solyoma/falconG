@@ -1992,6 +1992,11 @@ void ThumbnailView::SelectAsAlbumThumbnail()
                                             "Image files (*.jpg *.png)");
     if (thname.isEmpty())
         return;
+
+    QString qsd;
+    QString name;
+    SeparateFileNamePath(thname, qsd, name);
+    albumgen.Images().lastUsedPath = qsd;
     // add as thumbnail to this album, but do not signal elapsed time and do not add to items
     albumgen.AddItemToAlbum(_albumId, thname, true, false, true);
 

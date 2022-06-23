@@ -1058,9 +1058,9 @@ public:
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
 	_CBool bReadFromDirs = {false,"bReadFromDirs"};			// do not process gallery.struct, read from JAlbum structure
 	_CBool bReadFromGallery = {false,"bReadFromGallery"};	// read back from HTML files in gallery (you loose original names and paths!
-		// next two bools will not be read from or saved into the configuration file
-	_CBool bGenerateAll = {false,"bGenerateAll"};		// must regenerate all pages regardless of status?
-	_CBool bButImages = {false,"bButImages"};			// used with 'generate All'
+		// next three bools will not be read from or saved into the configuration file
+	_CBool bRegenerateAllImages = { false, "bRegereateImages" };	// all images must be re-generated
+	_CBool bGenerateAllPages = {false,"bGenerateAllPages"};		// must regenerate all pages regardless of status?
 	_CBool bFixedLatestThumbnail = { true, "bFixedLatestThumbnail" };
 
 	_CString sUplink = {"","sUplink"};			// path name of index.html file on server this gallery is embedded into.

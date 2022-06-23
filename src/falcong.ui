@@ -388,7 +388,7 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="edtDescription">
+            <widget class="QLineEdit" name="edtSiteDescription">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -2242,7 +2242,7 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
+                         <width>385</width>
                          <height>616</height>
                         </rect>
                        </property>
@@ -5316,8 +5316,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5328,7 +5328,7 @@ so when one changes the other changes too.
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>433</width>
+                          <width>458</width>
                           <height>474</height>
                          </rect>
                         </property>
@@ -5478,6 +5478,21 @@ so when one changes the other changes too.
                                 <weight>50</weight>
                                 <bold>false</bold>
                                </font>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="1" colspan="2">
+                             <widget class="QCheckBox" name="chkRegenAllWithWatermark">
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>10</pointsize>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Re-generate all images when watermark changes</string>
                               </property>
                              </widget>
                             </item>
@@ -5819,18 +5834,62 @@ so when one changes the other changes too.
                               </property>
                              </widget>
                             </item>
-                            <item row="0" column="1" colspan="7">
-                             <spacer name="horizontalSpacer">
-                              <property name="orientation">
-                               <enum>Qt::Horizontal</enum>
+                            <item row="1" column="4">
+                             <widget class="QLabel" name="label_41">
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>10</pointsize>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
                               </property>
-                              <property name="sizeHint" stdset="0">
+                              <property name="text">
+                               <string>Blur:</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="6">
+                             <widget class="QLabel" name="label_52">
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>10</pointsize>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Color</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="1">
+                             <widget class="QSpinBox" name="sbWmShadowHoriz">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
                                <size>
-                                <width>339</width>
-                                <height>20</height>
+                                <width>0</width>
+                                <height>24</height>
                                </size>
                               </property>
-                             </spacer>
+                              <property name="font">
+                               <font>
+                                <family>Arial</family>
+                                <pointsize>10</pointsize>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="suffix">
+                               <string>px</string>
+                              </property>
+                             </widget>
                             </item>
                             <item row="1" column="0">
                              <widget class="QLabel" name="label_16">
@@ -5847,8 +5906,21 @@ so when one changes the other changes too.
                               </property>
                              </widget>
                             </item>
-                            <item row="1" column="1">
-                             <widget class="QSpinBox" name="sbWmShadowHoriz">
+                            <item row="0" column="1" colspan="8">
+                             <spacer name="horizontalSpacer">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>339</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
+                            </item>
+                            <item row="1" column="3">
+                             <widget class="QSpinBox" name="sbWmShadowVert">
                               <property name="sizePolicy">
                                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                 <horstretch>0</horstretch>
@@ -5889,48 +5961,6 @@ so when one changes the other changes too.
                               </property>
                              </widget>
                             </item>
-                            <item row="1" column="3">
-                             <widget class="QSpinBox" name="sbWmShadowVert">
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>0</width>
-                                <height>24</height>
-                               </size>
-                              </property>
-                              <property name="font">
-                               <font>
-                                <family>Arial</family>
-                                <pointsize>10</pointsize>
-                                <weight>50</weight>
-                                <bold>false</bold>
-                               </font>
-                              </property>
-                              <property name="suffix">
-                               <string>px</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item row="1" column="4">
-                             <widget class="QLabel" name="label_41">
-                              <property name="font">
-                               <font>
-                                <family>Arial</family>
-                                <pointsize>10</pointsize>
-                                <weight>50</weight>
-                                <bold>false</bold>
-                               </font>
-                              </property>
-                              <property name="text">
-                               <string>Blur:</string>
-                              </property>
-                             </widget>
-                            </item>
                             <item row="1" column="5">
                              <widget class="QSpinBox" name="sbWmShadowBlur">
                               <property name="sizePolicy">
@@ -5955,21 +5985,6 @@ so when one changes the other changes too.
                               </property>
                               <property name="suffix">
                                <string>px</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item row="1" column="6">
-                             <widget class="QLabel" name="label_52">
-                              <property name="font">
-                               <font>
-                                <family>Arial</family>
-                                <pointsize>10</pointsize>
-                                <weight>50</weight>
-                                <bold>false</bold>
-                               </font>
-                              </property>
-                              <property name="text">
-                               <string>Color</string>
                               </property>
                              </widget>
                             </item>
@@ -6611,7 +6626,7 @@ all changes will be lost.</string>
                    <bool>false</bool>
                   </property>
                   <property name="placeholderText">
-                   <string>Edit here. Don't forget to save!</string>
+                   <string>Edit here.</string>
                   </property>
                  </widget>
                 </item>
@@ -6747,7 +6762,7 @@ p, li { white-space: pre-wrap; }
                    <bool>false</bool>
                   </property>
                   <property name="placeholderText">
-                   <string>Edit here. Don't forget to save!</string>
+                   <string>Edit here.</string>
                   </property>
                  </widget>
                 </item>
@@ -7484,19 +7499,19 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="chkGenerateAll">
+        <widget class="QCheckBox" name="chkGenerateAllPages">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
-          <string>&amp;all</string>
+          <string>&amp;all pages</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="chkButImages">
+        <widget class="QCheckBox" name="chkRegenAllImages">
          <property name="text">
-          <string>except i&amp;mages</string>
+          <string>all i&amp;mages</string>
          </property>
         </widget>
        </item>
@@ -7613,7 +7628,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>edtGalleryRoot</tabstop>
   <tabstop>edtUplink</tabstop>
   <tabstop>edtMainPage</tabstop>
-  <tabstop>edtDescription</tabstop>
+  <tabstop>edtSiteDescription</tabstop>
   <tabstop>edtKeywords</tabstop>
   <tabstop>edtGalleryTitle</tabstop>
   <tabstop>edtGalleryLanguages</tabstop>
@@ -7643,8 +7658,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>chkLowerCaseImageExtensions</tabstop>
   <tabstop>chkAddDescToAll</tabstop>
   <tabstop>btnGenerate</tabstop>
-  <tabstop>chkGenerateAll</tabstop>
-  <tabstop>chkButImages</tabstop>
+  <tabstop>chkGenerateAllPages</tabstop>
+  <tabstop>chkRegenAllImages</tabstop>
   <tabstop>btnPreview</tabstop>
   <tabstop>btnSaveStyleSheet</tabstop>
   <tabstop>btnSaveConfig</tabstop>

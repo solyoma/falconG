@@ -933,7 +933,7 @@ int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb,
 	QSize newSize = imgReader.imgSize;	// if 'trans' then it may already transposed sizes (from camera, not from PS/LR)
 	if (trans & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
 		newSize.transpose();
-	imgReader.setScaledSize(newSize);	// resclae to newSize when read, thumbSize used in write
+	imgReader.setScaledSize(newSize);	// rescale to newSize when read, thumbSize used in write
 
 	if (!imgReader.isReady)			// not read yet
 	{								
@@ -1261,39 +1261,50 @@ double WaterMark::Opacity(bool percent) const		// 0..255 (!percent) or 0..100 (p
 {
 	return ((_colorWOpacity >> 24) & 0xFF) * (percent ? 100.0 / 255.0 : 1.0);
 }
+
+	// setters
+	// setters	: each regenerates watermark image and saves it into 'res/'
+#define SET_WM_VALUE(a,b)\
+			if(a != (b))	\
+			{  \
+				_changed = true;	\
+				a = (b); \
+			}
 void WaterMark::SetFont(QFont& qfont) // use either SetText() or GetMarkDimension after font is modified
 {
-	_font = qfont;
+	SET_WM_VALUE(_font, qfont);
 	_font.setStyleHint(QFont::AnyStyle, QFont::PreferAntialias);
 	SetupMark();
 }
 void WaterMark::SetText(QString  qs)	// calls GetMarkDimensions
 {
-	_text = qs;
+	SET_WM_VALUE(_text,qs);
 	GetMarkDimensions();
 	SetupMark();
 }
-void WaterMark::SetColorWithOpacity(int c_colorWOpacity)
+void WaterMark::SetColorWithOpacity(unsigned c_colorWOpacity)
 {
-	_colorWOpacity = c_colorWOpacity;
+	SET_WM_VALUE(_colorWOpacity, c_colorWOpacity);
 	SetupMark();
 }
 void WaterMark::SetColorWithOpacity(QString s_colorWOpacity)
 {
-	_colorWOpacity = s_colorWOpacity.toInt(nullptr, 16);
+	SET_WM_VALUE(_colorWOpacity, s_colorWOpacity.toUInt(nullptr, 16));
 	SetupMark();
 }
 void WaterMark::SetOpacity(int val, bool percent) // val is in percent (0..100) or not(0..255)?
 {
 	if (percent)
 		val *= 2.55;
-	_colorWOpacity = (((int)(val)) << 24) + (qRed(_colorWOpacity) << 16) + (qGreen(_colorWOpacity) << 8) + qBlue(_colorWOpacity);
+	unsigned cwo = (((int)(val)) << 24) + (qRed(_colorWOpacity) << 16) + (qGreen(_colorWOpacity) << 8) + qBlue(_colorWOpacity);
+	SET_WM_VALUE(_colorWOpacity, cwo);
 	SetupMark();
 }
 
 bool WaterMark::operator!=(const WaterMark& wm) const
 {
-	return (_text != wm._text)
+	return (_changed != wm._changed) 
+		|| (_text != wm._text)
 		|| (_origin != wm._origin)
 		|| (_marginX != wm._marginX)
 		|| (_marginY != wm._marginY)
@@ -1383,6 +1394,7 @@ WaterMark& WaterMark::operator=(const WaterMark& other)
 	if (other._pmark)
 		_pmark = new QImage(*other._pmark);
 
+	_changed = other._changed;
 	_markWidth = other._markWidth;
 	_markHeight = other._markHeight;
 	_colorWOpacity = other._colorWOpacity;
@@ -1404,6 +1416,7 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 
 	_pmark = other._pmark;
 
+	_changed = other._changed;
 	_markWidth = other._markWidth;
 	_markHeight = other._markHeight;
 	_colorWOpacity = other._colorWOpacity;

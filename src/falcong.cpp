@@ -457,7 +457,7 @@ void FalconG::on_btnGenerate_clicked()
 		}
 
 		PROGRAM_CONFIG::Write();
-		albumgen.SetRecrateAllAlbumFlag(config.bGenerateAll || config.Changed());
+		albumgen.SetRecrateAllAlbumsFlag(config.bGenerateAllPages || config.Changed());
 
 		++_running;
 
@@ -490,12 +490,17 @@ void FalconG::on_btnGenerate_clicked()
 		{
 			QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
+			config.waterMark.SetRegenerationMode(ui.chkRegenAllWithWatermark->isChecked()); // when watermark changed
+
 			bool bAlbumWriteOK = albumgen.Write() == 0; // generate struct, pages, images, thumbs
 			if (_edited)
 			{
 				albumgen.SetChangesWritten();	// nothing changed
 				albumgen.WriteDirStruct();
 			}
+
+			config.waterMark.ClearChanges();
+
 			_edited = false;
 
 			ui.btnPreview->setEnabled(bAlbumWriteOK);
@@ -525,7 +530,7 @@ void FalconG::on_btnGenerate_clicked()
 			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
 //			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0,0));
 		}
-		albumgen.SetRecrateAllAlbumFlag(config.bGenerateAll);	// not until relevant changes
+		albumgen.SetRecrateAllAlbumsFlag(config.bGenerateAllPages);	// not until relevant changes
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);
@@ -1076,7 +1081,7 @@ void FalconG::_OtherToUi()
 	ui.edtAbout->setText(config.sAbout);
 	_SetEditText(ui.edtAlbumDir, config.dsAlbumDir, _busy);
 	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
-	ui.edtDescription->setText(config.sDescription);
+	ui.edtSiteDescription->setText(config.sDescription);
 	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
 	ui.edtEmailTo->setText(config.sMailTo);
 	_SetEditText(ui.edtGalleryRoot, config.dsGRoot, _busy);
@@ -1106,12 +1111,12 @@ void FalconG::_OtherToUi()
 
 	ui.chkAddDescToAll->setChecked(config.bAddDescriptionsToAll);
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
-	ui.chkButImages->setChecked(config.bButImages);
+	ui.chkRegenAllImages->setChecked(config.bRegenerateAllImages);
 	ui.chkCanDownload->setChecked(config.bCanDownload);
 
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 	ui.chkFacebook->setChecked(config.bFacebookLink);
-	ui.chkGenerateAll->setChecked(config.bGenerateAll);
+	ui.chkGenerateAllPages->setChecked(config.bGenerateAllPages );
 	ui.chkForceSSL->setChecked(config.bForceSSL);
 // not saved/restored:
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
@@ -1977,19 +1982,6 @@ void FalconG::on_cbWmVPosition_currentIndexChanged(int index)
 }
 
 /*=============================================================
- * TASK:		 language 1 index changed
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void FalconG::on_cbBaseLanguage_currentIndexChanged(int index)
-{
-	_GetTextsForEditing(wctBaseLangCombo);	// saves changes then get text for the other language
-	_selection.baseLang = index;
-}
-
-/*=============================================================
  * TASK:
  * PARAMS:
  * GLOBALS:
@@ -2010,7 +2002,20 @@ void FalconG::on_cbLanguageTextDef_currentTextChanged(QString text)
 }
 
 /*=============================================================
- * TASK:		language index #2 changed
+ * TASK:	Base language index changed: put base texts into widgets
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_cbBaseLanguage_currentIndexChanged(int index)
+{
+	_GetBaseTexts(index);
+	_selection.baseLang = index;
+}
+
+/*=============================================================
+ * TASK:	Actual language text changed: put them into widgets
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -2018,7 +2023,7 @@ void FalconG::on_cbLanguageTextDef_currentTextChanged(QString text)
  *------------------------------------------------------------*/
 void FalconG::on_cbLanguage_currentIndexChanged(int index)
 {
-	_GetTextsForEditing(wctLangCombo);	// saves changes then get text for the other language
+	_GetLangTexts(index);
 	_selection.edtLang = index;
 }
 
@@ -2338,15 +2343,12 @@ void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_chkButImages_toggled(bool on)
+void FalconG::on_chkRegenAllImages_toggled(bool on)
 {
 	if (_busy)
 		return;
-	if (config.bButImages != on)
-	{
-		config.bButImages = on;
-
-	}
+	if (config.bRegenerateAllImages != !on)
+		config.bRegenerateAllImages = on;
 }
 
 /*============================================================================
@@ -2430,16 +2432,12 @@ void FalconG::on_chkDoNotEnlarge_toggled(bool on)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::on_chkGenerateAll_toggled(bool on)
+void FalconG::on_chkGenerateAllPages_toggled(bool on)
 {
 	if (_busy)
 		return;
-	if (config.bGenerateAll != on)
-	{
-		config.bGenerateAll = on;
-
-		ui.chkButImages->setChecked(false);
-	}
+	if (config.bGenerateAllPages != on)
+		config.bGenerateAllPages = on;
 }
 
 void FalconG::on_chkFacebook_toggled(bool on)
@@ -2918,17 +2916,18 @@ void FalconG::on_edtDescriptionText_textChanged()
 		return;
 	++_busy;
 	_selection.changed |= fsDescription;
+	_selection.description.SetTextForLanguageNoID(ui.edtDescriptionText->document()->toPlainText(), _selection.edtLang);
 	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
 		ui.edtBaseDescription->setPlainText(ui.edtDescriptionText->toPlainText());
 	ui.btnSaveChangedDescription->setEnabled(true);
 	--_busy;
 }
 
-void FalconG::on_edtDescription_textChanged()
+void FalconG::on_edtSiteDescription_textChanged()
 {
 	if (_busy)
 		return;
-	config.sDescription = ui.edtDescription->text().trimmed();
+	config.sDescription = ui.edtSiteDescription->text().trimmed();
 	_SetConfigChanged(true);
 }
 
@@ -3188,6 +3187,7 @@ void FalconG::on_edtTitleText_textChanged()
 		return;
 	++_busy;
 	_selection.changed |= fsTitle;
+	_selection.title.SetTextForLanguageNoID(ui.edtTitleText->document()->toPlainText(), _selection.edtLang);
 	if (ui.cbBaseLanguage->currentIndex() == ui.cbLanguage->currentIndex())
 		ui.edtBaseTitle->setPlainText(ui.edtTitleText->toPlainText());
 	ui.btnSaveChangedTitle->setEnabled(true);
@@ -4018,132 +4018,127 @@ void FalconG::_SettingUpFontsCombo()
 	ui.cbFonts->setEnabled(qsl.size());
 }
 
-/*============================================================================
-* TASK: texts for albums and images into into edtText and edtBaseText
-* EXPECTS: 	'who'	- wctLangCombo or wctLangCombo: with no new album or image ID
-					  wctSelection	('_AlbumStructureSelectionChanged' or
-*										'_TnvSelectionChanged')
-*			'_selection'  -  is set up with actual and new album 
-*							 and image IDs
-* GLOBALS:	_selection'
-* REMARKS:	- if 'who' == wctLangCombo or wctBaseLangCombo: 
-*					both 'newAlbum' and 'newImage' is 0
-*					in this case save changed text (if any) and change language.
-*					(if no actual album or image all edit boxes are cleared)
-*			- if 'who' == wctSelection and 
-*					if 'newAlbum' is not 0 then the source is
-*						'_AlbumStructureSelectionChanged'
-*						in this case no image is selected, set texts 
-*						for the new album and set actAlbum = newAlbum
-*					if 'newImage' is not 0 then the source is
-*						'_TnvSelectionChanged'
-*						in this case set texts for the selected image and 
-*						_selectedImage = 'newImage' 'actImage
-*					if both 'newAlbum' and 'newImage' is 0 then clear editors
-*						and set actAlbum = a_selectedImage = 0
-*--------------------------------------------------------------------------*/
-void FalconG::_GetTextsForEditing(whoChangedTheText who)
+/*=============================================================
+ * TASK:  get text for language #n from _selection to base texts
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::_GetBaseTexts(int language)
 {
-	if (who == wctSelection && _selection.newImage == ID_t(-1))	// image selection cleared
-	{
-		_selection.newImage = 0;
-		_selection.newAlbum = _selection.actAlbum;
-	}
+	_busy = true;
+	ui.edtBaseTitle->setText(_selection.title[language]);
+	ui.edtBaseDescription->setText(_selection.description[language]);
+	_busy = false;
+}
 
+/*=============================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::_GetLangTexts(int language)
+{
+	_busy = true;
+	ui.edtTitleText->setText(_selection.title[language]);
+	ui.edtDescriptionText->setText(_selection.description[language]);
+	_busy = false;
+}
+
+/*=============================================================
+ * TASK:	saves texts into selection, but does not save them
+ *			into the data base or into the .struct file
+ * PARAMS:
+ * GLOBALS:	_selection
+ * RETURNS: none
+ * REMARKS: no ID is calculated for the texts!
+ *------------------------------------------------------------*/
+void FalconG::_SaveEditedTextsIntoSelection()
+{
+	bool bt,bd;
+	LanguageTexts newtexts(_selection.title.Count());
+	newtexts.SetTextForLanguageNoID(ui.edtTitleText->document()->toPlainText(), _selection.edtLang);
+	ui.btnSaveChangedTitle->setChecked(bt = (newtexts == _selection.title));
+	newtexts.SetTextForLanguageNoID(ui.edtDescriptionText->document()->toPlainText(), _selection.edtLang);
+	ui.btnSaveChangedDescription->setChecked(bd=(newtexts == _selection.description));
+	_selection.changed.setFlag(fsTitle, bt);
+	_selection.changed.setFlag(fsDescription, bd);
+}
+
+/*=============================================================
+ * TASK:	saves language texts in data base or just changes the
+ *			text ID
+ * PARAMS:	texts: text to store, with an ID which need not be 
+ *					the actual calculated id of the text
+ *					and it already contains any overflow
+ *			txtid: output id
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - if the text id already in data base but its
+ *			calculated CRC differs from that in the data base 
+ *			then its ID is replaced with the one in the database
+ *			- if the text is not the same as the old text, the
+ *			old text is removed and replaced by the new one
+ *------------------------------------------------------------*/
+void FalconG::_StoreLanguageTexts(LanguageTexts& texts)
+{
+	TextMap& tmap = albumgen.Texts();
+	ID_t txtid = texts.ID;					// possible old id for text or 0
+	texts.CalcBaseID();						// new id for text
+	
+	if (txtid && tmap.contains(txtid))
+		tmap.Remove(txtid);		// only if not used elsewhere
+	bool added = false;
+	texts.ID = tmap.Add(texts, added);
+}
+
+/*============================================================================
+* TASK: get new text for albums and images into _selection and 
+*		edtText and edtBaseText
+* EXPECTS:	_selection.newAlbum OR 
+*			_selection.newImage
+*			if any of this is not set the value is 0
+* GLOBALS:	_selection'
+* REMARKS:	- after getting the texts _selection.actAlbum and _selection.actImage
+*			will be replaced by the new values and the new values will be 0
+*--------------------------------------------------------------------------*/
+void FalconG::_GetTextsForEditing()
+{
 	++_busy;						// semaphore
-	if (who == wctSelection)
+	if (!_selection.actAlbum && !_selection.selectedImage)	   // selection cleared: show texts for album
 	{
-		if (!_selection.newAlbum && !_selection.newImage)	   // selection cleared: show texts for album
-		{
-			ui.edtBaseTitle->clear();
-			ui.edtBaseDescription->clear();
-			ui.edtTitleText->clear();
-			ui.edtDescriptionText->clear();
+		ui.edtBaseTitle->clear();
+		ui.edtBaseDescription->clear();
+		ui.edtTitleText->clear();
+		ui.edtDescriptionText->clear();
 
-			_selection.actAlbum = _selection.selectedImage = 0;
-			--_busy;
-			return;
+		--_busy;
+		return;
+	}
+	else
+	{
+		// indices for base and actual languages
+		int bli = ui.cbBaseLanguage->currentIndex(),	// text(s) in this language is the base
+			li = ui.cbLanguage->currentIndex();		// text(s) in this language may have been changed
+
+		if (_selection.actAlbum)
+		{
+			Album& album = *albumgen.AlbumForID(_selection.actAlbum);
+			_selection.title = albumgen.Texts()[album.titleID];
+			_selection.description = albumgen.Texts()[album.descID];
 		}
 		else
 		{
-			if (_selection.newAlbum)
-			{
-				Album& album = *albumgen.AlbumForID(_selection.newAlbum);
-				_selection.title = albumgen.Texts()[album.titleID];
-				_selection.description = albumgen.Texts()[album.descID];
-			}
-			else
-			{
-				Image& image = *albumgen.ImageAt(_selection.newImage);
-				_selection.title = albumgen.Texts()[image.titleID];
-				_selection.description = albumgen.Texts()[image.descID];
-			}
+			Image& image = *albumgen.ImageAt(_selection.selectedImage);
+			_selection.title = albumgen.Texts()[image.titleID];
+			_selection.description = albumgen.Texts()[image.descID];
 		}
+		_GetBaseTexts(bli);
+		_GetLangTexts(li);
 	}
-
-	// indices for base and actual languages
-	int bli = ui.cbBaseLanguage->currentIndex(),	// text(s) in this language is the base
-		li = ui.cbLanguage->currentIndex();		// text(s) in this language may have been changed
-	
-	if (who == wctBaseLangCombo)		// then just change base text for given language
-	{
-		if (bli == li)								// then base text was changed to be the same as
-			_SaveChangedTexts();					// actual text, which may be changed
-		ui.edtBaseTitle->setPlainText(DecodeLF(_selection.title[bli]));
-		ui.edtBaseDescription->setPlainText(DecodeLF(_selection.description[bli]));
-		--_busy;
-		return;
-	}
-	else if (who == wctLangCombo)		// then just change base text for given language
-	{
-		_SaveChangedTexts();					// actual text, which may be changed
-		ui.edtTitleText->setPlainText(DecodeLF(_selection.title[li]));
-		ui.edtDescriptionText->setPlainText(DecodeLF(_selection.description[li]));
-		--_busy;
-		return;
-	}
-
-		// must be wctSelection with either newAlbum ~= 0 or newImage != 0
-
-	_SaveChangedTexts();				// for actAlbum/actImage but only when needed
-
-	ID_t titleID = _selection.title.ID, 		// already the new IDs
-		  descID = _selection.description.ID;
-
-	Album *pActAlbum = nullptr;
-	Image *pActImage = nullptr;
-	if (_selection.newAlbum)	// then not new image -> get texts for album
-	{
-		pActAlbum = &albumgen.Albums()[_selection.newAlbum];
-		titleID = pActAlbum->titleID;
-		descID = pActAlbum->descID;
-	}
-	else if (_selection.newImage)
-	{
-		pActImage = &albumgen.Images()[_selection.newImage];
-		titleID = pActImage->titleID;
-		descID = pActImage->descID;
-	}
-	_selection.title.Clear();			// get rid of old text
-	_selection.description.Clear();		// and get new texts
-
-	if(titleID)
-		_selection.title = albumgen.Texts()[titleID];		
-	if(descID)
-		_selection.description = albumgen.Texts()[descID];
-			// set texts into edit boxes
-	ui.edtBaseTitle->setPlainText(DecodeLF(_selection.title[bli]));
-	ui.edtBaseDescription->setPlainText(DecodeLF(_selection.description[bli]));
-	ui.edtTitleText->setPlainText(DecodeLF(_selection.title[li]));
-	ui.edtDescriptionText->setPlainText(DecodeLF(_selection.description[li]));
-
-	if(_selection.newAlbum || !_selection.newImage) // if no new image
-		_selection.actAlbum = _selection.newAlbum;
-		
-
-	_selection.selectedImage = _selection.newImage;
-
-	_selection.newAlbum = _selection.newImage = 0;
 	--_busy;
 }
 
@@ -4418,16 +4413,16 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 		ID_t id = ID_t(_currentTreeViewIndex.internalPointer());	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
-		_selection.newAlbum = id;	// only single selection is used
+		_selection.actAlbum = id;	// only single selection is used
 								    // before the image list is read
 	}
 	else
-		_selection.newAlbum = 0;	// nothing/multiple albums selected
+		_selection.actAlbum = 0;	// nothing/multiple albums selected
 
 
 	ui.tnvImages->Load();
 	ui.tnvImages->clearSelection();	// no selection
-	_selection.selectedImage = _selection.newImage = 0;
+	_selection.selectedImage = 0;
 
 }
 /*========================================================
@@ -4734,8 +4729,8 @@ void FalconG::_OpacityChanged(int val, int which, bool used)
 
 /*============================================================================
 * TASK:	   Saves changed title and/or description
-* EXPECTS: 
-* GLOBALS: 
+* EXPECTS: _selection contains the actual title and description texts for all languages
+* GLOBALS: _selection
 * REMARKS: MUST be called BEFORE _selection.actAlbum and selectedImage is changed
 *--------------------------------------------------------------------------*/
 void FalconG::_SaveChangedTexts()
@@ -4743,88 +4738,56 @@ void FalconG::_SaveChangedTexts()
 	if (!_selection.changed)
 		return;
 
-	while (!albumgen.StructWritten())		// before changing again wait for previous write to finish
-		;
-// NO only _edited when structure changed and not yet written out	_edited = true;							// reset to false only when reading new album struct
-
-	// get changed text into _selection
-	ID_t origTitleID = _selection.title.ID,
-		 origDescID = _selection.description.ID;
+	ID_t otid = _selection.title.ID,
+		 odid = _selection.description.ID;
 
 	if (_selection.changed & fsTitle)
-	{
-		_selection.title.SetTextForLanguageNoID(ui.edtTitleText->document()->toPlainText(), _selection.edtLang);
-		_selection.title.CalcBaseID();		// new base ID for title
-	}
+		_StoreLanguageTexts(_selection.title);
 	if (_selection.changed & fsDescription)
-	{
-		_selection.description.SetTextForLanguageNoID(ui.edtDescriptionText->document()->toPlainText(), _selection.edtLang);
-		_selection.description.CalcBaseID();		// new base ID for description
-	}
+		_StoreLanguageTexts(_selection.description);
 
-	bool added = false;
+	TextMap& tmap = albumgen.Texts();
+
 					// save changed texts to old and set texts from current
 					// only need to modify album or image when ID is changed
-	TextMap &tmap = albumgen.Texts();
-	// first for title
-					// but we only know the new base ID not the whole ID yet
-	if( (_selection.title.ID == (origTitleID & BASE_ID_MASK)) &&	// if base ID ID is same as old
-		origTitleID != 0 && 										// which was for existingh
-		(_selection.title == tmap[origTitleID]))		// and the text itself is the same as the old one
-				_selection.title.ID = origTitleID;					// then no change and get original ID back
-	else if(_selection.title.ID)		// new ID  OR same ID, but new text 
-	{			// which may nat have cahnged
-		_selection.title.ID = tmap.Add(_selection.title, added); 				// change ID
-		tmap.Remove(origTitleID);												// decrement usageCount
-
-		if(_selection.selectedImage)
-			albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;	// Add new text
-		else
-			albumgen.Albums()[_selection.actAlbum].titleID = _selection.title.ID;	// Add new text
-
-		if (ui.chkChangeTitleEverywhere->isChecked())
-		{						// remove the old text and ID
-								// replace the old ID with the new everywhere
-			for (auto a : albumgen.Albums())
-				if (a.titleID == origTitleID)
-					a.titleID = _selection.title.ID, tmap.Remove(origTitleID);
-			for (auto a : albumgen.Images())
-				if (a.titleID == origTitleID)
-					a.titleID = _selection.title.ID, tmap.Remove(origTitleID);
-		}
-	}
-	// then for description
-	if( (_selection.description.ID == (origDescID & BASE_ID_MASK))	&&
-		origDescID &&
-		(_selection.description == tmap[origDescID]))
-				_selection.description.ID = origDescID;
-	else if(_selection.description.ID)
+	if (_selection.selectedImage)
 	{
-		_selection.description.ID = tmap.Add(_selection.description, added);	   // change ID
-		tmap.Remove(origDescID);												   // decrement usageCount
+		albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;
+		albumgen.Images()[_selection.selectedImage].descID  = _selection.description.ID;
+	}
+	else
+	{
+		albumgen.Albums()[_selection.actAlbum].titleID = _selection.title.ID;
+		albumgen.Albums()[_selection.actAlbum].descID = _selection.description.ID;
+	}
 
-		if (_selection.selectedImage)
-			albumgen.Images()[_selection.selectedImage].descID = _selection.description.ID;	// Add new text
-		else
-			albumgen.Albums()[_selection.actAlbum].descID = _selection.description.ID; // Add new text
-
-		if (ui.chkChangeDescriptionEverywhere->isChecked())
-		{// remove the old text and ID
-			tmap.Remove(origDescID);
-			// replace the old ID with the new everywhere
-			for (auto a : albumgen.Albums())
-				if (a.descID == origDescID)
-					a.descID = _selection.description.ID, tmap.Remove(origTitleID);
-			for (auto a : albumgen.Images())
-				if (a.descID == origDescID)
-					a.descID = _selection.description.ID, tmap.Remove(origTitleID);
-		}
+	if (ui.chkChangeTitleEverywhere->isChecked())
+	{						// remove the old text and ID
+							// replace the old ID with the new everywhere
+		for (auto a : albumgen.Albums())
+			if (a.titleID == otid)
+				a.titleID = _selection.title.ID, tmap.Remove(otid);
+		for (auto a : albumgen.Images())
+			if (a.titleID == otid)
+				a.titleID = _selection.title.ID, tmap.Remove(otid);
+	}
+	if (ui.chkChangeDescriptionEverywhere->isChecked())
+	{						// remove the old text and ID
+							// replace the old ID with the new everywhere
+		for (auto a : albumgen.Albums())
+			if (a.descID == odid)
+				a.descID = _selection.description.ID, tmap.Remove(odid);
+		for (auto a : albumgen.Images())
+			if (a.descID == odid)
+				a.descID = _selection.description.ID, tmap.Remove(odid);
 	}
 
 	albumgen.AlbumForID(_selection.actAlbum)->changed = true;
-	_selection.changed = fsNothing;		// all changes saved
+	_selection.changed = fsNothing;			// all changes saved
 
-	albumgen.WriteDirStruct(true);		// keep previous backup file
+	while (!albumgen.StructWritten())		// before changing again wait for previous write to finish
+		;
+	albumgen.WriteDirStruct(true);			// keep previous backup file
 }
 
 void FalconG::_SetLayoutMargins(int which)
@@ -5402,15 +5365,19 @@ void FalconG::_TnvStatusChanged(QString &s)
  *				ID of parent album if no selection
  * GLOBALS:
  * RETURNS:
- * REMARKS:
+ * REMARKS:	any changed text is already set in _selection
  *------------------------------------------------------------*/
 void FalconG::_TnvSelectionChanged(ID_t id)
 {
+	_SaveChangedTexts();	// from selection to data base
+
+	_selection.actAlbum = _selection.selectedImage = 0;
+
 	if (id & IMAGE_ID_FLAG)
-		_selection.newImage = id;
+		_selection.selectedImage = id;
 	else if(id)
-		_selection.newAlbum = id;
-	_GetTextsForEditing(wctSelection);
+		_selection.actAlbum = id;
+	_GetTextsForEditing();
 }
 
 /*=============================================================

@@ -265,7 +265,7 @@ ID_t LanguageTexts::CalcID(TextMap & map)
 			CalcBaseID();
 			int refCount = 0;
 			if (collision < 0)	// set in 'Clear()  - othervise minor STRUCT version is 0
-				collision = map.Collision(*this, refCount);
+				collision = map.Collision(*this, refCount);		  // refcount = current userCount
 			ID += ((ID_t)collision << TEXT_ID_COLLISION_FACTOR);
 			usageCount = refCount;
 		}
@@ -291,6 +291,7 @@ void LanguageTexts::Clear(int newSize)
 		for (int i = 0; i < lenghts.size(); ++i)
 			lenghts[i] = 0;
 	textsForAllLanguages.clear();
+	usageCount = 0;
 	ID = 0;
 	collision = -1;
 }
@@ -445,7 +446,7 @@ int TextMap::Collision(LanguageTexts &text, int &usageCount) const
 		const LanguageTexts &textInMap = operator[](id);
 		if (text == textInMap)	// then all language texts matched i.e.
 		{						// this text is already in data base
-			usageCount = textInMap.usageCount + 1;
+			usageCount = textInMap.usageCount; // usageCount is not changed +1;
 			return collision;
 		}
 		++collision;
@@ -1818,9 +1819,9 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	bool result = false;
 
-	bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAll);		// else full creation
+	bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAllPages);		// else full creation
 	
-	if (!_justChanges)
+	if (bMustReRead) // wrong: !_justChanges)
 		Clear();
 	PROGRAM_CONFIG::MakeValidLastConfig();		// may add new config
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
@@ -1828,7 +1829,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	if(!config.bReadFromDirs && QFileInfo::exists(s))
 	{
-		if ((bMustReRead || !AlbumCount()))
+		if ((bMustReRead || AlbumCount()<=1))	// only root album?
 		{
 			try
 			{
@@ -1847,15 +1848,15 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	_CleanupAlbums();	// recursively exclude empty ones
 		 // mark usage for those thumbnail that were not in the database when the album was read
-	for (auto it = _addedThumbnailIDsForImagesNotYetRead.rbegin(); it != _addedThumbnailIDsForImagesNotYetRead.rend(); ++it)
+	IdList tmplst;
+	for (auto id :_addedThumbnailIDsForImagesNotYetRead)
 	{
-		ID_t id = *it;
 		if (Contains(id))
-		{
 			++_imageMap[id].thumbnailCount;
-			_addedThumbnailIDsForImagesNotYetRead.remove(_addedThumbnailIDsForImagesNotYetRead.rend() - it);
-		}
+		else
+			tmplst.push_back(id);
 	}
+	_addedThumbnailIDsForImagesNotYetRead = tmplst;
 
 	emit SignalAlbumStructChanged();	// show list of albums in GUI
 //	if (result)
@@ -3169,7 +3170,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
  *-------------------------------------------------------*/
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
-	int doProcess = prImage | prThumb;	// suppose both image and thumb must be created 
+	int doProcess = 0;	// suppose neither image nor thumb must be created 
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
@@ -3239,34 +3240,31 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file) 
 		int64_t	fiSize = fiSrc.size();
 
-		if (config.bGenerateAll && config.bButImages)
-			doProcess -= prImage;			// then do not process
-		else if(!config.bGenerateAll)
-		{
-			if ( !im.bSizeDifferent && (fiSize == im.fileSize) && destIsNewer)
-				doProcess -= prImage;			// then do not process
-		}
+		if (config.bRegenerateAllImages)
+			doProcess += prImage;			// then do not process
+		else if (im.bSizeDifferent || (fiSize != im.fileSize) || !destIsNewer)
+			doProcess += prImage;			// then do process
+
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
 
 		if (im.fileSize != fiSize)			// source image size changed: set new size in structure
 			im.fileSize = fiSize;
 	}
+	else
+		doProcess |= prImage;
+
 	if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
 	{
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
-	//	// order of these checks is important! (for thumbnails always must check size)
-		if (!config.bGenerateAll && (config.bButImages || (!_MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)) )
-			doProcess -= prThumb;			// then do not process
-// DEBUG
-		//else
-		//	doProcess = doProcess;
-// /DEBUG
+	
+		if (config.bRegenerateAllImages || _MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)
+			doProcess += prThumb;			// then do process
 	}
-	// debug
-	//		doProcess = doProcessThumb = false;
-	// /debug
+	else
+		doProcess += prThumb;			// then do process
+
 	if (doProcess)
 	{
 		++_structChanged;			// when image changes structure must be re-saved
@@ -3318,7 +3316,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_ProcessImages()
 {
-	if (config.bButImages)
+	if (!_processing)
 		return 0;
 
 	// progress bar
@@ -3333,6 +3331,10 @@ int AlbumGenerator::_ProcessImages()
 	_remDsp.Init(_imageMap.size()+_videoMap.size());
 	if (config.waterMark.used)
 		config.waterMark.SetupMark();
+
+	bool bSaveregenAll = config.bRegenerateAllImages;
+	if (config.waterMark.WChanged()) // only  true if changed and the regenerate when changed checkbox is set
+		config.bRegenerateAllImages = true;
 
 	for (auto &im : _imageMap)
 	{
@@ -3352,6 +3354,7 @@ int AlbumGenerator::_ProcessImages()
 		_ProcessOneImage(im, converter, cnt);
 		emit SignalProgressPos(cnt, _ItemSize()); // progress bar
 	}
+	config.bRegenerateAllImages = bSaveregenAll;
 //	emit SignalToEnableEditTab(true);
 	return 0;
 }
@@ -3368,7 +3371,7 @@ int AlbumGenerator::_ProcessImages()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_ProcessVideos()
 {
-	if (config.bButImages || !_processing)
+	if (!_processing)
 		return 0;
 
 	// progress bar
@@ -3843,7 +3846,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 		qsLoc = "javascript:LoadAlbum('" + 
 					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
-		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title;
+		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title.replace('\n',' ');
 	qsLoc += +"')";
 
 	QString tagPDesc;

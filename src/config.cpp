@@ -1496,8 +1496,8 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	sDescription = cfg.sDescription;
 	sKeywords = cfg.sKeywords;
 
-	bGenerateAll = cfg.bGenerateAll;
-	bButImages = cfg.bButImages;
+	bGenerateAllPages = cfg.bGenerateAllPages;
+	bRegenerateAllImages = cfg.bRegenerateAllImages;
 	bAddTitlesToAll = cfg.bAddTitlesToAll;
 	bAddDescriptionsToAll = cfg.bAddDescriptionsToAll;
 	bLowerCaseImageExtensions = cfg.bLowerCaseImageExtensions;

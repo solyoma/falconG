@@ -75,6 +75,8 @@ class UsageCount
 {
 	int _cnt = 0;
 public:
+	UsageCount() {}
+	UsageCount(int cnt) : _cnt(cnt) {}		// cnt MUST be positive
 	int operator++() { ++_cnt; return _cnt; }
 	int operator--() { if (_cnt) --_cnt; return _cnt; }
 	int operator+=(int cnt) { _cnt += cnt; return _cnt; }
@@ -100,6 +102,8 @@ public:
 
 protected:
 	bool _enabled = true;	// otherwise do not create image
+	bool _changed = false;	// any changes
+	bool _regenImagesWhenChanged = false;
 private:
 	//using POS = int;
 
@@ -134,6 +138,8 @@ public:
 	QString Text() const { return _text; }
 	int Origin() const { return _origin; }
 
+	bool WChanged() const { return _changed && _regenImagesWhenChanged; }
+
 	int Width() const  { return _markWidth; }
 	int Height() const { return _markHeight; }
 	int MarginX() const { return _marginX; }
@@ -156,19 +162,29 @@ public:
 	unsigned ShadowColor() const { return _shadowColor; };	// with opacity
 	unsigned Background() const { return _background; }
 	double Opacity(bool percent) const;		// 0..255 (!percent) or 0..100 (percent)
+
+	void ClearChanges() { _changed = false; }
+	void SetRegenerationMode(bool regen) { _regenImagesWhenChanged = regen; }
 	// setters	: each regenerates watermark image and saves it into 'res/'
-	void SetPositioning(int pos) { _origin = pos; }
-	void SetBackground(unsigned bck) { _background = bck; }
-	void SetColorWithOpacity(int colorWOpacity);
+#define SET_WM_VALUE(a,b)\
+			if(a != (b))	\
+			{  \
+				_changed = true;	\
+				a = (b); \
+			}
+	void SetPositioning(int pos) { SET_WM_VALUE(_origin,pos) }
+	void SetBackground(unsigned bck) { SET_WM_VALUE(_background, bck) }
+	void SetColorWithOpacity(unsigned colorWOpacity);
 	void SetColorWithOpacity(QString sColorWOpacity);
 	void SetFont(QFont& qfont);
-	void SetMarginX(int mx) { _marginX = mx; }
-	void SetMarginY(int my) { _marginY = my; }
+	void SetMarginX(int mx) { SET_WM_VALUE(_marginX, mx) }
+	void SetMarginY(int my) { SET_WM_VALUE(_marginY, my) }
 	void SetText(QString  qs);
 	void SetOpacity(int val, bool percent); // val is in percent (0..100) or not(0..255)?
-	void SetShadowColor(unsigned color) { _shadowColor = color; }
-	void SetShadowOn(bool on) { _shadowOn = on; }
-	void SetShadowBlur(int blur) { _shadowBlur = blur; }
+	void SetShadowColor(unsigned color) { SET_WM_VALUE(_shadowColor,color) }
+	void SetShadowOn(bool on) { SET_WM_VALUE(_shadowOn,on) }
+	void SetShadowBlur(unsigned blur) { SET_WM_VALUE(_shadowBlur,blur) }
+#undef SET_WM_VALUE
 };
 
 //*****************************************																			

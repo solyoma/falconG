@@ -90,8 +90,8 @@ struct IABase
 //------------------------------------------
 struct Image : public IABase
 {
-	int usageCount = 0;			// can be removed only if this is 0
-	int thumbnailCount = 0;		// and this is also 0	Orphan thumbnails must have 0 usageCount
+	UsageCount usageCount = 0;			// can be removed only if this is 0
+	UsageCount thumbnailCount = 0;		// and this is also 0	Orphan thumbnails must have 0 usageCount
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
@@ -198,7 +198,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	// If no such file is present a default jpg will be supplied
 	enum Type {vtMp4, vtOgg, vtWebM} type;
 
-	int usageCount = 1;			// can be removed when this is 0
+	UsageCount usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
@@ -274,7 +274,7 @@ public:
 	int Collision(LanguageTexts &text, int &usageCount) const;		// do not add when text is the same
 	ID_t Add(QStringList &texts, bool &added);	// add unique text, returns ID and if added
 	ID_t Add(LanguageTexts & text, bool &added);			// add based on ID and lang and text
-	void Remove(ID_t id);					// decrements usage cont and removes text if it is 0
+	void Remove(ID_t id);					// decrements usage count and removes text if it is 0
 };
 
 //------------------------------------------
@@ -367,7 +367,7 @@ public:
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
 	int SaveStyleSheets();
-	void SetRecrateAllAlbumFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
+	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
 	void SetGalleryModified(ID_t albumId) { _slAlbumsModified << albumId; }
 

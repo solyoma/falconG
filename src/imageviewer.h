@@ -21,7 +21,7 @@ class ImageViewer : public QWidget
 	Ui::ImageViewerClass ui;
 
 public:
-	enum ImageFlag {imNone, imReshowImage, imResizeWithImage};
+	enum ImageFlag {imNone, imReshowImage, imResizeWithImage};	// works: 0, 1, 2
 	Q_DECLARE_FLAGS(ImageFlags, ImageFlag);
 public:
 	ImageViewer(QString fileName, ThumbnailView *creator,QWidget* parent=nullptr);

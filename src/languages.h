@@ -110,6 +110,8 @@ struct LanguageTexts				// both Album and Image uses this
 	LanguageTexts(const QStringList& texts);
 	LanguageTexts(const LanguageTexts& t) : ID(t.ID), collision(t.collision), lenghts(t.lenghts), textsForAllLanguages(t.textsForAllLanguages), usageCount(t.usageCount) {}
 
+	int Count()const { return lenghts.size(); }
+
 	LanguageTexts& operator=(const LanguageTexts& t);
 	LanguageTexts& operator=(const QStringList& txts);
 	bool operator==(const LanguageTexts& t);		// compare first ID then all texts

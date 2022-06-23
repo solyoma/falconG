@@ -76,7 +76,11 @@ namespace Enums
 		dpIconToUplink,
 		dpWatermark
 	};
-	enum whoChangedTheText { wctSelection = 1, wctBaseLangCombo = 2, wctLangCombo = 4 };
+	enum whoChangedTheText {		// in the edit boxes
+		wctSelection = 1,			// new thumbnail selected must save texts in database and .struct if changed
+		wctBaseLangCombo = 2,		// base language combo index changed, no need to save the text
+		wctLangCombo = 4			// language combo selection changed, must save text in selection
+	};
 	enum FrfFlags { frfNormal, frfAllLines, frfEmptyLines = 2, frfCommentLines = 4, frfLtrim = 8, frfRtrim = 8, frfTrim = 12, frfNoWhiteSpaceLines = 32, frfNeedUtf8 = 64 };
 	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
 	enum UserRoles {
