@@ -895,7 +895,7 @@ Error code:%2
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1690"/>
+        <location filename="../src/thumbnailView.cpp" line="1694"/>
         <source>Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1149,8 +1149,8 @@ Error code:%2
     </message>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1305"/>
-        <location filename="../src/thumbnailView.cpp" line="1846"/>
-        <location filename="../src/thumbnailView.cpp" line="2107"/>
+        <location filename="../src/thumbnailView.cpp" line="1861"/>
+        <location filename="../src/thumbnailView.cpp" line="2122"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1160,104 +1160,106 @@ Error code:%2
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1549"/>
+        <location filename="../src/thumbnailView.cpp" line="1553"/>
         <source>Select Album Thumbnail...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1577"/>
+        <location filename="../src/thumbnailView.cpp" line="1581"/>
         <source>Set As Album &amp;Thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1584"/>
+        <location filename="../src/thumbnailView.cpp" line="1588"/>
         <source>Find missing item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1602"/>
+        <location filename="../src/thumbnailView.cpp" line="1606"/>
         <source>Toggle &apos;Keep Original Size&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1610"/>
+        <location filename="../src/thumbnailView.cpp" line="1614"/>
         <source>Copy &amp;Name(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1614"/>
+        <location filename="../src/thumbnailView.cpp" line="1618"/>
         <source>Copy &amp;Original Name(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1621"/>
+        <location filename="../src/thumbnailView.cpp" line="1625"/>
         <source>Add &amp;Images...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1626"/>
+        <location filename="../src/thumbnailView.cpp" line="1630"/>
         <source>Add &amp;Folder...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1634"/>
+        <location filename="../src/thumbnailView.cpp" line="1638"/>
         <source>&amp;Synchronize texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1643"/>
+        <location filename="../src/thumbnailView.cpp" line="1647"/>
         <source>&amp;Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1651"/>
+        <location filename="../src/thumbnailView.cpp" line="1655"/>
         <source>&amp;Undo Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1689"/>
+        <location filename="../src/thumbnailView.cpp" line="1693"/>
         <source>images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1689"/>
+        <location filename="../src/thumbnailView.cpp" line="1693"/>
         <source>albums</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1691"/>
+        <location filename="../src/thumbnailView.cpp" line="1695"/>
         <source>image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1692"/>
+        <location filename="../src/thumbnailView.cpp" line="1696"/>
         <source>album</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1694"/>
-        <location filename="../src/thumbnailView.cpp" line="1737"/>
+        <location filename="../src/thumbnailView.cpp" line="1698"/>
+        <location filename="../src/thumbnailView.cpp" line="1741"/>
         <source>falconG - Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1696"/>
+        <location filename="../src/thumbnailView.cpp" line="1700"/>
         <source>From disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1697"/>
+        <location filename="../src/thumbnailView.cpp" line="1701"/>
         <source>Just remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1698"/>
+        <location filename="../src/thumbnailView.cpp" line="1702"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1738"/>
-        <source>This will set the same texts to all selected items
+        <location filename="../src/thumbnailView.cpp" line="1742"/>
+        <source>This will set the texts to all of selected items
+to be the same as the item under the cursor when
+you choose this menu option
 
 This action cannot be undone!
 
@@ -1265,34 +1267,34 @@ Do you really want to do this?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1794"/>
+        <location filename="../src/thumbnailView.cpp" line="1809"/>
         <source>falconG - Add images/videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1846"/>
+        <location filename="../src/thumbnailView.cpp" line="1861"/>
         <source>Adding new album failed!
 
 Maybe the album is already in the gallery.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1864"/>
+        <location filename="../src/thumbnailView.cpp" line="1879"/>
         <source>falconG - Add Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1990"/>
+        <location filename="../src/thumbnailView.cpp" line="2005"/>
         <source>falconG - Select Thumbnail Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2091"/>
+        <location filename="../src/thumbnailView.cpp" line="2106"/>
         <source>falconG - Find file: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2107"/>
+        <location filename="../src/thumbnailView.cpp" line="2122"/>
         <source>File names do not match. </source>
         <translation type="unfinished"></translation>
     </message>

@@ -1178,7 +1178,7 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
  or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
 Modified file remains named as 
 &apos;%2&apos;</source>
-        <translation>Vagy s fájl
+        <translation>Vagy a fájl
 &apos;%1&apos;
 nem törölhető, vagy csak a file
 &apos;%2&apos;, nem nevezhető át &apos;%1&apos;-re.
@@ -1635,7 +1635,7 @@ Hiba kód: %2
 </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1690"/>
+        <location filename="../src/thumbnailView.cpp" line="1694"/>
         <source>Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?</source>
         <translation>A kiválasztott %1 / %2 elemet &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
     </message>
@@ -1937,8 +1937,8 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
     </message>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1305"/>
-        <location filename="../src/thumbnailView.cpp" line="1846"/>
-        <location filename="../src/thumbnailView.cpp" line="2107"/>
+        <location filename="../src/thumbnailView.cpp" line="1861"/>
+        <location filename="../src/thumbnailView.cpp" line="2122"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -1948,96 +1948,114 @@ programmal készítették. - © A.Sólyom 2018-2021</translation>
         <translation>Új kép/video hozzáadása sikertelen!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1549"/>
+        <location filename="../src/thumbnailView.cpp" line="1553"/>
         <source>Select Album Thumbnail...</source>
         <translation>Album kiskép...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1577"/>
+        <location filename="../src/thumbnailView.cpp" line="1581"/>
         <source>Set As Album &amp;Thumbnail</source>
         <translation>&amp;Beállítás album kisképként</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1584"/>
+        <location filename="../src/thumbnailView.cpp" line="1588"/>
         <source>Find missing item</source>
         <translation>Hiányzó elem keresése</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1602"/>
+        <location filename="../src/thumbnailView.cpp" line="1606"/>
         <source>Toggle &apos;Keep Original Size&apos;</source>
         <translation>&apos;Eredeti méret megtartása&apos; Ki/be</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1610"/>
+        <location filename="../src/thumbnailView.cpp" line="1614"/>
         <source>Copy &amp;Name(s)</source>
         <translation>&amp;Név/nevek vágólapra</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1614"/>
+        <location filename="../src/thumbnailView.cpp" line="1618"/>
         <source>Copy &amp;Original Name(s)</source>
         <translation>&amp;Eredeti név / nevek 
 vágólapra</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1621"/>
+        <location filename="../src/thumbnailView.cpp" line="1625"/>
         <source>Add &amp;Images...</source>
         <translation>&amp;Képek hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1626"/>
+        <location filename="../src/thumbnailView.cpp" line="1630"/>
         <source>Add &amp;Folder...</source>
         <translation>&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1634"/>
+        <location filename="../src/thumbnailView.cpp" line="1638"/>
         <source>&amp;Synchronize texts</source>
         <translation>S&amp;zövegek szinkronizálása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1643"/>
+        <location filename="../src/thumbnailView.cpp" line="1647"/>
         <source>&amp;Remove</source>
         <translation>&amp;Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1651"/>
+        <location filename="../src/thumbnailView.cpp" line="1655"/>
         <source>&amp;Undo Delete</source>
         <translation>&amp;Visszavonás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1689"/>
+        <location filename="../src/thumbnailView.cpp" line="1693"/>
         <source>images</source>
         <translation>képek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1689"/>
+        <location filename="../src/thumbnailView.cpp" line="1693"/>
         <source>albums</source>
         <translation>albumok</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1691"/>
+        <location filename="../src/thumbnailView.cpp" line="1695"/>
         <source>image</source>
         <translation>kép</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1692"/>
+        <location filename="../src/thumbnailView.cpp" line="1696"/>
         <source>album</source>
         <translation>album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1694"/>
-        <location filename="../src/thumbnailView.cpp" line="1737"/>
+        <location filename="../src/thumbnailView.cpp" line="1698"/>
+        <location filename="../src/thumbnailView.cpp" line="1741"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1696"/>
+        <location filename="../src/thumbnailView.cpp" line="1700"/>
         <source>From disk</source>
         <translation>Lemezről is</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1697"/>
+        <location filename="../src/thumbnailView.cpp" line="1701"/>
         <source>Just remove</source>
         <translation>Csak az albumból</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1742"/>
+        <source>This will set the texts to all of selected items
+to be the same as the item under the cursor when
+you choose this menu option
+
+This action cannot be undone!
+
+Do you really want to do this?</source>
+        <translation>Ezzel az összes kiválasztott elem címét és
+leírását lecseréled annak az elemnek ezen adataira
+amely felett az egérmutató volt, amikor ezt a menüpontot
+kiválasztottad.
+
+Ez egy nem visszavonható művelet!
+
+Bistos ezt akarod?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2048,30 +2066,29 @@ vágólapra</translation>
         <translation type="vanished">Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1698"/>
+        <location filename="../src/thumbnailView.cpp" line="1702"/>
         <source>Cancel</source>
         <translation>Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1738"/>
         <source>This will set the same texts to all selected items
 
 This action cannot be undone!
 
 Do you really want to do this?</source>
-        <translation>Ezután az összes kiválasztott elem címe és leírása ugyanaz lesz.
+        <translation type="vanished">Ezután az összes kiválasztott elem címe és leírása ugyanaz lesz.
 
  Ezt nem visszavonható változtatás
 
 Biztos, hogy akarod?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1794"/>
+        <location filename="../src/thumbnailView.cpp" line="1809"/>
         <source>falconG - Add images/videos</source>
         <translation>Új kép/video hozzáadása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1846"/>
+        <location filename="../src/thumbnailView.cpp" line="1861"/>
         <source>Adding new album failed!
 
 Maybe the album is already in the gallery.</source>
@@ -2080,22 +2097,22 @@ Maybe the album is already in the gallery.</source>
 Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1864"/>
+        <location filename="../src/thumbnailView.cpp" line="1879"/>
         <source>falconG - Add Directory</source>
         <translation>falconG - Mappa kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1990"/>
+        <location filename="../src/thumbnailView.cpp" line="2005"/>
         <source>falconG - Select Thumbnail Image</source>
         <translation>falconG - Kiskép kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2091"/>
+        <location filename="../src/thumbnailView.cpp" line="2106"/>
         <source>falconG - Find file: </source>
         <translation>falconG - Fájl keresése: </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2107"/>
+        <location filename="../src/thumbnailView.cpp" line="2122"/>
         <source>File names do not match. </source>
         <translation>A fájlnevek különbözőek. </translation>
     </message>
@@ -2716,7 +2733,7 @@ visszaállítja az elemek háttérszíneét is!</translation>
         <source>If this is checked and you select a new foreground color then
 the same color will be applied to all elements on page as text color.
 This option then reverts to not checked.</source>
-        <translation>Ha bejelöli és kiválaszt egy áj szövegszínt, akkor mindenszövegnek az lesz a színe.
+        <translation>Ha bejelöli és kiválaszt egy új szövegszínt, akkor minden szövegnek az lesz a színe.
 A színkiválasztás után ez a jelölőnégyzet újra jelöletlenné válik.</translation>
     </message>
     <message>

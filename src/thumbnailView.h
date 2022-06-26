@@ -283,6 +283,7 @@ private:
     bool _scrolledForward;
     int _thumbsRangeFirst;
     int _thumbsRangeLast;
+	int _rowSelectedWithRightButton = -1;
 
 	QStringList _slSearchPaths;		// paths to search missing images against
 

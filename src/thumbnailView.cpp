@@ -1513,6 +1513,10 @@ void ThumbnailView::wheelEvent(QWheelEvent *event)
  *------------------------------------------------------------*/
 void ThumbnailView::mousePressEvent(QMouseEvent *event)
 {
+    if (event->button() == Qt::RightButton)
+    {
+        _rowSelectedWithRightButton = indexAt(event->pos()).row();
+    }
 	QListView::mousePressEvent(event);
 }
 
@@ -1733,39 +1737,60 @@ void ThumbnailView::SynchronizeTexts()
     if (list.isEmpty())
         return;
 
+    IABase* pItem = nullptr;
+    Album* pAlbum = _ActAlbum();
+
+    auto Item = [&](int row)
+    {
+        ID_t id = pAlbum->items[row];
+        if (id & ALBUM_ID_FLAG)
+            pItem = albumgen.AlbumForID(id);
+        else if (id & IMAGE_ID_FLAG)
+            pItem = albumgen.ImageAt(id);
+        else
+            pItem = albumgen.VideoAt(id);
+
+        return pItem;
+    };
+
+    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID);
 
     if (QMessageBox::question(this, tr("falconG - Question"),
-        tr("This will set the same texts to all selected items\n\n"
+        tr("This will set the texts to all of selected items\n"
+            "to be the same as the item under the cursor when\n"
+            "you choose this menu option\n\n"
             "This action cannot be undone!\n\n"
             "Do you really want to do this?"),
         QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
     {
-        IABase* pItem = nullptr;
-        Album* pAlbum = _ActAlbum();
 
-        QModelIndexList::iterator it = list.begin();
-        auto Item = [&](int r)
-        {
-            ID_t id = pAlbum->items[r];
-            if (id & ALBUM_ID_FLAG)
-                pItem = albumgen.AlbumForID(id);
-            else if (id & IMAGE_ID_FLAG)
-                pItem = albumgen.ImageAt(id);
-            else
-                pItem = albumgen.VideoAt(id);
+        ID_t titleId=0,descrId=0;
+        LanguageTexts *pTitle = nullptr, *pDescr = nullptr;
 
-            return pItem;
-        };
-
-        pItem = Item(it->row());
-        ID_t titleId = pItem->titleID,
+        for(int i =0; i < list.size(); ++i)
+            if (list[i].row() == _rowSelectedWithRightButton)   
+            {
+                pItem = Item(list[i].row());
+                titleId = pItem->titleID;
                 descrId = pItem->descID;
-        while (++it != list.end())
+                pTitle = albumgen.TextsAt(titleId);
+                pDescr = albumgen.TextsAt(descrId);
+            }
+
+        for (auto it : list)
         {
-            pItem = Item(it->row());
-            pItem->titleID = titleId;
-            pItem->descID = descrId;
+            if (it.row() != _rowSelectedWithRightButton)
+            {
+                pItem = Item(it.row());
+                pItem->titleID = titleId;
+                pItem->descID = descrId;
+                if (pTitle) 
+                    ++pTitle->usageCount;
+                if (pDescr) 
+                    ++pDescr->usageCount;
+            }
         }
+        SetCurrentItem(_rowSelectedWithRightButton);
     }
 }
 
