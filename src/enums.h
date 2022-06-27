@@ -56,6 +56,12 @@ namespace Enums
 		aeFooter					// footer
 	};
 
+	enum Existance { 
+		exNot,			// does not exist	
+		exExists,		// present on disk
+		exVirtual		// not on disk
+	};	// for albums
+
 	enum Changed { fsNothing = 0, fsTitle = 1, fsDescription = 2 }; // which text changed
 	enum skinStyle { stDefault, stSystem, stBlue, stDark, stBlack };
 	enum StyleIndex {   // C.f. index.html

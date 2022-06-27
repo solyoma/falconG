@@ -28,6 +28,8 @@ class AlbumStructWriterThread : public QThread
 	bool _recordChanges=false;	// when true then all changed albums will be marked as such
 	QTextStream _ofs;
 
+	void _WriteStructImage(Album &album, ID_t id, QString indent);
+	void _WriteStructVideo(Album &album, ID_t id, QString indent);
 	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
 	void _WriteStructAlbums(Album& album, QString indent);
 	void WriteOrphanThumbnails();

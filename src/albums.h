@@ -58,7 +58,7 @@ extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, b
 struct IABase
 {
 	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
-	bool exists = false;	// set to true if it exists on the disk somewhere
+	Existance exists = exNot;	// set to exExists if it exists on the disk somewhere or exVirtual if only in data base
 	bool changed = false;	// Images (or videos): true: image is recreated (dimensions or file size or data changed)
 							//		check this and create a new struct file on disk if any image changed
 							//		inside any albums. 
@@ -76,6 +76,7 @@ struct IABase
 	{
 		ID		=  a.ID		;
 		exists  =  a.exists ;
+		changed =  a.changed;
 		titleID =  a.titleID;
 		descID	=  a.descID	;
 		name    =  a.name   ;
@@ -216,8 +217,11 @@ struct Video : IABase			// format: MP4, OOG, WebM
 
 	//IABase& operator=(const IABase& a)
 	//{
-	//	IABase::operator=(a);
 	//	type = ((Video&)a).type;
+	//	usageCount	= a.usageCount	;			// can be removed when this is 0
+	//	checksum	= a.checksum	;		// of content not used YET
+	//	uploadDate	= a.uploadDate	;
+	//	fileSize	= a.fileSize	;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
 	//}
 
 	QString AsString(int width = 320, int height = -1);
@@ -369,7 +373,22 @@ public:
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
-	void SetGalleryModified(ID_t albumId) { _slAlbumsModified << albumId; }
+	void SetAlbumModified(Album& album)
+	{
+		if (_slAlbumsModified.indexOf(album.ID) < 0)
+		{
+			_slAlbumsModified << album.ID;
+			album.changed = true;
+		}
+	}
+	void SetAlbumModified(ID_t albumId)		// albumId must be valid
+	{ 
+		if (_slAlbumsModified.indexOf(albumId) < 0)
+		{
+			Album& album = _albumMap[albumId];
+			SetAlbumModified(album);
+		}
+	}
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	int ActLanguage() const { return _actLanguage; }

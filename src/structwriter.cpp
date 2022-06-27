@@ -99,6 +99,70 @@ void AlbumStructWriterThread::run()
 	emit resultReady(result, sStructPath, sStructTmp);
 }
 
+void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString indent)
+{
+	Image* pImg;
+	QString s;
+
+	pImg = &_imageMap[id];
+	if (pImg->changed)
+		albumgen.SetAlbumModified(album);
+
+	if (pImg->exists)
+	{
+		if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
+			pImg->rsize = pImg->dsize;
+
+		_ofs << indent;
+		if (pImg->dontResize)
+			_ofs << "!!";
+		_ofs << pImg->name << "(" 										   // field #1
+			<< (pImg->ID & ID_MASK) << ","								   // field #2
+			<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","   // field #3 - #4
+			<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
+			// ISO 8601 extended format: yyyy-MM-dd for dates
+			<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
+			<< pImg->fileSize << ")";									   // field #8
+		s = config.RemoveSourceFromPath(pImg->path);
+		_ofs << s << "\n";
+		// field #9
+	}
+	else
+		_ofs << indent << pImg->name << " # is missing\n";
+	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
+	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
+}
+
+void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString indent)
+{
+	Video* pVid;
+	QString s;
+
+	pVid = &_videoMap[id];
+	if (pVid->changed)
+	{
+		albumgen.SetAlbumModified(album);
+	}
+	if (pVid->exists)
+	{
+
+		_ofs << indent;
+		_ofs << pVid->name << "(V" 										   // field #1
+			<< (pVid->ID & ID_MASK) << ","								   // field #2
+			// ISO 8601 extended format: yyyy-MM-dd for dates
+			<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
+			<< pVid->fileSize << ")";									   // field #4
+		s = pVid->path;
+		s = config.RemoveSourceFromPath(pVid->path);
+		_ofs << s << "\n";
+		// field #9
+	}
+	else
+		_ofs << indent << pVid->name << " # is missing\n";
+	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pVid->descID, indent);
+	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pVid->titleID, indent);
+}
+
 /*============================================================================
 * TASK:		writes out the new album structure.
 * EXPECTS:
@@ -116,44 +180,11 @@ void AlbumStructWriterThread::run()
 *--------------------------------------------------------------------------*/
 void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QString indent)
 {
-	QString s;
-	Image* pImg;
-	Video* pVid;
-
 	// IMAGES
 	// format: [!!]<name>'('<id>,<width>'x'<height>,<owidth>'x'<oheight>,<date string><file size>')'<dSrc relative or absolute path>
 	for (ID_t id : album.items)
-		if(!(id & EXCLUDED_FLAG) && (id & IMAGE_ID_FLAG) )		// not excluded
-		{
-			pImg = &_imageMap[id];
-			if (pImg->changed)
-				album.changed = true;
-
-			if (pImg->exists)
-			{
-				if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
-					pImg->rsize = pImg->dsize;
-
-				_ofs << indent;
-				if (pImg->dontResize)
-					_ofs << "!!";
-				_ofs << pImg->name << "(" 										   // field #1
-					<< (pImg->ID & ID_MASK) << ","								   // field #2
-					<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","   // field #3 - #4
-					<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
-					// ISO 8601 extended format: yyyy-MM-dd for dates
-					<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
-					<< pImg->fileSize << ")";									   // field #8
-				s = config.RemoveSourceFromPath(pImg->path);
-				_ofs << s << "\n";
-				// field #9
-			}
-			else
-				_ofs << indent << pImg->name << " # is missing\n";
-			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
-			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
-		}
-	// DEBUG
+		if (!(id & EXCLUDED_FLAG) && (id & IMAGE_ID_FLAG))		// not excluded
+			_WriteStructImage(album, id, indent);	// DEBUG
 //	int n = album.videos.size();
 //	if (n)
 //		n = n;
@@ -162,32 +193,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 	// format: <name>'(''V'<id>, <date string>,<file size>')'<dSrc relative or absoluth path>
 	for (ID_t id : album.items)
 		if (!(id & EXCLUDED_FLAG) && (id & VIDEO_ID_FLAG))		// not excluded
-		{
-			pVid = &_videoMap[id];
-			if (pVid->changed)
-			{
-				album.changed = true;
-			}
-			if (pVid->exists)
-			{
-
-				_ofs << indent;
-				_ofs << pVid->name << "(V" 										   // field #1
-					<< (pVid->ID & ID_MASK) << ","								   // field #2
-					// ISO 8601 extended format: yyyy-MM-dd for dates
-					<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
-					<< pVid->fileSize << ")";									   // field #4
-				s = pVid->path;
-				s = config.RemoveSourceFromPath(pVid->path);
-				_ofs << s << "\n";
-				// field #9
-			}
-			else
-				_ofs << indent << pVid->name << " # is missing\n";
-			WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pVid->descID, indent);
-			WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pVid->titleID, indent);
-		}
-
+			_WriteStructVideo(album, id, indent);
 	// ALBUMS
 	for (ID_t id : album.items)
 		if (!(id & EXCLUDED_FLAG) && (id & ALBUM_ID_FLAG))		// not excluded
@@ -206,7 +212,7 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 *--------------------------------------------------------------------------*/
 void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 {
-	if (!album.exists)
+	if (album.exists == exNot)
 		return;
 
 	QString s = config.RemoveSourceFromPath(album.path);

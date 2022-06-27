@@ -1963,13 +1963,13 @@ void ThumbnailView::SetAsAlbumThumbnail()
     ID_t th = album.items[pos];
 
     album.SetThumbnail(th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID );
-    album.changed = true;
+    albumgen.SetAlbumModified(album);
     if(album.parent)
     {
         Album * parent = albumgen.AlbumForID(album.parent);
         parent->changed = true;
     }
-    albumgen.SetGalleryModified(_albumId);
+    albumgen.SetAlbumModified(_albumId);
 }
 
 /*=============================================================
@@ -2134,9 +2134,9 @@ void ThumbnailView::FindMissingImageOrVideo()
         }
         _slSearchPaths.push_back(p);
         pItem->path = p;     // replace path
-        pItem->exists = QFile::exists(pItem->FullSourceName());
+        pItem->exists = QFile::exists(pItem->FullSourceName()) ? exExists : exNot;
         pItem->changed = true;
-        album.changed = true;
+        albumgen.SetAlbumModified(album);
         emit SignalAlbumChanged();
 
         // check all missing files against search paths
@@ -2149,7 +2149,7 @@ void ThumbnailView::FindMissingImageOrVideo()
                 if (j >= 0)
                 {
                     pItem->path = _slSearchPaths[j];
-                    pItem->exists = true;
+                    pItem->exists = exExists;
                 }
             }
         }

@@ -86,9 +86,12 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 	{
 		ID_t id = (ID_t)index.internalPointer();
 		Album &ab = albumgen.Albums()[id];
+		QString sChangedFlag = ab.changed ? "*" : "";
 		QString s = ab.name;
+		if (ab.changed)
+			s += "*";
 		if (id == ROOT_ALBUM_ID)
-			return s = "/ ( " + ab.name + " )";;
+			return "/ ( " + s + " )";
 		return s + " ( " + ab.BareName() + " )";  // no language or extension
 	}
 	return QVariant();

@@ -645,11 +645,11 @@ ID_t ImageMap::Add(QString path, bool &added, ID_t orphanID)	// path name of sou
 		img.path = img.path.mid(basePath.length());
 
 	QDir dir;
-	img.exists = dir.exists(path);
-	if (!img.exists && !QDir::isAbsolutePath(path) )
+	img.exists = dir.exists(path) ? exExists : exNot;
+	if (img.exists != exExists && !QDir::isAbsolutePath(path) )
 	{
 		img.path = AlbumGenerator::lastUsedAlbumPath;
-		img.exists = dir.exists(basePath + img.path + img.name);
+		img.exists = dir.exists(basePath + img.path + img.name) ? exExists : exNot;
 	}
 	AlbumGenerator::lastUsedAlbumPath = img.path;
 
@@ -694,7 +694,7 @@ ID_t ImageMap::Add(QString path, bool &added, ID_t orphanID)	// path name of sou
 	}
 	// now I have a new image to add
 	// new image: 
-	if (img.exists)
+	if (img.exists == exExists)
 	{
 		img.fileSize = fi.size();
 		img.uploadDate = fi.lastModified().date();
@@ -1036,19 +1036,12 @@ ID_t AlbumMap::Add(QString path, bool &added)
 	SeparateFileNamePath(path, ab.path, ab.name);
 	ab.ID = GetUniqueID(*this, path, false) | ALBUM_ID_FLAG;   // using full path name only and not file content
 	if(QDir::isAbsolutePath(path) )
-		ab.exists = QFile::exists(path);
+		ab.exists = QFile::exists(path) ? exExists : exVirtual;
 	else
-		ab.exists = QFile::exists((config.dsSrc + path).ToString());
-	if (!ab.exists)	// maybe its parent with full name of ab.path does
-	{				// in that case get path from its parent
-		if (QDir::isAbsolutePath(ab.path))
-			ab.exists = QFile::exists(ab.path);
-		else
-			ab.exists = QFile::exists((config.dsSrc + ab.path).ToString());
-	}
-	else
+		ab.exists = QFile::exists((config.dsSrc + path).ToString()) ? exExists : exVirtual;
+
+	if (ab.exists == exVirtual)
 		AlbumGenerator::lastUsedAlbumPath = ab.path + ab.name + "/";
-	ab.exists = true; // no need for real directoy to exist --  QFileInfo::exists(path);
 	added = true;		// always add, even when it does not exist
 	(*this)[ab.ID] = ab;
 	return ab.ID;
@@ -1663,7 +1656,7 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
  *			adds only images and albums set in those files
  *			otherwise adds each image and sub-folders to it
  * EXPECTS: album (must already be on the global album list '_albumMap')
- * GLOBALS: _justChanges
+ * GLOBALS: 
  * REMARKS: - first reads meta.properties and set parameters for this album
  *			- then reads file 'albumfiles.txt' if it exists and adds
  *				image/video/album names from it to album
@@ -1697,7 +1690,7 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	dir.setSorting(QDir::NoSort);
 	QFileInfoList list = dir.entryInfoList();	// get all files and sub directories
 	if (list.size())
-		ab.changed = true;
+		SetAlbumModified(ab); 
 
 	ID_t id;
 			
@@ -1713,7 +1706,7 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 			Album& subA = _albumMap[id];
 			subA.parent = albumId;	// signals this sub-album is in 'ab' 
 											// Must change when sub-albums moved to other album
-			if (subA.exists)
+			if (subA.exists != exNot)
 				_RecursivelyReadSubAlbums(id);
 		}
 		if(_signalProgress)
@@ -1737,7 +1730,7 @@ void AlbumGenerator::Init()
 	Album album;			
 	// add root album with ID 1
 	album.ID  = ROOT_ALBUM_ID;
-	album.exists = true;		// do not check: virtual!
+	album.exists = exVirtual;		// do not check: virtual!
 	_albumMap[ROOT_ALBUM_ID] = album;		// and not with _albumMap.Add
 	
 	// add "latest" album if required
@@ -1748,7 +1741,7 @@ void AlbumGenerator::Init()
 	// add default image when no image is found This is the only one with id == 0
 	// the file 'NoImage.jpg' must be put into the 'res' directory
 	Image im;
-	im.exists = true;
+	im.exists = exExists;
 	im.name = "NoImage.jpg";
 	im.ID = 0 | IMAGE_ID_FLAG;
 	im.dsize = im.osize = QSize(800, 800);
@@ -1774,12 +1767,14 @@ void AlbumGenerator::Clear()
  *------------------------------------------------------------*/
 void AlbumGenerator::SetChangesWritten()
 {
-	for (auto a : _albumMap)
+	for (auto &a : _albumMap)
 		a.changed = false;
-	for (auto a : _imageMap)
+	for (auto &a : _imageMap)
 		a.changed = false;
-	for (auto a : _videoMap)
+	for (auto &a : _videoMap)
 		a.changed = false;
+	_slAlbumsModified.clear();
+	_structChanged = 0;
 }
 
 void AlbumGenerator::AddDirsRecursively(ID_t albumId)
@@ -1819,7 +1814,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	bool result = false;
 
-	bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAllPages);		// else full creation
+	//bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAllPages);		// else full creation
 	
 	if (bMustReRead) // wrong: !_justChanges)
 		Clear();
@@ -2285,7 +2280,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 
 	bool added;
 	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // to maps has type flag set
-	album.changed = true;			// set it as changed always 
+	SetAlbumModified(album.ID);			// set it as changed always 
 	if (type == ftImage)
 	{
 		img = _imageMap[id];
@@ -2355,9 +2350,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 			{
 				album.SetThumbnail(id); 
 				if (album.parent)
-					_albumMap[album.parent].changed = true;
+					SetAlbumModified(album.parent);
 			}
-			album.changed = true;			// set it as changed always 
+			SetAlbumModified(album.ID);;			// set it as changed always 
 		}
 		if (type == ftImage)
 		{
@@ -2415,7 +2410,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 					}
 				}
 
-				img.exists = (img.fileSize != 0);	// non existing images have 0 size
+				img.exists = (img.fileSize != 0) ? exExists : exNot;	// non existing images have 0 size
 
 				_imageMap[id] = img;
 			}
@@ -2445,7 +2440,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 
 				vid.path = VideoMap::lastUsedPath;
 
-				vid.exists = (vid.fileSize != 0);	// non existing videos have 0 size
+				vid.exists = (vid.fileSize != 0) ? exExists : exNot;	// non existing videos have 0 size
 				_videoMap[id] = vid;
 			}
 			pItem = &_videoMap[id];
@@ -2458,7 +2453,8 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	{
 		int nChanges = _structChanged;			  // original value
 		_GetTextAndThumbnailIDsFromStruct(reader, ids, level);
-		album.changed |= (nChanges != _structChanged);  // then image came from path in struct
+		if(nChanges != _structChanged)  // then image came from path in struct
+			SetAlbumModified(album.ID);
 	}
 
 	if(!pItem->titleID || ids.titleID)		  // do not delete already existing text
@@ -2592,14 +2588,6 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			aParent = &_albumMap[parent];
 	}
 
-	if (albumDefnitelyChanged)		// type was 'C' and not 'A'
-	{								// in this case immediate parent must be changed too
-		album.changed = true;
-		if (aParent != nullptr)
-			aParent->changed = true;
-		++_structChanged;
-	}
-
 	int	changeCountBefore = _structChanged;		// save to determine if album changed
 												// if any text or the icon ID is new then _structChanged incremented
 	ID_t id = ROOT_ALBUM_ID;	// n == 0 => root album, already added;
@@ -2608,7 +2596,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		album = _albumMap[ROOT_ALBUM_ID];
 	else if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
 	{
-		aParent->changed = true;		// aParent must exist for each non-root album
+		SetAlbumModified(*aParent);		// aParent must exist for each non-root album
 		if (QFile::exists(sl[0]))		// then not virtual directory => images are inside this folder
 			lastUsedAlbumPath = sl[0] + "/";
 
@@ -2639,7 +2627,17 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 
 
 		album.ID = id;				// has ALBUM_ID_FLAG set
-		album.exists = true;		// do not check: these can be virtual!  QFileInfo::exists(album.FullSourceName());
+		if(album.changed)
+			albumgen.SetAlbumModified(album);
+		album.exists = QFileInfo::exists(album.FullSourceName()) ? exExists : exVirtual;
+	}
+
+	if (albumDefnitelyChanged)		// type was 'C' and not 'A'
+	{								// in this case immediate parent must be changed too
+		SetAlbumModified(album);
+		if (aParent != nullptr)
+			SetAlbumModified(*aParent);
+		++_structChanged;
 	}
 
 	reader.NextLine(); // next line after an album definition line
@@ -2665,8 +2663,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 				ID_t aid = _ReadAlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
 				album.items.push_back(aid);
 			}
-			if (_albumMap.contains(id))						 // album is not yet filled in, but the changed flag may be set
-				album.changed |= _albumMap[id].changed;		 // for it because of a sub-album
+			if (_albumMap.contains(id) && _albumMap[id].changed)						 // album is not yet filled in, but the changed flag may be set
+				SetAlbumModified(album);		 // for it because of a sub-album
 			_albumMap[id] = album;
 			return id;			 // this new album definition is at the same level as we are
 		}
@@ -2677,9 +2675,9 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 				_GetTextAndThumbnailIDsFromStruct(reader, ids, level);
 				if (changeCountBefore != _structChanged)
 				{
-					album.changed = true;
+					SetAlbumModified(album);
 					if (parent)
-						_albumMap[parent].changed = true;	// aParent pointer might be invalidated
+						SetAlbumModified(parent);	// aParent pointer might be invalidated
 				}
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
@@ -2731,7 +2729,7 @@ void AlbumGenerator::_AddAlbumThumbnail(Album& album, ID_t id)
 		return;
 	}
 
-	album.changed = true;	 // when id given thumbnail is from structure file
+	SetAlbumModified(album);	 // when id given thumbnail is from structure file
 	for(auto a : album.items)
 		if (a & IMAGE_ID_FLAG)
 		{
@@ -2909,12 +2907,12 @@ bool AlbumGenerator::_ReadFromDirs()
 	Album tmp;
 	// tmp has no name and no path it is inside config.dsSrc
 	tmp.ID = ROOT_ALBUM_ID;							// id = 1 (id = 0 -> invalid)
-	tmp.exists = true;
+	tmp.exists = exVirtual;
 	_albumMap[ROOT_ALBUM_ID] = tmp;	// a copy of _root is first on list	
 
 	tmp.Clear();
 	tmp.ID = RECENT_ALBUM_ID;
-	tmp.exists = true;		// do not check: virtual!
+	tmp.exists = exVirtual;		// do not check: virtual!
 	_albumMap[RECENT_ALBUM_ID] = tmp;
 
 	_remDsp.Init(directoryCount + omittedDirectoryCount);
@@ -3184,7 +3182,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 
 	if (!srcExists)	// then it might have been removed
 	{
-		im.exists = false;
+		im.exists = exNot;
 		if (dstExists)	// source file was deleted,remove destination image
 		{
 			QFile::remove(dst);				
@@ -3745,7 +3743,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
-	if (isAlbum && !album.exists)
+	if (isAlbum && album.exists == exNot)
 		return -1;
 
 	if (album.ID == ROOT_ALBUM_ID )
@@ -4675,10 +4673,8 @@ int AlbumGenerator::Write()
 		i |= _DoPages();			// 0 | 16
 
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
-	_structChanged = 0;
 	_processing = false;
 
-	_slAlbumsModified.clear();
 	return i;
 }
 
@@ -4839,10 +4835,9 @@ ID_t VideoMap::Add(QString path, bool& added)
 	SeparateFileNamePath(path, vid.path, vid.name);
 
 	QDir dir;
-	vid.exists = dir.exists(basePath + vid.path + vid.name);
-	if (!vid.exists)
+	vid.exists = dir.exists(basePath + vid.path + vid.name) ? exExists : exNot;
+	if (vid.exists == exNot)
 		vid.path = AlbumGenerator::lastUsedAlbumPath;
-	vid.exists = dir.exists(basePath + vid.path + vid.name);
 
 	added = false;
 	ID_t id = CalcCrc(vid.name, false) | VIDEO_ID_FLAG;	// just by name. CRC can but id can never be 0 
@@ -4882,7 +4877,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 	}
 	// now I have a new video to add
 	// new video: 
-	if (vid.exists)
+	if (vid.exists != exNot)
 	{
 		vid.fileSize = fi.size();
 		vid.uploadDate = fi.lastModified().date();
