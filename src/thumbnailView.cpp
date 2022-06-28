@@ -1026,7 +1026,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
 		//}
         items = idl;
-        pAlbum->changed = true;
+        albumgen.SetAlbumModified(*pAlbum);
 
         albumgen.WriteDirStruct(true);
 	}
@@ -1414,16 +1414,16 @@ void ThumbnailView::loadThumbsRange()
 }
 
 /*=============================================================
- * TASK:	adds a ThumbnailItem for a thumbnail to the end of the 
- *			rows
+ * TASK:	adds a ThumbnailItem for a thumbnail to either 
+ *          the end of the rows or before the selected item
  * EXPECTS:	_albumID already set
  *          which - ordinal of data for thumbnail in
  *					albumgen.Albums()[_albumID]'s 
  *                  image, video or album lists
  *          typ   - which list should be used
- * GLOBALS: _albumID set
+ * GLOBALS: _albumId set
  * RETURNS:	nothing
- * REMARKS:	- sets 
+ * REMARKS:	- sets albums to changed
  *------------------------------------------------------------*/
 void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
 {
@@ -1452,6 +1452,7 @@ void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
         currThumbSize.setWidth(BAD_IMAGE_SIZE);
     }
 
+    albumgen.SetAlbumModified(_albumId);
     _thumbnailViewModel->appendRow(thumbItem);
 }
 
@@ -1847,7 +1848,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     {   
         atLeastOneFolderWasAdded = true;
         pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
-        pParentAlbum->changed = true;
+        albumgen.SetAlbumModified(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
         album.parent = _albumId;
         albumgen.AddDirsRecursively(id);
@@ -1967,7 +1968,7 @@ void ThumbnailView::SetAsAlbumThumbnail()
     if(album.parent)
     {
         Album * parent = albumgen.AlbumForID(album.parent);
-        parent->changed = true;
+        albumgen.SetAlbumModified(*parent);
     }
     albumgen.SetAlbumModified(_albumId);
 }
@@ -2030,7 +2031,7 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     if (album.parent)
     {
         Album* parent = albumgen.AlbumForID(album.parent);
-        parent->changed = true;
+        albumgen.SetAlbumModified(*parent);
     }
 }
 
