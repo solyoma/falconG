@@ -146,7 +146,7 @@ See example gallery at https://andreasfalco.com
 All features not marked with 'TODO' should be working. 
 
 
-******************************************************************
+********************************************************************
 
 
 ## Magyar nyelvű leírás
