@@ -25,35 +25,52 @@ Two program languages can be used: US English and Hungarian.
  - a gallery can be embedded into any WEB page
  - a gallery may contain any number of albums
  - every album may contain any number of images, videos and sub-albums
- - it can automatically generate a special gallery of randomly 
-   selected images from the ones processed/uploaded last
- - generates multi-language photo galleries. Image and album 
-   title and description can appear in any number of languages.
-   Uses a separate Web page for each.
+ - may contain an album with random selection of images from 
+   the latest upload which also displays different images at each
+   visit
+ - photo galleries are multi-language. Image and album 
+   titles and descriptions can appear in any number of languages.
+   Uses separate Web pages for each.
  - each album has its own web address therefore can be referred
-   to or shared on social media
+   to or shared on social media. Currently a facebook share button
+   may appear on each page.
  - the same image with the same title and description can appear 
    in any number of albums.
  - languages can be changed by clicking/tapping directly
    on the WEB page
  - language selection is stored in the browser without using
    cookies
- - Optional Google analytics code for the whole gallery and 
+ - optional Google analytics code for the whole gallery and 
    Facebook like and share buttons (they may save cookies)
  - a watermark may be embedded into the images
- - bandwidth friendly albums: separate, smaller thumbnail 
-   images, ,large images on demand (click). 
+ - bandwidth friendly albums uses smaller thumbnail 
+   images and larger images on demand (click). 
    Only thumbnails that are or were visible in the browser
    are downloaded.
- - clicking on thumbnails shows "large" images
+ - clicking^tapping on thumbnails shows "large" images
+ 
+## Deploy generated gallery on the WEB at the first time
+
+ You need access to the **public_html** folder on the web server
+ - Create the folder you set in **falconG** inside public_html
+ - upload all of the folders and files inside the generated 
+   gallery folder on your machine
+   (For multi language galleries the index.html generated 
+   on your machine by **falconG** is a bare-bone version
+   You might want to create a better one for yourself)
+   
+## refresh the gallery with new albums   
+ - when new images and folders are added or texts changed
+	- copy the new files from folders **album**, **imgs**,
+	  **thumbs**,**vids** to the same named folders on the 
+	  server, plus the **latestlist\*.js** fájlokat.
 
 ## Features of ***falconG***:
 
- - separate light and dark modes (themes)
- - built-in theme editor
+ - themeable. there are separate light and dark modes (themes)
+   with built-in theme editor
  - multi tab design
- - HTML WYSIWYG display in designer
- - WYSIWYG editor for album design, in which
+ - HTML based WYSIWYG editor for album design, in which
 	- colors, fonts, etc. are customizable with WYSIWYG album editor
 		title and description without duplicating the files
 	- simultaneous dual language display of image titles and 
@@ -62,14 +79,18 @@ Two program languages can be used: US English and Hungarian.
  - single click generation of whole gallery,
    unchanged albums and images are not re-processed
  - it is possible not to resize certain images (e.g. panoramas)
+   but leave them at their source sizes for thw larger image display
  - gallery structure is stored in a single, human readable (UTF-8)
    text file, style directory and font information in another 
    ".ini" file
  - source image files from which the gallery is generated
    can be anywhere on the system
- - reorganize albums with drag & drop (not yet working)
+ - images and folders can be added to any album. If a folder
+   is added its sub folders and images are also added
+ - reorganize albums with drag & drop (only inside the 
+   same album as of yet and not between albums)
  
-## Program Installation
+## Program Compilation and Installation
  - as this is a WIP (Work In Progress, a.k.a. alpha software)
    you must compile the program yourself, However the
    compiled program can be used on computers without Qt.
@@ -80,20 +101,21 @@ Two program languages can be used: US English and Hungarian.
    to use the commands in a command shell window (cmd or Powershell):
 
    **"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"**
-       (the quotes are required and this command must only run once) and 
+   (the quotes are required and this command must only run once) followed by 
    d:\Qt\5.15.2\msvc2019_64\bin\windeployqt.exe  --no-quick-import <path to falconG.exe>
    
    
  - no installer exists at this point (TODO), so manual
    installation need to be used. The steps:
    
-	- run the commands above if they were not yet run
-	  using the path of the release version of ***falconG*** (falconG.exe on Windows)
-	- create a folder on the destination machine for the program
-	- copy the file 'falconG-icon.png' into this directory  
+	- run the commands above on your sdevelopment machine 
+	  if they were not yet run using the path of the release version 
+	  of ***falconG*** (falconG.exe on Windows)
+	- create a folder on the destination machine with
+	  no Qt for the program
+	- copy the file **'falconG-icon.png'** and folders **css**, **js**, 
+	  **res**, into this directory  
 	- copy the **.lang** files you want to use there too
-	- create a folder for the program on the computer with
-	  no Qt
 	- copy everything from the Release folder to that folder on 
 	  the destination machine
 	- create a shortcut on the desktop of the destination machine
@@ -103,8 +125,14 @@ Two program languages can be used: US English and Hungarian.
 
 ## TODO (in the order of importance):
   - image, texts and albums reorganization with D & D
-  - mark any album in gallery to be re-processed
-  - drag and drop of source images and albums
+    between folders
+  - automatic upload of generated album onto the WEB
+  - drag and drop of source images and albums (now they can onluy be added
+    using menu
+  - mark any album in gallery to be re-processed unconditionally
+    (if you change any title or description texts or add new
+	folders and or images, or reorder a folder
+	then that album will be re-processed)
   - installer
   - capability to set different titles and texts to the 
     same album or image in different albums
@@ -113,12 +141,7 @@ Two program languages can be used: US English and Hungarian.
 See example gallery at https://andreasfalco.com
 
 *This is a Work In Progress*.
-All features not marked with 'TODO' are working. However 
-to add new albums and images you need to either edit the
-generated gallery structure (**\*.struct**) file with any UTF8
-capable ASCII editor, or generate a new one from directories.
-Modifying image and album titles and descriptions or adding
-new translations for these, however can be done in the program
+All features not marked with 'TODO' should be working. 
 
 
 ******************************************************************
@@ -131,6 +154,7 @@ bármely olyan operációs rendszeren használható, amelyiken
 a QT is és a QtWebEngine is fut (Windows, OS-X, linux, stb)
 
 ## Képernyő képek
+
 ld. fent a **Screenshots** pont alatt
 
 Ez a nagyon könnyen használható program teljesen ingyenes
@@ -147,7 +171,7 @@ angolul használható.
  - ezek beágyazhatóak bármely WEB oldalba, és
  - akárhány képet, videót és albumot tartalmazhatnak. Minden albumban
    lehetnek képek, videók és albumok is, tetszőleges mélységig.
- - egy speciális galériát is létre lehet hozni vele, amelyben 
+ - lehet benne egy olyan speciális galéria, amelyben 
    megadható számú, minden betöltésnél más és más, véletlenszerűen
    kiválasztott kép jeleneik meg az utóljára feltöltöttek közül.
  - a képeknek és albumoknak címeket és leírásokat adhatunk. Ezek 
@@ -167,6 +191,20 @@ angolul használható.
    a nagyobb felbontású képek csak a kis képekre kattintásra töltődnek le
  - a **falconG** átméretezi a forrásképeket, de egyes képekkel (pl. panorámákkal)
    kivételt tehetünk. Azoknak a "nagyfelbontású" változata eredeti méretű lesz.
+   
+## A **falconG**-vel létrehozott galéria telepítése a szerverre  
+
+ Hozzáféréssel kell rendelkezned a szerveren a könyvtáradhoz
+ - hozd létre a mappát, amit beállítottál a programban, mint web forráskönyvtárat
+ - másold be ide az összes fájlt és mappát a galéria mappájából
+   (Többnyelvű galériákhoz a falconG által létrehoztt index.html egy nagyon 
+    csupasz verzió. Valószínűleg egy jobbat fogsz használni.)
+	
+## Feltöltött galéria frissítése
+
+ - másold fel az új fájlokat a galéria következő mappáiból:	**albums**,**imgs**,
+   **thumbs**, **vids**, továbbá a **latestlist\*.js** fájlt/fájlokat a **js**
+   könyvtárból az ugyanilyen nevű mappákba a szerveren
 
 ## A **falconG** tulajdonságai
 
@@ -179,15 +217,16 @@ angolul használható.
    szerkeszthetőek az oldalak képernyőn megjelenő előképevel
  - képcímek és leírások fordításához egyszerre két nyelvű szöveget 
    mutató cím és leírás szerkesztő ad segítséget
- - egy gombnyomásos generálás, amár feldolgozott képeket nem dolgozza fel újra
- - a galéria egy darab, ember által is olvasható és szerkeszthető UTF-8
+ - egy gombnyomásos generálás, a már feldolgozott képeket nem dolgozza fel újra
+ - a galéria szerkezete egy darab, ember által is olvasható és szerkeszthető UTF-8
    kódolású fájlban (**.struct**) van. A stílusok és egyéb információk 
    egy másik fájlban (**.ini**) vannak
  - a galériában szereplő képek forrása bárhol lehet, nem szükséges azokat 
    átmásolni sehová. Az eredeti képeket a program nem változatja, nem másolja
-   át és nem is törli le.
+   át és ha nem akarjuk nem is törli le.
  - vízjel szerkesztő
- - képek "Húzd és Dobd" hozzáadása (még nem működik)
+ - képek "Húzd és Dobd" 'trendez;se egy albumban
+ - képek "Húzd és Dobd" hozzáadása albumhoz (még nem működik)
  
 ## A lefordított **falconG** program telepítése
  - mivel ez egy fejlesztés alatt álló ("WIP - Work In Progress", másként 
@@ -214,8 +253,7 @@ angolul használható.
 			ha azok magán a helyi gépen levő mappák.
 
 ## TODO (in the order of importance):
-- képek és albumok hozzáadása és törlése a Fogd És Vidd módszerrel
-- képek és albumok mozgatása a Fogd És Vidd módszerrel
+- képek és albumok mozgatása a Fogd És Vidd módszerrel más mappákba
 - bármely album megjelölése újra feldolgozáshoz
 - telepítő program
 - a lehetőség, hogy ugyanannak a képnek más albumokban más címe és
@@ -224,7 +262,3 @@ angolul használható.
 	
  
 Egy minta galériát találsz a  https://andreasfalco.com oldalba ágyazva.
-
-** Fejlesztés alatt álló munka**
-A képek és albumok fájlja jelenleg kizárólag kézzel (egy UTF-8 at tudó 
-szövegszerkesztővel) szerkeszthető, illetve az album mappákból való generálásával működik. 
