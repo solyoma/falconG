@@ -2663,8 +2663,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 				ID_t aid = _ReadAlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
 				album.items.push_back(aid);
 			}
-			if (_albumMap.contains(id) && _albumMap[id].changed)						 // album is not yet filled in, but the changed flag may be set
-				SetAlbumModified(album);		 // for it because of a sub-album
+			if (_albumMap.contains(id) && _albumMap[id].changed)	// if the album in _albumMap is not yet filled in, the changed flag still may be set
+				SetAlbumModified(album);						// for it because of a sub-album
 			_albumMap[id] = album;
 			return id;			 // this new album definition is at the same level as we are
 		}
@@ -4709,8 +4709,6 @@ void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString s
 	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
 	if (!s.isEmpty())
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
-	else
-		SetChangesWritten();	// clear all changes flag
 }
 
 

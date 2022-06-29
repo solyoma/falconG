@@ -39,7 +39,8 @@ typedef UsageCount Semaphore;
 struct FalconGEditTabSelection
 {										// what can be changed:
 									    // these fields are used when editing image/album texts
-	ID_t actAlbum = 0;					// actual selected album
+	ID_t actAlbum = 0;					// album in which the selected image or album is found
+	ID_t selectedAlbum = 0;					// actual selected album
 	ID_t selectedImage = 0;				// actual selected folder, image or video
 
 	QFlags<Changed> changed;			// title or description in either language has changed
@@ -205,8 +206,8 @@ private slots:
 	void _ThumbNailViewerIsLoading(bool yes);
 	void _TnvCountChanged();
 	void _TnvStatusChanged(QString &); // thumbnail view status changed
-	void _TnvSelectionChanged(ID_t);		// ID of selected item or ID of enclosing album for no items
-	void _TnvMultipleSelection(IdList);		// list of ID of selected items for multiple items
+	void _TnvSelectionChanged(ID_t, ID_t);		// ID of selected item or ID of enclosing album for no items
+	void _TnvMultipleSelection(IdList, ID_t);	// list of ID of selected items for multiple items
 	void _SaveChangedTitleDescription();
 
 	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow

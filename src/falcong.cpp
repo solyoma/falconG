@@ -450,6 +450,8 @@ void FalconG::on_btnGenerate_clicked()
 	}
 	else
 	{
+		_SaveChangedTexts();
+
 		if (config.Changed())
 		{
 			CssCreator cssCreator;
@@ -4102,13 +4104,13 @@ void FalconG::_StoreLanguageTexts(LanguageTexts& texts)
 *			_selection.newImage
 *			if any of this is not set the value is 0
 * GLOBALS:	_selection'
-* REMARKS:	- after getting the texts _selection.actAlbum and _selection.actImage
+* REMARKS:	- after getting the texts _selection.selectedAlbum and _selection.actImage
 *			will be replaced by the new values and the new values will be 0
 *--------------------------------------------------------------------------*/
 void FalconG::_GetTextsForEditing()
 {
 	++_busy;						// semaphore
-	if (!_selection.actAlbum && !_selection.selectedImage)	   // selection cleared: show texts for album
+	if (!_selection.selectedAlbum && !_selection.selectedImage)	   // selection cleared: show texts for album
 	{
 		ui.edtBaseTitle->clear();
 		ui.edtBaseDescription->clear();
@@ -4124,9 +4126,9 @@ void FalconG::_GetTextsForEditing()
 		int bli = ui.cbBaseLanguage->currentIndex(),	// text(s) in this language is the base
 			li = ui.cbLanguage->currentIndex();		// text(s) in this language may have been changed
 
-		if (_selection.actAlbum)
+		if (_selection.selectedAlbum)
 		{
-			Album& album = *albumgen.AlbumForID(_selection.actAlbum);
+			Album& album = *albumgen.AlbumForID(_selection.selectedAlbum);
 			_selection.title = albumgen.Texts()[album.titleID];
 			_selection.description = albumgen.Texts()[album.descID];
 		}
@@ -4413,11 +4415,11 @@ void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, con
 		ID_t id = ID_t(_currentTreeViewIndex.internalPointer());	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
-		_selection.actAlbum = id;	// only single selection is used
+		_selection.selectedAlbum = id;	// only single selection is used
 								    // before the image list is read
 	}
 	else
-		_selection.actAlbum = 0;	// nothing/multiple albums selected
+		_selection.selectedAlbum = 0;	// nothing/multiple albums selected
 
 
 	ui.tnvImages->Load();
@@ -4731,7 +4733,7 @@ void FalconG::_OpacityChanged(int val, int which, bool used)
 * TASK:	   Saves changed title and/or description
 * EXPECTS: _selection contains the actual title and description texts for all languages
 * GLOBALS: _selection
-* REMARKS: MUST be called BEFORE _selection.actAlbum and selectedImage is changed
+* REMARKS: MUST be called BEFORE _selection.selectedAlbum and selectedImage is changed
 *--------------------------------------------------------------------------*/
 void FalconG::_SaveChangedTexts()
 {
@@ -4740,11 +4742,14 @@ void FalconG::_SaveChangedTexts()
 
 	ID_t otid = _selection.title.ID,
 		 odid = _selection.description.ID;
+	
+	albumgen.SetAlbumModified(_selection.actAlbum);
 
 	if (_selection.changed & fsTitle)
 		_StoreLanguageTexts(_selection.title);
 	if (_selection.changed & fsDescription)
 		_StoreLanguageTexts(_selection.description);
+
 
 	TextMap& tmap = albumgen.Texts();
 
@@ -4757,8 +4762,8 @@ void FalconG::_SaveChangedTexts()
 	}
 	else
 	{
-		albumgen.Albums()[_selection.actAlbum].titleID = _selection.title.ID;
-		albumgen.Albums()[_selection.actAlbum].descID = _selection.description.ID;
+		albumgen.Albums()[_selection.selectedAlbum].titleID = _selection.title.ID;
+		albumgen.Albums()[_selection.selectedAlbum].descID = _selection.description.ID;
 	}
 
 	if (ui.chkChangeTitleEverywhere->isChecked())
@@ -4766,7 +4771,7 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto a : albumgen.Albums())
 			if (a.titleID == otid)
-				a.titleID = _selection.title.ID, tmap.Remove(otid);
+				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.SetAlbumModified(a);
 		for (auto a : albumgen.Images())
 			if (a.titleID == otid)
 				a.titleID = _selection.title.ID, tmap.Remove(otid);
@@ -4776,17 +4781,14 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto a : albumgen.Albums())
 			if (a.descID == odid)
-				a.descID = _selection.description.ID, tmap.Remove(odid);
+				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.SetAlbumModified(a);
 		for (auto a : albumgen.Images())
 			if (a.descID == odid)
 				a.descID = _selection.description.ID, tmap.Remove(odid);
 	}
 
-	albumgen.AlbumForID(_selection.actAlbum)->changed = true;
 	_selection.changed = fsNothing;			// all changes saved
 
-	while (!albumgen.StructWritten())		// before changing again wait for previous write to finish
-		;
 	albumgen.WriteDirStruct(true);			// keep previous backup file
 }
 
@@ -5367,16 +5369,16 @@ void FalconG::_TnvStatusChanged(QString &s)
  * RETURNS:
  * REMARKS:	any changed text is already set in _selection
  *------------------------------------------------------------*/
-void FalconG::_TnvSelectionChanged(ID_t id)
+void FalconG::_TnvSelectionChanged(ID_t id, ID_t actAlbumId)
 {
 	_SaveChangedTexts();	// from selection to data base
-
-	_selection.actAlbum = _selection.selectedImage = 0;
+	_selection.actAlbum = actAlbumId;
+	_selection.selectedAlbum = _selection.selectedImage = 0;
 
 	if (id & IMAGE_ID_FLAG)
 		_selection.selectedImage = id;
 	else if(id)
-		_selection.actAlbum = id;
+		_selection.selectedAlbum = id;
 	_GetTextsForEditing();
 }
 
@@ -5387,7 +5389,7 @@ void FalconG::_TnvSelectionChanged(ID_t id)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::_TnvMultipleSelection(IdList list)
+void FalconG::_TnvMultipleSelection(IdList list, ID_t actAlbumId)
 {
 //	int n = list.size();
 }

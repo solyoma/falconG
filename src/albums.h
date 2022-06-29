@@ -375,6 +375,7 @@ public:
 
 	void SetAlbumModified(Album& album)
 	{
+
 		if (_slAlbumsModified.indexOf(album.ID) < 0)
 		{
 			_slAlbumsModified << album.ID;

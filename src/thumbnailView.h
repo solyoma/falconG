@@ -244,6 +244,7 @@ public:
     int GetLastItem();
     int GetRandomItem();
     int GetCurrentItem();
+	ID_t AlbumID() const { return _albumId; }
 
     QStringList GetSelectedThumbsList();
 
@@ -311,8 +312,8 @@ signals:
 	void SignalTitleChanged(QString &s);		// a new 'title' (total image count) was added
 	void SignalStatusChanged(QString &s);		// 'statusStr' changed
 	void SignalInProcessing(bool on);			// current page or thumbnail adding started /finished
-	void SignalSingleSelection(ID_t id);		// may be album or image or video
-	void SignalMultipleSelection(IdList);		// all selected items
+	void SignalSingleSelection(ID_t id, ID_t insideThis);		// may be album or image or video
+	void SignalMultipleSelection(IdList, ID_t insideThis);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructChanged();			// add the new album to tree view as well
 	void SignalAlbumChanged();					// add the new album to tree view as well

@@ -624,11 +624,11 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     int selectedCount = indexesList.size();
 	if(!selectedCount)
-		emit SignalSingleSelection(_ActAlbum()->ID);
+		emit SignalSingleSelection(_ActAlbum()->ID, _albumId);
     else if (selectedCount == 1)
 	{
         SetCurrentItem(indexesList.first().row());
-		emit SignalSingleSelection(_ActAlbum()->items[_currentItem]);
+		emit SignalSingleSelection(_ActAlbum()->items[_currentItem], _albumId);
 	}
     else
     {
@@ -640,7 +640,7 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
             if (idList.indexOf(id) < 0)
                 idList << items[e.row()];
 
-            emit SignalMultipleSelection(idList);
+            emit SignalMultipleSelection(idList, _albumId);
         }
     }
 
@@ -1518,6 +1518,7 @@ void ThumbnailView::mousePressEvent(QMouseEvent *event)
     {
         _rowSelectedWithRightButton = indexAt(event->pos()).row();
     }
+
 	QListView::mousePressEvent(event);
 }
 
@@ -1754,7 +1755,7 @@ void ThumbnailView::SynchronizeTexts()
         return pItem;
     };
 
-    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID);
+    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _albumId);
 
     if (QMessageBox::question(this, tr("falconG - Question"),
         tr("This will set the texts to all of selected items\n"
@@ -1793,6 +1794,7 @@ void ThumbnailView::SynchronizeTexts()
         }
         SetCurrentItem(_rowSelectedWithRightButton);
     }
+    albumgen.SetAlbumModified(*pAlbum);
 }
 
 /*=============================================================
