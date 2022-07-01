@@ -27,10 +27,12 @@
 *--------------------------------------------------------------------------*/
 int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 {
-	if (_busy) return 0;
+	if (_busy) 
+		return 0;
 	AlbumMap &map = albumgen.Albums();
-	if (!parent.isValid())		   // root element: it has at least 2 sub-items, only one matters
-		return	1; //  map[ROOT_ALBUM_ID].items.size();		// map.size() ? 1 : 0;
+	if (!parent.isValid())		   // root element: it has at 2 items, only one matters
+		return	1; 
+	
 	ID_t id = (ID_t)(parent.internalPointer());
 	return map[id].SubAlbumCount();
 }
@@ -50,10 +52,10 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 
 	AlbumMap &map = albumgen.Albums();
 
-	ID_t idParent = (ID_t)parent.internalPointer();
-
 	if (!parent.isValid())				// only the root item has invalid parent
 		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? ROOT_ALBUM_ID : 0)) );
+	ID_t idParent = (ID_t)parent.internalPointer();
+
 	ID_t id = map[idParent].IdOfItemOfType(ALBUM_ID_FLAG,row);
 	return createIndex(row, column, quintptr(id));
 }
@@ -78,21 +80,21 @@ int AlbumTreeModel::columnCount(const QModelIndex & parent) const
 *--------------------------------------------------------------------------*/
 QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 {
-	if (!index.isValid())				// root id for tree element
-		return QVariant();
-
-
-	if (!_busy && role == Qt::DisplayRole)
+	if (index.isValid())				// root id for tree element
 	{
-		ID_t id = (ID_t)index.internalPointer();
-		Album &ab = albumgen.Albums()[id];
-		QString sChangedFlag = ab.changed ? "*" : "";
-		QString s = ab.name;
-		if (ab.changed)
-			s += "*";
-		if (id == ROOT_ALBUM_ID)
-			return "/ ( " + s + " )";
-		return s + " ( " + ab.BareName() + " )";  // no language or extension
+
+		if (!_busy && role == Qt::DisplayRole)
+		{
+			ID_t id = (ID_t)index.internalPointer();
+			Album& ab = albumgen.Albums()[id];
+			QString sChangedFlag = ab.changed ? "*" : "";
+			QString s = ab.name;
+			if (ab.changed)
+				s += "*";
+			if (id == ROOT_ALBUM_ID)
+				return "/ ( " + s + " )";
+			return s + " ( " + ab.BareName() + " )";  // no language or extension
+		}
 	}
 	return QVariant();
 }
@@ -121,7 +123,10 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 		return QModelIndex();
 
 	AlbumMap &map = albumgen.Albums();
-	Album &ab = map[(ID_t)ind.internalPointer()];
+	ID_t parentId = (ID_t)ind.internalPointer();
+	if (!map.contains(parentId))
+		return QModelIndex();
+	Album &ab = map[parentId];
 	ID_t aParent = ab.parent;				   // get ID of parent
 	if (aParent == 0)						   // no parent: topmost element
 		return QModelIndex(); // invalid index(0, ind.column());		   // it is the first and only such

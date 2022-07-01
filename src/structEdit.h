@@ -26,6 +26,15 @@ public:
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	QModelIndex parent(const QModelIndex &index) const;
 
+	void BeginResetModel()
+	{
+		beginResetModel();
+	}
+	void EndResetModel() 
+	{
+		endResetModel();
+	}
+
 	void ModelChanged();
 // these are moving around
 	QModelIndex CreateIndex(int row, int column, int64_t id)	// ID_t

@@ -1860,7 +1860,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>3</number>
                       </property>
                       <widget class="QWidget" name="pgGlobal">
                        <property name="geometry">
@@ -2242,8 +2242,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>385</width>
-                         <height>616</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4294,8 +4294,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>415</width>
-                         <height>446</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7624,60 +7624,96 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>btnSourceHistory</tabstop>
   <tabstop>edtSourceGallery</tabstop>
+  <tabstop>btnBrowseSource</tabstop>
+  <tabstop>edtDestGallery</tabstop>
+  <tabstop>btnBrowseDestination</tabstop>
+  <tabstop>chkSourceRelativePerSign</tabstop>
   <tabstop>edtServerAddress</tabstop>
   <tabstop>edtGalleryRoot</tabstop>
   <tabstop>edtUplink</tabstop>
   <tabstop>edtMainPage</tabstop>
   <tabstop>edtSiteDescription</tabstop>
   <tabstop>edtKeywords</tabstop>
+  <tabstop>chkMenuToAbout</tabstop>
   <tabstop>edtGalleryTitle</tabstop>
   <tabstop>edtGalleryLanguages</tabstop>
   <tabstop>edtEmailTo</tabstop>
-  <tabstop>chkMenuToAbout</tabstop>
   <tabstop>edtAbout</tabstop>
   <tabstop>edtBackImage</tabstop>
-  <tabstop>sbNewDays</tabstop>
-  <tabstop>sbLatestCount</tabstop>
-  <tabstop>chkUseGoogleAnalytics</tabstop>
-  <tabstop>edtTrackingCode</tabstop>
+  <tabstop>chkSeparateFoldersForLanguages</tabstop>
   <tabstop>chkForceSSL</tabstop>
-  <tabstop>chkMenuToContact</tabstop>
   <tabstop>chkAllowLinkToImages</tabstop>
   <tabstop>chkCanDownload</tabstop>
   <tabstop>chkRightClickProtected</tabstop>
+  <tabstop>chkMenuToContact</tabstop>
+  <tabstop>chkMenuToDescriptions</tabstop>
+  <tabstop>chkMenuToToggleCaptions</tabstop>
   <tabstop>chkFacebook</tabstop>
+  <tabstop>chkUseGoogleAnalytics</tabstop>
+  <tabstop>sbNewDays</tabstop>
+  <tabstop>sbLatestCount</tabstop>
+  <tabstop>chkSetLatest</tabstop>
+  <tabstop>chkFixedLatestThumbnail</tabstop>
+  <tabstop>edtTrackingCode</tabstop>
   <tabstop>edtImg</tabstop>
   <tabstop>edtThumb</tabstop>
+  <tabstop>edtVid</tabstop>
   <tabstop>edtAlbumDir</tabstop>
+  <tabstop>edtBaseName</tabstop>
+  <tabstop>edtGoogleFonts</tabstop>
+  <tabstop>btnGoToGoogleFontsPage</tabstop>
   <tabstop>edtFontDir</tabstop>
   <tabstop>edtDefaultFonts</tabstop>
-  <tabstop>edtBaseName</tabstop>
   <tabstop>chkReadFromGallery</tabstop>
+  <tabstop>chkReadJAlbum</tabstop>
   <tabstop>chkOvrImages</tabstop>
-  <tabstop>chkAddTitlesToAll</tabstop>
   <tabstop>chkLowerCaseImageExtensions</tabstop>
+  <tabstop>chkKeepDuplicates</tabstop>
+  <tabstop>chkAddTitlesToAll</tabstop>
   <tabstop>chkAddDescToAll</tabstop>
+  <tabstop>chkDebugging</tabstop>
   <tabstop>btnGenerate</tabstop>
   <tabstop>chkGenerateAllPages</tabstop>
   <tabstop>chkRegenAllImages</tabstop>
   <tabstop>btnPreview</tabstop>
   <tabstop>btnSaveStyleSheet</tabstop>
   <tabstop>btnSaveConfig</tabstop>
+  <tabstop>chkCleanUp</tabstop>
   <tabstop>btnExit</tabstop>
   <tabstop>cbActualItem</tabstop>
   <tabstop>btnPageColor</tabstop>
+  <tabstop>chkSameForeground</tabstop>
   <tabstop>btnPageBackground</tabstop>
   <tabstop>chkSetAll</tabstop>
   <tabstop>btnSelectUplinkIcon</tabstop>
   <tabstop>chkIconTop</tabstop>
   <tabstop>chkIconText</tabstop>
   <tabstop>edtBckImageName</tabstop>
+  <tabstop>btnOpenBckImage</tabstop>
   <tabstop>rbNoBackgroundImage</tabstop>
   <tabstop>rbCenterBckImage</tabstop>
   <tabstop>rbCoverBckImage</tabstop>
   <tabstop>rbTileBckImage</tabstop>
+  <tabstop>hsImageSizeToShow</tabstop>
   <tabstop>btnForeground</tabstop>
+  <tabstop>chkTextOpacity</tabstop>
+  <tabstop>sbTextOpacity</tabstop>
   <tabstop>btnBackground</tabstop>
+  <tabstop>chkBackgroundOpacity</tabstop>
+  <tabstop>sbBackgroundOpacity</tabstop>
+  <tabstop>edtFontFamily</tabstop>
+  <tabstop>cbFonts</tabstop>
+  <tabstop>cbFontSizeInPoints</tabstop>
+  <tabstop>cbLineHeight</tabstop>
+  <tabstop>sbSpaceAfter</tabstop>
+  <tabstop>chkDifferentFirstLine</tabstop>
+  <tabstop>cbPointSizeFirstLine</tabstop>
+  <tabstop>chkBold</tabstop>
+  <tabstop>chkItalic</tabstop>
+  <tabstop>rbTextAlignNone</tabstop>
+  <tabstop>rbTextLeft</tabstop>
+  <tabstop>rbTextCenter</tabstop>
+  <tabstop>rbTextRight</tabstop>
   <tabstop>chkTdUnderline</tabstop>
   <tabstop>chkTdOverline</tabstop>
   <tabstop>chkTdLinethrough</tabstop>
@@ -7686,10 +7722,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>rbTdDashed</tabstop>
   <tabstop>rbTdDouble</tabstop>
   <tabstop>rbTdWavy</tabstop>
-  <tabstop>rbTextAlignNone</tabstop>
-  <tabstop>rbTextLeft</tabstop>
-  <tabstop>rbTextCenter</tabstop>
-  <tabstop>rbTextRight</tabstop>
   <tabstop>rbTextShadow</tabstop>
   <tabstop>rbBoxShadow</tabstop>
   <tabstop>chkShadowOn</tabstop>
@@ -7704,27 +7736,94 @@ p, li { white-space: pre-wrap; }
   <tabstop>btnShadowColor</tabstop>
   <tabstop>chkUseGradient</tabstop>
   <tabstop>btnGradStartColor</tabstop>
-  <tabstop>sbGradStartPos</tabstop>
   <tabstop>btnGradMiddleColor</tabstop>
-  <tabstop>sbGradMiddlePos</tabstop>
   <tabstop>btnGradStopColor</tabstop>
+  <tabstop>sbGradStartPos</tabstop>
+  <tabstop>sbGradMiddlePos</tabstop>
   <tabstop>sbGradStopPos</tabstop>
+  <tabstop>rbAllBorders</tabstop>
+  <tabstop>rbTopBorder</tabstop>
+  <tabstop>rbRightBorder</tabstop>
+  <tabstop>rbBottomBorder</tabstop>
+  <tabstop>rbLeftBorder</tabstop>
   <tabstop>cbBorderStyle</tabstop>
+  <tabstop>btnBorderColor</tabstop>
+  <tabstop>sbBorderWidth</tabstop>
   <tabstop>sbBorderRadius</tabstop>
   <tabstop>btnDisplayHint</tabstop>
+  <tabstop>btnReload</tabstop>
   <tabstop>btnResetDesign</tabstop>
+  <tabstop>sbImageWidth</tabstop>
+  <tabstop>btnLink</tabstop>
+  <tabstop>sbImageHeight</tabstop>
+  <tabstop>chkDoNotEnlarge</tabstop>
+  <tabstop>cbImageQuality</tabstop>
+  <tabstop>sbThumbnailWidth</tabstop>
+  <tabstop>sbThumbnailHeight</tabstop>
+  <tabstop>sbImageMargin</tabstop>
+  <tabstop>chkDistortThumbnails</tabstop>
+  <tabstop>chkCropThumbnails</tabstop>
+  <tabstop>cbImageBorderStyle</tabstop>
+  <tabstop>sbImageBorderWidth</tabstop>
+  <tabstop>sbImageBorderRadius</tabstop>
+  <tabstop>btnImageBorderColor</tabstop>
+  <tabstop>sbImageMatteWidth</tabstop>
+  <tabstop>btnImageMatteColor</tabstop>
+  <tabstop>sbImageMatteRadius</tabstop>
+  <tabstop>sbAlbumMatteWidth</tabstop>
+  <tabstop>btnAlbumMatteColor</tabstop>
+  <tabstop>sbAlbumMatteRadius</tabstop>
+  <tabstop>chkUseWM</tabstop>
+  <tabstop>chkRegenAllWithWatermark</tabstop>
+  <tabstop>sbWmOpacity</tabstop>
+  <tabstop>btnWmColor</tabstop>
+  <tabstop>edtWatermark</tabstop>
+  <tabstop>btnSelectWmFont</tabstop>
+  <tabstop>cbWmVPosition</tabstop>
+  <tabstop>cbWmHPosition</tabstop>
+  <tabstop>edtWmVertMargin</tabstop>
+  <tabstop>edtWmHorizMargin</tabstop>
+  <tabstop>chkUseWMShadow</tabstop>
+  <tabstop>sbWmShadowHoriz</tabstop>
+  <tabstop>sbWmShadowVert</tabstop>
+  <tabstop>sbWmShadowBlur</tabstop>
+  <tabstop>btnWmShadowColor</tabstop>
   <tabstop>trvAlbums</tabstop>
   <tabstop>tnvImages</tabstop>
+  <tabstop>btnBackToParentAlbum</tabstop>
+  <tabstop>btnCloseAllViewers</tabstop>
+  <tabstop>sldIconSize</tabstop>
   <tabstop>cbBaseLanguage</tabstop>
+  <tabstop>edtBaseTitle</tabstop>
+  <tabstop>edtBaseDescription</tabstop>
   <tabstop>cbLanguage</tabstop>
   <tabstop>btnSaveChangedTitle</tabstop>
   <tabstop>chkChangeTitleEverywhere</tabstop>
-  <tabstop>edtBaseTitle</tabstop>
   <tabstop>edtTitleText</tabstop>
-  <tabstop>edtBaseDescription</tabstop>
-  <tabstop>edtDescriptionText</tabstop>
   <tabstop>btnSaveChangedDescription</tabstop>
   <tabstop>chkChangeDescriptionEverywhere</tabstop>
+  <tabstop>edtDescriptionText</tabstop>
+  <tabstop>rbMagyar</tabstop>
+  <tabstop>rbEnglish</tabstop>
+  <tabstop>btnResetDialogs</tabstop>
+  <tabstop>lwColorScheme</tabstop>
+  <tabstop>btnAddAndGenerateColorScheme</tabstop>
+  <tabstop>btnDeleteColorScheme</tabstop>
+  <tabstop>btnApplyColorScheme</tabstop>
+  <tabstop>btnMoveSchemeUp</tabstop>
+  <tabstop>btnMoveSchemeDown</tabstop>
+  <tabstop>btnResetColorScheme</tabstop>
+  <tabstop>cbDefineLanguge</tabstop>
+  <tabstop>btnAddLanguage</tabstop>
+  <tabstop>btnRemoveLanguage</tabstop>
+  <tabstop>cbLanguageTextDef</tabstop>
+  <tabstop>edtLanguageTextdefinition</tabstop>
+  <tabstop>edtLanguageTextText</tabstop>
+  <tabstop>cbBaseAboutLanguage</tabstop>
+  <tabstop>textEdit_2</tabstop>
+  <tabstop>cbTranslatedAboutLanguage</tabstop>
+  <tabstop>edtAboutText</tabstop>
+  <tabstop>tabFalconG</tabstop>
  </tabstops>
  <resources>
   <include location="falcong.qrc"/>

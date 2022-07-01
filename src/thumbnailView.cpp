@@ -938,12 +938,13 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
     }
     _AddImagesFromList(qsl, row);
     row += qsl.size();  // position for folders
-    if (_AddFoldersFromList(qslF, row))
+    bool b = false;
+    emit SignalAlbumStractWillChange();
+    if ( (b=_AddFoldersFromList(qslF, row)))
     {
-
-        emit SignalAlbumStructChanged();
         Reload();
     }
+    emit SignalAlbumStructChanged(b);
 }
 
 /*=============================================================
@@ -1716,9 +1717,10 @@ void ThumbnailView::DeleteSelected()
     for (int i= list.size()-1; i>= 0; --i)
         ilx[i] = list[i].row();
 
+    emit SignalAlbumStractWillChange();
     albumgen.RemoveItems(_albumId, ilx, fromDisk);  // also remove cached file icons
+    emit SignalAlbumStructChanged(true);
 
-    emit SignalAlbumStructChanged();
     Reload();
 //    emit selectionChanged(QItemSelection(), QItemSelection());
 }
@@ -1819,7 +1821,7 @@ void ThumbnailView::UndoDelete()
 void ThumbnailView::AddImages()
 {
     QString dir = _ActAlbum()->FullSourceName();
-    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png *.tif);;Videos(*.mp4,*.ogg);;All files(*.*)");
+    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
@@ -1892,11 +1894,13 @@ void ThumbnailView::AddFolder()
     QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
     if (qs.isEmpty())
         return;
-    if (_AddFolder(qs))
+    emit SignalAlbumStractWillChange();
+    bool b = false;
+    if ((b=_AddFolder(qs)) )
     {
-        emit SignalAlbumStructChanged();
         Reload();
     }
+    emit SignalAlbumStructChanged(b);
 }
 
 /*============================================================================
@@ -1988,6 +1992,8 @@ void ThumbnailView::ToggleDontResizeFlag()
     bool changed = false;
 
     QModelIndexList list = selectionModel()->selectedIndexes();
+    emit SignalAlbumStractWillChange();
+
     Image* pImage;
     for (auto i : list)
     {
@@ -1999,8 +2005,7 @@ void ThumbnailView::ToggleDontResizeFlag()
             changed = true;
         }
     }
-    if(changed)
-        emit SignalAlbumStructChanged();
+    emit SignalAlbumStructChanged(changed);
 }
 
 /*=============================================================
@@ -2069,7 +2074,7 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
     }
 }
 
-void ThumbnailView::ThumbnailSizeChanged(int newSize)
+void ThumbnailView::SlotThumbnailSizeChanged(int newSize)
 {
     setIconSize(QSize(newSize, newSize));
     ThumbnailItem::SetThumbHeight(newSize);

@@ -1755,6 +1755,7 @@ void AlbumGenerator::Clear()
 	_textMap.clear();
 	_videoMap.clear();
 	_albumMap.clear();
+	_addedThumbnailIDsForImagesNotYetRead.clear();
 	Init();
 }
 
@@ -1810,7 +1811,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 {
 	_processing = true;
 
-//	_structAlreadyInMemory = false;		// reset so if an error catched we will not think the struct is OK
+	emit SignalAlbumStructWillChange();
 
 	bool result = false;
 
@@ -1822,9 +1823,13 @@ bool AlbumGenerator::Read(bool bMustReRead)
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 	_structChanged = 0;
 
-	if(!config.bReadFromDirs && QFileInfo::exists(s))
+	bool newDataExists = true;
+
+	if (config.bReadFromDirs)
+		result = _ReadFromDirs();
+	else if (QFileInfo::exists(s))
 	{
-		if ((bMustReRead || AlbumCount()<=1))	// only root album?
+		if ((bMustReRead || AlbumCount() <= 1))	// only root album?
 		{
 			try
 			{
@@ -1839,21 +1844,23 @@ bool AlbumGenerator::Read(bool bMustReRead)
 			result = true;
 	}
 	else
-		result = _ReadFromDirs();
+		newDataExists = false;
 
-	_CleanupAlbums();	// recursively exclude empty ones
-		 // mark usage for those thumbnail that were not in the database when the album was read
-	IdList tmplst;
-	for (auto id :_addedThumbnailIDsForImagesNotYetRead)
+	if (newDataExists)
 	{
-		if (Contains(id))
-			++_imageMap[id].thumbnailCount;
-		else
-			tmplst.push_back(id);
+		_CleanupAlbums();	// recursively exclude empty ones
+		 // mark usage for those thumbnail that were not in the database when the album was read
+		IdList tmplst;
+		for (auto id : _addedThumbnailIDsForImagesNotYetRead)
+		{
+			if (Contains(id))
+				++_imageMap[id].thumbnailCount;
+			else
+				tmplst.push_back(id);
+		}
+		_addedThumbnailIDsForImagesNotYetRead = tmplst;
 	}
-	_addedThumbnailIDsForImagesNotYetRead = tmplst;
-
-	emit SignalAlbumStructChanged();	// show list of albums in GUI
+	emit SignalAlbumStructChanged(true);	// show list of albums in GUI
 //	if (result)
 //		_structAlreadyInMemory = true;
 	return result;
@@ -2274,7 +2281,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	FileTypeImageVideo type = IsImageOrVideoFile(fullFilePath);
 	if (type == ftUnknown)
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Unkknown file type")));
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Unknown file type\nFile name:\n%1")).arg(fullFilePath));
 		return false;
 	}
 
@@ -4651,8 +4658,7 @@ int AlbumGenerator::Write()
 	if (!_CreateDirectories()) // from 'config'
 		return 64;
 
-	if (_structChanged || !_slAlbumsModified.isEmpty())		// do not save after read of structure
-		emit SignalAlbumStructChanged();   // all album and image data
+	emit SignalAlbumStructWillChange();
 
 	_ProcessImages();	// copy from from source into image directory
 						// determine image dimensions and latest upload date
@@ -4674,6 +4680,9 @@ int AlbumGenerator::Write()
 
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
 	_processing = false;
+
+	// do not save after read of structure
+	emit SignalAlbumStructChanged(_structChanged || !_slAlbumsModified.isEmpty());   // all album and image data
 
 	return i;
 }

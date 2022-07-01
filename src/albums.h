@@ -433,7 +433,8 @@ signals:
 	void SignalSetLanguagesToUI();
 	void SignalToEnableEditTab(bool on);
 //	void SignalImageMapChanged();
-	void SignalAlbumStructChanged();
+	void SignalAlbumStructWillChange();
+	void SignalAlbumStructChanged(bool yes);
 	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
 	void SignalToCreateIcon(QString destPath, QString destName);
 	void SetDirectoryCountTo(int cnt);

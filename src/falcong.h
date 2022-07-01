@@ -193,22 +193,23 @@ private slots:
 	void _WebPageLoaded(bool ready);
 
 	void _AlbumStructureSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
-	void _SetProgressBar(int min, int max, int pos, int phase);
-	void _SetProgressBarPos(int cnt1, int cnt2);
-	void _SetupLanguagesToUI();
-	void _EnableEditTab(bool on);
+	void _SlotSetProgressBar(int min, int max, int pos, int phase);
+	void _SlotSetProgressBarPos(int cnt1, int cnt2);
+	void _SlotSetupLanguagesToUI();
+	void _SlotEnableEditTab(bool on);
 
-	void _AlbumMapChanged();
-	void _AlbumChanged();	// e.g. image or album added to it, image name/path changed
-	void _ShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void _CreateUplinkIcon(QString destPath, QString destName);
-	void _SetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
-	void _ThumbNailViewerIsLoading(bool yes);
+	void _AlbumMapWillChange();
+	void _SlotAlbumStructChanged(bool yesitdid);
+	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
+	void _SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed);
+	void _SlotCreateUplinkIcon(QString destPath, QString destName);
+	void _SlotSetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
+	void _SlotThumbNailViewerIsLoading(bool yes);
 	void _TnvCountChanged();
-	void _TnvStatusChanged(QString &); // thumbnail view status changed
+	void _SlotTnvStatusChanged(QString &); // thumbnail view status changed
 	void _TnvSelectionChanged(ID_t, ID_t);		// ID of selected item or ID of enclosing album for no items
 	void _TnvMultipleSelection(IdList, ID_t);	// list of ID of selected items for multiple items
-	void _SaveChangedTitleDescription();
+	void _SlotSaveChangedTitleDescription();
 
 	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
 

@@ -196,30 +196,30 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	// connect with albumgen's 
 	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
-	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SetProgressBar);
-	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SetProgressBarPos);
-	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SetupLanguagesToUI);
-	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_EnableEditTab);
+	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SlotSetProgressBar);
+	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SlotSetProgressBarPos);
+	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SlotSetupLanguagesToUI);
+	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_SlotEnableEditTab);
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
-	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
-	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_ShowRemainingTime);
-	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_CreateUplinkIcon);
-	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SetDirectoryCountTo);
+	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
+	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_SlotShowRemainingTime);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_SlotCreateUplinkIcon);
+	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
-	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_AlbumMapChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalAlbumChanged,		this, &FalconG::_AlbumChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_ThumbNailViewerIsLoading);
+	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalAlbumChanged,		this, &FalconG::_SlotAlbumChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_SlotThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_TnvStatusChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_SlotTnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotChangeToFolderAt);	
 	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEanbleCloseAllViewers);
 
 	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToRemoveAllViewers);
 
-	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::ThumbnailSizeChanged);
+	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::SlotThumbnailSizeChanged);
 
-	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
-	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SaveChangedTitleDescription);
+	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SlotSaveChangedTitleDescription);
+	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SlotSaveChangedTitleDescription);
 
 	// read styles
 
@@ -3162,7 +3162,12 @@ void FalconG::on_edtSourceGallery_textChanged()
 		Album* root = albumgen.AlbumForID(ROOT_ALBUM_ID);
 		SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
 	}
+	AlbumTreeModel* pm = const_cast<AlbumTreeModel*>(reinterpret_cast<AlbumTreeModel*>( ui.trvAlbums->model()));
+	pm->BeginResetModel();
 	albumgen.Clear();
+	pm->EndResetModel();
+	ui.tnvImages->Clear();
+
 }
 
 void FalconG::on_edtThumb_textChanged()
@@ -5202,7 +5207,7 @@ void FalconG::on_btnWmShadowColor_clicked()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::_SetupLanguagesToUI()
+void FalconG::_SlotSetupLanguagesToUI()
 {
 	ui.cbBaseLanguage->clear();
 	ui.cbBaseAboutLanguage->clear();
@@ -5233,7 +5238,7 @@ void FalconG::_SetupLanguagesToUI()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::_SetProgressBar(int minimum, int maximum, int pos, int phase)
+void FalconG::_SlotSetProgressBar(int minimum, int maximum, int pos, int phase)
 {
 	_phase = phase;
 	ui.progressBar->setMinimum(minimum);
@@ -5282,7 +5287,7 @@ int FalconG::GetProgressBarPos()
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::_SetProgressBarPos(int count, int maxCount)
+void FalconG::_SlotSetProgressBarPos(int count, int maxCount)
 {
 	ui.lblProgress->setText(QString("%1 / %2").arg(count).arg(maxCount));
 	ui.progressBar->setValue(count);
@@ -5304,7 +5309,7 @@ void FalconG::_SetProgressBarPos(int count, int maxCount)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool speed)
+void FalconG::_SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed)
 {
 	ui.lblRemainingTime->setText(TimeToHMSStr(actual) + " / " + TimeToHMSStr(total-actual));
 	if(speed)
@@ -5318,7 +5323,7 @@ void FalconG::_ShowRemainingTime(time_t actual, time_t total, int count, bool sp
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
+void FalconG::_SlotCreateUplinkIcon(QString destPath, QString destName)
 {
 	QString src = PROGRAM_CONFIG::samplePath+"res/"+destName;
 	QPixmap pm(src) ;
@@ -5342,7 +5347,7 @@ void FalconG::_CreateUplinkIcon(QString destPath, QString destName)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::_ThumbNailViewerIsLoading(bool yes)
+void FalconG::_SlotThumbNailViewerIsLoading(bool yes)
 {
 	if(yes)
 		QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -5356,7 +5361,7 @@ void FalconG::_TnvCountChanged()
 	ui.lblTotalCount->setText(tr("%1 Albums, %2 images").arg(albumgen.Albums().size()).arg(albumgen.Images().size()) );
 }
 
-void FalconG::_TnvStatusChanged(QString &s)
+void FalconG::_SlotTnvStatusChanged(QString &s)
 {
 	ui.lblImageCount->setText(s);
 }
@@ -5403,7 +5408,7 @@ void FalconG::_TnvMultipleSelection(IdList list, ID_t actAlbumId)
  * REMARKS: save buttons are disabled until text changed and will be
  *			disabled after the save
  *------------------------------------------------------------*/
-void FalconG::_SaveChangedTitleDescription()
+void FalconG::_SlotSaveChangedTitleDescription()
 {
 	_SaveChangedTexts();
 	ui.btnSaveChangedTitle->setEnabled(false);
@@ -5484,6 +5489,11 @@ void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 	_RunJavaScript(className, value);
 }
 
+void FalconG::_AlbumMapWillChange()
+{
+	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->BeginResetModel();
+}
+
 /*=============================================================
  * TASK:   slot for signal when album added/removed changed
  * EXPECTS:
@@ -5492,10 +5502,10 @@ void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
  * REMARKS:- sets _edited to mark that unprocessed album 
  *				structure must be saved at exit
  *------------------------------------------------------------*/
-void FalconG::_AlbumMapChanged()
+void FalconG::_SlotAlbumStructChanged(bool yesItDid)
 {
-	_edited = true;	// so that we save it at program end if not processed
-	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->ModelChanged();
+	_edited = yesItDid;	// so that we save it at program termination if not processed
+	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->EndResetModel();
 	ui.trvAlbums->expandToDepth(1);
 	// ui.trvAlbums->expandAll();
 }
@@ -5508,7 +5518,7 @@ void FalconG::_AlbumMapChanged()
  * REMARKS:- sets _edited to mark that unprocessed album 
  *				structure must be saved at exit
  *------------------------------------------------------------*/
-void FalconG::_AlbumChanged()
+void FalconG::_SlotAlbumChanged()
 {
 	_edited = true;
 }
@@ -5519,7 +5529,7 @@ void FalconG::_AlbumChanged()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::_EnableEditTab(bool enable)
+void FalconG::_SlotEnableEditTab(bool enable)
 {
 	ui.tabEdit->setEnabled(enable);
 	ui.tnvImages->setEnabled(enable);
