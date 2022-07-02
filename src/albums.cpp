@@ -5014,8 +5014,15 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, IntList ilx, bool fromDisk)
 					QFile::remove(path);
 			}
 		}
-		album.items.remove(ix);
-
-		fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
+		album.items[ix] = 0;	// must keep length of album.items
+	}
+	// now delete marked elements (this way ilx need not be ordered)
+	for (int ix = album.items.size() - 1; ix >= 0; --ix)
+	{
+		if (!album.items[ix])
+		{
+			album.items.remove(ix);
+			fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
+		}
 	}
 }

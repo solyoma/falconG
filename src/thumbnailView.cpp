@@ -180,6 +180,7 @@ QIcon ThumbnailItem::IconForFile() const
     if (bIsFolderIcon)
         flags.setFlag(FileIcons::fiThumb);
     if (albumgen.ImageAt(imgId)->dontResize)
+    if (albumgen.ImageAt(imgId)->dontResize)
         flags.setFlag(FileIcons::fiDontResize);
 
     return fileIcons.IconForPosition(itemPos, flags, imageName);
@@ -1825,10 +1826,13 @@ void ThumbnailView::AddImages()
     if (qslFileNames.isEmpty())
         return;
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
+
+    emit SignalInProcessing(true);
     _AddImagesFromList(qslFileNames, pos);
     Reload();
     albumgen.WriteDirStruct(true);
 
+    emit SignalInProcessing(false);
     emit SignalAlbumChanged();
     emit selectionChanged(QItemSelection(), QItemSelection());
     config.dsLastImageDir = dir;
@@ -1847,6 +1851,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     Album* pParentAlbum = _ActAlbum();
 
     bool added, atLeastOneFolderWasAdded = false;
+    emit SignalInProcessing(true);
     ID_t id = albumgen.Albums().Add(folderName,added);
     if (added)
     {   
@@ -1874,6 +1879,8 @@ bool ThumbnailView::_AddFolder(QString folderName)
     }
     else
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
+
+    emit SignalInProcessing(false);
 
     return atLeastOneFolderWasAdded;
 }
