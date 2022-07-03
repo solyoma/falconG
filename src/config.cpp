@@ -1673,6 +1673,7 @@ void CONFIG::Read()		// synchronize with Write!
 	sDefFonts.Read(s);
 	sKeywords.Read(s);
 											// special data
+	bCleanupGalleryAfterGenerate.Read(s);
 	bSeparateFoldersForLanguages.Read(s);
 	bAddTitlesToAll.Read(s);
 	bAddDescriptionsToAll.Read(s);
@@ -1814,6 +1815,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	sDefFonts.Write(s);
 	sKeywords.Write(s);
 											// special data
+	bCleanupGalleryAfterGenerate.Write(s);
 	bSeparateFoldersForLanguages.Write(s);
 	bAddTitlesToAll.Write(s);
 	bAddDescriptionsToAll.Write(s);

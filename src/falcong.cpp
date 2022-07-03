@@ -494,7 +494,7 @@ void FalconG::on_btnGenerate_clicked()
 
 			config.waterMark.SetRegenerationMode(ui.chkRegenAllWithWatermark->isChecked()); // when watermark changed
 
-			bool bAlbumWriteOK = albumgen.Write() == 0; // generate struct, pages, images, thumbs
+			bool bAlbumWriteOK = albumgen.ProcessAndWrite() == 0; // generate struct, pages, images, thumbs
 			if (_edited)
 			{
 				albumgen.SetChangesWritten();	// nothing changed
@@ -1115,6 +1115,7 @@ void FalconG::_OtherToUi()
 	ui.chkAddTitlesToAll->setChecked(config.bAddTitlesToAll);
 	ui.chkRegenAllImages->setChecked(config.bRegenerateAllImages);
 	ui.chkCanDownload->setChecked(config.bCanDownload);
+	ui.chkCleanupGallery->setChecked(config.bCleanupGalleryAfterGenerate);
 
 	ui.chkDoNotEnlarge->setChecked(config.doNotEnlarge);
 	ui.chkFacebook->setChecked(config.bFacebookLink);
@@ -2322,6 +2323,13 @@ void FalconG::on_chkBold_toggled(bool on)
 	pElem->font.SetFeature(fBold, on);
 	_SetConfigChanged(true);
 	_FontToSample(pElem);
+}
+
+void FalconG::on_chkCleanupGallery_toggled(bool on)
+{
+	if (_busy)
+		return;
+	config.bCleanupGalleryAfterGenerate = on;
 }
 
 void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
@@ -5249,24 +5257,32 @@ void FalconG::_SlotSetProgressBar(int minimum, int maximum, int pos, int phase)
 		ui.lblProgressTitle->setText(tr("Phase 1: reading albums and images"));
 		ui.lblProgressDesc->setText(tr("albums / images"));
 		ui.lblRemainingTime->setText("");
-		ui.label_43->setVisible(false);
+		ui.lblImagesPerSecDesc->setVisible(false);
 		ui.lblImagesPerSec->setVisible(false);
 	}
 	else if(phase == 1)
 	{
-		ui.label_43->setVisible(true);
+		ui.lblImagesPerSecDesc->setVisible(true);
 		ui.lblImagesPerSec->setVisible(true);
 		ui.lblImagesPerSec->setText("");
 		ui.lblRemainingTime->setText("");
 		ui.lblProgressTitle->setText(tr("Phase 2: processing images"));
 		ui.lblProgressDesc->setText(tr("images / total"));
 	}
-	else
+	else if(phase==2)
 	{
 		ui.lblProgressTitle->setText(tr("Phase 3: Creating albums"));
 		ui.lblProgressDesc->setText(tr("albums / total"));
-		ui.label_43->setVisible(false);
+		ui.lblImagesPerSecDesc->setVisible(false);
 		ui.lblImagesPerSec->setVisible(false);
+	}
+	else
+	{
+		ui.lblImagesPerSecDesc->setVisible(false);
+		ui.lblImagesPerSec->setVisible(false);
+		ui.lblImagesPerSec->setText("");
+		ui.lblRemainingTime->setText("");
+		ui.lblProgressTitle->setText(tr("Phase 4: cleaning up gallery"));
 	}
 }
 

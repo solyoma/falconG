@@ -940,7 +940,7 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
     _AddImagesFromList(qsl, row);
     row += qsl.size();  // position for folders
     bool b = false;
-    emit SignalAlbumStractWillChange();
+    emit SignalAlbumStructWillChange();
     if ( (b=_AddFoldersFromList(qslF, row)))
     {
         Reload();
@@ -1718,7 +1718,7 @@ void ThumbnailView::DeleteSelected()
     for (int i= list.size()-1; i>= 0; --i)
         ilx[i] = list[i].row();
 
-    emit SignalAlbumStractWillChange();
+    emit SignalAlbumStructWillChange();
     albumgen.RemoveItems(_albumId, ilx, fromDisk);  // also remove cached file icons
     emit SignalAlbumStructChanged(true);
 
@@ -1901,7 +1901,7 @@ void ThumbnailView::AddFolder()
     QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
     if (qs.isEmpty())
         return;
-    emit SignalAlbumStractWillChange();
+    emit SignalAlbumStructWillChange();
     bool b = false;
     if ((b=_AddFolder(qs)) )
     {
@@ -1999,7 +1999,7 @@ void ThumbnailView::ToggleDontResizeFlag()
     bool changed = false;
 
     QModelIndexList list = selectionModel()->selectedIndexes();
-    emit SignalAlbumStractWillChange();
+    emit SignalAlbumStructWillChange();
 
     Image* pImage;
     for (auto i : list)

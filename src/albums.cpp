@@ -4317,10 +4317,77 @@ int AlbumGenerator::_DoPages()
 	}
 	_CreateHomePage();
 
+	emit SignalToSetProgressParams(0, 100, 100, 1);		// phase2
+
 	if(config.bMenuToAbout)		// only create about pages when the checkbox is checked
 		_CreateAboutPages();
 
 	return 0;
+}
+
+/*=============================================================
+ * TASK:	Cleans up destination gallery by removing all
+ *			images and folders, which were removed from the source
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:	0: success, 64 error
+ * REMARKS:
+ *------------------------------------------------------------*/
+int AlbumGenerator::_CleanUpOutput()
+{
+	int result = 0;
+	QDir dir;
+	// cleanup albums
+	dir.setPath((config.dsGallery + config.dsGRoot + config.dsAlbumDir).ToString());
+	dir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+	dir.setSorting(QDir::Name);
+	QFileInfoList lsFi = dir.entryInfoList();	// e.g albumXXXXX_en.html
+	for (auto fi : lsFi)
+	{
+		QString s = fi.fileName();
+		s = s.mid(config.sBaseName.ToString().length());	// start of id number
+		if (s.at(0).isNumber())
+		{
+			int posd = 0;
+			while (s.at(posd).isNumber())
+				++posd;
+			ID_t id = s.left(posd).toLongLong() | ALBUM_ID_FLAG;
+			s = fi.filePath();
+			if (!_albumMap.contains(id))
+				if (!dir.remove(s))
+					result = 64;
+		}
+	}
+	// remove videos
+	dir.setPath((config.dsGallery + config.dsGRoot + config.dsVideoDir).ToString());
+	lsFi = dir.entryInfoList();
+	for (auto fi : lsFi)
+	{
+		QString s = fi.fileName();	// start of id number
+		int posd = s.indexOf('.');
+		ID_t id = s.left(posd).toLongLong() | VIDEO_ID_FLAG;
+		if (!_videoMap.contains(id))
+			if (!dir.remove(fi.filePath()))
+				result = 64;
+	}
+	// remove images
+	dir.setPath((config.dsGallery + config.dsGRoot + config.dsImageDir).ToString());
+	lsFi = dir.entryInfoList();
+	for (auto fi : lsFi)
+	{
+		QString s = fi.fileName();	// start of id number
+		int posd = s.indexOf('.');
+		ID_t id = s.left(posd).toLongLong() | IMAGE_ID_FLAG;
+		if (!_imageMap.contains(id))
+		{
+			if (!dir.remove(fi.filePath()))
+				result = 64;
+			s = (config.dsGallery + config.dsGRoot + config.dsThumbDir).ToString() + fi.fileName();
+			if (!dir.remove(s))
+				result = 64;
+		}
+	}
+	return result;
 }
 
 /*=============================================================
@@ -4653,7 +4720,7 @@ int AlbumGenerator::_DoHtAccess()
 * RETURNS:	0: OK, other error code
 * REMARKS:
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::Write()
+int AlbumGenerator::ProcessAndWrite()
 {
 	if (!_CreateDirectories()) // from 'config'
 		return 64;
@@ -4674,10 +4741,15 @@ int AlbumGenerator::Write()
 	if (_processing)
 		i |= _DoHtAccess();			// 0 | 2
 	if (_processing)
-		i |= _SaveFalconGCss();			// 0 | 8
+		i |= _SaveFalconGCss();		// 0 | 8
 	if (_processing)
 		i |= _DoPages();			// 0 | 16
-
+	emit SignalToSetProgressParams(0, 100, 100, 2);		// phase3 cleaning up
+	if (_processing && config.bCleanupGalleryAfterGenerate)
+	{
+		emit SignalToSetProgressParams(0, 100, 100, 2);		// phase3 cleaning up
+		i |= _CleanUpOutput();		// 0 | 64
+	}
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
 	_processing = false;
 
@@ -4721,7 +4793,6 @@ void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString s
 	else
 		SetChangesWritten();	// clear all changes flag
 }
-
 
 
 /*==========================================================================
@@ -4946,9 +5017,128 @@ QString Video::AsString(int width, int height)
 }
 
 /*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS: albumID			 - remove from this album's items
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if any item to be deleted is a folder all files inside
+ *			  it will be deleted, even if they were not in the data base
+ *			- tries to move files into trashcan/recycle bin first
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveItem(ID_t id, bool fromDisk)
+{
+	QString path;
+	if (id & ALBUM_ID_FLAG) // this item is an album, so all of >>its<< items  
+	{						// must be removed
+		Album& album = _albumMap[id];
+		path = album.FullSourceName();
+		_RemoveAllItems(id, fromDisk);
+		if (album.thumbnail && _imageMap.contains(album.thumbnail))
+		{
+			Image* img = &_imageMap[album.thumbnail];
+			--img->thumbnailCount;
+			if (!img->usageCount && !img->thumbnailCount)
+			{
+				_imageMap.remove(album.thumbnail);
+				if (fromDisk && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+		}
+		_albumMap.remove(id);
+		// folders and files may be left in sub-folders
+		// if they were not in the data base even after this!
+		if (fromDisk && !QFile::moveToTrash(path))
+			RemoveFolderRecursively(path);		// so those must also be deleted
+	}
+	else if (id & IMAGE_ID_FLAG)    // remove from this album
+	{
+		Image* img = &_imageMap[id];
+		if (!--img->usageCount && (!img->thumbnailCount) || fromDisk) 		// nobody uses this?
+		{	// if only used as thumbnail and the file is removed from disk, can't keep it
+			path = img->FullSourceName();
+			_imageMap.remove(id);
+			if (fromDisk && !QFile::moveToTrash(path))
+				QFile::remove(path);
+		}
+	}
+	else if (id & VIDEO_ID_FLAG)    // remove from this album
+	{
+		Video* vid = &_videoMap[id];
+		if (!--vid->usageCount)
+		{
+			path = vid->FullSourceName();
+			_videoMap.remove(id);
+			if (fromDisk && !QFile::moveToTrash(path))
+				QFile::remove(path);
+		}
+	}
+}
+
+/*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS: albumID			 - remove from this album's items
+ *		   iconsForThisAlbum - remove also icons for items
+ *		   ilx				 - list of indexes in album's items
+ *								of items to be removed
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if any item to be deleted is a folder all files inside
+ *			  it will be deleted, even if they were not in the data base
+ *			- tries to move files into trashcan^recycle bin first
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveAllItems(ID_t albumID, bool fromDisk)
+{
+	Album& album = _albumMap[albumID];
+	QString path;
+	for (auto id : album.items)
+		_RemoveItem(id, fromDisk);
+	album.items.clear();
+}
+/*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS: albumID			 - remove from this album's items
+ *		   iconsForThisAlbum - remove also icons for items
+ *		   ilx				 - list of indexes in album's items
+ *								of items to be removed
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if any item to be deleted is a folder all files inside
+ *			  it will be deleted, even if they were not in the data base
+ *			- tries to move files into trashcan^recycle bin first
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
+{
+	
+	Album& album = _albumMap[albumID];
+	QString path;
+	for (auto ix : ilx)
+	{
+		ID_t id = album.items[ix];
+		_RemoveItem(id, fromDisk);
+		album.items[ix] = 0;
+	}
+	// now delete marked elements (this way ilx need not be ordered)
+	for (int ix = album.items.size() - 1; ix >= 0; --ix)
+	{
+		if (!album.items[ix])
+		{
+			album.items.remove(ix);
+			if(iconsForThisAlbum)
+				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
+		}
+	}
+}
+
+/*=============================================================
  * TASK:	remove albums and others from structures 
  *			and possibly from >>source<< gallery on disk too
- * PARAMS:	albumID - parent album, whose i-th item is to be removed
+ * PARAMS:	albumID - parent album, whose items are to be removed
  *			ilx - array of id-s to remove. Ids have type flag set
  *				this must be ordered from last item to first
  *			fromdisk:deletes it from disk too, but only after confirmation
@@ -4961,68 +5151,5 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk)
 	if (fromDisk)
 		if(QMessageBox::question(frmMain, tr("FalconG - Warning"), tr("If a folder is removed all the files and folders inside it will be deleted too!\n\nThis cannot be undone!\n\nReally delete the selected items from disk?")) != QMessageBox::Yes) 
 			return;
-	_RemoveItems(albumID, ilx, fromDisk);
-}
-
-/*=============================================================
- * TASK:	recursive directory and image/video deletion
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS:	if any item to be deleted is a folder all files inside
- *			it will be deleted, even if they were not in the data base
- *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItems(ID_t albumID, IntList ilx, bool fromDisk)
-{
-	
-	Album& album = _albumMap[albumID];
-	QString path;
-	for (auto ix : ilx)
-	{
-		ID_t id = album.items[ix];
-		if (id & ALBUM_ID_FLAG)    
-		{							// but only items
-			path = _albumMap[id].FullSourceName();
-			IntList ilitems(_albumMap[id].items.size());
-			for (int j = 0; j < _albumMap[id].items.size(); ++j)
-				ilitems.push_back(j);
-
-			_RemoveItems(id, ilitems, fromDisk);	// folders and files may be left in folders
-													// if they were not in the data base even after this!
-			if (fromDisk && !QFile::moveToTrash(path) )
-				RemoveFolderRecursively(path);		// so those must also be deleted
-		}
-		else if (id & IMAGE_ID_FLAG)    // remove from this album
-		{
-			Image* img = albumgen.ImageAt(id);
-			if (!--img->usageCount && !img->thumbnailCount)		// nobody uses this?
-			{
-				path = img->FullSourceName();
-				albumgen.Images().remove(id);
-				if (fromDisk && !QFile::moveToTrash(path) )
-					QFile::remove(path);
-			}
-		}
-		else if (id & VIDEO_ID_FLAG)    // remove from this album
-		{
-			Video* vid = albumgen.VideoAt(id);
-			if (!--vid->usageCount)
-			{
-				path = vid->FullSourceName();
-				albumgen.Videos().remove(id);
-				if (fromDisk && !QFile::moveToTrash(path))
-					QFile::remove(path);
-			}
-		}
-		album.items[ix] = 0;	// must keep length of album.items
-	}
-	// now delete marked elements (this way ilx need not be ordered)
-	for (int ix = album.items.size() - 1; ix >= 0; --ix)
-	{
-		if (!album.items[ix])
-		{
-			album.items.remove(ix);
-			fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
-		}
-	}
+	_RemoveItems(albumID, true, ilx, fromDisk);	// also from icon list for this album
 }

@@ -366,7 +366,7 @@ public:
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
 
-	int Write();	 // writes album files into directory Config::sDestDir return error code or 0
+	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false);		
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structChanged;  }
@@ -543,6 +543,7 @@ private:
 	int _DoCopyJs();	// copy directory 'js'
 	int _SaveFalconGCss();
 	int _DoPages();
+	int _CleanUpOutput();	// remove files from output that were removed in input
 	// latest images
 	int _CollectLatestImagesAndVideos(LatestImages &here);
 	int _DoLatestJs();	// creates "javascript latest.js"
@@ -562,7 +563,9 @@ private:
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
-	void _RemoveItems(ID_t albumID, IntList ilx, bool fromdisk);
+	void _RemoveItem(ID_t id, bool fromdisk);
+	void _RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
+	void _RemoveAllItems(ID_t albumID, bool fromdisk);
 };
 
 extern AlbumGenerator albumgen;

@@ -315,7 +315,7 @@ signals:
 	void SignalSingleSelection(ID_t id, ID_t insideThis);		// may be album or image or video
 	void SignalMultipleSelection(IdList, ID_t insideThis);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
-	void SignalAlbumStractWillChange();			// emitted befor new folder(s) added
+	void SignalAlbumStructWillChange();			// emitted befor new folder(s) added
 	void SignalAlbumStructChanged(bool success);			// after the new folder is added
 	void SignalAlbumChanged();					// add the new album to tree view as well
 	void SignalImageViewerAdded(bool enableclosebutton);

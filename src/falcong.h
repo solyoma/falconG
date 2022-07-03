@@ -289,6 +289,7 @@ private slots:
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkBackgroundOpacity_toggled(bool on);
 	void on_chkBold_toggled(bool);
+	void on_chkCleanupGallery_toggled(bool on);
 	void on_chkRegenAllImages_toggled(bool);
 	void on_chkCanDownload_toggled(bool);
 	void on_chkCropThumbnails_toggled(bool);

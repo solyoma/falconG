@@ -1051,6 +1051,7 @@ public:
 	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// lats new image is loaded from here
 
 
+	_CBool bCleanupGalleryAfterGenerate = { true, "bCleanUp" };
 	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};
 	_CBool bKeepDuplicates = { false, "bKeepDuplicates" }; // when tru duplicates are kept
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
