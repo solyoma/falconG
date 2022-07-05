@@ -1931,6 +1931,9 @@ bool AlbumGenerator::_CreateDirectories()
 * EXPECTS: reader - opened, flags set: needUtf8
 * RETURNS: success code
 * REMARKS: throws on error
+*			if at the first run of the program no .lang files were present then
+*			the created '.struct' file may not contain valid texts 
+*			this can only be corrected manually
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 {
@@ -1948,9 +1951,10 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 	languages.Clear(langcnt);		// allocates this many empty strings in each string list
 	reader.ReadLine();				// first language index :0 
 	for (int lang = 0; lang < langcnt; ++lang)
-	{
-		while((sl = reader.ReadLine().split('=')).size() == 2 ) // finished when next language index is read in
-			languages.SetTextFor(sl[0], sl[1], lang);
+	{				// while loop finished when next language index is read in
+		while((sl = reader.ReadLine().split('=')).size() == 2) 
+			if(!sl[1].isEmpty())
+				languages.SetTextFor(sl[0], sl[1], lang);
 	}
 	if ((*languages["countryCode"])[0].isEmpty())
 	{
@@ -4070,7 +4074,8 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 *			Language - index of actual language
 *			uplink - uplink : one level up
 *			processedCount - output parameter
-* GLOBALS:	'config'
+* GLOBALS:	'_mustRecreateAllAlbums'
+*			'config'
 *				uplink - used as 'uplink' with the uplink button (unless top level) 
 *				homeLink - The 'home' button links to this page
 *
@@ -4790,8 +4795,8 @@ void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString s
 	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
 	if (!s.isEmpty())
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
-	else
-		SetChangesWritten();	// clear all changes flag
+	//else
+	//	SetChangesWritten();	// clear all 'changed' flag
 }
 
 
@@ -5097,6 +5102,7 @@ void AlbumGenerator::_RemoveAllItems(ID_t albumID, bool fromDisk)
 	for (auto id : album.items)
 		_RemoveItem(id, fromDisk);
 	album.items.clear();
+	albumgen.SetAlbumModified(album);
 }
 /*=============================================================
  * TASK:   recursive source album, and image/video deletion
@@ -5133,6 +5139,7 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
 		}
 	}
+	albumgen.SetAlbumModified(album);
 }
 
 /*=============================================================
@@ -5151,5 +5158,8 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk)
 	if (fromDisk)
 		if(QMessageBox::question(frmMain, tr("FalconG - Warning"), tr("If a folder is removed all the files and folders inside it will be deleted too!\n\nThis cannot be undone!\n\nReally delete the selected items from disk?")) != QMessageBox::Yes) 
 			return;
+	emit SignalAlbumStructWillChange();
 	_RemoveItems(albumID, true, ilx, fromDisk);	// also from icon list for this album
+	emit SignalAlbumStructChanged(false);
+
 }

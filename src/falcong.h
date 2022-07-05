@@ -198,8 +198,8 @@ private slots:
 	void _SlotSetupLanguagesToUI();
 	void _SlotEnableEditTab(bool on);
 
-	void _AlbumMapWillChange();
 	void _SlotAlbumStructChanged(bool yesitdid);
+	void _SlotAlbumStructWillChange();
 	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
 	void _SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed);
 	void _SlotCreateUplinkIcon(QString destPath, QString destName);

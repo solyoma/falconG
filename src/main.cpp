@@ -6,6 +6,13 @@
 
 int main(int argc, char *argv[])
 {
+	// This makes all widgets scale with dpi scaling, but the whole
+	// window may not be visible. If not used, however then some items 
+	// may be missing during design and texts may overflow the controls
+	// and get clipped
+	// 
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
 	QApplication a(argc, argv);
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
 	PROGRAM_CONFIG::GetHomePath();

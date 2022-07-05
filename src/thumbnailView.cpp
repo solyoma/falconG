@@ -22,6 +22,7 @@
 
 #include "thumbnailView.h"
 #include <QIcon>
+#include <QWidget>
 #include "config.h"
 #include "imageviewer.h"
 
@@ -1687,6 +1688,7 @@ void ThumbnailView::invertSelection()
  *          from disk!
  *          Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
+    class FalconG;           // needed here for message box, so no whole falconG.h is included
 void ThumbnailView::DeleteSelected()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
@@ -1695,14 +1697,14 @@ void ThumbnailView::DeleteSelected()
 	QString s;
 
     QString plurali = tr("images"), plurala = tr("albums");   // plural for image and album. May differ in other languages
-    QString qs = QMainWindow::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
+    QString qs = tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
                                     .arg(list.size() > 1 ? plurali :tr("image"))
                                     .arg(list.size() > 1 ? plurala : tr("album"));
     QMessageBox msg;
     msg.setWindowTitle(tr("falconG - Question"));
     msg.setText(qs);
-    msg.addButton(tr("From disk"),QMessageBox::YesRole);                // 0
-    msg.addButton(tr("Just remove"),QMessageBox::NoRole);               // 1
+    msg.addButton(tr("Just remove"),QMessageBox::NoRole);               // 0
+    msg.addButton(tr("From disk"),QMessageBox::YesRole);                // 1
     msg.addButton(tr("Cancel"),QMessageBox::RejectRole);                // 2
     msg.setDefaultButton(QMessageBox::Cancel);
     msg.setIcon(QMessageBox::Question);
@@ -1711,16 +1713,23 @@ void ThumbnailView::DeleteSelected()
     if (res == 2)                   // Cancel
         return;
 
-    bool fromDisk = res == 0;       //  Yes
+    extern FalconG* frmMain;
+    if (res == 1)    // delete from disk too
+    {
+        if (QMessageBox::question((QWidget *)frmMain, tr("falconG - Question"),
+            tr("This will delete all selected images and folders from disk.\n\n"
+                "Are you >>really<< sure you want to do this?")) != QMessageBox::Yes)
+            return;
+    }
+
+    bool fromDisk = res == 1;       //  Yes
             // needs reverse order   (?)
 
     IntList ilx(list.size());
     for (int i= list.size()-1; i>= 0; --i)
         ilx[i] = list[i].row();
 
-    emit SignalAlbumStructWillChange();
     albumgen.RemoveItems(_albumId, ilx, fromDisk);  // also remove cached file icons
-    emit SignalAlbumStructChanged(true);
 
     Reload();
 //    emit selectionChanged(QItemSelection(), QItemSelection());
@@ -1852,6 +1861,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
 
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
+    emit SignalAlbumStructWillChange();
     ID_t id = albumgen.Albums().Add(folderName,added);
     if (added)
     {   
@@ -1881,6 +1891,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
         QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
 
     emit SignalInProcessing(false);
+    emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
 
     return atLeastOneFolderWasAdded;
 }

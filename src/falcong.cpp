@@ -206,6 +206,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_SlotCreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
+	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructWillChange,	this, &FalconG::_SlotAlbumStructWillChange);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumChanged,		this, &FalconG::_SlotAlbumChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_SlotThumbNailViewerIsLoading);
@@ -5505,14 +5506,15 @@ void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 	_RunJavaScript(className, value);
 }
 
-void FalconG::_AlbumMapWillChange()
+void FalconG::_SlotAlbumStructWillChange()
 {
 	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->BeginResetModel();
 }
 
 /*=============================================================
  * TASK:   slot for signal when album added/removed changed
- * EXPECTS:
+ * EXPECTS:	'yesItDid' - set _edited so we will save the structure
+ *					at program termination
  * GLOBALS:
  * RETURNS:
  * REMARKS:- sets _edited to mark that unprocessed album 
