@@ -1871,15 +1871,15 @@ when their source is no longer present</string>
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>3</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="pgGlobal">
                        <property name="geometry">
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
