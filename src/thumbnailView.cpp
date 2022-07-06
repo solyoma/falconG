@@ -188,7 +188,7 @@ QIcon ThumbnailItem::IconForFile() const
 }
 
 
-QVariant ThumbnailItem::data(int role) const
+QVariant ThumbnailItem::data(int role) const      // based on _itemType
 {
     switch (role)
     {
@@ -1571,7 +1571,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             int pos = currentIndex().row();     
             
             ID_t id = album.items[pos];
-            IABase* pItem = nullptr;
+            IABase* pItem = albumgen.IdToItem(id);
             if (id & IMAGE_ID_FLAG)
                 pItem = albumgen.ImageAt(id);
             else if (id & VIDEO_ID_FLAG)
@@ -1932,10 +1932,23 @@ void ThumbnailView::CopyNamesToClipboard()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
+    IABase* pItem;
     for (auto i : list)
     {
         ID_t id = _ActAlbum()->items[i.row()];// ID_t(i.internalPointer());
-        s += QString("%1%2").arg(id & ALBUM_ID_FLAG ? config.sBaseName.ToString() : "").arg(id & BASE_ID_MASK) + "\n";
+        pItem = albumgen.IdToItem(id);
+        
+        switch (pItem->Type())
+        {
+            case IABase::iatImage: 
+            case IABase::iatVideo: 
+                s += QString().setNum(id & ID_MASK) + pItem->Extension() + "\n";
+                break;
+            default:
+            case IABase::iatAlbum:
+                s += config.sBaseName.ToString() + "\n";
+                break;
+        }
     }
 	QClipboard *clipboard = QGuiApplication::clipboard();
 	clipboard->clear();
@@ -2116,17 +2129,9 @@ void ThumbnailView::FindMissingImageOrVideo()
     Album& album = albumgen.Albums()[_albumId];
     ID_t id = album.items[pos];
     QString name, path;
-    IABase* pItem = nullptr;
+    IABase* pItem = albumgen.IdToItem(id);
 
-    auto __getItem = [&](ID_t id) {
-        if (id & IMAGE_ID_FLAG)
-            pItem = albumgen.ImageAt(id);
-        else if (id & IMAGE_ID_FLAG)
-            pItem = albumgen.VideoAt(id);
-        return pItem;
-    };
     auto __getNameAndPath = [&](ID_t id, QString& n, QString& p) {
-        __getItem(id);
 		n = pItem->name;
 		p = pItem->path;
 	};
@@ -2136,6 +2141,13 @@ void ThumbnailView::FindMissingImageOrVideo()
             if (QFile::exists(_slSearchPaths[i] + pItem->name))
                 return i;
         return -1;
+    };
+    auto __namesMatch = [&](QString &foundName, QString &p, QString &n) {
+        SeparateFileNamePath(foundName, p, n);
+        if (n != pItem->name)
+            return false;
+        return true;
+
     };
 
     __getNameAndPath(id, name, path);
@@ -2148,27 +2160,24 @@ void ThumbnailView::FindMissingImageOrVideo()
     if (fd.exec())
     {
         foundName = fd.selectedFiles()[0];
-
-    //if (!foundName.isEmpty())
-    //{
         QString n, p;
-        SeparateFileNamePath(foundName, p, n);
-        if (n != name)
+        if(!__namesMatch(foundName, p, n))
         {
-            QMessageBox::warning(this, tr("falconG - Warning"), tr("File names do not match. "));
-            return;
+            if (QMessageBox::question(this, tr("falconG - Warning"), tr("File names do not match.\Do you accept the new name?")) == QMessageBox::No)
+                return;
+            pItem->name = n;    // new name accepted
         }
         _slSearchPaths.push_back(p);
         pItem->path = p;     // replace path
-        pItem->exists = QFile::exists(pItem->FullSourceName()) ? exExists : exNot;
+        pItem->exists = QFile::exists(pItem->FullSourceName()) ? exExists : exNot;  // must always be exExists because of dialog settings
         pItem->changed = true;
         albumgen.SetAlbumModified(album);
         emit SignalAlbumChanged();
 
-        // check all missing files against search paths
+        // check all missing files against all search paths collected so far
         for (auto id1 : album.items)
         {
-            __getItem(id1);
+            pItem = albumgen.IdToItem(id);
             if (!QFile::exists(pItem->FullSourceName()))
             {
                 int j = __pathindex();

@@ -57,6 +57,8 @@ extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, b
 //------------------------ base class for albums and images ------------------
 struct IABase
 {
+	enum IAType { iatUnknown, iatImage, iatVideo, iatAlbum};
+
 	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
 	Existance exists = exNot;	// set to exExists if it exists on the disk somewhere or exVirtual if only in data base
 	bool changed = false;	// Images (or videos): true: image is recreated (dimensions or file size or data changed)
@@ -71,7 +73,6 @@ struct IABase
 	QString name;		// without path but with extension and no ending '/' even for albums
 	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
 
-	bool Valid() const { return ID > 0; }
 	IABase &operator=(const IABase &a)
 	{
 		ID		=  a.ID		;
@@ -82,6 +83,17 @@ struct IABase
 		name    =  a.name   ;
 		path    =  a.path   ;
 		return *this;
+	}
+
+	bool Valid() const { return ID > 0; }
+
+	QString Extension() { int pos = name.lastIndexOf('.'); return(pos >= 0 ? name.mid(pos) : ""); }
+	IAType Type()
+	{
+		if (ID & IMAGE_ID_FLAG) return iatImage;
+		if (ID & VIDEO_ID_FLAG) return iatVideo;
+		if (ID & ALBUM_ID_FLAG) return iatAlbum;
+		return iatUnknown;
 	}
 	QString FullSourceName() const;
 	QString ShortSourcePathName();	// cuts the common part of paths (config.dsSrc)
@@ -421,6 +433,18 @@ public:
 	Album *AlbumForID(ID_t id) 
 	{ 
 		return &_albumMap[id]; 
+	}
+	IABase* IdToItem(ID_t id)
+	{
+		IABase* pItem = nullptr;
+		if (id & IMAGE_ID_FLAG)
+			pItem = ImageAt(id);
+		else if (id & VIDEO_ID_FLAG)
+			pItem = VideoAt(id);
+		else
+			pItem = AlbumForID(id);
+
+		return pItem;
 	}
 	QString SiteLink(int language);
 

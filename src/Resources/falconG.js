@@ -67,26 +67,30 @@ function SetPropertyForSelector(selector, propertyName, propValue)
     }
 }
 
-function ResizeThumbs() {
-    const thumbs = document.querySelectorAll(".thumb");
-    var wh = PageWidthHeight();
+function _resizeThumbs(name)
+{
+    const thumbs = document.querySelectorAll(name);
     thumbs.forEach(thumb => {
         var w = thumb.getAttribute('w'),
             h = thumb.getAttribute('h');
         var aspect = w / h;
-
-        thumb.style.width = w + "px";       // default
-        thumb.style.height = h + "px";
-
+    
         if (w > wh.width) {
-            thumb.style.width = wh.width + "px"
-            thumb.style.height = (wh.width / aspect) + "px"
+            w = wh.width
+            h = (wh.width / aspect)
         }
         if (h > wh.height) {
-            thumb.style.height = wh.height + "px"
-            thumb.style.width = (wh.height * aspect) + "px"
+            w = wh.height
+            h = (wh.height * aspect)
         }
+        thumb.style.setProperty('width', w + 'px'); 
+        thumb.style.setProperty('height', h + "px");
     })
+}
+function ResizeThumbs() {
+    var wh = PageWidthHeight();
+    _resizeThumbs("thumb");
+    _resizeThumbs("athumb");
 
 }
 
