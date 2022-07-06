@@ -3790,6 +3790,10 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 			{		  // it can be present on the disk so set paths from it
 				sImagePath = sImageDir + QString("%1.jpg").arg(thumb & ID_MASK);
 				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb & ID_MASK);
+				if (!QFile::exists(sImagePath) || !QFile::exists(sThumbnailPath))
+				{
+					sImagePath.clear(); sThumbnailPath.clear();
+				}
 			}
 		}
 		else
@@ -3833,8 +3837,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 	if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
 	{
-		sImagePath = (pImage->ID ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
-		sThumbnailPath = (pImage->ID ? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName(config.bLowerCaseImageExtensions) : pImage->name);
+		sImagePath = (pImage->ID & ID_MASK ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		sThumbnailPath = (pImage->ID & ID_MASK? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName(config.bLowerCaseImageExtensions) : pImage->name);
 	}
 
 				   /*
@@ -3868,30 +3872,31 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 	if (pImage && pImage->tsize.width() >= 700)
 		qsOptionalStyle = " style=\"max-height:calc(99vw/" + QString().setNum((int)(pImage->Aspect())) + ")\"";
 
-	QString qs = QString(R"(<div class = "img-container">
+	QString qs = QString(R"(	<div class = "img-container">
 		<div class="%1">
-			<div id="%2" w=%3 h=%4>
-				<img class="%5" %6="%7" %12alt="%8" onclick="%9" %10>
+			<div )").arg((isAlbum ? "amatte" : "imatte"));							// 1
+		if (pImage->ID & ID_MASK)
+			qs += QString("id=\"%1\" ").arg(pImage->ID & ID_MASK);
+	qs += QString(R"(>
+				<img  w=%1 h=%2 class="%3" %4="%5" %10alt="%6" onclick="%7" %8>
 			</div>
 		</div>
-		%11
+		%9
 		<div class="links">
-			<div class="title" onclick="%9">%8</div>
+			<div class="title" onclick="%7">%6</div>
 		</div>
 	</div>
 
-)").arg((isAlbum ? "amatte" : "imatte"))							// 1
-	.arg(pImage->ID & ID_MASK)										// 2
-	.arg(pImage->tsize.width())										// 3
-	.arg(pImage->tsize.height())									// 4
-	.arg(isAlbum ? "athumb" : "thumb")								// 5
-	.arg(idIndex > 2 ? "data-src":"src")							// 6
-	.arg(sThumbnailPath)											// 7
-	.arg(title)														// 8
-	.arg(qsLoc)														// 9
-	.arg(qsOptionalStyle)											// 10
-	.arg(tagPDesc)													// 11
-	.arg(idIndex < 0 ? "id=\"latest\" " :"")						// 12
+)") .arg(pImage->tsize.width())										// 1
+	.arg(pImage->tsize.height())									// 2
+	.arg(isAlbum ? "athumb" : "thumb")								// 3
+	.arg(idIndex > 2 ? "data-src":"src")							// 4
+	.arg(sThumbnailPath)											// 5
+	.arg(title)														// 6
+	.arg(qsLoc)														// 7
+	.arg(qsOptionalStyle)											// 8
+	.arg(tagPDesc)													// 9
+	.arg(idIndex < 0 ? "id=\"latest\" " :"")						// 10
 		;
 
 	_ofs << qs;
@@ -4850,7 +4855,7 @@ QString IABase::ShortSourcePathName()
 
 QString IABase::LinkName(bool bLCExtension) const
 {
-	if (ID)
+	if (ID & ID_MASK)
 	{
 		int pos = name.lastIndexOf('.');
 		QString ext = name.mid(pos);
