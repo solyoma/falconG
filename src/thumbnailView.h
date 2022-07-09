@@ -203,6 +203,8 @@ public:
 	{
 		return item(index.row(), 0);
 	}
+	void BeginResetModel() { beginResetModel(); }
+	void EndResetModel() { endResetModel(); }
 	int DummyPosition() const { return _dummyPosition;  }
 	void Clear();
 	
@@ -237,7 +239,11 @@ public:
     void selectCurrentIndex();
     void AddThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
 	void SetInsertPos(int here);		// into the model
-    void abort();
+    void abort();		 // abort loading of thumbs
+	bool IsFinished()const 
+	{ 
+		return !_isProcessing; 
+	}
     void selectThumbByItem(int itemIndex);
     int GetNextItem();
     int GetPrevItem();
@@ -279,7 +285,8 @@ private:
 //    QFileInfo thumbFileInfo;
     int _currentItem;
     QModelIndex _currentIndex;
-    bool _isAbortThumbsLoading;
+    bool _doAbortThumbsLoading = false;
+	bool _isProcessing = false;
     bool _isNeedToScroll;
     bool _scrolledForward;
     int _thumbsRangeFirst;
@@ -317,6 +324,7 @@ signals:
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructWillChange();			// emitted befor new folder(s) added
 	void SignalAlbumStructChanged(bool success);			// after the new folder is added
+	void SignalMayLoadNewItems();					// when there was a new album selected in tree view
 	void SignalAlbumChanged();					// add the new album to tree view as well
 	void SignalImageViewerAdded(bool enableclosebutton);
 protected:
@@ -354,6 +362,7 @@ public slots:
 	void SlotThumbnailSizeChanged(int thumbSize);
 	void FindMissingImageOrVideo();		// maybe it was moved from its position
 	void SlotToRemoveAllViewers();
+//	void SlotToClearIconList();
 
 private slots:
     void loadThumbsRange();

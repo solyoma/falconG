@@ -147,23 +147,6 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 }
 
 /*============================================================================
-* TASK:	   redraw tree
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void AlbumTreeModel::ModelChanged()
-{
-	beginResetModel(); 
-	endResetModel();
-}
-
-//void AlbumTreeModel::MoveToItemWithID(ID_t id)
-//{
-//	; // TODO
-//}
-
-/*============================================================================
   * TASK:	return property flags for index
   * EXPECTS:
   * RETURNS:

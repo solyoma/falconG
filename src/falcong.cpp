@@ -190,7 +190,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
 
-	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_AlbumStructureSelectionChanged);
+	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
 
@@ -208,6 +208,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructWillChange,	this, &FalconG::_SlotAlbumStructWillChange);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalMayLoadNewItems,	this, &FalconG::_SlotLoadItemsToListView);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumChanged,		this, &FalconG::_SlotAlbumChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_SlotThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
@@ -216,6 +217,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEanbleCloseAllViewers);
 
 	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToRemoveAllViewers);
+//	connect(this, &FalconG::SignalToClearIconList, ui.tnvImages, &ThumbnailView::SlotToClearIconList);
 
 	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::SlotThumbnailSizeChanged);
 
@@ -389,11 +391,14 @@ void FalconG::on_btnSourceHistory_clicked()
 	hist.exec();
 	PROGRAM_CONFIG::maxSavedConfigs = hist.MaxSize();
 
+	AlbumTreeModel* pmodel = ((AlbumTreeModel*)ui.trvAlbums->model());
+	pmodel->BeginResetModel();
+
 	if (SourceHistory::Changed() || (SourceHistory::Selected() >= 0 &&
 		SourceHistory::Selected() != PROGRAM_CONFIG::indexOfLastUsed) )
 	{
 		albumgen.Clear();	
-		((AlbumTreeModel*)ui.trvAlbums->model())->ModelChanged();
+		
 		ui.tnvImages->Clear();
 
 		if (SourceHistory::Selected() >= 0)
@@ -420,6 +425,7 @@ void FalconG::on_btnSourceHistory_clicked()
 		if (SourceHistory::Changed())
 			PROGRAM_CONFIG::Write();
 	}
+	pmodel->EndResetModel();
 	_EnableButtons();
 }
 
@@ -1341,7 +1347,7 @@ void FalconG::_ReadLastAlbumStructure()
 			Album *root = albumgen.AlbumForID(ROOT_ALBUM_ID);
 			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
 
-			_AlbumStructureSelectionChanged(QItemSelection(), QItemSelection());
+			_SlotAlbumStructSelectionChanged(QItemSelection(), QItemSelection());
 			_TnvCountChanged();			// show in lblTotalCount (page: Edit)
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
 		}
@@ -1429,6 +1435,8 @@ void FalconG::on_btnAlbumMatteColor_clicked()
 		config.albumMatteColor = qcNew.name();
 		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.Name());
 		_SetConfigChanged(true);
+///		emit SignalToClearIconList();
+
 	}
 }
 
@@ -1832,6 +1840,7 @@ void FalconG::on_btnImageMatteColor_clicked()
 		config.imageMatteColor = qcNew.name();
 		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name());
 		_SetConfigChanged(true);
+//		emit SignalToClearIconList();
 	}
 }
 
@@ -4414,33 +4423,52 @@ void FalconG::_WebPageLoaded(bool ready)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::_AlbumStructureSelectionChanged(const QItemSelection &current, const QItemSelection &previous)
+void FalconG::_SlotAlbumStructSelectionChanged(const QItemSelection &current, const QItemSelection &previous)
 {
 	_SaveChangedTexts();
+	_current = current;
+
+	int n = _current.indexes().size();
+	if (n == 1)
+	{
+
+		ui.tnvImages->abort();		// will stop it if it was running
+
+		_bNewTreeViewSelection = true;
+		if (ui.tnvImages->IsFinished())
+			_SlotLoadItemsToListView();		// can display it now
+	}
+	_selection.selectedAlbum = 0;	// nothing/multiple albums selected
+}
+
+void FalconG::_SlotLoadItemsToListView()
+{
+	if (!_bNewTreeViewSelection)
+		return;
+
+	_bNewTreeViewSelection = false;
 
 	ui.tnvImages->Clear();
 
-	int n = current.indexes().size();
+	int n = _current.indexes().size();
 	if (n == 1)		 // single selection and valid
 	{
 		// collect its images into list
-//		ui.tnvImages->thumbsDir = (config.dsGallery + config.dsGRoot + config.dsImageDir).ToString();
-		_currentTreeViewIndex = current.indexes()[0];
+		_currentTreeViewIndex = _current.indexes()[0];
 		ID_t id = ID_t(_currentTreeViewIndex.internalPointer());	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
 		_selection.selectedAlbum = id;	// only single selection is used
-								    // before the image list is read
+									// before the image list is read
 	}
 	else
 		_selection.selectedAlbum = 0;	// nothing/multiple albums selected
 
-
 	ui.tnvImages->Load();
 	ui.tnvImages->clearSelection();	// no selection
 	_selection.selectedImage = 0;
-
 }
+
 /*========================================================
  * TASK:	when scheme is changed but not yet applied asks
  *				for apply

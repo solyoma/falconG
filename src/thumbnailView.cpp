@@ -69,7 +69,7 @@ QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
 		return QIcon();
 
 	if (pos >= _iconList.size())
-        Insert(-1, flags.testFlag(fiFolder), imageName);
+        Insert(-1, flags.testFlag(fiFolder), imageName);    // -1: push back
 
     // pos-th item MUST exist
     Q_ASSERT(pos < _iconOrder.size());
@@ -1045,7 +1045,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailView::abort()
 {
-    _isAbortThumbsLoading = true;
+    _doAbortThumbsLoading = true;
 }
 
 /*=============================================================
@@ -1069,7 +1069,7 @@ void ThumbnailView::loadVisibleThumbs(int scrollBarValue)
     for (;;) {
         int firstVisible = _GetFirstVisibleThumb();
         int lastVisible  = _GetLastVisibleThumb();
-        if (_isAbortThumbsLoading || firstVisible < 0 || lastVisible < 0) {
+        if (_doAbortThumbsLoading || firstVisible < 0 || lastVisible < 0) {
             goto FINISHED;
         }
 
@@ -1098,13 +1098,13 @@ void ThumbnailView::loadVisibleThumbs(int scrollBarValue)
         _thumbsRangeLast = lastVisible;
 
         loadThumbsRange();
-        if (_isAbortThumbsLoading) 
+        if (_doAbortThumbsLoading) 
             break;
         
     }
   FINISHED:
 #endif
-	emit SignalInProcessing(false);
+//	emit SignalInProcessing(false);
 }
 
 int ThumbnailView::_GetFirstVisibleThumb() 
@@ -1159,11 +1159,13 @@ void ThumbnailView::Load()
 
 void ThumbnailView::Reload()
 {
-    _isAbortThumbsLoading = false;
+    _doAbortThumbsLoading = false;
+    _isProcessing = true;
     _thumbsRangeFirst = -1;
     _thumbsRangeLast = -1;
 
     _isBusy = true;
+    emit SignalInProcessing(true);
     _thumbnailViewModel->Clear(); // clearing occurs between 'beginResetModel()' and 'endResetModel()'
 //    fileIcons.Clear();
 
@@ -1175,8 +1177,15 @@ void ThumbnailView::Reload()
     //}
 
     _InitThumbs();
-    _UpdateThumbsCount();
-    loadVisibleThumbs(0);
+    if (_isProcessing)
+    {
+        _UpdateThumbsCount();
+        loadVisibleThumbs(0);
+        _isProcessing = false;
+    }
+
+    emit SignalInProcessing(false);
+    emit SignalMayLoadNewItems();
     _isBusy = false;
 }
 
@@ -1225,8 +1234,11 @@ void ThumbnailView::_InitThumbs()
 	int thumbsAddedCounter = 1;
     Album &album = albumgen.Albums()[_albumId];
 
+    // DEBUG
+    qDebug("Entered _InitThumb");
     // Add images
-	for (fileIndex = 0; fileIndex < album.items.size(); ++fileIndex)
+    _thumbnailViewModel->BeginResetModel();
+	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < album.items.size(); ++fileIndex)
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
 		_thumbnailViewModel->appendRow(thumbItem);
@@ -1237,9 +1249,15 @@ void ThumbnailView::_InitThumbs()
 			QApplication::processEvents();
 		}
 	}
-
-	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
-		selectThumbByItem(0);
+    _thumbnailViewModel->EndResetModel();
+    if (_doAbortThumbsLoading)
+    {
+        _isProcessing = _doAbortThumbsLoading = false;  // aborted
+        emit SignalMayLoadNewItems();
+    }
+    else
+    	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
+	    	selectThumbByItem(0);
 }
 
 /*=============================================================
@@ -1362,7 +1380,7 @@ void ThumbnailView::loadThumbsRange()
 
     if (isInProgress) 
 	{
-        _isAbortThumbsLoading = true;
+        _doAbortThumbsLoading = true;
         QTimer::singleShot(0, this, SLOT(loadThumbsRange()));
         return;
     }
@@ -1375,7 +1393,7 @@ void ThumbnailView::loadThumbsRange()
          _scrolledForward ? ++currThumb : --currThumb) 
 	{
 
-        if (_isAbortThumbsLoading || _thumbnailViewModel->rowCount() != _currentItemCount || currThumb < 0)
+        if (_doAbortThumbsLoading || _thumbnailViewModel->rowCount() != _currentItemCount || currThumb < 0)
             break;
 
         if (_thumbnailViewModel->item(currThumb)->data(LoadedRole).toBool())
@@ -1413,7 +1431,7 @@ void ThumbnailView::loadThumbsRange()
     }
 
     isInProgress = false;
-    _isAbortThumbsLoading = false;
+    _doAbortThumbsLoading = false;
 }
 
 /*=============================================================
@@ -2163,7 +2181,7 @@ void ThumbnailView::FindMissingImageOrVideo()
         QString n, p;
         if(!__namesMatch(foundName, p, n))
         {
-            if (QMessageBox::question(this, tr("falconG - Warning"), tr("File names do not match.\Do you accept the new name?")) == QMessageBox::No)
+            if (QMessageBox::question(this, tr("falconG - Warning"), tr("File names do not match.\nDo you accept the new name?")) == QMessageBox::No)
                 return;
             pItem->name = n;    // new name accepted
         }
@@ -2177,7 +2195,7 @@ void ThumbnailView::FindMissingImageOrVideo()
         // check all missing files against all search paths collected so far
         for (auto id1 : album.items)
         {
-            pItem = albumgen.IdToItem(id);
+            pItem = albumgen.IdToItem(id1);
             if (!QFile::exists(pItem->FullSourceName()))
             {
                 int j = __pathindex();
@@ -2196,6 +2214,11 @@ void ThumbnailView::SlotToRemoveAllViewers()
 {
     _RemoveAllViewers();
 }
+
+//void ThumbnailView::SlotToClearIconList()
+//{
+//    fileIcons.Clear();
+//}
 
 void ThumbnailView::setNeedToScroll(bool needToScroll) 
 {

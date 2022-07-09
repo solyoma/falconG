@@ -90,6 +90,7 @@ signals:
 	void CancelRun();
 	void SignalThumbSizeChanged(int newSize);
 	void SignalToCloseAllViewers();
+	//void SignalToClearIconList();
 private:
 
 	Ui::falconGClass ui;
@@ -107,7 +108,9 @@ private:
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
+	QItemSelection _current;
 	QModelIndex _currentTreeViewIndex;
+	bool _bNewTreeViewSelection = true;	// when true _current contains single actual selection
 
 	bool _isWebPageLoaded = false;
 	int _phase = 0;			// processing phase. set by 'SetProgressBar()'
@@ -192,13 +195,14 @@ private slots:
 	void _LinkClicked(QString s);		// from sample page
 	void _WebPageLoaded(bool ready);
 
-	void _AlbumStructureSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
+	void _SlotAlbumStructSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
 	void _SlotSetProgressBar(int min, int max, int pos, int phase);
 	void _SlotSetProgressBarPos(int cnt1, int cnt2);
 	void _SlotSetupLanguagesToUI();
 	void _SlotEnableEditTab(bool on);
 
 	void _SlotAlbumStructChanged(bool yesitdid);
+	void _SlotLoadItemsToListView();	// uses _currentTreeViewIndex set in _SlotAlbumStructChanged
 	void _SlotAlbumStructWillChange();
 	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
 	void _SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed);
