@@ -3837,7 +3837,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 
 	if (sImagePath.isEmpty())		// otherwise name for image and thumbnail already set
 	{
-		sImagePath = (pImage->ID & ID_MASK ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName() : pImage->name);
+		sImagePath = (pImage->ID & ID_MASK ? sImageDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName(config.bLowerCaseImageExtensions) : pImage->name);
 		sThumbnailPath = (pImage->ID & ID_MASK? sThumbnailDir : sOneDirUp + "res/") + (pImage->Valid() ? pImage->LinkName(config.bLowerCaseImageExtensions) : pImage->name);
 	}
 
