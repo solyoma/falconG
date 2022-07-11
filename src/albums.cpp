@@ -3698,7 +3698,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 
 	_ofs << R"X(
     <div id="lightbox" class="lightbox">
-	  <div id="lb-flex">
+	  <div id="lb-flex" onclick="LightBoxFadeOut()">
 		<img id="lightbox-img" onclick="LightBoxFadeOut()">
 		<p id="lightbox-caption" class="lightbox-caption"></p>
 	  </div>
