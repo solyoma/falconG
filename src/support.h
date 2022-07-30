@@ -24,9 +24,9 @@ const QString versionStr = "# falconG Gallery Structure file ";
 //           1.1 - full text ID is saved after and '*' Calculated if missing
 //           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
 
-constexpr int majorStructVersion = 1,		// V 1.2.1
+constexpr int majorStructVersion = 1,		// V 1.2.2 version string
 			  minorStructVersion = 2,
-			  subStructVersion   = 1;	
+			  subStructVersion   = 2;	
 
 enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
 

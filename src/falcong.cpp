@@ -169,6 +169,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
 	ui.setupUi(this);
+	ui.lblVersion->setText(QString(tr("falconG Version - %1.%2.%3")).arg(majorStructVersion).arg(minorStructVersion).arg(subStructVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
 
 #if defined Q_OS_WINDOWS
