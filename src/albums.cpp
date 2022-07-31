@@ -5121,11 +5121,10 @@ void AlbumGenerator::_RemoveAllItems(ID_t albumID, bool fromDisk)
  * RETURNS:
  * REMARKS:	- if any item to be deleted is a folder all files inside
  *			  it will be deleted, even if they were not in the data base
- *			- tries to move files into trashcan^recycle bin first
+ *			- tries to move files into trashcan/recycle bin first
  *------------------------------------------------------------*/
 void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
 {
-	
 	Album& album = _albumMap[albumID];
 	QString path;
 	for (auto ix : ilx)
@@ -5158,13 +5157,13 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk)
+void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
 {
 	if (fromDisk)
 		if(QMessageBox::question(frmMain, tr("FalconG - Warning"), tr("If a folder is removed all the files and folders inside it will be deleted too!\n\nThis cannot be undone!\n\nReally delete the selected items from disk?")) != QMessageBox::Yes) 
 			return;
 	emit SignalAlbumStructWillChange();
-	_RemoveItems(albumID, true, ilx, fromDisk);	// also from icon list for this album
-	emit SignalAlbumStructChanged(false);
+	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);	// also from icon list for this album
+	emit SignalAlbumStructChanged(true);						// album structure changed and not yet saved
 
 }

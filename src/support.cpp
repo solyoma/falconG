@@ -1,3 +1,4 @@
+#include <QObject>
 #include <QtWidgets>
 #include <QtDebug>
 #include <QImageReader>
@@ -92,6 +93,36 @@ int QuestionDialog(QString title, QString text, int show, QWidget* parent, QStri
 	if (checkBox && question.checkBox()->isChecked())
 		config.doNotShowTheseDialogs.v |= (1 << show);
 
+	return res;
+}
+
+int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
+{
+	QString plurali = QObject::tr("images"), plurala = QObject::tr("albums");   // plural for image and album. May differ in other languages
+	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
+		.arg(list.size() > 1 ? plurali : QObject::tr("image"))
+		.arg(list.size() > 1 ? plurala : QObject::tr("album"));
+	QMessageBox msg;
+	msg.setWindowTitle(QObject::tr("falconG - Question"));
+	msg.setText(qs);
+	msg.addButton(QObject::tr("Just remove"), QMessageBox::NoRole);               // 0
+	msg.addButton(QObject::tr("From disk"), QMessageBox::YesRole);                // 1
+	QPushButton *pbCancel = msg.addButton(QObject::tr("Cancel"), QMessageBox::RejectRole);                // 2
+	msg.setDefaultButton(pbCancel);
+	msg.setIcon(QMessageBox::Question);
+	int res = msg.exec();
+
+	if (res == 2)                   // Cancel
+		return res;
+
+	extern FalconG* frmMain;
+	if (res == 1)    // delete from disk too
+	{
+		if (QMessageBox::question((QWidget*)frmMain, QObject::tr("falconG - Question"),
+			QObject::QObject::tr("This will delete all selected images and folders from disk.\n\n"
+				"Are you >>really<< sure you want to do this?")) != QMessageBox::Yes)
+			return 2;
+	}
 	return res;
 }
 

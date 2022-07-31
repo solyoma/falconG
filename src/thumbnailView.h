@@ -348,6 +348,7 @@ public slots:
     void loadVisibleThumbs(int scrollBarValue = 0);
     void onSelectionChanged(const QItemSelection &selection);
     void invertSelection();
+	void DeleteSelectedList(ID_t albumId, IntList &list, bool iconsForThisAlbum);
 	void DeleteSelected();
 	void SynchronizeTexts();
 	void UndoDelete();

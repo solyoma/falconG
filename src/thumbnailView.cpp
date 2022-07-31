@@ -101,7 +101,7 @@ MarkedIcon * FileIcons::Insert(int pos, bool isFolder, QString imageName)
 	_iconList.push_back(icon);
     return &_iconList[_iconList.size() - 1];
 }
-void FileIcons::Remove(int pos)    // remove items _iconOrder[pos]
+void FileIcons::Remove(int pos)    // remove item _iconOrder[pos]
 {
     if (pos < 0 || pos > _iconList.size())
         return;
@@ -1165,8 +1165,8 @@ void ThumbnailView::Reload()
     _thumbsRangeLast = -1;
 
     _isBusy = true;
-    emit SignalInProcessing(true);
     _thumbnailViewModel->Clear(); // clearing occurs between 'beginResetModel()' and 'endResetModel()'
+    emit SignalInProcessing(true);
 //    fileIcons.Clear();
 
     setSpacing(QFontMetrics(font()).height());
@@ -1235,7 +1235,7 @@ void ThumbnailView::_InitThumbs()
     Album &album = albumgen.Albums()[_albumId];
 
     // DEBUG
-    qDebug("Entered _InitThumb");
+    //qDebug("Entered _InitThumb");
     // Add images
     _thumbnailViewModel->BeginResetModel();
 	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < album.items.size(); ++fileIndex)
@@ -1697,6 +1697,35 @@ void ThumbnailView::invertSelection()
 }
 
 /*=============================================================
+ * TASK: Delete images in list from image list of actual album
+ *		 into undo buffer
+ * EXPECTS: albumId - id of album whose child/children are to be removed
+ *          list    - list of IDs to remove from album's items
+ *          iconsForThisAlbum - should we remove the icon(s) too<
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: does not delete generated images, videos and albums 
+ *          from disk!
+ *          Tries use the recycle bin (windows) or the trash (mac)
+ *------------------------------------------------------------*/
+void ThumbnailView::DeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum)
+{
+    QString s;
+
+    int res = DeleteOrRemoveConfirmationDialog(list, this);
+    if (res == 2)
+        return;
+
+    bool fromDisk = res == 1;       //  Yes
+            // needs reverse order   (?)
+
+    albumgen.RemoveItems(albumId, list, fromDisk, iconsForThisAlbum);  // also remove cached file icons
+    _albumId = albumId;
+    Reload();
+    //    emit selectionChanged(QItemSelection(), QItemSelection());
+}
+
+/*=============================================================
  * TASK: Delete selected images from image list of actual album
  *		 into undo buffer
  * EXPECTS:
@@ -1712,45 +1741,11 @@ void ThumbnailView::DeleteSelected()
 	QModelIndexList list = selectionModel()->selectedIndexes();
     if (list.isEmpty())
         return;
-	QString s;
-
-    QString plurali = tr("images"), plurala = tr("albums");   // plural for image and album. May differ in other languages
-    QString qs = tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
-                                    .arg(list.size() > 1 ? plurali :tr("image"))
-                                    .arg(list.size() > 1 ? plurala : tr("album"));
-    QMessageBox msg;
-    msg.setWindowTitle(tr("falconG - Question"));
-    msg.setText(qs);
-    msg.addButton(tr("Just remove"),QMessageBox::NoRole);               // 0
-    msg.addButton(tr("From disk"),QMessageBox::YesRole);                // 1
-    msg.addButton(tr("Cancel"),QMessageBox::RejectRole);                // 2
-    msg.setDefaultButton(QMessageBox::Cancel);
-    msg.setIcon(QMessageBox::Question);
-    int res = msg.exec();
-
-    if (res == 2)                   // Cancel
-        return;
-
-    extern FalconG* frmMain;
-    if (res == 1)    // delete from disk too
-    {
-        if (QMessageBox::question((QWidget *)frmMain, tr("falconG - Question"),
-            tr("This will delete all selected images and folders from disk.\n\n"
-                "Are you >>really<< sure you want to do this?")) != QMessageBox::Yes)
-            return;
-    }
-
-    bool fromDisk = res == 1;       //  Yes
-            // needs reverse order   (?)
-
     IntList ilx(list.size());
-    for (int i= list.size()-1; i>= 0; --i)
+    for (int i = list.size() - 1; i >= 0; --i)
         ilx[i] = list[i].row();
 
-    albumgen.RemoveItems(_albumId, ilx, fromDisk);  // also remove cached file icons
-
-    Reload();
-//    emit selectionChanged(QItemSelection(), QItemSelection());
+    DeleteSelectedList(_albumId, ilx, true);
 }
 
 /*=============================================================

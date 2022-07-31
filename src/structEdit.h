@@ -1,5 +1,7 @@
 #pragma once
-
+#include <QObject>
+#include <QtWidgets>
+#include <QTreeView>
 #include <QAbstractItemModel>
 
 /*============================================================================
@@ -56,5 +58,31 @@ public:
 		const QModelIndex &parent = QModelIndex()) override;
 	bool removeRows(int position, int rows,
 		const QModelIndex &parent = QModelIndex()) override;
+
+};
+
+class ThumbnailView;					  // in thumbnailView.h for connecting there
+#ifndef ID_T_DEFINED
+	using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
+	using IntList = QVector<int>;
+#endif
+
+class AlbumTreeView : public QTreeView
+{
+	Q_OBJECT
+
+		ThumbnailView* ptnv = nullptr;
+public:
+	AlbumTreeView(QWidget* parent = nullptr);
+	void SetTnv(ThumbnailView* p) { ptnv = p; }
+
+signals:
+	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
+
+public slots:
+	void DeleteSelectedAlbum();
+
+protected:
+	void contextMenuEvent(QContextMenuEvent* pevent);
 
 };

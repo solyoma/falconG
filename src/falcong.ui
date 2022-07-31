@@ -6283,7 +6283,7 @@ the last CSS save.</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QTreeView" name="trvAlbums">
+                   <widget class="AlbumTreeView" name="trvAlbums">
                     <property name="editTriggers">
                      <set>QAbstractItemView::NoEditTriggers</set>
                     </property>
@@ -7656,6 +7656,11 @@ p, li { white-space: pre-wrap; }
    <class>TextEditor</class>
    <extends>QTextEdit</extends>
    <header location="global">textEditor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AlbumTreeView</class>
+   <extends>QTreeView</extends>
+   <header location="global">structEdit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

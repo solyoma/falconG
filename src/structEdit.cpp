@@ -8,11 +8,14 @@
 #include <QMessageBox>
 #include <QListView>
 #include <QTextStream>
+#include <QMenu>
+#include <QTreeView>
 
 #include "support.h"
 #include "config.h"
 #include "albums.h"
 #include "structEdit.h"
+#include "thumbnailView.h"
 
 
 // class 	 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -30,10 +33,13 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 	if (_busy) 
 		return 0;
 	AlbumMap &map = albumgen.Albums();
-	if (!parent.isValid())		   // root element: it has at 2 items, only one matters
+	if (!parent.isValid())		   // root element: it has 2 items, only one matters
 		return	1; 
 	
 	ID_t id = (ID_t)(parent.internalPointer());
+	// DEBUG
+	if (!map.contains(id))
+		return 0;
 	return map[id].SubAlbumCount();
 }
 
@@ -246,3 +252,65 @@ bool AlbumTreeModel::removeRows(int position, int rows, const QModelIndex & pare
 {
 	return false;
 }
+
+
+// ************ AlbumTreeView *****************
+
+AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
+{
+
+}
+/*=============================================================
+ * TASK:  slot to delete seletced directory recursively
+ * PARAMS: none
+ * GLOBALS: albumgen
+ * RETURNS: none
+ * REMARKS: Because there are only albums in the tree view we 
+ *			must determine the correct index as the parent may
+ *			have images and videos beside the albums
+ *			- at the moment only a single album can be deleted
+ *------------------------------------------------------------*/
+void AlbumTreeView::DeleteSelectedAlbum()
+{
+	QModelIndexList list = selectionModel()->selectedIndexes();
+	ID_t albumId = (ID_t)list[0].internalPointer();
+	ID_t parentID = albumgen.Albums()[albumId].parent;
+	Album album = albumgen.Albums()[parentID];		
+	IntList ilx;
+	IdList& idList = album.items;
+	for (int i = 0; i < idList.size(); ++i)
+		if (idList[i] == albumId)
+			ilx.push_back(i);
+	emit SignalDeleteSelectedList(parentID, ilx, false);
+}
+
+void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
+{
+	QMenu menu(this);
+	QAction* pact;
+	int nSelSize = selectionModel()->selectedIndexes().size();
+
+	if (nSelSize == 0)
+	{
+		return;
+	}
+	else
+	{
+		pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
+		pact->setEnabled(true);
+		connect(pact, &QAction::triggered, ptnv, &ThumbnailView::AddImages);
+		menu.addAction(pact);
+
+		pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
+		connect(pact, &QAction::triggered, ptnv, &ThumbnailView::AddFolder);
+		menu.addAction(pact);
+
+		menu.addSeparator();
+		pact = new QAction(tr("&Remove"), this);
+		connect(pact, &QAction::triggered, this, &AlbumTreeView::DeleteSelectedAlbum);
+		menu.addAction(pact);
+
+	}
+	menu.exec(pevent->globalPos());
+}
+

@@ -371,7 +371,7 @@ public:
 	void RecursivelyAddAlbums(ID_t albumId);
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 
-	void RemoveItems(ID_t albumID, IntList ilx, bool fromdisk);
+	void RemoveItems(ID_t albumID, IntList ilx, bool fromdisk, bool iconsForThisAlbum = true);
 
 	void AddThumbnailBeforeImageRead(ID_t id)
 	{

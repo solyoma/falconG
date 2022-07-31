@@ -190,10 +190,10 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
+	ui.trvAlbums->SetTnv(ui.tnvImages);
 
+	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::DeleteSelectedList);
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection, this, &FalconG::_TnvSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection, this, &FalconG::_TnvMultipleSelection);
 
 	// connect with albumgen's 
 	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
@@ -207,6 +207,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_SlotCreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
+	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_TnvSelectionChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection,	this, &FalconG::_TnvMultipleSelection);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructWillChange,	this, &FalconG::_SlotAlbumStructWillChange);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalMayLoadNewItems,	this, &FalconG::_SlotLoadItemsToListView);
