@@ -777,7 +777,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_15">
+           <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,1,1,0">
             <item>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
@@ -993,6 +993,136 @@ for two languages, English and Hungarian).
              </widget>
             </item>
             <item>
+             <widget class="QGroupBox" name="grpFontsOnPage">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>100</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title">
+               <string>Fonts on Page</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_24">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_67">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Google Fonts</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="edtGoogleFonts">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) enclose it into quotes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>comma separated font names on Google</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QToolButton" name="btnGoToGoogleFontsPage">
+                 <property name="toolTip">
+                  <string>Opens the Google fonts WEB page</string>
+                 </property>
+                 <property name="text">
+                  <string>F</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_44">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Fonts Directory</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtFontDir</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" colspan="2">
+                <widget class="QLineEdit" name="edtFontDir">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Directory/directories for all special fonts. 
+Can be a WEB address too. 
+Will be put in stylesa.css</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>fonts</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_46">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Default fonts</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtDefaultFonts</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1" colspan="2">
+                <widget class="QLineEdit" name="edtDefaultFonts">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>Font name separated by commas. If a name contains
+spaces, put it into double quotes. No need to quote
+other names.
+Defaults:
+Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Georgia,serif</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>(names separated by commas)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QGroupBox" name="gbAdvanced">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1003,7 +1133,7 @@ for two languages, English and Hungarian).
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>210</height>
+                <height>0</height>
                </size>
               </property>
               <property name="font">
@@ -1017,6 +1147,40 @@ for two languages, English and Hungarian).
                <string>Advanced (you may leave these alone)</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_17">
+               <item row="0" column="3">
+                <widget class="QLineEdit" name="edtThumb">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>thumbs</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QLabel" name="label_45">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Base link name</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtBaseName</cstring>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_56">
                  <property name="minimumSize">
@@ -1037,23 +1201,6 @@ for two languages, English and Hungarian).
                  </property>
                  <property name="buddy">
                   <cstring>edtThumb</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="edtImg">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>imgs</string>
                  </property>
                 </widget>
                </item>
@@ -1079,67 +1226,6 @@ for two languages, English and Hungarian).
                   <cstring>edtThumb</cstring>
                  </property>
                 </widget>
-               </item>
-               <item row="0" column="3">
-                <widget class="QLineEdit" name="edtThumb">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>thumbs</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_8">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Video Directory</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="edtVid">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>vids</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2" colspan="2">
-                <spacer name="horizontalSpacer_15">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>87</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="label_22">
@@ -1175,22 +1261,18 @@ for two languages, English and Hungarian).
                  </property>
                 </widget>
                </item>
-               <item row="2" column="2">
-                <widget class="QLabel" name="label_45">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
+               <item row="1" column="2" colspan="2">
+                <spacer name="horizontalSpacer_15">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="text">
-                  <string>Base link name</string>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>87</width>
+                   <height>20</height>
+                  </size>
                  </property>
-                 <property name="buddy">
-                  <cstring>edtBaseName</cstring>
-                 </property>
-                </widget>
+                </spacer>
                </item>
                <item row="2" column="3">
                 <widget class="QLineEdit" name="edtBaseName">
@@ -1209,8 +1291,8 @@ for two languages, English and Hungarian).
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_67">
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_8">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -1219,89 +1301,12 @@ for two languages, English and Hungarian).
                   </font>
                  </property>
                  <property name="text">
-                  <string>Google Fonts</string>
+                  <string>Video Directory</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1" colspan="3">
-                <widget class="QWidget" name="widget_9" native="true">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>28</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_4">
-                  <property name="spacing">
-                   <number>2</number>
-                  </property>
-                  <property name="leftMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>2</number>
-                  </property>
-                  <item>
-                   <widget class="QLineEdit" name="edtGoogleFonts">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) enclose it into quotes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="placeholderText">
-                     <string>comma separated font names on Google</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QToolButton" name="btnGoToGoogleFontsPage">
-                    <property name="toolTip">
-                     <string>Opens the Google fonts WEB page</string>
-                    </property>
-                    <property name="text">
-                     <string>F</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_44">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Fonts Directory</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtFontDir</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1" colspan="3">
-                <widget class="QLineEdit" name="edtFontDir">
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="edtImg">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -1310,34 +1315,15 @@ for two languages, English and Hungarian).
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Directory/directories for all special fonts. 
-Can be a WEB address too. 
-Will be put in stylesa.css</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
-                  <string>fonts</string>
+                  <string>imgs</string>
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_46">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Default fonts</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtDefaultFonts</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1" colspan="3">
-                <widget class="QLineEdit" name="edtDefaultFonts">
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="edtVid">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -1346,14 +1332,10 @@ Will be put in stylesa.css</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Font name separated by commas. If a name contains
-spaces, put it into double quotes. No need to quote
-other names.
-Defaults:
-Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Georgia,serif</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
-                  <string>(names separated by commas)</string>
+                  <string>vids</string>
                  </property>
                 </widget>
                </item>
@@ -2253,7 +2235,7 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>392</width>
+                         <width>385</width>
                          <height>616</height>
                         </rect>
                        </property>
@@ -5327,8 +5309,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7561,7 +7543,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="text">
-          <string>falconG - Version 1.2.1</string>
+          <string>falconG - Version 1.2.3</string>
          </property>
         </widget>
        </item>
@@ -7702,10 +7684,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>edtVid</tabstop>
   <tabstop>edtAlbumDir</tabstop>
   <tabstop>edtBaseName</tabstop>
-  <tabstop>edtGoogleFonts</tabstop>
-  <tabstop>btnGoToGoogleFontsPage</tabstop>
-  <tabstop>edtFontDir</tabstop>
-  <tabstop>edtDefaultFonts</tabstop>
   <tabstop>chkReadFromGallery</tabstop>
   <tabstop>chkReadJAlbum</tabstop>
   <tabstop>chkOvrImages</tabstop>

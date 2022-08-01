@@ -3608,9 +3608,14 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 {
 	QString updir = (album.ID == ROOT_ALBUM_ID) ? "" : "../";
 
-	auto outputMenuButton = [&](QString id, QString href, QString text, QString hint=QString())
+	auto outputMenuButton = [&](QString id, QString href, QString text, QString onClick=QString(), QString hint=QString())
 	{
-		_ofs << "    <a class = \"menu-item\" id=\"" << id << "\" href=\"" << href << "\">" << text <<"</a>\n";
+		QString s = (onClick.isEmpty() ? QString("") : QString(" onclick=\"%1\"").arg(onClick)) +
+					(hint.isEmpty() ? QString("") : QString("alt= \"hint\"%1\""));
+
+		s = QString("    <a class = \"menu-item\" id=\"%1\" href=\"%2\"%3>%4</a>\n").arg(id).arg(href).arg(s).arg(text);
+
+		_ofs << s;
 	};
 
 	QString qsParent = album.parent > RECENT_ALBUM_ID ? _albumMap[album.parent].BareName() : config.sMainPage.ToString();
@@ -3634,12 +3639,12 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 	if (config.bMenuToContact)
 		outputMenuButton("contact", "mailto:" + config.sMailTo, (*languages["toContact"])[_actLanguage]);
 	if (config.bMenuToDescriptions && album.DescCount() > 0)
-		_ofs << "	<a class = \"menu-item\" id=\"descriptions\" href=\"#\" onclick=\"javascript:ShowHide()\">" << (*languages["showDescriptions"])[_actLanguage] << "</a>\n";
+		outputMenuButton("descriptions","#",(*languages["showDescriptions"])[_actLanguage], "javascript:ShowHide()");
 	if (config.bMenuToToggleCaptions && (album.TitleCount() > 0 || album.ImageCount() > 0) && !(*languages["coupleCaptions"])[_actLanguage].isEmpty())
-		_ofs << "	<a class = \"menu-item\" id=\"captions\" href=\"#\" onclick=\"javascript:ShowHide()\">" << (*languages["coupleCaptions"])[_actLanguage] << "</a>\n";
+		outputMenuButton("captionss","#",(*languages["coupleCaptions"])[_actLanguage], "javascript:ShowHide()");
 	if (album.SubAlbumCount() > 0  && album.ImageCount() > 0 &&  !(*languages["toAlbums"])[_actLanguage].isEmpty())	// when no images or no albums no need to jump to albums
 		outputMenuButton("toAlbums", "#albums", (*languages["toAlbums"])[_actLanguage]);								  // to albums
-	if (album.ID > RECENT_ALBUM_ID && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this caregory, do not add link
+	if (album.ID > RECENT_ALBUM_ID && config.bGenerateLatestUploads && _latestImages.list.size())	// if there are no images in this category, do not add link
 	{
 		QString qs = "latest";
 		if (languages.LanguageCount() > 1)
