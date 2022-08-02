@@ -28,7 +28,7 @@ const QString versionStr = "# falconG Gallery Structure file ";
 
 constexpr int majorStructVersion = 1,		// V 1.2.3 version string
 			  minorStructVersion = 2,
-			  subStructVersion   = 3;	
+			  subStructVersion   = 4;	
 
 enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
 
@@ -361,3 +361,5 @@ bool CopyOneFile(QString src, QString dest, bool overWrite = true);
 bool CreateDir(QString sdir); // recursive creation of directories, returns 0: error, 1: created, -1: cancelled
 bool RemoveFolderRecursively(QString name, bool tryToTrash=true);			// won't ask
 bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
+
+char* StringToCString(QString string);

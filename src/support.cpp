@@ -1555,3 +1555,10 @@ QIcon MarkedIcon::ToIcon()
 
 	return QIcon(tmppxmp);
 }
+
+char* StringToCString(QString string)
+{
+	static QByteArray ba;
+	ba = string.toLocal8Bit();
+	return ba.data();
+}

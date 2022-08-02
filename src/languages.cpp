@@ -75,7 +75,7 @@ int Languages::_Read(QString name)
 	while (!(line = reader.ReadLine()).isEmpty())
 	{
 		sl = line.split('=');
-		SetTextFor(sl[0].toLower(), (sl.size() < 2 ? "" : sl[1]), lang);
+		SetTextFor(sl[0], (sl.size() < 2 ? "" : sl[1]), lang);
 	}
 	return ++lang;
 }
@@ -106,21 +106,21 @@ int Languages::Read()
 
 	QDir dc = QDir::current();
 
-	dir.setCurrent(config.dsSrc.ToString());					// gallery source
+	dir.setPath(config.dsSrc.ToString());					// gallery source
 	list = dir.entryInfoList(nameList, QDir::Files);
 	if (!list.size())
 	{
-		dir.setCurrent(PROGRAM_CONFIG::homePath);				// user folder
+		dir.setPath(PROGRAM_CONFIG::homePath);				// user folder
 		list = dir.entryInfoList(nameList, QDir::Files);
-	}
-	if (!list.size())											// current (program) folder
-	{
-		// actual program directory
-		list = dc.entryInfoList(nameList, QDir::Files);
-		dir.setCurrent(dc.path());
+		if (!list.size())										// current (program) folder
+		{
+			// actual program directory
+			dir.setPath(dc.path());
+			list = dc.entryInfoList(nameList, QDir::Files);
+		}
 	}
 
-	if (list.size() == 0)	// no files: set single default language: English
+	if (!list.size())	// still no files: set single default language: English
 	{
 		if (QMessageBox(QMessageBox::Warning,
 			QMainWindow::tr("falconG - Warning"),

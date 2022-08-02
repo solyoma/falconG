@@ -79,6 +79,22 @@ QString IntToColorStr(int clr)
 //**************************************** falconG *******************************************
 
 
+static bool _CopyFile(QString srcDir, QString name, QString destDir)
+{
+	QFile f(srcDir + name);
+	QFileInfo fi(f);
+	if (!f.open(QIODevice::ReadOnly))
+		return false;
+	QByteArray ba = f.read(fi.size());
+	f.close();
+	f.setFileName(destDir + name);
+	if (f.open(QIODevice::WriteOnly))
+	{
+		if (f.write(ba) < 0)
+			return false;
+	}
+	return true;
+}
 
 /*========================================================
  * TASK:	copies file from resource to HD
@@ -105,28 +121,16 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 	}
 	destDir = PROGRAM_CONFIG::samplePath + destDir;
 
-	resPath += name;
 	if ( ! QFile::exists(destDir + name))
 	{
-		QFile f(resPath);
-		QFileInfo fi(f);
-		if (!f.open(QIODevice::ReadOnly))
-			goto ERR;
-		QByteArray ba = f.read(fi.size());
-		f.close();
-		f.setFileName(destDir + name);
-		if (f.open(QIODevice::WriteOnly) )
+		if (!_CopyFile(resPath, name, destDir))
 		{
-			if (f.write(ba) < 0)
-				goto ERR;
-			return true;
+			QString serr = QMainWindow::tr("Can't copy resource'%1' to folder '%2'\nPlease make sure the folder is writeable!\n\nExiting");
+			QMessageBox::critical(nullptr, "falconG", serr.arg(name).arg(destDir));
+			exit(1);
 		}
 	}
-	return true;	// not copied
-ERR:
-	QString serr = QMainWindow::tr("Can't copy resource'%1' to folder '%2'\nPlease make sure the folder is writeable!\n\nExiting");
-	QMessageBox::critical(nullptr, "falconG", serr.arg(name).arg(destDir));
-	exit(1);
+	return true;	// copied or already there
 }
 // ============================================================================================================
 /*============================================================================
@@ -165,6 +169,19 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_CopyResourceFileToSampleDir(resPPath, "NoImage.jpg");
 
 	_CopyResourceFileToSampleDir(resIPath, "up-icon.png");
+
+	// copy language files to user folder
+	{
+		QDir dir;
+		QFileInfoList list;
+		QStringList nameList; nameList << "*.lang";
+
+		dir = QDir::current();
+
+		list = dir.entryInfoList(nameList, QDir::Files);
+		for (int i = 0; i < list.size(); ++i)
+			_CopyFile(dir.path()+"/", list[i].fileName(), PROGRAM_CONFIG::homePath);
+	}
 
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
