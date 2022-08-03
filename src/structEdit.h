@@ -22,6 +22,8 @@ public:
 	AlbumTreeModel(QObject *parent = Q_NULLPTR) : QAbstractItemModel(parent) {}
 
 // these are for reading
+	const QString TextForIndex(const QModelIndex &mix) const;
+
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -75,6 +77,8 @@ class AlbumTreeView : public QTreeView
 public:
 	AlbumTreeView(QWidget* parent = nullptr);
 	void SetTnv(ThumbnailView* p) { ptnv = p; }
+	bool event(QEvent* event);
+//	void mouseMoveEvent(QMouseEvent* event);
 
 signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);

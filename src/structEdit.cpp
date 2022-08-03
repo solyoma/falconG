@@ -66,6 +66,27 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 	return createIndex(row, column, quintptr(id));
 }
 
+/*=============================================================
+ * TASK:	get full name of folder in tree
+ * PARAMS:	mix - model index for item with ID in the internal
+ *					pointer
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix) const
+{
+	ID_t id = (ID_t)mix.internalPointer();
+	Album& ab = albumgen.Albums()[id];
+	QString sChangedFlag = ab.changed ? "*" : "";
+	QString s = ab.name;
+	if (ab.changed)
+		s += "*";
+	if (id == ROOT_ALBUM_ID)
+		return "/ ( " + s + " )";
+	return s + " ( " + ab.BareName() + " )";  // no language or extension
+}
+
 /*============================================================================
 * TASK:		this tree model has only one column
 * EXPECTS:
@@ -88,19 +109,8 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 {
 	if (index.isValid())				// root id for tree element
 	{
-
 		if (!_busy && role == Qt::DisplayRole)
-		{
-			ID_t id = (ID_t)index.internalPointer();
-			Album& ab = albumgen.Albums()[id];
-			QString sChangedFlag = ab.changed ? "*" : "";
-			QString s = ab.name;
-			if (ab.changed)
-				s += "*";
-			if (id == ROOT_ALBUM_ID)
-				return "/ ( " + s + " )";
-			return s + " ( " + ab.BareName() + " )";  // no language or extension
-		}
+			return TextForIndex(index);
 	}
 	return QVariant();
 }
@@ -258,8 +268,44 @@ bool AlbumTreeModel::removeRows(int position, int rows, const QModelIndex & pare
 
 AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
 {
-
+	setRootIsDecorated(false);
 }
+/*=============================================================
+ * TASK:	tooltips for folder names
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+bool AlbumTreeView::event(QEvent* event)
+{
+	if (event->type() == QEvent::ToolTip)
+	{
+		QHelpEvent* phe = reinterpret_cast<QHelpEvent*>(event);
+		QModelIndex ix = indexAt(phe->pos());
+		if (ix.isValid())
+		{
+			AlbumTreeModel* pm = reinterpret_cast<AlbumTreeModel*>(model());
+			QToolTip::showText(phe->globalPos(), pm->TextForIndex(ix));
+		}
+		else
+			QToolTip::hideText();
+		return true;
+	}
+
+	QWidget::event(event);
+	return false;
+}
+
+//void AlbumTreeView::mouseMoveEvent(QMouseEvent* event)
+//{
+//	QModelIndex ix = indexAt(reinterpret_cast<QHelpEvent *>(event)->pos());
+//	AlbumTreeModel* pm = reinterpret_cast<AlbumTreeModel *>(model());
+//	setToolTip(pm->TextForIndex(ix));
+//	QHelpEvent he(QEvent::ToolTip, event->pos(), event->globalPos());
+//
+//}
+
 /*=============================================================
  * TASK:  slot to delete seletced directory recursively
  * PARAMS: none
