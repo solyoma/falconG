@@ -135,7 +135,7 @@
               </font>
              </property>
              <property name="placeholderText">
-              <string>( directory for the hierarchy descriptions 'gallery.struct' or a 'jalbum' source gallery )</string>
+              <string>Directory for the hierarchy descriptions 'gallery.struct' or a 'jalbum' source gallery</string>
              </property>
             </widget>
            </item>
@@ -180,7 +180,7 @@
               </font>
              </property>
              <property name="placeholderText">
-              <string>( any folder on your machine other the source folder or its subfolders)</string>
+              <string>Any folder on your machine other the source folder or its subfolders.</string>
              </property>
             </widget>
            </item>
@@ -301,7 +301,7 @@
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually 'public_html' in your home directory. This will be the directory of the top level Web page(s).  All of falconG's other files and directories will be inside this directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
-              <string>( path of gallery root  on your site,. default: empty)</string>
+              <string>Path of gallery root  on your site,. default: empty</string>
              </property>
             </widget>
            </item>
@@ -332,7 +332,7 @@
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All sub-galleries of the main gallery has an uplink button (&lt;span style=&quot; font-weight:600;&quot;&gt;up arrow&lt;/span&gt;) and a &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button. The &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button takes the user to the home page on the site. This field either contains the link to the home page or it is left empty. &lt;/p&gt;&lt;p&gt;If left empty then the top level &lt;span style=&quot; font-style:italic;&quot;&gt;Main gallery page &lt;/span&gt;is used. That defaults to &lt;span style=&quot; font-weight:600;&quot;&gt;index.html&lt;/span&gt;. (see the hint for that field for details.)&lt;/p&gt;&lt;p&gt;If you want to embed your gallery into another WEB page then set this as the address of that page.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
-              <string>(Empty (default) or the page to use when the Home menu is clicked.)</string>
+              <string>Empty (default) or the page to use when the Home menu is clicked.</string>
              </property>
             </widget>
            </item>
@@ -794,70 +794,7 @@
                <string>Latest Uploads Page</string>
               </property>
               <layout class="QGridLayout" name="gbLatestLayout">
-               <item row="0" column="2">
-                <widget class="QSpinBox" name="sbNewDays">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLabel" name="label_30">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Time period</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>sbNewDays</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="7">
-                <widget class="QCheckBox" name="chkFixedLatestThumbnail">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>If checked the album image will not be changed 
-every time you refresh the album page.</string>
-                 </property>
-                 <property name="text">
-                  <string>Fixed Thumbnail</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="3">
-                <widget class="QLabel" name="label_31">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>days</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="6">
+               <item row="0" column="0">
                 <widget class="QCheckBox" name="chkSetLatest">
                  <property name="font">
                   <font>
@@ -878,7 +815,7 @@ for two languages, English and Hungarian).
                  </property>
                 </widget>
                </item>
-               <item row="0" column="4">
+               <item row="0" column="5">
                 <widget class="QLabel" name="label_18">
                  <property name="font">
                   <font>
@@ -892,7 +829,7 @@ for two languages, English and Hungarian).
                  </property>
                 </widget>
                </item>
-               <item row="0" column="5">
+               <item row="0" column="6">
                 <widget class="QSpinBox" name="sbLatestCount">
                  <property name="font">
                   <font>
@@ -911,6 +848,82 @@ for two languages, English and Hungarian).
                   <number>10</number>
                  </property>
                 </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="label_30">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Time period</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>sbNewDays</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="4">
+                <widget class="QLabel" name="label_31">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>days</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="8">
+                <widget class="QCheckBox" name="chkFixedLatestThumbnail">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>If checked the album image will not be changed 
+every time you refresh the album page.</string>
+                 </property>
+                 <property name="text">
+                  <string>Fixed Thumbnail</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QSpinBox" name="sbNewDays">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <spacer name="horizontalSpacer_21">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
@@ -1027,11 +1040,18 @@ for two languages, English and Hungarian).
                </item>
                <item row="0" column="1">
                 <widget class="QLineEdit" name="edtGoogleFonts">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) enclose it into quotes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
-                  <string>comma separated font names on Google</string>
+                  <string>Comma separated font names on Google</string>
                  </property>
                 </widget>
                </item>
@@ -1115,7 +1135,7 @@ Defaults:
 Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Georgia,serif</string>
                  </property>
                  <property name="placeholderText">
-                  <string>(names separated by commas)</string>
+                  <string>Names separated by commas</string>
                  </property>
                 </widget>
                </item>
@@ -2235,8 +2255,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>385</width>
-                         <height>616</height>
+                         <width>431</width>
+                         <height>719</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7543,7 +7563,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="text">
-          <string>falconG - Version 1.2.3</string>
+          <string>falconG - Version 1.2.x</string>
          </property>
         </widget>
        </item>
@@ -7676,7 +7696,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>chkUseGoogleAnalytics</tabstop>
   <tabstop>sbNewDays</tabstop>
   <tabstop>sbLatestCount</tabstop>
-  <tabstop>chkSetLatest</tabstop>
   <tabstop>chkFixedLatestThumbnail</tabstop>
   <tabstop>edtTrackingCode</tabstop>
   <tabstop>edtImg</tabstop>
