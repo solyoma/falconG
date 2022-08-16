@@ -14,7 +14,7 @@
 #include "support.h"
 #include "config.h"
 #include "albums.h"
-#include "structEdit.h"
+#include "treeView.h"
 #include "thumbnailView.h"
 
 
@@ -272,14 +272,15 @@ AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
 }
 /*=============================================================
  * TASK:	tooltips for folder names
- * PARAMS:
+ * PARAMS:	event: any types of event
  * GLOBALS:
- * RETURNS:
- * REMARKS:
+ * RETURNS: true - handled the event, false - did not
+ * REMARKS: only used for tool typ events, all others have
+ *			separate event handlers
  *------------------------------------------------------------*/
 bool AlbumTreeView::event(QEvent* event)
 {
-	if (event->type() == QEvent::ToolTip)
+	if (event->type() == QEvent::ToolTip)	// no separate event to handle this
 	{
 		QHelpEvent* phe = reinterpret_cast<QHelpEvent*>(event);
 		QModelIndex ix = indexAt(phe->pos());
@@ -295,6 +296,18 @@ bool AlbumTreeView::event(QEvent* event)
 
 	QWidget::event(event);
 	return false;
+}
+
+void AlbumTreeView::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::RightButton)
+		return;
+	return QTreeView::mousePressEvent(event);
+}
+
+void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
+{
+	return QTreeView::mouseReleaseEvent(event);
 }
 
 //void AlbumTreeView::mouseMoveEvent(QMouseEvent* event)
@@ -330,11 +343,37 @@ void AlbumTreeView::DeleteSelectedAlbum()
 	emit SignalDeleteSelectedList(parentID, ilx, false);
 }
 
+/*=============================================================
+ * TASK:	move selected images in thumbnailView to this folder
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void AlbumTreeView::MoveImages()
+{
+}
+
+/*=============================================================
+ * TASK:	copy selected images in thumbnailView to this folder
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void AlbumTreeView::CopyImages()
+{
+}
+
 void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 {
 	QMenu menu(this);
 	QAction* pact;
 	int nSelSize = selectionModel()->selectedIndexes().size();
+	ID_t selId = nSelSize ? (ID_t)selectionModel()->selectedIndexes()[0].internalPointer() : 0,
+		 id = selId;
+	int cnt = 0;
+	emit SignalGetSelectionCount(id, cnt);
 
 	if (nSelSize == 0)
 	{
@@ -342,6 +381,20 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 	}
 	else
 	{
+		if (cnt && id != selId)
+		{
+			pact = new QAction(tr("&Copy Selected Images Here"), this);  // any number of images from a directory
+			pact->setEnabled(true);
+			connect(pact, &QAction::triggered, this, &AlbumTreeView::CopyImages);
+			menu.addAction(pact);
+
+			pact = new QAction(tr("&Movey Selected Images Here"), this);  // any number of images from a directory
+			pact->setEnabled(true);
+			connect(pact, &QAction::triggered, this, &AlbumTreeView::MoveImages);
+			menu.addAction(pact);
+
+			menu.addSeparator();
+		}
 		pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 		pact->setEnabled(true);
 		connect(pact, &QAction::triggered, ptnv, &ThumbnailView::AddImages);

@@ -18,6 +18,7 @@ class AlbumTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
 	bool _busy = false;
+	bool _bBeginResetModelCalled = false;
 public:
 	AlbumTreeModel(QObject *parent = Q_NULLPTR) : QAbstractItemModel(parent) {}
 
@@ -32,11 +33,17 @@ public:
 
 	void BeginResetModel()
 	{
+		if (_bBeginResetModelCalled)
+			return;
 		beginResetModel();
+		_bBeginResetModelCalled = true;
 	}
 	void EndResetModel() 
 	{
+		if (!_bBeginResetModelCalled)
+			return;
 		endResetModel();
+		_bBeginResetModelCalled = false;
 	}
 
 // these are moving around
@@ -78,13 +85,17 @@ public:
 	AlbumTreeView(QWidget* parent = nullptr);
 	void SetTnv(ThumbnailView* p) { ptnv = p; }
 	bool event(QEvent* event);
-//	void mouseMoveEvent(QMouseEvent* event);
+	void mousePressEvent(QMouseEvent* event);
+	void mouseReleaseEvent(QMouseEvent* event);
 
 signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
+	void SignalGetSelectionCount(ID_t& remoteId, int& count);
 
 public slots:
 	void DeleteSelectedAlbum();
+	void MoveImages();
+	void CopyImages();
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);

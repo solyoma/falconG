@@ -2210,6 +2210,12 @@ void ThumbnailView::SlotToRemoveAllViewers()
     _RemoveAllViewers();
 }
 
+void ThumbnailView::SlotGetSelectionCount(ID_t &id, int &count)
+{
+    id = _albumId;
+    count = selectionModel()->selectedIndexes().size();
+}
+
 //void ThumbnailView::SlotToClearIconList()
 //{
 //    fileIcons.Clear();

@@ -14,7 +14,7 @@
 #include "stylehandler.h"
 #include "albums.h"
 #include "falcong.h"
-#include "structEdit.h"
+#include "treeView.h"
 #include "sourcehistory.h"
 #include "csscreator.h"
 #include "imageviewer.h"
@@ -210,6 +210,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.trvAlbums->SetTnv(ui.tnvImages);
 
 	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::DeleteSelectedList);
+	connect(ui.trvAlbums, &AlbumTreeView::SignalGetSelectionCount, ui.tnvImages, &ThumbnailView::SlotGetSelectionCount);
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
 
 	// connect with albumgen's 
@@ -4822,10 +4823,15 @@ void FalconG::_SaveChangedTexts()
 		albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;
 		albumgen.Images()[_selection.selectedImage].descID  = _selection.description.ID;
 	}
-	else
+	else if(_selection.selectedAlbum)
 	{
 		albumgen.Albums()[_selection.selectedAlbum].titleID = _selection.title.ID;
 		albumgen.Albums()[_selection.selectedAlbum].descID = _selection.description.ID;
+	}
+	else // nothing selected: change for actual album
+	{
+		albumgen.Albums()[_selection.actAlbum].titleID = _selection.title.ID;
+		albumgen.Albums()[_selection.actAlbum].descID = _selection.description.ID;
 	}
 
 	if (ui.chkChangeTitleEverywhere->isChecked())

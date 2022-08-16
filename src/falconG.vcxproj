@@ -209,7 +209,7 @@
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="schemes.cpp" />
-    <ClCompile Include="structEdit.cpp" />
+    <ClCompile Include="treeView.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sourcehistory.cpp" />
     <ClCompile Include="structwriter.cpp" />
@@ -244,7 +244,12 @@
     <QtMoc Include="albums.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="crc32.h" />
-    <QtMoc Include="structEdit.h" />
+    <QtMoc Include="treeView.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtAngle;$(QTDIR)\include\QtConcurrent;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtAngle;$(QTDIR)\include\QtConcurrent;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtWebEngine;$(QTDIR)\include\QtWebEngineCore;$(QTDIR)\include\QtWebEngineWidgets</IncludePath>
+    </QtMoc>
     <QtMoc Include="sourcehistory.h" />
     <ClInclude Include="enums.h" />
     <QtMoc Include="imageviewer.h">

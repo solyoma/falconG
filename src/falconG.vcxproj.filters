@@ -54,7 +54,7 @@
     <ClCompile Include="sourcehistory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="structEdit.cpp">
+    <ClCompile Include="treeView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thumbnailView.cpp">
@@ -89,7 +89,7 @@
     <QtMoc Include="sourcehistory.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="structEdit.h">
+    <QtMoc Include="treeView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="thumbnailView.h">
