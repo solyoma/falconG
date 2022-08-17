@@ -909,7 +909,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
  *              added again. 
  *          - TODO: add folders as virtual folders
  *------------------------------------------------------------*/
-void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
+void ThumbnailView::_DropFromExternalSource(const QMimeData* mimeData, int row)
 {
     QStringList qsl, qslF;      // for files and Folders
     auto what = [&](QString s)  {
@@ -938,15 +938,13 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
         else if (!w)    // folder
             qslF << s;
     }
-    _AddImagesFromList(qsl, row);
-    row += qsl.size();  // position for folders
-    bool b = false;
     emit SignalAlbumStructWillChange();
-    if ( (b=_AddFoldersFromList(qslF, row)))
-    {
-        Reload();
-    }
+    _AddImagesFromList(qsl, row);
+    // row += qsl.size();  // position for folders
+    bool b = _AddFoldersFromList(qslF, row);
     emit SignalAlbumStructChanged(b);
+    if(b)
+        Reload();
 }
 
 /*=============================================================
@@ -968,7 +966,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 	if (!_IsAllowedTypeToDrop(event))
 		return;
 
-	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData *>(event->mimeData());
+	const QMimeData *mimeData = event->mimeData();
     if (!mimeData)      // why does it occur?
         return;
 	// get drop position
@@ -978,9 +976,9 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
     if (mimeData->hasUrls())
         _DropFromExternalSource(mimeData, row);
-    else  if (!mimeData->thumbList.isEmpty()) // perform drops from thumbnail list
+    else  if (mimeData->hasFormat("application/x-thumb") && !((const ThumbMimeData *)mimeData)->thumbList.isEmpty()) // perform drops from thumbnail list
 	{
-        IntList thl = mimeData->thumbList;  // indices in actual album's items to move
+        IntList thl = ((const ThumbMimeData*)mimeData)->thumbList;  // indices in actual album's items to move
         IntList thl0 = thl;                 // original index array of thumblist to check items against
         // reorder items of actual album
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
@@ -1296,8 +1294,14 @@ bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
     //    ;
     // qDebug() << "IsAllowedTypeToDrop: row=" << indexAt(event->pos()).row();
 
+    // DEBUG
+    QString qs = event->mimeData()->text();
+    /*bool b = event->mimeData()->hasUrls(),
+        b1 = event->mimeData()->hasImage(),
+        b3 = event->mimeData()->hasFormat("application/x-thumb");*/
+    // /DEBUG
      return /* (indexAt(event->pos()).row() >= 0) && */
-            (event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName
+            (event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName, each nami in its own line
             event->mimeData()->hasImage() ||    // image/...
 		    event->mimeData()->hasFormat("application/x-thumb")     // drag and drop inside this application
                 );

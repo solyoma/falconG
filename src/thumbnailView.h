@@ -334,7 +334,7 @@ protected:
 	void dragLeaveEvent(QDragLeaveEvent *event);
 	void dragMoveEvent(QDragMoveEvent *event);
 
-	void _DropFromExternalSource(const ThumbMimeData *mimeData, int row);
+	void _DropFromExternalSource(const QMimeData *mimeData, int row);
 	void dropEvent(QDropEvent *event);			// when item is dropped
 
 	void keyReleaseEvent(QKeyEvent* event);
