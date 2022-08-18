@@ -7,14 +7,18 @@ namespace Enums
 			dbShowAfterSavingCss = 2, 
 			dbSaveEdited=4, 
 			dbSaveConfig=8,  
-			dbAskCreateDir=16
+			dbAskCreateDir=16,
+			dbAskSynchronize=32,
+			dbMax= dbAskSynchronize
 	};
 	enum DialogBitsOrder : int {
 		dboAskBeforeClosing,
 		dboShowAfterSavingCss,
 		dboSaveEdited,
 		dboSaveConfig,
-		dboAskCreateDir
+		dboAskCreateDir,
+		dboAskSynchronize,
+		dboMax
 	};
 	enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
 	enum Decoration {	   // _CTextDecoration

@@ -1165,7 +1165,7 @@ public:
 	_CWaterMark waterMark = {"", "Watermark"};
 
 	_CInt  doNotShowTheseDialogs = { 0, "_doNotShowTheseDialogs" };
-	_CIntArray defaultAnswers = { 6, "defaultAnswers" };	// for question dialogs 1 integer for each 
+	_CIntArray defaultAnswers = { 6, "defaultAnswers" };	// for question dialogs 1 integer (0 or 1) for each 
 															// modify  number 6 for as many as there are items in enum 'DialogBits'
 	// Debug
 	_CBool bDebugging = {false, "bDebugging"};

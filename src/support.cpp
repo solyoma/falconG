@@ -69,9 +69,25 @@ void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int
 	config.defaultAnswers[show] = res;
 }
 
+/*=============================================================
+ * TASK:	A question dialog with a checkbox to hide it in the
+ *			future
+ * PARAMS:	title, text parent, buttons: same as for QMessageBox
+ *			show: integer between 1 and Enums::dboMax, ordinal of
+ *				dialog. See 'DialogBitsOrder' in support.h
+ *				If 0 it behaves as a simple 
+ *					QMessageBox::question would
+ *			checkboxtext: if set and show not 0 adds a checkbox
+ *				to the dialog with this text and stores
+ *				its state when any button clicked
+ * GLOBALS:	
+ * RETURNS:	the same value as a QMessageBox would
+ * REMARKS: sets the flags to not show this dialog again, but
+ *			never clears them
+ *------------------------------------------------------------*/
 int QuestionDialog(QString title, QString text, int show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
 {
-	if (config.doNotShowTheseDialogs.v & (1 << show))
+	if (show > 0 && config.doNotShowTheseDialogs.v & (1 << show))
 		return config.defaultAnswers[show];
 
 	QMessageBox question(parent);
@@ -80,14 +96,14 @@ int QuestionDialog(QString title, QString text, int show, QWidget* parent, QStri
 	question.setInformativeText(text);
 	question.setStandardButtons(buttons);
 	QCheckBox* checkBox = nullptr;
-	if (!checkboxtext.isEmpty())
+	if (show >= 0 && !checkboxtext.isEmpty())
 	{
 		checkBox = new QCheckBox(checkboxtext);
 		question.setCheckBox(checkBox);
 	}
 
 	int res = question.exec();
-	if (res == QMessageBox::Yes || res == QMessageBox::Save)
+	if (show > 0 && (res == QMessageBox::Yes || res == QMessageBox::Save) )
 		config.defaultAnswers[show] = res;
 
 	if (checkBox && question.checkBox()->isChecked())

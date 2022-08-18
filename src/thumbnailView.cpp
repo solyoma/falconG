@@ -1786,13 +1786,13 @@ void ThumbnailView::SynchronizeTexts()
 
     emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _albumId);
 
-    if (QMessageBox::question(this, tr("falconG - Question"),
+    if (QuestionDialog(tr("falconG - Question"),
         tr("This will set the texts to all of selected items\n"
             "to be the same as the item under the cursor when\n"
             "you choose this menu option\n\n"
             "This action cannot be undone!\n\n"
-            "Do you really want to do this?"),
-        QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+            "Do you really want to do this?"), DialogBitsOrder::dboAskSynchronize, this,
+        tr("Don't ask again (use Options to re-enable)")) == QMessageBox::Yes)
     {
 
         ID_t titleId=0,descrId=0;
@@ -1823,6 +1823,9 @@ void ThumbnailView::SynchronizeTexts()
         }
         SetCurrentItem(_rowSelectedWithRightButton);
     }
+    else    // clear save the state when the answer is no
+        config.doNotShowTheseDialogs.v = config.doNotShowTheseDialogs.v & (~(1 << DialogBitsOrder::dboAskSynchronize));
+
     albumgen.SetAlbumModified(*pAlbum);
 }
 
