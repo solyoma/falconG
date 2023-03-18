@@ -326,33 +326,51 @@ _CDirStr _CDirStr::operator+(const QString subdir)
  * GLOBALS: config
  * RETURNS: nothing
  * REMARKS:	- does not change if opacity is used
- *			- if string name is invalid does not set it
+ *			- if color name is invalid does not set it, unless
+ *			- it is empty, in which case stes an empty color name
  *			- no symbolic color names
  *			- any combination of upper and lower case hexadecimal numbers
  *			- if the QString is #xyz, then it is the same as #xxyyzz
  *--------------------------------------------------------------------------*/
 void _CColor::Set(QString str, int opac)
 { 
-	if (!_ColorStringValid(str))
+	if (!str.isEmpty() && !_ColorStringValid(str))
 		return;
 
-	_colorName = str; 
+	if(str.at(0) == '#')
+		_colorName = str.mid(1);
+	else
+		_colorName = str; 
 //	_opacityUsed = opac < 0;
 	if(opac > 0)
 		_opacity = opac;
 	_Prepare();		// setup 'v'
 }
 
-QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
+QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorthand) const
 {
-	QString qs = (isBackground ? "background-color:" : "color:");
-	
-	if (_opacityUsed && _opacity != 255)
-		qs += ToRgba();
-	else
-		qs += _colorName;
+	QString qs;
+	if (!_colorName.isEmpty())
+	{
+		if (isBackground)
+		{
+			if (shorthand)
+				qs = "background:";
+			else
+				qs = "background-color:";
+		}
+		else
+			qs = "color:";
+		if (_opacity >= 0 && _opacity != 255)
+			qs += ToRgbaString();
+		else
+			qs += QString('#') + _colorName;
 
-	__AddSemi(qs, addSemiColon);
+		if (shorthand)
+			qs += " ";
+		else
+			__AddSemi(qs, addSemiColon);
+	}
 	return qs;
 }
 
@@ -370,11 +388,12 @@ QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground) const
 QString _CColor::operator=(QString s)
 {
 	if (!_ColorStringValid(s))
-		return QString();
-	// here s starts with '#'
-	_colorName = s.toLower();
-	_Prepare();
-
+		_colorName.clear();
+	else
+	{
+		_colorName = s.toLower();
+		_Prepare();
+	}
 	return _colorName;
 }
 _CColor& _CColor::operator=(_CColor c)
@@ -1208,30 +1227,33 @@ void _CWaterMark::Read(QSettings& s, QString group)
 		s.endGroup();
 }
 // ********************************* Background Image ********************
-QString _CBackgroundImage::Url(bool addSemicolon) const
+QString _CBackgroundImage::Url(bool addSemicolon, bool shorthand) const
 {
 
 	if (fileName.isEmpty() || v == (int)hNotUsed)
 		return QString();
 
-	QString qsN = QString("background-image:");
+	QString qsN = shorthand ? QString() : QString("background-image:");
 	if (addSemicolon)	// then for WEb page
 	{					// when image must be copied into /res
 		QString p, n;
 		SeparateFileNamePath(fileName, p, n);
 		// must use \" instead of ' because the whole string will be in ''
 		// when _RunJavaScript is called in falconG.cpp
-		qsN = QString("background-image:url(\"/res/%1\")").arg(n);
+		qsN += QString("url(\"/res/%1\")").arg(n);
 	}
 	else				// for sample
-		qsN = QString("background-image:url(\"file://%1\")").arg(fileName);
-	__AddSemi(qsN, addSemicolon);
+		qsN += QString("url(\"file://%1\")").arg(fileName);
+	if (shorthand)
+		qsN += " ";
+	else
+		__AddSemi(qsN, addSemicolon);
 	return qsN;
 }
 
-QString _CBackgroundImage::Size(bool addSemicolon) const
+QString _CBackgroundImage::Size(bool addSemicolon, bool shorthand) const
 {
-	QString qs = "background-size:";
+	QString qs = shorthand ? "" : "background-size:";
 	switch (v)
 	{
 		case hNotUsed:
@@ -1253,12 +1275,15 @@ QString _CBackgroundImage::Size(bool addSemicolon) const
 				qs += "auto";
 			break;
 	}
-	__AddSemi(qs, addSemicolon);
+	if (shorthand)
+		qs += " ";
+	else
+		__AddSemi(qs, addSemicolon);
 	return qs;
 }
-QString _CBackgroundImage::Position(bool addSemicolon) const
+QString _CBackgroundImage::Position(bool addSemicolon, bool shorthand) const
 {
-	QString qs = "background-position:";
+	QString qs = shorthand ? "" : "background-position:";
 	switch (v)
 	{
 		case hNotUsed:
@@ -1273,12 +1298,15 @@ QString _CBackgroundImage::Position(bool addSemicolon) const
 			qs += "left top";
 			break;
 	}
-	__AddSemi(qs, addSemicolon);
+	if (shorthand)
+		qs += " ";
+	else
+		__AddSemi(qs, addSemicolon);
 	return qs;
 }
-QString _CBackgroundImage::Repeat(bool addSemicolon) const
+QString _CBackgroundImage::Repeat(bool addSemicolon, bool shorthand) const
 {
-	QString qs = "background-repeat:";
+	QString qs = shorthand? "" : "background-repeat:";
 	switch (v)
 	{
 		case hNotUsed:
@@ -1291,13 +1319,16 @@ QString _CBackgroundImage::Repeat(bool addSemicolon) const
 			qs += "repeat";
 			break;
 	}
-	__AddSemi(qs, addSemicolon);
+	if (shorthand)
+		qs += " ";
+	else
+		__AddSemi(qs, addSemicolon);
 	return qs;
 }
 
 QString _CBackgroundImage::ForStyleSheet(bool addSemicolon) const
 {
-	return Url(addSemicolon) + Position(addSemicolon) + Size(addSemicolon) + Repeat(addSemicolon);
+	return Url(false, true) + Repeat(addSemicolon, true) + Position(false, true) + ";\n";
 }
 
 void _CBackgroundImage::Write(QSettings& s, QString group)

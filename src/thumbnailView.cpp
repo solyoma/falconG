@@ -909,7 +909,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
  *              added again. 
  *          - TODO: add folders as virtual folders
  *------------------------------------------------------------*/
-void ThumbnailView::_DropFromExternalSource(const QMimeData* mimeData, int row)
+void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
 {
     QStringList qsl, qslF;      // for files and Folders
     auto what = [&](QString s)  {
@@ -945,6 +945,15 @@ void ThumbnailView::_DropFromExternalSource(const QMimeData* mimeData, int row)
     emit SignalAlbumStructChanged(b);
     if(b)
         Reload();
+    _AddImagesFromList(qsl, row);
+    //row += qsl.size();  // position for folders
+    //bool b = false;
+    //emit SignalAlbumStructWillChange();
+    //if ((b = _AddFoldersFromList(qslF, row)))
+    //{
+    //    Reload();
+    //}
+    //emit SignalAlbumStructChanged(b);
 }
 
 /*=============================================================
@@ -966,7 +975,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 	if (!_IsAllowedTypeToDrop(event))
 		return;
 
-	const QMimeData *mimeData = event->mimeData();
+	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData*>(event->mimeData());
     if (!mimeData)      // why does it occur?
         return;
 	// get drop position

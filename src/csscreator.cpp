@@ -54,7 +54,7 @@ void CssCreator::_CreateGlobals()
 */
 	}
 
-	_ofs << 
+	_ofs <<
 		// universal selector to include padding and border in box size
 		R"(
 *, *::before, *::after {
@@ -67,6 +67,26 @@ html, main {
 	height: 100%;
 	width: 100%;
 }
+)";
+	if (_forSamplePage)
+		_ofs << "#DEBUG {\n	font-size='12pt'\n}\n";
+// body
+
+	_ofs << "body {\n";
+
+	_ofs << config.Web.color.ForStyleSheet(true, false)
+		<< config.Web.background.ForStyleSheet(false, true, true);
+
+	s = config.backgroundImage.ForStyleSheet(true);
+
+	if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
+		_ofs  << " " << s;
+	_ofs << "}\n\n";
+
+
+
+
+	_ofs << R"(
 /* for <p> in about.html */
 .about {
 	max-width:600px;
@@ -80,19 +100,7 @@ a, a:visited {
 .area {
 	margin:0 6px;
 }
-)";
-	if (_forSamplePage)
-		_ofs << "#DEBUG {\n	font-size='12pt'\n}\n";
 
-	s = config.backgroundImage.ForStyleSheet(true);
-
-	_ofs << "body {\n";
-	if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
-		_ofs << s;
-	_ofs << config.Web.ColorsForStyleSheet(true);
-	_ofs << "}\n\n";
-
-	_ofs << R"(
 .main{
 	display: flex;
 	flex-direction: column;

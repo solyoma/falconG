@@ -3326,7 +3326,7 @@ void FalconG::on_hsImageSizeToShow_valueChanged(int val)
 	if (_busy)
 		return;
 	config.backgroundImage.size = val;
-	_RunJavaScript("body", config.backgroundImage.Size(false));
+	_RunJavaScript("body", config.backgroundImage.Size(false,false));
 }
 
 // ======================== Radio buttons

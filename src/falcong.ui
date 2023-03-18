@@ -2137,8 +2137,10 @@ This option then reverts to not checked.</string>
                             </size>
                            </property>
                            <property name="styleSheet">
-                            <string notr="true">background:white;
-/* :url(&quot;s:/photo/falconG/src/Resources/Lazise_02596-Edit&quot;) white */</string>
+                            <string notr="true"/>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::Box</enum>
                            </property>
                            <property name="text">
                             <string>background image</string>
@@ -2255,8 +2257,8 @@ This option then reverts to not checked.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>719</height>
+                         <width>392</width>
+                         <height>616</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5329,8 +5331,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

@@ -280,7 +280,7 @@ struct MarkedIcon
 	bool Read(QString name, bool isFolder);	// to pxmp, transforms rotated image on read, sets 'exists'
 	QIcon ToIcon();
 };
-QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
+//QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
 
 //*****************************************
 struct ImageConverter
