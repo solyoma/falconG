@@ -1234,7 +1234,7 @@ QString _CBackgroundImage::Url(bool addSemicolon, bool shorthand) const
 		return QString();
 
 	QString qsN = shorthand ? QString() : QString("background-image:");
-	if (addSemicolon)	// then for WEb page
+	if (shorthand || addSemicolon)	// then for WEb page
 	{					// when image must be copied into /res
 		QString p, n;
 		SeparateFileNamePath(fileName, p, n);

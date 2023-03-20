@@ -2168,6 +2168,10 @@ This option then reverts to not checked.</string>
                              <height>24</height>
                             </size>
                            </property>
+                           <property name="toolTip">
+                            <string>Only the file name will be used from here. You have to upload the file
+into the WEB page root folder relative 'res' folder.</string>
+                           </property>
                            <property name="placeholderText">
                             <string>full path name of image file</string>
                            </property>

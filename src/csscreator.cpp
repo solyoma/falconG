@@ -267,8 +267,8 @@ img {
 	// --------- img.thumb, img.athumb ----------------
 	_ofs << R"(.thumb,.athumb {
 	cursor:pointer;
-	max-width:80vw;
-	max-width:80vw;
+	width:95vw;
+	width:95svw;
 }
 
 )";
