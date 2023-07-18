@@ -76,7 +76,7 @@ void AlbumStructWriterThread::run()
 	_ofs.setCodec("UTF-8");
 
 	_ofs << versionStr << majorStructVersion << "." << minorStructVersion << "." << subStructVersion
-		<< "\n#  © - András Sólyom (2018-2022)"  // default values may differ from 'config'
+		<< "\n#  © - András Sólyom (2018-)"  // default values may differ from 'config'
 		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()

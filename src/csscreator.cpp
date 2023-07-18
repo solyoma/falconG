@@ -75,7 +75,7 @@ html, main {
 	_ofs << "body {\n";
 
 	_ofs << config.Web.color.ForStyleSheet(true, false)
-		<< config.Web.background.ForStyleSheet(false, true, true);
+		<< '\t' << config.Web.background.ForStyleSheet(false, true, true);
 
 	s = config.backgroundImage.ForStyleSheet(true);
 
@@ -267,8 +267,8 @@ img {
 	// --------- img.thumb, img.athumb ----------------
 	_ofs << R"(.thumb,.athumb {
 	cursor:pointer;
-	width:95vw;
-	width:95svw;
+	max-width:95vw;
+	max-width:95svw;
 }
 
 )";
