@@ -74,13 +74,18 @@ html, main {
 
 	_ofs << "body {\n";
 
-	_ofs << config.Web.color.ForStyleSheet(true, false)
-		<< '\t' << config.Web.background.ForStyleSheet(false, true, true);
+	s = config.Web.color.ForStyleSheet(true, false);
+	_ofs << s;
 
-	s = config.backgroundImage.ForStyleSheet(true);
+	if (config.backgroundImage.v != (int)hNotUsed)
+	{
+		s = config.backgroundImage.ForStyleSheet(!_forSamplePage);
+		if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
+			_ofs << s;
+	}
 
-	if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
-		_ofs  << " " << s;
+	s = config.Web.background.ForStyleSheet(true, true, false);
+	_ofs << s;
 	_ofs << "}\n\n";
 
 

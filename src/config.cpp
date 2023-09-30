@@ -1,14 +1,14 @@
 #include "config.h"
 
-// helper	prepends a tab and adds a semicolon and LF after the string
+// helper adds a semicolon and LF after the string
 // if s has more than one property (each should be in separate lines
-// semicolons must already be present
+// semicolons must already be present for intermediate properties
 void __AddSemi(QString& s, bool addSemicolon)
 {
 	if (!s.isEmpty())
 	{
 		if (addSemicolon && s.length() && s[s.length()-1] != QChar('\n'))
-			s = "	" + s + ";";
+			s = " " + s + ";";
 		if (s.length() && s[s.length() - 1] != QChar('\n'))
 			s += "\n";
 	}
@@ -354,22 +354,19 @@ QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorth
 	{
 		if (isBackground)
 		{
-			if (shorthand)
-				qs = "background:";
-			else
-				qs = "background-color:";
+			if (!shorthand)
+				qs = "\tbackground-color:";
 		}
 		else
-			qs = "color:";
+			qs = "\tcolor:";
 		if (_opacity >= 0 && _opacity != 255)
 			qs += ToRgbaString();
 		else
 			qs += QString('#') + _colorName;
 
-		if (shorthand)
-			qs += " ";
-		else
-			__AddSemi(qs, addSemiColon);
+		//if (shorthand)
+		//	qs += " ";
+		__AddSemi(qs, addSemiColon);
 	}
 	return qs;
 }
@@ -1035,7 +1032,7 @@ QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font w
 
 bool _CElem::Changed() const
 {
-	bool res = color.Changed() | background.Changed() | font.Changed();
+	bool res = color.Changed() | background.Changed() | font.Changed(); // '|' is enough, don't need '||' !
 	if(_bMayShadow)
 	 	res |=  shadow1[0].Changed() | 
 				shadow2[0].Changed() | 
@@ -1226,109 +1223,108 @@ void _CWaterMark::Read(QSettings& s, QString group)
 	if (!group.isEmpty())
 		s.endGroup();
 }
-// ********************************* Background Image ********************
-QString _CBackgroundImage::Url(bool addSemicolon, bool shorthand) const
+void _CBackgroundImage::SetNames(QString name)
 {
-
-	if (fileName.isEmpty() || v == (int)hNotUsed)
-		return QString();
-
-	QString qsN = shorthand ? QString() : QString("background-image:");
-	if (shorthand || addSemicolon)	// then for WEb page
-	{					// when image must be copied into /res
-		QString p, n;
-		SeparateFileNamePath(fileName, p, n);
+	fileName = QDir::fromNativeSeparators(name);
+	if (fileName.isEmpty())
+		return;
+	QString p, n;
+	SeparateFileNamePath(fileName, p, n);
+	_CDirStr dstDir;
+	QString srcDir = config.dsSrc.ToString();
+	if (config.dsBckImageDir.IsEmpty())
+		dstDir = "/res/";
+	else
+		dstDir = config.dsBckImageDir;
+								// then name is relative to document root on server: i.e. gives the web name
+	if (fileName.at(0) == '/')	// unless 'chkSourceRelativePerSign' is checked (bSourceRelativePerSign is true)
+		fileName = (config.bSourceRelativePerSign ? srcDir : dstDir.ToString()) + fileName.mid(1);	// but try it in the source dir
+	webName = (dstDir + n).ToString();
 		// must use \" instead of ' because the whole string will be in ''
 		// when _RunJavaScript is called in falconG.cpp
-		qsN += QString("url(\"/res/%1\")").arg(n);
-	}
+}
+// ********************************* Background Image ********************
+QString _CBackgroundImage::Url(bool shorthand, bool forWebPage) const
+{
+
+	if (v == (int)hNotUsed || fileName.isEmpty() )
+		return QString();
+	QString qsN; 
+	if (forWebPage) //shorthand || addSemicolon)	// then for WEb page
+		qsN = QString("url(\"%1\")").arg(webName);
 	else				// for sample
-		qsN += QString("url(\"file://%1\")").arg(fileName);
-	if (shorthand)
-		qsN += " ";
-	else
-		__AddSemi(qsN, addSemicolon);
+		qsN = QString("url(\"file:///%1\")").arg(fileName);
 	return qsN;
 }
 
-QString _CBackgroundImage::Size(bool addSemicolon, bool shorthand) const
+
+QString _CBackgroundImage::Size() const	  // right after position
 {
-	QString qs = shorthand ? "" : "background-size:";
+	QString qs;
 	switch (v)
 	{
-		case hNotUsed:
-			return QString();
-			
 		case hAuto:
-			qs +="auto";
 			break;
-		case hContain:
-			qs += "contain";
-			break;
-		case hCover:
-			qs += "cover";
-			break;
+		case hNotUsed:
 		case hTile:
 			if (size < 100)
-				qs += QString("%1% auto").arg(size);
-			else
-				qs += "auto";
+				qs += QString("/%1% auto").arg(size);
+			break;
+		case hCover:
+			qs += "/cover";
 			break;
 	}
-	if (shorthand)
-		qs += " ";
-	else
-		__AddSemi(qs, addSemicolon);
 	return qs;
 }
-QString _CBackgroundImage::Position(bool addSemicolon, bool shorthand) const
+
+QString _CBackgroundImage::Position() const
 {
-	QString qs = shorthand ? "" : "background-position:";
+	QString qs;
 	switch (v)
 	{
 		case hNotUsed:
-			return QString();
+			return qs;
 
 		case hAuto:
-			qs += "center";
+			qs += " center";
 			break;
 		case hTile:
 		case hContain:
 		case hCover:
-			qs += "left top";
+			qs += " left top";
 			break;
 	}
-	if (shorthand)
-		qs += " ";
-	else
-		__AddSemi(qs, addSemicolon);
 	return qs;
 }
-QString _CBackgroundImage::Repeat(bool addSemicolon, bool shorthand) const
+QString _CBackgroundImage::Repeat() const
 {
-	QString qs = shorthand? "" : "background-repeat:";
+	QString qs;
 	switch (v)
 	{
 		case hNotUsed:
-			return QString();
+			return qs;
 		case hAuto:
 		case hCover:	
-			qs += "no-repeat";
+			qs += " no-repeat";
 			break;
 		case hTile:
-			qs += "repeat";
+			qs += " repeat";
 			break;
 	}
-	if (shorthand)
-		qs += " ";
-	else
-		__AddSemi(qs, addSemicolon);
 	return qs;
 }
 
-QString _CBackgroundImage::ForStyleSheet(bool addSemicolon) const
-{
-	return Url(false, true) + Repeat(addSemicolon, true) + Position(false, true) + ";\n";
+QString _CBackgroundImage::ForStyleSheet(bool forWebPage) const
+{	// don't add semnicolon for shorthand
+	QString url = Url(false, forWebPage);
+	if (url.isEmpty())
+		return url;
+	QString qs = "\tbackground:" + url;
+	qs += Repeat();
+	qs += Position();
+	qs += Size();
+	__AddSemi(qs, true);
+	return  qs;
 }
 
 void _CBackgroundImage::Write(QSettings& s, QString group)
@@ -1350,7 +1346,7 @@ void _CBackgroundImage::Read(QSettings& s, QString group)
 		s.beginGroup(group);
 	s.beginGroup(itemName);
 		v = s.value("mode", hNotUsed).toInt();
-		fileName = s.value("img", QString()).toString();
+		SetNames(s.value("img", QString()).toString());
 		size = s.value("size", 100).toInt();
 	s.endGroup();
 	if (!group.isEmpty())
@@ -1367,6 +1363,7 @@ void CONFIG::ClearChanged()
 	dsGallery.ClearChanged();
 	dsGRoot.ClearChanged();
 	dsAlbumDir.ClearChanged();
+	dsBckImageDir.ClearChanged();
 
 	sServerAddress.ClearChanged();
 	sBaseName.ClearChanged();
@@ -1515,6 +1512,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	dsGallery = cfg.dsGallery;			// destination directory
 	dsGRoot = cfg.dsGRoot;				// name of root directory on server
 	dsAlbumDir = cfg.dsAlbumDir;		// name of album directory (usually inside dsGRoot)
+	dsBckImageDir = cfg.dsBckImageDir;
 	dsCssDir = cfg.dsCssDir;
 	dsFontDir = cfg.dsFontDir;
 	dsImageDir = cfg.dsImageDir;
@@ -1690,6 +1688,7 @@ void CONFIG::Read()		// synchronize with Write!
 	//if(dsGRoot.ToString()[0] != QChar('/'))
 	//	dsGRoot.v0 = dsGRoot.v = "/" + dsGRoot.v0;
 	dsAlbumDir.Read(s);
+	dsBckImageDir.Read(s);
 
 	sBaseName.Read(s);
 	sMailTo.Read(s);
@@ -1832,6 +1831,7 @@ void CONFIG::_WriteIni(QString sIniName)
 		dsGRoot.Clear();
 	dsGRoot.Write(s);
 	dsAlbumDir.Write(s);
+	dsBckImageDir.Write(s);
 
 	sBaseName.Write(s);
 	sMailTo.Write(s);

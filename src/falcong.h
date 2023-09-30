@@ -148,6 +148,7 @@ private:
 			 // set CSS for sample 
 	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
 	void _SetCssProperty(_CElem *pElem, QString value,  QString subSelector = QString());
+	void _RemoveCssProperty(_CElem *pElem, QString value, QString subSelector = QString());
 	void _ColorToSample(_CElem *pElem);
 	void _BackgroundToSample(_CElem* pElem);		// css 'background' color + url no other properties
 	void _ShadowToSample(_CElem* pElem,int what);	// what: 0 block-shadow, 1:text-shadow
@@ -230,6 +231,8 @@ private slots:
 	bool _LanguagesWarning();
 	void _SetupActualBorder(BorderSide side);
 	void _PropagatePageColor();	// to all items
+
+	void _BackgroundImageToSamplePage(BackgroundImageSizing sizing);
 
 	void _SlotForEanbleCloseAllViewers(bool enable);
 
@@ -336,6 +339,7 @@ private slots:
 	void on_edtAlbumDir_textChanged();
 	void on_edtBaseName_textChanged();
 	void on_edtBckImageName_textChanged();
+	void on_edtBckPathOnServer_textChanged();
 	void on_edtDefaultFonts_textChanged();
 	void on_edtDescriptionText_textChanged();
 	void on_edtSiteDescription_textChanged();

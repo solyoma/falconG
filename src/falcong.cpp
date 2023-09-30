@@ -6,6 +6,9 @@
 #include <QListView>
 #include <QDesktopServices>
 #include <QUrl>
+#ifdef DEBUG
+	#include<QtDebug>
+#endif
 
 #include <string>
 
@@ -672,7 +675,7 @@ void FalconG::_SaveLinkIcon()
 
 /*========================================================
  * TASK:	sets all characteristics of sample element
- *			from the actual given _CElem in confog
+ *			from the actual given _CElem in config
  * PARAMS:	ae - element index or aeUndefined when
  *				it uses _aeActiveElement
  * GLOBALS: config
@@ -753,11 +756,9 @@ void FalconG::_GlobalsToUi()
 		case hTile:    ui.rbTileBckImage->setChecked(true); break;
 	}
 	ui.hsImageSizeToShow->setValue(config.backgroundImage.size);
+	_LoadBckImage(config.backgroundImage.fileName);
 	if (config.backgroundImage.v != (int)hNotUsed)
-	{
-		_LoadBckImage(config.backgroundImage.fileName);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
+		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// for sample page
 
 	--_busy;
 }
@@ -1096,20 +1097,24 @@ static void _SetEditText(QLineEdit* pe, _CDirStr cs, bool force=true)
 		pe->setText(cs.ToString());
 }
 
-static inline bool _TestDirValue(QLineEdit* pe, _CString cs)
+template<class C> static inline void _SetDirTextInto(QLineEdit* pe, _CString cs)
 {
-	return  (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString());
+	if (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString())
+		pe->setText(cs);
+	else
+		pe->clear();
 }
-static inline bool _TestDirValue(QLineEdit* pe, _CDirStr cs)
-{
-	return  (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString());
-}
+//static inline bool _SetDirTextInto(QLineEdit* pe, _CDirStr cs)
+//{
+//	return  (!cs.IsEmpty() && pe->placeholderText() != cs.ToString() && pe->placeholderText() + "/" != cs.ToString());
+//}
 
 void FalconG::_OtherToUi()
 {
 	++_busy;
 	ui.edtAbout->setText(config.sAbout);
-	_SetEditText(ui.edtAlbumDir, config.dsAlbumDir, _busy);
+	// _SetEditText(ui.edtAlbumDir, config.dsAlbumDir, _busy);
+	// _SetEditText(ui.edtBckPathOnServer, config.dsBckImageDir, _busy);
 	ui.edtDefaultFonts->setText(config.sDefFonts.ToString());
 	ui.edtSiteDescription->setText(config.sDescription);
 	ui.edtDestGallery->setText(QDir::toNativeSeparators(config.dsGallery.ToString()));
@@ -1124,18 +1129,13 @@ void FalconG::_OtherToUi()
 	ui.edtSourceGallery->setText(QDir::toNativeSeparators(config.dsSrc.ToString()));
 	ui.edtTrackingCode->setText(config.googleAnalTrackingCode);
 	ui.edtUplink->setText(config.sUplink);
-	if (_TestDirValue(ui.edtAlbumDir, config.dsAlbumDir))
-		ui.edtAlbumDir->setText(config.dsAlbumDir.ToString());
-	if (_TestDirValue(ui.edtBaseName, config.sBaseName))
-		ui.edtBaseName->setText(config.sBaseName);
-	if (_TestDirValue(ui.edtFontDir, config.dsFontDir))
-		ui.edtFontDir->setText(config.dsFontDir.ToString());
-	if (_TestDirValue(ui.edtImg, config.dsImageDir))
-		ui.edtImg->setText(config.dsImageDir.ToString());
-	if (_TestDirValue(ui.edtVid, config.dsVideoDir))
-		ui.edtVid->setText(config.dsVideoDir.ToString());
-	if (_TestDirValue(ui.edtThumb, config.dsThumbDir))
-		ui.edtThumb->setText(config.dsThumbDir.ToString());
+	_SetDirTextInto<_CDirStr>(ui.edtAlbumDir, config.dsAlbumDir);
+	_SetDirTextInto<_CDirStr>(ui.edtBckPathOnServer, config.dsBckImageDir);
+	_SetDirTextInto<_CString>(ui.edtBaseName, config.sBaseName);
+	_SetDirTextInto<_CDirStr>(ui.edtFontDir, config.dsFontDir);
+	_SetDirTextInto<_CDirStr>(ui.edtImg, config.dsImageDir);
+	_SetDirTextInto<_CDirStr>(ui.edtVid, config.dsVideoDir);
+	_SetDirTextInto<_CDirStr>(ui.edtThumb, config.dsThumbDir);
 
 	ui.edtWatermark->setText(config.waterMark.Text());
 
@@ -1518,6 +1518,7 @@ void FalconG::on_btnBrowseForBackgroundImage()
 		QPixmap pm(filename);
 		ui.lblbckImage->setPixmap(pm);
 	}
+	config.backgroundImage.SetNames(filename);
 }
 
 /*============================================================================
@@ -1786,9 +1787,9 @@ void FalconG::on_btnPageColor_clicked()
 		}
 		_PageColorToSample();
 	}
-	if (ui.chkSameForeground->isChecked())	// propagate color to all elements
+	if (ui.chkSameForeground->isChecked())
 	{
-		_PropagatePageColor();
+		_PropagatePageColor();		// to all elements			
 		ui.chkSameForeground->setChecked(false);
 	}
 	// DEBUG
@@ -2936,6 +2937,15 @@ void FalconG::on_edtBckImageName_textChanged()
 	_SetConfigChanged(true);				// file is copied to /res
 }
 
+void FalconG::on_edtBckPathOnServer_textChanged()
+{
+	if (_busy)
+		return;
+	QString name = QDir::fromNativeSeparators(ui.edtBckPathOnServer->text());
+	_CDirStr::AddSep(name);
+	config.dsBckImageDir = name;
+}
+
 void FalconG::on_edtDefaultFonts_textChanged()
 {
 	if (_busy)
@@ -3326,7 +3336,7 @@ void FalconG::on_hsImageSizeToShow_valueChanged(int val)
 	if (_busy)
 		return;
 	config.backgroundImage.size = val;
-	_RunJavaScript("body", config.backgroundImage.Size(false,false));
+	_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
 }
 
 // ======================== Radio buttons
@@ -3353,24 +3363,47 @@ void FalconG::on_rbBottomBorder_toggled(bool on)
 	_SetupActualBorder(sdBottom);
 }
 
+// -- background image -----------
+void FalconG::_BackgroundImageToSamplePage(BackgroundImageSizing sizing)
+{
+	if (!_busy)
+	{
+		config.backgroundImage.v = sizing;
+		_SetConfigChanged(true);
+		QString qs = config.backgroundImage.ForStyleSheet(false);
+		if(qs.isEmpty())
+			_RemoveCssProperty(&config.Web, "background:");
+		else
+			_RunJavaScript("body", qs);
+	}
+}
+
+void FalconG::on_rbNoBackgroundImage_toggled(bool b)
+{
+	if(b)
+		_BackgroundImageToSamplePage(hNotUsed);
+}
+
+
 void FalconG::on_rbCenterBckImage_toggled(bool b)
 {
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hAuto;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
+	if(b)
+		_BackgroundImageToSamplePage(hAuto);
 }
+
 void FalconG::on_rbCoverBckImage_toggled(bool b)
 {
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hCover;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
+	if(b)
+		_BackgroundImageToSamplePage(hCover);
 }
+
+void FalconG::on_rbTileBckImage_toggled(bool b)
+{
+	if(b)
+		_BackgroundImageToSamplePage(hTile);
+}
+
+
 void FalconG::on_rbEnglish_toggled(bool b)
 {
 	if (_busy || !b)
@@ -3390,15 +3423,6 @@ void FalconG::on_rbMagyar_toggled(bool b)
 		return;
 	PROGRAM_CONFIG::lang = 1;	// Hungarian
 	_RestartRequired();
-}
-void FalconG::on_rbNoBackgroundImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hNotUsed;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
 }
 
 void FalconG::on_rbRightBorder_toggled(bool on)
@@ -3424,15 +3448,6 @@ void FalconG::on_rbTextShadow_toggled(bool b)
 	int n = b ? 0 : 1;	// text or box shadow
 	_ShadowForElementToUI(pElem, n);
 	config.waterMark.SetupMark();
-}
-void FalconG::on_rbTileBckImage_toggled(bool b)
-{
-	if (!_busy && b)
-	{
-		config.backgroundImage.v = hTile;
-		_SetConfigChanged(true);
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-	}
 }
 
 void FalconG::on_rbTopBorder_toggled(bool on)
@@ -4055,7 +4070,7 @@ void FalconG::_SettingUpFontsCombo()
 	QStringList qsl = config.sDefFonts.ToString().split('|') + config.sGoogleFonts.ToString().split('|');
 	qsl.sort(Qt::CaseInsensitive);
 	ui.cbFonts->clear();
-	for (auto s : qsl)
+	for (QString& s : qsl)
 	{
 		s.replace('+', ' ');
 		ui.cbFonts->addItem(s);
@@ -4198,13 +4213,22 @@ void FalconG::_GetTextsForEditing()
  *-------------------------------------------------------*/
 void FalconG::_LoadBckImage(QString name)
 {
-	if (name.isEmpty())
+	if (name.isEmpty() || (config.backgroundImage.loaded && name == config.backgroundImage.fileName) )
 		return;
+
+	config.backgroundImage.loaded = false;
+	config.backgroundImage.SetNames(name);
 	QSize size(308, 227);// = ui.lblbckImage->size(); label size is not the real one when page is loaded
 	QImage image(name);
-	QPixmap pm;
-	pm = QPixmap::fromImage(image.scaled(size, Qt::KeepAspectRatio));
-	ui.lblbckImage->setPixmap(pm);
+	if (!image.isNull())	// load error
+	{
+		QPixmap pm;
+		pm = QPixmap::fromImage(image.scaled(size, Qt::KeepAspectRatio));
+		ui.lblbckImage->setPixmap(pm);
+		config.backgroundImage.loaded = true;
+	}
+	else
+		ui.lblbckImage->clear();	// image read error
 }
 
 void FalconG::_ResetScheme()
@@ -4623,7 +4647,7 @@ void FalconG::_ColorToSample(_CElem* pElem)
 void FalconG::_BackgroundToSample(_CElem* pElem)
 {	
 	QString qs;
-	qs = pElem->background.ForStyleSheet(false, true);
+	qs = pElem->background.ForStyleSheet(false, true,false);
 	_SetCssProperty(pElem, qs);
 }
 
@@ -4659,18 +4683,18 @@ void FalconG::_FontToSample(_CElem* pElem)
 		_SetCssProperty(pElem,  "font-family:" + pElem->font.Family() + "\n" +
 								"font-size:"   + pElem->font.SizeStr() + "\n" +
 								"font-weight:" + pElem->font.WeightStr() + "\n" +
-								"font-style:" + pElem->font.ItalicStr() + "\n" + 
+								"font-style:"  + pElem->font.ItalicStr() + "\n" + 
 								"line-height:" + pElem->font.LineHeightStr());
 //		 qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
 //		_SetCssProperty(pElem, "font-size:" + qs, "::first-line");	// parent = Web and ::first-line
 	}
 	else
 	{
-		_SetCssProperty(pElem,	"font-family:\n"
-								"font-size:\n"
-								"font-weight:\n"
-								"font-style:\n"
-								"line-height:");
+		_SetCssProperty(pElem,	"font-family:inherit\n"
+								"font-size:	inherith\n"
+								"font-weight:inherit\n"
+								"font-style:inherith\n"
+								"line-height:inherit");
 //		qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
 //		_SetCssProperty(pElem, "font-size", qs, "::first-line");	// parent = Web and ::first-line
 	}
@@ -4678,8 +4702,12 @@ void FalconG::_FontToSample(_CElem* pElem)
 
 void FalconG::_SpaceAfterToSample(_CElem* pElem)
 {
-	QString qs = "margin-bottom:" + (pElem->spaceAfter ? QString("%1px").arg(pElem->spaceAfter) : QString());
-	_SetCssProperty(pElem, qs);
+	int spcAfter = pElem->spaceAfter;
+	if (spcAfter)
+	{
+		QString qs = "margin-bottom:" + QString("%1px").arg(spcAfter);
+		_SetCssProperty(pElem, qs);
+	}
 }
 
 void FalconG::_DecorationToSample(_CElem* pElem)
@@ -4689,13 +4717,13 @@ void FalconG::_DecorationToSample(_CElem* pElem)
 		_SetCssProperty(pElem, "text-decoration-line:");
 	else if (pElem == &config.Web || !pElem->parent || pElem->parent == &config.Web || pElem->parent->decoration != pElem->decoration)
 	{
-		_SetCssProperty(pElem, "text-decoration-line:"   +  pElem->decoration.TextDecorationLineStr() + "\n" + 
-								"text-decoration-style:" +  pElem->decoration.TextDecorationStyleStr() + "");
+		_SetCssProperty(pElem,	"text-decoration-line:"		+  pElem->decoration.TextDecorationLineStr() + "\n" + 
+								"text-decoration-style:"	+  pElem->decoration.TextDecorationStyleStr() + "");
 	}
 	else
 	{
-		_SetCssProperty(pElem,	"text-decoration-line:\n"
-								"text-decoration-style:");
+		_SetCssProperty(pElem,	"text-decoration-line:inherit\n"
+								"text-decoration-style:inherit");
 	}
 
 }
@@ -4720,8 +4748,12 @@ void FalconG::_PageBackgroundToSample()
 	auto setSameBackground = [&](AlbumElement what)
 	{		   // opacity does not change
 		_CElem* pe = _PtrToElement(what);
-		pe->background.Set(wbc, -1);
-		_SetCssProperty(pe, pe->background.ForStyleSheet(false,true) );
+		//pe->background.Set(wbc, -1);
+		//_SetCssProperty(pe, pe->background.ForStyleSheet(false,true) );
+		// clear background from css
+		_RemoveCssProperty(pe,"background:");
+		_RemoveCssProperty(pe,"background-color:");
+		_RemoveCssProperty(pe,"color:");
 	};
 
 	if (ui.chkSetAll->isChecked())		// then remove all other background colors
@@ -4837,20 +4869,20 @@ void FalconG::_SaveChangedTexts()
 	if (ui.chkChangeTitleEverywhere->isChecked())
 	{						// remove the old text and ID
 							// replace the old ID with the new everywhere
-		for (auto a : albumgen.Albums())
+		for (auto &a : albumgen.Albums())
 			if (a.titleID == otid)
 				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.SetAlbumModified(a);
-		for (auto a : albumgen.Images())
+		for (auto &a : albumgen.Images())
 			if (a.titleID == otid)
 				a.titleID = _selection.title.ID, tmap.Remove(otid);
 	}
 	if (ui.chkChangeDescriptionEverywhere->isChecked())
 	{						// remove the old text and ID
 							// replace the old ID with the new everywhere
-		for (auto a : albumgen.Albums())
+		for (auto &a : albumgen.Albums())
 			if (a.descID == odid)
 				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.SetAlbumModified(a);
-		for (auto a : albumgen.Images())
+		for (auto &a : albumgen.Images())
 			if (a.descID == odid)
 				a.descID = _selection.description.ID, tmap.Remove(odid);
 	}
@@ -5532,32 +5564,131 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 	styles = styles.trimmed();
 
 	static QStringList __qslRunThese;
-	__qslRunThese = __qslRunThese + styles.split('\n');
+	QRegExp rx("[\t\n]");
+	__qslRunThese = styles.split(rx);
 
 	int pos;
 	QString qs;	 
 
 	auto runOneTag = [&](QString &s)
 	{
+		if (s.isEmpty())
+			return;
+
 		pos = s.indexOf(':');
 		if (pos <= 0) 
 			return;
 		qs = QString("SetPropertyForSelector('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
+#ifdef DEBUG
+		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << (v.isValid() ? v.toString() : QString("invalid")); });
+#else
 		_page.runJavaScript(qs);
+#endif
 //		DEBUG_LOG(qs)
 	};
-	for (auto s : __qslRunThese)
+	for (auto &s : __qslRunThese)
 		runOneTag(s);
 
 	__qslRunThese.clear();
 }
 
+// example value: "color: #1234"
 void FalconG::_SetCssProperty(_CElem*pElem, QString value, QString subSelector)
 {
 	QString className = pElem->ClassName();
 	if (!subSelector.isEmpty())
 		className += subSelector;
 	_RunJavaScript(className, value);
+}
+
+// for shorthand properties like "background" must manually reset all
+// long name properties. 
+// For "background", remove all of the following:
+//	background-color
+//	background-image
+//	background-position
+//	background-size
+//	background-repeat
+//	background-origin
+//	background-clip
+//	background-attachment
+// For "border"
+//  border-width
+//  border-style (required)
+//  border-color	
+// For border-<XX> (XX: left, top, right, bottom)
+//  border-<XX>-width
+//  border-<XX>-style (required)
+//  border-<XX>-color	
+// For padding
+//  padding-top
+//  padding-right
+//  padding-bottom
+//  padding-left
+//	Add more properties here if and when used
+void FalconG::_RemoveCssProperty(_CElem* pElem, QString styles, QString subSelector)
+{
+	QString className = pElem->ClassName();
+	if (!subSelector.isEmpty())
+		className += subSelector;
+	if (!_isWebPageLoaded)		// only try to run after page looaded
+		return;
+
+	styles = styles.trimmed();
+	QStringList __qslRunThese;
+	__qslRunThese = styles.split('\n');
+
+	static const QStringList bckList = {//	"background-color", not removed as 'background' only used  to 'background-image
+										"background-image",
+										"background-position",
+										"background-size",
+										"background-repeat",
+										"background-origin",
+										"background-clip",
+										"background-attachment"},
+							borderList = {"border-%Swidth","border-%sstyle","border-%scolor"},	// %s from subbirderlist
+							subborderList = {"top-","right-","bottom-","left-"},				// %s: "top-", "right-", "bottom-", "left-",
+							padding = {"padding-top","padding-right","padding-bottom","padding-left"};
+
+	auto removeOneTag = [&](const QString& selector)
+	{
+		QString qs = QString(className + ".style.removeProperty('" + selector + "')");
+#ifdef DEBUG
+		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << (v.isValid() ? v.toString() : QString("invalid")); });
+#else
+		_page.runJavaScript(qs);
+#endif
+	};
+	QString selector;
+
+	for (auto& s : __qslRunThese)
+	{
+		int pos = s.indexOf(':');
+		if (pos <= 0)
+			continue;
+		selector = s.left(pos);
+		removeOneTag(selector);						// in principle shorthands can't be removed, but I may try
+
+		if (selector == "background")
+		{
+			for(auto& ss:bckList)
+				removeOneTag(ss);
+		}
+		else if (selector == "border")
+		{
+			for (auto& ss : borderList)
+			{
+				removeOneTag(QString(ss).arg(""));	// e.g. border-width
+				for (auto& sss : subborderList)
+					removeOneTag(QString(ss).arg(sss));
+			}
+		}
+		else if (selector == "padding")
+		{
+			for(auto&ss:padding)
+				removeOneTag(ss);
+		}
+	}
 }
 
 void FalconG::_SlotAlbumStructWillChange()

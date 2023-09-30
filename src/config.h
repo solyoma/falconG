@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include <QtCore>
 #include "enums.h"
@@ -934,16 +935,20 @@ struct _CWaterMark : public _CFG_ITEM<bool>, public WaterMark	  // v used for ch
 //--------------------------------------------------------------------------------------------
 struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum 'BackgroundImageSizing'
 {
-	QString fileName;
-	int size = 100;			// 1..100 (%)
+	QString fileName,	// full file path on local machine or a path starting with '/'
+			webName;	// for the web page: same as 'fileName' if it starts with '/'
+						// and /res/<file name part of path> otherwise
+	int size = 100;		// 1..100 (%)
+	bool loaded = false;
 
-	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImagw") : _CFG_ITEM((int)how, nameStr) {}
+	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImage") : _CFG_ITEM((int)how, nameStr) {}
+	void SetNames(QString name);
 
-	QString Url(bool addSemicolon, bool shorthand) const;
-	QString Size(bool addSemicolon, bool shorthand) const;
-	QString Position(bool addSemicolon, bool shorthand) const;
-	QString Repeat(bool addSemicolon, bool shorthand) const;
-	QString ForStyleSheet(bool addSemicolon) const;
+	QString Url(bool shorthand, bool forWebPage) const;
+	QString Position() const; // these are parts of 'background:'
+	QString Repeat() const;
+	QString Size() const;
+	QString ForStyleSheet(bool forWebPage) const;
 	virtual void Write(QSettings& s, QString group = QString()) override;	// into settings, but only if changed
 	virtual void Read(QSettings& s, QString group = QString()) override;
 };
@@ -1068,12 +1073,13 @@ public:
 	// Gallery page
 					// local directories
 	_CDirStr dsApplication;		// home directory for the application (needed for copying resources from here)
-	_CDirStr dsSrc = { "","dsSrc"};				// source directory (jalbum gallery root contains the actual falconG,ini)
-	_CDirStr dsGallery = { "" ,"dsGallery"};			// destination directory on local machine (corresponds to 'public_html' on server)
+	_CDirStr dsSrc = { "","dsSrc"};				// source directory (can be jalbum gallery root, It contains the actual falconG,ini)
+	_CDirStr dsGallery = { "" ,"dsGallery"};	// destination directory on local machine (corresponds to 'public_html' on server)
 
 					// remote directories
 	_CDirStr dsGRoot = { "" ,"dsgRoot"};			// name of root directory on server (in public_html or in dsGallery)
 	_CDirStr dsAlbumDir = {"albums/","dsAlbumDir"};		// (path) name of album directory (usually inside dsGRoot)
+	_CDirStr dsBckImageDir = { "", "dsBckImageDir" };	// path of background image on server /res/ is used when not set
 	_CDirStr dsCssDir = {"css/","dsCssDir"};
 	_CDirStr dsFontDir = {"fonts/","dsFontDir"};
 	_CDirStr dsImageDir = {"imgs/","dsImageDir"};		// images on server AND or destination
@@ -1193,7 +1199,7 @@ public:
 	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
 	_CInt albumMatteRadius = { 0, "abMRad" };
 				// 	Watermarks
-	_CWaterMark waterMark = {"", "Watermark"};
+	_CWaterMark waterMark = {false, "Watermark"};
 
 	_CInt  doNotShowTheseDialogs = { 0, "_doNotShowTheseDialogs" };
 	_CIntArray defaultAnswers = { 6, "defaultAnswers" };	// for question dialogs 1 integer (0 or 1) for each 

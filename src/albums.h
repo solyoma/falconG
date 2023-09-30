@@ -16,7 +16,7 @@
 #include <QMutex>
 
 // DEBUG
-#ifdef DEBUG_ME
+#ifdef DEBUG
 	#include <QtDebug>
 #endif
 
@@ -516,6 +516,8 @@ private:
 	bool _keepPreviousBackup = false; // rename temporary file ?
 
 	int _actLanguage = 0;	// actual language used in album generation
+
+	QString _EncodeTitle(QString title);
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 

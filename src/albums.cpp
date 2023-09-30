@@ -1355,6 +1355,18 @@ bool AlbumGenerator::_ReadFromJAlbumOrderFile(ID_t parentID)
 	return true;
 }
 
+QString AlbumGenerator::_EncodeTitle(QString title)
+{
+	QRegularExpression reg("[\n'\"]");
+	if(title.contains(reg))
+	{
+		title.replace('\n', ' ');
+		title.replace("'", "&0x27;");
+		title.replace("\"", "&0x22;");
+	}
+	return title;
+}
+
 /*============================================================================
   * TASK: test the sizes of an existing thumbnail against config and see 
   *		  if it must be recreated
@@ -1696,7 +1708,7 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 			
 
 	static int debugCnt = 0;
-	for (auto fi : list)		// elements in directory
+	for (auto &fi : list)		// elements in directory
 	{
 		++debugCnt;
 		if( (id = _AddItemToAlbum(albumId, fi,_signalProgress)) == 0)	// nothing added? (hidden file)
@@ -3387,7 +3399,7 @@ int AlbumGenerator::_ProcessVideos()
 	emit SignalToSetProgressParams(0, _ItemSize(), 0, 1); // phase = 1
 	std::atomic_int cnt = TotalCount();	// count of images and videos copied so far
 
-	for (auto im : _videoMap)
+	for (auto &im : _videoMap)
 	{
 		if (!_processing)		// stopped?
 		{
@@ -3858,13 +3870,14 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, ID_t typeFlag, int idI
 				   *		<a class="title" href="%9">%8</a>				
 				   *	</div>
 				   */
+	
 
 	QString qsLoc;		// empty for non root albums/images
 	if (isAlbum)
 		qsLoc = "javascript:LoadAlbum('" + 
 					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
 	else
-		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + title.replace('\n',' ');
+		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + _EncodeTitle(title);
 	qsLoc += +"')";
 
 	QString tagPDesc;
@@ -4357,7 +4370,7 @@ int AlbumGenerator::_CleanUpOutput()
 	dir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
 	dir.setSorting(QDir::Name);
 	QFileInfoList lsFi = dir.entryInfoList();	// e.g albumXXXXX_en.html
-	for (auto fi : lsFi)
+	for (auto &fi : lsFi)
 	{
 		QString s = fi.fileName();
 		s = s.mid(config.sBaseName.ToString().length());	// start of id number
@@ -4376,7 +4389,7 @@ int AlbumGenerator::_CleanUpOutput()
 	// remove videos
 	dir.setPath((config.dsGallery + config.dsGRoot + config.dsVideoDir).ToString());
 	lsFi = dir.entryInfoList();
-	for (auto fi : lsFi)
+	for (auto &fi : lsFi)
 	{
 		QString s = fi.fileName();	// start of id number
 		int posd = s.indexOf('.');
@@ -4388,7 +4401,7 @@ int AlbumGenerator::_CleanUpOutput()
 	// remove images
 	dir.setPath((config.dsGallery + config.dsGRoot + config.dsImageDir).ToString());
 	lsFi = dir.entryInfoList();
-	for (auto fi : lsFi)
+	for (auto &fi : lsFi)
 	{
 		QString s = fi.fileName();	// start of id number
 		int posd = s.indexOf('.');
@@ -4420,7 +4433,7 @@ int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
 	const int MAX_LATEST_COUNT = 100;		// max 100 images from latest uploads
 	int cnt = MAX_LATEST_COUNT;
 
-	for (auto a : _imageMap)
+	for (auto &a : _imageMap)
 		if (a.uploadDate >= dt)
 		{
 			here.list.push_back(a.ID);
@@ -4434,7 +4447,7 @@ int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
 
 	if (cnt)
 	{
-		for (auto a : _videoMap)
+		for (auto &a : _videoMap)
 			if (a.uploadDate >= dt)
 			{
 				here.list.push_back(a.ID);

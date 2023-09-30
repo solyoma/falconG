@@ -636,7 +636,7 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
     {
         IdList idList, 
                &items = _ActAlbum()->items;
-        for (auto e : indexesList)
+        for (auto &e : indexesList)
         {
             ID_t id = items[e.row()];
             if (idList.indexOf(id) < 0)
@@ -707,7 +707,7 @@ void ThumbnailView::startDrag(Qt::DropActions)
     QDrag *drag = new QDrag(this);
     ThumbMimeData *mimeData = new ThumbMimeData;
     QList<QUrl> urls;	// create pixmap from this list of names
-	for (auto f : indexesList)
+	for (auto &f : indexesList)
 	{
 	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type() );
 		urls << QUrl(thumbRec.FileName());
@@ -739,7 +739,7 @@ void ThumbnailView::startDrag(Qt::DropActions)
             yMax = qMax(yMax, qMin(112, y + pix1.height()));
             painter.drawRect(x + 1, y + 1, qMin(126, pix1.width() - 2), qMin(110, pix1.height() - 2));
             x = !(x == y) * 56;
-            y = !y * 40;
+            y = (!y) * 40;
         }
         painter.end();
         pix = pix.copy(0, 0, xMax, yMax);
@@ -759,7 +759,7 @@ void ThumbnailView::startDrag(Qt::DropActions)
 	drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::MoveAction);
 }
 
-#ifdef DEBUG_ME
+#ifdef DEBUG
 QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEvent inherits this
 {
 	const Qt::DropAction action = event->proposedAction();
@@ -929,7 +929,7 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
         return -1; // can't use'
     };
 
-    for (auto u : mimeData->urls())
+    for (auto &u : mimeData->urls())
     {
         auto s = u.toLocalFile();
         int w = what(s);
@@ -1354,7 +1354,7 @@ void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
 bool ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
 {
     bool atLeastOneFolderWasAdded = false;
-    for (auto folderName: qslFolders)
+    for (auto &folderName: qslFolders)
             atLeastOneFolderWasAdded |= _AddFolder(folderName);
 
     return atLeastOneFolderWasAdded;
@@ -1633,7 +1633,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             
             QModelIndexList list = selectionModel()->selectedIndexes();
             ID_t id;
-            for (auto i : list) // if at least a single image then this is valid
+            for (auto &i : list) // if at least a single image then this is valid
             {
                 id = album.items[i.row()];
 
@@ -1817,7 +1817,7 @@ void ThumbnailView::SynchronizeTexts()
                 pDescr = albumgen.TextsAt(descrId);
             }
 
-        for (auto it : list)
+        for (auto &it : list)
         {
             if (it.row() != _rowSelectedWithRightButton)
             {
@@ -1962,7 +1962,7 @@ void ThumbnailView::CopyNamesToClipboard()
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
     IABase* pItem;
-    for (auto i : list)
+    for (auto &i : list)
     {
         ID_t id = _ActAlbum()->items[i.row()];// ID_t(i.internalPointer());
         pItem = albumgen.IdToItem(id);
@@ -1995,7 +1995,7 @@ void ThumbnailView::CopyOriginalNamesToClipboard()
 {
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
-	for (auto i : list)
+	for (auto &i : list)
 		s += selectionModel()->model()->data(i, SourcePathNameRole).toString() + "\n";
 	QClipboard *clipboard = QGuiApplication::clipboard();
 	clipboard->clear();
@@ -2055,7 +2055,7 @@ void ThumbnailView::ToggleDontResizeFlag()
     emit SignalAlbumStructWillChange();
 
     Image* pImage;
-    for (auto i : list)
+    for (auto &i : list)
     {
         ID_t id = album.items[i.row()];
         if (id & IMAGE_ID_FLAG)     // toggle original size for image
