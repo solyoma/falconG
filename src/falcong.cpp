@@ -22,6 +22,11 @@
 #include "csscreator.h"
 #include "imageviewer.h"
 
+#ifdef _DEBUG
+	#include "hidden.h"
+#endif
+
+
 
 #define DEBUG_LOG(qs) \
 {							 \
@@ -456,7 +461,7 @@ void FalconG::on_btnSourceHistory_clicked()
 
 /*============================================================================
   * TASK:	set the shortcut key sequence
-  * EXPECTS: pw : button qs shoertcut as a string e.g. "F9" or "Ctrl+O"
+  * EXPECTS: pw : button qs shortcut as a string e.g. "F9" or "Ctrl+O"
   * RETURNS:
   * GLOBALS:
   * REMARKS: required as setText with a & in it changes the shortcut for the button
@@ -649,6 +654,28 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae)
 		default: return  nullptr; break;
 	}
 }
+
+#if defined(_DEBUG)
+
+void FalconG::keyPressEvent(QKeyEvent* event)
+{
+	static QString sroot, sext=".jpg|.nef|.cr2|.rw2|.psd|.dng|.tif";
+	if (event->key() == Qt::Key_E && event->modifiers().testFlag(Qt::AltModifier))
+	{
+		FileLister* pfl = new FileLister(this);
+		pfl->SetState(sroot, sext);
+		if (pfl->exec())
+		{
+			if(pfl->CreateList() )
+				pfl->GetState(sroot, sext);
+		}
+		delete pfl;
+	}
+	//else
+	//	((QDialog*)this)->keyPressEvent(event);
+}
+
+#endif
 
 
 //static QString __ColorToRGBAString(_CColor &cc)

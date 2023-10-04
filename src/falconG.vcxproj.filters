@@ -118,6 +118,9 @@
     <QtUic Include="imageviewer.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="hidden.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="falcong.qrc">
@@ -147,6 +150,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="schemes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hidden.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

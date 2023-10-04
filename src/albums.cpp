@@ -1361,8 +1361,8 @@ QString AlbumGenerator::_EncodeTitle(QString title)
 	if(title.contains(reg))
 	{
 		title.replace('\n', ' ');
-		title.replace("'", "&0x27;");
-		title.replace("\"", "&0x22;");
+		title.replace("'", "\\'");
+		title.replace("\"", "\\\"");
 	}
 	return title;
 }

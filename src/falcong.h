@@ -19,6 +19,7 @@ using namespace Enums;
 
 #include <memory>
 
+
 class ImageViewer;	// in imageviewer.h
 
 // ************************ helper **********************
@@ -128,6 +129,10 @@ private:
 	QString _GradientStyleQt(_CElem &elem, bool invert = false);	// Creates QT stylesheet gradinet string
 	void  _SetGradientLabelColors(_CElem *pElem, bool invert = false);	// Creates QT stylesheet gradinet string
 	_CElem* _PtrToElement(AlbumElement ae = aeUndefined);
+
+#if defined(_DEBUG)
+	void keyPressEvent(QKeyEvent* event) override;
+#endif
 
 
 	void _SetIconColor(QIcon &icon, _CElem &elem);

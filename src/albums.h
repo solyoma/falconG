@@ -52,7 +52,7 @@ const ID_t ID_INCREMENT		= 0x0000000100000000ull;	// when image id clash add thi
 const ID_t MAX_ID			= 0x07FFFFFFFFFFFFFFull;	 
 const int TEXT_ID_COLLISION_FACTOR = 32;		// id >> TEXT_ID_COLLISION_FACTOR = overflow index
 
-extern QString BackupAndRename(QString name, QString tmpName, QWidget *parent, bool keepBackup);	// in support.cpp
+//extern QString BackupAndRename(QString name, QString tmpName, bool keepBackup);	// in support.cpp
 
 //------------------------ base class for albums and images ------------------
 struct IABase
@@ -300,7 +300,7 @@ class ImageMap : public QMap<ID_t, Image>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Image invalid;
-	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
+	static QString lastUsedPath;	// config.dsSrc relative path to image so that we can add 
 
 	Image& Find(ID_t id, bool useBase = true);
 	Image& Find(QString FullSourceName);
