@@ -393,18 +393,43 @@ private:
 		return cnt;
 	}
 	bool _SaveList()
-	{
-		QString scfg = PROGRAM_CONFIG::NameForConfig(true, ".files.txt");
-		QFile f(scfg);
+	{				 // create 2 files:
+					 // for files present in both folders
+					 // for files not present in original folder
+		QString sFiles = PROGRAM_CONFIG::NameForConfig(true, ".files.txt"),
+			    sNoFiles = PROGRAM_CONFIG::NameForConfig(true, ".orphans.txt");
+		QFile f(sFiles), fm(sNoFiles);
 		f.open(QIODevice::WriteOnly);
-		QTextStream ofs(&f);
+		fm.open(QIODevice::WriteOnly);
+		QTextStream ofs(&f), ofsm(&fm);
+		ofs << "FalconG - List of files in gallery source whose originals were found in "
+			<< ui.edtRootFolder->text() << "\n\n";
+		ofsm << "FalconG - List of files in gallery source whose originals were NOT found in "
+			<< ui.edtRootFolder->text() << "\n\n";
+		int cnt1 = 0, cnt2 = 0, cnt3 = 0;
 		for (auto& specs : _specs)
 		{
-			ofs << __ToQString<stringType>(specs.pathName) << "\n";
-			for (auto& a : specs.opaths)
-				ofs << " " << __ToQString<stringType>(__ToString<stringType>(a)) << "\n";
+			if (specs.opaths.empty())
+			{
+				ofsm << __ToQString<stringType>(specs.pathName) << "\n";
+				++cnt1;
+			}
+			else
+			{
+				ofs << __ToQString<stringType>(specs.pathName) << "\n";
+				++cnt2;
+				for (auto& a : specs.opaths)
+				{
+					ofs << " -> " << __ToQString<stringType>(__ToString<stringType>(a)) << "\n";
+					++cnt3;
+				}
+			}
 		}
+		ofs << "\n\n-----Count of files in a) gallery: " << cnt2 << ", b) source: " << cnt3 << "\n";
+		ofsm << "\n\n-----Count of orphan files in gallery: " << cnt1 << "\n";
 		f.close();
+		fm.close();
+		
 		return true;
 	}
 private slots:
