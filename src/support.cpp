@@ -992,7 +992,7 @@ int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb,
 
 		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
 		if (pwm)
-			_AddWatermark(*pwm);
+			_AddWatermark(*pwm);	// onto _pImg
 	}
 		
 	// write scaled image into 'dest'
@@ -1088,6 +1088,16 @@ void ImageConverter::_AddWatermark(WaterMark & wm)
 	else
 		painter.drawImage(QPoint(x0, y0), *wm.PMarkImage());
 
+	// DEBUG
+	//wm.PMarkImage()->save(PROGRAM_CONFIG::samplePath + "\\watermark.png");
+	//QBrush brush(Qt::red);
+	//painter.setPen(QPen(brush, 5));
+	//painter.drawLine(x0, y0, x0+markWidth, y0);
+	//painter.drawLine(x0+markWidth, y0,x0+markWidth, y0+markHeight);
+	//painter.drawLine(x0, y0+markHeight,x0+markWidth, y0+markHeight);
+	//painter.drawLine(x0, y0+markHeight,x0,y0);
+	//_pImg->save(PROGRAM_CONFIG::samplePath + "\\watermarkedImage.png");
+	// DEBUG
 }
 
 /*============================================================================

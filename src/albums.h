@@ -116,9 +116,22 @@ struct Image : public IABase
 			rsize = { 0, 0 },	// image to be resized to this size
 			tsize;				// thumbnail size. Determined externally
 
-	bool	bSizeDifferent;		// from width and height
+	bool	bDestFileChangedOrMissing;		// from width and height
 
-	void GetResizedDimensions(QSize &destSize)	// 'destSize' is size of existing destination image or 0,0
+	/*=============================================================
+	 * TASK   :
+	 * PARAMS : destSize: invalid (-1,-1) if destination does not exist
+	 *						otherwise size of existing file
+	 * EXPECTS: - file name osize and perhaps dsize and
+	 *			  last upload time are set from database
+	 *			- 
+	 * GLOBALS:
+	 * RETURNS: nothing
+	 * REMARKS:	- sets 'rsize' to the required destination size
+	 *			- sets 'bDestFileChangedOrMissing' true if 'rsize' and 'dsize' are different
+	 *					or 'destSize' is different from 'rsize'
+	 *------------------------------------------------------------*/
+	void GetResizedDimensions(QSize& destSize)	// 'destSize' is size of existing destination image or -1,-1
 	{							// if destination image does not exist or a wrong size
 		rsize = osize;			// recalculate destination size into 'rsize' 
 		QSize csize = config.ImageSize();	// required destination image dimensions
@@ -129,12 +142,18 @@ struct Image : public IABase
 								// original size is to small and enlargement is allowed
 					(!config.doNotEnlarge && osize.width() < csize.width() && osize.height() < csize.height())
 				)
-		)
+			)
 			rsize.scale(csize, Qt::KeepAspectRatio);	// calculate destination size
+		auto sizediff = [&](QSize& dSize) -> bool
+			{
+				return (abs(rsize.width() - dSize.width()) > 2) || (abs(rsize.height() - dSize.height()) > 2);
+			};
+
 			// and compare it with previous size (if any given)
 			// dsize can be 0,0 if no destination image exists or specified
-		QSize dSize = dsize.isEmpty() ? destSize : dsize;
-		bSizeDifferent = (abs(rsize.width() - dSize.width()) > 2) || (abs(rsize.height() - dSize.height()) > 2);
+		bDestFileChangedOrMissing = !destSize.isValid() ||							// no dest. file: must create, or
+							(dsize.isEmpty() && sizediff(destSize)) ||	// dsize is not set, but destSize is valid and set
+							(!dsize.isEmpty() && sizediff(dsize));		// dsize is set but different from required size
 
 		SetThumbSize();
 		//if (tsize.width() > ctsize.width())	// crop thumbnail from image
