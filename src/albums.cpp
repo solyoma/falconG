@@ -2620,7 +2620,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	else if (n == 1)	// then no ID is determined yet, sl[0] contains the whole config.dsSrc relative path
 	{
 		SetAlbumModified(*aParent);		// aParent must exist for each non-root album
-		if (QFile::exists(sl[0]))		// then not virtual directory => images are inside this folder
+		QString path = config.dsSrc.ToString() + sl[0];
+		if (QFile::exists(path))		// then not virtual directory => images are inside this folder
 			lastUsedAlbumPath = sl[0] + "/";
 
 		bool added;
