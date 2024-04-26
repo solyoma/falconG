@@ -4,13 +4,13 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="../src/albums.cpp" line="2288"/>
-        <location filename="../src/albums.cpp" line="3111"/>
+        <location filename="../src/albums.cpp" line="2322"/>
+        <location filename="../src/albums.cpp" line="3146"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2288"/>
+        <location filename="../src/albums.cpp" line="2322"/>
         <source>Unknown file type
 File name:
 %1</source>
@@ -19,28 +19,28 @@ File neve:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2820"/>
+        <location filename="../src/albums.cpp" line="2855"/>
         <source>Bad thumbnail line</source>
         <translation>Érvénytelen kis-kép sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2851"/>
+        <location filename="../src/albums.cpp" line="2886"/>
         <source>Error</source>
         <translation>Hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="4196"/>
+        <location filename="../src/albums.cpp" line="4232"/>
         <source>Missing or unreadable &quot;about_text%1.txt&quot; file</source>
         <translation>Az &quot;about_text%1.txt&quot; fájl hiányzik, vagy nem olvasható</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="4801"/>
-        <location filename="../src/albums.cpp" line="4807"/>
+        <location filename="../src/albums.cpp" line="4837"/>
+        <location filename="../src/albums.cpp" line="4843"/>
         <source>falconG - Generate</source>
         <translation>falconG - Generálás</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5168"/>
+        <location filename="../src/albums.cpp" line="5204"/>
         <source>If a folder is removed all the files and folders inside it will be deleted too!
 
 This cannot be undone!
@@ -53,8 +53,8 @@ Ez nem visszavonható művelet!
 Tényleg le akarja törölni ezeket a lemezről?</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="4196"/>
-        <location filename="../src/albums.cpp" line="5168"/>
+        <location filename="../src/albums.cpp" line="4232"/>
+        <location filename="../src/albums.cpp" line="5204"/>
         <source>FalconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -62,57 +62,54 @@ Tényleg le akarja törölni ezeket a lemezről?</translation>
 <context>
     <name>AlbumTreeView</name>
     <message>
-        <location filename="../src/structEdit.cpp" line="299"/>
         <source>Add &amp;Images...</source>
-        <translation>&amp;Képek hozzáadása...</translation>
+        <translation type="vanished">&amp;Képek hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/structEdit.cpp" line="304"/>
         <source>Add &amp;Folder...</source>
-        <translation>&amp;Mappa hozzáadása...</translation>
+        <translation type="vanished">&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/structEdit.cpp" line="309"/>
         <source>&amp;Remove</source>
-        <translation>&amp;Eltávolítás</translation>
+        <translation type="vanished">&amp;Eltávolítás</translation>
     </message>
 </context>
 <context>
     <name>FalconG</name>
     <message>
-        <location filename="../src/falcong.cpp" line="503"/>
+        <location filename="../src/falcong.cpp" line="512"/>
         <source>Cancel (F9)</source>
         <translation>Megszakítás (F9)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="546"/>
+        <location filename="../src/falcong.cpp" line="555"/>
         <source>Generate (F9}</source>
         <translation>Generálás (F9}</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="956"/>
+        <location filename="../src/falcong.cpp" line="985"/>
         <source>Styles</source>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1016"/>
-        <location filename="../src/falcong.cpp" line="1449"/>
-        <location filename="../src/falcong.cpp" line="1474"/>
-        <location filename="../src/falcong.cpp" line="1631"/>
-        <location filename="../src/falcong.cpp" line="1657"/>
-        <location filename="../src/falcong.cpp" line="1688"/>
-        <location filename="../src/falcong.cpp" line="1710"/>
-        <location filename="../src/falcong.cpp" line="1732"/>
-        <location filename="../src/falcong.cpp" line="1755"/>
-        <location filename="../src/falcong.cpp" line="1776"/>
-        <location filename="../src/falcong.cpp" line="1836"/>
-        <location filename="../src/falcong.cpp" line="1854"/>
-        <location filename="../src/falcong.cpp" line="1881"/>
+        <location filename="../src/falcong.cpp" line="1045"/>
+        <location filename="../src/falcong.cpp" line="1477"/>
+        <location filename="../src/falcong.cpp" line="1502"/>
+        <location filename="../src/falcong.cpp" line="1660"/>
+        <location filename="../src/falcong.cpp" line="1686"/>
+        <location filename="../src/falcong.cpp" line="1717"/>
+        <location filename="../src/falcong.cpp" line="1739"/>
+        <location filename="../src/falcong.cpp" line="1761"/>
+        <location filename="../src/falcong.cpp" line="1784"/>
+        <location filename="../src/falcong.cpp" line="1805"/>
+        <location filename="../src/falcong.cpp" line="1865"/>
+        <location filename="../src/falcong.cpp" line="1883"/>
+        <location filename="../src/falcong.cpp" line="1910"/>
         <source>Select Color</source>
         <translation>Színválasztás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1609"/>
+        <location filename="../src/falcong.cpp" line="1638"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -123,201 +120,201 @@ A  mentés mappája:
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1799"/>
+        <location filename="../src/falcong.cpp" line="1828"/>
         <source>falconG - Open Background Image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1799"/>
+        <location filename="../src/falcong.cpp" line="1828"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1511"/>
+        <location filename="../src/falcong.cpp" line="1539"/>
         <source>falconG - Open background image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="189"/>
+        <location filename="../src/falcong.cpp" line="197"/>
         <source>falconG Version - %1.%2.%3</source>
         <translation>falconG - %1.%2.%3. verzió</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4244"/>
+        <location filename="../src/falcong.cpp" line="4296"/>
         <source>Background color</source>
         <translation>Háttérszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4256"/>
+        <location filename="../src/falcong.cpp" line="4308"/>
         <source>Foreground (Text) color</source>
         <translation>Szöveg színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4264"/>
+        <location filename="../src/falcong.cpp" line="4316"/>
         <source>Border color</source>
         <translation>Keret színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4272"/>
+        <location filename="../src/falcong.cpp" line="4324"/>
         <source>Focused Input color</source>
         <translation>Aktuális szövegszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4280"/>
+        <location filename="../src/falcong.cpp" line="4332"/>
         <source>Hover color</source>
         <translation>Mutató alatti szín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4288"/>
+        <location filename="../src/falcong.cpp" line="4340"/>
         <source>Tab Border color</source>
         <translation>Fül keretszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4296"/>
+        <location filename="../src/falcong.cpp" line="4348"/>
         <source>Input Background</source>
         <translation>Bevitel háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4304"/>
+        <location filename="../src/falcong.cpp" line="4356"/>
         <source>Selected Background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4312"/>
+        <location filename="../src/falcong.cpp" line="4364"/>
         <source>Focused Border color</source>
         <translation>Fokuszált elem keretszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4320"/>
+        <location filename="../src/falcong.cpp" line="4372"/>
         <source>Disabled Foreground</source>
         <translation>Érvénytelen mező betűszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4328"/>
+        <location filename="../src/falcong.cpp" line="4380"/>
         <source>Disabled Background</source>
         <translation>Érvénytelen mező háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4336"/>
+        <location filename="../src/falcong.cpp" line="4388"/>
         <source>Image Background</source>
         <translation>Kép háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4344"/>
+        <location filename="../src/falcong.cpp" line="4396"/>
         <source>Button Pressed Bg</source>
         <translation>Lenyomott gomb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4352"/>
+        <location filename="../src/falcong.cpp" line="4404"/>
         <source>Default Background</source>
         <translation>Alapértelmezett háttér</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4360"/>
+        <location filename="../src/falcong.cpp" line="4412"/>
         <source>Progressbar Chunk color</source>
         <translation>Haladásjelző színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4368"/>
+        <location filename="../src/falcong.cpp" line="4420"/>
         <source>Warning color</source>
         <translation>Figyelmeztetés színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4376"/>
+        <location filename="../src/falcong.cpp" line="4428"/>
         <source>Groupbox Title Color</source>
         <translation>Doboz címének színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4384"/>
+        <location filename="../src/falcong.cpp" line="4436"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4505"/>
+        <location filename="../src/falcong.cpp" line="4557"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4505"/>
+        <location filename="../src/falcong.cpp" line="4557"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmaztad.
 Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5334"/>
+        <location filename="../src/falcong.cpp" line="5399"/>
         <source>Phase 4: cleaning up gallery</source>
         <translation>4. fázis galéria tisztítása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5426"/>
+        <location filename="../src/falcong.cpp" line="5491"/>
         <source>%1 Albums, %2 images</source>
         <translation>%1 album és %2 kép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1326"/>
+        <location filename="../src/falcong.cpp" line="1354"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <translation>Nincs (elég) &apos;:&apos; a névben. Ugyanazt a nevet fogja használni
 több program nyelvre. Ezt akarod?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1311"/>
-        <location filename="../src/falcong.cpp" line="1400"/>
-        <location filename="../src/falcong.cpp" line="1551"/>
-        <location filename="../src/falcong.cpp" line="2120"/>
-        <location filename="../src/falcong.cpp" line="2147"/>
-        <location filename="../src/falcong.cpp" line="2273"/>
+        <location filename="../src/falcong.cpp" line="1339"/>
+        <location filename="../src/falcong.cpp" line="1428"/>
+        <location filename="../src/falcong.cpp" line="1580"/>
+        <location filename="../src/falcong.cpp" line="2149"/>
+        <location filename="../src/falcong.cpp" line="2176"/>
+        <location filename="../src/falcong.cpp" line="2302"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="323"/>
+        <location filename="../src/falcong.cpp" line="332"/>
         <source>An operation is in progress.
  Please stop it before exiting.</source>
         <translation>A program dolgozik.állítsd le, mielőtt kilépsz!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="334"/>
+        <location filename="../src/falcong.cpp" line="343"/>
         <source>falconG - albums edited</source>
         <translation>falconG - Az albumok megváltoztak</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="335"/>
+        <location filename="../src/falcong.cpp" line="344"/>
         <source>There are unsaved changes in the albums / images
 Do you want to save them?</source>
         <translation>Mentetlen változtatások vannak az albumokban / képekben
 El akarod menteni ezeket?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="338"/>
-        <location filename="../src/falcong.cpp" line="1611"/>
+        <location filename="../src/falcong.cpp" line="347"/>
+        <location filename="../src/falcong.cpp" line="1640"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="367"/>
+        <location filename="../src/falcong.cpp" line="376"/>
         <source>Do you really want to exit?</source>
         <translation>Tényleg ki akarsz lépni?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="370"/>
+        <location filename="../src/falcong.cpp" line="379"/>
         <source>Don&apos;t ask again (use Options to re-enable))</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1311"/>
+        <location filename="../src/falcong.cpp" line="1339"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztattad a program nyelvét. Kérlek indítsd újra a nyelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1318"/>
-        <location filename="../src/falcong.cpp" line="1325"/>
+        <location filename="../src/falcong.cpp" line="1346"/>
+        <location filename="../src/falcong.cpp" line="1353"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1316"/>
+        <location filename="../src/falcong.cpp" line="1344"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -328,112 +325,112 @@ matches the modified title.
 Biztos felülírjam?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1400"/>
-        <location filename="../src/falcong.cpp" line="2147"/>
+        <location filename="../src/falcong.cpp" line="1428"/>
+        <location filename="../src/falcong.cpp" line="2176"/>
         <source>Invalid new name. Please use another!</source>
         <translation>Érvénytelen név. Kérem adj egy másikat!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2273"/>
+        <location filename="../src/falcong.cpp" line="2302"/>
         <source>This will reset all dialogs.
 Do you want to proceed?</source>
         <translation>Valóba alaphelyzetbe akarod állítani az összes párbeszéd ablakot?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1552"/>
+        <location filename="../src/falcong.cpp" line="1581"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarod ezt a színösszeállítást?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1385"/>
+        <location filename="../src/falcong.cpp" line="1413"/>
         <source>New Scheme Name
  (for </source>
         <translation>Új séma név a következő nyelvekre:
 ( </translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1386"/>
+        <location filename="../src/falcong.cpp" line="1414"/>
         <source>falconG - Input</source>
         <translation>falconG - Bevitel</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1412"/>
+        <location filename="../src/falcong.cpp" line="1440"/>
         <source>Select background color.</source>
         <translation>Válassz háttérszínt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5181"/>
+        <location filename="../src/falcong.cpp" line="5246"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5182"/>
+        <location filename="../src/falcong.cpp" line="5247"/>
         <source>Don&apos;t show again (use Options to re-enable)</source>
         <translation>Ne jelenjen meg mégegyszer. (A Beállításokban visszakapcsolhatod)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5207"/>
+        <location filename="../src/falcong.cpp" line="5272"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5226"/>
+        <location filename="../src/falcong.cpp" line="5291"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5251"/>
+        <location filename="../src/falcong.cpp" line="5316"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5306"/>
+        <location filename="../src/falcong.cpp" line="5371"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5307"/>
+        <location filename="../src/falcong.cpp" line="5372"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5318"/>
+        <location filename="../src/falcong.cpp" line="5383"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5319"/>
+        <location filename="../src/falcong.cpp" line="5384"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5323"/>
+        <location filename="../src/falcong.cpp" line="5388"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5324"/>
+        <location filename="../src/falcong.cpp" line="5389"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="366"/>
-        <location filename="../src/falcong.cpp" line="5180"/>
-        <location filename="../src/falcong.cpp" line="5397"/>
+        <location filename="../src/falcong.cpp" line="375"/>
+        <location filename="../src/falcong.cpp" line="5245"/>
+        <location filename="../src/falcong.cpp" line="5462"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2121"/>
+        <location filename="../src/falcong.cpp" line="2150"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
 nem megnyitható</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5397"/>
+        <location filename="../src/falcong.cpp" line="5462"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -442,60 +439,60 @@ Az ikon nem olvasható
 &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2353"/>
+        <location filename="../src/albums.cpp" line="2387"/>
         <source>Wrong image parameter count:</source>
         <translation>Hibás kép paraméter szám:</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2637"/>
+        <location filename="../src/albums.cpp" line="2672"/>
         <source> - duplicated album ID</source>
         <translation> - ez az album azonosító már szerepelt</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2698"/>
+        <location filename="../src/albums.cpp" line="2733"/>
         <source>Image id is 0! Try to remove text after image name in the .struct file!</source>
         <translation>A képazonosíto 0!  Próbáld meg kitörölni a szövegeket a fájlnevek után
 a .struct fájlban!</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2777"/>
+        <location filename="../src/albums.cpp" line="2812"/>
         <source>Read error</source>
         <translation>Olvasási hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2782"/>
+        <location filename="../src/albums.cpp" line="2817"/>
         <source>Bad version string</source>
         <translation>Hibás verzió sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2788"/>
+        <location filename="../src/albums.cpp" line="2823"/>
         <source>Missing &apos;.&apos; from version</source>
         <translation>Hiányzó &apos;.&apos; a verziósorban</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2836"/>
+        <location filename="../src/albums.cpp" line="2871"/>
         <source>Missing &apos;]&apos;</source>
         <translation>Hiányzó &apos;]&apos;</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2844"/>
+        <location filename="../src/albums.cpp" line="2879"/>
         <source>Invalid / empty root album line</source>
         <translation>Érvénytelen / üres album sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2857"/>
+        <location filename="../src/albums.cpp" line="2892"/>
         <source>falconG - Error</source>
         <translation>falconG - Hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2858"/>
+        <location filename="../src/albums.cpp" line="2893"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation>Sérült szerkezeti fájl!
 Üzenet: &apos;</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2861"/>
+        <location filename="../src/albums.cpp" line="2896"/>
         <source>
 
 Processing aborted, because continuing
@@ -633,7 +630,7 @@ Idáig %1 sort olvastam. </translation>
 <context>
     <name>QMainWindow</name>
     <message>
-        <location filename="../src/falcong.cpp" line="128"/>
+        <location filename="../src/falcong.cpp" line="136"/>
         <source>Can&apos;t copy resource&apos;%1&apos; to folder &apos;%2&apos;
 Please make sure the folder is writeable!
 
@@ -646,7 +643,7 @@ Kilépek</translation>
     <message>
         <location filename="../src/languages.cpp" line="126"/>
         <location filename="../src/support.cpp" line="36"/>
-        <location filename="../src/support.cpp" line="1166"/>
+        <location filename="../src/support.cpp" line="1192"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -758,7 +755,7 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
         <translation>Nem kérek több figyelmeztetést ehhez az albumhoz</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="689"/>
+        <location filename="../src/support.cpp" line="705"/>
         <source>Either can&apos;t delete 
 &apos;%1&apos;
  or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
@@ -773,7 +770,7 @@ A módosított fájl neve
 megmarad</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="706"/>
+        <location filename="../src/support.cpp" line="722"/>
         <source>Can&apos;t create backup file
 &apos;%1~&apos;
 Temporary file
@@ -785,59 +782,73 @@ Az ideiglenes
 &apos;%2&apos;  fájl megmarad</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="960"/>
+        <location filename="../src/support.cpp" line="976"/>
         <source>Destination file</source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="960"/>
+        <location filename="../src/support.cpp" line="976"/>
         <source>exists and image override is not allowed!</source>
         <translation>fájl létezik és nem szabad felülírnom!</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1007"/>
+        <location filename="../src/support.cpp" line="1023"/>
         <source>Invalid sizes for thumbnail</source>
         <translation>Érvénytelen kis-kép méretek</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1119"/>
+        <location filename="../src/support.cpp" line="1145"/>
         <source>falconG - Question</source>
         <translation>falconG - kérdés</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1121"/>
+        <location filename="../src/support.cpp" line="1147"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1124"/>
+        <location filename="../src/support.cpp" line="1150"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb! (A Beállításokban visszakapcsolhatod a kérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1165"/>
+        <location filename="../src/support.cpp" line="1191"/>
         <source>Can&apos;t create folder</source>
         <translation>Nem tudom létrehozni a mappát</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1232"/>
+        <location filename="../src/support.cpp" line="1258"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1232"/>
+        <location filename="../src/support.cpp" line="1258"/>
         <source>Really remove %1 and all of its content?</source>
         <translation>Tényleg töröljem %1 -et a tartalmával együtt?</translation>
     </message>
     <message>
-        <location filename="../src/languages.h" line="12"/>
         <source>Site generated by
 &lt;strong&gt;falconG&lt;/strong&gt; - © A.Sólyom 2018-2022</source>
-        <translation>Ezt a galériát a 
+        <translation type="vanished">Ezt a galériát a 
 &lt;strong&gt;falconG&lt;/strong&gt; 
 programmal készítették. - © A.Sólyom 2018-2022</translation>
+    </message>
+    <message>
+        <source>Site generated by
+&lt;strong&gt;falconG&lt;/strong&gt; - © A.Sólyom 2018-</source>
+        <translation type="obsolete">Ezt a galériát a 
+&lt;strong&gt;falconG&lt;/strong&gt; 
+programmal készítették. - © A.Sólyom 2018-</translation>
+    </message>
+    <message>
+        <location filename="../src/languages.h" line="12"/>
+        <source>Site generated by
+&lt;strong&gt;falconG&lt;/strong&gt; - © A.Sólyom 2018-2024</source>
+        <translation>Ezt a galériát a 
+&lt;strong&gt;falconG&lt;/strong&gt; 
+programmal készítették. - © A.Sólyom 2018-2024</translation>
     </message>
     <message>
         <location filename="../src/languages.h" line="42"/>
@@ -955,7 +966,7 @@ programmal készítették. - © A.Sólyom 2018-2022</translation>
         <translation>Rendszerszínek</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3292"/>
+        <location filename="../src/albums.cpp" line="3327"/>
         <source>Conversion error:
 &apos;%1&apos;
 Error code:%2
@@ -969,48 +980,48 @@ Hiba kód: %2
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/support.cpp" line="101"/>
+        <location filename="../src/support.cpp" line="117"/>
         <source>images</source>
         <translation>képek</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="101"/>
+        <location filename="../src/support.cpp" line="117"/>
         <source>albums</source>
         <translation>albumok</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="102"/>
+        <location filename="../src/support.cpp" line="118"/>
         <source>Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?</source>
         <translation>A kiválasztott %1 / %2 elemet &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="103"/>
+        <location filename="../src/support.cpp" line="119"/>
         <source>image</source>
         <translation>kép</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="104"/>
+        <location filename="../src/support.cpp" line="120"/>
         <source>album</source>
         <translation>album</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="106"/>
-        <location filename="../src/support.cpp" line="121"/>
+        <location filename="../src/support.cpp" line="122"/>
+        <location filename="../src/support.cpp" line="137"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="108"/>
+        <location filename="../src/support.cpp" line="124"/>
         <source>Just remove</source>
         <translation>Csak az albumból</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="109"/>
+        <location filename="../src/support.cpp" line="125"/>
         <source>From disk</source>
         <translation>Lemezről is</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="110"/>
+        <location filename="../src/support.cpp" line="126"/>
         <source>Cancel</source>
         <translation>Mégsem</translation>
     </message>
@@ -1018,7 +1029,7 @@ Hiba kód: %2
 <context>
     <name>QObject::QObject</name>
     <message>
-        <location filename="../src/support.cpp" line="122"/>
+        <location filename="../src/support.cpp" line="138"/>
         <source>This will delete all selected images and folders from disk.
 
 Are you &gt;&gt;really&lt;&lt; sure you want to do this?</source>
@@ -1264,82 +1275,100 @@ Abszolút biztos vagy benne, hogy ezt akarod?</translation>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1273"/>
+        <location filename="../src/thumbnailView.cpp" line="1007"/>
+        <source>This will move the selected items into another folder!
+Select &apos;No&apos; to just reposition them!</source>
+        <translation>A kiválasztott elemeket ve akarja mozgatni egy másik albumba?
+Válassza a Nem-et, ha csak átrendezi az elemeket!</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1324"/>
         <source>%1 item(s)</source>
         <translation>%1 elem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1275"/>
+        <location filename="../src/thumbnailView.cpp" line="1326"/>
         <source>No items</source>
         <translation>Nincsenek elemek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1326"/>
-        <location filename="../src/thumbnailView.cpp" line="1904"/>
-        <location filename="../src/thumbnailView.cpp" line="2179"/>
+        <location filename="../src/thumbnailView.cpp" line="1383"/>
+        <location filename="../src/thumbnailView.cpp" line="2000"/>
+        <location filename="../src/thumbnailView.cpp" line="2057"/>
+        <location filename="../src/thumbnailView.cpp" line="2303"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1326"/>
+        <location filename="../src/thumbnailView.cpp" line="1383"/>
         <source>Adding new image / video failed!</source>
         <translation>Új kép/video hozzáadása sikertelen!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1576"/>
+        <location filename="../src/thumbnailView.cpp" line="1633"/>
         <source>Select Album Thumbnail...</source>
         <translation>Album kiskép...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1604"/>
+        <location filename="../src/thumbnailView.cpp" line="1661"/>
         <source>Set As Album &amp;Thumbnail</source>
         <translation>&amp;Beállítás album kisképként</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1611"/>
+        <location filename="../src/thumbnailView.cpp" line="1668"/>
         <source>Find missing item</source>
         <translation>Hiányzó elem keresése</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1629"/>
+        <location filename="../src/thumbnailView.cpp" line="1686"/>
         <source>Toggle &apos;Keep Original Size&apos;</source>
         <translation>&apos;Eredeti méret megtartása&apos; Ki/be</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1637"/>
+        <location filename="../src/thumbnailView.cpp" line="1694"/>
         <source>Copy &amp;Name(s)</source>
         <translation>&amp;Név/nevek vágólapra</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1641"/>
+        <location filename="../src/thumbnailView.cpp" line="1698"/>
         <source>Copy &amp;Original Name(s)</source>
         <translation>&amp;Eredeti név / nevek 
 vágólapra</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1648"/>
+        <location filename="../src/thumbnailView.cpp" line="1705"/>
         <source>Add &amp;Images...</source>
         <translation>&amp;Képek hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1653"/>
+        <location filename="../src/thumbnailView.cpp" line="1710"/>
         <source>Add &amp;Folder...</source>
         <translation>&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1661"/>
+        <location filename="../src/thumbnailView.cpp" line="1715"/>
+        <source>&amp;New Folder...</source>
+        <translation>Ú&amp;j mappa...</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1723"/>
         <source>&amp;Synchronize texts</source>
         <translation>S&amp;zövegek szinkronizálása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1670"/>
+        <location filename="../src/thumbnailView.cpp" line="1732"/>
         <source>&amp;Remove</source>
         <translation>&amp;Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1678"/>
+        <location filename="../src/thumbnailView.cpp" line="1740"/>
         <source>&amp;Undo Delete</source>
         <translation>&amp;Visszavonás</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1853"/>
+        <source>Don&apos;t ask again (use Options to re-enable)</source>
+        <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
         <source>images</source>
@@ -1362,7 +1391,8 @@ vágólapra</translation>
         <translation type="vanished">album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1785"/>
+        <location filename="../src/thumbnailView.cpp" line="1006"/>
+        <location filename="../src/thumbnailView.cpp" line="1847"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
@@ -1371,7 +1401,7 @@ vágólapra</translation>
         <translation type="vanished">Lemezről is</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2179"/>
+        <location filename="../src/thumbnailView.cpp" line="2303"/>
         <source>File names do not match.
 Do you accept the new name?</source>
         <translation>A fájl nevek nem egeyznek meg
@@ -1390,7 +1420,7 @@ Are you &gt;&gt;really&lt;&lt; sure you want to do this?</source>
 Abszolút biztos vagy benne, hogy ezt akarod?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1786"/>
+        <location filename="../src/thumbnailView.cpp" line="1848"/>
         <source>This will set the texts to all of selected items
 to be the same as the item under the cursor when
 you choose this menu option
@@ -1412,12 +1442,12 @@ Bistos ezt akarod?</translation>
         <translation type="vanished">Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1847"/>
+        <location filename="../src/thumbnailView.cpp" line="1912"/>
         <source>falconG - Add images/videos</source>
         <translation>Új kép/video hozzáadása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1904"/>
+        <location filename="../src/thumbnailView.cpp" line="2000"/>
         <source>Adding new album failed!
 
 Maybe the album is already in the gallery.</source>
@@ -1426,17 +1456,38 @@ Maybe the album is already in the gallery.</source>
 Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1925"/>
+        <location filename="../src/thumbnailView.cpp" line="2020"/>
         <source>falconG - Add Directory</source>
         <translation>falconG - Mappa kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2067"/>
+        <location filename="../src/thumbnailView.cpp" line="2046"/>
+        <source>falconG - New Folder</source>
+        <translation>falconG - Új mappa</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2046"/>
+        <source>Folder Name:</source>
+        <translation>Mappa neve:</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2056"/>
+        <source>file or folder named 
+&apos;%1&apos;
+already exists
+Please use a different name!</source>
+        <translation>Már létezik fájl, vagy mappa 
+&apos;%1&apos;
+ névvel.
+Használj egy másik nevet!</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2191"/>
         <source>falconG - Select Thumbnail Image</source>
         <translation>falconG - Kiskép kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2167"/>
+        <location filename="../src/thumbnailView.cpp" line="2291"/>
         <source>falconG - Find file: </source>
         <translation>falconG - Fájl keresése: </translation>
     </message>
@@ -1473,11 +1524,11 @@ Talán ez a mappa már szerepel valahol.</translation>
     <message>
         <location filename="../src/falcong.ui" line="152"/>
         <location filename="../src/falcong.ui" line="217"/>
-        <location filename="../src/falcong.ui" line="2157"/>
-        <location filename="../src/falcong.ui" line="6303"/>
-        <location filename="../src/falcong.ui" line="6415"/>
-        <location filename="../src/falcong.ui" line="7221"/>
-        <location filename="../src/falcong.ui" line="7228"/>
+        <location filename="../src/falcong.ui" line="2198"/>
+        <location filename="../src/falcong.ui" line="6321"/>
+        <location filename="../src/falcong.ui" line="6433"/>
+        <location filename="../src/falcong.ui" line="7239"/>
+        <location filename="../src/falcong.ui" line="7246"/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -1711,7 +1762,7 @@ Talán ez a mappa már szerepel valahol.</translation>
     <message>
         <location filename="../src/falcong.ui" line="616"/>
         <location filename="../src/falcong.ui" line="1778"/>
-        <location filename="../src/falcong.ui" line="7200"/>
+        <location filename="../src/falcong.ui" line="7218"/>
         <source>Languages</source>
         <translation>Nyelvek</translation>
     </message>
@@ -1757,8 +1808,8 @@ Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
         <location filename="../src/falcong.ui" line="977"/>
-        <location filename="../src/falcong.ui" line="2315"/>
-        <location filename="../src/falcong.ui" line="3267"/>
+        <location filename="../src/falcong.ui" line="2333"/>
+        <location filename="../src/falcong.ui" line="3285"/>
         <source>Use</source>
         <translation>Használd</translation>
     </message>
@@ -1824,7 +1875,7 @@ Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
         <location filename="../src/falcong.ui" line="1280"/>
-        <location filename="../src/falcong.ui" line="7272"/>
+        <location filename="../src/falcong.ui" line="7290"/>
         <source>albums</source>
         <translation>albums</translation>
     </message>
@@ -1933,81 +1984,101 @@ A színkiválasztás után ez a jelölőnégyzet újra jelöletlenné válik.</t
         <translation>Ugyanez minden elemre</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2742"/>
+        <location filename="../src/falcong.ui" line="2184"/>
+        <source>Only the file name will be used from here. You have to upload the file
+into the WEB page root folder relative &apos;res&apos; folder.</source>
+        <translation>Csak a fájl nevet veszi innen a program. A fájlt fel kell töltsd
+a WEB szerverre a WEB oldal gyökerében levő &apos;res&apos; mappába.</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.ui" line="2205"/>
+        <source>The backround image is in this folder on the server
+relative to &apos;DocumentRoot&apos; (usually the &apos;public_html&apos;)
+Default: &quot;/res/&quot;</source>
+        <translation>A háttérkép ebben a mappárban van a szerveren.
+Alapértelmezett mappa &quot;/res/&quot; (általában a public_html mappában)</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.ui" line="2210"/>
+        <source>relative location on server (e.g. &apos;/res/&apos;)</source>
+        <translation>relative név a szerveren (pl. &apos;/res/&apos;)</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.ui" line="2760"/>
         <source>wavy</source>
         <translation>hullámos</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2799"/>
-        <location filename="../src/falcong.ui" line="4096"/>
-        <location filename="../src/falcong.ui" line="4891"/>
+        <location filename="../src/falcong.ui" line="2817"/>
+        <location filename="../src/falcong.ui" line="4114"/>
+        <location filename="../src/falcong.ui" line="4909"/>
         <source>dotted</source>
         <translation>pontozott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4010"/>
         <location filename="../src/falcong.ui" line="4028"/>
+        <location filename="../src/falcong.ui" line="4046"/>
         <source>use opacity:</source>
         <translation>átlátszatlanság (0 = átlátszó):</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4043"/>
+        <location filename="../src/falcong.ui" line="4061"/>
         <source>Opacity</source>
         <translation>Átlátszatlanság</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4151"/>
+        <location filename="../src/falcong.ui" line="4169"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5508"/>
+        <location filename="../src/falcong.ui" line="5526"/>
         <source>Re-generate all images when watermark changes</source>
         <translation>Minden kép újragenerálása, ha a vízjel megváltozott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6372"/>
+        <location filename="../src/falcong.ui" line="6390"/>
         <source>Jump to the album that contains this one</source>
         <translation>Ugrás az albumot tartalmazó szülő-albumba</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6389"/>
+        <location filename="../src/falcong.ui" line="6407"/>
         <source>Close Viewers</source>
         <translation>Képnézők bezárása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6444"/>
+        <location filename="../src/falcong.ui" line="6462"/>
         <source>Size of thumbnails:</source>
         <translation>Kisképek mérete:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6546"/>
+        <location filename="../src/falcong.ui" line="6564"/>
         <source>Title (base language)</source>
         <translation>Kép cím (alap nyelv)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6592"/>
+        <location filename="../src/falcong.ui" line="6610"/>
         <source>Title - Selected language:</source>
         <translation>Kép címe (választott nyelv):</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6620"/>
-        <location filename="../src/falcong.ui" line="6749"/>
+        <location filename="../src/falcong.ui" line="6638"/>
+        <location filename="../src/falcong.ui" line="6767"/>
         <source>Save</source>
         <translation>Mentés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6679"/>
+        <location filename="../src/falcong.ui" line="6697"/>
         <source>Description  (base language)</source>
         <translation>Kép leírás (alap nyelv)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6721"/>
+        <location filename="../src/falcong.ui" line="6739"/>
         <source>Description (Selected language)</source>
         <translation>Kép leírás (választott nyelv)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6768"/>
+        <location filename="../src/falcong.ui" line="6786"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -2016,137 +2087,137 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6800"/>
+        <location filename="../src/falcong.ui" line="6818"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes &apos;Default&apos; and &apos;System colors&apos;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;A szín séma  kiválasztható itt, vagy bármely másik oldal szabad területén &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;egy jobb kattintással.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. sötétk)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Az &apos;Alapértelmezett&apos; és &apos;Rendszer színek&apos; nem változtathatóak meg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7175"/>
+        <location filename="../src/falcong.ui" line="7193"/>
         <source>Translations</source>
         <translation>Fordítás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7251"/>
+        <location filename="../src/falcong.ui" line="7269"/>
         <source>Language texts</source>
         <translation>Nyelvi szövegek</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7267"/>
+        <location filename="../src/falcong.ui" line="7285"/>
         <source>abbrev</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7277"/>
+        <location filename="../src/falcong.ui" line="7295"/>
         <source>countOfImages</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7282"/>
+        <location filename="../src/falcong.ui" line="7300"/>
         <source>countryCode</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7287"/>
+        <location filename="../src/falcong.ui" line="7305"/>
         <source>coupleCaptions</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7292"/>
+        <location filename="../src/falcong.ui" line="7310"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7297"/>
+        <location filename="../src/falcong.ui" line="7315"/>
         <source>icons</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7302"/>
+        <location filename="../src/falcong.ui" line="7320"/>
         <source>images</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7307"/>
+        <location filename="../src/falcong.ui" line="7325"/>
         <source>language</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7312"/>
+        <location filename="../src/falcong.ui" line="7330"/>
         <source>latestDesc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7317"/>
+        <location filename="../src/falcong.ui" line="7335"/>
         <source>latestTitle</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7322"/>
+        <location filename="../src/falcong.ui" line="7340"/>
         <source>names</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7327"/>
+        <location filename="../src/falcong.ui" line="7345"/>
         <source>share</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7332"/>
+        <location filename="../src/falcong.ui" line="7350"/>
         <source>showDescriptions</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7337"/>
+        <location filename="../src/falcong.ui" line="7355"/>
         <source>toAboutPage</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7342"/>
+        <location filename="../src/falcong.ui" line="7360"/>
         <source>toAlbums</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7347"/>
+        <location filename="../src/falcong.ui" line="7365"/>
         <source>toContact</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7352"/>
+        <location filename="../src/falcong.ui" line="7370"/>
         <source>toHomePage</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7357"/>
+        <location filename="../src/falcong.ui" line="7375"/>
         <source>toTop</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7362"/>
+        <location filename="../src/falcong.ui" line="7380"/>
         <source>upOneLevel</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7367"/>
+        <location filename="../src/falcong.ui" line="7385"/>
         <source>videos</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7395"/>
+        <location filename="../src/falcong.ui" line="7413"/>
         <source>Texts for the &apos;About&apos; pages</source>
         <translation>A &apos;Névjegy&apos; oldalak szövege</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7413"/>
+        <location filename="../src/falcong.ui" line="7431"/>
         <source>Base Language Text</source>
         <translation>Alap nyelven</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7454"/>
+        <location filename="../src/falcong.ui" line="7472"/>
         <source>Translated text</source>
         <translation>Fordítás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7566"/>
+        <location filename="../src/falcong.ui" line="7584"/>
         <source>falconG - Version 1.2.x</source>
         <translation>falconG - 1.2.x verzió</translation>
     </message>
@@ -2206,186 +2277,186 @@ p, li { white-space: pre-wrap; }
         <translation>999</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2859"/>
+        <location filename="../src/falcong.ui" line="2877"/>
         <source>#1</source>
         <translation>#1</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2903"/>
-        <location filename="../src/falcong.ui" line="2947"/>
-        <location filename="../src/falcong.ui" line="2991"/>
-        <location filename="../src/falcong.ui" line="3035"/>
-        <location filename="../src/falcong.ui" line="3095"/>
-        <location filename="../src/falcong.ui" line="3145"/>
-        <location filename="../src/falcong.ui" line="3195"/>
-        <location filename="../src/falcong.ui" line="3239"/>
-        <location filename="../src/falcong.ui" line="3649"/>
-        <location filename="../src/falcong.ui" line="4181"/>
-        <location filename="../src/falcong.ui" line="4221"/>
-        <location filename="../src/falcong.ui" line="4392"/>
-        <location filename="../src/falcong.ui" line="4479"/>
-        <location filename="../src/falcong.ui" line="4512"/>
-        <location filename="../src/falcong.ui" line="4721"/>
-        <location filename="../src/falcong.ui" line="4781"/>
-        <location filename="../src/falcong.ui" line="4958"/>
-        <location filename="../src/falcong.ui" line="4994"/>
-        <location filename="../src/falcong.ui" line="5067"/>
-        <location filename="../src/falcong.ui" line="5146"/>
-        <location filename="../src/falcong.ui" line="5213"/>
-        <location filename="../src/falcong.ui" line="5292"/>
-        <location filename="../src/falcong.ui" line="5684"/>
-        <location filename="../src/falcong.ui" line="5820"/>
-        <location filename="../src/falcong.ui" line="5903"/>
-        <location filename="../src/falcong.ui" line="5958"/>
-        <location filename="../src/falcong.ui" line="6000"/>
+        <location filename="../src/falcong.ui" line="2921"/>
+        <location filename="../src/falcong.ui" line="2965"/>
+        <location filename="../src/falcong.ui" line="3009"/>
+        <location filename="../src/falcong.ui" line="3053"/>
+        <location filename="../src/falcong.ui" line="3113"/>
+        <location filename="../src/falcong.ui" line="3163"/>
+        <location filename="../src/falcong.ui" line="3213"/>
+        <location filename="../src/falcong.ui" line="3257"/>
+        <location filename="../src/falcong.ui" line="3667"/>
+        <location filename="../src/falcong.ui" line="4199"/>
+        <location filename="../src/falcong.ui" line="4239"/>
+        <location filename="../src/falcong.ui" line="4410"/>
+        <location filename="../src/falcong.ui" line="4497"/>
+        <location filename="../src/falcong.ui" line="4530"/>
+        <location filename="../src/falcong.ui" line="4739"/>
+        <location filename="../src/falcong.ui" line="4799"/>
+        <location filename="../src/falcong.ui" line="4976"/>
+        <location filename="../src/falcong.ui" line="5012"/>
+        <location filename="../src/falcong.ui" line="5085"/>
+        <location filename="../src/falcong.ui" line="5164"/>
+        <location filename="../src/falcong.ui" line="5231"/>
+        <location filename="../src/falcong.ui" line="5310"/>
+        <location filename="../src/falcong.ui" line="5702"/>
+        <location filename="../src/falcong.ui" line="5838"/>
+        <location filename="../src/falcong.ui" line="5921"/>
+        <location filename="../src/falcong.ui" line="5976"/>
+        <location filename="../src/falcong.ui" line="6018"/>
         <source>px</source>
         <translation>px</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3051"/>
+        <location filename="../src/falcong.ui" line="3069"/>
         <source>#2</source>
         <translation>#2</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3248"/>
+        <location filename="../src/falcong.ui" line="3266"/>
         <source>Box Shadow</source>
         <translation>Doboz árnyék</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2400"/>
-        <location filename="../src/falcong.ui" line="2440"/>
-        <location filename="../src/falcong.ui" line="2486"/>
-        <location filename="../src/falcong.ui" line="3950"/>
-        <location filename="../src/falcong.ui" line="3980"/>
-        <location filename="../src/falcong.ui" line="5444"/>
+        <location filename="../src/falcong.ui" line="2418"/>
+        <location filename="../src/falcong.ui" line="2458"/>
+        <location filename="../src/falcong.ui" line="2504"/>
+        <location filename="../src/falcong.ui" line="3968"/>
+        <location filename="../src/falcong.ui" line="3998"/>
+        <location filename="../src/falcong.ui" line="5462"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3427"/>
-        <location filename="../src/falcong.ui" line="3543"/>
-        <location filename="../src/falcong.ui" line="3711"/>
+        <location filename="../src/falcong.ui" line="3445"/>
+        <location filename="../src/falcong.ui" line="3561"/>
+        <location filename="../src/falcong.ui" line="3729"/>
         <source>8pt</source>
         <translation>8pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3432"/>
-        <location filename="../src/falcong.ui" line="3548"/>
-        <location filename="../src/falcong.ui" line="3716"/>
+        <location filename="../src/falcong.ui" line="3450"/>
+        <location filename="../src/falcong.ui" line="3566"/>
+        <location filename="../src/falcong.ui" line="3734"/>
         <source>9pt</source>
         <translation>9pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3437"/>
-        <location filename="../src/falcong.ui" line="3553"/>
-        <location filename="../src/falcong.ui" line="3721"/>
+        <location filename="../src/falcong.ui" line="3455"/>
+        <location filename="../src/falcong.ui" line="3571"/>
+        <location filename="../src/falcong.ui" line="3739"/>
         <source>10pt</source>
         <translation>10pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3442"/>
-        <location filename="../src/falcong.ui" line="3558"/>
-        <location filename="../src/falcong.ui" line="3726"/>
+        <location filename="../src/falcong.ui" line="3460"/>
+        <location filename="../src/falcong.ui" line="3576"/>
+        <location filename="../src/falcong.ui" line="3744"/>
         <source>11pt</source>
         <translation>11pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3447"/>
-        <location filename="../src/falcong.ui" line="3563"/>
-        <location filename="../src/falcong.ui" line="3731"/>
+        <location filename="../src/falcong.ui" line="3465"/>
+        <location filename="../src/falcong.ui" line="3581"/>
+        <location filename="../src/falcong.ui" line="3749"/>
         <source>12pt</source>
         <translation>12pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3452"/>
-        <location filename="../src/falcong.ui" line="3568"/>
-        <location filename="../src/falcong.ui" line="3736"/>
+        <location filename="../src/falcong.ui" line="3470"/>
+        <location filename="../src/falcong.ui" line="3586"/>
+        <location filename="../src/falcong.ui" line="3754"/>
         <source>14pt</source>
         <translation>14pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3457"/>
-        <location filename="../src/falcong.ui" line="3573"/>
-        <location filename="../src/falcong.ui" line="3741"/>
+        <location filename="../src/falcong.ui" line="3475"/>
+        <location filename="../src/falcong.ui" line="3591"/>
+        <location filename="../src/falcong.ui" line="3759"/>
         <source>16pt</source>
         <translation>16pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3462"/>
-        <location filename="../src/falcong.ui" line="3578"/>
-        <location filename="../src/falcong.ui" line="3746"/>
+        <location filename="../src/falcong.ui" line="3480"/>
+        <location filename="../src/falcong.ui" line="3596"/>
+        <location filename="../src/falcong.ui" line="3764"/>
         <source>18pt</source>
         <translation>18pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3467"/>
-        <location filename="../src/falcong.ui" line="3583"/>
-        <location filename="../src/falcong.ui" line="3751"/>
+        <location filename="../src/falcong.ui" line="3485"/>
+        <location filename="../src/falcong.ui" line="3601"/>
+        <location filename="../src/falcong.ui" line="3769"/>
         <source>20pt</source>
         <translation>20pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3472"/>
-        <location filename="../src/falcong.ui" line="3588"/>
-        <location filename="../src/falcong.ui" line="3756"/>
+        <location filename="../src/falcong.ui" line="3490"/>
+        <location filename="../src/falcong.ui" line="3606"/>
+        <location filename="../src/falcong.ui" line="3774"/>
         <source>22pt</source>
         <translation>22pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3477"/>
-        <location filename="../src/falcong.ui" line="3593"/>
-        <location filename="../src/falcong.ui" line="3761"/>
+        <location filename="../src/falcong.ui" line="3495"/>
+        <location filename="../src/falcong.ui" line="3611"/>
+        <location filename="../src/falcong.ui" line="3779"/>
         <source>24pt</source>
         <translation>24pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3482"/>
-        <location filename="../src/falcong.ui" line="3598"/>
-        <location filename="../src/falcong.ui" line="3766"/>
+        <location filename="../src/falcong.ui" line="3500"/>
+        <location filename="../src/falcong.ui" line="3616"/>
+        <location filename="../src/falcong.ui" line="3784"/>
         <source>26pt</source>
         <translation>26pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3487"/>
-        <location filename="../src/falcong.ui" line="3603"/>
-        <location filename="../src/falcong.ui" line="3771"/>
+        <location filename="../src/falcong.ui" line="3505"/>
+        <location filename="../src/falcong.ui" line="3621"/>
+        <location filename="../src/falcong.ui" line="3789"/>
         <source>28pt</source>
         <translation>28pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3492"/>
-        <location filename="../src/falcong.ui" line="3608"/>
-        <location filename="../src/falcong.ui" line="3776"/>
+        <location filename="../src/falcong.ui" line="3510"/>
+        <location filename="../src/falcong.ui" line="3626"/>
+        <location filename="../src/falcong.ui" line="3794"/>
         <source>36pt</source>
         <translation>36pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3497"/>
-        <location filename="../src/falcong.ui" line="3613"/>
-        <location filename="../src/falcong.ui" line="3781"/>
+        <location filename="../src/falcong.ui" line="3515"/>
+        <location filename="../src/falcong.ui" line="3631"/>
+        <location filename="../src/falcong.ui" line="3799"/>
         <source>48pt</source>
         <translation>48pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3502"/>
-        <location filename="../src/falcong.ui" line="3618"/>
-        <location filename="../src/falcong.ui" line="3786"/>
+        <location filename="../src/falcong.ui" line="3520"/>
+        <location filename="../src/falcong.ui" line="3636"/>
+        <location filename="../src/falcong.ui" line="3804"/>
         <source>72pt</source>
         <translation>72pt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2332"/>
+        <location filename="../src/falcong.ui" line="2350"/>
         <source>Stop</source>
         <translation>Megszakítás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4121"/>
-        <location filename="../src/falcong.ui" line="4916"/>
+        <location filename="../src/falcong.ui" line="4139"/>
+        <location filename="../src/falcong.ui" line="4934"/>
         <source>inset</source>
         <translation>bemélyedés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4602"/>
+        <location filename="../src/falcong.ui" line="4620"/>
         <source>90%</source>
         <translation>90%</translation>
     </message>
@@ -2640,7 +2711,7 @@ kettőt:  &apos;latestList_hu.js&apos; és &apos;latestList_en.js&apos;).
     <message>
         <location filename="../src/falcong.ui" line="1920"/>
         <source>Icon for up-link</source>
-        <translation>Fel lépés ikonja</translation>
+        <translation>&quot;Fel&quot;-lépés ikon</translation>
     </message>
     <message>
         <location filename="../src/falcong.ui" line="1947"/>
@@ -2663,120 +2734,120 @@ kettőt:  &apos;latestList_hu.js&apos; és &apos;latestList_en.js&apos;).
         <translation>Háttérkép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2076"/>
-        <location filename="../src/falcong.ui" line="5626"/>
+        <location filename="../src/falcong.ui" line="2126"/>
+        <location filename="../src/falcong.ui" line="5644"/>
         <source>Position</source>
         <translation>Elhelyezés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2082"/>
-        <location filename="../src/falcong.ui" line="2569"/>
+        <location filename="../src/falcong.ui" line="2132"/>
+        <location filename="../src/falcong.ui" line="2587"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2089"/>
-        <location filename="../src/falcong.ui" line="2602"/>
+        <location filename="../src/falcong.ui" line="2139"/>
+        <location filename="../src/falcong.ui" line="2620"/>
         <source>Center</source>
         <translation>Középre</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2096"/>
+        <location filename="../src/falcong.ui" line="2146"/>
         <source>Scale</source>
         <translation>Átméretezés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2103"/>
+        <location filename="../src/falcong.ui" line="2153"/>
         <source>&amp;Tile</source>
         <translation>Csempé&amp;zés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2121"/>
+        <location filename="../src/falcong.ui" line="2171"/>
         <source>File:</source>
         <translation>Fájl:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2144"/>
+        <location filename="../src/falcong.ui" line="2116"/>
         <source>background image</source>
         <translation>háttérkép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2154"/>
+        <location filename="../src/falcong.ui" line="2195"/>
         <source>Select background image</source>
         <translation>Váassza ki a háttérképet</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2170"/>
+        <location filename="../src/falcong.ui" line="2188"/>
         <source>full path name of image file</source>
         <translation>a kép fájl teljes elérési útja</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2177"/>
+        <location filename="../src/falcong.ui" line="2076"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resizes the image for the preview only.&lt;/p&gt;&lt;p&gt;On the WEB page the image appears at&lt;/p&gt;&lt;p&gt;its original size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A kép csak az előnézetre van átméretezve.&lt;/p&gt;&lt;p&gt;A WEB lapon a kép az &lt;/p&gt;&lt;p&gt;eredeti méretű lesz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2219"/>
+        <location filename="../src/falcong.ui" line="2237"/>
         <source>Icon to top of page</source>
         <translation>Lap tetejére ikon</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2246"/>
+        <location filename="../src/falcong.ui" line="2264"/>
         <source>Icon to toggle info</source>
         <translation>Információ ki/be kapcsolás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2263"/>
+        <location filename="../src/falcong.ui" line="2281"/>
         <source>Selected item</source>
         <translation>Kiválasztott elem</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2521"/>
+        <location filename="../src/falcong.ui" line="2539"/>
         <source>Text Style</source>
         <translation>Szöveg stílusa</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2554"/>
+        <location filename="../src/falcong.ui" line="2572"/>
         <source>Alignment:</source>
         <translation>Elrendezés:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2587"/>
-        <location filename="../src/falcong.ui" line="4236"/>
-        <location filename="../src/falcong.ui" line="5752"/>
+        <location filename="../src/falcong.ui" line="2605"/>
+        <location filename="../src/falcong.ui" line="4254"/>
+        <location filename="../src/falcong.ui" line="5770"/>
         <source>Left</source>
         <translation>Bal</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2620"/>
-        <location filename="../src/falcong.ui" line="4266"/>
-        <location filename="../src/falcong.ui" line="5762"/>
+        <location filename="../src/falcong.ui" line="2638"/>
+        <location filename="../src/falcong.ui" line="4284"/>
+        <location filename="../src/falcong.ui" line="5780"/>
         <source>Right</source>
         <translation>Jobb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2657"/>
+        <location filename="../src/falcong.ui" line="2675"/>
         <source>Decoration</source>
         <translation>Díszítés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2672"/>
+        <location filename="../src/falcong.ui" line="2690"/>
         <source>Underline</source>
         <translation>Aláhúzás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2687"/>
+        <location filename="../src/falcong.ui" line="2705"/>
         <source>Overline</source>
         <translation>Föléhúzás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2702"/>
+        <location filename="../src/falcong.ui" line="2720"/>
         <source>Line-through</source>
         <translation>Áthúzás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6615"/>
-        <location filename="../src/falcong.ui" line="6744"/>
+        <location filename="../src/falcong.ui" line="6633"/>
+        <location filename="../src/falcong.ui" line="6762"/>
         <source>Save changed title and description.
 Must be used after the text is changed otherwise
 all changes will be lost.</source>
@@ -2785,392 +2856,392 @@ Minden módosítás után használni kell,
 különben a változtások elvesznek.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6627"/>
-        <location filename="../src/falcong.ui" line="6756"/>
+        <location filename="../src/falcong.ui" line="6645"/>
+        <location filename="../src/falcong.ui" line="6774"/>
         <source>Changes will be applied to all occurances of the text not just for this image/album</source>
         <translation>A változáok a szöveg összes előfordulását érintik, nem csak ezt a képet / albumot</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6642"/>
-        <location filename="../src/falcong.ui" line="6778"/>
+        <location filename="../src/falcong.ui" line="6660"/>
+        <location filename="../src/falcong.ui" line="6796"/>
         <source>Edit here.</source>
         <translation>Ide írj!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7129"/>
+        <location filename="../src/falcong.ui" line="7147"/>
         <source>Move Up      </source>
         <translation>Felfelé  </translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2760"/>
-        <location filename="../src/falcong.ui" line="4106"/>
-        <location filename="../src/falcong.ui" line="4901"/>
+        <location filename="../src/falcong.ui" line="2778"/>
+        <location filename="../src/falcong.ui" line="4124"/>
+        <location filename="../src/falcong.ui" line="4919"/>
         <source>double</source>
         <translation>dupla</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2778"/>
-        <location filename="../src/falcong.ui" line="4091"/>
-        <location filename="../src/falcong.ui" line="4886"/>
+        <location filename="../src/falcong.ui" line="2796"/>
+        <location filename="../src/falcong.ui" line="4109"/>
+        <location filename="../src/falcong.ui" line="4904"/>
         <source>solid</source>
         <translation>vonal</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2817"/>
-        <location filename="../src/falcong.ui" line="4101"/>
-        <location filename="../src/falcong.ui" line="4896"/>
+        <location filename="../src/falcong.ui" line="2835"/>
+        <location filename="../src/falcong.ui" line="4119"/>
+        <location filename="../src/falcong.ui" line="4914"/>
         <source>dashed</source>
         <translation>szaggatott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2842"/>
+        <location filename="../src/falcong.ui" line="2860"/>
         <source>Shadow</source>
         <translation>Árnyék</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2875"/>
-        <location filename="../src/falcong.ui" line="3067"/>
+        <location filename="../src/falcong.ui" line="2893"/>
+        <location filename="../src/falcong.ui" line="3085"/>
         <source>H:</source>
         <translation>V:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2900"/>
-        <location filename="../src/falcong.ui" line="3092"/>
+        <location filename="../src/falcong.ui" line="2918"/>
+        <location filename="../src/falcong.ui" line="3110"/>
         <source>Horizontal displacement</source>
         <translation>Vízszintes eltolás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2919"/>
-        <location filename="../src/falcong.ui" line="3117"/>
+        <location filename="../src/falcong.ui" line="2937"/>
+        <location filename="../src/falcong.ui" line="3135"/>
         <source>&amp;V:</source>
         <translation>&amp;H:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2944"/>
-        <location filename="../src/falcong.ui" line="3142"/>
+        <location filename="../src/falcong.ui" line="2962"/>
+        <location filename="../src/falcong.ui" line="3160"/>
         <source>Vertical displacement</source>
         <translation>Függőleges eltolás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2963"/>
-        <location filename="../src/falcong.ui" line="3167"/>
+        <location filename="../src/falcong.ui" line="2981"/>
+        <location filename="../src/falcong.ui" line="3185"/>
         <source>B:</source>
         <translation>E:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2988"/>
-        <location filename="../src/falcong.ui" line="3192"/>
+        <location filename="../src/falcong.ui" line="3006"/>
+        <location filename="../src/falcong.ui" line="3210"/>
         <source>Blur in pixels</source>
         <translation>Elmosás sugara</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3007"/>
-        <location filename="../src/falcong.ui" line="3211"/>
+        <location filename="../src/falcong.ui" line="3025"/>
+        <location filename="../src/falcong.ui" line="3229"/>
         <source>S:</source>
         <translation>K:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3032"/>
-        <location filename="../src/falcong.ui" line="3236"/>
+        <location filename="../src/falcong.ui" line="3050"/>
+        <location filename="../src/falcong.ui" line="3254"/>
         <source>Spread in pixels</source>
         <translation>Kiterjedés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3274"/>
-        <location filename="../src/falcong.ui" line="5832"/>
+        <location filename="../src/falcong.ui" line="3292"/>
+        <location filename="../src/falcong.ui" line="5850"/>
         <source>Text Shadow</source>
         <translation>Szöveg árnyéka</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3290"/>
+        <location filename="../src/falcong.ui" line="3308"/>
         <source>Shadow color. Same for both</source>
         <translation>Árnyék színe. Közös.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3916"/>
-        <location filename="../src/falcong.ui" line="5462"/>
+        <location filename="../src/falcong.ui" line="3934"/>
+        <location filename="../src/falcong.ui" line="5480"/>
         <source>Text</source>
         <translation>Szöveg</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3888"/>
+        <location filename="../src/falcong.ui" line="3906"/>
         <source>Background</source>
         <translation>Háttér</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4007"/>
         <location filename="../src/falcong.ui" line="4025"/>
+        <location filename="../src/falcong.ui" line="4043"/>
         <source>Turn opacity on or off</source>
         <translation>Átlátszóság ki/be kapcsolás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3327"/>
-        <location filename="../src/falcong.ui" line="5560"/>
+        <location filename="../src/falcong.ui" line="3345"/>
+        <location filename="../src/falcong.ui" line="5578"/>
         <source>Font</source>
         <translation>Betüfajta</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3341"/>
+        <location filename="../src/falcong.ui" line="3359"/>
         <source>Family</source>
         <translation>Betücsalád</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3365"/>
+        <location filename="../src/falcong.ui" line="3383"/>
         <source>Example: &quot;Tms Rmn&quot;,Arial</source>
         <translation>Minta: &quot;Tms Rmn&quot;,Arial</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3375"/>
+        <location filename="../src/falcong.ui" line="3393"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ha megadtál alapértelmezett neveket vagy &lt;/p&gt;&lt;p&gt;Google betükészleteket &lt;/p&gt;&lt;p&gt;azokat kiválaszthatod itt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3378"/>
+        <location filename="../src/falcong.ui" line="3396"/>
         <source>Select specified font</source>
         <translation>Válasszon betükészletet</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3393"/>
+        <location filename="../src/falcong.ui" line="3411"/>
         <source>Si&amp;ze:</source>
         <translation>Mére&amp;t:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3518"/>
+        <location filename="../src/falcong.ui" line="3536"/>
         <source>Line height:</source>
         <translation>Sormagasság:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3634"/>
+        <location filename="../src/falcong.ui" line="3652"/>
         <source>Space below</source>
         <translation>Margó alatta</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3680"/>
+        <location filename="../src/falcong.ui" line="3698"/>
         <source>&amp;Different 1st line:</source>
         <translation>Az első sor &amp;más:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3802"/>
+        <location filename="../src/falcong.ui" line="3820"/>
         <source>Bold</source>
         <translation>Félkövér</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="3817"/>
+        <location filename="../src/falcong.ui" line="3835"/>
         <source>Italic</source>
         <translation>Dőlt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2301"/>
+        <location filename="../src/falcong.ui" line="2319"/>
         <source>Gradient</source>
         <translation>Átmenet</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="2325"/>
-        <location filename="../src/falcong.ui" line="5429"/>
-        <location filename="../src/falcong.ui" line="5876"/>
+        <location filename="../src/falcong.ui" line="2343"/>
+        <location filename="../src/falcong.ui" line="5447"/>
+        <location filename="../src/falcong.ui" line="5894"/>
         <source>Color</source>
         <translation>Szín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4056"/>
+        <location filename="../src/falcong.ui" line="4074"/>
         <source>Border</source>
         <translation>Keret</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4851"/>
+        <location filename="../src/falcong.ui" line="4869"/>
         <source>Image Frame</source>
         <translation>Kép kerete</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4865"/>
+        <location filename="../src/falcong.ui" line="4883"/>
         <source>Frame style</source>
         <translation>Keret stílusa</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4881"/>
+        <location filename="../src/falcong.ui" line="4899"/>
         <source>no frame</source>
         <translation>nincs keret</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4991"/>
-        <location filename="../src/falcong.ui" line="5143"/>
-        <location filename="../src/falcong.ui" line="5289"/>
+        <location filename="../src/falcong.ui" line="5009"/>
+        <location filename="../src/falcong.ui" line="5161"/>
+        <location filename="../src/falcong.ui" line="5307"/>
         <source>Corner radius for a rounded rectangle. 0 means not rounded.</source>
         <translation>Lekerekítési sugár a sarkokhoz. 0: szögletes sarkok.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5029"/>
-        <location filename="../src/falcong.ui" line="5175"/>
+        <location filename="../src/falcong.ui" line="5047"/>
+        <location filename="../src/falcong.ui" line="5193"/>
         <source>&quot;Matte&quot; is the area around an image in the frame</source>
         <translation>A &quot;szegély&quot; a kép kerete és a kép közötti tartomány</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5094"/>
-        <location filename="../src/falcong.ui" line="5240"/>
+        <location filename="../src/falcong.ui" line="5112"/>
+        <location filename="../src/falcong.ui" line="5258"/>
         <source>Color:</source>
         <translation>Szín:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4070"/>
+        <location filename="../src/falcong.ui" line="4088"/>
         <source>Style</source>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4206"/>
+        <location filename="../src/falcong.ui" line="4224"/>
         <source>Border radius</source>
         <translation>keret sugara</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4281"/>
-        <location filename="../src/falcong.ui" line="5712"/>
+        <location filename="../src/falcong.ui" line="4299"/>
+        <location filename="../src/falcong.ui" line="5730"/>
         <source>Top</source>
         <translation>Fent</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4251"/>
-        <location filename="../src/falcong.ui" line="5722"/>
+        <location filename="../src/falcong.ui" line="4269"/>
+        <location filename="../src/falcong.ui" line="5740"/>
         <source>Bottom</source>
         <translation>Alul</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4111"/>
-        <location filename="../src/falcong.ui" line="4906"/>
+        <location filename="../src/falcong.ui" line="4129"/>
+        <location filename="../src/falcong.ui" line="4924"/>
         <source>groove</source>
         <translation>vájat</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4116"/>
-        <location filename="../src/falcong.ui" line="4911"/>
+        <location filename="../src/falcong.ui" line="4134"/>
+        <location filename="../src/falcong.ui" line="4929"/>
         <source>ridge</source>
         <translation>gerinc</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4126"/>
-        <location filename="../src/falcong.ui" line="4921"/>
+        <location filename="../src/falcong.ui" line="4144"/>
+        <location filename="../src/falcong.ui" line="4939"/>
         <source>outset</source>
         <translation>kiemelkedik</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4086"/>
+        <location filename="../src/falcong.ui" line="4104"/>
         <source>none</source>
         <translation>nincs</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4166"/>
-        <location filename="../src/falcong.ui" line="4937"/>
-        <location filename="../src/falcong.ui" line="5046"/>
-        <location filename="../src/falcong.ui" line="5192"/>
+        <location filename="../src/falcong.ui" line="4184"/>
+        <location filename="../src/falcong.ui" line="4955"/>
+        <location filename="../src/falcong.ui" line="5064"/>
+        <location filename="../src/falcong.ui" line="5210"/>
         <source>Width:</source>
         <translation>Szélesség:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4315"/>
-        <location filename="../src/falcong.ui" line="6349"/>
+        <location filename="../src/falcong.ui" line="4333"/>
+        <location filename="../src/falcong.ui" line="6367"/>
         <source>Images</source>
         <translation>Képek</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4377"/>
+        <location filename="../src/falcong.ui" line="4395"/>
         <source>Width</source>
         <translation>Szélesség:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4814"/>
+        <location filename="../src/falcong.ui" line="4832"/>
         <source>Image</source>
         <translation>Kép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4588"/>
+        <location filename="../src/falcong.ui" line="4606"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the quality of the images on the server.&lt;/p&gt;&lt;p&gt;The smaller the number the smaller the file size but &lt;/p&gt;&lt;p&gt;the more artifact will be present in the result.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;A huge space reduction is achieved, with a small&lt;/p&gt;&lt;p&gt;quality loss with a quality of 80%.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A szerverre kerülő képek minősége.&lt;/p&gt;&lt;p&gt;Minél kisebb a szám annál kisebb a fájl, de &lt;/p&gt;&lt;p&gt; annál rosszabb lesz a minősége.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;A 80%-os értékhez nagy méretcsökkenés&lt;/p&gt;&lt;p&gt;és kis minőségromlás tartozik.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4296"/>
+        <location filename="../src/falcong.ui" line="4314"/>
         <source>All</source>
         <translation>Mindegyik</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4407"/>
+        <location filename="../src/falcong.ui" line="4425"/>
         <source>Gap</source>
         <translation>Képköz</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4592"/>
+        <location filename="../src/falcong.ui" line="4610"/>
         <source>Same as original</source>
         <translation>Eredetivel megegyező</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4597"/>
+        <location filename="../src/falcong.ui" line="4615"/>
         <source>100% - best</source>
         <translation>100% - legjobb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4607"/>
+        <location filename="../src/falcong.ui" line="4625"/>
         <source>80% - high</source>
         <translation>80% - kiváló</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4612"/>
+        <location filename="../src/falcong.ui" line="4630"/>
         <source>70%</source>
         <translation>70%</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4617"/>
+        <location filename="../src/falcong.ui" line="4635"/>
         <source>60%</source>
         <translation>60%</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4622"/>
+        <location filename="../src/falcong.ui" line="4640"/>
         <source>50% - medium</source>
         <translation>50% - közepes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4632"/>
+        <location filename="../src/falcong.ui" line="4650"/>
         <source>30% - low</source>
         <translation>30% - rossz</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4642"/>
+        <location filename="../src/falcong.ui" line="4660"/>
         <source>10% - abysmal</source>
         <translation>10% - vacak</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4658"/>
+        <location filename="../src/falcong.ui" line="4676"/>
         <source>x</source>
         <translation>x</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4676"/>
+        <location filename="../src/falcong.ui" line="4694"/>
         <source>Height</source>
         <translation>Magasság</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4573"/>
+        <location filename="../src/falcong.ui" line="4591"/>
         <source>Image Quality:</source>
         <translation>Képminőség:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4697"/>
+        <location filename="../src/falcong.ui" line="4715"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minden kis kép ugyanolyan magas.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Ha ezt választod minden kiskép az itt megadott méretű lesz&lt;/p&gt;&lt;p&gt;Ebben az esetben a kiskép&lt;/p&gt;&lt;p&gt;a forráskép bal felső&lt;/p&gt;&lt;p&gt;sarkából lesz kivágva.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Ettől még kisképek lehetnek keskenyebbek, mint a többi!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Elég a CSS fájlt elmenteni, nem kell újragenerálni&lt;/p&gt;&lt;p&gt;az albumot.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4700"/>
+        <location filename="../src/falcong.ui" line="4718"/>
         <source>Crop thumbnails to this size</source>
         <translation>Erre a méretre vágod a képeket</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4754"/>
+        <location filename="../src/falcong.ui" line="4772"/>
         <source>Do not enlarge images</source>
         <translation>Csak kicsinyítés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4458"/>
+        <location filename="../src/falcong.ui" line="4476"/>
         <source>Thumbnail</source>
         <translation>Kiskép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4539"/>
+        <location filename="../src/falcong.ui" line="4557"/>
         <source>Links/unlinks image width and height,
 so when one changes the other changes too.
 </source>
@@ -3179,7 +3250,7 @@ az egyik oldal változik, a másik is.
 </translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4428"/>
+        <location filename="../src/falcong.ui" line="4446"/>
         <source>Wide thumbnails will be squeezed into the 
 width given here. This distorsion is created
 by the browser, so it may not be what you want.
@@ -3196,169 +3267,169 @@ Elég a CSS fájlt elmenteni, nem kell újragenerálni
 az albumot.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4437"/>
+        <location filename="../src/falcong.ui" line="4455"/>
         <source>Modify aspect ratio for thumbnails</source>
         <translation>Kisképek képarányának változtatása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5337"/>
+        <location filename="../src/falcong.ui" line="5355"/>
         <source>Watermark</source>
         <translation>Vízjel</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5386"/>
+        <location filename="../src/falcong.ui" line="5404"/>
         <source>Opacity   </source>
         <translation>Átlátszatlanság   </translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5414"/>
-        <location filename="../src/falcong.ui" line="5846"/>
+        <location filename="../src/falcong.ui" line="5432"/>
+        <location filename="../src/falcong.ui" line="5864"/>
         <source>use</source>
         <translation>használd</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5532"/>
+        <location filename="../src/falcong.ui" line="5550"/>
         <source>Watermark text sample</source>
         <translation>Watermark text sample</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5572"/>
+        <location filename="../src/falcong.ui" line="5590"/>
         <source>A</source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5654"/>
-        <location filename="../src/falcong.ui" line="5805"/>
+        <location filename="../src/falcong.ui" line="5672"/>
+        <location filename="../src/falcong.ui" line="5823"/>
         <source>Relative to the nearest edge</source>
         <translation>A legközelebbi képszéltől mérve</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5669"/>
+        <location filename="../src/falcong.ui" line="5687"/>
         <source>Vertical margin:</source>
         <translation>Függőleges margó :</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5705"/>
-        <location filename="../src/falcong.ui" line="5717"/>
+        <location filename="../src/falcong.ui" line="5723"/>
+        <location filename="../src/falcong.ui" line="5735"/>
         <source>Center vertically</source>
         <translation>Függőlegesen középre</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5757"/>
+        <location filename="../src/falcong.ui" line="5775"/>
         <source>Center horizontally</source>
         <translation>Vízszintesen középre</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5861"/>
+        <location filename="../src/falcong.ui" line="5879"/>
         <source>Blur:</source>
         <translation>Elmosás:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5918"/>
+        <location filename="../src/falcong.ui" line="5936"/>
         <source>Horizontal</source>
         <translation>Vízszintes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5032"/>
+        <location filename="../src/falcong.ui" line="5050"/>
         <source>Image Matte</source>
         <translation>Kép szegélye</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5973"/>
+        <location filename="../src/falcong.ui" line="5991"/>
         <source>Vertical:</source>
         <translation>Függőleges:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6101"/>
+        <location filename="../src/falcong.ui" line="6119"/>
         <source>Reset the WEB page to the state of
 the last CSS save.</source>
         <translation>Az utolsó CSS mentéshez tartozó 
 állapot visszaállítása.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6105"/>
+        <location filename="../src/falcong.ui" line="6123"/>
         <source>Reset Page</source>
         <translation>Előző beáll.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6112"/>
-        <location filename="../src/falcong.ui" line="7111"/>
+        <location filename="../src/falcong.ui" line="6130"/>
+        <location filename="../src/falcong.ui" line="7129"/>
         <source>Reset</source>
         <translation>Alaphelyzetbe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6166"/>
+        <location filename="../src/falcong.ui" line="6184"/>
         <source>qrc:/Preview/Resources/index_en.html</source>
         <translation>qrc:/Preview/Resources/index_hu.html</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6188"/>
+        <location filename="../src/falcong.ui" line="6206"/>
         <source>&amp;Edit</source>
         <translation>Szerkesztés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6630"/>
-        <location filename="../src/falcong.ui" line="6759"/>
+        <location filename="../src/falcong.ui" line="6648"/>
+        <location filename="../src/falcong.ui" line="6777"/>
         <source>Everywhere</source>
         <translation>Mindenűtt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6794"/>
+        <location filename="../src/falcong.ui" line="6812"/>
         <source>&amp;Options</source>
         <translation>&amp;Opciók</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6823"/>
+        <location filename="../src/falcong.ui" line="6841"/>
         <source>Program Options</source>
         <translation>Program Beállítások</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6906"/>
+        <location filename="../src/falcong.ui" line="6924"/>
         <source>Press this button to clear your saved choices in dialoges.</source>
         <translation>Párbeszédablak beállítások törlése.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6909"/>
+        <location filename="../src/falcong.ui" line="6927"/>
         <source>Reset dialogs</source>
         <translation>Párbeszédablakok alaphelyzetbe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6836"/>
+        <location filename="../src/falcong.ui" line="6854"/>
         <source>Interface Language</source>
         <translation>A program nyelve</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6870"/>
+        <location filename="../src/falcong.ui" line="6888"/>
         <source>English</source>
         <translation>Angol</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6927"/>
+        <location filename="../src/falcong.ui" line="6945"/>
         <source>Color Scheme Editor</source>
         <translation>Szín séma szerkesztő</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7014"/>
+        <location filename="../src/falcong.ui" line="7032"/>
         <source>Color Scheme</source>
         <translation>Szín séma</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7075"/>
+        <location filename="../src/falcong.ui" line="7093"/>
         <source>Add </source>
         <translation>Új séma </translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7151"/>
+        <location filename="../src/falcong.ui" line="7169"/>
         <source>Move Down</source>
         <translation>Séma lejjebb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7093"/>
+        <location filename="../src/falcong.ui" line="7111"/>
         <source>Apply</source>
         <translation>Alkalmaz</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7050"/>
+        <location filename="../src/falcong.ui" line="7068"/>
         <source>Delete</source>
         <translation>Törlés</translation>
     </message>
@@ -3367,119 +3438,119 @@ the last CSS save.</source>
         <translation type="vanished">falconG - 1.2.x verzió</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7589"/>
+        <location filename="../src/falcong.ui" line="7607"/>
         <source>Save CSS</source>
         <translation>CSS mentése</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7599"/>
+        <location filename="../src/falcong.ui" line="7617"/>
         <source>Save con&amp;fig.</source>
         <translation>Beáll. menté&amp;se.</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7612"/>
+        <location filename="../src/falcong.ui" line="7630"/>
         <source>Clean up and</source>
         <translation>Takarítás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7633"/>
+        <location filename="../src/falcong.ui" line="7651"/>
         <source>&amp;Open</source>
         <translation>&amp;Megnyitás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7638"/>
+        <location filename="../src/falcong.ui" line="7656"/>
         <source>E&amp;xit</source>
         <translation>Kilé&amp;pés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4627"/>
+        <location filename="../src/falcong.ui" line="4645"/>
         <source>40%</source>
         <translation>40%</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4637"/>
+        <location filename="../src/falcong.ui" line="4655"/>
         <source>20%</source>
         <translation>20%</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="4976"/>
-        <location filename="../src/falcong.ui" line="5128"/>
-        <location filename="../src/falcong.ui" line="5274"/>
+        <location filename="../src/falcong.ui" line="4994"/>
+        <location filename="../src/falcong.ui" line="5146"/>
+        <location filename="../src/falcong.ui" line="5292"/>
         <source>Radius:</source>
         <translation>Lekerekítés:</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5178"/>
+        <location filename="../src/falcong.ui" line="5196"/>
         <source>Album Matte</source>
         <translation>Album szegélye</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5596"/>
+        <location filename="../src/falcong.ui" line="5614"/>
         <source>----------------------------------------------------------------------------------------------</source>
         <translation>----------------------------------------------------------------------------------------------</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="5778"/>
+        <location filename="../src/falcong.ui" line="5796"/>
         <source>Horizontal margin</source>
         <translation>Vízszintes margó</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6054"/>
+        <location filename="../src/falcong.ui" line="6072"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The watermark on the sample image is just an indication &lt;br/&gt;how they would look like on the page.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Az itt  látható vízjelek kinézete csak jelzi kb milyen lesz&lt;br/&gt; a képekre kerülő.&lt;/p&gt;&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6081"/>
+        <location filename="../src/falcong.ui" line="6099"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6144"/>
+        <location filename="../src/falcong.ui" line="6162"/>
         <source>Sample</source>
         <translation>Minta</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6283"/>
+        <location filename="../src/falcong.ui" line="6301"/>
         <source>Albums</source>
         <translation>Albumok</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="6850"/>
+        <location filename="../src/falcong.ui" line="6868"/>
         <source>Hungarian</source>
         <translation>Magyar</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7507"/>
+        <location filename="../src/falcong.ui" line="7525"/>
         <source>Generate (F9)</source>
         <translation>Generálás (F9)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7510"/>
+        <location filename="../src/falcong.ui" line="7528"/>
         <source>F9</source>
         <translation>F9</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7517"/>
+        <location filename="../src/falcong.ui" line="7535"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today&apos;s date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Minden  oldal és kép újragenerálása függetlenül attól változott-e.&lt;/p&gt;&lt;p&gt;Az ujjonan generált képek feltöltési dátuma a mai nap lesz!&lt;/p&gt;&lt;p&gt;Ez a legutolsó képek listájának megváltozásához vezet!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7520"/>
+        <location filename="../src/falcong.ui" line="7538"/>
         <source>&amp;all pages</source>
         <translation>&amp;minden oldalt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7527"/>
+        <location filename="../src/falcong.ui" line="7545"/>
         <source>all i&amp;mages</source>
         <translation>m&amp;inden képet</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7537"/>
+        <location filename="../src/falcong.ui" line="7555"/>
         <source>Preview (F12)</source>
         <translation>Előnézet (F12)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7540"/>
+        <location filename="../src/falcong.ui" line="7558"/>
         <source>F12</source>
         <translation>F12</translation>
     </message>
@@ -3488,23 +3559,23 @@ the last CSS save.</source>
         <translation type="vanished">falconG - 1.2.1 verzió</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7602"/>
+        <location filename="../src/falcong.ui" line="7620"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7609"/>
+        <location filename="../src/falcong.ui" line="7627"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Minta fájlok (html,css,js,...)&lt;/p&gt; törlése.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7619"/>
+        <location filename="../src/falcong.ui" line="7637"/>
         <source>E&amp;xit (Alt+X)</source>
         <translation>Kilépés (Alt+&amp;X)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.ui" line="7622"/>
-        <location filename="../src/falcong.ui" line="7641"/>
+        <location filename="../src/falcong.ui" line="7640"/>
+        <location filename="../src/falcong.ui" line="7659"/>
         <source>Alt+X</source>
         <translation>Alt+X</translation>
     </message>

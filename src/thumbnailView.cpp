@@ -1004,7 +1004,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         {                                             // album must be physical folder on disk
 
             if (QuestionDialog(tr("falconG - Question"),
-                tr("This will move the selected items into another folder!\nDo you really meant this?"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
+                tr("This will move the selected items into another folder!\nSelect 'No' to just reposition them!"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
                 { QMessageBox::Yes,QMessageBox::No}) == QMessageBox::Yes)
             {
                 Album* pDestAlbum = &albumgen.Albums()[items[row]];
@@ -1030,10 +1030,10 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
                 fileIcons.SetIconOrder(newIconOrder);
                 _InitThumbs();
+                            // ----- ??  move items physically to destination folder --------
             }
             else
                 moveItemsIntoFolder = false;
-                            // ----- ??  move items physically to destination folder --------
         }
 
         if(!moveItemsIntoFolder)

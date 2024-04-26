@@ -1696,11 +1696,14 @@ void FalconG::on_btnBackground_clicked()
 
 void FalconG::on_btnBackToParentAlbum_clicked()
 {
+	// change current album for 'tnvImages'
+	
+	// change index for parent in 'trvAlbums'
 	QModelIndex mix = ui.trvAlbums->currentIndex();
 	if (!mix.isValid() || !mix.parent().isValid())
 		return;
-
 	ui.trvAlbums->setCurrentIndex(mix.parent()); // ???
+
 }
 
 /*============================================================================

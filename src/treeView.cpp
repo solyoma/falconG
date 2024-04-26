@@ -320,7 +320,7 @@ void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
 //}
 
 /*=============================================================
- * TASK:  slot to delete seletced directory recursively
+ * TASK:  slot to delete selected directory recursively
  * PARAMS: none
  * GLOBALS: albumgen
  * RETURNS: none
@@ -352,6 +352,7 @@ void AlbumTreeView::DeleteSelectedAlbum()
  *------------------------------------------------------------*/
 void AlbumTreeView::MoveImages()
 {
+	qDebug("TODO:Dropped images here from thumbnail viewer");
 }
 
 /*=============================================================
@@ -363,6 +364,7 @@ void AlbumTreeView::MoveImages()
  *------------------------------------------------------------*/
 void AlbumTreeView::CopyImages()
 {
+	qDebug("TODO:Copied images here from thumbnail viewer");
 }
 
 void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
