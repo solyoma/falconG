@@ -343,7 +343,7 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 void ShowWarning(QString qs, QWidget *parent = nullptr);
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show = 0, QString checkboxtext = QString(), QWidget* parent = nullptr);
 // QuestionDialog returns a single bit at position 'show', which, when 1 may be QMessageBox::Yes or QMessageBox::Save only!
-int QuestionDialog(QString title, QString text, int show = 0, QWidget* parent = nullptr, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No);
+int QuestionDialog(QString title, QString text, Enums::DialogBitsOrder which = Enums::DialogBitsOrder::dboNone, QWidget* parent = nullptr, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No);
 
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent = nullptr); // returns 0: delete, 1: from disk too, 2: canceled
 

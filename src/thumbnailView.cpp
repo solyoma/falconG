@@ -988,54 +988,98 @@ void ThumbnailView::dropEvent(QDropEvent * event)
     else  if (mimeData->hasFormat("application/x-thumb") && !((const ThumbMimeData *)mimeData)->thumbList.isEmpty()) // perform drops from thumbnail list
 	{
         IntList thl = ((const ThumbMimeData*)mimeData)->thumbList;  // indices in actual album's items to move
-        IntList thl0 = thl;                 // original index array of thumblist to check items against
-        // reorder items of actual album
+
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
-        IdList &items = pAlbum->items;      // original ordered items
+        IdList &items = pAlbum->items;   // original ordered items
+
+        //IdList  droppedIds(thl.size());        // id for items at positions from 'thl'
+        //for (int i = 0; i < thl.size(); ++i)
+        //    droppedIds[i] = items[thl[i]];
+        // reorder items of actual album
+        int itemSize = items.size();     // only changes when items dropped on other albums
 
         QVector<int> itemOrder;             // new item order indexes
-        itemOrder.resize(items.size());     // and original indexes are 0,1,2...
+        bool moveItemsIntoFolder = row >= 0 && (items[row] & ALBUM_ID_FLAG);
+        if (moveItemsIntoFolder) // then move items into album with id items[row]
+        {                                             // album must be physical folder on disk
 
-        int si = 0,     // original index
-            di = 0;     // index in idl
+            if (QuestionDialog(tr("falconG - Question"),
+                tr("This will move the selected items into another folder!\nDo you really meant this?"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
+                { QMessageBox::Yes,QMessageBox::No}) == QMessageBox::Yes)
+            {
+                Album* pDestAlbum = &albumgen.Albums()[items[row]];
+                IdList itemsDest = pDestAlbum->items;
+                int destItemSize = itemsDest.size();
+                // ------------- housekeeping -----------
+                // add moved items to destination album
+                itemsDest.resize(destItemSize + thl.size());
+                for (int si = 0, di = destItemSize; si < thl.size(); ++si, ++di)
+                    itemsDest[di] = items[thl[si]];
 
-        // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
-        if (row < 0)
-            row = items.size();
+                // remove indexes of moved items from source gallery and icon indices
+                QVector<int> origOrder = fileIcons.IconOrder();  // original order of icons for actual album
+                IdList srcItems;
+                QVector<int> newIconOrder;                       // new icon order indexes
+                for (int si = 0; si < itemSize; ++si)              // although icons remain on list until actual album changes
+                    if (thl.indexOf(si) < 0)                     // all will be discarded for next album
+                    {
+                        srcItems.push_back(items[si]);
+                        newIconOrder.push_back(origOrder[si]);
+                    }
+                items = srcItems;
 
-        for (  ; si < items.size() && si < row; ++si)
-            if (thl.indexOf(si) < 0)
-                itemOrder[di++] = si;
+                fileIcons.SetIconOrder(newIconOrder);
+                _InitThumbs();
+            }
+            else
+                moveItemsIntoFolder = false;
+                            // ----- ??  move items physically to destination folder --------
+        }
 
-        for (int i = 0; i < thl.size(); ++i)
-            itemOrder[di++] = thl[i];
+        if(!moveItemsIntoFolder)
+        {
+            itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
 
-        for ( si = row ; si < items.size(); ++si)
-            if (thl.indexOf(si) < 0)
-                itemOrder[di++] = si;
+            int si = 0,     // original index
+                di = 0;     // index in idl
 
-        // new order in 'itemOrder' set
-        IdList idl;                         // new ordered items
-        idl.resize(items.size());
+            // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
+            if (row < 0)
+                row = itemSize;
 
-        for (int i = 0; i < itemOrder.size(); ++i)
-            idl[i] = items[itemOrder[i]];
+            for (; si < itemSize && si < row; ++si)
+                if (thl.indexOf(si) < 0)
+                    itemOrder[di++] = si;
 
-        // modify original stored itemOrder
-        QVector<int> origOrder = fileIcons.IconOrder();  // original order might have been changed
-                                                         // so we must rearrange that according to 'itemOrder'
-        QVector<int> iconOrder;                          // new icon order indexes
-        iconOrder.resize(items.size());     
-        for (int i = 0; i < itemOrder.size(); ++i)
-            iconOrder[i] = origOrder[itemOrder[i]];
+            for (int i = 0; i < thl.size(); ++i)
+                itemOrder[di++] = thl[i];
 
-        fileIcons.SetIconOrder(iconOrder);
+            for (si = row; si < itemSize; ++si)
+                if (thl.indexOf(si) < 0)
+                    itemOrder[di++] = si;
 
+            // new order in 'itemOrder' set
+            IdList idl;                         // new ordered items
+            idl.resize(itemSize);
+
+            for (int i = 0; i < itemOrder.size(); ++i)
+                idl[i] = items[itemOrder[i]];
+
+            // modify original stored itemOrder
+            QVector<int> origOrder = fileIcons.IconOrder();  // original order might have been changed
+            // so we must rearrange that according to 'itemOrder'
+            QVector<int> iconOrder;                          // new icon order indexes
+            iconOrder.resize(itemSize);
+            for (int i = 0; i < itemOrder.size(); ++i)
+                iconOrder[i] = origOrder[itemOrder[i]];
+
+            fileIcons.SetIconOrder(iconOrder);
+            items = idl;
+        }
 		//if (_dragFromHereInProgress)	// then remove from old spot
 		//{
 
 		//}
-        items = idl;
         albumgen.SetAlbumModified(*pAlbum);
 
         albumgen.WriteDirStruct(true);
@@ -1667,6 +1711,11 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
 	menu.addAction(pact);
 
+    menu.addSeparator();
+	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
+	connect(pact, &QAction::triggered, this, &ThumbnailView::NewFolder);
+	menu.addAction(pact);
+
     if(nSelSize > 1)
     {
 	    menu.addSeparator();
@@ -1882,7 +1931,7 @@ void ThumbnailView::AddImages()
  * PARAMS:  folderName - name of folder to add
  * GLOBALS:
  * RETURNS: if folder was added
- * REMARKS: does not send signal 
+ * REMARKS: 
  *------------------------------------------------------------*/
 bool ThumbnailView::_AddFolder(QString folderName)
 {
@@ -1902,10 +1951,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
         albumgen.AddDirsRecursively(id);
 
         int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
-        if(pos < 0)
-            pParentAlbum->items.push_back(id);
-        else
-            pParentAlbum->items.insert(pos, id);
+        pParentAlbum->AddItem(id);
 
         ID_t idth = album.ThumbID();
         if (!idth)
@@ -1916,13 +1962,46 @@ bool ThumbnailView::_AddFolder(QString folderName)
 
         albumgen.WriteDirStruct(true);
     }
-    else
-        QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
 
     emit SignalInProcessing(false);
-    emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
 
     return atLeastOneFolderWasAdded;
+}
+
+/*=============================================================
+ * TASK:    internal function that creates a folder
+ * PARAMS:  folderName - name of folder to add
+ * GLOBALS:
+ * RETURNS: if folder was added
+ * REMARKS: 
+ *------------------------------------------------------------*/
+bool ThumbnailView::_NewFolder(QString parent, QString folder)
+{
+    bool added = false, res = false;
+
+    QDir dir(parent);
+    if (dir.mkdir(folder))
+    {
+        Album* pParentAlbum = _ActAlbum();
+
+        emit SignalInProcessing(true);
+        emit SignalAlbumStructWillChange();
+        ID_t id = albumgen.Albums().Add(folder, added);
+        if (added)
+        {
+            albumgen.SetAlbumModified(*pParentAlbum);
+            Album& album = *albumgen.AlbumForID(id);
+            album.parent = _albumId;
+            pParentAlbum->AddItem(id,-1);
+            albumgen.WriteDirStruct(true);
+            res = true;
+        }
+        else
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
+        emit SignalInProcessing(false);
+        emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)   // changes already written to disk (no backup was made nor will be)
+    }
+    return res;
 }
 
 /*=============================================================
@@ -1937,17 +2016,46 @@ bool ThumbnailView::_AddFolder(QString folderName)
 void ThumbnailView::AddFolder()
 {
     Album* pParentAlbum = _ActAlbum();
-    QString dir = pParentAlbum->path;
+    QString dir = pParentAlbum->FullSourceName();
     QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
     if (qs.isEmpty())
         return;
-    emit SignalAlbumStructWillChange();
     bool b = false;
     if ((b=_AddFolder(qs)) )
-    {
         Reload();
+}
+
+/*=============================================================
+ * TASK:   Display dialog box to create one folder in the 
+ *          actual folder
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - actual album is parent of new album folder
+ *          - no thumbnail flag is set
+ *------------------------------------------------------------*/
+void ThumbnailView::NewFolder()
+{
+    Album* pParentAlbum = _ActAlbum();
+    QString dir = pParentAlbum->FullSourceName();   // relative to config.dsSrc
+    QString qs;
+    bool ok;
+    bool b = false;
+    while (1)
+    {
+        qs = QInputDialog::getText(this, tr("falconG - New Folder"), tr("Folder Name:"), QLineEdit::Normal,QString(), &ok);
+
+        if(!ok || qs.isEmpty())
+
+            return;
+        if ((b = _NewFolder(dir, qs)) == true)
+        {
+            Reload();
+            break;
+        }
+        qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
+        QMessageBox::warning(this, tr("falconG - Warning"), qs);
     }
-    emit SignalAlbumStructChanged(b);
 }
 
 /*============================================================================

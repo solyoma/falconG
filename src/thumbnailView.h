@@ -71,6 +71,7 @@ public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
 	int itemPos=-1;		// original position of this item in one of the image, 
 						// video or album lists of the album with '_albumId'
+						// set in constructor (parameter 'pos')
 	static int thumbHeight;
 
 public:
@@ -307,6 +308,7 @@ private:
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
 	void _AddImagesFromList(QStringList qslFileNames, int row);
 	bool _AddFolder(QString folderName);	// returns if folder was added
+	bool _NewFolder(QString parent, QString folderName);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
@@ -354,6 +356,7 @@ public slots:
 	void UndoDelete();
 	void AddImages();
 	void AddFolder();
+	void NewFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
 	void SetAsAlbumThumbnail();			// from existing image/album image

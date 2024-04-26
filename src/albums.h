@@ -266,7 +266,7 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	ID_t thumbnail = 0;	// image ID	or 0
 
 	IdList items;			// for all images, videos and albums in this album GET item for position using IdOfItem!!
-	ID_t IdOfItem(int pos) { return items.isEmpty() ? 0 : items[pos]; }
+	ID_t IdOfItem(int pos) { return items.isEmpty() ? 0 : (pos < items.size() ? items[pos] : 0); }
 
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -290,6 +290,8 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	QString NameFromID(int language);
 	QString LinkName(int language, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
+
+	void AddItem(ID_t id, int pos = -1);	// -1: append
 private:
 	int _imageCount = -1;	// these are not equal to the count of the corresponding items
 	int _albumCount = -1;	// because items could be excluded from display

@@ -2,22 +2,15 @@
 
 namespace Enums
 {
-	enum DialogBits : int {			// sync with DialogBitsOrder below!
-			dbAskBeforeClosing=1, 	
-			dbShowAfterSavingCss = 2, 
-			dbSaveEdited=4, 
-			dbSaveConfig=8,  
-			dbAskCreateDir=16,
-			dbAskSynchronize=32,
-			dbMax= dbAskSynchronize
-	};
 	enum DialogBitsOrder : int {
+		dboNone,
 		dboAskBeforeClosing,
 		dboShowAfterSavingCss,
 		dboSaveEdited,
 		dboSaveConfig,
 		dboAskCreateDir,
 		dboAskSynchronize,
+		dboNeverMoveIntoFolder,		// when drag & drop
 		dboMax
 	};
 	enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };

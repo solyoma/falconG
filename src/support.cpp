@@ -77,17 +77,17 @@ void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int
  *				dialog. See 'DialogBitsOrder' in support.h
  *				If 0 it behaves as a simple 
  *					QMessageBox::question would
- *			checkboxtext: if set and show not 0 adds a checkbox
+ *			checkboxtext: if 'show' is not 0 and  adds a checkbox
  *				to the dialog with this text and stores
  *				its state when any button clicked
  * GLOBALS:	
- * RETURNS:	the same value as a QMessageBox would
+ * RETURNS:	the same value as QMessageBox::exec() returns
  * REMARKS: sets the flags to not show this dialog again, but
  *			never clears them
  *------------------------------------------------------------*/
-int QuestionDialog(QString title, QString text, int show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
+int QuestionDialog(QString title, QString text, Enums::DialogBitsOrder show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
 {
-	if (show > 0 && config.doNotShowTheseDialogs.v & (1 << show))
+	if (show > Enums::DialogBitsOrder::dboNone && config.doNotShowTheseDialogs.v & (1 << (int) show))
 		return config.defaultAnswers[show];
 
 	QMessageBox question(parent);
@@ -1138,7 +1138,7 @@ bool CopyOneFile(QString src, QString dest, bool overWrite)
 *--------------------------------------------------------------------------*/
 static bool __CancelCreate(QString s)
 {
-	if (config.doNotShowTheseDialogs.v & dbAskCreateDir)
+	if (config.doNotShowTheseDialogs.v & (int)dboAskCreateDir)
 		return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
 			// can't use the one in falconG.cpp
 	QMessageBox question;
@@ -1153,7 +1153,7 @@ static bool __CancelCreate(QString s)
 	config.defaultAnswers[dboAskCreateDir] = question.exec();
 
 	if (checkBox && question.checkBox()->isChecked())
-		config.doNotShowTheseDialogs.v |= (int)dbAskCreateDir;
+		config.doNotShowTheseDialogs.v |= (int)dboAskCreateDir;
 
 	return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
 }

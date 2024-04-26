@@ -966,6 +966,28 @@ QString Album::BareName()
 	return QString("%1%2").arg(config.sBaseName.ToString()).arg(ID & ID_MASK);
 }
 
+/*=============================================================
+ * TASK   : add or insert a new item into _items
+ * PARAMS :	id: id of item, pos position to insert: -1: at end
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS: none
+ * REMARKS:
+ *------------------------------------------------------------*/
+void Album::AddItem(ID_t id, int pos)
+{
+	if (pos < 0)
+		items.push_back(id);
+	else
+		items.insert(pos, id);
+	if (id & ALBUM_ID_FLAG)
+		++_albumCount;
+	else if (id & IMAGE_ID_FLAG)
+		++_imageCount;
+	else if (id & VIDEO_ID_FLAG)
+		++_videoCount;
+}
+
 /*============================================================================
 * TASK: Create album name for given ID
 * EXPECTS: id - album id
@@ -4328,7 +4350,7 @@ int AlbumGenerator::_DoPages()
 	if (languages.LanguageCount() != 1 && config.bSeparateFoldersForLanguages)
 	{
 		int ask = config.doNotShowTheseDialogs;
-		config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+		config.doNotShowTheseDialogs.v |= int(dboAskCreateDir);
 		config.defaultAnswers[dboAskCreateDir] = QMessageBox::Yes;
 
 		for (int lang = 0; _processing && lang < languages.LanguageCount(); ++lang)

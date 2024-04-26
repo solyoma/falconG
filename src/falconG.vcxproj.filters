@@ -104,6 +104,9 @@
     <QtMoc Include="imageviewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="hidden.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="falcong.ui">
@@ -150,9 +153,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="schemes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hidden.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -156,7 +156,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	// create directories for sample
 	int ask = config.doNotShowTheseDialogs;
-	config.doNotShowTheseDialogs.v |= int(dbAskCreateDir);
+	config.doNotShowTheseDialogs.v |= int(dboAskCreateDir);
 	config.defaultAnswers[dboAskCreateDir] = QMessageBox::Yes;
 
 	CreateDir(PROGRAM_CONFIG::samplePath);
@@ -342,7 +342,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
 		int res = QuestionDialog( tr("falconG - albums edited"),
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
-								dbSaveEdited, 
+								dboSaveEdited, 
 								this,
 								tr("Don't ask again (use Options to re-enable)")
 							   );
@@ -369,12 +369,12 @@ void FalconG::closeEvent(QCloseEvent * event)
 
 	if (config.Changed())
 	{				  
-		if ( (config.doNotShowTheseDialogs & dbAskBeforeClosing) == 0)
+		if ( (config.doNotShowTheseDialogs & dboAskBeforeClosing) == 0)
 		{
 			QMessageBox::StandardButtons btns = QMessageBox::Yes | QMessageBox::No;
 			int res = QuestionDialog( tr("falconG"),
 							 tr("Do you really want to exit?"),
-							 dbAskBeforeClosing,
+							 dboAskBeforeClosing,
 							 frmMain,
 							 tr("Don't ask again (use Options to re-enable))"),
 							 btns
@@ -659,7 +659,7 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae)
 
 void FalconG::keyPressEvent(QKeyEvent* event)
 {
-	static QString sroot, sext=".jpg|.nef|.cr2|.rw2|.psd|.dng|.tif";
+	static QString sroot, sext=".jpg|.nef|.crw|.cr2|.cr3|.rw2|.psd|.dng|.tif|.srf";
 	if (event->key() == Qt::Key_E && event->modifiers().testFlag(Qt::AltModifier))
 	{
 		FileLister* pfl = new FileLister(this);
@@ -1636,7 +1636,7 @@ void FalconG::on_btnSaveConfig_clicked()
 	InformationMessage(false,
 		"falconG",
 		tr("Saved configuration\n'%1'\n into folder \n'%2'").arg(s).arg(sp),
-		dbSaveConfig,
+		dboSaveConfig,
 		tr("Don't ask again (use Options to re-enable)"),
 		this
 	);
@@ -5239,12 +5239,12 @@ void FalconG::on_btnSaveStyleSheet_clicked()
 	config.SaveDesign();
 
 	_SetConfigChanged(true);
-	if (albumgen.SaveStyleSheets() != 0 || (config.doNotShowTheseDialogs & (int)dbShowAfterSavingCss) )
+	if (albumgen.SaveStyleSheets() != 0 || (config.doNotShowTheseDialogs & (int)dboShowAfterSavingCss) )
 	{	
 		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
 		InformationMessage( false, tr("falconG"), 
 							QString(tr("Saved style sheet 'falconG.css'\ninto %1").arg(s)),
-							dbShowAfterSavingCss, tr("Don't show again (use Options to re-enable)"),
+							dboShowAfterSavingCss, tr("Don't show again (use Options to re-enable)"),
 							this
 						  );
 	}
