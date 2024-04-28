@@ -1278,7 +1278,7 @@ Abszolút biztos vagy benne, hogy ezt akarod?</translation>
         <location filename="../src/thumbnailView.cpp" line="1007"/>
         <source>This will move the selected items into another folder!
 Select &apos;No&apos; to just reposition them!</source>
-        <translation>A kiválasztott elemeket ve akarja mozgatni egy másik albumba?
+        <translation type="unfinished">A kiválasztott elemeket be akarja mozgatni egy másik albumba?
 Válassza a Nem-et, ha csak átrendezi az elemeket!</translation>
     </message>
     <message>

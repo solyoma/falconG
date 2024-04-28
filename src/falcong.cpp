@@ -202,8 +202,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.chkSourceRelativePerSign->setEnabled(false);
 #endif
 
-	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::_LinkClicked);
-	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::_WebPageLoaded);
+	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::_SlotLinkClicked);
+	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::_SlotWebPageLoaded);
 
 	ui.edtWmHorizMargin->setValidator(new QIntValidator(0, 100, ui.edtWmHorizMargin));
 	ui.edtWmVertMargin->setValidator(new QIntValidator(0, 100, ui.edtWmVertMargin));
@@ -222,7 +222,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
 
 	// connect with albumgen's 
-	connect(this,	   &FalconG::CancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
+	connect(this,	   &FalconG::SignalCancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
 	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SlotSetProgressBar);
 	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SlotSetProgressBarPos);
 	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SlotSetupLanguagesToUI);
@@ -233,8 +233,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_SlotCreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
-	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_TnvSelectionChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection,	this, &FalconG::_TnvMultipleSelection);
+	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_SlotTnvSelectionChanged);
+	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection,	this, &FalconG::_SlotTnvMultipleSelection);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructWillChange,	this, &FalconG::_SlotAlbumStructWillChange);
 	connect(ui.tnvImages, &ThumbnailView::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalMayLoadNewItems,	this, &FalconG::_SlotLoadItemsToListView);
@@ -243,7 +243,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_SlotTnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotChangeToFolderAt);	
-	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEanbleCloseAllViewers);
+	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEnableCloseAllViewers);
+
+	connect(this, &FalconG::SignalActAlbumChanged, ui.trvAlbums, &AlbumTreeView::SlotFolderChanged);
 
 	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToRemoveAllViewers);
 //	connect(this, &FalconG::SignalToClearIconList, ui.tnvImages, &ThumbnailView::SlotToClearIconList);
@@ -482,7 +484,7 @@ void FalconG::on_btnGenerate_clicked()
 {
 	if (_running)
 	{
-		emit CancelRun();
+		emit SignalCancelRun();
 	}
 	else
 	{
@@ -521,7 +523,7 @@ void FalconG::on_btnGenerate_clicked()
 		if (!albumgen.Read(false))		// any error
 			--_running, _phase = -1;
 		QGuiApplication::restoreOverrideCursor();
-		_TnvCountChanged();			// show in lblTotalCount (page: Edit)
+		_SlotTnvCountChanged();			// show in lblTotalCount (page: Edit)
 
 			// WRITE album
 		if (_running)
@@ -826,7 +828,7 @@ void FalconG::_ActualSampleParamsToUi()
 	ui.chkShadowOn->setChecked(b);
 	ui.btnShadowColor->setStyleSheet(  sStyle );
 
-	_ShadowForElementToUI(pElem, ui.rbTextShadow->isChecked() ? 0 : 1);
+	_SlotShadowForElementToUI(pElem, ui.rbTextShadow->isChecked() ? 0 : 1);
 
 	ui.chkTextOpacity->setChecked(pElem->color.Opacity(false) > 0);
 	ui.sbTextOpacity->setValue(pElem->color.Opacity(false) < 0 ? 100: pElem->color.Opacity(true));
@@ -943,7 +945,7 @@ void FalconG::_SetConfigChanged(bool on)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
+void FalconG::_SlotTextDecorationToConfig(Decoration decoration, bool on)
 {
 	if (_busy)
 		return;
@@ -964,7 +966,7 @@ void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 	_SetConfigChanged(true);
 }
 
-void FalconG::_TextAlignToConfig(Align align, bool on)
+void FalconG::_SlotTextAlignToConfig(Align align, bool on)
 {
 	if (_busy)
 		return;
@@ -1010,17 +1012,15 @@ void FalconG::_SlotForSchemeChange(int which)
 }
 
 void FalconG::_SlotChangeToFolderAt(int row)		// called from thumbnailView.cpp
-{														// row: item index
-	QModelIndex &cix = _currentTreeViewIndex;	// shorthand
-	// get folder (album) index for row
-	Album *album = albumgen.AlbumForID((ID_t)cix.internalPointer());
+{													// row: item index
+	QModelIndex& cix = _currentTreeViewIndex;	
+	// get folder (album) index for row by discarding non-folder items
+	Album* album = albumgen.AlbumForID((ID_t)cix.internalPointer());
 	int aix = 0;
 	for (int i = 0; i < row; ++i)
 		if (album->items[i] & ALBUM_ID_FLAG)
 			++aix;
-
-	QModelIndex mix = ((AlbumTreeModel*)ui.trvAlbums->model())->index(aix, 0, cix);
-	ui.trvAlbums->selectionModel()->select(mix, QItemSelectionModel::ClearAndSelect);
+	emit SignalActAlbumChanged(aix);
 }
 
 void FalconG::_EnableColorSchemeButtons()
@@ -1283,7 +1283,7 @@ void FalconG::_UpdateWatermarkMargins(int mx, int my)
 	}
 	_SetConfigChanged(true);
 }
-void FalconG::_SetupActualBorder(BorderSide side)
+void FalconG::_SlotSetupActualBorder(BorderSide side)
 {
 	_CElem* pElem = _PtrToElement();
 	_CBorder &border = pElem->border;
@@ -1308,7 +1308,7 @@ void FalconG::_SetupActualBorder(BorderSide side)
 	_EnableButtons();
 }
 
-void FalconG::_PropagatePageColor()
+void FalconG::_SlotPropagatePageColor()
 {
 	config.Header.color = config.Web.color.Name();
 	config.Menu.color = config.Web.color.Name(); 
@@ -1327,19 +1327,19 @@ void FalconG::_PropagatePageColor()
 	_ConfigToSample(espColor);
 }
 
-void FalconG::_SlotForEanbleCloseAllViewers(bool enable)
+void FalconG::_SlotForEnableCloseAllViewers(bool enable)
 {
 	ui.btnCloseAllViewers->setEnabled(enable);
 }
 
 //****************************************************************************
 
-void FalconG::_RestartRequired()
+void FalconG::_SlotRestartRequired()
 {
 	QMessageBox::warning(this, tr("falconG - Warning"), QString(tr("Please restart the program to change the language!")));
 }
 
-bool FalconG::_DoOverWriteColorScheme(int i)
+bool FalconG::_SlotDoOverWriteColorScheme(int i)
 {
 	QString qs = tr("There is a scheme \n'%1'\nwith a title which at least partially\nmatches the modified title.\n"
 		" Do you want to overwrite it?").arg(schemes[i].MenuTitle);
@@ -1348,7 +1348,7 @@ bool FalconG::_DoOverWriteColorScheme(int i)
 		QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
-bool FalconG::_LanguagesWarning()
+bool FalconG::_SlotLanguagesWarning()
 {
 	return QMessageBox::question(this, tr("falconG - Question"),
 		tr("No/not enough ':' in new name. The same name will be used for\n"
@@ -1396,7 +1396,7 @@ void FalconG::_ReadLastAlbumStructure()
 			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
 
 			_SlotAlbumStructSelectionChanged(QItemSelection(), QItemSelection());
-			_TnvCountChanged();			// show in lblTotalCount (page: Edit)
+			_SlotTnvCountChanged();			// show in lblTotalCount (page: Edit)
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
 		}
 	}
@@ -1416,7 +1416,7 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 		return;
 	if (PROGRAM_CONFIG::qslLangNames.size() != sNewName.count(':') + 1)
 	{
-		if (!_LanguagesWarning())
+		if (!_SlotLanguagesWarning())
 			return;
 		sNewName = sNewName + ":" + sNewName;
 	}
@@ -1426,7 +1426,7 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 	{
 		if (i < 2)
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
-		else if (_DoOverWriteColorScheme(i))
+		else if (_SlotDoOverWriteColorScheme(i))
 		{
 			schemes[i].MenuTitle = sNewName;
 			schemes.Save();
@@ -1696,8 +1696,6 @@ void FalconG::on_btnBackground_clicked()
 
 void FalconG::on_btnBackToParentAlbum_clicked()
 {
-	// change current album for 'tnvImages'
-	
 	// change index for parent in 'trvAlbums'
 	QModelIndex mix = ui.trvAlbums->currentIndex();
 	if (!mix.isValid() || !mix.parent().isValid())
@@ -1819,7 +1817,7 @@ void FalconG::on_btnPageColor_clicked()
 	}
 	if (ui.chkSameForeground->isChecked())
 	{
-		_PropagatePageColor();		// to all elements			
+		_SlotPropagatePageColor();		// to all elements			
 		ui.chkSameForeground->setChecked(false);
 	}
 	// DEBUG
@@ -2116,7 +2114,7 @@ void FalconG::on_lwColorScheme_currentRowChanged(int newIndex)
 		return;
 
 	if (_bSchemeChanged)
-		_AskForApply();
+		_SlotAskForApply();
 	static const char* bckstr = "background-color:%1",
 		* bck_txt = "background-color:%1; color:%2";
 	_tmpScheme = schemes[newIndex + 2];	// default and system are not changed
@@ -2179,7 +2177,7 @@ void FalconG::on_btnApplyColorScheme_clicked()
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
 			return;
 		}
-		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _DoOverWriteColorScheme(i))// full or partial name matched
+		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _SlotDoOverWriteColorScheme(i))// full or partial name matched
 		{
 			schemes[i] = _tmpScheme;
 			_bSchemeChanged = true;
@@ -2187,7 +2185,7 @@ void FalconG::on_btnApplyColorScheme_clicked()
 	}
 	else	// name did not exist save new
 	{
-		if (_tmpSchemeOrigName.indexOf(':') + 1 != PROGRAM_CONFIG::qslLangNames.size() && _LanguagesWarning())
+		if (_tmpSchemeOrigName.indexOf(':') + 1 != PROGRAM_CONFIG::qslLangNames.size() && _SlotLanguagesWarning())
 		{
 			_tmpScheme.MenuTitle = _tmpSchemeOrigName;
 			schemes.push_back(_tmpScheme);
@@ -2825,9 +2823,9 @@ void FalconG::on_chkSetLatest_toggled(bool on)
 	_EnableButtons();
 }
 
-void FalconG::on_chkTdLinethrough_toggled(bool on) { _TextDecorationToConfig(tdLinethrough, on); }
-void FalconG::on_chkTdUnderline_toggled(bool on) { _TextDecorationToConfig(tdUnderline, on); }
-void FalconG::on_chkTdOverline_toggled(bool on) { _TextDecorationToConfig(tdOverline, on); }
+void FalconG::on_chkTdLinethrough_toggled(bool on) { _SlotTextDecorationToConfig(tdLinethrough, on); }
+void FalconG::on_chkTdUnderline_toggled(bool on) { _SlotTextDecorationToConfig(tdUnderline, on); }
+void FalconG::on_chkTdOverline_toggled(bool on) { _SlotTextDecorationToConfig(tdOverline, on); }
 
 /*============================================================================
   * TASK:
@@ -3383,18 +3381,18 @@ void FalconG::on_rbAllBorders_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdAll);
+	_SlotSetupActualBorder(sdAll);
 }
 
 void FalconG::on_rbBottomBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdBottom);
+	_SlotSetupActualBorder(sdBottom);
 }
 
 // -- background image -----------
-void FalconG::_BackgroundImageToSamplePage(BackgroundImageSizing sizing)
+void FalconG::_SlotBackgroundImageToSamplePage(BackgroundImageSizing sizing)
 {
 	if (!_busy)
 	{
@@ -3411,26 +3409,26 @@ void FalconG::_BackgroundImageToSamplePage(BackgroundImageSizing sizing)
 void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 {
 	if(b)
-		_BackgroundImageToSamplePage(hNotUsed);
+		_SlotBackgroundImageToSamplePage(hNotUsed);
 }
 
 
 void FalconG::on_rbCenterBckImage_toggled(bool b)
 {
 	if(b)
-		_BackgroundImageToSamplePage(hAuto);
+		_SlotBackgroundImageToSamplePage(hAuto);
 }
 
 void FalconG::on_rbCoverBckImage_toggled(bool b)
 {
 	if(b)
-		_BackgroundImageToSamplePage(hCover);
+		_SlotBackgroundImageToSamplePage(hCover);
 }
 
 void FalconG::on_rbTileBckImage_toggled(bool b)
 {
 	if(b)
-		_BackgroundImageToSamplePage(hTile);
+		_SlotBackgroundImageToSamplePage(hTile);
 }
 
 
@@ -3439,44 +3437,44 @@ void FalconG::on_rbEnglish_toggled(bool b)
 	if (_busy || !b)
 		return;
 	PROGRAM_CONFIG::lang = -1;	// English
-	_RestartRequired();
+	_SlotRestartRequired();
 }
 void FalconG::on_rbLeftBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdLeft);
+	_SlotSetupActualBorder(sdLeft);
 }
 void FalconG::on_rbMagyar_toggled(bool b)
 {
 	if (_busy || !b)
 		return;
 	PROGRAM_CONFIG::lang = 1;	// Hungarian
-	_RestartRequired();
+	_SlotRestartRequired();
 }
 
 void FalconG::on_rbRightBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdRight);
+	_SlotSetupActualBorder(sdRight);
 }
 
-void FalconG::on_rbTdDashed_toggled(bool on) { _TextDecorationToConfig(tdDashed, on); }
-void FalconG::on_rbTdDotted_toggled(bool on) { _TextDecorationToConfig(tdDotted, on); }
-void FalconG::on_rbTdDouble_toggled(bool on) { _TextDecorationToConfig(tdDouble, on); }
-void FalconG::on_rbTdSolid_toggled(bool on) { _TextDecorationToConfig(tdSolid, on); }
-void FalconG::on_rbTdWavy_toggled(bool on) { _TextDecorationToConfig(tdWavy, on); }
-void FalconG::on_rbTextAlignNone_toggled(bool on) { _TextAlignToConfig(alNone, on); }
-void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
-void FalconG::on_rbTextLeft_toggled(bool on) { _TextAlignToConfig(alLeft, on); }
-void FalconG::on_rbTextRight_toggled(bool on) { _TextAlignToConfig(alRight, on); }
+void FalconG::on_rbTdDashed_toggled(bool on) { _SlotTextDecorationToConfig(tdDashed, on); }
+void FalconG::on_rbTdDotted_toggled(bool on) { _SlotTextDecorationToConfig(tdDotted, on); }
+void FalconG::on_rbTdDouble_toggled(bool on) { _SlotTextDecorationToConfig(tdDouble, on); }
+void FalconG::on_rbTdSolid_toggled(bool on) { _SlotTextDecorationToConfig(tdSolid, on); }
+void FalconG::on_rbTdWavy_toggled(bool on) { _SlotTextDecorationToConfig(tdWavy, on); }
+void FalconG::on_rbTextAlignNone_toggled(bool on) { _SlotTextAlignToConfig(alNone, on); }
+void FalconG::on_rbTextCenter_toggled(bool on) { _SlotTextAlignToConfig(alCenter, on); }
+void FalconG::on_rbTextLeft_toggled(bool on) { _SlotTextAlignToConfig(alLeft, on); }
+void FalconG::on_rbTextRight_toggled(bool on) { _SlotTextAlignToConfig(alRight, on); }
 
 void FalconG::on_rbTextShadow_toggled(bool b)
 {
 	_CElem* pElem = _PtrToElement();
 	int n = b ? 0 : 1;	// text or box shadow
-	_ShadowForElementToUI(pElem, n);
+	_SlotShadowForElementToUI(pElem, n);
 	config.waterMark.SetupMark();
 }
 
@@ -3484,7 +3482,7 @@ void FalconG::on_rbTopBorder_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SetupActualBorder(sdTop);
+	_SlotSetupActualBorder(sdTop);
 }
 
 // ========================  Spin boxes
@@ -4457,7 +4455,7 @@ void FalconG::_AddSchemeButtons()
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_LinkClicked(QString s)
+void FalconG::_SlotLinkClicked(QString s)
 {
 	if (!s.at(0).isDigit())
 		return;
@@ -4477,7 +4475,7 @@ void FalconG::_LinkClicked(QString s)
  *				web page did not loaded therefore all of 
  *				our changes are lost
  *-------------------------------------------------------*/
-void FalconG::_WebPageLoaded(bool ready)
+void FalconG::_SlotWebPageLoaded(bool ready)
 {
 			// only check load once
 	if (_isWebPageLoaded)
@@ -4552,7 +4550,7 @@ void FalconG::_SlotLoadItemsToListView()
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_AskForApply()
+void FalconG::_SlotAskForApply()
 {
 	if (_busy )//|| !_bSchemeChanged)
 		return;
@@ -5489,7 +5487,7 @@ void FalconG::_SlotThumbNailViewerIsLoading(bool yes)
 	QApplication::processEvents();
 }
 
-void FalconG::_TnvCountChanged()
+void FalconG::_SlotTnvCountChanged()
 {
 	ui.lblTotalCount->setText(tr("%1 Albums, %2 images").arg(albumgen.Albums().size()).arg(albumgen.Images().size()) );
 }
@@ -5507,7 +5505,7 @@ void FalconG::_SlotTnvStatusChanged(QString &s)
  * RETURNS:
  * REMARKS:	any changed text is already set in _selection
  *------------------------------------------------------------*/
-void FalconG::_TnvSelectionChanged(ID_t id, ID_t actAlbumId)
+void FalconG::_SlotTnvSelectionChanged(ID_t id, ID_t actAlbumId)
 {
 	_SaveChangedTexts();	// from selection to data base
 	_selection.actAlbum = actAlbumId;
@@ -5527,7 +5525,7 @@ void FalconG::_TnvSelectionChanged(ID_t id, ID_t actAlbumId)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void FalconG::_TnvMultipleSelection(IdList list, ID_t actAlbumId)
+void FalconG::_SlotTnvMultipleSelection(IdList list, ID_t actAlbumId)
 {
 //	int n = list.size();
 }
@@ -5548,7 +5546,7 @@ void FalconG::_SlotSaveChangedTitleDescription()
 	ui.btnSaveChangedDescription->setEnabled(false);
 }
 
-void FalconG::_ShadowForElementToUI(_CElem* pElem, int which)
+void FalconG::_SlotShadowForElementToUI(_CElem* pElem, int which)
 {
 	++_busy;
 	ui.sbShadowSpread1->setEnabled(which);

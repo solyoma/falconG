@@ -329,7 +329,7 @@ void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
  *			have images and videos beside the albums
  *			- at the moment only a single album can be deleted
  *------------------------------------------------------------*/
-void AlbumTreeView::DeleteSelectedAlbum()
+void AlbumTreeView::SlotDeleteSelectedAlbum()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
 	ID_t albumId = (ID_t)list[0].internalPointer();
@@ -350,7 +350,7 @@ void AlbumTreeView::DeleteSelectedAlbum()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void AlbumTreeView::MoveImages()
+void AlbumTreeView::SlotMoveImages()
 {
 	qDebug("TODO:Dropped images here from thumbnail viewer");
 }
@@ -362,9 +362,21 @@ void AlbumTreeView::MoveImages()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void AlbumTreeView::CopyImages()
+void AlbumTreeView::SlotCopyImages()
 {
 	qDebug("TODO:Copied images here from thumbnail viewer");
+}
+
+void AlbumTreeView::SlotFolderChanged(int row)
+{
+	QModelIndex current = currentIndex();
+	if (current.isValid())
+	{
+		expand(current);
+		int rowCount = model()->rowCount();
+		QModelIndex newix = model()->index(row, 0, current);
+		setCurrentIndex(newix);
+	}
 }
 
 void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
@@ -387,12 +399,12 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 		{
 			pact = new QAction(tr("&Copy Selected Images Here"), this);  // any number of images from a directory
 			pact->setEnabled(true);
-			connect(pact, &QAction::triggered, this, &AlbumTreeView::CopyImages);
+			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotCopyImages);
 			menu.addAction(pact);
 
 			pact = new QAction(tr("&Movey Selected Images Here"), this);  // any number of images from a directory
 			pact->setEnabled(true);
-			connect(pact, &QAction::triggered, this, &AlbumTreeView::MoveImages);
+			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotMoveImages);
 			menu.addAction(pact);
 
 			menu.addSeparator();
@@ -408,7 +420,7 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 
 		menu.addSeparator();
 		pact = new QAction(tr("&Remove"), this);
-		connect(pact, &QAction::triggered, this, &AlbumTreeView::DeleteSelectedAlbum);
+		connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotDeleteSelectedAlbum);
 		menu.addAction(pact);
 
 	}

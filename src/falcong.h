@@ -88,9 +88,10 @@ public:
 	void Stop() { --_running; }
 
 signals:
-	void CancelRun();
+	void SignalCancelRun();
 	void SignalThumbSizeChanged(int newSize);
 	void SignalToCloseAllViewers();
+	void SignalActAlbumChanged(int row);
 	//void SignalToClearIconList();
 private:
 
@@ -198,48 +199,41 @@ private:
 	void _EnableColorSchemeButtons();
 
 private slots:
-	void _LinkClicked(QString s);		// from sample page
-	void _WebPageLoaded(bool ready);
-
+	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
+	void _SlotAlbumStructChanged(bool yesitdid);
 	void _SlotAlbumStructSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
+	void _SlotAlbumStructWillChange();
+	void _SlotAskForApply();	// when color scheme changed and not yet applied
+	void _SlotBackgroundImageToSamplePage(BackgroundImageSizing sizing);
+	void _SlotChangeToFolderAt(int row);	// inside actual folder in ui.trvAlbums
+	void _SlotCreateUplinkIcon(QString destPath, QString destName);
+	bool _SlotDoOverWriteColorScheme(int i);
+	void _SlotEnableEditTab(bool on);
+	void _SlotForContextMenu(const QPoint& pt);
+	void _SlotForEnableCloseAllViewers(bool enable);
+	void _SlotForSchemeButtonClick(int which);
+	void _SlotForSchemeChange(int which);
+	bool _SlotLanguagesWarning();
+	void _SlotLinkClicked(QString s);		// from sample page
+	void _SlotLoadItemsToListView();	// uses _currentTreeViewIndex set in _SlotAlbumStructChanged
+	void _SlotPropagatePageColor();	// to all items
+	void _SlotRestartRequired();	// for language change
+	void _SlotSaveChangedTitleDescription();
+	void _SlotSetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
 	void _SlotSetProgressBar(int min, int max, int pos, int phase);
 	void _SlotSetProgressBarPos(int cnt1, int cnt2);
+	void _SlotSetupActualBorder(BorderSide side);
 	void _SlotSetupLanguagesToUI();
-	void _SlotEnableEditTab(bool on);
-
-	void _SlotAlbumStructChanged(bool yesitdid);
-	void _SlotLoadItemsToListView();	// uses _currentTreeViewIndex set in _SlotAlbumStructChanged
-	void _SlotAlbumStructWillChange();
-	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
+	void _SlotShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
 	void _SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void _SlotCreateUplinkIcon(QString destPath, QString destName);
-	void _SlotSetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
+	void _SlotTextAlignToConfig(Align align, bool on);
+	void _SlotTextDecorationToConfig(Decoration dec, bool on);
 	void _SlotThumbNailViewerIsLoading(bool yes);
-	void _TnvCountChanged();
+	void _SlotTnvCountChanged();
+	void _SlotTnvMultipleSelection(IdList, ID_t);	// list of ID of selected items for multiple items
+	void _SlotTnvSelectionChanged(ID_t, ID_t);		// ID of selected item or ID of enclosing album for no items
 	void _SlotTnvStatusChanged(QString &); // thumbnail view status changed
-	void _TnvSelectionChanged(ID_t, ID_t);		// ID of selected item or ID of enclosing album for no items
-	void _TnvMultipleSelection(IdList, ID_t);	// list of ID of selected items for multiple items
-	void _SlotSaveChangedTitleDescription();
-
-	void _ShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
-
-	void _TextDecorationToConfig(Decoration dec, bool on);
-	void _TextAlignToConfig(Align align, bool on);
-	void _SlotForContextMenu(const QPoint& pt);
-	void _SlotForSchemeChange(int which);
-	void _SlotChangeToFolderAt(int row);	// inside actual folder in ui.trvAlbums
-
-	void _SlotForSchemeButtonClick(int which);
-	void _AskForApply();	// when color scheme changed and not yet applied
-	void _RestartRequired();	// for language change
-	bool _DoOverWriteColorScheme(int i);
-	bool _LanguagesWarning();
-	void _SetupActualBorder(BorderSide side);
-	void _PropagatePageColor();	// to all items
-
-	void _BackgroundImageToSamplePage(BackgroundImageSizing sizing);
-
-	void _SlotForEanbleCloseAllViewers(bool enable);
+	void _SlotWebPageLoaded(bool ready);
 
 // auto connected slots
 private slots:

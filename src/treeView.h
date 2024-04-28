@@ -93,9 +93,10 @@ signals:
 	void SignalGetSelectionCount(ID_t& remoteId, int& count);
 
 public slots:
-	void DeleteSelectedAlbum();
-	void MoveImages();
-	void CopyImages();
+	void SlotDeleteSelectedAlbum();
+	void SlotMoveImages();
+	void SlotCopyImages();
+	void SlotFolderChanged(int row);
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);
