@@ -1222,11 +1222,6 @@ void ThumbnailView::Reload()
 
     setSpacing(QFontMetrics(font()).height());
 
-    //if (_isNeedToScroll) 
-    //{
-    //    scrollToTop();
-    //}
-
     _InitThumbs();
     if (_isProcessing)
     {
@@ -1973,33 +1968,51 @@ bool ThumbnailView::_AddFolder(QString folderName)
  * PARAMS:  folderName - name of folder to add
  * GLOBALS:
  * RETURNS: if folder was added
- * REMARKS: 
+ * REMARKS: folder names must be unique
  *------------------------------------------------------------*/
 bool ThumbnailView::_NewFolder(QString parent, QString folder)
 {
-    bool added = false, res = false;
-
-    QDir dir(parent);
-    if (dir.mkdir(folder))
-    {
-        Album* pParentAlbum = _ActAlbum();
-
-        emit SignalInProcessing(true);
-        emit SignalAlbumStructWillChange();
-        ID_t id = albumgen.Albums().Add(folder, added);
-        if (added)
+    auto errMsg = [&](QString text)
         {
-            albumgen.SetAlbumModified(*pParentAlbum);
-            Album& album = *albumgen.AlbumForID(id);
-            album.parent = _albumId;
-            pParentAlbum->AddItem(id,-1);
-            albumgen.WriteDirStruct(true);
-            res = true;
+            QMessageBox::warning(this, tr("falconG - Warning"), tr( "Adding new album failed!\n\n%1\n"
+                                                                    "Please use a different name!\n\n"
+                                                                    "Album names must be unique.").arg(text));
+        };
+
+    bool added = false,
+         res = false;
+
+    if (albumgen.Albums().Exists(folder))
+        errMsg(tr("The album is already in the gallery.") );
+    else
+    {
+        QDir dir(parent);
+        // DEBUG
+        qDebug("Dir:%s, subdir:%s", dir.absolutePath().toStdString().c_str(), folder.toStdString().c_str());
+        // /DEBUG
+        if (dir.mkdir(folder))
+        {
+            Album* pParentAlbum = _ActAlbum();
+
+            emit SignalInProcessing(true);
+            emit SignalAlbumStructWillChange();
+            ID_t id = albumgen.Albums().Add(folder, added);
+            if (added)
+            {
+                albumgen.SetAlbumModified(*pParentAlbum);
+                Album& album = *albumgen.AlbumForID(id);
+                album.parent = _albumId;
+                pParentAlbum->AddItem(id, -1);
+                albumgen.WriteDirStruct(true);
+                res = true;
+            }
+            else
+                errMsg(tr("Unknown error: Folder created but wasn't added to gallery") );
+            emit SignalInProcessing(false);
+            emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
         }
         else
-            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new album failed!\n\nMaybe the album is already in the gallery."));
-        emit SignalInProcessing(false);
-        emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)   // changes already written to disk (no backup was made nor will be)
+           errMsg(tr("Creating folder on disk was unsuccessful") );
     }
     return res;
 }
@@ -2043,18 +2056,17 @@ void ThumbnailView::NewFolder()
     bool b = false;
     while (1)
     {
-        qs = QInputDialog::getText(this, tr("falconG - New Folder"), tr("Folder Name:"), QLineEdit::Normal,QString(), &ok);
+        qs = QInputDialog::getText(this, tr("falconG - New Folder"), tr("Folder Name:"), QLineEdit::Normal, qs, &ok);
 
         if(!ok || qs.isEmpty())
-
             return;
         if ((b = _NewFolder(dir, qs)) == true)
         {
             Reload();
             break;
         }
-        qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
-        QMessageBox::warning(this, tr("falconG - Warning"), qs);
+        //qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
+        //QMessageBox::warning(this, tr("falconG - Warning"), qs);
     }
 }
 
@@ -2213,6 +2225,7 @@ void ThumbnailView::SelectAsAlbumThumbnail()
 
 void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
 {
+//    _currentIndex = mix;
     int row = mix.row();
     ID_t id = _ActAlbum()->items[row];
     if (id & ALBUM_ID_FLAG)

@@ -135,7 +135,8 @@ int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 	if (res == 1)    // delete from disk too
 	{
 		if (QMessageBox::question((QWidget*)frmMain, QObject::tr("falconG - Question"),
-			QObject::QObject::tr("This will delete all selected images and folders from disk.\n\n"
+			QObject::tr("This will delete all selected images and folders from disk.\n"
+				"This cannot be undone.\n\n"
 				"Are you >>really<< sure you want to do this?")) != QMessageBox::Yes)
 			return 2;
 	}
@@ -685,7 +686,7 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 *						  false: an existing 
 *							backup file will be deleted
 * GLOBALS:	none
-* RETURNS:  empty QString when backup and rename was successfull, error message 
+* RETURNS:  empty QString when backup and rename was successful, error message 
 *			on error
 * REMARKS:
 *--------------------------------------------------------------------------*/
@@ -1505,7 +1506,7 @@ bool MarkedIcon::initted = false;				// images for icons read?
  * PARAMS:	name: file name to read image from
  *			is_folder: if this will be for a folder
  * GLOBALS:	static members are set
- * RETURNS:	if file read was successfull
+ * RETURNS:	if file read was successful
  * REMARKS: if read is unsuccessfull the pixmap still valid
  *------------------------------------------------------------*/
 bool MarkedIcon::Read(QString fname, bool is_folder)

@@ -355,6 +355,7 @@ class AlbumMap : public QMap<ID_t, Album>
 public:
 	Album &Find(ID_t id);
 	Album &Find(QString albumPath);
+	bool Exists(QString albumPath);
 	ID_t Add(QString relativeAlbumPath, bool &added);			// returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums

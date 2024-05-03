@@ -35,7 +35,7 @@ public:
 	{
 		if (_bBeginResetModelCalled)
 			return;
-		beginResetModel();
+		beginResetModel();	   // makes currentItem and selection invalid
 		_bBeginResetModelCalled = true;
 	}
 	void EndResetModel() 

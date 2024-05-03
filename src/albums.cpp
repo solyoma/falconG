@@ -1042,7 +1042,7 @@ QString Album::NameFromID(int language)
 *          added: OUT - set when this is added
 * RETURNS: id of album ORed with ALBUM_ID_FLAG
 * GLOBALS:
-* REMARKS:	path may contains a logical name only it need not exist
+* REMARKS:	path may contain a logical name only, it need not exist
 *			if it exists then lastUsedAlbumPath is adjusted
 *--------------------------------------------------------------------------*/
 ID_t AlbumMap::Add(QString path, bool &added)
@@ -1119,15 +1119,19 @@ bool AlbumMap::RemoveRecursively(ID_t id)
 *--------------------------------------------------------------------------*/
 Album & AlbumMap::Find(QString albumPath)
 {
-	Album ab;
+	QString n,p;
 	albumPath = CutSourceRoot(albumPath);
-	SeparateFileNamePath(albumPath, ab.path, ab.name);
+	SeparateFileNamePath(albumPath, p, n);
 	
-	ab.searchBy = Album::byName;
 	for (auto i = begin(); i != end(); ++i)
-		if (i.value()== ab)
+		if (i.value().name==n)
 			return i.value();
 	return invalid;
+}
+
+bool AlbumMap::Exists(QString albumPath)
+{
+	return !(Find(albumPath) == invalid);
 }
 
 /*============================================================================
@@ -1830,7 +1834,7 @@ void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
 /*==========================================================================
 * TASK:		reads or creates whole album hierarchy
 *				if a corresponding '.struct' file exists and not yet read into
-*					memory then tries to read it. If the read is unsuccessfull
+*					memory then tries to read it. If the read is unsuccessful
 *					then all data is cleared from memory
 *				if 'config.bReadFromDirs' is checked always reads the list of
 *					all images (using JAlbum's files too if they exist)
@@ -3047,7 +3051,7 @@ int AlbumGenerator::_DoCopyRes()
 * GLOBALS:
 * REMARKS: Directory structure is written into file gallery.tmp, so if an 
 *			error occurs then the originla structure file is still available.
-*			After a successfull write an existing backup file 'gallery.struct~'
+*			After a successful write an existing backup file 'gallery.struct~'
 *			is deleted,  the gallery.struct file is renamed to 'gallery.struct~'
 *			and then the temporary file is renamed to 'gallery.struct'. 
 *			If 'keep' is true, then old backup file is kept and the 

@@ -5737,6 +5737,7 @@ void FalconG::_SlotAlbumStructChanged(bool yesItDid)
 {
 	_edited = yesItDid;	// so that we save it at program termination if not processed
 	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->EndResetModel();
+	ui.trvAlbums->setCurrentIndex(_currentTreeViewIndex);
 	ui.trvAlbums->expandToDepth(1);
 	// ui.trvAlbums->expandAll();
 }

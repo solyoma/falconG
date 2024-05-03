@@ -402,7 +402,7 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotCopyImages);
 			menu.addAction(pact);
 
-			pact = new QAction(tr("&Movey Selected Images Here"), this);  // any number of images from a directory
+			pact = new QAction(tr("&Move Selected Images Here"), this);  // any number of images from a directory
 			pact->setEnabled(true);
 			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotMoveImages);
 			menu.addAction(pact);

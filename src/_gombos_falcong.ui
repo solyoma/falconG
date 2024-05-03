@@ -3098,7 +3098,7 @@ its original size;</string>
                         <property name="toolTip">
                          <string>If you gave any default font names or 
 google font names you can select it 
-using thjis combo box</string>
+using this combo box</string>
                         </property>
                         <property name="placeholderText">
                          <string>Select specified font</string>
