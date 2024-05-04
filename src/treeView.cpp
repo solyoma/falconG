@@ -367,7 +367,7 @@ void AlbumTreeView::SlotCopyImages()
 	qDebug("TODO:Copied images here from thumbnail viewer");
 }
 
-void AlbumTreeView::SlotFolderChanged(int row)
+void AlbumTreeView::SlotActAlbumChanged(int row)
 {
 	QModelIndex current = currentIndex();
 	if (current.isValid())

@@ -365,7 +365,7 @@ public slots:
 	void ItemDoubleClicked(const QModelIndex &);
 	void SlotThumbnailSizeChanged(int thumbSize);
 	void FindMissingImageOrVideo();		// maybe it was moved from its position
-	void SlotToRemoveAllViewers();
+	void SlotToCloseAllViewers();
 	void SlotGetSelectionCount(ID_t &id, int &count );
 //	void SlotToClearIconList();
 

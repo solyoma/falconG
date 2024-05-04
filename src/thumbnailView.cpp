@@ -2342,7 +2342,7 @@ void ThumbnailView::FindMissingImageOrVideo()
     }
 }
 
-void ThumbnailView::SlotToRemoveAllViewers()
+void ThumbnailView::SlotToCloseAllViewers()
 {
     _RemoveAllViewers();
 }

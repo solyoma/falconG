@@ -225,12 +225,12 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(this,	   &FalconG::SignalCancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
 	connect(&albumgen, &AlbumGenerator::SignalToSetProgressParams,	this, &FalconG::_SlotSetProgressBar);
 	connect(&albumgen, &AlbumGenerator::SignalProgressPos,			this, &FalconG::_SlotSetProgressBarPos);
-	connect(&albumgen, &AlbumGenerator::SignalSetLanguagesToUI,		this, &FalconG::_SlotSetupLanguagesToUI);
+	connect(&albumgen, &AlbumGenerator::SignalSetupLanguagesToUI,		this, &FalconG::_SlotSetupLanguagesToUI);
 	connect(&albumgen, &AlbumGenerator::SignalToEnableEditTab,		this, &FalconG::_SlotEnableEditTab);
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_SlotShowRemainingTime);
-	connect(&albumgen, &AlbumGenerator::SignalToCreateIcon,			this, &FalconG::_SlotCreateUplinkIcon);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,			this, &FalconG::_SlotCreateUplinkIcon);
 	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
 	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_SlotTnvSelectionChanged);
@@ -242,12 +242,12 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailView::SignalInProcessing,		this, &FalconG::_SlotThumbNailViewerIsLoading);
 //	connect(ui.tnvImages, &ThumbnailView::SignalTitleChanged,		this, &FalconG::_TrvTitleChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_SlotTnvStatusChanged);
-	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotChangeToFolderAt);	
+	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotFolderChanged);	
 	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEnableCloseAllViewers);
 
-	connect(this, &FalconG::SignalActAlbumChanged, ui.trvAlbums, &AlbumTreeView::SlotFolderChanged);
+	connect(this, &FalconG::SignalActAlbumChanged, ui.trvAlbums, &AlbumTreeView::SlotActAlbumChanged);
 
-	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToRemoveAllViewers);
+	connect(this, &FalconG::SignalToCloseAllViewers, ui.tnvImages, &ThumbnailView::SlotToCloseAllViewers);
 //	connect(this, &FalconG::SignalToClearIconList, ui.tnvImages, &ThumbnailView::SlotToClearIconList);
 
 	connect(this, &FalconG::SignalThumbSizeChanged, ui.tnvImages, &ThumbnailView::SlotThumbnailSizeChanged);
@@ -1011,8 +1011,8 @@ void FalconG::_SlotForSchemeChange(int which)
 	QGuiApplication::restoreOverrideCursor();
 }
 
-void FalconG::_SlotChangeToFolderAt(int row)		// called from thumbnailView.cpp
-{													// row: item index
+void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
+{												// row: item index
 	QModelIndex& cix = _currentTreeViewIndex;	
 	// get folder (album) index for row by discarding non-folder items
 	Album* album = albumgen.AlbumForID((ID_t)cix.internalPointer());
@@ -1093,12 +1093,12 @@ void FalconG::_DesignToUi()
 	ui.sbImageMatteWidth->setValue(config.imageMatteWidth);
 	ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
 
-	ui.btnImageMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.imageMatteColor.Name()));
+	ui.btnImageMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.imageMatteColor.Name(true)));
 
 	ui.sbAlbumMatteRadius->setValue(config.albumMatteRadius);
 	ui.sbAlbumMatteWidth->setValue(config.albumMatteWidth);
 
-	ui.btnAlbumMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.albumMatteColor.Name()));
+	ui.btnAlbumMatteColor->setStyleSheet(__ToolButtonBckStyleSheet(config.albumMatteColor.Name(true)));
 
 	ui.sbSpaceAfter->setValue(0);
 
@@ -1478,10 +1478,10 @@ void FalconG::on_btnAlbumMatteColor_clicked()
 	if (qcNew.isValid() && qc != qcNew)
 	{
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
-		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name(true));
 		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
-		config.albumMatteColor = qcNew.name();
-		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.Name());
+		config.albumMatteColor = qcNew.name().mid(1);
+		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.Name(true));
 		_SetConfigChanged(true);
 ///		emit SignalToClearIconList();
 
@@ -1887,8 +1887,8 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
-		config.imageMatteColor = qcNew.name();
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name());
+		config.imageMatteColor = qcNew.name().mid(1);
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name(true));
 		_SetConfigChanged(true);
 //		emit SignalToClearIconList();
 	}

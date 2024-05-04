@@ -26,7 +26,7 @@ std::enable_if_t< std::is_same_v<QString, T>, QString> Value(QSettings& s, QStri
 	return s.value(name, def).toStringList().join(',');
 }
 
-// base class template for all config itemss. Based on functions Value() above.
+// base class template for all config items. Based on functions Value() above.
 
 template <class T> struct _CFG_ITEM
 {
@@ -327,7 +327,7 @@ private:
 struct _CColor : _CFG_ITEM<QString>	
 {								
 private:
-	int _opacity = 255;			// 0..255 (=== 0..100 %), when < 0 => not used
+	int _opacity = 255;		// 0..255 (=== 0..100 %), when < 0 => not used
 	QString _colorName;		// always has 6 characters (no opacity, no '#' at the start)
 							// otherwise invalid. May be empty
 	// v is either empty (when _colorName is empty and opacity is 0xFF) or contains both color and opacity information. 
@@ -379,9 +379,9 @@ public:
 		return _opacity >= 0 && _opacity != 0xFF; 
 	}
 
-	QString Name(bool nohash = false) const				// no opacity!
+	QString Name(bool addHash = false) const				// no opacity!
 	{
-		return (nohash ? _colorName : QString('#')+_colorName); 			// nohash:   no '#' at start
+		return (addHash ? QString('#') + _colorName : _colorName);
 	}
 
 	QString ARGB() const	// may or may not have an opacity or color set 

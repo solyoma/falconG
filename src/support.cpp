@@ -1516,7 +1516,8 @@ bool MarkedIcon::Read(QString fname, bool is_folder)
 
 	QImageReader reader(name);
 	reader.setAutoTransform(true);
-	QColor cbck = (isFolder ? config.albumMatteColor : config.imageMatteColor).Name();
+	QString colorname = (isFolder ? config.albumMatteColor : config.imageMatteColor).Name(true);
+	QColor cbck = colorname;
 	if (!cbck.isValid())
 		return false;
 	reader.setBackgroundColor(cbck);

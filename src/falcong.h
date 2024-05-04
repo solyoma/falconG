@@ -205,7 +205,7 @@ private slots:
 	void _SlotAlbumStructWillChange();
 	void _SlotAskForApply();	// when color scheme changed and not yet applied
 	void _SlotBackgroundImageToSamplePage(BackgroundImageSizing sizing);
-	void _SlotChangeToFolderAt(int row);	// inside actual folder in ui.trvAlbums
+	void _SlotFolderChanged(int row);	// inside actual folder in ui.trvAlbums
 	void _SlotCreateUplinkIcon(QString destPath, QString destName);
 	bool _SlotDoOverWriteColorScheme(int i);
 	void _SlotEnableEditTab(bool on);

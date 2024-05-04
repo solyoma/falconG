@@ -476,13 +476,13 @@ public:
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
 	void SignalProgressPos(int cnt1, int cnt2);
-	void SignalSetLanguagesToUI();
+	void SignalSetupLanguagesToUI();
 	void SignalToEnableEditTab(bool on);
 //	void SignalImageMapChanged();
 	void SignalAlbumStructWillChange();
 	void SignalAlbumStructChanged(bool yes);
 	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void SignalToCreateIcon(QString destPath, QString destName);
+	void SignalToCreateUplinkIcon(QString destPath, QString destName);
 	void SetDirectoryCountTo(int cnt);
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }

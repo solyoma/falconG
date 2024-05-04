@@ -96,7 +96,7 @@ public slots:
 	void SlotDeleteSelectedAlbum();
 	void SlotMoveImages();
 	void SlotCopyImages();
-	void SlotFolderChanged(int row);
+	void SlotActAlbumChanged(int row);
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);

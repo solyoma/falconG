@@ -2830,7 +2830,7 @@ bool AlbumGenerator::_ReadStruct(QString from)
 			config.minorStructVersion = line.mid(pos+1, pos1 - pos - 1).toInt(); // if no sub version: all after pos
 
 			_LanguageFromStruct(reader);  // throws when error
-			emit SignalSetLanguagesToUI();
+			emit SignalSetupLanguagesToUI();
 
 			QString rline = reader.ReadLine();		// discard empty and comment
 
@@ -2922,7 +2922,7 @@ bool AlbumGenerator::_ReadFromDirs()
 	if (!languages.Read())		// cancelled, no default set
 		return false;
 			// first languages from en.lang, etc
-	emit SignalSetLanguagesToUI();
+	emit SignalSetupLanguagesToUI();
 
 			// get number of sub albums for display only, iterator points BEFORE first entry
 	QDirIterator dirIter(config.dsSrc.ToString(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);	// count directories
@@ -3041,7 +3041,7 @@ int AlbumGenerator::_DoCopyRes()
 			CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName());	// overwrite existing
 	}
 //	emit SignalToCreateIcon(dest, "left-icon.png");
-	emit SignalToCreateIcon(dest, "up-icon.png");
+	emit SignalToCreateUplinkIcon(dest, "up-icon.png");
 	return 0;	
 }
 
