@@ -373,7 +373,9 @@ void AlbumTreeView::SlotActAlbumChanged(int row)
 	if (current.isValid())
 	{
 		expand(current);
-		int rowCount = model()->rowCount();
+#ifdef DEBUG
+		int rowCount = model()->rowCount();		 // rowCount var. only for debug
+#endif
 		QModelIndex newix = model()->index(row, 0, current);
 		setCurrentIndex(newix);
 	}

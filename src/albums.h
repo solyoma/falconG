@@ -533,7 +533,7 @@ private:
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
 
 	AlbumStructWriterThread *pWriteStructThread=nullptr;		// write structure in separate thread
-	bool _structWritten = true;
+	volatile bool _structWritten = true;
 	bool _mustRecreateAllAlbums = false;				// set to true when signaled from FalconG class that uplink etc changed
 	bool _keepPreviousBackup = false; // rename temporary file ?
 

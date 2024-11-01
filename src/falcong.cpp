@@ -217,7 +217,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.trvAlbums->setModel(new AlbumTreeModel());
 	ui.trvAlbums->SetTnv(ui.tnvImages);
 
-	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::DeleteSelectedList);
+	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::SlotDeleteSelectedList);
 	connect(ui.trvAlbums, &AlbumTreeView::SignalGetSelectionCount, ui.tnvImages, &ThumbnailView::SlotGetSelectionCount);
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
 
@@ -339,6 +339,20 @@ void FalconG::closeEvent(QCloseEvent * event)
 	if (ui.chkCleanUp->isChecked())		// sample directory will be re-created at next program start
 		RemoveDir(PROGRAM_CONFIG::homePath +"sample");
 
+	QString qsTmpName = PROGRAM_CONFIG::NameForConfig(false, ".tmp~"),
+			qsConfigName = PROGRAM_CONFIG::NameForConfig(false, ".struct"),
+			qsSafetyCopyName = qsConfigName+"~~";
+	QFile fTmp(qsTmpName);
+	QFile fs(qsConfigName);
+
+	if (!_edited && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)) )
+	{
+		fs.rename(qsSafetyCopyName);
+		if (fTmp.rename(qsConfigName))
+			QFile::remove(qsSafetyCopyName);
+		else
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+	}
 	if(_edited)
 	{
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
@@ -360,6 +374,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 			return;
 		}
 	}
+
+	QFile::remove(qsTmpName);
 
 	QList<int> splitterSizes = ui.designSplitter->sizes();
 	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
@@ -5130,7 +5146,7 @@ QTextEdit:read-only,
 QLineEdit:read-only, 
 QPushButton:disabled,
 QToolButton:disabled,
-QRadioVutton:disabled,
+QRadioButton:disabled,
 QCheckBox:disabled,
 QSpinBox:disabled,
 QMenu:disabled {

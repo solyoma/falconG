@@ -1882,7 +1882,11 @@ bool AlbumGenerator::Read(bool bMustReRead)
 			result = true;
 	}
 	else
+	{
+		if(bMustReRead)
+			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Album %1 does not exist").arg(s));
 		newDataExists = false;
+	}
 
 	if (newDataExists)
 	{
@@ -3047,22 +3051,26 @@ int AlbumGenerator::_DoCopyRes()
 
 /*============================================================================
 * TASK:		Writes whole directory structure into 'gallery.struct' in a separate thread
-* EXPECTS: keep: do not replace backup file with original
+* EXPECTS: 'keep' - do not replace backup file with original
 * GLOBALS:
 * REMARKS: Directory structure is written into file gallery.tmp, so if an 
-*			error occurs then the originla structure file is still available.
-*			After a successful write an existing backup file 'gallery.struct~'
-*			is deleted,  the gallery.struct file is renamed to 'gallery.struct~'
-*			and then the temporary file is renamed to 'gallery.struct'. 
-*			If 'keep' is true, then old backup file is kept and the 
-*			temporary file is renamed directly to 'gallery.struct'
+*			error occurs then the original structure file is still available.
+*			After a successful write 
+*			if 'keep' is false
+*				an existing backup file 'gallery.struct~'
+*				is deleted,  then the gallery's *.struct file is renamed 
+*				to '*.struct~' 
+*			and the temporary file is renamed to 'gallery.struct'. 
+*			If 'keep' is true, 
+*				the old backup file is kept the  *.struct file is renamed
+*				to '*.struct.tmp' and the temporary file is renamed 
+*				to 'gallery.struct'
 *			This way the original state (before any changes) can be 
-*			retsored if required.
-*
+*			restored if required.
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::WriteDirStruct(bool keep)
 {
-	while (!albumgen.StructWritten())		// before changing again wait for previous write to finish
+	while (!_structWritten)		// before changing again wait for previous write to finish
 		;
 
 	_structWritten = false;
@@ -3142,9 +3150,9 @@ int AlbumGenerator::_SaveFalconGCss()
 	if (!dir.exists(QString(__CssDir.ToString())))
 		CreateDir(QString(__CssDir.ToString()));
 
-	QString tmpName = QString(__CssDir.ToString()) + "tmpfg.css";
+	QString tmpName = __CssDir.ToString() + "tmpfg.css";
 	cssCreator.Create(tmpName,false);
-	tmpName = BackupAndRename(QString(__CssDir.ToString()) + "falconG.css", tmpName);
+	tmpName = BackupAndRename(__CssDir.ToString() + "falconG.css", tmpName);
 	if (!tmpName.isEmpty())
 	{
 		QMessageBox::warning(nullptr, tr("falconG - Warning"), tmpName, QMessageBox::Ok);
@@ -3202,12 +3210,12 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 /*========================================================
  * TASK:	Process one image and thumbnail using
  *			converters
- * PARAMS:	im - actual source image 
+ * PARAMS:	im - actual source JPG image 
  *			converter - common converter for images
  *			thumbConverter - same for thumbnails
  * GLOBALS:
  * RETURNS:	nothing
- * REMARKS:	- 
+ * REMARKS:	- both source and generated images are JPGs
  *			- im may have its dimensions read from structure
  *				file, but it also may be a new image w.o. any
  *				size data read in
@@ -3218,12 +3226,19 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
  *-------------------------------------------------------*/
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
-	int doProcess = 0;	// suppose neither image nor thumb must be created 
+	int doProcess = 0;	// suppose neither image nor thumb must be (re)created 
 
 										// resize and copy and  watermark
 	QString src = (config.dsSrc + im.path).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
 			dst = config.LocalImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions), // e.g. imgs/123456789.jpg
 			thumbName = config.LocalThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
+
+	// DEBUG
+	//int calls = 0;
+	//qDebug("%s - %d", im.name.toStdString().c_str(), ++calls);
+	//if (src.indexOf("iOS") >= 0)
+	//	doProcess = doProcess;
+	// /DEBUG
 
 	QFileInfo fiSrc(src), fiThumb(thumbName), fiDest(dst);						// test for source image
 	bool srcExists = fiSrc.exists(),
@@ -5205,10 +5220,14 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
 {
 	if (fromDisk)
-		if(QMessageBox::question(frmMain, tr("FalconG - Warning"), tr("If a folder is removed all the files and folders inside it will be deleted too!\n\nThis cannot be undone!\n\nReally delete the selected items from disk?")) != QMessageBox::Yes) 
+		if(QMessageBox::question(frmMain, tr("FalconG - Warning"), 
+								tr(	"If a folder is removed all the files and folders inside it will be deleted too!\n\n"
+									"This cannot be undone!\n\n"
+									"Really delete the selected items from disk?")) != QMessageBox::Yes) 
 			return;
 	emit SignalAlbumStructWillChange();
 	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);	// also from icon list for this album
-	emit SignalAlbumStructChanged(true);						// album structure changed and not yet saved
-
+	albumgen.WriteDirStruct(true);								// keep .struct~ file and create a new backup from the original
+						//emit SignalAlbumStructChanged(true);						// album structure changed and not yet saved
+	emit SignalAlbumStructChanged(false);						// album structure changed and saved
 }

@@ -681,8 +681,9 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 * EXPECTS:	name		- name of existing file to be renamed and backed up
 *			tmpName		- name of yet temporary file to be renamed to 'name'
 *			keepPreviousBackup: 
-*						- true: keep existing backup file and simply delete 'name'
-*							before renaming 'tmpFile'. 
+*						- true: keep existing backup file delete any 'name.tmp'
+*						        file, rename 'name' file to 'name.tmp' and then
+*								rename 'tmpFile' to name. 
 *						  false: an existing 
 *							backup file will be deleted
 * GLOBALS:	none
@@ -692,16 +693,19 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 *--------------------------------------------------------------------------*/
 QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 {
-	QFile ft(name), ftmp(tmpName);
+	QString qsTmp = tmpName + QString("~");
+	QFile ft(name), ftmp(tmpName), ftmp1(qsTmp);
 	QString qsErr;
 	bool brt=true, brn;
-	bool bx = ft.exists();
+	bool bx = ft.exists(),
+		 bx1 = ftmp1.exists();
 	if (keepPreviousBackup)
 	{
 
-		brt = bx ? ft.remove() : true;
-		brn = ftmp.rename(name);
-		if( (bx &&  !brt) ||  !brn)
+		brt = bx1 ? ftmp1.remove() : true;
+		brn = ft.rename(qsTmp);
+		bool brn1 = ftmp.rename(name);
+		if( (bx &&  !brt) ||  !brn ||!brn1)
 		{
 			qsErr = QMainWindow::tr("Either can't delete \n'%1'\n"
 								 " or can't rename '%2' to '%1'\n"
@@ -712,6 +716,8 @@ QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 	{	
 		if (bx)
 		{
+			if (bx1)
+				QFile::remove(qsTmp);
 			QFile::remove(name + "~");
 			brt = ft.rename(name + "~");
 		}

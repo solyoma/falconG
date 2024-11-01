@@ -126,7 +126,7 @@ void PROGRAM_CONFIG::GetHomePath()
  * TASK: Determines file name of configuration for ini
  *		 or struct files
  *		 	
- * PARAMS:	forSave - name required for save or read
+ * PARAMS:	forSaveOrRead - name required for save or read
  *				for read: if file in source directory
  *							does not exist return default name
  *				for save: always returns a name in the source
@@ -143,7 +143,7 @@ void PROGRAM_CONFIG::GetHomePath()
  *				Example: directory name: '/in/this/dir/'
  *				File name '/in/this/dir/dir.ini'
  *-------------------------------------------------------*/
-QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
+QString PROGRAM_CONFIG::NameForConfig(bool forSaveOrRead, QString sExt)
 {
 	QString sDefault = homePath;	// set before calling at program start: path of user directory
 	if (sExt == ".ini")
@@ -166,7 +166,7 @@ QString PROGRAM_CONFIG::NameForConfig(bool forSave, QString sExt)
 	else
 		sIniName = s + n + sExt;	 // = <path w.o. last folder name from 'falcong.ini'>/<folder>/<folder>.ini
 
-	if(!forSave && !QFile::exists(sIniName))	 
+	if(!forSaveOrRead && !QFile::exists(sIniName))	 
 	{
 		QString sDefIniName = sDefault;
 		if (QFile::exists(sDefIniName))

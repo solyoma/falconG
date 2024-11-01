@@ -34,8 +34,8 @@
    <string>Falcon's Gallery Generator</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="falcong.qrc">
-    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
+   <iconset>
+    <normaloff>D:/sajat/photo/falconG/x64/Release/falconG.ico</normaloff>D:/sajat/photo/falconG/x64/Release/falconG.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -1880,8 +1880,8 @@ when their source is no longer present</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>719</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2273,8 +2273,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>385</width>
-                         <height>616</height>
+                         <width>426</width>
+                         <height>654</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -4325,7 +4325,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>415</width>
+                         <width>432</width>
                          <height>446</height>
                         </rect>
                        </property>
@@ -5347,8 +5347,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

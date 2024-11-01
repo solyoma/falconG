@@ -1073,7 +1073,7 @@ public:
 	// Gallery page
 					// local directories
 	_CDirStr dsApplication;		// home directory for the application (needed for copying resources from here)
-	_CDirStr dsSrc = { "","dsSrc"};				// source directory (can be jalbum gallery root, It contains the actual falconG,ini)
+	_CDirStr dsSrc = { "","dsSrc"};				// source directory. It contains the actual falconG,ini and the .struct file (can be jalbum gallery root) 
 	_CDirStr dsGallery = { "" ,"dsGallery"};	// destination directory on local machine (corresponds to 'public_html' on server)
 
 					// remote directories

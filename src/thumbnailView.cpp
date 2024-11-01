@@ -1002,29 +1002,36 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         bool moveItemsIntoFolder = row >= 0 && (items[row] & ALBUM_ID_FLAG);
         if (moveItemsIntoFolder) // then move items into album with id items[row]
         {                                             // album must be physical folder on disk
-
-            if (QuestionDialog(tr("falconG - Question"),
-                tr("This will move the selected items into another folder!\nSelect 'No' to just reposition them!"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
-                { QMessageBox::Yes,QMessageBox::No}) == QMessageBox::Yes)
+            int button = QMessageBox::Cancel;
+            if ((button = QuestionDialog(tr("falconG - Question"),
+                tr("This will either pysically (Yes) or just logically (No) move the selected items into another folder!\n"
+                    "Cancel: to move the items at front of this folder!"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
+                                                    { QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel}) ) != QMessageBox::Cancel)
             {
                 Album* pDestAlbum = &albumgen.Albums()[items[row]];
                 IdList itemsDest = pDestAlbum->items;
+#ifdef DEBUG
                 int destItemSize = itemsDest.size();
+#endif
                 // ------------- housekeeping -----------
-                // add moved items to destination album
-                itemsDest.resize(destItemSize + thl.size());
-                for (int si = 0, di = destItemSize; si < thl.size(); ++si, ++di)
-                    itemsDest[di] = items[thl[si]];
+                // add moved items to destination album  which doesn't have icons yet   
+                for (int si = 0; si < thl.size(); ++si)
+                    itemsDest.push_back(items[thl[si]] );
 
                 // remove indexes of moved items from source gallery and icon indices
                 QVector<int> origOrder = fileIcons.IconOrder();  // original order of icons for actual album
+                for(int si = --itemSize; si >= 0; --si)
+                    if (thl.indexOf(si) >= 0)
+                    {
+                    }
+
                 IdList srcItems;
                 QVector<int> newIconOrder;                       // new icon order indexes
-                for (int si = 0; si < itemSize; ++si)              // although icons remain on list until actual album changes
+                for (int si = 0; si < itemSize; ++si)            // although icons remain on list until actual album changes
                     if (thl.indexOf(si) < 0)                     // all will be discarded for next album
                     {
-                        srcItems.push_back(items[si]);
-                        newIconOrder.push_back(origOrder[si]);
+                        srcItems.push_back(items[origOrder[si] ] );
+                        newIconOrder.push_back(si);
                     }
                 items = srcItems;
 
@@ -1032,8 +1039,12 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 _InitThumbs();
                             // ----- ??  move items physically to destination folder --------
             }
-            else
+            else if( button == QMessageBox::No)
                 moveItemsIntoFolder = false;
+            else                 // cancel
+            {
+                ;
+            }
         }
 
         if(!moveItemsIntoFolder)
@@ -1765,7 +1776,7 @@ void ThumbnailView::invertSelection()
  *          from disk!
  *          Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
-void ThumbnailView::DeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum)
+void ThumbnailView::SlotDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum)
 {
     QString s;
 
@@ -1802,7 +1813,7 @@ void ThumbnailView::DeleteSelected()
     for (int i = list.size() - 1; i >= 0; --i)
         ilx[i] = list[i].row();
 
-    DeleteSelectedList(_albumId, ilx, true);
+    SlotDeleteSelectedList(_albumId, ilx, true);
 }
 
 /*=============================================================
@@ -1986,7 +1997,7 @@ bool ThumbnailView::_NewFolder(QString parent, QString folder)
         errMsg(tr("The album is already in the gallery.") );
     else
     {
-        QDir dir(parent);
+        QDir dir(parent);               
         // DEBUG
         qDebug("Dir:%s, subdir:%s", dir.absolutePath().toStdString().c_str(), folder.toStdString().c_str());
         // /DEBUG
@@ -2012,7 +2023,7 @@ bool ThumbnailView::_NewFolder(QString parent, QString folder)
             emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
         }
         else
-           errMsg(tr("Creating folder on disk was unsuccessful") );
+           errMsg(tr("Creating folder \n%1\non disk was unsuccessful").arg(parent+"/"+folder));
     }
     return res;
 }
