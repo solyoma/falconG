@@ -1002,11 +1002,20 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         bool moveItemsIntoFolder = row >= 0 && (items[row] & ALBUM_ID_FLAG);
         if (moveItemsIntoFolder) // then move items into album with id items[row]
         {                                             // album must be physical folder on disk
-            int button = QMessageBox::Cancel;
-            if ((button = QuestionDialog(tr("falconG - Question"),
-                tr("This will either pysically (Yes) or just logically (No) move the selected items into another folder!\n"
-                    "Cancel: to move the items at front of this folder!"),Enums::DialogBitsOrder::dboNeverMoveIntoFolder,this ,QString(), 
-                                                    { QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel}) ) != QMessageBox::Cancel)
+            QMessageBox mb(this);
+            mb.setWindowTitle(tr("falconG - Question"));
+            mb.setText(tr("Move into this folder or move before it?"));
+            mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
+            // buttons added after the existing buttons
+            QPushButton* pBeforeFolderBtn = mb.addButton(tr("Reposition"), QMessageBox::NoRole);
+            QPushButton *pIntoFolderBtn = mb.addButton(tr("Move into"), QMessageBox::YesRole);
+            QPushButton* pCancelBtn = mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            mb.setDefaultButton(pBeforeFolderBtn);
+
+            mb.exec();
+            QAbstractButton* pResBtn = mb.clickedButton();
+
+            if (pResBtn == pIntoFolderBtn)
             {
                 Album* pDestAlbum = &albumgen.Albums()[items[row]];
                 IdList itemsDest = pDestAlbum->items;
@@ -1039,15 +1048,12 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 _InitThumbs();
                             // ----- ??  move items physically to destination folder --------
             }
-            else if( button == QMessageBox::No)
+            else if( pResBtn == pBeforeFolderBtn)
                 moveItemsIntoFolder = false;
-            else                 // cancel
-            {
-                ;
-            }
+            // else cancel is pressed
         }
 
-        if(!moveItemsIntoFolder)
+        if(!moveItemsIntoFolder)    // move before selected item (or after the last one)
         {
             itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
 
