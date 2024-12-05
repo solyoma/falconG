@@ -20,6 +20,7 @@
 	#include <QtDebug>
 #endif
 
+#include "enums.h"
 #include "support.h"
 #include "config.h"
 #include "crc32.h"
@@ -30,37 +31,62 @@ const QString TITLE_TAG = "Title-";	// used in 'struct' files
 const QString DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
 const QString THUMBNAIL_TAG = "Icon";	// "album icon"
 const QString ORPHAN_ID = "[Thumbnails not in any album";	// closed with a line only having a ']'
+const QString PATH_TABLE = "[Path table";
 //const QString SAVED_IMAGE_DESCRIPTIONS = "images.desc";
 //const QString TEMP_SAVED_IMAGE_DESCRIPTIONS = "images.tmp";
 
-#define ID_T_DEFINED
-using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
-using IdList = QVector<ID_t>; 
 
-const ID_t EXCLUDED_FLAG	= 0x8000000000000000ull;
-const ID_t ALBUM_ID_FLAG	= 0x4000000000000000ull;	// when set ID is for an album (used for albums as folder thumbnails)
+/* =============== Id To Path and Path to Id Mapping ==================*/
+class PathMap 
+{
+	typedef QMap<uint64_t, QString> base_type1;
+	typedef QMap<QString, uint64_t> base_type2;
 
-const ID_t ROOT_ALBUM_ID	= 0x4000000000000001ull;
-const ID_t RECENT_ALBUM_ID	= 0x4000000000000002ull;
+	base_type1 _idToPath;
+	base_type2 _pathToId;
 
-const ID_t VIDEO_ID_FLAG	= 0x2000000000000000ull;	// when set ID is for a video
-const ID_t IMAGE_ID_FLAG	= 0x1000000000000000ull;	// when set ID is for a image
-const ID_t THUMBNAL_ID_FLAG = 0x0800000000000000ull;	// for images: this image is not in any album, it's just an album thumbnail
-const ID_t BASE_ID_MASK		= 0xF8000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC + image/thumbnail/video/album flag
-const ID_t ID_MASK			= 0x07FFFFFFFFFFFFFFull;	// values & ID_MASK determines names of images, videos and albums
-const ID_t ID_INCREMENT		= 0x0000000100000000ull;	// when image id clash add this to id 
-const ID_t MAX_ID			= 0x07FFFFFFFFFFFFFFull;	 
-const int TEXT_ID_COLLISION_FACTOR = 32;		// id >> TEXT_ID_COLLISION_FACTOR = overflow index
+	uint64_t _CalcId(const QString & path);
+	friend QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
 
-//extern QString BackupAndRename(QString name, QString tmpName, bool keepBackup);	// in support.cpp
+public:
+	PathMap() {}
+
+	uint64_t &Add(const QString &path);		// handles empty paths - returns NO_ID,
+											// existing paths - return existing id
+											// first cuts source folder path from path
+											// path may end in a '/' which will be dropped ?
+
+	int Size() const { return _pathToId.size(); }
+	QString Path(uint64_t id) const;
+	uint64_t Id(QString path) const;
+	inline bool Contains(const QString &path) const
+	{
+		return _pathToId.contains(path);
+	}
+	inline bool Contains(uint64_t id) const
+	{
+		return _idToPath.contains(id);
+	}
+
+	uint64_t &operator[](const QString &pPath);
+	QString &operator[](const uint64_t id);
+	//uint64_t insert(QString path, uint64_t id);	// if id is an existing id then path is replaced only
+	QString insert(uint64_t id, const QString &path);	// path must not be already in the map
+};
+
+QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
+// globals
+extern PathMap pathMap;	// paths stored here are either absolute paths or 
+						// relative to root folder. The root folder is stored
+						// in config.dsSrc and not here
+
 
 //------------------------ base class for albums and images ------------------
 struct IABase
 {
 	enum IAType { iatUnknown, iatImage, iatVideo, iatAlbum};
 
-	ID_t ID = 0;			// CRC of image name + collision avoidance  (0: invalid) + type bits (ALBUM_ID_FLAG or VIDEO_ID_FLAG)
-	Existance exists = exNot;	// set to exExists if it exists on the disk somewhere or exVirtual if only in data base
+	ID_t ID;				// CRC of image name + collision avoidance  (0: invalid)
 	bool changed = false;	// Images (or videos): true: image is recreated (dimensions or file size or data changed)
 							//		check this and create a new struct file on disk if any image changed
 							//		inside any albums. 
@@ -68,42 +94,51 @@ struct IABase
 							//		images/thumbnails, etc changed
 							//		some image names may come from comment files
 							// albums: set to true when any text, album thumbnail, images, albums, exluded changed
-	ID_t titleID = 0;	// default text ID of image title
-	ID_t descID = 0;	// default text ID of image description
-	QString name;		// without path but with extension and no ending '/' even for albums
-	QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'
+	int64_t titleID = NO_ID;// default text ID of image title
+	int64_t descID = NO_ID;	// default text ID of image description
+	QString name;			// without path but with extension and no ending '/' even for albums
+	// QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'	  @ just until path ids implemented
+	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
 
 	IABase &operator=(const IABase &a)
 	{
 		ID		=  a.ID		;
-		exists  =  a.exists ;
 		changed =  a.changed;
 		titleID =  a.titleID;
 		descID	=  a.descID	;
 		name    =  a.name   ;
-		path    =  a.path   ;
+		pathId  =  a.pathId   ;
 		return *this;
 	}
 
-	bool Valid() const { return ID > 0; }
+	bool Valid() const { return ID.Val(); }
+	bool Exists(bool bPhysicalCheck = DONTCHECK)
+	{ 
+		if (bPhysicalCheck)
+			ID.SetFlag(EXISTING_FLAG, QFile::exists(FullSourceName()));
+		return ID.TestFlag(EXISTING_FLAG); 
+	}
 
-	QString Extension() { int pos = name.lastIndexOf('.'); return(pos >= 0 ? name.mid(pos) : ""); }
-	IAType Type()
+	QString Extension() const { int pos = name.lastIndexOf('.'); return(pos >= 0 ? name.mid(pos) : ""); }
+	IAType Type() const
 	{
-		if (ID & IMAGE_ID_FLAG) return iatImage;
-		if (ID & VIDEO_ID_FLAG) return iatVideo;
-		if (ID & ALBUM_ID_FLAG) return iatAlbum;
+		if (ID.IsImage()) return iatImage;
+		if (ID.IsVideo()) return iatVideo;
+		if (ID.IsAlbum()) return iatAlbum;
 		return iatUnknown;
 	}
 	QString FullSourceName() const;
-	QString ShortSourcePathName();	// cuts the common part of paths (config.dsSrc)
+	QString ShortSourcePathName() const;	// cuts the common part of paths (config.dsSrc)
 	QString LinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
 	QString FullLinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
+	QString Path() const;		// returns path from ID
+
+	uint64_t SetPathId(QString fromPath);
 };
 //------------------------------------------
 struct Image : public IABase
 {
-	UsageCount usageCount = 0;			// can be removed only if this is 0
+	UsageCount usageCount = 0;	// image can be removed from disk only if both this is 0
 	UsageCount thumbnailCount = 0;		// and this is also 0	Orphan thumbnails must have 0 usageCount
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
@@ -259,14 +294,17 @@ struct Video : IABase			// format: MP4, OOG, WebM
 };
 
 //------------------------------------------
-struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
+struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 {
-	ID_t parent = 0;	// just a single parent is allowed Needed to re-generate parent's HTML files too when
+	ID_t parentId = { ALBUM_ID_FLAG, 0 };	// just a single parent is allowed Needed to re-generate parent's HTML files too when
 						// this album changes. Must be modified when this album is moved into another one(**TODO**)
-	ID_t thumbnail = 0;	// image ID	or 0
+	ID_t thumbnailId = ID_t(IMAGE_ID_FLAG, 0);	// image ID	or 0
 
-	IdList items;			// for all images, videos and albums in this album GET item for position using IdOfItem!!
-	ID_t IdOfItem(int pos) { return items.isEmpty() ? 0 : (pos < items.size() ? items[pos] : 0); }
+	IdList items;		// for all images, videos and albums in this album GET item for position using IdOfItem!!
+	ID_t IdOfItem(int pos) const 
+	{ 
+		return items.isEmpty() ||  (pos >= items.size()) ?  ID_t::Invalid() : items[pos];
+	}
 
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -274,7 +312,8 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	int operator<(const Album &i);		 // uses searchBy
 	bool operator==(const Album &i);
 
-	bool Valid() const { return ID > 0; }
+	bool Valid() const { return ID.Val() != NO_ID; }
+
 	void Clear() { items.clear(); _imageCount = _videoCount = _albumCount = -1; }
 	int ImageCount(bool forced = false);		// only non-excluded existing images
 	int VideoCount(bool forced=false);		// only non-excluded existing videos
@@ -283,6 +322,7 @@ struct Album : IABase			// ID == ROOT_ALBUM_ID root  (0: invalid)
 	int DescCount();		// sets/returns descCount
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
 	ID_t SetThumbnail(ID_t id); // sets album thumbnail and increase the usage count of it
+	ID_t SetThumbnail(uint64_t id); // sets album thumbnail and increase the usage count of it
 
 	ID_t IdOfItemOfType(int64_t type, int index);
 
@@ -299,21 +339,6 @@ private:
 	int _titleCount = -1;
 	int _descCount  = -1;
 };
-
-//------------------------------------------
-class TextMap : public QMap<ID_t, LanguageTexts>
-{
-	static LanguageTexts invalid;
-public:
-	LanguageTexts & Find(ID_t id);
-	LanguageTexts& Find(QString text, int lang);
-	LanguageTexts& Find(const QStringList &texts);
-	int Collision(LanguageTexts &text, int &usageCount) const;		// do not add when text is the same
-	ID_t Add(QStringList &texts, bool &added);	// add unique text, returns ID and if added
-	ID_t Add(LanguageTexts & text, bool &added);			// add based on ID and lang and text
-	void Remove(ID_t id);					// decrements usage count and removes text if it is 0
-};
-
 //------------------------------------------
 class ImageMap : public QMap<ID_t, Image>
 {
@@ -321,11 +346,11 @@ class ImageMap : public QMap<ID_t, Image>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Image invalid;
-	static QString lastUsedPath;	// config.dsSrc relative path to image so that we can add 
+	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 
-	Image& Find(ID_t id, bool useBase = true);
-	Image& Find(QString FullSourceName);
-	ID_t Add(QString image, bool &added, ID_t orphanID=0);	// returns ID and if added
+	Image *Find(ID_t id, bool useBase = true);
+	Image *Find(QString FullSourceName);
+	ID_t Add(QString image, bool &added, uint64_t orphanID=0);	// returns ID and if added
 	Image &Item(int index);
 };
 
@@ -337,11 +362,10 @@ class VideoMap : public QMap<ID_t, Video>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Video invalid;
-	static QString lastUsedPath;	// config.dsSrc relative path to video so that we can add 
+	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 									// an video by its name (relative to this path) only
-
-	Video& Find(ID_t id, bool useBase = true);
-	Video& Find(QString FullSourceName);
+	Video *Find(ID_t id, bool useBase = true);
+	Video *Find(QString FullSourceName);
 	ID_t Add(QString image, bool& added);	// returns ID and if added
 	Video& Item(int index);
 };
@@ -352,11 +376,12 @@ class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
 	// last used album path is in 'albumGenerator::lastUsedAlbumPath'
+	// root path is in config.dsSrc
 public:
-	Album &Find(ID_t id);
-	Album &Find(QString albumPath);
+	Album *Find(ID_t id);
+	Album *Find(QString albumPath);
 	bool Exists(QString albumPath);
-	ID_t Add(QString relativeAlbumPath, bool &added);			// returns ID and if it was added
+	ID_t Add(QString relativeAlbumPath, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums
 };
@@ -365,17 +390,17 @@ struct IdsFromStruct
 {
 	enum IDS { nothing, title, description, thumbnail } what = nothing;
 
-	ID_t titleID = 0, descID = 0, thumbnailID = 0;
+	int64_t titleIDVal = 0, descIDVal = 0, thumbnailIDVal = 0;
 
-	void Clear() { titleID = descID = thumbnailID = 0; what = nothing; }
-	bool IsEmpty() const { return titleID == 0 && descID == 0 && thumbnailID == 0; }	// 'what' is unimportant
+	void Clear() { titleIDVal = descIDVal = thumbnailIDVal = 0; what = nothing; }
+	bool IsEmpty() const { return titleIDVal == 0 && descIDVal == 0 && thumbnailIDVal == 0; }	// 'what' is unimportant
 };
 
 //------------------------------------------
 class AlbumStructWriterThread;		// forward
 class ProcessImageThread;
+/* =============== Albumgenerator ==================*/
 
-//------------------------------------------
 class AlbumGenerator : public QObject
 {
 	friend class ProcessImageThread;
@@ -383,7 +408,7 @@ class AlbumGenerator : public QObject
 	Q_OBJECT
 
 public:
-	static QString lastUsedAlbumPath;	// config.dsSrc relative path to image so that we can add 
+	static uint64_t lastUsedAlbumPathId;	// config.dsSrc relative path to image so that we can add 
 										// an image by its name (relative to this path) only
 	AlbumGenerator() { Init();  };
 	void Init();
@@ -435,13 +460,13 @@ public:
 	int TextCount() const { return _textMap.size(); }
 	static ID_t ThumbnailID(Album& album, AlbumMap& albums);
 	// careful: these are not const so that their elements could be modified
-	Album &AlbumRoot()  { return _albumMap[ROOT_ALBUM_ID]; }
+	Album& RootAlbum() { return _albumMap[TOPMOST_ALBUM_ID]; }
 	ImageMap &Images() { return _imageMap; }
 	bool Contains(ID_t id)	// inside albumgen
 	{	
-		return ( (id & ALBUM_ID_FLAG) && _albumMap.contains(id)  ||
-				 (id & IMAGE_ID_FLAG) && _imageMap.contains(id)  ||
-				 (id & VIDEO_ID_FLAG) && _videoMap.contains(id) ) ;
+		return ( (id.IsAlbum()) && _albumMap.contains(id)  ||
+				 (id.IsImage()) && _imageMap.contains(id)  ||
+				 (id.IsVideo()) && _videoMap.contains(id) ) ;
 	}
 	Image* ImageAt(ID_t id) 
 	{ 
@@ -450,18 +475,20 @@ public:
 	VideoMap& Videos() { return _videoMap; }
 	Video* VideoAt(ID_t id) { return &_videoMap[id]; }
 	TextMap &Texts()   { return _textMap;  }
-	LanguageTexts *TextsAt(ID_t id) { return &_textMap[id]; }
+	LanguageTexts *TextsAt(int64_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
+
 	Album *AlbumForID(ID_t id) 
 	{ 
+		id.SetFlag(EXISTING_FLAG, false);
 		return &_albumMap[id]; 
 	}
 	IABase* IdToItem(ID_t id)
 	{
 		IABase* pItem = nullptr;
-		if (id & IMAGE_ID_FLAG)
+		if (id.IsImage())
 			pItem = ImageAt(id);
-		else if (id & VIDEO_ID_FLAG)
+		else if (id.IsVideo())
 			pItem = VideoAt(id);
 		else
 			pItem = AlbumForID(id);
@@ -503,13 +530,14 @@ private:
 	bool _signalProgress = true;
 	QList<ID_t> _slAlbumsModified;
 	QString _upLink;		// to parent page if there's one
-	TextMap _textMap;		// all texts for all albums and images
-	AlbumMap _albumMap;		// all source albums			id has ALBUM_ID_FLAG set!
-	ImageMap _imageMap;		// all images for all albums	id has IMAGE_ID_FLAG set!
-	VideoMap _videoMap;		// all videos from all albums	id has ALBUM_ID_FLAG set!
+
+	TextMap	 _textMap;		// all texts for all albums and images
+	AlbumMap _albumMap;		// all source albums			ID.flag has ALBUM_ID_FLAG
+	ImageMap _imageMap;		// all images for all albums	ID.flag has IMAGE_ID_FLAG and possibly ORPHAN_FLAG
+	VideoMap _videoMap;		// all videos from all albums	ID.flag has ALBUM_ID_FLAG
 
 	IdList	_addedThumbnailIDsForImagesNotYetRead;
-	// ID of top level album (first in '_albumMap', ROOT_ALBUM_ID)
+	// ID of top level album (first in '_albumMap', TOPMOST_ALBUM_ID)
 		// --------- latest images collection
 	QDate _latestDateLimit = QDate::fromJulianDay(0); // date of latest upload for generating the latest files
 	struct LatestImages
@@ -549,7 +577,7 @@ private:
 	void _TitleFromPath(QString path, LangConstList &ltl);
 	QString _HtaccessToString();
 	QString _GoogleAnaliticsOn();
-	QString _PageHeadToString(ID_t id);
+	QString _PageHeadToString(const Album& album);
 
 	bool _CreateDirectories();	// from data in config
 
@@ -570,13 +598,13 @@ private:
 	
 					// write gallery files
 	void _WriteFacebookLink(QString linkName, ID_t ID);
-	QString _IncludeFacebookLibrary();
+	QString _IncludeFacebookLibrary() const;
 	void _OutputNavForAboutPage(int lang);
 	int  _OutputAboutText(int lang);
 	void _OutputNav(Album &album, QString uplink);
 	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(Album &album);
-	int _WriteGalleryContainer(Album &album, ID_t typeFlag, int i);
+	int _WriteGalleryContainer(Album &album, uint8_t typeFlag, int i);
 	int _WriteVideoContainer(Album &album, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into 'imgs' directory
@@ -584,7 +612,6 @@ private:
 	int _CreateOneHtmlAlbum(QFile &f, Album &album, int language, QString uplink, int &processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateAboutPages();
-	int _CreateAboutPageForLanguage(int lang);	// 
 	int _CreateHomePage();
 
 	int _DoCopyRes();	// copy directory 'res', modify png colors
@@ -600,10 +627,12 @@ private:
 	int _DoHtAccess();
 				// read 'gallery.struct
 	bool _LanguageFromStruct(FileReader &reader);
-	ID_t _ImageOrVideoFromStruct(FileReader &reader, int level, Album &album, bool thumbnail);
-	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level);
-	void _AddAlbumThumbnail(Album &album, ID_t id);
+	ID_t _ImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
+	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parentId, int level);
+	void _AddAlbumThumbnail(Album &album, uint64_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
+	bool _ReadPathTable(FileReader& reader);
+	bool _ReadOrphanTable(FileReader& reader);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
 			// read 'Jalbum' file structure

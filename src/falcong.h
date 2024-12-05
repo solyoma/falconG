@@ -40,9 +40,9 @@ typedef UsageCount Semaphore;
 struct FalconGEditTabSelection
 {										// what can be changed:
 									    // these fields are used when editing image/album texts
-	ID_t actAlbum = 0;					// album in which the selected image or album is found
-	ID_t selectedAlbum = 0;					// actual selected album
-	ID_t selectedImage = 0;				// actual selected folder, image or video
+	ID_t actAlbum = ID_t::Invalid();	// album in which the selected image or album is found
+	ID_t selectedAlbum = ID_t::Invalid();	// actual selected album
+	ID_t selectedImage = ID_t::Invalid();	// actual selected folder, image or video
 
 	QFlags<Changed> changed;			// title or description in either language has changed
 
@@ -138,6 +138,8 @@ private:
 
 	void _SetIconColor(QIcon &icon, _CElem &elem);
 	QIcon _SetUplinkIcon(QString iconName = QString());
+
+	QString _SelectStructFileFromDir(QString& dirName);
 
 	void _ReadLastAlbumStructure();	// use after config read
 
@@ -272,7 +274,7 @@ private slots:
 	void on_btnSelectUplinkIcon_clicked();
 	void on_btnSelectWmFont_clicked();
 	void on_btnShadowColor_clicked();
-	void on_btnSourceHistory_clicked();
+	void on_btnSelectSourceGallery_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
 	
@@ -347,14 +349,14 @@ private slots:
 	void on_edtFontDir_textChanged();
 	void on_edtFontFamily_textChanged();
 	void on_edtGalleryLanguages_textChanged();
-	void on_edtGalleryRoot_textChanged();
+	void on_edtSourceGallery_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtGoogleFonts_editingFinished();
 	void on_edtImg_textChanged();
 	void on_edtKeywords_textChanged();
 	void on_edtMainPage_textChanged();
 	void on_edtServerAddress_textChanged();
-	void on_edtSourceGallery_textChanged();
+	void on_edtSourceGallery_editingFinished();
 	void on_edtThumb_textChanged();
 	void on_edtTitleText_textChanged();
 	void on_edtTrackingCode_textChanged();

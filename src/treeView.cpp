@@ -36,7 +36,7 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 	if (!parent.isValid())		   // root element: it has 2 items, only one matters
 		return	1; 
 	
-	ID_t id = (ID_t)(parent.internalPointer());
+	ID_t id = { ALBUM_ID_FLAG, (uint64_t)(parent.internalPointer()) };
 	// DEBUG
 	if (!map.contains(id))
 		return 0;
@@ -59,11 +59,11 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 	AlbumMap &map = albumgen.Albums();
 
 	if (!parent.isValid())				// only the root item has invalid parent
-		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? ROOT_ALBUM_ID : 0)) );
-	ID_t idParent = (ID_t)parent.internalPointer();
+		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? TOPMOST_ALBUM_ID.Val() : 0)));
+	ID_t idParent = { ALBUM_ID_FLAG, (uint64_t)parent.internalPointer() };
 
 	ID_t id = map[idParent].IdOfItemOfType(ALBUM_ID_FLAG,row);
-	return createIndex(row, column, quintptr(id));
+	return createIndex(row, column, quintptr(id.Val()));
 }
 
 /*=============================================================
@@ -76,13 +76,13 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
  *------------------------------------------------------------*/
 const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix) const
 {
-	ID_t id = (ID_t)mix.internalPointer();
+	ID_t id = { ALBUM_ID_FLAG, (uint64_t)mix.internalPointer() };
 	Album& ab = albumgen.Albums()[id];
 	QString sChangedFlag = ab.changed ? "*" : "";
 	QString s = ab.name;
 	if (ab.changed)
 		s += "*";
-	if (id == ROOT_ALBUM_ID)
+	if (id == TOPMOST_ALBUM_ID)
 		return "/ ( " + s + " )";
 	return s + " ( " + ab.BareName() + " )";  // no language or extension
 }
@@ -135,29 +135,29 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 {
-	if (!ind.isValid() || (ID_t)ind.internalPointer() == ROOT_ALBUM_ID)
+	if (!ind.isValid() || (uint64_t)ind.internalPointer() == TOPMOST_ALBUM_ID.Val())
 		return QModelIndex();
 
 	AlbumMap &map = albumgen.Albums();
-	ID_t parentId = (ID_t)ind.internalPointer();
+	ID_t parentId = { ALBUM_ID_FLAG, (uint64_t)ind.internalPointer() };
 	if (!map.contains(parentId))
 		return QModelIndex();
 	Album &ab = map[parentId];
-	ID_t aParent = ab.parent;				   // get ID of parent
-	if (aParent == 0)						   // no parent: topmost element
+	ID_t aParentID = ab.parentId;				   // get ID of parent
+	if (aParentID.IsInvalid())					   // no parent: topmost element
 		return QModelIndex(); // invalid index(0, ind.column());		   // it is the first and only such
 
-	Album &abp = map[aParent];				  // parent album
-	ID_t bParent = abp.parent;				  // parent's parent
-	if(bParent == 0)						  // parent is the topmost element
-		return createIndex(0, ind.column(), quintptr(ROOT_ALBUM_ID));
+	Album &abp = map[aParentID];				  // parent album
+	ID_t bParentID = abp.parentId;				// parent's parent
+	if (bParentID == ID_t( ALBUM_ID_FLAG, 0) )	  // parent is the topmost element
+		return createIndex(0, ind.column(), quintptr(TOPMOST_ALBUM_ID.Val()));
 
-	IdList albums = map[bParent].items;			// parent's parent
+	IdList albums = map[bParentID].items;			// parent's parent
 	int size = albums.size();					// go through its list
 	for (int i = 0; i < size; ++i)
 	{
-		if (albums[i] == aParent)				// aParent contains ALBUM_ID_FLAG
-			return createIndex(i, ind.column(), quintptr(aParent));
+		if (albums[i] == aParentID)				// aParent contains ALBUM_ID_FLAG
+			return createIndex(i, ind.column(), quintptr(aParentID.Val()));
 	}
 	return QModelIndex();
 }
@@ -332,8 +332,8 @@ void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
 void AlbumTreeView::SlotDeleteSelectedAlbum()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
-	ID_t albumId = (ID_t)list[0].internalPointer();
-	ID_t parentID = albumgen.Albums()[albumId].parent;
+	ID_t albumId = { ALBUM_ID_FLAG, (uint64_t)list[0].internalPointer() };
+	ID_t parentID = albumgen.Albums()[albumId].parentId;
 	Album album = albumgen.Albums()[parentID];		
 	IntList ilx;
 	IdList& idList = album.items;
@@ -386,7 +386,7 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 	QMenu menu(this);
 	QAction* pact;
 	int nSelSize = selectionModel()->selectedIndexes().size();
-	ID_t selId = nSelSize ? (ID_t)selectionModel()->selectedIndexes()[0].internalPointer() : 0,
+	ID_t selId = { ALBUM_ID_FLAG, nSelSize ? (uint64_t)selectionModel()->selectedIndexes()[0].internalPointer() : 0 },
 		 id = selId;
 	int cnt = 0;
 	emit SignalGetSelectionCount(id, cnt);

@@ -85,7 +85,7 @@ public:
 		_itemType = typ; 
 	}
 
-	ThumbnailItem(int pos = 0, ID_t albumID = 0, Type typ = none, QIcon icon = QIcon());
+	ThumbnailItem(int pos = 0, ID_t albumID = ID_t::Invalid(), Type typ = none, QIcon icon = QIcon());
 	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
 	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
 	ThumbnailItem &operator=(const ThumbnailItem& other) 
@@ -101,8 +101,8 @@ public:
 		// use this after constructing 
 	void SetOwnerId(ID_t id) 
 	{ 
-		if (!id) 
-			id = ROOT_ALBUM_ID; 
+		if (id.Val()==NO_ID) 
+			id = TOPMOST_ALBUM_ID;
 		_albumId = id; 
 	}
 
@@ -118,7 +118,7 @@ public:
 	QIcon   IconForFile() const;		// uses _albumId and itemPos
 
 private:
-	ID_t _albumId=0xFFFFFFFFFFFFFFFFu;	// for parent album, set before anything else
+	ID_t _albumId = { ALBUM_ID_FLAG, 0xFFFFFFFFFFFFFFFFu };	// for parent album, set before anything else
 	Type _itemType;
 	QIcon _icon;
 
@@ -126,7 +126,7 @@ private:
 	Album   *_ParentAlbum() const 
 	{ 
 		Album* pa = _ActAlbum();
-		return pa->parent ? albumgen.AlbumForID(pa->parent) : nullptr;
+		return pa->parentId.Val() ? albumgen.AlbumForID(pa->parentId) : nullptr;
 	}
 	QString _ImageToolTip() const;
 	QString _VideoToolTip() const;
@@ -220,7 +220,7 @@ using ThumbnailViewModel = QStandardItemModel;
 
 class ThumbnailView : public QListView 
 {
-Q_OBJECT
+	Q_OBJECT
 
 public:
     ThumbnailView(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
@@ -265,8 +265,8 @@ public:
 
 private:
 // SA
-	ID_t   _albumId = ROOT_ALBUM_ID;	// show thumbs from this album (0: root)
-	IdList *_pIds = nullptr;	    // images in this album
+	ID_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album
+	IdList *_pIds = nullptr;				// images in this album
 
     QImage _insertPosImage;	// shows insert position
 
@@ -299,7 +299,7 @@ private:
 private:
 	Album	*_ActAlbum() const 
 	{ 
-		return _albumId ? &albumgen.Albums()[_albumId] : nullptr; 
+		return _albumId.Val() ? &albumgen.Albums()[_albumId] : nullptr;
 	}
     void _InitThumbs();
     int _GetFirstVisibleThumb();
@@ -312,7 +312,7 @@ private:
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
-		return (id & IMAGE_ID_FLAG ? ThumbnailItem::image : (id & VIDEO_ID_FLAG ? ThumbnailItem::video : ThumbnailItem::folder));
+		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
 
 	void _RemoveAllViewers();

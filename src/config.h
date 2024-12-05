@@ -1003,11 +1003,13 @@ public:
 
 	int majorStructVersion = 1, 		// version read from config file 1.2.
 		minorStructVersion = 2,			// C.f. support.h constexpr with same names
-		subStructVersion = 5;			// 	
+		subStructVersion = 6;			// 	
 	StyleHandler styleHandler;	// for the main window with all of its elements
 
 	void Read();
 	void Write();
+
+	long AlbumVersion() const { return (majorStructVersion << 16) + (minorStructVersion << 8) + subStructVersion; }
 
 	bool Changed() const		
 	{ 
@@ -1035,8 +1037,8 @@ public:
 	void RestoreDesign();	// from configSave
 	void RestoreOther();
 
-	QSize ImageSize() { return QSize(imageWidth, imageHeight);	}
-	QSize ThumbSize() { return QSize(thumbWidth, thumbHeight); }
+	QSize ImageSize() const { return QSize(imageWidth, imageHeight);	}
+	QSize ThumbSize() const { return QSize(thumbWidth, thumbHeight); }
 
 	double ThumbAspect(bool reset=false)
 	{

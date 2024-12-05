@@ -350,14 +350,14 @@ private:
 	{
 		for (auto& o : albumgen.Images())
 		{
-			QString s = o.path + o.name;
+			QString s = o.Path() + o.name;
 			Spec<charType, stringType> tmp(__ToString<stringType>(s), _params);
 			if (std::find(_specs.begin(), _specs.end(), tmp) == _specs.end())	// not yet in vector
 				_specs.push_back(tmp);
 		}
 		for (auto& o : albumgen.Videos())
 		{
-			QString s = o.path + o.name;
+			QString s = o.Path() + o.name;
 			Spec<charType, stringType> tmp(__ToString<stringType>(s), _params);
 			if (std::find(_specs.begin(), _specs.end(),tmp) == _specs.end())	// not yet in vector
 				_specs.push_back(tmp);

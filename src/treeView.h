@@ -4,6 +4,8 @@
 #include <QTreeView>
 #include <QAbstractItemModel>
 
+#include "enums.h"
+
 /*============================================================================
   * TASK:		model for tree view of albums
   * REMARKS:	- uses the data stored in the map AlbumMap (albums.h)
@@ -71,10 +73,6 @@ public:
 };
 
 class ThumbnailView;					  // in thumbnailView.h for connecting there
-#ifndef ID_T_DEFINED
-	using ID_t = int64_t;		// almost all ID's are CRC32 values extended with leading bits when collison
-	using IntList = QVector<int>;
-#endif
 
 class AlbumTreeView : public QTreeView
 {

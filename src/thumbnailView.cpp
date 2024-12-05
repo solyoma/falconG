@@ -20,9 +20,10 @@
  *  along with Phototonic.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "thumbnailView.h"
 #include <QIcon>
 #include <QWidget>
+
+#include "thumbnailView.h"
 #include "config.h"
 #include "imageviewer.h"
 
@@ -133,15 +134,15 @@ QIcon ThumbnailItem::IconForFile() const
     ID_t itemId = pAlbum->IdOfItem(itemPos);
     bool exists = false;
     
-    bool isFolder = itemId & ALBUM_ID_FLAG;
+    bool isFolder = itemId.IsAlbum();
     bool bIsFolderIcon = false;
 
     ID_t imgId = itemId;     // add marker for image that is the folder thumbnail (shown in parent)
 //    Album* parent = _ParentAlbum();
     if (isFolder)
-        imgId = albumgen.Albums()[itemId].thumbnail;
+        imgId = albumgen.Albums()[itemId].thumbnailId;
 
-    bIsFolderIcon = (pAlbum->thumbnail == imgId);
+    bIsFolderIcon = (pAlbum->thumbnailId == imgId);
 
     if (fileIcons.HasIconFor(itemPos))
     {
@@ -180,7 +181,6 @@ QIcon ThumbnailItem::IconForFile() const
         flags.setFlag(FileIcons::fiFolder);
     if (bIsFolderIcon)
         flags.setFlag(FileIcons::fiThumb);
-    if (albumgen.ImageAt(imgId)->dontResize)
     if (albumgen.ImageAt(imgId)->dontResize)
         flags.setFlag(FileIcons::fiDontResize);
 
@@ -323,7 +323,7 @@ QString ThumbnailItem::_VideoFullSourceName() const
 }
 QString ThumbnailItem::_FolderFullSourceName() const
 {
-    //Image* pImg = albumgen.ImageAt(_ActAlbum()->thumbnail);
+    //Image* pImg = albumgen.ImageAt(_ActAlbum()-->thumbnailId);
     //return pImg->FullSourceName();
     return albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos))->FullSourceName();
 }
@@ -999,7 +999,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         int itemSize = items.size();     // only changes when items dropped on other albums
 
         QVector<int> itemOrder;             // new item order indexes
-        bool moveItemsIntoFolder = row >= 0 && (items[row] & ALBUM_ID_FLAG);
+        bool moveItemsIntoFolder = row >= 0 && (items[row].IsAlbum());
         if (moveItemsIntoFolder) // then move items into album with id items[row]
         {                                             // album must be physical folder on disk
             QMessageBox mb(this);
@@ -1007,9 +1007,9 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             mb.setText(tr("Move into this folder or move before it?"));
             mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
             // buttons added after the existing buttons
-            QPushButton* pBeforeFolderBtn = mb.addButton(tr("Reposition"), QMessageBox::NoRole);
+            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Reposition"), QMessageBox::NoRole);
             QPushButton *pIntoFolderBtn = mb.addButton(tr("Move into"), QMessageBox::YesRole);
-            QPushButton* pCancelBtn = mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            QPushButton *pCancelBtn = mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
             mb.setDefaultButton(pBeforeFolderBtn);
 
             mb.exec();
@@ -1261,7 +1261,7 @@ void ThumbnailView::Setup(ID_t aid)
 void ThumbnailView::Clear()
 {
      _pIds = nullptr; 
-     _albumId = ROOT_ALBUM_ID;
+     _albumId = TOPMOST_ALBUM_ID;
     _thumbnailViewModel->Clear();
 }
 
@@ -1294,7 +1294,7 @@ void ThumbnailView::_InitThumbs()
 	static QStandardItem *thumbItem;
 	static int fileIndex;
 	static QSize hintSize;
-	int thumbsAddedCounter = 1;
+	int timeOutCnt = 1;
     Album &album = albumgen.Albums()[_albumId];
 
     // DEBUG
@@ -1305,10 +1305,10 @@ void ThumbnailView::_InitThumbs()
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
 		_thumbnailViewModel->appendRow(thumbItem);
-		++thumbsAddedCounter;
-		if (thumbsAddedCounter > 10)
+		++timeOutCnt;
+		if (timeOutCnt > 10)
 		{
-			thumbsAddedCounter = 1;
+			timeOutCnt = 1;
 			QApplication::processEvents();
 		}
 	}
@@ -1659,9 +1659,9 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             
             ID_t id = album.items[pos];
             IABase* pItem = albumgen.IdToItem(id);
-            if (id & IMAGE_ID_FLAG)
+            if (id.IsImage())
                 pItem = albumgen.ImageAt(id);
-            else if (id & VIDEO_ID_FLAG)
+            else if (id.IsVideo())
                 pItem = albumgen.VideoAt(id);
             else
                 pItem = albumgen.AlbumForID(id);
@@ -1693,7 +1693,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             {
                 id = album.items[i.row()];
 
-                if (id & IMAGE_ID_FLAG)
+                if (id.IsImage())
                 {
                     pact = new QAction(tr("Toggle 'Keep Original Size'"));
                     connect(pact, &QAction::triggered, this, &ThumbnailView::ToggleDontResizeFlag);
@@ -1844,9 +1844,9 @@ void ThumbnailView::SynchronizeTexts()
     auto Item = [&](int row)
     {
         ID_t id = pAlbum->items[row];
-        if (id & ALBUM_ID_FLAG)
+        if (id.IsAlbum())
             pItem = albumgen.AlbumForID(id);
-        else if (id & IMAGE_ID_FLAG)
+        else if (id.IsImage())
             pItem = albumgen.ImageAt(id);
         else
             pItem = albumgen.VideoAt(id);
@@ -1865,7 +1865,7 @@ void ThumbnailView::SynchronizeTexts()
         tr("Don't ask again (use Options to re-enable)")) == QMessageBox::Yes)
     {
 
-        ID_t titleId=0,descrId=0;
+        int64_t titleId=0,descrId=0;
         LanguageTexts *pTitle = nullptr, *pDescr = nullptr;
 
         for(int i =0; i < list.size(); ++i)
@@ -1959,14 +1959,14 @@ bool ThumbnailView::_AddFolder(QString folderName)
         pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
         albumgen.SetAlbumModified(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
-        album.parent = _albumId;
+        album.parentId = _albumId;
         albumgen.AddDirsRecursively(id);
 
         int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
         pParentAlbum->AddItem(id);
 
         ID_t idth = album.ThumbID();
-        if (!idth)
+        if (idth.Val())
             folderName.clear();
         else
             folderName = albumgen.Images()[idth].FullSourceName();
@@ -2018,7 +2018,7 @@ bool ThumbnailView::_NewFolder(QString parent, QString folder)
             {
                 albumgen.SetAlbumModified(*pParentAlbum);
                 Album& album = *albumgen.AlbumForID(id);
-                album.parent = _albumId;
+                album.parentId = _albumId;
                 pParentAlbum->AddItem(id, -1);
                 albumgen.WriteDirStruct(true);
                 res = true;
@@ -2108,7 +2108,7 @@ void ThumbnailView::CopyNamesToClipboard()
         {
             case IABase::iatImage: 
             case IABase::iatVideo: 
-                s += QString().setNum(id & ID_MASK) + pItem->Extension() + "\n";
+                s += QString().setNum(id.Val()) + pItem->Extension() + "\n";
                 break;
             default:
             case IABase::iatAlbum:
@@ -2159,18 +2159,18 @@ void ThumbnailView::SetAsAlbumThumbnail()
     Album& album = albumgen.Albums()[_albumId];
     int cthix = -1;// old thumbnail index in 'items'. -1: not from current album
     for (int i = 0; i < album.items.size(); ++i)
-        if (album.thumbnail == album.items[i])
+        if (album.thumbnailId == album.items[i])
             cthix = i;
     if (cthix == pos)       // no change
         return;
 
     ID_t th = album.items[pos];
 
-    album.SetThumbnail(th & ALBUM_ID_FLAG ? albumgen.Albums()[th].thumbnail : albumgen.ImageAt(th)->ID );
+    album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID );
     albumgen.SetAlbumModified(album);
-    if(album.parent)
+    if(album.parentId.Val())
     {
-        Album * parent = albumgen.AlbumForID(album.parent);
+        Album * parent = albumgen.AlbumForID(album.parentId);
         albumgen.SetAlbumModified(*parent);
     }
     albumgen.SetAlbumModified(_albumId);
@@ -2195,7 +2195,7 @@ void ThumbnailView::ToggleDontResizeFlag()
     for (auto &i : list)
     {
         ID_t id = album.items[i.row()];
-        if (id & IMAGE_ID_FLAG)     // toggle original size for image
+        if (id.IsImage())     // toggle original size for image
         {
             pImage = albumgen.ImageAt(id);
             pImage->dontResize = !pImage->dontResize;
@@ -2216,9 +2216,10 @@ void ThumbnailView::ToggleDontResizeFlag()
  *------------------------------------------------------------*/
 void ThumbnailView::SelectAsAlbumThumbnail()
 {
+    QString path = pathMap.Path(albumgen.Images().lastUsedPathId);
     QString thname = QFileDialog::getOpenFileName(this, 
                                             tr("falconG - Select Thumbnail Image"),
-                                            albumgen.Images().lastUsedPath,
+                                            path, 
                                             "Image files (*.jpg *.png)");
     if (thname.isEmpty())
         return;
@@ -2226,15 +2227,15 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     QString qsd;
     QString name;
     SeparateFileNamePath(thname, qsd, name);
-    albumgen.Images().lastUsedPath = qsd;
+    albumgen.Images().lastUsedPathId = pathMap.Add(qsd);
     // add as thumbnail to this album, but do not signal elapsed time and do not add to items
     albumgen.AddItemToAlbum(_albumId, thname, true, false, true);
 
     Album& album = *_ActAlbum();
 
-    if (album.parent)
+    if (album.parentId.Val())
     {
-        Album* parent = albumgen.AlbumForID(album.parent);
+        Album* parent = albumgen.AlbumForID(album.parentId);
         albumgen.SetAlbumModified(*parent);
     }
 }
@@ -2245,14 +2246,14 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
 //    _currentIndex = mix;
     int row = mix.row();
     ID_t id = _ActAlbum()->items[row];
-    if (id & ALBUM_ID_FLAG)
+    if (id.IsAlbum())
     {
         emit SignalFolderChanged(row);
     }
     else        // display full image in window      
     {
 
-        IABase *pb = id & IMAGE_ID_FLAG ? (IABase*)albumgen.ImageAt(id) : (IABase*)albumgen.VideoAt(id);
+        IABase *pb = id.IsImage() ? (IABase*)albumgen.ImageAt(id) : (IABase*)albumgen.VideoAt(id);
         QString name = pb->FullSourceName();
         
         ImageViewer* pViewer = new ImageViewer(name, this, nullptr);
@@ -2300,7 +2301,7 @@ void ThumbnailView::FindMissingImageOrVideo()
 
     auto __getNameAndPath = [&](ID_t id, QString& n, QString& p) {
 		n = pItem->name;
-		p = pItem->path;
+		p = pItem->Path();
 	};
 
     auto __pathindex = [&]() {
@@ -2316,6 +2317,11 @@ void ThumbnailView::FindMissingImageOrVideo()
         return true;
 
     };
+
+    auto __setPathId = [&](const QString &p)
+        {
+            pItem->pathId = pathMap.Add(p); // doesn't add it when it has already benn added
+        };
 
     __getNameAndPath(id, name, path);
     QString caption = tr("falconG - Find file: ") + name;
@@ -2335,14 +2341,14 @@ void ThumbnailView::FindMissingImageOrVideo()
             pItem->name = n;    // new name accepted
         }
         _slSearchPaths.push_back(p);
-        pItem->path = p;     // replace path
-        pItem->exists = QFile::exists(pItem->FullSourceName()) ? exExists : exNot;  // must always be exExists because of dialog settings
+        __setPathId(p);
+
+        pItem->ID.SetFlag(EXISTING_FLAG, QFile::exists(pItem->FullSourceName()) );  // must always be exExists because of dialog settings
         pItem->changed = true;
         albumgen.SetAlbumModified(album);
-        emit SignalAlbumChanged();
 
         // check all missing files against all search paths collected so far
-        for (auto id1 : album.items)
+        for (auto &id1 : album.items)
         {
             pItem = albumgen.IdToItem(id1);
             if (!QFile::exists(pItem->FullSourceName()))
@@ -2350,11 +2356,12 @@ void ThumbnailView::FindMissingImageOrVideo()
                 int j = __pathindex();
                 if (j >= 0)
                 {
-                    pItem->path = _slSearchPaths[j];
-                    pItem->exists = exExists;
+                    __setPathId(_slSearchPaths[j] );
+                    pItem->ID.SetFlag(EXISTING_FLAG);
                 }
             }
         }
+        emit SignalAlbumChanged();
         Reload();
     }
 }

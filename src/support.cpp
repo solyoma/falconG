@@ -797,7 +797,14 @@ int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString
 	return res;
 }
 
-QString CutSourceRoot(QString path)
+QString PrependSourcePathTo(const QString s)
+{
+	if (QDir::isAbsolutePath(s))
+		return s;
+	return config.dsSrc.ToString() + s;
+}
+
+QString CutSourceRootFrom(QString path)
 {
 	QString qs = config.dsSrc.ToString();
 	int sl = qs.length();

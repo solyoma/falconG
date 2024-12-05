@@ -12,7 +12,7 @@
 * REMARKS:	If there is no text (id == 0) and need not write empty text holder
 *			then just returns
 *--------------------------------------------------------------------------*/
-static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString what, ID_t id, QString indent)
+static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString what, uint64_t id, QString indent)
 {
 	bool b = what[0] == 'T' ? config.bAddTitlesToAll : config.bAddDescriptionsToAll;
 
@@ -81,22 +81,42 @@ void AlbumStructWriterThread::run()
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()
 		<< "\n\n#Image rectangle: " << config.imageWidth << "x" << config.imageHeight
-		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight
-		<< "\n\n[Language count:" << languages.LanguageCount() << "\n";
-	for (int i = 0; i < languages.LanguageCount(); ++i)
-	{
-		_ofs << i << "\n";
-		for(auto it=languages.begin(); it != languages.end(); ++it)
-			_ofs << " " << it.key() << "=" << (*it.value())[i] << "\n";
-	}
-	_ofs << "]\n\n# Album structure:\n";
+		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight << "\n\n";
+	_WriteLanguageTable();
+	_WritePathsTable();
+	_WriteOrphanThumbnails();
+	_ofs << "# Album structure:\n";
 
 	QString indent;	// for directory structure file: indent line with spaces to indicate hierarchy
-	_WriteStructAlbums(_albumMap[ROOT_ALBUM_ID], indent);
+	_WriteStructAlbums(_albumMap[TOPMOST_ALBUM_ID], indent);
 	_ofs.flush();
 	f.close();
 
 	emit resultReady(result, sStructPath, sStructTmp);
+}
+
+void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
+{
+	if (pImg->Exists())
+	{
+		if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
+			pImg->rsize = pImg->dsize;
+
+		_ofs << indent;
+		if (pImg->dontResize)
+			_ofs << "!!";
+		_ofs << pImg->name << "||" 										   // field #1
+			<< (pImg->ID.Val()) << "|"								   // field #2
+			<< pImg->rsize.width() << "x" << pImg->rsize.height() << "|"   // field #3 - #4
+			<< pImg->osize.width() << "x" << pImg->osize.height() << "|"   // field #5 - #6
+			// ISO 8601 extended format: yyyy-MM-dd for dates
+			<< pImg->uploadDate.toString(Qt::ISODate) << "|"			   // field #7
+			<< pImg->fileSize	<< "|"									   // field #8
+			<< pImg->pathId		<< "\n";
+		// field #9
+	}
+	else
+		_ofs << indent << pImg->name << " # is missing\n";
 }
 
 void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString indent)
@@ -108,27 +128,8 @@ void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString i
 	if (pImg->changed)
 		albumgen.SetAlbumModified(album);
 
-	if (pImg->exists)
-	{
-		if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
-			pImg->rsize = pImg->dsize;
+	_WriteImageRecord(pImg, indent);
 
-		_ofs << indent;
-		if (pImg->dontResize)
-			_ofs << "!!";
-		_ofs << pImg->name << "(" 										   // field #1
-			<< (pImg->ID & ID_MASK) << ","								   // field #2
-			<< pImg->rsize.width() << "x" << pImg->rsize.height() << ","   // field #3 - #4
-			<< pImg->osize.width() << "x" << pImg->osize.height() << ","   // field #5 - #6
-			// ISO 8601 extended format: yyyy-MM-dd for dates
-			<< pImg->uploadDate.toString(Qt::ISODate) << ","			   // field #7
-			<< pImg->fileSize << ")";									   // field #8
-		s = config.RemoveSourceFromPath(pImg->path);
-		_ofs << s << "\n";
-		// field #9
-	}
-	else
-		_ofs << indent << pImg->name << " # is missing\n";
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, pImg->descID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 }
@@ -143,18 +144,15 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 	{
 		albumgen.SetAlbumModified(album);
 	}
-	if (pVid->exists)
+	if (pVid->Exists())
 	{
-
 		_ofs << indent;
-		_ofs << pVid->name << "(V" 										   // field #1
-			<< (pVid->ID & ID_MASK) << ","								   // field #2
+		_ofs << pVid->name << "(V"									   // field #1
+			<< pVid->ID.Val()	<< ","								   // field #2
 			// ISO 8601 extended format: yyyy-MM-dd for dates
-			<< pVid->uploadDate.toString(Qt::ISODate) << ","			   // field #3
-			<< pVid->fileSize << ")";									   // field #4
-		s = pVid->path;
-		s = config.RemoveSourceFromPath(pVid->path);
-		_ofs << s << "\n";
+			<< pVid->uploadDate.toString(Qt::ISODate) << ","		   // field #3
+			<< pVid->fileSize << ")"								   // field #4
+			<< pVid->pathId		<< "\n";
 		// field #9
 	}
 	else
@@ -167,7 +165,8 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 * TASK:		writes out the new album structure.
 * EXPECTS:
 * GLOBALS:
-* REMARKS: - for every album first there come the images, then the sub albums:
+* REMARKS: - for every album first write the images or videos, 
+*			 followed by the sub albums:
 *             album
 *                image 1  in album
 *					...
@@ -182,22 +181,22 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 {
 	// IMAGES
 	// format: [!!]<name>'('<id>,<width>'x'<height>,<owidth>'x'<oheight>,<date string><file size>')'<dSrc relative or absolute path>
-	for (ID_t id : album.items)
-		if (!(id & EXCLUDED_FLAG) && (id & IMAGE_ID_FLAG))		// not excluded
-			_WriteStructImage(album, id, indent);	// DEBUG
-//	int n = album.videos.size();
-//	if (n)
-//		n = n;
-	// ?DEBUG
-	// VIDEOS
-	// format: <name>'(''V'<id>, <date string>,<file size>')'<dSrc relative or absoluth path>
-	for (ID_t id : album.items)
-		if (!(id & EXCLUDED_FLAG) && (id & VIDEO_ID_FLAG))		// not excluded
-			_WriteStructVideo(album, id, indent);
-	// ALBUMS
-	for (ID_t id : album.items)
-		if (!(id & EXCLUDED_FLAG) && (id & ALBUM_ID_FLAG))		// not excluded
-			_WriteStructAlbums(_albumMap[id], indent);
+	if (album.ImageCount() || album.VideoCount())
+	{
+		for (ID_t id : album.items)
+			if (!id.IsExcluded())
+				if (id.IsImage())		// not excluded
+					_WriteStructImage(album, id, indent);	// DEBUG
+				else if (id.IsVideo())
+					_WriteStructVideo(album, id, indent);
+	}
+
+	if (album.SubAlbumCount())
+	{
+		for (ID_t id : album.items)
+			if (!id.IsExcluded() && id.IsAlbum())		// not excluded
+				_WriteStructAlbums(_albumMap[id], indent);
+	}
 }
 
 /*============================================================================
@@ -212,36 +211,53 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 *--------------------------------------------------------------------------*/
 void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 {
-	if (album.exists == exNot)
-		return;
+	//if (album.Exists() == exNot)
+	//	return;
 
-	QString s = config.RemoveSourceFromPath(album.path);
+	// QString s = config.RemoveSourceFromPath(pathMap[album.pathId]);
 
-	ID_t thumbnail = album.thumbnail = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
+	ID_t thumbnail = album.thumbnailId = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << ( album.changed ? "(C:" :"(A:") << (album.ID & ID_MASK) << ")" << s << "\n"; // always write album unchanged, but do not modify' changed' flag
+		<< album.name << ( album.changed ? "(C:" :"(A:") << album.ID.Val() << ")" << /*s*/ album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 
-	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << (thumbnail & ID_MASK) << "]\n"; // ID may be 0!
+	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << thumbnail.Val() << "]\n"; // ID may be 0!
 
 	_WriteStructImagesThenSubAlbums(album, indent + " ");
 }
 
-void AlbumStructWriterThread::WriteOrphanThumbnails()
+void AlbumStructWriterThread::_WritePathsTable()
 {
-	bool orphanHeaderWritten = false;
-   for(auto &img : _imageMap)
-	   if (!img.usageCount && img.thumbnailCount)
-	   {
-		   if (!orphanHeaderWritten)
-		   {
-			   _ofs << ORPHAN_ID << "\n";
-			   orphanHeaderWritten = true;
-		   }
-		   _ofs << img.ShortSourcePathName() << ":" << (img.ID & ID_MASK) << "\n";
-	   }
-   if (orphanHeaderWritten)
-	   _ofs << "]\n\n";
+	_ofs << PATH_TABLE << "\n" << pathMap << "]\n\n";
 }
+
+void AlbumStructWriterThread::_WriteLanguageTable()
+{
+	_ofs << "\n\n[Language count:" << languages.LanguageCount() << "\n";
+	for (int i = 0; i < languages.LanguageCount(); ++i)
+	{
+		_ofs << i << "\n";
+		for (auto it = languages.begin(); it != languages.end(); ++it)
+			_ofs << " " << it.key() << "=" << (*it.value())[i] << "\n";
+	}
+	_ofs << "]\n\n";
+}
+
+void AlbumStructWriterThread::_WriteOrphanThumbnails()
+{
+	_ofs << ORPHAN_ID << "\n";
+   for(auto &img : _imageMap)
+	   if (img.ID.IsOrphan())
+	   {
+		   Image* pImg;
+		   QString s;
+
+		   pImg = &_imageMap[img.ID];
+		   _WriteImageRecord(pImg, 0);
+	   }
+   _ofs << "]\n\n";
+}
+
+

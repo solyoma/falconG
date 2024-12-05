@@ -25,10 +25,11 @@ const QString versionStr = "# falconG Gallery Structure file ";
 // versions: 1.0 - text ID not saved, collision saved using an '*' followed by the collision number
 //           1.1 - full text ID is saved after and '*' Calculated if missing
 //           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
+//			 1.3 - source image paths have an ID and the file contains this ID instead of the path for the images and videos
 
-constexpr int majorStructVersion = 1,		// V 1.2.5 version string
-			  minorStructVersion = 2,
-			  subStructVersion   = 5;	
+constexpr int majorStructVersion = 1,		// V 1.3.0 version string
+			  minorStructVersion = 3,
+			  subStructVersion   = 0;	
 
 enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
 
@@ -309,7 +310,8 @@ private:
 
 //*****************************************
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
-QString CutSourceRoot(QString path);
+QString PrependSourcePathTo(const QString s);
+QString CutSourceRootFrom(QString path);
 QString TimeToHMSStr(time_t t);
 QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
 FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi = nullptr);

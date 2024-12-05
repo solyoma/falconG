@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QString>
+#include <QMap>
+
 namespace Enums
 {
 	enum DialogBitsOrder : int {
@@ -114,4 +117,86 @@ namespace Enums
 }
 
 // not ENUM, but common
+const bool CHECK = true;
+const bool DONTCHECK = false;
+const uint64_t NO_ID = 0x00;	// for the album tree root as parent of the root and recent album
+const uint64_t TOPMOST_PATH_ID	 = 0x01;
+
+const uint64_t BASE_ID_MASK = 0x00000000FFFFFFFFull;	// values & BASE_ID_MASK = CRC
+const uint64_t ID_INCREMENT = 0x0000000100000000ull;	// when id's clash add (possible a multiple) of this value to id 
+const int TEXT_ID_COLLISION_FACTOR = 32;		// id >> TEXT_ID_COLLISION_FACTOR = overflow index
+
+const uint64_t MAX_ID = 0x00FFFFFFFFFFFFFFull;
+const uint64_t ID_MASK = 0x00FFFFFFFFFFFFFFull;	// so that we can combine _flags and ID and still get the ID back
+
+// _flags for ID's
+const uint8_t INVALID_ID_FLAG = 0x00;
+
+const uint8_t IMAGE_ID_FLAG = 0x01;	// when set ID is for a image
+const uint8_t VIDEO_ID_FLAG = 0x02;	// when set ID is for a video
+const uint8_t ALBUM_ID_FLAG = 0x04;	// when set ID is for an album (used for albums as folder thumbnails)
+const uint8_t THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
+const uint8_t EXCLUDED_FLAG = 0x20;
+const uint8_t ORPHAN_FLAG	= 0x40;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
+const uint8_t EXISTING_FLAG = 0x80;	// on albums this signals a real folder on disk Otherwise it is a logical album
+
+const uint8_t TYPE_FLAGS	= 0x0F;
+
+class ID_t
+{
+	uint64_t _uval = 0;
+	uint8_t _flags=0;			// types and other _flags  (see enums.h)
+public:
+	ID_t() {}
+	ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags) {}
+	ID_t(uint8_t _flags, uint64_t id) : _uval(id),_flags(_flags) {}
+	//ID_t(uint64_t val) : _uval(val) {}
+
+	constexpr uint64_t Val() const { return _uval; }
+	constexpr uint8_t Flags() const { return _flags; }
+	inline static const ID_t Invalid(uint64_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
+	inline bool IsInvalid() const { return !_uval || !_flags; }
+
+	constexpr uint8_t SetFlag(uint8_t which, bool setIt=true)	// which can be contain _flags ORed
+	{														// returns resulting _flags
+		_flags &= ~which;
+		if (setIt)
+			_flags |= which;
+		return _flags;
+	}
+	constexpr bool TestFlag(uint8_t withTheseFlag) const
+	{
+		return _flags & withTheseFlag;
+	}
+
+	inline ID_t& Increment(uint64_t inc) { _uval += inc; return *this; }
+
+	inline ID_t& operator=(const ID_t& v) { _uval = v._uval; _flags = v._flags; return *this; }
+	//constexpr inline ID_t& operator=(const uint64_t v) { _uval = v; return *this; }
+
+	//constexpr inline bool operator==(const uint64_t v) const { return _uval == v; }
+	inline bool operator==(const ID_t v) const { return _uval == v._uval && _flags == v._flags; }
+	inline bool operator!=(const ID_t v) const { return _uval != v._uval || _flags != v._flags; }
+	inline bool operator<(const ID_t v) const { return _uval < v._uval && _flags == v._flags; }
+	inline bool operator<=(const ID_t v) const { return _uval <= v._uval && _flags == v._flags; }
+	inline bool operator>(const ID_t v) const { return _uval > v._uval && _flags == v._flags; }
+	
+	constexpr inline bool IsSameType(uint8_t type) const { return (Flags() & TYPE_FLAGS & type) != 0; }
+
+	constexpr inline bool IsAlbum() const		{ return _flags & ALBUM_ID_FLAG; }
+	constexpr inline bool IsExcluded() const	{ return _flags & EXCLUDED_FLAG; }
+	constexpr inline bool IsImage() const		{ return _flags & IMAGE_ID_FLAG; }
+	constexpr inline bool IsOrphan() const		{ return _flags & ORPHAN_FLAG;	 }
+	constexpr inline bool IsThumbnail() const	{ return _flags & THUMBNAIL_FLAG;}
+	constexpr inline bool IsVideo() const		{ return _flags & VIDEO_ID_FLAG; }
+	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
+};
+const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
+const ID_t TOPMOST_ALBUM_ID = { ALBUM_ID_FLAG, 0x01};
+const ID_t RECENT_ALBUM_ID	= { ALBUM_ID_FLAG, 0x02 };
+const ID_t NOIMAGE_ID		= { IMAGE_ID_FLAG, 0 };
+
+
 using IntList = QVector<int>;
+using IdList = QVector<ID_t>;
+

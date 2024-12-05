@@ -223,10 +223,10 @@
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="schemes.cpp" />
+    <ClCompile Include="structwriter.cpp" />
     <ClCompile Include="treeView.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sourcehistory.cpp" />
-    <ClCompile Include="structwriter.cpp" />
     <ClCompile Include="stylehandler.cpp" />
     <ClCompile Include="support.cpp" />
     <ClCompile Include="textEditor.cpp" />
@@ -241,6 +241,7 @@
     </QtUic>
     <QtUic Include="hidden.ui" />
     <QtUic Include="imageviewer.ui" />
+    <QtUic Include="selectStruct.ui" />
     <QtUic Include="sourcehistory.ui" />
     <QtUic Include="textEditor.ui" />
   </ItemGroup>
@@ -264,6 +265,7 @@
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h" />
     <ClInclude Include="schemes.h" />
+    <QtMoc Include="selectStruct.h" />
     <ClInclude Include="stylehandler.h" />
     <ClInclude Include="support.h" />
   </ItemGroup>

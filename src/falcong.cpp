@@ -21,6 +21,7 @@
 #include "sourcehistory.h"
 #include "csscreator.h"
 #include "imageviewer.h"
+#include "selectStruct.h"
 
 #ifdef _DEBUG
 	#include "hidden.h"
@@ -431,7 +432,7 @@ void FalconG::on_toolBox_currentChanged(int newIndex)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_btnSourceHistory_clicked()
+void FalconG::on_btnSelectSourceGallery_clicked()
 {
 	SourceHistory hist(PROGRAM_CONFIG::maxSavedConfigs, PROGRAM_CONFIG::lastConfigs, ui.edtSourceGallery->text(), this);
 
@@ -466,8 +467,9 @@ void FalconG::on_btnSourceHistory_clicked()
 
 			_ReadLastAlbumStructure();
 
-			Album *root = albumgen.AlbumForID(ROOT_ALBUM_ID);
-			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
+			Album* root = albumgen.AlbumForID( TOPMOST_ALBUM_ID );
+			QString path;
+			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 		}
 		if (SourceHistory::Changed())
 			PROGRAM_CONFIG::Write();
@@ -1031,10 +1033,10 @@ void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 {												// row: item index
 	QModelIndex& cix = _currentTreeViewIndex;	
 	// get folder (album) index for row by discarding non-folder items
-	Album* album = albumgen.AlbumForID((ID_t)cix.internalPointer());
+	Album* album = albumgen.AlbumForID( ID_t(ALBUM_ID_FLAG, (uint64_t)cix.internalPointer()) );
 	int aix = 0;
 	for (int i = 0; i < row; ++i)
-		if (album->items[i] & ALBUM_ID_FLAG)
+		if (album->items[i].IsAlbum())
 			++aix;
 	emit SignalActAlbumChanged(aix);
 }
@@ -1399,6 +1401,25 @@ QIcon FalconG::_SetUplinkIcon(QString iconName)
 	return icon;
 }
 
+QString FalconG::_SelectStructFileFromDir(QString& dirName)
+{
+	QString sf;
+	dirName = QDir::fromNativeSeparators(dirName);
+	QDir dir(dirName);
+
+	if (!dir.exists())	// no such directory, no change
+		return sf;
+	
+	QString pattern = "*.struct";
+	QStringList files = dir.entryList(QStringList() << pattern, QDir::Files);
+	if (files.isEmpty())
+		return sf;
+	SelectStructDialog ssd(this, dirName, files);
+	if (ssd.exec() == QDialog::Accepted)
+		return ssd.SelectedStruct();
+	return sf;
+}
+
 void FalconG::_ReadLastAlbumStructure()
 {
 	// read last album structure
@@ -1407,9 +1428,9 @@ void FalconG::_ReadLastAlbumStructure()
 		QString qs = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 		if (QFile::exists(qs) && albumgen.Read(true))
 		{
-
-			Album *root = albumgen.AlbumForID(ROOT_ALBUM_ID);
-			SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
+			Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+			QString path;
+			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 
 			_SlotAlbumStructSelectionChanged(QItemSelection(), QItemSelection());
 			_SlotTnvCountChanged();			// show in lblTotalCount (page: Edit)
@@ -3102,13 +3123,14 @@ void FalconG::on_edtGalleryLanguages_textChanged()
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void FalconG::on_edtGalleryRoot_textChanged()
+void FalconG::on_edtSourceGallery_editingFinished()
 {
 	if (_busy)
 		return;
-
-	config.dsGRoot = ui. edtGalleryRoot->text().trimmed();
-	_SetConfigChanged(true);
+	QString dirName = ui.edtGalleryRoot->text().trimmed();
+	QString sf = _SelectStructFileFromDir(dirName);
+	if(sf.isEmpty())
+		QMessageBox::warning(this, tr("FalconCalc - Warning"), tr("Either no such folder or no gallery file in there!") );
 }
 
 /*============================================================================
@@ -3252,8 +3274,9 @@ void FalconG::on_edtSourceGallery_textChanged()
 			config.SetChanged(true);	// allow user to save config into this directory
 			_EnableButtons();
 		}
-		Album* root = albumgen.AlbumForID(ROOT_ALBUM_ID);
-		SeparateFileNamePath(config.dsSrc.ToString(), root->path, root->name);
+		Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+		QString path;
+		SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 	}
 	AlbumTreeModel* pm = const_cast<AlbumTreeModel*>(reinterpret_cast<AlbumTreeModel*>( ui.trvAlbums->model()));
 	pm->BeginResetModel();
@@ -4191,7 +4214,7 @@ void FalconG::_SaveEditedTextsIntoSelection()
 void FalconG::_StoreLanguageTexts(LanguageTexts& texts)
 {
 	TextMap& tmap = albumgen.Texts();
-	ID_t txtid = texts.ID;					// possible old id for text or 0
+	uint64_t txtid = texts.ID;					// possible old id for text or 0
 	texts.CalcBaseID();						// new id for text
 	
 	if (txtid && tmap.contains(txtid))
@@ -4213,7 +4236,7 @@ void FalconG::_StoreLanguageTexts(LanguageTexts& texts)
 void FalconG::_GetTextsForEditing()
 {
 	++_busy;						// semaphore
-	if (!_selection.selectedAlbum && !_selection.selectedImage)	   // selection cleared: show texts for album
+	if (_selection.selectedAlbum.Val() && _selection.selectedImage.Val())	   // selection cleared: show texts for album
 	{
 		ui.edtBaseTitle->clear();
 		ui.edtBaseDescription->clear();
@@ -4229,7 +4252,7 @@ void FalconG::_GetTextsForEditing()
 		int bli = ui.cbBaseLanguage->currentIndex(),	// text(s) in this language is the base
 			li = ui.cbLanguage->currentIndex();		// text(s) in this language may have been changed
 
-		if (_selection.selectedAlbum)
+		if (_selection.selectedAlbum.Val())
 		{
 			Album& album = *albumgen.AlbumForID(_selection.selectedAlbum);
 			_selection.title = albumgen.Texts()[album.titleID];
@@ -4527,7 +4550,7 @@ void FalconG::_SlotAlbumStructSelectionChanged(const QItemSelection &current, co
 		if (ui.tnvImages->IsFinished())
 			_SlotLoadItemsToListView();		// can display it now
 	}
-	_selection.selectedAlbum = 0;	// nothing/multiple albums selected
+	_selection.selectedAlbum = { ALBUM_ID_FLAG, 0 };	// nothing/multiple albums selected
 }
 
 void FalconG::_SlotLoadItemsToListView()
@@ -4544,18 +4567,18 @@ void FalconG::_SlotLoadItemsToListView()
 	{
 		// collect its images into list
 		_currentTreeViewIndex = _current.indexes()[0];
-		ID_t id = ID_t(_currentTreeViewIndex.internalPointer());	// store ID of last selected album
+		ID_t id = { ALBUM_ID_FLAG, uint64_t(_currentTreeViewIndex.internalPointer()) };	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
 		_selection.selectedAlbum = id;	// only single selection is used
 									// before the image list is read
 	}
 	else
-		_selection.selectedAlbum = 0;	// nothing/multiple albums selected
+		_selection.selectedAlbum = { ALBUM_ID_FLAG, 0 };	// nothing/multiple albums selected
 
 	ui.tnvImages->Load();
 	ui.tnvImages->clearSelection();	// no selection
-	_selection.selectedImage = 0;
+	_selection.selectedImage = { ALBUM_ID_FLAG, 0 };
 }
 
 /*========================================================
@@ -4879,7 +4902,7 @@ void FalconG::_SaveChangedTexts()
 	if (!_selection.changed)
 		return;
 
-	ID_t otid = _selection.title.ID,
+	int64_t otid = _selection.title.ID,
 		 odid = _selection.description.ID;
 	
 	albumgen.SetAlbumModified(_selection.actAlbum);
@@ -4894,12 +4917,12 @@ void FalconG::_SaveChangedTexts()
 
 					// save changed texts to old and set texts from current
 					// only need to modify album or image when ID is changed
-	if (_selection.selectedImage)
+	if (_selection.selectedImage.Val())
 	{
 		albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;
 		albumgen.Images()[_selection.selectedImage].descID  = _selection.description.ID;
 	}
-	else if(_selection.selectedAlbum)
+	else if(_selection.selectedAlbum.Val())
 	{
 		albumgen.Albums()[_selection.selectedAlbum].titleID = _selection.title.ID;
 		albumgen.Albums()[_selection.selectedAlbum].descID = _selection.description.ID;
@@ -5525,11 +5548,11 @@ void FalconG::_SlotTnvSelectionChanged(ID_t id, ID_t actAlbumId)
 {
 	_SaveChangedTexts();	// from selection to data base
 	_selection.actAlbum = actAlbumId;
-	_selection.selectedAlbum = _selection.selectedImage = 0;
+	_selection.selectedAlbum = _selection.selectedImage = { ALBUM_ID_FLAG, 0 };
 
-	if (id & IMAGE_ID_FLAG)
+	if (id.IsImage())
 		_selection.selectedImage = id;
-	else if(id)
+	else if(id.Val())
 		_selection.selectedAlbum = id;
 	_GetTextsForEditing();
 }

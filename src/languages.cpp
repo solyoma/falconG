@@ -2,12 +2,48 @@
 #include "enums.h"
 using namespace Enums;
 #include "support.h"
+#include "crc32.h"
 #include "languages.h"
 #include "config.h"
+
+LanguageTexts TextMap::invalid;
+
 
 /*--------------------- languages -------------------------*/
 
 Languages languages;
+
+Languages::Languages()
+{
+	insert("abbrev", new LangConstList(0, QMainWindow::tr("Suffix, used in file names. e.g. \"_us\" for \"en_US\"")));
+	insert("albums", new LangConstList(1, QMainWindow::tr("Title of album section in HTML files")));
+	insert("countOfImages", new LangConstList(2, QMainWindow::tr("Text for image and album count display in footer. %1 and %2 are placeholders for image and album count respectively")));
+	insert("countryCode", new LangConstList(3, QMainWindow::tr("Country code. Examples: \"en_US\", \"hu_HU\", etc")));
+	insert("coupleCaptions", new LangConstList(4, QMainWindow::tr("Whether to hide image titles together with captions")));
+	insert("falconG", new LangConstList(5, QMainWindow::tr("Program Copyright Message. Do not change it please!")));
+	insert("icon", new LangConstList(6, QMainWindow::tr("Name of icon to use instead of names")));
+	insert("images", new LangConstList(7, QMainWindow::tr("Title for image section in HTML files")));
+	insert("language", new LangConstList(8, QMainWindow::tr("Two letter abbreviation for languages in HTML files, like 'lang=en'")));
+	insert("latestDesc", new LangConstList(9, QMainWindow::tr("Caption of 'Latest Uploads' album'")));
+	insert("latestTitle", new LangConstList(10, QMainWindow::tr("Title of Latest Uploads album")));
+	insert("name", new LangConstList(11, QMainWindow::tr("Text for language switch on page head. Example \"English\"")));
+	insert("share", new LangConstList(12, QMainWindow::tr("Text of facebook share button")));
+	insert("showDescriptions", new LangConstList(13, QMainWindow::tr("Text of image and album caption display toggle menu")));
+	insert("toAboutPage", new LangConstList(14, QMainWindow::tr("Text of 'About' menu")));
+	insert("toAlbums", new LangConstList(15, QMainWindow::tr("text of 'Jump to Album Section' menu")));
+	insert("toContact", new LangConstList(16, QMainWindow::tr("Text of 'Contact' menu. Example: \"Email me\"")));
+	insert("toHomePage", new LangConstList(17, QMainWindow::tr("Text for 'To Home' menu")));
+	insert("toTop", new LangConstList(18, QMainWindow::tr("Text of menu Jump Top of Page")));
+	insert("upOneLevel", new LangConstList(19, QMainWindow::tr("Text for 'Level up' menu")));
+	insert("videos", new LangConstList(20, QMainWindow::tr("Title of video section in HTML files")));
+}
+
+Languages::~Languages()
+{
+	for (auto it = begin(); it != end(); ++it)
+		delete it.value();
+}
+
 
 void Languages::SetTextFor(QString name, QString val,int lang)
 {
@@ -264,5 +300,293 @@ QString Languages::FileNameForLanguage(QString s, int lang)
 	{
 		return name;
 	}
+}
+
+// ------------------- TextMap ---------------------
+
+/*============================================================================
+* TASK:		Calculate base ID for a given text
+* EXPECTS:  txts - list aof texts in all languages used
+* GLOBALS:
+* REMARKS: 	with empty texts the result is 0, otherwise
+*			- the ID is the CRC32 of the longest of the language texts
+*              unless if that is 0, when ID_INCREMENT will bw the base ID
+*			- in the latter case sets collision to 1
+*--------------------------------------------------------------------------*/
+int64_t LanguageTexts::CalcBaseID()
+{
+	CRC32 crc(textsForAllLanguages);			// same ID for all languages
+	ID = crc.crc();
+	if (!ID)					// CRC was 0, but ID can't be
+	{
+		ID = ID_INCREMENT;
+		collision = 1;			// not really a collison, but hey
+	}
+	return ID;
+}
+
+/*============================================================================
+  * TASK:	Calculate and set unique ID for text in TextMap 'map'
+  * EXPECTS: 'map' get the ID relative to this
+  * RETURNS: unique ID of text. If usageCount is 0 the text is new
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+int64_t LanguageTexts::CalcID(TextMap& map)
+{
+	if (config.majorStructVersion == 1)
+	{
+		if (config.minorStructVersion == 0 || collision < 0)
+		{          // otherwise ID is already OK
+			CalcBaseID();
+			int refCount = 0;
+			if (collision < 0)	// set in 'Clear()  - othervise minor STRUCT version is 0
+				collision = map.Collision(*this, refCount);		  // refcount = current userCount
+			ID += ((uint64_t)collision << TEXT_ID_COLLISION_FACTOR);
+			usageCount = refCount;
+		}
+	}
+	return ID;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void LanguageTexts::Clear(int newSize)
+{
+	if (newSize > 0 && newSize != lenghts.size())
+	{
+		lenghts.clear();
+		for (int i = 0; i < newSize; ++i)
+			lenghts.push_back(0);
+	}
+	else
+		for (int i = 0; i < lenghts.size(); ++i)
+			lenghts[i] = 0;
+	textsForAllLanguages.clear();
+	usageCount = 0;
+	ID = 0;
+	collision = -1;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+LanguageTexts& LanguageTexts::operator=(const LanguageTexts& t)
+{
+	ID = t.ID;
+	collision = t.collision;
+	//	lang = t.lang;
+	textsForAllLanguages = t.textsForAllLanguages;
+	lenghts = t.lenghts;
+	usageCount = t.usageCount;
+	return *this;
+}
+/*============================================================================
+* TASK:	  set up text from string list and get its base ID
+* EXPECTS: txts - stringlist with as many elements as there are languages
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+LanguageTexts& LanguageTexts::operator=(const QStringList& txts)
+{
+	lenghts.clear();
+	textsForAllLanguages.clear();
+	QString s;
+	for (int i = 0; i < txts.size(); ++i)
+	{
+		s = EncodeLF(txts[i]);
+		lenghts.push_back(s.length());
+		textsForAllLanguages += txts[i];
+	}
+
+	ID = CalcBaseID(); // just base ID  (no collision test)
+
+	return *this;
+}
+
+/*============================================================================
+* TASK:		'less then' operator
+* EXPECTS:	t - other text with ID set up
+* GLOBALS:
+* REMARKS:	does not use lang
+*--------------------------------------------------------------------------*/
+int LanguageTexts::operator<(const LanguageTexts& t)
+{
+	return ID < t.ID;
+}
+
+/*============================================================================
+* TASK:		text equality operator for texts using text id and the
+ *				texts themselves
+ * EXPECTS:	t - other text, id is set up already
+ *			this and t has the same number of language texts
+ * GLOBALS:
+ * REMARKS:
+*--------------------------------------------------------------------------*/
+bool LanguageTexts::operator==(const LanguageTexts& t)
+{
+	if (ID != t.ID || lenghts != t.lenghts || textsForAllLanguages != t.textsForAllLanguages)
+		return false;
+	else
+		return true;
+}
+
+/*============================================================================
+* TASK:		text inequality operator for texts using text id and lang
+* EXPECTS:	t - other text, both id and lang is set up already
+* GLOBALS:
+* REMARKS: if t.lang < 0 only checks the ID, otherwise it also checks lang
+*--------------------------------------------------------------------------*/
+bool LanguageTexts::operator!=(const LanguageTexts& t)
+{
+	return !(*this == t);
+}
+
+//***********************************************
+//--------- TextMap -----------------------------
+//***********************************************
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+LanguageTexts* TextMap::Find(int64_t id)
+{
+	return contains(id) ? &(*this)[id] : nullptr;  // value(id, invalid);			// uses id only (lang = -1)
+}
+
+/*============================================================================
+* TASK:		find search string in text with language code lang
+* EXPECTS:	'search' search string in language 'lang'
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+LanguageTexts* TextMap::Find(QString search, int lang)
+{
+	QStringList qsl;
+	for (int i = 0; i < languages.LanguageCount(); ++i)
+		if (i == lang)
+			qsl << search;
+		else
+			qsl << "";
+
+	LanguageTexts text(qsl);	// sets id from longest text, which is now 'search'
+
+	return contains(text.ID) ? &(*this)[text.ID] : nullptr;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+LanguageTexts* TextMap::Find(const QStringList& texts)
+{
+	LanguageTexts text(texts);
+	return contains(text.ID) ? &(*this)[text.ID] : nullptr;
+}
+
+/*============================================================================
+  * TASK:	  Check if a different text with the same ID as of 'text'is
+  *				already on the list
+  * EXPECTS:  'text': text to check for, its ID is set (may be the base ID,
+  *				may be the real ID)
+  * RETURNS:  collision count and 'usageCount'
+  * GLOBALS:
+  * REMARKS:  - does not change the data base
+  *			  - If the text is not yet in data base usageCount is 0
+  *			  - if it is in data base then 'usageCount' is set to the
+  *				1 + usage count of it and the collision count is the same as for
+  *				the existing text
+  *			  - if there's at least one other text with the same ID as 'text'
+  *				(ID collision -'text.ID' may be base ID or a collided one),
+  *				ID of the new text is : BASE_ID + collision count * ID_INCREMENT
+ *--------------------------------------------------------------------------*/
+int TextMap::Collision(LanguageTexts& text, int& usageCount) const
+{
+	int64_t id = text.ID;
+	usageCount = 0;
+	int collision = (id & BASE_ID_MASK) >> 32;	// get original collision from id
+	while (contains(id))	// with maybe different text
+	{
+		const LanguageTexts& textInMap = operator[](id);
+		if (text == textInMap)	// then all language texts matched i.e.
+		{						// this text is already in data base
+			usageCount = textInMap.usageCount; // usageCount is not changed +1;
+			return collision;
+		}
+		++collision;
+		id += ID_INCREMENT;		// try next ID
+	}
+	return collision;
+}
+
+/*============================================================================
+* TASK:		Add an existing text to the text map
+* EXPECTS: text - has non 0 base ID and no text.collision set
+*		   added - (output parameter) signals if new text was added or the
+*					ID of an existing one is returned
+* GLOBALS:'_textMap'
+* RETURN: ID of text added / found
+* REMARKS: - if the same text is in _textMap already just increments its usage count
+*			else adds it to '_textMap'
+*		   - the text ID may be modified if a different text with this id
+*			is already on the list
+*		   - two texts are only identical if all language texts are the same
+*--------------------------------------------------------------------------*/
+int64_t TextMap::Add(LanguageTexts& text, bool& added)
+{
+	int usageCount,
+		collision = Collision(text, usageCount);
+	added = usageCount == 0;		// should add?
+	if (added)
+	{
+		text.ID = (text.ID & BASE_ID_MASK) + collision * ID_INCREMENT;
+		text.collision = collision;
+	}
+	++text.usageCount;
+	(*this)[text.ID] = text;
+	return text.ID;
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS: texts - as many texts as tehere are languages
+*		   added - output parameter signals if new text was added or the
+*					ID of an existing one is returned
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+int64_t TextMap::Add(QStringList& texts, bool& added)
+{
+	LanguageTexts txt(texts);
+	return Add(txt, added);
+}
+
+/*============================================================================
+* TASK:	decrements usage count and removes text from map if the usage count becomes 0
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void TextMap::Remove(int64_t id)
+{
+	LanguageTexts* pt = nullptr;
+	if (!contains(id))
+		return;
+
+	pt = &(*this)[id];
+	if (--pt->usageCount == 0)
+		remove(id);
 }
 

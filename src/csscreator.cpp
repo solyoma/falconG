@@ -356,6 +356,53 @@ void CssCreator::_CreateForLightboxTitle()
 	overflow:auto;
 }
 
+#lightbox-controls {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    visibility: hidden; /* Hidden until the mouse is near the edges */
+}
+
+#close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#prev-btn,
+#next-btn {
+    font-size: 50px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#prev-btn {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+}
+
+#next-btn {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+/* Show controls when mouse is near the edges */
+#lightbox:hover #lightbox-controls {
+    visibility: visible;
+}
 #lb-flex {
 	display: flex;
 	flex-direction:column;

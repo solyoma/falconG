@@ -18,7 +18,7 @@ class AlbumStructWriterThread : public QThread
 {
 	Q_OBJECT
 
-		QMutex _albumMapStructIsBeingWritten;
+	QMutex _albumMapStructIsBeingWritten;
 
 	TextMap& _textMap;		// all texts for all albums and inmages
 	AlbumMap& _albumMap;	// all source albums
@@ -28,11 +28,14 @@ class AlbumStructWriterThread : public QThread
 	bool _recordChanges=false;	// when true then all changed albums will be marked as such
 	QTextStream _ofs;
 
+	void _WriteImageRecord(Image* pImg, QString indent);
 	void _WriteStructImage(Album &album, ID_t id, QString indent);
 	void _WriteStructVideo(Album &album, ID_t id, QString indent);
 	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
 	void _WriteStructAlbums(Album& album, QString indent);
-	void WriteOrphanThumbnails();
+	void _WriteLanguageTable();
+	void _WritePathsTable();	// ID - PATH
+	void _WriteOrphanThumbnails();
 
 signals:
 	void resultReady(QString s, QString sStructPath, QString sStructTmp);
