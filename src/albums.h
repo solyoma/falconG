@@ -100,33 +100,13 @@ struct IABase
 	// QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'	  @ just until path ids implemented
 	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
 
-	IABase &operator=(const IABase &a)
-	{
-		ID		=  a.ID		;
-		changed =  a.changed;
-		titleID =  a.titleID;
-		descID	=  a.descID	;
-		name    =  a.name   ;
-		pathId  =  a.pathId   ;
-		return *this;
-	}
+	IABase& operator=(const IABase& a);
 
-	bool Valid() const { return ID.Val(); }
-	bool Exists(bool bPhysicalCheck = DONTCHECK)
-	{ 
-		if (bPhysicalCheck)
-			ID.SetFlag(EXISTING_FLAG, QFile::exists(FullSourceName()));
-		return ID.TestFlag(EXISTING_FLAG); 
-	}
+	bool Valid() const;
+	bool Exists(bool bPhysicalCheck = DONTCHECK);
 
-	QString Extension() const { int pos = name.lastIndexOf('.'); return(pos >= 0 ? name.mid(pos) : ""); }
-	IAType Type() const
-	{
-		if (ID.IsImage()) return iatImage;
-		if (ID.IsVideo()) return iatVideo;
-		if (ID.IsAlbum()) return iatAlbum;
-		return iatUnknown;
-	}
+	QString Extension() const;
+	IAType Type() const;
 	QString FullSourceName() const;
 	QString ShortSourcePathName() const;	// cuts the common part of paths (config.dsSrc)
 	QString LinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
@@ -153,70 +133,10 @@ struct Image : public IABase
 
 	bool	bDestFileChangedOrMissing;		// from width and height
 
-	/*=============================================================
-	 * TASK   :
-	 * PARAMS : destSize: invalid (-1,-1) if destination does not exist
-	 *						otherwise size of existing file
-	 * EXPECTS: - file name osize and perhaps dsize and
-	 *			  last upload time are set from database
-	 *			- 
-	 * GLOBALS:
-	 * RETURNS: nothing
-	 * REMARKS:	- sets 'rsize' to the required destination size
-	 *			- sets 'bDestFileChangedOrMissing' true if 'rsize' and 'dsize' are different
-	 *					or 'destSize' is different from 'rsize'
-	 *------------------------------------------------------------*/
-	void GetResizedDimensions(QSize& destSize)	// 'destSize' is size of existing destination image or -1,-1
-	{							// if destination image does not exist or a wrong size
-		rsize = osize;			// recalculate destination size into 'rsize' 
-		QSize csize = config.ImageSize();	// required destination image dimensions
+	void GetResizedDimensions(QSize& destSize);
+	void SetThumbSize();
 
-		if (!dontResize &&		// can resize and
-				( 				// original size is too big
-					(osize.width() > csize.width() || osize.height() > csize.height()) ||
-								// original size is to small and enlargement is allowed
-					(!config.doNotEnlarge && osize.width() < csize.width() && osize.height() < csize.height())
-				)
-			)
-			rsize.scale(csize, Qt::KeepAspectRatio);	// calculate destination size
-		auto sizediff = [&](QSize& dSize) -> bool
-			{
-				return (abs(rsize.width() - dSize.width()) > 2) || (abs(rsize.height() - dSize.height()) > 2);
-			};
-
-			// and compare it with previous size (if any given)
-			// dsize can be 0,0 if no destination image exists or specified
-		bDestFileChangedOrMissing = !destSize.isValid() ||							// no dest. file: must create, or
-							(dsize.isEmpty() && sizediff(destSize)) ||	// dsize is not set, but destSize is valid and set
-							(!dsize.isEmpty() && sizediff(dsize));		// dsize is set but different from required size
-
-		SetThumbSize();
-		//if (tsize.width() > ctsize.width())	// crop thumbnail from image
-		//{
-		//	// was TODO but now cropping and distorsion is set into falconG.css !
-		//}
-	}
-
-	void SetThumbSize()
-	{
-		QSize ctsize= config.ThumbSize();
-		tsize = osize;
-		// get minimum size that fills the 'tsize' rectangle. It may extend outside the allowed rectangle
-		tsize.scale(ctsize, Qt::KeepAspectRatio);
-		// thumbnails must have the vertical size the same as in ctsize
-		if (tsize.height() != ctsize.height())
-		{
-			tsize.setWidth(round((double)ctsize.height() / (double)tsize.height() * tsize.width()));
-			tsize.setHeight(ctsize.height());
-		}
-	}
-
-	void SetNewDimensions()
-	{
-		if (dsize.width() == 0)	   // image did not exist
-			GetResizedDimensions(dsize);
-		dsize = rsize;
-	}
+	void SetNewDimensions();
 
 	enum SearchCond : int { byID,		// ID only
 							byBaseID,	// ID for image w. o path: compare names (no path) as well
@@ -228,30 +148,12 @@ struct Image : public IABase
 
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image& i);
-	double Aspect() 
-	{ 
-		if (_aspect) 
-			return _aspect; 
-		return _aspect = (osize.height() > 0) ? (double)osize.width() / (double)osize.height() : 1.0;
-	}
-	double ThumbAspect()
-	{
-		if (config.ImageAndThumbAspectDiffer())
-			return config.ThumbAspect();
-		else 
-			return _aspect;
-	}
+	double Image::Aspect();
+	double Image::ThumbAspect() const;
 
 	QTextStream & WriteInfo(QTextStream &ofs) const;
-	void SetResizeType()
-	{
-		if (name.length() > 2 && name[0] == '!' && name[1] == '!')
-		{
-			name = name.mid(2);
-			dontResize = true;
-		}
-
-	}
+	void SetResizeType();
+	bool IsOrphan() const { return thumbnailCount && !usageCount;  }
 
 private:
 	double _aspect = 0;			// for actual image
@@ -350,7 +252,8 @@ public:
 
 	Image *Find(ID_t id, bool useBase = true);
 	Image *Find(QString FullSourceName);
-	ID_t Add(QString image, bool &added, uint64_t orphanID=0);	// returns ID and if added
+	ID_t Add(QString image, bool &added, bool isThumbnail=false);	// returns ID and if added
+	void Remove(ID_t id, bool isThumbnail);
 	Image &Item(int index);
 };
 
@@ -432,23 +335,8 @@ public:
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
-	void SetAlbumModified(Album& album)
-	{
-
-		if (_slAlbumsModified.indexOf(album.ID) < 0)
-		{
-			_slAlbumsModified << album.ID;
-			album.changed = true;
-		}
-	}
-	void SetAlbumModified(ID_t albumId)		// albumId must be valid
-	{ 
-		if (_slAlbumsModified.indexOf(albumId) < 0)
-		{
-			Album& album = _albumMap[albumId];
-			SetAlbumModified(album);
-		}
-	}
+	void SetAlbumModified(Album& album);
+	void SetAlbumModified(ID_t albumId);		// albumId must be valid
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	int ActLanguage() const { return _actLanguage; }

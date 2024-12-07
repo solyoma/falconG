@@ -115,11 +115,11 @@ int QuestionDialog(QString title, QString text, Enums::DialogBitsOrder show, QWi
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 {
 	QString plurali = QObject::tr("images"), plurala = QObject::tr("albums");   // plural for image and album. May differ in other languages
-	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk, or just to remove them from gallery?")
+	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk \n(including items and sub-albums for album),\n or just to remove them from gallery?")
 		.arg(list.size() > 1 ? plurali : QObject::tr("image"))
 		.arg(list.size() > 1 ? plurala : QObject::tr("album"));
 	QMessageBox msg;
-	msg.setWindowTitle(QObject::tr("falconG - Question"));
+	msg.setWindowTitle(QObject::tr("falconG - Delete Images and albums"));
 	msg.setText(qs);
 	msg.addButton(QObject::tr("Just remove"), QMessageBox::NoRole);               // 0
 	msg.addButton(QObject::tr("From disk"), QMessageBox::YesRole);                // 1

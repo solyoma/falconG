@@ -249,7 +249,7 @@ void AlbumStructWriterThread::_WriteOrphanThumbnails()
 {
 	_ofs << ORPHAN_ID << "\n";
    for(auto &img : _imageMap)
-	   if (img.ID.IsOrphan())
+	   if (img.IsOrphan())
 	   {
 		   Image* pImg;
 		   QString s;

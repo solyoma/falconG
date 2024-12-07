@@ -57,7 +57,7 @@ static uint64_t CalcCrc(const QString& str, bool isContent)
 	return id;
 }
 
-
+		// ******************* PathMap ********************
 uint64_t PathMap::_CalcId(const QString&path)
 {
 	uint64_t id = CalcCrc(path, false);
@@ -153,6 +153,231 @@ QTextStream& operator<<(QTextStream& ofs, const PathMap& map)
 	return ofs;
 }
 
+// ****************** IABase ***************
+
+IABase& IABase::operator=(const IABase& a)
+{
+	ID = a.ID;
+	changed = a.changed;
+	titleID = a.titleID;
+	descID = a.descID;
+	name = a.name;
+	pathId = a.pathId;
+	return *this;
+}
+
+bool IABase::Valid() const { return ID.Val(); }
+bool IABase::Exists(bool bPhysicalCheck)
+{
+	if (bPhysicalCheck)
+		ID.SetFlag(EXISTING_FLAG, QFile::exists(FullSourceName()));
+	return ID.TestFlag(EXISTING_FLAG);
+}
+
+QString IABase::Extension() const { int pos = name.lastIndexOf('.'); return(pos >= 0 ? name.mid(pos) : ""); }
+IABase::IAType IABase::Type() const
+{
+	if (ID.IsImage()) return iatImage;
+	if (ID.IsVideo()) return iatVideo;
+	if (ID.IsAlbum()) return iatAlbum;
+	return iatUnknown;
+}
+
+QString IABase::FullSourceName() const
+{
+	QString path = Path();
+	return config.AddSourceToPath(path + name);				// does not end with '/'
+}
+
+/*============================================================================
+  * TASK:	 Returns the path name relative to dsSrc
+  * EXPECTS:
+  * RETURNS:
+  * GLOBALS:
+  * REMARKS:
+ *--------------------------------------------------------------------------*/
+QString IABase::ShortSourcePathName() const
+{
+	QString path = Path();
+	return config.RemoveSourceFromPath(path + name);
+}
+
+QString IABase::LinkName(bool bLCExtension) const
+{
+	if (ID.Val())
+	{
+		int pos = name.lastIndexOf('.');
+		QString ext = name.mid(pos);
+		if (bLCExtension)
+			ext = ext.toLower();
+		return QString().setNum(ID.Val()) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
+	}
+	else
+		return name;
+}
+
+QString IABase::FullLinkName(bool bLCExtension) const
+{
+	QString s = LinkName(bLCExtension);
+	return config.dsGallery.ToString() + s;
+}
+
+QString IABase::Path() const
+{
+	return pathMap.Path(pathId);
+}
+
+uint64_t IABase::SetPathId(QString fromPath)
+{
+
+	return 0;
+}
+
+/**************************** Image *****************************/
+int Image::operator<(const Image& i)
+{
+	switch (searchBy)
+	{
+	case byID: return ID < i.ID;
+	case byName: return name < i.name;
+	default: return pathId < i.pathId || (pathId == i.pathId && name < i.name);
+	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+bool Image::operator==(const Image& i)
+{
+	switch (searchBy)
+	{
+	case byID: return ID == i.ID;
+	case byBaseID: return (ID.Val()) == (i.ID.Val()) ? (name.toLower() == i.name.toLower() ? true : false) : false;
+	case byName: return name == i.name;
+	default: return pathId == i.pathId && name == i.name;
+	}
+}
+
+/*============================================================================
+* TASK:  writes image info as
+*			<image name = ID.jpg> (size, WxH, OWxOH, date)<path. rel. to src>
+* EXPECTS:
+* GLOBALS:
+* REMARKS: If image does not exist writes the image path into the file
+*			without any additional data
+*--------------------------------------------------------------------------*/
+QTextStream& Image::WriteInfo(QTextStream& _ofs) const
+{
+	QString fullSourceName = FullSourceName();
+	int len = config.dsSrc.Length();
+	if (fullSourceName.mid(0, len) == config.dsSrc.ToString())
+		fullSourceName = fullSourceName.mid(len);
+	if (ID.DoesExist())
+	{
+		_ofs << LinkName() << " ("
+			<< fileSize << ","
+			<< rsize.width() << "x" << rsize.height() << ","
+			<< osize.width() << "x" << osize.height() << ","
+			// ISO 8601 extended format: either yyyy-MM-dd for dates or
+			<< uploadDate.toString(Qt::ISODate)
+			<< ") => " << fullSourceName << "\n";
+	}
+	else
+		_ofs << name << "# not found\n";
+	return _ofs;
+}
+
+/*=============================================================
+ * TASK   :
+ * PARAMS : destSize: invalid (-1,-1) if destination does not exist
+ *						otherwise size of existing file
+ * EXPECTS: - file name osize and perhaps dsize and
+ *			  last upload time are set from database
+ *			-
+ * GLOBALS:
+ * RETURNS: nothing
+ * REMARKS:	- sets 'rsize' to the required destination size
+ *			- sets 'bDestFileChangedOrMissing' true if 'rsize' and 'dsize' are different
+ *					or 'destSize' is different from 'rsize'
+ *------------------------------------------------------------*/
+void Image::GetResizedDimensions(QSize& destSize)	// 'destSize' is size of existing destination image or -1,-1
+{							// if destination image does not exist or a wrong size
+	rsize = osize;			// recalculate destination size into 'rsize' 
+	QSize csize = config.ImageSize();	// required destination image dimensions
+
+	if (!dontResize &&		// can resize and
+		( 				// original size is too big
+			(osize.width() > csize.width() || osize.height() > csize.height()) ||
+			// original size is to small and enlargement is allowed
+			(!config.doNotEnlarge && osize.width() < csize.width() && osize.height() < csize.height())
+			)
+		)
+		rsize.scale(csize, Qt::KeepAspectRatio);	// calculate destination size
+	auto sizediff = [&](QSize& dSize) -> bool
+		{
+			return (abs(rsize.width() - dSize.width()) > 2) || (abs(rsize.height() - dSize.height()) > 2);
+		};
+
+	// and compare it with previous size (if any given)
+	// dsize can be 0,0 if no destination image exists or specified
+	bDestFileChangedOrMissing = !destSize.isValid() ||							// no dest. file: must create, or
+		(dsize.isEmpty() && sizediff(destSize)) ||	// dsize is not set, but destSize is valid and set
+		(!dsize.isEmpty() && sizediff(dsize));		// dsize is set but different from required size
+
+	SetThumbSize();
+	//if (tsize.width() > ctsize.width())	// crop thumbnail from image
+	//{
+	//	// was TODO but now cropping and distorsion is set into falconG.css !
+	//}
+}
+
+void Image::SetThumbSize()
+{
+	QSize ctsize = config.ThumbSize();
+	tsize = osize;
+	// get minimum size that fills the 'tsize' rectangle. It may extend outside the allowed rectangle
+	tsize.scale(ctsize, Qt::KeepAspectRatio);
+	// thumbnails must have the vertical size the same as in ctsize
+	if (tsize.height() != ctsize.height())
+	{
+		tsize.setWidth(round((double)ctsize.height() / (double)tsize.height() * tsize.width()));
+		tsize.setHeight(ctsize.height());
+	}
+}
+
+void Image::SetNewDimensions()
+{
+	if (dsize.width() == 0)	   // image did not exist
+		GetResizedDimensions(dsize);
+	dsize = rsize;
+}
+
+double Image::Aspect()
+{
+	if (_aspect)
+		return _aspect;
+	return _aspect = (osize.height() > 0) ? (double)osize.width() / (double)osize.height() : 1.0;
+}
+double Image::ThumbAspect() const
+{
+	if (config.ImageAndThumbAspectDiffer())
+		return config.ThumbAspect();
+	else
+		return _aspect;
+}
+
+void Image::SetResizeType()
+{
+	if (name.length() > 2 && name[0] == '!' && name[1] == '!')
+	{
+		name = name.mid(2);
+		dontResize = true;
+	}
+
+}
 
 //******************************************************
 AlbumGenerator	albumgen;		// global
@@ -324,63 +549,6 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 //	return CalcID(albumgen.Texts());
 //}
 
-/**************************** Image *****************************/
-int Image::operator<(const Image &i)
-{
-	switch (searchBy)
-	{
-		case byID  : return ID < i.ID;
-		case byName: return name < i.name;
-		default: return pathId < i.pathId || (pathId == i.pathId && name < i.name);
-	}
-}
-
-/*============================================================================
-* TASK:
-* EXPECTS:
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-bool Image::operator==(const Image &i)
-{
-	switch (searchBy)
-	{
-		case byID: return ID == i.ID;
-		case byBaseID: return (ID.Val()) == (i.ID.Val()) ? (name.toLower() == i.name.toLower() ? true : false) : false;
-		case byName: return name == i.name;
-		default: return pathId == i.pathId && name == i.name;
-	}
-}
-
-/*============================================================================
-* TASK:  writes image info as
-*			<image name = ID.jpg> (size, WxH, OWxOH, date)<path. rel. to src>
-* EXPECTS:
-* GLOBALS:
-* REMARKS: If image does not exist writes the image path into the file
-*			without any additional data
-*--------------------------------------------------------------------------*/
-QTextStream & Image::WriteInfo(QTextStream & _ofs) const
-{
-	QString fullSourceName = FullSourceName();
-	int len = config.dsSrc.Length();
-	if (fullSourceName.mid(0, len) == config.dsSrc.ToString())
-		fullSourceName = fullSourceName.mid(len);
-	if (ID.DoesExist())
-	{
-		_ofs << LinkName() << " ("
-			<< fileSize << ","
-			<< rsize.width() << "x" << rsize.height() << ","
-			<< osize.width() << "x" << osize.height() << ","
-			// ISO 8601 extended format: either yyyy-MM-dd for dates or
-			<< uploadDate.toString(Qt::ISODate)
-			<< ") => " << fullSourceName << "\n";
-	}
-	else
-		_ofs << name << "# not found\n";
-	return _ofs;
-}
-
 /**************************** ImageMap *****************************/
 /*============================================================================
 * TASK:
@@ -424,54 +592,59 @@ Image *ImageMap::Find(QString FullSourceName)
 * TASK: Add an image to the list of all images
 * EXPECTS:  path - full or config.dsSrc relative path name of the image
 *			added- output parameter: was this a new image?
-*			orphanID - != 0 for images not in any albums but used as album thumbnails
+*			isThumbnail - true: if this image is not used in any albums then
+*						it must be an orphan and appear in the orphan list
+*						in the config file.
+*					   false: if the image existed in imageMap and it was
+*						an orphan then it will not be an orphan any more	
 * GLOBALS: config
 * RETURNS: Id of image added + if it was added in 'added'
 * REMARKS: - Id of image is the CRC32 of the file name only
 *		   - If the same image ID is used and not added then
 * 			 the usage Count is increased
 *		   - If two images have the same name then 'config.bKeepDuplicates`
-*			determines what happens
-*				- when it is true and the two images are of different sizes
-*				or have different file sizes the newer or larger will be used
-*				- when it is false each image will have a different ID
+*				determines what happens:
+*				- true: if the two images are of different sizes
+*				        or have different file sizes the newer or larger will be used
+*				- false: each image will have a different ID
 *		   - when collisions occur adds a unique value above 0xFFFFFFFF to the ID
 *		   - even non-existing images are added to map
 *		   - if an image with the same name, but with different path is found
 *				and the one in the data base does not exist, replace the one
 *				in the data base with the new image even when it also does not exist
+*		   - if an image is already present in database and 
 *--------------------------------------------------------------------------*/
-ID_t ImageMap::Add(QString path, bool &added, uint64_t orphanID)	// path name of source image
+ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path name of source image
 {
-	QString basePath = config.dsSrc.ToString();	// common part of path is not stored
-
-	Image img;
-
-	SeparateFileNamePath(path, path, img.name);
-	img.SetResizeType();	// using img.name, handles '!!'
-
-	QString lastPath = pathMap.Path(lastUsedPathId);
-
-	if (path.isEmpty())
-		path = lastPath;
-
-	if (path.left(basePath.length()) == basePath)	// cut common path from image
-		path = path.mid(basePath.length());
-
-	if (!img.Exists(CHECK) && !QDir::isAbsolutePath(path) )	//img.Exists() sets EXISTING_FLAG if the image exists on disk
-	{
-		path = pathMap.Path(AlbumGenerator::lastUsedAlbumPathId);
-		img.ID.SetFlag(EXISTING_FLAG, QFile::exists(basePath + path + img.name));
-	}
-	AlbumGenerator::lastUsedAlbumPathId = lastUsedPathId;
-
-	img.pathId = pathMap.Add(path);
+	Image img, 
+		 *pImg = Find(pathName);
 
 	added = false;
-	// when orphanID is not 0 we are processing the orphan list and no other images are added yet to the data base
-	ID_t id = ID_t(IMAGE_ID_FLAG, orphanID ? orphanID : CalcCrc(img.name, false));	// just by name. CRC can but id.uid can never be 0
+	if (pImg)
+	{
+		if (forThumbNail)
+			++pImg->thumbnailCount;
+		else
+			++pImg->usageCount;
+		return pImg->ID;
+	}
+					  // now this is a new image, not yet in the data base
+	QString imgPath;
+	SeparateFileNamePath(pathName, imgPath, img.name);
+	img.SetResizeType();	// using img.name, handles '!!'
 
-	QFileInfo fi(path);		   // new (?) image to add
+	if (imgPath.isEmpty())
+		imgPath = pathMap.Path(lastUsedPathId);
+
+	img.pathId = pathMap.Add(imgPath);	// only adds if it is not already there
+
+	if (!img.Exists(CHECK))	// checks if the image exists on disk and sets EXISTING_FLAG in it if it does
+		return NOIMAGE_ID;
+
+	AlbumGenerator::lastUsedAlbumPathId = lastUsedPathId = img.pathId;
+	QFileInfo fi(pathName);		   // new image to add
+
+	ID_t id = ID_t(IMAGE_ID_FLAG, CalcCrc(img.name, false));	// just by name. CRC can but id.uid can never be 0
 
 	Image *found = Find(id); // check if a file with this same base id is already in data base?
 							  // can't use reference as we may want to modify 'found' below
@@ -493,7 +666,10 @@ ID_t ImageMap::Add(QString path, bool &added, uint64_t orphanID)	// path name of
 					if (found->Exists())
 						if (!img.Exists() || (img.Exists() && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
 						{
-							++found->usageCount;	// used again somewhere else
+							if (forThumbNail)
+								++found->thumbnailCount;
+							else
+								++found->usageCount;	// used again somewhere else
 							return found->ID;	    // do not change path as image already existed
 						}
 
@@ -517,11 +693,42 @@ ID_t ImageMap::Add(QString path, bool &added, uint64_t orphanID)	// path name of
 	added = true;
 	img.ID = id;
 
-	if (!orphanID)		// then added from one album
+	if (forThumbNail)		// then added from one album
+		++img.thumbnailCount;
+	else
 		++img.usageCount;
 
 	insert(id, img);
 	return id;
+}
+
+/*=============================================================
+ * TASK   : remove on image from imageMap
+ * PARAMS :	id: ID of image to remove
+ * EXPECTS:
+ * GLOBALS:	Image::usageCount, Image:: thumbnailCount
+ * RETURNS: none
+ * REMARKS: - if the usage count of the image is 0 and it is not
+ *				an orphan just the usage count is decreased
+ *			- if it is an orphan and thumbnailCount is not 0
+ *				just the thumbnailCount is decreased
+ *			- when bot usageCount and thumbnailCount is 0
+ *				the image data is removed from the data base
+ *			- if the image down't exis nothing happens
+ *------------------------------------------------------------*/
+void ImageMap::Remove(ID_t id, bool isThumbnail)
+{
+	if (!contains(id))
+		return;
+
+	Image* pimg = &(*this)[id];
+	if (isThumbnail && pimg->thumbnailCount)
+		--pimg->thumbnailCount;
+	else if (pimg->usageCount)
+		--pimg->usageCount;
+
+	if (!pimg->usageCount && !pimg->thumbnailCount)
+		remove(id);
 }
 
 /*============================================================================
@@ -709,6 +916,7 @@ ID_t Album::ThumbID()
  *------------------------------------------------------------*/
 ID_t Album::SetThumbnail(ID_t id)
 {
+	id.SetFlag(~TYPE_FLAGS, false);
 	ID_t oldThumbnail = thumbnailId;
 	thumbnailId = id;
 	if(albumgen.Contains(id))
@@ -2883,6 +3091,40 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 					// recursive album read. there is only one top level album
 					// with id == TOPMOST_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, { ALBUM_ID_FLAG, NO_ID }, 0);	// parent ID is 0 for root album!
+#ifdef DEBUG
+			{
+				// DEBUG
+				QFile f("falconG-paths.dbg.txt");
+				f.open(QIODevice::WriteOnly);
+				QTextStream ofs(&f);
+				for (auto &a : _albumMap)
+				{
+					QString sP;
+					if (a.pathId == 1)
+						sP = QString("(root)");
+					else
+						sP = pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("id:%1 not found").arg(a.pathId);
+					ofs  << sP << " : " << a.name << "\n";
+				}
+				// /DEBUG
+			}
+			{
+				// DEBUG
+				QFile f("falconG-img-paths.dbg.txt");
+				f.open(QIODevice::WriteOnly);
+				QTextStream ofs(&f);
+				for (auto &a : _imageMap)
+				{
+					QString sP;
+					if (a.pathId == 1)
+						sP = QString("(root)");
+					else
+						sP = pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("id:%1 not found").arg(a.pathId);
+					ofs  << sP << " : " << a.name << "\n";
+				}
+				// /DEBUG
+			}
+#endif
 			if (error)
 				throw BadStruct(reader.ReadCount(),tr("Error"));
 		}
@@ -4911,57 +5153,6 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 		tprev = tAct;
 	}
 }
-
-QString IABase::FullSourceName() const
-{
-	QString path = Path();
-	return config.AddSourceToPath(path + name);				// does not end with '/'
-}
-
-/*============================================================================
-  * TASK:	 Returns the path name relative to dsSrc
-  * EXPECTS:
-  * RETURNS:
-  * GLOBALS:
-  * REMARKS:
- *--------------------------------------------------------------------------*/
-QString IABase::ShortSourcePathName() const
-{
-	QString path = Path();
-	return config.RemoveSourceFromPath(path + name);
-}
-
-QString IABase::LinkName(bool bLCExtension) const
-{
-	if (ID.Val())
-	{
-		int pos = name.lastIndexOf('.');
-		QString ext = name.mid(pos);
-		if (bLCExtension)
-			ext = ext.toLower();
-		return QString().setNum(ID.Val()) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
-	}
-	else
-		return name;
-}
-
-QString IABase::FullLinkName(bool bLCExtension) const
-{
-	QString s = LinkName(bLCExtension);
-	return config.dsGallery.ToString() + s;
-}
-
-QString IABase::Path() const
-{
-	return pathMap.Path(pathId);
-}
-
-uint64_t IABase::SetPathId(QString fromPath)
-{
-
-	return 0;
-}
-
 Video* VideoMap::Find(ID_t id, bool useBase)
 {
 	uint64_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
@@ -5127,6 +5318,9 @@ QString Video::AsString(int width, int height)
  * REMARKS:	- if any item to be deleted is a folder all files inside
  *			  it will be deleted, even if they were not in the data base
  *			- tries to move files into trashcan/recycle bin first
+ *			- only deletes images when no album contains them and
+ *				they are not used as thumbnails either. Otherwise
+ *				just decrement the counters
  *------------------------------------------------------------*/
 void AlbumGenerator::_RemoveItem(ID_t id, bool fromDisk)
 {
@@ -5195,7 +5389,7 @@ void AlbumGenerator::_RemoveAllItems(ID_t albumID, bool fromDisk)
 {
 	Album& album = _albumMap[albumID];
 	QString path;
-	for (auto id : album.items)
+	for (auto &id : album.items)
 		_RemoveItem(id, fromDisk);
 	album.items.clear();
 	albumgen.SetAlbumModified(album);
@@ -5261,4 +5455,22 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 	albumgen.WriteDirStruct(true);								// keep .struct~ file and create a new backup from the original
 						//emit SignalAlbumStructChanged(true);						// album structure changed and not yet saved
 	emit SignalAlbumStructChanged(false);						// album structure changed and saved
+}
+
+void AlbumGenerator::SetAlbumModified(Album& album)
+{
+
+	if (_slAlbumsModified.indexOf(album.ID) < 0)
+	{
+		_slAlbumsModified << album.ID;
+		album.changed = true;
+	}
+}
+void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
+{
+	if (_slAlbumsModified.indexOf(albumId) < 0)
+	{
+		Album& album = _albumMap[albumId];
+		SetAlbumModified(album);
+	}
 }

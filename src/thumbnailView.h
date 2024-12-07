@@ -359,6 +359,7 @@ public slots:
 	void NewFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
+	void OpenAlbumThumbnail();			// any image for an album thumbnal
 	void SetAsAlbumThumbnail();			// from existing image/album image
 	void ToggleDontResizeFlag();
 	void SelectAsAlbumThumbnail();

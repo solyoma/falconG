@@ -135,7 +135,7 @@ const uint8_t INVALID_ID_FLAG = 0x00;
 const uint8_t IMAGE_ID_FLAG = 0x01;	// when set ID is for a image
 const uint8_t VIDEO_ID_FLAG = 0x02;	// when set ID is for a video
 const uint8_t ALBUM_ID_FLAG = 0x04;	// when set ID is for an album (used for albums as folder thumbnails)
-const uint8_t THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
+// removed: thumbnailCount is used instead   const uint8_t THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
 const uint8_t EXCLUDED_FLAG = 0x20;
 const uint8_t ORPHAN_FLAG	= 0x40;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
 const uint8_t EXISTING_FLAG = 0x80;	// on albums this signals a real folder on disk Otherwise it is a logical album
@@ -145,7 +145,7 @@ const uint8_t TYPE_FLAGS	= 0x0F;
 class ID_t
 {
 	uint64_t _uval = 0;
-	uint8_t _flags=0;			// types and other _flags  (see enums.h)
+	uint8_t _flags=0;			// types and other _flags 
 public:
 	ID_t() {}
 	ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags) {}
@@ -186,8 +186,6 @@ public:
 	constexpr inline bool IsAlbum() const		{ return _flags & ALBUM_ID_FLAG; }
 	constexpr inline bool IsExcluded() const	{ return _flags & EXCLUDED_FLAG; }
 	constexpr inline bool IsImage() const		{ return _flags & IMAGE_ID_FLAG; }
-	constexpr inline bool IsOrphan() const		{ return _flags & ORPHAN_FLAG;	 }
-	constexpr inline bool IsThumbnail() const	{ return _flags & THUMBNAIL_FLAG;}
 	constexpr inline bool IsVideo() const		{ return _flags & VIDEO_ID_FLAG; }
 	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
 };

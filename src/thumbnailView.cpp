@@ -1642,7 +1642,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     {       // 2 albums always added to AlbumMap: root and latest
         if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
         {
-            pact = new QAction(tr("Select Album Thumbnail..."), this);  // any image
+            pact = new QAction(tr("Select As Album Thumbnail..."), this);  // any image
             connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);
             menu.addAction(pact);
 
@@ -1670,10 +1670,20 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 
             if (exists)
             {
-                pact = new QAction(tr("Set As Album &Thumbnail"), this);
-                // select from existing image
-                connect(pact, &QAction::triggered, this, &ThumbnailView::SetAsAlbumThumbnail);
-                menu.addAction(pact);           // select any image
+                if (pItem->ID.IsAlbum())
+                {
+                    pact = new QAction(tr("Bro&wse for Album Thumbnail..."), this);
+                    connect(pact, &QAction::triggered, this, &ThumbnailView::OpenAlbumThumbnail);
+                    menu.addAction(pact);           // select any image
+                }
+                if(!pItem->ID.IsAlbum() || (pItem->ID.IsAlbum() && !albumgen.ImageAt(reinterpret_cast<Album*>(pItem)->thumbnailId)->Exists()))
+				{
+					pact = new QAction(tr("Set As &Thumbnail for Container"), this);
+					menu.addAction(pact);           // select image of this item
+					connect(pact, &QAction::triggered, this, &ThumbnailView::SetAsAlbumThumbnail);
+					menu.addAction(pact);           // select any image
+				}
+                menu.addSeparator();
             }
             else
             {
@@ -1775,7 +1785,7 @@ void ThumbnailView::invertSelection()
  *		 into undo buffer
  * EXPECTS: albumId - id of album whose child/children are to be removed
  *          list    - list of IDs to remove from album's items
- *          iconsForThisAlbum - should we remove the icon(s) too<
+ *          iconsForThisAlbum - should we remove the icon(s) too?
  * GLOBALS:
  * RETURNS:
  * REMARKS: does not delete generated images, videos and albums 
@@ -2137,6 +2147,38 @@ void ThumbnailView::CopyOriginalNamesToClipboard()
 	QClipboard *clipboard = QGuiApplication::clipboard();
 	clipboard->clear();
 	clipboard->setText(s);
+}
+
+/*=============================================================
+ * TASK   : opens any image to be used as thumbnail of an album
+ *          no matter if the album item already has a thumbnail
+ * PARAMS :
+ * EXPECTS: popup menu called for an album inside the actual one,
+ *          which always has items
+ * GLOBALS: albumgen
+ * RETURNS: nothing
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailView::OpenAlbumThumbnail()
+{
+    int pos = currentIndex().row();     // new thumbnail index for actual item
+    ID_t parentId = _albumId;
+    Album* pParent =  &albumgen.Albums()[_albumId]; 
+    // get actual selected album inside parent
+    Album *album = pParent ? &albumgen.Albums()[ pParent->items[pos]] : &albumgen.Albums()[_albumId];
+    QString s = album->FullSourceName();
+
+    QString filter = tr("Image files (*.bmp *.gif *.jpg *.png)");
+
+    s = QFileDialog::getOpenFileName(this, tr("falconG - Open file for Thumbnail"), s, filter);
+                                            
+    if (!s.isEmpty())
+    {
+        bool added;
+        ID_t id = albumgen.Images().Add(s, added, true);      // will not add it when it is already in data base
+        album->SetThumbnail(id);
+        Reload();
+    }
 }
 
 /*============================================================================
