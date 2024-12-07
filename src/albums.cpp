@@ -916,7 +916,7 @@ ID_t Album::ThumbID()
  *------------------------------------------------------------*/
 ID_t Album::SetThumbnail(ID_t id)
 {
-	id.SetFlag(~TYPE_FLAGS, false);
+	id.SetFlag(uint8_t(~TYPE_FLAGS), false);
 	ID_t oldThumbnail = thumbnailId;
 	thumbnailId = id;
 	if(albumgen.Contains(id))
@@ -3308,6 +3308,9 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 	while (!_structWritten)		// before changing again wait for previous write to finish
 		;
 
+	if (!_structChanged)
+		return 0;
+
 	_structWritten = false;
 	pWriteStructThread = new AlbumStructWriterThread(*this, keep);
 	connect(pWriteStructThread, &AlbumStructWriterThread::resultReady, this, &AlbumGenerator::_WriteStructReady);
@@ -4006,19 +4009,37 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	int nLightboxable = const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount();
 	if (nLightboxable)
 	{
+		/*
+		* <div id='lightbox'>
+			<div id='lb-container'>
+		  <button id='lb-close-btn' onclick="LightBoxFadeOut()">&#10005;</button>
+		  <div class="left-edge"></div>
+		  <button id="lb-prev-btn" onclick="PrevIMage()" >&#10094;</button>
+		  <img id="lightbox-img" src="" onclick="LightBoxFadeOut()" alt="Teljes méret/Full size">
+		  <div class="right-edge"></div>
+		  <button id="lb-next-btn" onclick="NextIMage()" >&#10095;</button>
+		 <p id="lightbox-caption" class="lightbox-caption"></p>
+	 </div>
+   </div>
+		*/
 		_ofs << 
         "<!--Lightbox for displaying full-size images-->\n\n"
 					"   <div id='lightbox'>\n"
-					"     <div id='lightbox-controls'>\n"
-					"      <button id='close-btn'>&#2715;</button>";	// close button
-		if (nLightboxable > 1)							// next and prev. buttons
-		{
-			_ofs << "      <button id=\"prev-btn\">&#10094;</button>\n"
-					"      <button id=\"next-btn\">&#10095;</button>\n"
-					"     </div>\n";
+					"	 <div id='lb-container'>\n"				// vertical layout
+					"       <button id='lb-close-btn' onclick='LightboxFadeOut()'> &#x2715; </button>\n";	// close button: always present	   
+		if (nLightboxable > 1)							
+		{					// next and prev. buttons only when more than 1 image
+			_ofs << "		<div class=\"left-edge\"></div>\n"
+					"       <button id=\"lb-prev-btn\" onclick='PrevImage()'>&#10094;</button>\n"
+					"		<div class=\"right-edge\"></div>\n"
+					"       <button id=\"lb-next-btn\" onclick='NextImage()'>&#10095;</button>\n";
 		}
-		_ofs <<		"     <img id=\"lightbox-img\" src=\"\" onclick=\"LightBoxFadeOut()\" alt=\"Teljes méret/Full size\">\n"
-					"	  <p id=\"lightbox-caption\" class=\"lightbox-caption\"></p>\n"
+							// image and caption are always present
+		_ofs <<		"	  <div class='lb-image-wrapper'\n>"
+					"	     <img id=\"lightbox-img\" src=\"\" onclick=\"LightboxFadeOut()\" alt=\"Teljes méret/Full size\">\n"
+					"	  </div>"
+					"	  <p id=\"lightbox-caption\"></p>\n"
+					"	 </div>\n"	// lb-container
 					"   </div>\n"	// for lightbox
 					"<!--Lightbox  end-->\n\n";
 	}
@@ -4058,7 +4079,9 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int idIndex)
 {
-	bool isAlbum = (typeFlag & ALBUM_ID_FLAG);
+	bool isAlbum = (typeFlag & ALBUM_ID_FLAG),
+		 isImage = (typeFlag & IMAGE_ID_FLAG),
+		 isVideo = (typeFlag & VIDEO_ID_FLAG);
 
 	IdList& idList = album.items;
 	if (idIndex >= 0 && idList.isEmpty())
@@ -4071,8 +4094,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 	QString title, desc, sImageDir, sImagePath, sThumbnailDir, sThumbnailPath;
 
 	QString sOneDirUp, sAlbumDir;
-	if (isAlbum && !album.Exists())
-		return -1;
+	//if (isAlbum && !album.Exists())
+	//	return -1;
 
 	if (album.ID == TOPMOST_ALBUM_ID )
 	{
@@ -4116,14 +4139,17 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 		else
 			pImage = &_imageMap[NOIMAGE_ID];
 	}
-	else
+	else if(isImage)
 	{
 		pImage = &_imageMap[id];
-		if (!pImage->ID.DoesExist())	// then exclude it
-		{
-			album.items[idIndex].SetFlag(EXCLUDED_FLAG);
-			return -2;
-		}
+		if (!pImage->Exists(CHECK))	
+			pImage = &_imageMap[NOIMAGE_ID];
+	}
+	else		// video
+	{
+		pImage = &_imageMap[_videoMap[id].thumbnailId];
+		if (!pImage->Exists(CHECK))	
+			pImage = &_imageMap[NOIMAGE_ID];
 	}
 
 	if (pImage)

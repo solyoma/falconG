@@ -176,11 +176,11 @@ function falconGLoad(latest) {
 
 // ********************************************************* Show lightbox
 
-function LightboxFadeInOut() {
+function FadeInOut(fadeIn) {
     var elem = document.getElementById('lightbox');
 
-    var op, sop=elem.opacity, eop, dop;
-    if (sop) {
+    var op, sop, eop, dop;
+    if (fadeIn) {
         sop = 0;    // start opacity
         eop = 1;    // end opacity
         dop = 0.1   // delta opacity
@@ -192,7 +192,9 @@ function LightboxFadeInOut() {
     }
     op = sop;       // opacity
     elem.style.opacity = sop;
-    elem.style.display = eop ? "none" : "block";
+	elem.style.display = "block";
+	
+	console.log(elem.style.display);
 
     var intv = setInterval(showlb, 100); // timer id
     function showlb() {
@@ -208,6 +210,17 @@ function LightboxFadeInOut() {
         }
     }
 }
+function LightboxFadeIn() {
+    if (document.getElementById('lightbox').opacity == 1)
+        return;
+    FadeInOut(true)
+}
+function LightboxFadeOut() {
+    if (document.getElementById('lightbox').opacity < 1)
+        return;
+    FadeInOut(false)
+}
+
 function LoadAlbum(album) {
     window.location.href=album;
 }
@@ -233,5 +246,5 @@ function ShowImage(img, caption) {
     }
     image.setAttribute('src', img);
 	
-    LightboxFadeInOut();
+    LightboxFadeIn();
 }

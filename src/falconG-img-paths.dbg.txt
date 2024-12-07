@@ -413,7 +413,7 @@ Utazasok/Hollandia/ : D750_29142-Edit.jpg
 Utazasok/Kina/02-Peking/ : Z63_01626.jpg
 Termeszet/Novenyek/ : 7_04460-61-62.jpg
 Utazasok/Svédország/Grundsung/ : D750_77460.jpg
-Utazasok/Ausztria/ : Werfen_3593mod3.jpg
+Utazasok/Ausztria/ : 3593_Werfen.jpg
 Utazasok/Ausztria/Karintia/Burg Hochostervitz/ : 15032_BurgHochOsterwitz.jpg
 Utazasok/Nemetorszag/2022/Schwerin/ : D750_64031.jpg
 Utazasok/Franciaorszag/A Loire volgye/Cheverny/ : Cheverny_5758.jpg
@@ -3143,7 +3143,7 @@ Utazasok/Ausztria/Karintia/Gerlitzen/ : 14065_Gerlitzen.jpg
 Utazasok/Hollandia/Pride/ : D750_29870.jpg
 Utazasok/Spanyolorszag/2024/Cádiz/ : D750_82129.jpg
 Utazasok/Gorogorszag/Fira/ : 3332_Santorini_FiraMod.jpg
-Utazasok/Ausztria/ : _3144lightBorder.jpg
+Utazasok/Ausztria/ : 3144.jpg
 Utazasok/Portugalia/Lisbon/ : CIMG4465.jpg
 Utazasok/Nemetorszag/2016/03/ : Erfurt_15933.jpg
 Vegyes/18plus/EK 2005/ : dancer_2330.jpg
@@ -5314,7 +5314,7 @@ Utazasok/Irorszag/NI/ : D750_45877-Ulster.jpg
 Utazasok/Izland/jeges/ : D750_66226.jpg
 Utazasok/Kina/02-Peking/ : Z63_01644.jpg
 Utazasok/Nemetorszag/2016/06/ : Bacharach_17155-Edit.jpg
-Utazasok/Ausztria/ : 3159rawPBnoise_birdhouse_Schönbrunn_mod.jpg
+Utazasok/Ausztria/ : 3159_Schönbrunn.jpg
 Utazasok/Portugalia/Lisbon/ : D750_07465.jpg
 Vegyes/Fenyevolucio/ : EvolutionOfLight_10121.jpg
 Utazasok/Nemetorszag/2017/nurnberg/ : Nurnberg_D750_27072.jpg
@@ -6541,7 +6541,7 @@ Magyarorszag/Koszeg/ : D750_11985-Edit.jpg
 Utazasok/Hollandia/ : D750_27363.jpg
 Utazasok/Olaszorszag/Roma/ : _N1_2218.jpg
 Utazasok/Spanyolorszag/2024/Sevilla/ : D750_81722.jpg
-Utazasok/Ausztria/ : Werfen_3610mod1.jpg
+Utazasok/Ausztria/ : 3610_Werfen.jpg
 Utazasok/Nemetorszag/2016/08/ : Freiburg_18687-Edit.jpg
 Utazasok/Ausztria/Karintia/Villach/Majmok/ : 13849_Affenberg_LandskronCrop.jpg
 Utazasok/Kina/12-Makao/ : Z63_04130.jpg

@@ -342,7 +342,7 @@ void CssCreator::_CreateForImageDesc()
 void CssCreator::_CreateForLightboxTitle()
 {
 	_CssForElement(R"(/* Lightbox */
-.lightbox {
+#lightbox {
 	display: none;
 	top: 0;
 	left: 0;
@@ -356,64 +356,115 @@ void CssCreator::_CreateForLightboxTitle()
 	overflow:auto;
 }
 
-#lightbox-controls {
-    position: absolute;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    visibility: hidden; /* Hidden until the mouse is near the edges */
-}
-
-#close-btn {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 30px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-
-#prev-btn,
-#next-btn {
-    font-size: 50px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-
-#prev-btn {
-    position: absolute;
-    top: 50%;
-    left: 20px;
-    transform: translateY(-50%);
-}
-
-#next-btn {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-}
-
-/* Show controls when mouse is near the edges */
-#lightbox:hover #lightbox-controls {
-    visibility: visible;
-}
-#lb-flex {
+#lb-container {
+	position:relative;
 	display: flex;
 	flex-direction:column;
 	align-items:center;
 	justify-content:center;
 	width: 100%;
 	height: 100%;
+	overflow:auto;
 }
 
-.lightbox-caption { 
+#lb-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+	font-family:Arial;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+	z-index:10;
+}
+
+#lb-prev-btn,
+#lb-next-btn {
+	z-index:10;
+    top: 50%;
+	transform:translateY(-50%);
+    position: absolute;
+    font-size: 50px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 30px;
 	display:none;
+}
+
+#lb-prev-btn {
+    left: 20px;
+}
+
+#lb-next-btn {
+    right: 20px;
+}
+
+/* Show controls when mouse is near the edges */
+#lb-container:hover .left-edge,
+#lb-container:hover .left-edge {
+    visibility: visible;
+}
+
+.left-edge, .right-edge {
+	position:absolute;
+	top:0;
+	bottom:0;
+	width:15%;
+	z-index:5;
+}
+
+.left-edge {
+	left: 0;
+}
+
+.right-edge {
+	right:0
+}
+
+.left-edge:hover+#lb-prev-btn,
+.right-edge:hover+#lb-next-btn {
+		display:flex;
+}
+
+.lb-image-wrapper {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto; /* Allows scrolling for large images */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#lightbox-caption { 
+	display:none;
+ 	color:#8f8f8f;
+	background-image:none;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:14pt;
+	border:none;
+}
+
+#lightbox-caption::first-line {
+	font-size:22pt;
+}
+
+#lightbox-desc {
+ 	color:#8f8f8f;
+	background-image:none;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:14pt;
+	border:none;
+}
+
+#lightbox-desc::first-line {
+	font-size:22pt;
+}
 )",
 	config.LightboxTitle);
 }

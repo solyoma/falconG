@@ -222,49 +222,94 @@ function falconGLoad(latest) {
         document.body.scrollTo(0, pos);
 }
 
-// ********************************************************* Show lightbox
-
-function FadeInOut(fadeIn) {
-    var elem = document.getElementById('lightbox');
-
-    var op, sop, eop, dop;
-    if (fadeIn) {
-        sop = 0;    // start opacity
-        eop = 1;    // end opacity
-        dop = 0.1   // delta opacity
-    }
-    else {
-        sop = 1;    // start opacity
-        eop = 0;    // end opacity
-        dop = -0.1   // delta opacity
-    }
-    op = sop;       // opacity
-    elem.style.opacity = sop;
-    elem.style.display = "block";
-
-    var intv = setInterval(showlb, 100); // timer id
-    function showlb() {
-        if (Math.abs(op - eop) > 0.01) {
-            op += dop;
-            elem.style.opacity = op;
-        }
-        else {
-            clearInterval(intv);
-            elem.style.opacity = eop;
-            if (!fadeIn)
-                elem.style.display = "none"
-        }
-    }
+#lb-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+	font-family:Arial;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+	z-index:10;
 }
-function LightBoxFadeIn() {
-    if (document.getElementById('lightbox').opacity == 1)
-        return;
-    FadeInOut(true)
+
+#lb-prev-btn,
+#lb-next-btn {
+	z-index:10;
+    top: 50%;
+	transform:translateY(-50%);
+    position: absolute;
+    font-size: 50px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 30px;
+	display:none;
 }
-function LightBoxFadeOut() {
-    if (document.getElementById('lightbox').opacity < 1)
-        return;
-    FadeInOut(false)
+
+#lb-prev-btn {
+    left: 20px;
+}
+
+#lb-next-btn {
+    right: 20px;
+}
+
+/* Show controls when mouse is near the edges */
+#lb-container:hover .left-edge,
+#lb-container:hover .left-edge {
+    visibility: visible;
+}
+
+.left-edge, .right-edge {
+	position:absolute;
+	top:0;
+	bottom:0;
+	width:15%;
+	z-index:5;
+}
+
+.left-edge {
+	left: 0;
+}
+
+.right-edge {
+	right:0
+}
+
+.left-edge:hover+#lb-prev-btn,
+.right-edge:hover+#lb-next-btn {
+		display:flex;
+}
+
+#lightbox-caption { 
+	display:none;
+ 	color:#8f8f8f;
+	background-image:none;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:14pt;
+	border:none;
+}
+
+#lightbox-caption::first-line {
+	font-size:22pt;
+}
+
+#lightbox-desc {
+ 	color:#8f8f8f;
+	background-image:none;
+	font-family:"Tms Rmn",Times,serif;
+	font-size:12pt;
+	line-height:14pt;
+	border:none;
+}
+
+#lightbox-desc::first-line {
+	font-size:22pt;
 }
 
 function LoadAlbum(album) {

@@ -170,6 +170,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	UsageCount usageCount = 1;			// can be removed when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
+	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// manually selected image as a thumbnail for this video
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
 	enum SearchCond : int {
 		byID,		// ID only
