@@ -4633,7 +4633,7 @@ int AlbumGenerator::_DoPages()
 	if (!_processing)
 		return 0;
 
-	emit SignalToSetProgressParams(0, _albumMap.size() * languages.LanguageCount(), 0, 3); // phase = 3
+	emit SignalToSetProgressParams(0, _albumMap.size() * languages.LanguageCount(), 0, 2); // phase = 3
 
 	_remDsp.Init(_albumMap.size() * languages.LanguageCount());
 
@@ -5101,7 +5101,7 @@ int AlbumGenerator::ProcessAndWrite()
 	emit SignalToSetProgressParams(0, 100, 100, 2);		// phase3 cleaning up
 	if (_processing && config.bCleanupGalleryAfterGenerate)
 	{
-		emit SignalToSetProgressParams(0, 100, 100, 2);		// phase3 cleaning up
+		emit SignalToSetProgressParams(0, 100, 100, 3);		// phase3 cleaning up
 		i |= _CleanUpOutput();		// 0 | 64
 	}
 	emit SignalToSetProgressParams(0, 100, 0, 0);		// reset phase to 0
