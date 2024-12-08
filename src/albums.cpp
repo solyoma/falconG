@@ -566,7 +566,8 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 Image *ImageMap::Find(ID_t id, bool useBase)
 {
 	uint64_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
-	Image im;
+	Image im; 
+	im.ID = id;
 	uint64_t v = im.ID.Val() & mask;
 	for (auto i = begin(); i != end(); ++i)
 		if ( (i.key().Val() & mask)  == v )
@@ -3808,17 +3809,71 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 	if (config.bFacebookLink)
 		s += _IncludeFacebookLibrary();
 
-		// for albums with images or videos create a JS array with the name of the items in there
-	if (const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
+	if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
-		s += QString("\n<script type=\"text/javascript\">\n const imgs=[\n");
 
+		auto encodeStr = [](QString& str)
+			{
+				;		// will encode the names to obfuscate them from users
+			};
+		// the real web page is created in havascript in gengallery.js
+		// these are thr data it needs
+		s += QString("\n<script type=\"text/javascript\">\n"); 
+
+		// important configuration
+		s += QString(" const cfg=[\n");
+		QString qs = QString("  imd='%1%2';,"		// image dir
+					 "thd='%3%4';,"		// thumbnail dir
+					 "rsd='%5%6';,"		// resource dir
+					 "ald='%7%8';,"		// albumdir
+					 "alb='%9%10';\n]\n"	// base name of albums
+		).arg(supdir).arg(config.dsImageDir.ToString())
+		 .arg(supdir).arg(config.dsThumbDir.ToString())
+			.arg(supdir).arg("res/")
+		 .arg(supdir).arg(config.dsAlbumDir.ToString())
+		 .arg(supdir).arg(config.sBaseName.ToString())
+			;
+		encodeStr(qs);
+		s += qs + QString(" ]\n");
+
+		// *********** array of all items **************
+		// for albums with images or videos create a JS array with the name of the items in there
+		// the array has 4 items for each image or video:
+		//		file name (number), type (I: image, V: video), title (or ''), decription (or '')
+		s += QString(" const itms=[\n");
+		qs.clear();
+		IABase* pIa = nullptr;
 		for (auto& a : album.items)
+		{
 			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
-				s += QString("  %1%2,\n").arg(_imageMap[a].ID.Val()).arg(".jpg");	// and only images are shown larger
+			{
+				pIa = &_imageMap[a];
+				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("i");	// and only images are shown larger
+			}
 			else if (a.TestFlag(VIDEO_ID_FLAG))
-				s += QString("  %1%2,\n").arg(_videoMap[a].ID.Val()).arg(".mp4");	// TODO: for videos
-		s += QString(" ]\n</script>\n");
+			{
+				pIa = &_videoMap[a];
+				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("v");	// video
+			}
+			else				// albums
+			{
+				pIa = &_albumMap[a];
+				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("a");	// albbum
+			}
+			if (pIa)
+			{
+				LanguageTexts* plt = _textMap.Find(pIa->titleID);
+				if (plt)
+					qs += "'" + (*plt)[_actLanguage] + "',";
+				else
+					qs += "'', ";
+				plt = _textMap.Find(pIa->descID);
+				if (plt)
+					qs += "'" + (*plt)[_actLanguage] + "',\n";
+			}		
+		}
+		encodeStr(qs);
+		s += qs + QString(" ]\n</script>\n");
 	}
 	s += QString("\n</head>\n");
 
@@ -4042,7 +4097,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 					"   <div id='lightbox'>\n"
 					"	 <div id='lb-container'>\n"				// vertical layout
 					"       <button id='lb-close-btn' onclick='LightboxFadeOut()'> &#x2715; </button>\n";	// close button: always present	   
-		if (nLightboxable > 1)							
+		if (nLightboxable > 1)			// no lightbox for folders				
 		{					// next and prev. buttons only when more than 1 image
 			_ofs << "		<div class=\"left-edge\"></div>\n"
 					"       <button id=\"lb-prev-btn\" onclick='PrevImage()'>&#10094;</button>\n"

@@ -103,7 +103,7 @@ struct LanguageTexts				// both Album and Image uses this
 	int64_t CalcID(TextMap& map);	// changes 'ID' and 'collision' unless already OK (read in)
 
 	void Clear(int newSize = 0);  // 0: does not change size of 'lenghts'
-	bool IsEmpty() { return textsForAllLanguages.isEmpty(); }
+	bool IsEmpty() const { return textsForAllLanguages.isEmpty(); }
 };
 
 
