@@ -1676,7 +1676,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
                     connect(pact, &QAction::triggered, this, &ThumbnailView::OpenAlbumThumbnail);
                     menu.addAction(pact);           // select any image
                 }
-                if(!pItem->ID.IsAlbum() || (pItem->ID.IsAlbum() && !albumgen.ImageAt(reinterpret_cast<Album*>(pItem)->thumbnailId)->Exists()))
+                if(!pItem->ID.IsAlbum() || (pItem->ID.IsAlbum() && albumgen.ImageAt(reinterpret_cast<Album*>(pItem)->thumbnailId)->Exists()))
 				{
 					pact = new QAction(tr("Set As &Thumbnail for Container"), this);
 					menu.addAction(pact);           // select image of this item
