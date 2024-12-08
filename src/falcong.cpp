@@ -553,8 +553,8 @@ void FalconG::on_btnGenerate_clicked()
 			bool bAlbumWriteOK = albumgen.ProcessAndWrite() == 0; // generate struct, pages, images, thumbs
 			if (_edited)
 			{
-				albumgen.SetChangesWritten();	// nothing changed
 				albumgen.WriteDirStruct();
+				albumgen.SetChangesWritten();	// nothing changed
 			}
 
 			config.waterMark.ClearChanges();
