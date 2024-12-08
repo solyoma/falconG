@@ -3811,15 +3811,14 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		// for albums with images or videos create a JS array with the name of the items in there
 	if (const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
-		s += QString("\n<script type=\"text/javascript\">\n  const imgs = [\n");
-		s += QString("   %1").arg(album.items[0].Val());
+		s += QString("\n<script type=\"text/javascript\">\n const imgs=[\n");
 
 		for (auto& a : album.items)
 			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
-				s += QString("%1,\n").arg(_imageMap[a].name + ".jpg");	// and only images are shown larger
+				s += QString("  %1%2,\n").arg(_imageMap[a].ID.Val()).arg(".jpg");	// and only images are shown larger
 			else if (a.TestFlag(VIDEO_ID_FLAG))
-				s += QString("%1,\n").arg(_videoMap[a].name+ ".mp4");	// TODO: for videos
-		s += QString("]\n</script>\n");
+				s += QString("  %1%2,\n").arg(_videoMap[a].ID.Val()).arg(".mp4");	// TODO: for videos
+		s += QString(" ]\n</script>\n");
 	}
 	s += QString("\n</head>\n");
 

@@ -1512,7 +1512,7 @@ when their source is no longer present</string>
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>0</height>
+            <height>144</height>
            </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1913,8 +1913,8 @@ when their source is no longer present</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>697</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2306,7 +2306,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>419</width>
+                         <width>426</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -5380,8 +5380,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
