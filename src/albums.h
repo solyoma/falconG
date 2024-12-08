@@ -51,7 +51,7 @@ class PathMap
 public:
 	PathMap() {}
 
-	uint64_t &Add(const QString &path);		// handles empty paths - returns NO_ID,
+	uint64_t Add(const QString &path);		// handles empty paths - returns NO_ID,
 											// existing paths - return existing id
 											// first cuts source folder path from path
 											// path may end in a '/' which will be dropped ?
@@ -71,7 +71,8 @@ public:
 	uint64_t &operator[](const QString &pPath);
 	QString &operator[](const uint64_t id);
 	//uint64_t insert(QString path, uint64_t id);	// if id is an existing id then path is replaced only
-	QString insert(uint64_t id, const QString &path);	// path must not be already in the map
+	QString Insert(uint64_t id, const QString &path);	// path must not be already in the map
+	QString Insert(const QString ids, const QString &path);	// path must not be already in the map
 };
 
 QTextStream& operator<<(QTextStream &ofs, const PathMap &map);

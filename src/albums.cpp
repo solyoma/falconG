@@ -66,11 +66,9 @@ uint64_t PathMap::_CalcId(const QString&path)
 	return id;
 }
 
-uint64_t &PathMap::Add(const QString &path) // only new paths added
+uint64_t PathMap::Add(const QString &path) // only new paths added
 {
-	//if (path.right(1) != QChar('/'))	must end in '/' !
-	//	path += QChar('/');
-	static uint64_t id;
+	uint64_t id;
 
 	if (path.isEmpty())
 		return id = NO_ID;
@@ -117,30 +115,39 @@ uint64_t &PathMap::operator[](const QString &path)
 	if (path.isEmpty())
 		return dummy;
 
-	if (_pathToId.contains(path))
-		return _pathToId[path];
-	else
-		return Add(path);
+	if (!_pathToId.contains(path))
+		Add(path);
+
+	return _pathToId[path];
 }
 
 QString &PathMap::operator[](uint64_t id)
 {   
-	static QString dummy;
+	//static QString dummy;
 
-	if( (id <= TOPMOST_PATH_ID) || !_idToPath.contains(id))
-		return dummy;
+	//if( (id <= TOPMOST_PATH_ID) || !_idToPath.contains(id))
+	//	return dummy;
 	
 	return _idToPath[id];
 }
 
 
-QString PathMap::insert(uint64_t id, const QString& path)	// same id new path
+QString PathMap::Insert(uint64_t id, const QString& path)	// same id new path
 {
 	if (Contains(id))	// then replace the path
 		_pathToId.remove(Path(id));
 
 	_idToPath.insert(id, path);	 // add or possibly replaces path
 	_pathToId.insert(path, id);	 // new path with this id
+
+	return path;
+}
+
+QString PathMap::Insert(const QString ids, const QString& path)
+{
+	int64_t tid = ids.toULongLong();
+	_idToPath.insert(tid, path);	 // add or possibly replaces path
+	_pathToId.insert(path, tid);	 // new path with this id
 
 	return path;
 }
@@ -2275,13 +2282,10 @@ bool AlbumGenerator::_ReadPathTable(FileReader& reader)
 						return false;
 				return true;
 			};
-		uint64_t tid = 0;
 		if (n != 2 || !__isID(sl[0]))
 			throw BadStruct(reader.ReadCount(), tr("Bad Path line"));
 
-		tid = sl[0].toULongLong();
-		pathMap[tid]	= sl[1];
-		pathMap[sl[1]]  = tid;
+		pathMap.Insert(sl[0], sl[1]);
 		ok = reader.Ok();
 	}
 	rline = reader.ReadLine();	// first album line or orphans
@@ -2404,7 +2408,7 @@ static QStringList __imageMapStructLineToList(QString s)
 			return sl;					// same as for unprocessed lines
 	}
 	else
-		pos = s.length() - 1;
+		pos = s.length(); // -1;
 
 	QRegExp rexp("[,|x]");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#9 for image: ID, width, height, owidth, oheight, length, date
@@ -3091,40 +3095,52 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 					// recursive album read. there is only one top level album
 					// with id == TOPMOST_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, { ALBUM_ID_FLAG, NO_ID }, 0);	// parent ID is 0 for root album!
-#ifdef DEBUG
-			{
-				// DEBUG
-				QFile f("falconG-paths.dbg.txt");
-				f.open(QIODevice::WriteOnly);
-				QTextStream ofs(&f);
-				for (auto &a : _albumMap)
-				{
-					QString sP;
-					if (a.pathId == 1)
-						sP = QString("(root)");
-					else
-						sP = pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("id:%1 not found").arg(a.pathId);
-					ofs  << sP << " : " << a.name << "\n";
-				}
-				// /DEBUG
-			}
-			{
-				// DEBUG
-				QFile f("falconG-img-paths.dbg.txt");
-				f.open(QIODevice::WriteOnly);
-				QTextStream ofs(&f);
-				for (auto &a : _imageMap)
-				{
-					QString sP;
-					if (a.pathId == 1)
-						sP = QString("(root)");
-					else
-						sP = pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("id:%1 not found").arg(a.pathId);
-					ofs  << sP << " : " << a.name << "\n";
-				}
-				// /DEBUG
-			}
-#endif
+//#ifdef DEBUG
+//			{
+//				// DEBUG
+//				QMap<QString, int> map;
+//				QString s;
+//
+//				for (auto &a : _albumMap)
+//				{
+//					s = QString().setNum(a.pathId) + " : Path: ";
+//					if (a.pathId == 1)
+//						s += QString("(root)");
+//					else
+//						s += pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("Invalid id:%1").arg(a.pathId);
+//					s += QString(" for album %1 (id:%2)").arg(a.name).arg(a.ID.Val());
+//					map.insert(s, 1);
+//				}
+//				QFile f("falconG-paths.dbg.txt");
+//				f.open(QIODevice::WriteOnly);
+//				QTextStream ofs(&f);
+//				for (auto i = map.begin(); i != map.end(); ++i)
+//					ofs << i.key() << "\n";
+//				// /DEBUG
+//			}
+//			{
+//				// DEBUG
+//				QMap<QString, int> map;
+//				QString s;
+//
+//				for (auto& a : _imageMap)
+//				{
+//					s = QString().setNum(a.pathId) + " : Path: ";
+//					if (a.pathId == 1)
+//						s += QString("(root)");
+//					else
+//						s += pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("Invalid id:%1").arg(a.pathId);
+//					s += QString(" for image %1 (id:%2)").arg(a.name).arg(a.ID.Val());
+//					map.insert(s, 1);
+//				}
+//				QFile f("falconG-img-paths.dbg.txt");
+//				f.open(QIODevice::WriteOnly);
+//				QTextStream ofs(&f);
+//				for (auto i = map.begin(); i != map.end(); ++i)
+//					ofs << i.key() << "\n";
+//				// /DEBUG
+//			}
+//#endif
 			if (error)
 				throw BadStruct(reader.ReadCount(),tr("Error"));
 		}
