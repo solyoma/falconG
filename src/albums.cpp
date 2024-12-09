@@ -657,7 +657,7 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	Image *found = Find(id); // check if a file with this same base id is already in data base?
 							  // can't use reference as we may want to modify 'found' below
 
-	if( found->Valid())		  // yes an image with the same base ID as this image was found
+	if(found)		  // yes an image with the same base ID as this image was found
 	{						  // the ID can still be different from the id of the found image though
 		if (config.bKeepDuplicates)
 		{
@@ -3821,42 +3821,44 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		s += QString("\n<script type=\"text/javascript\">\n"); 
 
 		// important configuration
-		s += QString(" const cfg=[\n");
-		QString qs = QString("  imd='%1%2';,"		// image dir
-					 "thd='%3%4';,"		// thumbnail dir
-					 "rsd='%5%6';,"		// resource dir
-					 "ald='%7%8';,"		// albumdir
-					 "alb='%9%10';\n]\n"	// base name of albums
+		QString qs = QString("  var  imd='%1%2';"		// image dir
+					 "thd='%3%4',"		// thumbnail dir
+					 "rsd='%5%6',"		// resource dir
+					 "ald='%7%8',"		// albumdir
+					 "alb='%9%10';"	// base name of albums
 		).arg(supdir).arg(config.dsImageDir.ToString())
 		 .arg(supdir).arg(config.dsThumbDir.ToString())
 			.arg(supdir).arg("res/")
 		 .arg(supdir).arg(config.dsAlbumDir.ToString())
 		 .arg(supdir).arg(config.sBaseName.ToString())
 			;
-		encodeStr(qs);
-		s += qs + QString(" ]\n");
+		s += qs;
 
 		// *********** array of all items **************
 		// for albums with images or videos create a JS array with the name of the items in there
 		// the array has 4 items for each image or video:
 		//		file name (number), type (I: image, V: video), title (or ''), decription (or '')
-		s += QString(" const itms=[\n");
+		s += QString("\n const itms=[\n");
 		qs.clear();
 		IABase* pIa = nullptr;
+		int icnt=0, vcnt=0, acnt=0;	// count of images videos and albums
 		for (auto& a : album.items)
 		{
 			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
 			{
+				++icnt;
 				pIa = &_imageMap[a];
 				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("i");	// and only images are shown larger
 			}
 			else if (a.TestFlag(VIDEO_ID_FLAG))
 			{
+				++vcnt;
 				pIa = &_videoMap[a];
 				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("v");	// video
 			}
 			else				// albums
 			{
+				++acnt;
 				pIa = &_albumMap[a];
 				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("a");	// albbum
 			}
@@ -3873,7 +3875,10 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 			}		
 		}
 		encodeStr(qs);
-		s += qs + QString(" ]\n</script>\n");
+		s += qs + QString(" ]\n\n");
+
+		qs = QString("  var icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
+		s += qs + QString("</script>\n");
 	}
 	s += QString("\n</head>\n");
 
