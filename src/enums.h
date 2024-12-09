@@ -147,15 +147,15 @@ class ID_t
 	uint64_t _uval = 0;
 	uint8_t _flags=0;			// types and other _flags 
 public:
-	ID_t() {}
-	ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags) {}
-	ID_t(uint8_t _flags, uint64_t id) : _uval(id),_flags(_flags) {}
+	constexpr ID_t() {}
+	constexpr ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags) {}
+	constexpr ID_t(uint8_t _flags, uint64_t id) : _uval(id),_flags(_flags) {}
 	//ID_t(uint64_t val) : _uval(val) {}
 
 	constexpr uint64_t Val() const { return _uval; }
 	constexpr uint8_t Flags() const { return _flags; }
 	inline static const ID_t Invalid(uint64_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
-	inline bool IsInvalid() const { return !_uval || !_flags; }
+	constexpr inline bool IsInvalid() const { return !_uval || !_flags; }
 
 	constexpr uint8_t SetFlag(uint8_t which, bool setIt=true)	// which can be contain _flags ORed
 	{														// returns resulting _flags
@@ -168,10 +168,18 @@ public:
 	{
 		return _flags & withTheseFlag;
 	}
+	constexpr ID_t ClearNonTypeFlags(bool andModifyFlagsAsWell = false)
+	{
+		ID_t id = *this;
+		id._flags =_flags & TYPE_FLAGS;
+		if (andModifyFlagsAsWell)
+			_flags = id._flags;
+		return id;
+	}
 
-	inline ID_t& Increment(uint64_t inc) { _uval += inc; return *this; }
+	constexpr inline ID_t& Increment(uint64_t inc) { _uval += inc; return *this; }
 
-	inline ID_t& operator=(const ID_t& v) { _uval = v._uval; _flags = v._flags; return *this; }
+	constexpr inline ID_t& operator=(const ID_t& v) { _uval = v._uval; _flags = v._flags; return *this; }
 	//constexpr inline ID_t& operator=(const uint64_t v) { _uval = v; return *this; }
 
 	//constexpr inline bool operator==(const uint64_t v) const { return _uval == v; }

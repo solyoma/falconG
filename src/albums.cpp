@@ -1238,10 +1238,13 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 {
 	++_structChanged;
 
+	ID_t id;
+
 	if (ftyp == ftImage)
-		return _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
+		id = _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
 	else
-		return _videoMap.Add(imagePath, added);
+		id = _videoMap.Add(imagePath, added);
+	return id.ClearNonTypeFlags();
 }
 
 /*==========================================================================
@@ -2470,21 +2473,21 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	}
 
 	bool added;
-	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // to maps has type flag set
+	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // either add to maps or get id for image already added, has type flag set
 	SetAlbumModified(album.ID);			// set it as changed always
 	if (type == ftImage)
 	{
 		img = _imageMap[id];
-		if (added && img.pathId != NO_ID)
+		if (img.pathId != NO_ID)
 			ImageMap::lastUsedPathId = img.pathId;
 	}
 	else
 	{
 		vid = _videoMap[id];
-		if (added && vid.pathId != NO_ID)
+		if (vid.pathId != NO_ID)
 			VideoMap::lastUsedPathId = vid.pathId;
 	}
-	// add it to album
+	// add it to album even when it was already added
 	if (pos < 0)
 		album.items.push_back(id);
 	else
@@ -4155,8 +4158,8 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int idIndex)
 {
 	bool isAlbum = (typeFlag & ALBUM_ID_FLAG),
-		 isImage = (typeFlag & IMAGE_ID_FLAG),
-		 isVideo = (typeFlag & VIDEO_ID_FLAG);
+		 isImage = (typeFlag & IMAGE_ID_FLAG)/*,
+		 isVideo = (typeFlag & VIDEO_ID_FLAG)*/;
 
 	IdList& idList = album.items;
 	if (idIndex >= 0 && idList.isEmpty())
