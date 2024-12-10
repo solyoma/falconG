@@ -87,6 +87,12 @@ struct IABase
 {
 	enum IAType { iatUnknown, iatImage, iatVideo, iatAlbum};
 
+	enum SearchCond : int { byID,		// ID only
+							byBaseID,	// ID for image w. o path: compare names (no path) as well
+							byName,		// just image name
+							byFullSourceName	// full image path
+						  };
+
 	ID_t ID;				// CRC of image name + collision avoidance  (0: invalid)
 	bool changed = false;	// Images (or videos): true: image is recreated (dimensions or file size or data changed)
 							//		check this and create a new struct file on disk if any image changed
@@ -115,6 +121,7 @@ struct IABase
 	QString Path() const;		// returns path from ID
 
 	uint64_t SetPathId(QString fromPath);
+	virtual QSize ThumbSize() const { return QSize(); }
 };
 //------------------------------------------
 struct Image : public IABase
@@ -139,12 +146,6 @@ struct Image : public IABase
 
 	void SetNewDimensions();
 
-	enum SearchCond : int { byID,		// ID only
-							byBaseID,	// ID for image w. o path: compare names (no path) as well
-							byName,		// just image name
-							byFullSourceName	// full image path
-						  };
-
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
 
 	int operator<(const Image &i);		 // uses searchBy
@@ -155,6 +156,7 @@ struct Image : public IABase
 	QTextStream & WriteInfo(QTextStream &ofs) const;
 	void SetResizeType();
 	bool IsOrphan() const { return thumbnailCount && !usageCount;  }
+	QSize ThumbSize() const override { return tsize; }
 
 private:
 	double _aspect = 0;			// for actual image
@@ -173,12 +175,6 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	QDate uploadDate;
 	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// manually selected image as a thumbnail for this video
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
-	enum SearchCond : int {
-		byID,		// ID only
-		byBaseID,	// ID for image w. o path: compare names (no path) as well
-		byName,		// just image name
-		byFullSourceName	// full image path
-	};
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
 
@@ -195,6 +191,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	//}
 
 	QString AsString(int width = 320, int height = -1);
+	QSize ThumbSize() const override;
 };
 
 //------------------------------------------
@@ -227,6 +224,7 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
 	ID_t SetThumbnail(ID_t id); // sets album thumbnail and increase the usage count of it
 	ID_t SetThumbnail(uint64_t id); // sets album thumbnail and increase the usage count of it
+	QSize ThumbSize() const override;
 
 	ID_t IdOfItemOfType(int64_t type, int index);
 

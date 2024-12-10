@@ -1,7 +1,20 @@
 // Copyright  2008 András Sólyom (alias Andreas Falco)
 // email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com). 
 
+// variables
+//const imd='%1%2';"		// image dir
+//					 "thd='%3%4',"		// thumbnail dir thumbs/
+//					 "rsd='%5%6',"		// resource dir
+//					 "ald='%7%8',"		// albumdir
+//					 "alb='%9%10',		// base name
+//                   "lang=%11;"        // language abbreviation like 'en' or 'hu'
+// const imgs -array for images
+// const vids -array for videos
+// must be set before falconG.js is included
+
 var showDesc = 0;
+var lastIndex = -1;
+var touchStartX = 0, touchStartY = 0;
 
 window.addEventListener("resize", ResizeThumbs);
 
@@ -9,7 +22,6 @@ function DebugProperties(className, obj)
 {
     let style= getComputedStyle(obj)
 }
-
 
 function SetPropertyForSelector(selector, propertyName, propValue) 
 {
@@ -149,6 +161,12 @@ function falconGLoad(latest) {
 		SetRandomLastImage()	// in 'latest.js'
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
+console.log('*****PrepareSection load started')
+PrepareSection(lang,imgs,'#images-section',false);
+PrepareSection(lang,vids,'#images-section',false);
+PrepareSection(lang,albs,'#albums-section',true);
+console.log('*****PrepareSection load finished')
+
     t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");
     cnt = 0;
@@ -225,7 +243,17 @@ function LoadAlbum(album) {
     window.location.href=album;
 }
 
-function ShowImage(img, caption) {
+function ImageForIndex(index)
+{
+    lastIndex = index;
+    let id= imgs[index];
+    if(typeof id == 'undefined')
+        return "undefined";
+    //console.log('ImageForIndex(',index, "):"+`${imd}${id.i}`+".jpg'");
+    return `${imd}${id.i}`+".jpg";
+}
+
+function ShowImage(index, caption) {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 
@@ -244,7 +272,146 @@ function ShowImage(img, caption) {
                 this.style.top = 0;
         }
     }
+    var img = ImageForIndex(index);
+    console.log('img:',img);
     image.setAttribute('src', img);
 	
     LightboxFadeIn();
 }
+
+function NextImage()
+{
+    if(++lastIndex >= icnt)
+        lastIndex = 0;
+    var image = document.getElementById("lightbox-img");
+    image.setAttribute('src', ImageForIndex(lastIndex));
+    console.log('NextIndex:', lastIndex);
+}
+function PrevImage()
+{
+    if(lastIndex ==0)
+        lastIndex = icnt-1;
+    else
+    --lastIndex;
+    var image = document.getElementById("lightbox-img");
+    image.setAttribute('src', ImageForIndex(lastIndex));
+    console.log('PrevIndex:', lastIndex);
+}
+
+
+
+// Loop through the 'arr' array and create the HTML structure for each image
+// for images and videos the array contains records with fiels 'i' - ID, 'w' - thumbnail width, 'h': thumbnail height, 't' - title, 'd' - description
+/*
+<div class = "img-container">
+    <div class="imatte">
+        <div id="3305654134" >
+            <img w=600 h=400 class="thumb" src="../thumbs/3305654134.jpg" alt="Látkép" onclick="javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')" >
+        </div>
+    </div>
+    <div class="desc">
+        <p class='desc' lang='hu'>Ez a látvány tárul elénk a magasból egy kb 350mm-es teleobjektíven keresztül a világ legnagyobb jégbarlangja a Werfeni Jégwilág bejáratának közeléből</p>
+    </div>
+
+    <div class="links">
+        <div class="title" onclick="javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')">Látkép</div>
+    </div>
+</div>
+...
+*/
+// for albums an additional field  'l' - thumbnail ID is used
+/*
+    <div class = "img-container">
+        <div class="amatte">
+            <div id="85945584" >
+                <img w=593 h=400 class="athumb" data-src="../thumbs/85945584.jpg" alt="Salzburg -2004" onclick="javascript:LoadAlbum('album801908683_en.html')" >
+            </div>
+        </div>
+        <div class="desc">
+            <p class='desc' lang='en'>Salzburg is a wonderful city full of interesting  people and buildings</p>
+        </div>
+
+        <div class="links">
+            <div class="title" onclick="javascript:LoadAlbum('album801908683_en.html')">Salzburg -2004</div>
+        </div>
+    </div>
+...
+ */
+function PrepareSection(lang, arr,selector,isalbum) // example PrepareSection('hu',imgs,'#images',false)
+{
+    // Get the parent container where the images will be added
+    const galleryContainer = document.querySelector(selector);  // selector MUST exist
+    if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
+        return;
+    console.log("galleryContainer", galleryContainer.length);
+
+    arr.forEach(
+        (item, index) => {
+        // Create the main img-container div
+        const imgContainer = document.createElement("div"); // <div class='img-container'></div>
+        imgContainer.className = "img-container";
+
+        // Create the imatte div
+        const imatte = document.createElement("div");       //  <div class='imatte'></div>
+        imatte.className = "imatte";
+
+        // Create the inner div with the ID
+        const innerDiv = document.createElement("div");     //          <div id='1234'></div>  will be added as child to imatte
+        innerDiv.id = `${item.i}`;
+
+        const sTitle = item.t ? `${item.t}` : '&nbsp;';       // image title if any
+
+        //const onclk = isalbum ? "javascript:LoadAlbum('"+`${ald}${alb}${item.i}_${lang}.html`+"')" : 
+        const onclk = isalbum ? "javascript:LoadAlbum('"+`${ald}${alb}${item.i}_${lang}.html`+"')" : 
+                                "javascript:ShowImage("+index+",'" + sTitle + "')";
+        const thumbnail = isalbum? `${thd}${item.l}` : `${thd}${item.i}`
+
+        // Create the img element
+        const imgElement = document.createElement("img");  // <img w:600 h:400 class="thumb" src='../thumbs/123456.jpg' onclick=javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')"
+        imgElement.setAttribute("w", item.w);
+        imgElement.setAttribute("h", item.h);
+        imgElement.setAttribute("x", `${item.index}`)
+        imgElement.className = "thumb";
+        imgElement.src = `${thumbnail}`+".jpg";
+        imgElement.alt = "&nbsp;";
+        imgElement.setAttribute("onclick", onclk);
+
+        // Append the img element to the inner div
+        innerDiv.appendChild(imgElement);
+
+        // Append the inner div to the imatte div
+        imatte.appendChild(innerDiv);
+
+        // create the description
+        if(item.d)
+        {
+            const descDiv = document.createElement("div");
+            descDiv.className = "desc";
+            const descPar = document.createElement("p")
+            descPar.className = "desc";
+            descPar.setAttribute("lang",`${lang}`);
+            descPar.innerHTML = "${item.d}";
+            descDiv.appendChild(descPar);
+        }
+
+        // Create the links div
+        const linksDiv = document.createElement("div");
+        linksDiv.className = "links";
+
+        // Create the title div
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "title";
+        titleDiv.setAttribute("onclick", onclk);
+        titleDiv.innerHTML = sTitle; 
+
+        // Append the title div to the links div
+        linksDiv.appendChild(titleDiv);
+
+        // Append imatte and links to the main img-container
+        imgContainer.appendChild(imatte);
+        imgContainer.appendChild(linksDiv);
+
+        // Append the img-container to the gallery container
+        galleryContainer.appendChild(imgContainer);
+    })
+};

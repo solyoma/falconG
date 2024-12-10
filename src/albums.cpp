@@ -19,6 +19,14 @@
 
 PathMap pathMap;	// id -> path, path->id of source folders relative to dsSrc
 
+static QSize ThumbSizeFromId(ID_t id)
+{
+	Image* pI = albumgen.Images().Find(id);
+	if (pI)
+		return pI->tsize;
+	else
+		return QSize();
+}
 
 /*============================================================================
 * TASK:
@@ -478,11 +486,11 @@ ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-template<typename T> ID_t GetUniqueID(T &t, int8_t typeFlag, QString &name, bool isContent = false)
+template<typename Map> ID_t GetUniqueID(Map &map, int8_t typeFlag, QString &name, bool isContent = false)
 {
 
 	uint64_t id = CalcCrc(name, isContent);
-	while (t.contains(ID_t(typeFlag,id)))
+	while (map.contains(ID_t(typeFlag,id)))
 	{
 		id += ID_INCREMENT;
 	}
@@ -652,24 +660,24 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	AlbumGenerator::lastUsedAlbumPathId = lastUsedPathId = img.pathId;
 	QFileInfo fi(pathName);		   // new image to add
 
-	ID_t id = ID_t(IMAGE_ID_FLAG, CalcCrc(img.name, false));	// just by name. CRC can but id.uid can never be 0
+	ID_t id = ID_t(IMAGE_ID_FLAG, CalcCrc(img.name, false));	// crc from just the name. Paths may be different
 
-	Image *found = Find(id); // check if a file with this same base id is already in data base?
+	Image *found = Find(id, true); // check if a file with this same base id is already in data base?
 							  // can't use reference as we may want to modify 'found' below
 
 	if(found)		  // yes an image with the same base ID as this image was found
-	{						  // the ID can still be different from the id of the found image though
-		if (config.bKeepDuplicates)
+	{				  // the ID can still be different from the id of the found image though
+		if (config.bKeepDuplicates) // then doesn't matter if the image is the same or different
 		{
 			do
 				id.Increment(ID_INCREMENT);
 			while (Find(id, false)); // full by ID
 		}
-		else
+		else					  // no duplicates are allowed
 		{
 			do					  // loop thorugh all images with the same base ID
 			{
-				if (found->name == img.name)	// if name is the same too then same image
+				if (found->pathId == img.pathId && found->name == img.name)	// if full path names are the same too then same image
 				{								// even when they are in different directories!
 					if (found->Exists())
 						if (!img.Exists() || (img.Exists() && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
@@ -943,6 +951,11 @@ ID_t Album::SetThumbnail(ID_t id)
 ID_t Album::SetThumbnail(uint64_t id)
 {
 	return SetThumbnail(ID_t(IMAGE_ID_FLAG, id));
+}
+
+QSize Album::ThumbSize() const
+{
+	return ThumbSizeFromId(thumbnailId);
 }
 
 
@@ -3779,6 +3792,29 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
 }
 
 
+/*=============================================================
+ * TASK   :	write the start and <head> section for the web page
+ * PARAMS :	album: actual album  for the web page
+ * EXPECTS: 
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- there will be the following variables and tables in 
+ *			a javascript block from which the web page will be 
+ *			generated:
+ * 
+ *	const imd='<image dir>, thd='<thumbnail dir>, rsd='<resource dir>',
+ *	const ald='<albumdir>, alb='<base name of albums>';
+ *	const imgs=[<array of image objects>];
+ *	const vids=[<array of video objects>];
+ *	const albs=[<array of album objects>
+ *			- both itms and albms may be empty
+ * 			- image and video objects have the same structure:
+ *					{i:'<id>',t:'<title text>',d:'<descr. text>};
+ *			  album object also have a thumbnail field:
+ *					{i:'<id>',t:'<title>',d:'<descr>,l:'<thumbnail id>'}
+ *	const icnt=<count of images>,vcnt=<count of videos>,acnt=<count of albums>;	
+ *		    - see :gengallery.js for usage
+ *------------------------------------------------------------*/
 QString AlbumGenerator::_PageHeadToString(const Album& album)
 {
 	QString supdir = (album.ID == TOPMOST_ALBUM_ID ? "" : "../"),
@@ -3817,70 +3853,86 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 
 		auto encodeStr = [](QString& str)
 			{
-				;		// will encode the names to obfuscate them from users
+				return str;		// will encode the names to obfuscate them from users
 			};
 		// the real web page is created in havascript in gengallery.js
 		// these are thr data it needs
 		s += QString("\n<script type=\"text/javascript\">\n"); 
 
 		// important configuration
-		QString qs = QString("  var  imd='%1%2';"		// image dir
-					 "thd='%3%4',"		// thumbnail dir
-					 "rsd='%5%6',"		// resource dir
-					 "ald='%7%8',"		// albumdir
-					 "alb='%9%10';"	// base name of albums
+		QString qs = QString(	" const imd='%1%2';"		// image dir
+								"thd='%3%4',"	// thumbnail dir
+								"rsd='%5%6',"	// resource dir
+								"ald='%7%8',"	// albumdir
+								"alb='%9%10',"	// base name of albums
+								"lang='%11';"	// 2 letter language abbrev,
 		).arg(supdir).arg(config.dsImageDir.ToString())
 		 .arg(supdir).arg(config.dsThumbDir.ToString())
 			.arg(supdir).arg("res/")
 		 .arg(supdir).arg(config.dsAlbumDir.ToString())
 		 .arg(supdir).arg(config.sBaseName.ToString())
+		 .arg((*languages["language"])[_actLanguage])
 			;
+		
 		s += qs;
 
-		// *********** array of all items **************
-		// for albums with images or videos create a JS array with the name of the items in there
-		// the array has 4 items for each image or video:
-		//		file name (number), type (I: image, V: video), title (or ''), decription (or '')
-		s += QString("\n const itms=[\n");
-		qs.clear();
-		IABase* pIa = nullptr;
 		int icnt=0, vcnt=0, acnt=0;	// count of images videos and albums
+
+		// *********** arrays of all items **************
+		// for albums with images or videos create a JS array with the name of the items in there
+		// the array has 6 items for each image or video:
+		//		file name (number), type (I: image, V: video), width (w), height (h), title (or ''), description (or '')
+
+		IABase* pIa = nullptr;
+		QString qsI, qsV, qsA, *pqs=nullptr;
+
 		for (auto& a : album.items)
 		{
+			qs.clear();
 			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
 			{
 				++icnt;
 				pIa = &_imageMap[a];
-				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("i");	// and only images are shown larger
+				pqs = &qsI;
 			}
 			else if (a.TestFlag(VIDEO_ID_FLAG))
 			{
 				++vcnt;
 				pIa = &_videoMap[a];
-				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("v");	// video
+				pqs = &qsV;
 			}
 			else				// albums
 			{
 				++acnt;
 				pIa = &_albumMap[a];
-				qs += QString("  '%1','%2',").arg(pIa->ID.Val()).arg("a");	// albbum
+				pqs = &qsA;
 			}
 			if (pIa)
 			{
+				QSize size = pIa->ThumbSize();
+
+				*pqs += QString("{i:'%1',w:%2,h:%3,").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
 				LanguageTexts* plt = _textMap.Find(pIa->titleID);
 				if (plt)
-					qs += "'" + (*plt)[_actLanguage] + "',";
+					*pqs += "t:'" + (*plt)[_actLanguage] + "',";
 				else
-					qs += "'', ";
+					*pqs += "t:'',";
 				plt = _textMap.Find(pIa->descID);
 				if (plt)
-					qs += "'" + (*plt)[_actLanguage] + "',\n";
+					*pqs += "d:'" + (*plt)[_actLanguage] + "',";
+				else
+					*pqs += "d:'',";
+				if (a.TestFlag(ALBUM_ID_FLAG))
+					*pqs += QString("l:'%1'").arg(reinterpret_cast<const Album*>(pIa)->thumbnailId.Val());
+				*pqs += "},\n";
 			}		
+			
 		}
-		encodeStr(qs);
-		s += qs + QString(" ]\n\n");
+		s += QString("\n const imgs=[\n%1];\n").arg(encodeStr(qsI) );
+		s += QString("\n const vids=[\n%1];\n").arg(encodeStr(qsV) );
+		s += QString("\n const albs=[\n%1];\n").arg(encodeStr(qsA) );
 
-		qs = QString("  var icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
+		qs = QString("  const icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
 		s += qs + QString("</script>\n");
 	}
 	s += QString("\n</head>\n");
@@ -4044,7 +4096,7 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 }
 
 /*============================================================================
-* TASK:		emits header section (not the <head>) of a web page for a given album in a given language
+* TASK:		emits <header> section (not the <head>) of a web page for a given album in a given language
 * EXPECTS:	album - album to be created
 *			_actLanguage - index of actual language
 * GLOBALS:	Languages, 'config'
@@ -5410,6 +5462,11 @@ QString Video::AsString(int width, int height)
 		default:
 		case vtMp4: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("mp4");
 	}
+}
+
+QSize Video::ThumbSize() const
+{
+	return ThumbSizeFromId(thumbnailId);
 }
 
 /*=============================================================
