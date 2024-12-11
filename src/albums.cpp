@@ -3859,6 +3859,7 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				str.replace('\'', 0x01);
 				str.replace('\"', 0x02);
 				str.replace("\\n", QChar(0x04) );
+				str.replace('\\',  0x05 );
 
 				return str;		// will encode the names to obfuscate them from users
 			};

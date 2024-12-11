@@ -28,10 +28,9 @@ function DecodeText(text)
     text = text.replace(//g,'<br>');
     text = text.replace(//g,'\'');
     text = text.replace(//g,'"');
+    text = text.replace(//g,'\\');
 	return text;
 }
-
-
 
 function SetPropertyForSelector(selector, propertyName, propValue) 
 {
@@ -352,12 +351,13 @@ function PrevImage()
  */
 function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example PrepareSection('hu',imgs,'#images',false,0)
 {
-    let _ald = isRootLevel ? ald : "";       // no album path unless for index_XX.html
+    let _ald = isRootLevel ? "" : ald;       // no album path unless for index_XX.html
     // Get the parent container where the images will be added
     const galleryContainer = document.querySelector(selector);  // selector MUST exist
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
         return;
     // console.log("galleryContainer", galleryContainer.length);
+    console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
 
     arr.forEach(
         (item, index) => {
@@ -371,9 +371,9 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
 
         // Create the inner div with the ID
         const innerDiv = document.createElement("div");     //          <div id='1234'></div>  will be added as child to imatte
-        innerDiv.id = `${item.i}`;
+        innerDiv.id = item.i;
 
-        const sTitle = item.t ? DecodeText(item.t) : "&nbsp;";       // image title if any
+        const sTitle = item.t != '' ? DecodeText(item.t) : "&nbsp;";       // image title if any
 
         const onclk = forWhat ? "javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')" : 
                                 "javascript:ShowImage("+index+",'" + sTitle + "')";
