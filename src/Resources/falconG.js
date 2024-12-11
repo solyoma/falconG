@@ -357,7 +357,7 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
         return;
     // console.log("galleryContainer", galleryContainer.length);
-    console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
+    //console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
 
     arr.forEach(
         (item, index) => {
@@ -396,9 +396,10 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
         imatte.appendChild(innerDiv);
 
         // create the description
+        let descDiv=false;
         if(item.d)
         {
-            const descDiv = document.createElement("div");
+            descDiv = document.createElement("div");
             descDiv.className = "desc";
             const descPar = document.createElement("p")
             descPar.className = "desc";
@@ -422,6 +423,8 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
 
         // Append imatte and links to the main img-container
         imgContainer.appendChild(imatte);
+        if(descDiv)
+            imgContainer.appendChild(descDiv);
         imgContainer.appendChild(linksDiv);
 
         // Append the img-container to the gallery container
