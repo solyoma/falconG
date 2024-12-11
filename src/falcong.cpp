@@ -3139,7 +3139,7 @@ void FalconG::on_edtSourceGallery_editingFinished()
 	QString dirName = ui.edtGalleryRoot->text().trimmed();
 	QString sf = _SelectStructFileFromDir(dirName);
 	if(sf.isEmpty())
-		QMessageBox::warning(this, tr("FalconCalc - Warning"), tr("Either no such folder or no gallery file in there!") );
+		QMessageBox::warning(this, tr("FalconG - Warning"), tr("Either no such folder or no gallery file in there!") );
 }
 
 /*============================================================================
