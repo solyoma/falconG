@@ -3843,8 +3843,6 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>\n" +
 				"<script type=\"text/javascript\" src=\"" + supdir + "js/latest.js\"></script>";
 
-	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
-
 	if (config.bFacebookLink)
 		s += _IncludeFacebookLibrary();
 
@@ -3860,7 +3858,7 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		s += QString("\n<script type=\"text/javascript\">\n"); 
 
 		// important configuration
-		QString qs = QString(	" const imd='%1%2';"		// image dir
+		QString qs = QString(	" const imd='%1%2',"		// image dir
 								"thd='%3%4',"	// thumbnail dir
 								"rsd='%5%6',"	// resource dir
 								"ald='%7%8',"	// albumdir
@@ -3926,7 +3924,6 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 					*pqs += QString("l:'%1'").arg(reinterpret_cast<const Album*>(pIa)->thumbnailId.Val());
 				*pqs += "},\n";
 			}		
-			
 		}
 		s += QString("\n const imgs=[\n%1];\n").arg(encodeStr(qsI) );
 		s += QString("\n const vids=[\n%1];\n").arg(encodeStr(qsV) );
@@ -3935,6 +3932,8 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		qs = QString("  const icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
 		s += qs + QString("</script>\n");
 	}
+	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
+
 	s += QString("\n</head>\n");
 
 	return s;
@@ -4485,7 +4484,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (album.ID == TOPMOST_ALBUM_ID && config.bGenerateLatestUploads)	// root album and last uploaded?
 	{
 		_ofs << "<br><br><!-- section for latest uploads -->\n"
-			<< "    <section>\n";
+			<< "    <section id=\"latest-section\">\n";
 		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads> the thumbnail is set by javascript 'GetRandomLastImage()'
 
 		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
@@ -4495,11 +4494,12 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
 			<< "    <div id=\"images\" class=\"fgsection\">" << (*languages["images"])[_actLanguage] << "</div>\n"
-			<< "    <section>\n";
-		// first the images
-		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if(album.items[i].IsImage() && !(album.items[i].IsExcluded()))
-				_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
+			<< "    <section id=\"images-section\">\n";
+		// for the images first: content added in javascript (falconG.js)
+		//// first the images
+		//for (int i = 0; _processing && i < album.items.size(); ++i)
+		//	if(album.items[i].IsImage() && !(album.items[i].IsExcluded()))
+		//		_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
@@ -4507,11 +4507,11 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	{
 		_ofs << "<!--start section videos -->\n"
 			 << "    <div id=\"videos\" class=\"fgsection\">" << (*languages["videos"])[_actLanguage] << "</div>\n"
-			    "    <section>\n";
-
-		for (int i = 0; _processing && i < album.items.size(); ++i)
-			if (album.items[i].IsVideo() && !(album.items[i].IsExcluded()))
-				_WriteVideoContainer(album, i);
+			    "    <section id=\"videos-section\">\n";
+		// videos are put here in javascript
+		//for (int i = 0; _processing && i < album.items.size(); ++i)
+		//	if (album.items[i].IsVideo() && !(album.items[i].IsExcluded()))
+		//		_WriteVideoContainer(album, i);
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
 
@@ -4519,17 +4519,16 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	{
 		_ofs << "<!--start section albums -->\n"
 			<< "    <div id=\"albums\" class=\"fgsection\">" << (*languages["albums"])[_actLanguage] << "</div>\n"
-			"    <section>\n";
-
-		for (int i = 0; _processing && i < album.items.size(); ++i)
-		{
-			ID_t idSub = album.items[i];
-			if ((idSub.IsAlbum()) && !(_albumMap[idSub].ID.IsExcluded()))
-				_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
-		}
+			"    <section id=\"albums-section\">\n";
+		// filled in injavascript
+		//for (int i = 0; _processing && i < album.items.size(); ++i)
+		//{
+		//	ID_t idSub = album.items[i];
+		//	if ((idSub.IsAlbum()) && !(_albumMap[idSub].ID.IsExcluded()))
+		//		_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
+		//}
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
-
 
 	if (_processing)		// else leave the page unfinished
 	{

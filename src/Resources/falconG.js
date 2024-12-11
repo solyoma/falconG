@@ -161,11 +161,11 @@ function falconGLoad(latest) {
 		SetRandomLastImage()	// in 'latest.js'
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
-console.log('*****PrepareSection load started')
-PrepareSection(lang,imgs,'#images-section',false);
-PrepareSection(lang,vids,'#images-section',false);
-PrepareSection(lang,albs,'#albums-section',true);
-console.log('*****PrepareSection load finished')
+//	console.log('*****PrepareSection load started')
+	PrepareSection(lang,imgs,'#images-section',0);
+	PrepareSection(lang,vids,'#videos-section',1);
+	PrepareSection(lang,albs,'#albums-section',2);
+//	console.log('*****PrepareSection load finished')
 
     t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");
@@ -343,7 +343,7 @@ function PrepareSection(lang, arr,selector,isalbum) // example PrepareSection('h
     const galleryContainer = document.querySelector(selector);  // selector MUST exist
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
         return;
-    console.log("galleryContainer", galleryContainer.length);
+    // console.log("galleryContainer", galleryContainer.length);
 
     arr.forEach(
         (item, index) => {
