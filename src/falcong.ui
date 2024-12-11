@@ -1913,8 +1913,8 @@ when their source is no longer present</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>431</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -7576,6 +7576,19 @@ p, li { white-space: pre-wrap; }
         <widget class="QCheckBox" name="chkRegenAllImages">
          <property name="text">
           <string>all i&amp;mages</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoImages">
+         <property name="text">
+          <string>except images</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

@@ -1004,6 +1004,7 @@ public:
 	int majorStructVersion = 1, 		// version read from config file 1.2.
 		minorStructVersion = 2,			// C.f. support.h constexpr with same names
 		subStructVersion = 6;			// 	
+	bool dontRegenerateAnyImage = false;
 	StyleHandler styleHandler;	// for the main window with all of its elements
 
 	void Read();

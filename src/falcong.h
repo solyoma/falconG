@@ -299,6 +299,7 @@ private slots:
 	void on_chkBold_toggled(bool);
 	void on_chkCleanupGallery_toggled(bool on);
 	void on_chkRegenAllImages_toggled(bool);
+	void on_chkNoImages_toggled(bool);
 	void on_chkCanDownload_toggled(bool);
 	void on_chkCropThumbnails_toggled(bool);
 	void on_chkDebugging_toggled(bool);

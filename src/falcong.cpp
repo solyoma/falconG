@@ -2452,10 +2452,19 @@ void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
  *--------------------------------------------------------------------------*/
 void FalconG::on_chkRegenAllImages_toggled(bool on)
 {
-	if (_busy)
-		return;
+	//if (_busy)
+	//	return;
 	if (config.bRegenerateAllImages != !on)
 		config.bRegenerateAllImages = on;
+	if(on)
+		ui.chkNoImages->setChecked(false);
+}
+
+void FalconG::on_chkNoImages_toggled(bool on)
+{
+	config.dontRegenerateAnyImage = on;
+	if (on)
+		ui.chkRegenAllImages->setChecked(false);
 }
 
 /*============================================================================

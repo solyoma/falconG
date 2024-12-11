@@ -19,11 +19,15 @@
 
 PathMap pathMap;	// id -> path, path->id of source folders relative to dsSrc
 
-static QSize ThumbSizeFromId(ID_t id)
+static QSize ThumbSizeFromId(ID_t id)	//id: thumbnail id
 {
 	Image* pI = albumgen.Images().Find(id);
 	if (pI)
+	{
+		if (!pI->tsize.isValid())
+			pI->SetThumbSize();
 		return pI->tsize;
+	}
 	else
 		return QSize();
 }
@@ -3650,7 +3654,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_ProcessImages()
 {
-	if (!_processing)
+	if (!_processing || config.dontRegenerateAnyImage)
 		return 0;
 
 	// progress bar
@@ -3831,8 +3835,9 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 	s += QString("<meta charset=\"UTF-8\">\n"
 		"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
 		"<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n"
+		"<meta name=\"self\" content=\"%1\">\n"
 		"<meta name=\"generator\" content=\"falconG\">\n"
-		"<title>" + config.sGalleryTitle + "</title>\n");
+		"<title>" + config.sGalleryTitle + "</title>\n").arg(album.ID.Val() );
 	if (!config.sDescription.IsEmpty())
 		s += QString("<meta name=\"description\" content=\"" + config.sDescription + "\"/>\n");
 	if (!config.sKeywords.IsEmpty())
@@ -3849,8 +3854,12 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 	if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
 
-		auto encodeStr = [](QString& str)
+		auto encodeStr = [](QString str)
 			{
+				str.replace('\'', 0x01);
+				str.replace('\"', 0x02);
+				str.replace("\\n", QChar(0x04) );
+
 				return str;		// will encode the names to obfuscate them from users
 			};
 		// the real web page is created in havascript in gengallery.js
@@ -3861,14 +3870,14 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		QString qs = QString(	" const imd='%1%2',"		// image dir
 								"thd='%3%4',"	// thumbnail dir
 								"rsd='%5%6',"	// resource dir
-								"ald='%7%8',"	// albumdir
-								"alb='%9%10',"	// base name of albums
-								"lang='%11';"	// 2 letter language abbrev,
+								"ald='%7%8',"	// albumdir - only used for root and generated programs
+								"alb='%9',"	// base name of albums
+								"lng='%10';"	// 2 letter language abbrev,
 		).arg(supdir).arg(config.dsImageDir.ToString())
 		 .arg(supdir).arg(config.dsThumbDir.ToString())
 			.arg(supdir).arg("res/")
 		 .arg(supdir).arg(config.dsAlbumDir.ToString())
-		 .arg(supdir).arg(config.sBaseName.ToString())
+		 .arg(config.sBaseName.ToString())
 		 .arg((*languages["language"])[_actLanguage])
 			;
 		
@@ -3912,12 +3921,12 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += QString("{i:'%1',w:%2,h:%3,").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
 				LanguageTexts* plt = _textMap.Find(pIa->titleID);
 				if (plt)
-					*pqs += "t:'" + (*plt)[_actLanguage] + "',";
+					*pqs += "t:'" + encodeStr( (*plt)[_actLanguage]) + "',";
 				else
 					*pqs += "t:'',";
 				plt = _textMap.Find(pIa->descID);
 				if (plt)
-					*pqs += "d:'" + (*plt)[_actLanguage] + "',";
+					*pqs += "d:'" + encodeStr((*plt)[_actLanguage]) + "',";
 				else
 					*pqs += "d:'',";
 				if (a.TestFlag(ALBUM_ID_FLAG))
@@ -3925,9 +3934,9 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += "},\n";
 			}		
 		}
-		s += QString("\n const imgs=[\n%1];\n").arg(encodeStr(qsI) );
-		s += QString("\n const vids=[\n%1];\n").arg(encodeStr(qsV) );
-		s += QString("\n const albs=[\n%1];\n").arg(encodeStr(qsA) );
+		s += QString("\n const imgs=[\n%1];\n").arg(qsI);
+		s += QString("\n const vids=[\n%1];\n").arg(qsV);
+		s += QString("\n const albs=[\n%1];\n").arg(qsA);
 
 		qs = QString("  const icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
 		s += qs + QString("</script>\n");
@@ -4108,7 +4117,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 {
 
 	_ofs << "   <div class=\"header\">\n"
-			"    <a href=\"" << SiteLink(_actLanguage) << "\">"
+			"    <a href=\"" << SiteLink(_actLanguage) << "\">\n"
 			"	 <span class=\"falconG\">" << config.sGalleryTitle << "</span>"
 			"</a>&nbsp; &nbsp;";
 
@@ -4164,9 +4173,9 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 					"       <button id=\"lb-next-btn\" onclick='NextImage()'>&#10095;</button>\n";
 		}
 							// image and caption are always present
-		_ofs <<		"	  <div class='lb-image-wrapper'\n>"
+		_ofs <<		"	  <div class='lb-image-wrapper'>\n"
 					"	     <img id=\"lightbox-img\" src=\"\" onclick=\"LightboxFadeOut()\" alt=\"Teljes méret/Full size\">\n"
-					"	  </div>"
+					"	  </div>\n"
 					"	  <p id=\"lightbox-caption\"></p>\n"
 					"	 </div>\n"	// lb-container
 					"   </div>\n"	// for lightbox

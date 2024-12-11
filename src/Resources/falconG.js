@@ -5,9 +5,9 @@
 //const imd='%1%2';"		// image dir
 //					 "thd='%3%4',"		// thumbnail dir thumbs/
 //					 "rsd='%5%6',"		// resource dir
-//					 "ald='%7%8',"		// albumdir
+//					 "ald='%7%8',"		// albumdir - only used for root level
 //					 "alb='%9%10',		// base name
-//                   "lang=%11;"        // language abbreviation like 'en' or 'hu'
+//                   "lng=%11;"        // language abbreviation like 'en' or 'hu'
 // const imgs -array for images
 // const vids -array for videos
 // must be set before falconG.js is included
@@ -22,6 +22,16 @@ function DebugProperties(className, obj)
 {
     let style= getComputedStyle(obj)
 }
+
+function DecodeText(text)
+{
+    text = text.replace(//g,'<br>');
+    text = text.replace(//g,'\'');
+    text = text.replace(//g,'"');
+	return text;
+}
+
+
 
 function SetPropertyForSelector(selector, propertyName, propValue) 
 {
@@ -149,7 +159,7 @@ function preloadImage(img) {
     img.removeAttribute("data-src");
 }
 
-function falconGLoad(latest) {
+function falconGLoad(latest,isRootLevel=false) {
     ResizeThumbs();
     showDesc = sessionStorage.getItem("showDescription");
     if (!showDesc)       // e.g. not defined
@@ -162,9 +172,12 @@ function falconGLoad(latest) {
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
 //	console.log('*****PrepareSection load started')
-	PrepareSection(lang,imgs,'#images-section',0);
-	PrepareSection(lang,vids,'#videos-section',1);
-	PrepareSection(lang,albs,'#albums-section',2);
+    if(typeof imgs != 'undefined')
+        PrepareSection(lng,imgs,'#images-section',0, isRootLevel);
+    if(typeof vids != 'undefined')
+    	PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
+    if(typeof albs != 'undefined')
+	    PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
 //	console.log('*****PrepareSection load finished')
 
     t1 = Date.time;
@@ -212,7 +225,7 @@ function FadeInOut(fadeIn) {
     elem.style.opacity = sop;
 	elem.style.display = "block";
 	
-	console.log(elem.style.display);
+//	console.log(elem.style.display);
 
     var intv = setInterval(showlb, 100); // timer id
     function showlb() {
@@ -273,7 +286,7 @@ function ShowImage(index, caption) {
         }
     }
     var img = ImageForIndex(index);
-    console.log('img:',img);
+//    console.log('img:',img);
     image.setAttribute('src', img);
 	
     LightboxFadeIn();
@@ -285,7 +298,7 @@ function NextImage()
         lastIndex = 0;
     var image = document.getElementById("lightbox-img");
     image.setAttribute('src', ImageForIndex(lastIndex));
-    console.log('NextIndex:', lastIndex);
+//    console.log('NextIndex:', lastIndex);
 }
 function PrevImage()
 {
@@ -295,7 +308,7 @@ function PrevImage()
     --lastIndex;
     var image = document.getElementById("lightbox-img");
     image.setAttribute('src', ImageForIndex(lastIndex));
-    console.log('PrevIndex:', lastIndex);
+//    console.log('PrevIndex:', lastIndex);
 }
 
 
@@ -337,8 +350,9 @@ function PrevImage()
     </div>
 ...
  */
-function PrepareSection(lang, arr,selector,isalbum) // example PrepareSection('hu',imgs,'#images',false)
+function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example PrepareSection('hu',imgs,'#images',false,0)
 {
+    let _ald = isRootLevel ? ald : "";       // no album path unless for index_XX.html
     // Get the parent container where the images will be added
     const galleryContainer = document.querySelector(selector);  // selector MUST exist
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
@@ -359,12 +373,11 @@ function PrepareSection(lang, arr,selector,isalbum) // example PrepareSection('h
         const innerDiv = document.createElement("div");     //          <div id='1234'></div>  will be added as child to imatte
         innerDiv.id = `${item.i}`;
 
-        const sTitle = item.t ? `${item.t}` : '&nbsp;';       // image title if any
+        const sTitle = item.t ? DecodeText(item.t) : "&nbsp;";       // image title if any
 
-        //const onclk = isalbum ? "javascript:LoadAlbum('"+`${ald}${alb}${item.i}_${lang}.html`+"')" : 
-        const onclk = isalbum ? "javascript:LoadAlbum('"+`${ald}${alb}${item.i}_${lang}.html`+"')" : 
+        const onclk = forWhat ? "javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')" : 
                                 "javascript:ShowImage("+index+",'" + sTitle + "')";
-        const thumbnail = isalbum? `${thd}${item.l}` : `${thd}${item.i}`
+        const thumbnail = forWhat? `${thd}${item.l}` : `${thd}${item.i}`
 
         // Create the img element
         const imgElement = document.createElement("img");  // <img w:600 h:400 class="thumb" src='../thumbs/123456.jpg' onclick=javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')"
@@ -390,7 +403,7 @@ function PrepareSection(lang, arr,selector,isalbum) // example PrepareSection('h
             const descPar = document.createElement("p")
             descPar.className = "desc";
             descPar.setAttribute("lang",`${lang}`);
-            descPar.innerHTML = "${item.d}";
+            descPar.innerHTML = DecodeText(item.d);
             descDiv.appendChild(descPar);
         }
 
