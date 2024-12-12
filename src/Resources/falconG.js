@@ -15,6 +15,7 @@
 var showDesc = 0;
 var lastIndex = -1;
 var touchStartX = 0, touchStartY = 0;
+var lightboxContainer = false;
 
 window.addEventListener("resize", ResizeThumbs);
 
@@ -165,50 +166,91 @@ function falconGLoad(latest,isRootLevel=false) {
         showDesc = 0;
     else
         showDesc ^= 1;  // invert stored
+    if(latest === 1)
+        SetRandomLastImage()	// in 'latest.js'
 
-	if(latest === 1)
-		SetRandomLastImage()	// in 'latest.js'
+    lightboxContainer = document.getElementById('lb-container');
+
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
-//	console.log('*****PrepareSection load started')
+    //	console.log('*****PrepareSection load started')
     if(typeof imgs != 'undefined')
         PrepareSection(lng,imgs,'#images-section',0, isRootLevel);
     if(typeof vids != 'undefined')
-    	PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
+        PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
     if(typeof albs != 'undefined')
-	    PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
-//	console.log('*****PrepareSection load finished')
+        PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
+    //	console.log('*****PrepareSection load finished')
 
     t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");
     cnt = 0;
 
     const imgObserver =
-        new IntersectionObserver((entries, imgObserver) => {
-            entries.forEach(entry => {
-                if (!entry.isIntersecting) { return; }
-                else {
-                    preloadImage(entry.target);
-                    imgObserver.unobserve(entry.target);
-                }
-            })
-        }, imgOptions);
+    new IntersectionObserver((entries, imgObserver) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) { return; }
+            else {
+                preloadImage(entry.target);
+                imgObserver.unobserve(entry.target);
+            }
+        })
+    }, imgOptions);
 
     images.forEach(image => {
-        imgObserver.observe(image);
-    })
+    imgObserver.observe(image);
+})
 
 
-    var pos = sessionStorage.getItem(window.location.href);
-    if ( typeof pos !== "undefined" && pos > 0)
-        document.body.scrollTo(0, pos);
+var pos = sessionStorage.getItem(window.location.href);
+if ( typeof pos !== "undefined" && pos > 0)
+    document.body.scrollTo(0, pos);
 }
 
 // ********************************************************* Show lightbox
 
+function tstrFunc(event) {
+        touchStartX = event.changedTouches[0].screenX;
+}
+function tstpFunc(event) {
+        touchEndX = event.changedTouches[0].screenX;
+        const swipeDistance = touchEndX - touchStartX;
+        if (swipeDistance > 50) moveToPreviousImage(); // Swipe right
+        if (swipeDistance < -50) moveToNextImage();   // Swipe left
+    };
+
+function keyFunc(event) {
+        if (event.key === 'Escape') LightboxFadeOut();
+        if (event.key === 'ArrowLeft') PrevImage();
+        if (event.key === 'ArrowRight') NextImage();
+        console.log('key pressed:', event.key);
+}
+
+function InitLightbox()
+{
+    console.log('lightbox init');
+
+    if(typeof lightboxContainer == 'undefined') 
+        return;
+
+    lightboxContainer.addEventListener('touchstart', tstrFunc);
+    lightboxContainer.addEventListener('touchend', tstpFunc);
+    document.addEventListener('keydown',keyFunc)
+}
+
+function StopLightbox()
+{
+    if(typeof lightboxContainer=='undefined')
+        return;
+    console.log('lightbox stopped');
+    lightboxContainer.removeEventListener('touchstart', tstrFunc);
+    lightboxContainer.removeEventListener('touchend', tstpFunc);
+    document.removeEventListener('keydown', keyFunc);
+}
+
 function FadeInOut(fadeIn) {
     var elem = document.getElementById('lightbox');
-
+    
     var op, sop, eop, dop;
     if (fadeIn) {
         sop = 0;    // start opacity
@@ -224,8 +266,8 @@ function FadeInOut(fadeIn) {
     elem.style.opacity = sop;
 	elem.style.display = "block";
 	
-//	console.log(elem.style.display);
-
+    //	console.log(elem.style.display);
+    
     var intv = setInterval(showlb, 100); // timer id
     function showlb() {
         if (Math.abs(op - eop) > 0.01) {
@@ -239,7 +281,12 @@ function FadeInOut(fadeIn) {
                 elem.style.display = "none"
         }
     }
+    if(fadeIn)
+        InitLightbox();
+    else
+        StopLightbox();
 }
+
 function LightboxFadeIn() {
     if (document.getElementById('lightbox').opacity == 1)
         return;
@@ -268,7 +315,7 @@ function ImageForIndex(index)
 function ShowImage(index, caption) {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-
+    
     var image = document.getElementById("lightbox-img");
     image.onload = function () {
         var iw = this.width;
@@ -357,7 +404,7 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
         return;
     // console.log("galleryContainer", galleryContainer.length);
-    //console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
+//    console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
 
     arr.forEach(
         (item, index) => {
@@ -396,10 +443,9 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
         imatte.appendChild(innerDiv);
 
         // create the description
-        let descDiv=false;
         if(item.d)
         {
-            descDiv = document.createElement("div");
+            const descDiv = document.createElement("div");
             descDiv.className = "desc";
             const descPar = document.createElement("p")
             descPar.className = "desc";
@@ -423,8 +469,6 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
 
         // Append imatte and links to the main img-container
         imgContainer.appendChild(imatte);
-        if(descDiv)
-            imgContainer.appendChild(descDiv);
         imgContainer.appendChild(linksDiv);
 
         // Append the img-container to the gallery container
