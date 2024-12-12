@@ -157,6 +157,11 @@ public:
 	inline static const ID_t Invalid(uint64_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
 	constexpr inline bool IsInvalid() const { return !_uval || !_flags; }
 
+	constexpr void SetValue(uint64_t val)
+	{
+		_uval = val;
+	}
+
 	constexpr uint8_t SetFlag(uint8_t which, bool setIt=true)	// which can be contain _flags ORed
 	{														// returns resulting _flags
 		_flags &= ~which;
@@ -183,11 +188,11 @@ public:
 	//constexpr inline ID_t& operator=(const uint64_t v) { _uval = v; return *this; }
 
 	//constexpr inline bool operator==(const uint64_t v) const { return _uval == v; }
-	inline bool operator==(const ID_t v) const { return _uval == v._uval && _flags == v._flags; }
-	inline bool operator!=(const ID_t v) const { return _uval != v._uval || _flags != v._flags; }
-	inline bool operator<(const ID_t v) const { return _uval < v._uval && _flags == v._flags; }
-	inline bool operator<=(const ID_t v) const { return _uval <= v._uval && _flags == v._flags; }
-	inline bool operator>(const ID_t v) const { return _uval > v._uval && _flags == v._flags; }
+	inline bool operator==(const ID_t v) const { return _uval == v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
+	inline bool operator!=(const ID_t v) const { return _uval != v._uval || (_flags & TYPE_FLAGS) != (_flags & TYPE_FLAGS); }
+	inline bool operator<(const ID_t v) const { return _uval < v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
+	inline bool operator<=(const ID_t v) const { return _uval <= v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
+	inline bool operator>(const ID_t v) const { return _uval > v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
 	
 	constexpr inline bool IsSameType(uint8_t type) const { return (Flags() & TYPE_FLAGS & type) != 0; }
 

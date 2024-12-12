@@ -661,10 +661,13 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	if (!img.Exists(CHECK))	// checks if the image exists on disk and sets EXISTING_FLAG in it if it does
 		return NOIMAGE_ID;
 
+	img.ID.SetFlag(IMAGE_ID_FLAG, true);
+	ID_t id(img.ID);
+
 	AlbumGenerator::lastUsedAlbumPathId = lastUsedPathId = img.pathId;
 	QFileInfo fi(pathName);		   // new image to add
 
-	ID_t id = ID_t(IMAGE_ID_FLAG, CalcCrc(img.name, false));	// crc from just the name. Paths may be different
+	id.SetValue( CalcCrc(img.name, false) );	// crc from just the name. Paths may be different
 
 	Image *found = Find(id, true); // check if a file with this same base id is already in data base?
 							  // can't use reference as we may want to modify 'found' below
@@ -2494,13 +2497,21 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	SetAlbumModified(album.ID);			// set it as changed always
 	if (type == ftImage)
 	{
-		img = _imageMap[id];
+		if (_imageMap.contains(id))
+			img = _imageMap[id];
+		else
+			_imageMap.insert(id, img);
+
 		if (img.pathId != NO_ID)
 			ImageMap::lastUsedPathId = img.pathId;
 	}
 	else
 	{
-		vid = _videoMap[id];
+		if (_videoMap.contains(id))
+			vid = _videoMap[id];
+		else
+			_videoMap.insert(id, vid);
+
 		if (vid.pathId != NO_ID)
 			VideoMap::lastUsedPathId = vid.pathId;
 	}
