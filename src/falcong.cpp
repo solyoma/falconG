@@ -436,7 +436,9 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 {
 	SourceHistory hist(PROGRAM_CONFIG::maxSavedConfigs, PROGRAM_CONFIG::lastConfigs, ui.edtSourceGallery->text(), this);
 
-	hist.exec();
+	if (hist.exec() == QDialog::Rejected)
+		return;
+
 	PROGRAM_CONFIG::maxSavedConfigs = hist.MaxSize();
 
 	AlbumTreeModel* pmodel = ((AlbumTreeModel*)ui.trvAlbums->model());
@@ -1436,6 +1438,8 @@ void FalconG::_ReadLastAlbumStructure()
 			_SlotTnvCountChanged();			// show in lblTotalCount (page: Edit)
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
 		}
+		else
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error"));
 	}
 	_edited = false;
 }

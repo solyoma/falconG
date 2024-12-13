@@ -208,6 +208,7 @@ void SourceHistory::on_btnCancel_clicked()
 {
 	_selected = -1;
 	_changed = false;
+	QDialog::reject();
 	close();
 }
 
@@ -222,6 +223,7 @@ void SourceHistory::on_btnCancel_clicked()
 void SourceHistory::on_btnSelect_clicked()
 {
 	_pModel->AcceptChanges();
+	QDialog::accept();
 	close();
 }
 
