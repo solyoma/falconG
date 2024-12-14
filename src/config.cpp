@@ -28,6 +28,7 @@ int PROGRAM_CONFIG::lang = -1;
 QStringList PROGRAM_CONFIG::qslLangNames;
 int PROGRAM_CONFIG::splitterLeft = 493;
 int PROGRAM_CONFIG::splitterRight = 543;
+int PROGRAM_CONFIG::copyrightYear = 2025;
 int PROGRAM_CONFIG::schemeIndex = 0;
 
 static bool __bClearChangedFlag = false;	// set to true to clear the changed flag after writing the configuration
@@ -40,6 +41,8 @@ CONFIG config,		// must be here because _Changed uses it
 void PROGRAM_CONFIG::Read()
 {
 	lastConfigs.clear();
+	copyrightYear = QDate::currentDate().year();
+
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in user's local home directory
 
 	lang = s.value("lang", -1).toInt();

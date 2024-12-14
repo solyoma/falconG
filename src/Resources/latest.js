@@ -1,22 +1,20 @@
-// has array 'selectedList[]', 'cnt' and'imagePath' set
-let selected=[]
+// Expects: falconG.js and the suitable 'latestList_xx.j' are loaded 
+//          before this, therefore
+//          lng - short language code like "en" is set
+//          ids: array of a number of latest images defined
 //--------------------------------------------------------------------
 function select() {
 	// DEBUG
 	// console.log(window.location.pathname)
 	
-    selected.length = 0;
-    let s = []
+    imgs = [];              // empty previous array
 	if(cnt > ids.length)
 		cnt = ids.length;
-	// DEBUG
-//	alert("ids.length: "+ids.length +"cnt: "+cnt);
-//	console.log("ids.length:"+ids.length +"cnt: "+cnt);
 
 // DEBUG
-let maxiter = 500
+    let maxiter = 500
 
-	let remaining = cnt;
+	let remaining = cnt;    // # of images to randomly select for display
 	
     while(remaining) {
 // debug		
@@ -27,18 +25,20 @@ let maxiter = 500
 		}
 	
         let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
-        if(!s.includes(i))
+        if(!imgs.includes(ids[i]))
         {
 	// DEBUG
 	//console.log("i: "+ i +", remaining: "+remaining);
-            s.push(i);
-            selected.push(ids[i]);
+            imgs.push(ids[i]);
             --remaining;
         }
     }
+    falconGLoad(1,true); // in falconG.js
+
+/*
 	const section = document.getElementsByTagName('section')[0];
 
-    selected.forEach(item => {
+    imgs.forEach(item => {
         const divImgContainer = document.createElement('div');
         divImgContainer.classList.add('img-container');
         // DEBUG
@@ -92,6 +92,7 @@ let maxiter = 500
 
  //       console.log(img.src + ' - processed');
     })
+ */
 }
 function SetRandomLastImage()
 {

@@ -228,7 +228,7 @@ void CssCreator::_CreateForSection()
 void CssCreator::_CreateForImagesAndAlbums()
 {
 	// --------- imgContainer ----------------
-	_ofs << QString(R"(.img-container {		/* ---- image or album ----- */;
+	_ofs << QString(R"(.img-container {		/* ---- image or album ----- */
 	display:flex;
 	flex-direction: column;
 	justify-content:center;
@@ -464,8 +464,7 @@ void CssCreator::_CreateForLightboxTitle()
 
 #lightbox-desc::first-line {
 	font-size:22pt;
-}
-)",
+)",	// finished in
 	config.LightboxTitle);
 }
 

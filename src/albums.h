@@ -487,6 +487,7 @@ private:
 					// write gallery files
 	void _WriteFacebookLink(QString linkName, ID_t ID);
 	QString _IncludeFacebookLibrary() const;
+	void _LightboxCodeIntoHtml(int cntItems);
 	void _OutputNavForAboutPage(int lang);
 	int  _OutputAboutText(int lang);
 	void _OutputNav(Album &album, QString uplink);

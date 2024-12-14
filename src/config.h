@@ -971,6 +971,7 @@ struct PROGRAM_CONFIG
 	// design page
 	static int splitterLeft;
 	static int splitterRight;
+	static int copyrightYear;
 	// Options page
 	static int lang;
 	static QStringList qslLangNames;

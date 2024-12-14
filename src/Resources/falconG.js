@@ -176,11 +176,14 @@ function falconGLoad(latest,isRootLevel=false) {
     //	console.log('*****PrepareSection load started')
     if(typeof imgs != 'undefined')
         PrepareSection(lng,imgs,'#images-section',0, isRootLevel);
-    if(typeof vids != 'undefined')
-        PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
-    if(typeof albs != 'undefined')
-        PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
+    if(latest===0)
+    {
+        if(typeof vids != 'undefined')
+            PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
+        if(typeof albs != 'undefined')
+            PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
     //	console.log('*****PrepareSection load finished')
+    }
 
     t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");
@@ -223,13 +226,10 @@ function keyFunc(event) {
         if (event.key === 'Escape') LightboxFadeOut();
         if (event.key === 'ArrowLeft') PrevImage();
         if (event.key === 'ArrowRight') NextImage();
-        console.log('key pressed:', event.key);
 }
 
 function InitLightbox()
 {
-    console.log('lightbox init');
-
     if(typeof lightboxContainer == 'undefined') 
         return;
 
@@ -242,7 +242,6 @@ function StopLightbox()
 {
     if(typeof lightboxContainer=='undefined')
         return;
-    console.log('lightbox stopped');
     lightboxContainer.removeEventListener('touchstart', tstrFunc);
     lightboxContainer.removeEventListener('touchend', tstpFunc);
     document.removeEventListener('keydown', keyFunc);

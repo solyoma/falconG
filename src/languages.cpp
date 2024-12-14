@@ -3,8 +3,8 @@
 using namespace Enums;
 #include "support.h"
 #include "crc32.h"
-#include "languages.h"
 #include "config.h"
+#include "languages.h"
 
 LanguageTexts TextMap::invalid;
 
