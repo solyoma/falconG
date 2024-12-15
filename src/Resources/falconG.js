@@ -345,15 +345,29 @@ function PrevImage()
     </div>
 ...
  */
-function PrepareSection(lang, arr, elemID, forAlbum, isRootLevel) // example PrepareSection('hu',imgs,'images-section',false,0)
+function PrepareSection(lang, arr, elemID, forType, isRootLevel) // example PrepareSection('hu',imgs,'images-section',1,0)
 {
     let _ald = isRootLevel ? "" : ald;       // no album path unless for index_XX.html
+	// DEBUG
+//	let a=0;
+//	if(arr == imgs)
+//		a = 'imgs';
+//	else if(arr==vids)
+//		a = 'vids';
+//	else if(arr==vids)
+//		a = 'albs';
+	// /DEBUG
+	
     // Get the parent container where the images will be added
+    // console.log('PrepareSection: lang:'+lng+', arr(length):'+a+ '('+arr.length+'), elemID:'+elemID +  ', forType:' +
+	//			forType + ', isRootLevel: '+ isRootLevel+ ', ald: ', ald, ', _ald: ',_ald);
     const galleryContainer = document.getElementById(elemID);  // elemID MUST exist
-    if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
-        return;
-    // console.log("galleryContainer", galleryContainer.length);
-//    console.log('Prep.: isRootL.: ', isRootLevel, 'ald: ', ald, ', _ald: ',_ald);
+    if(!galleryContainer == 'undefined' || !galleryContainer)
+	{
+		console.log("galleryContainer for "+elemID+" is undefined - exiting");
+		return;
+	}
+		//console.log(a + "'s length is "+arr.length);
 
     arr.forEach(
         (item, index) => {
@@ -371,9 +385,9 @@ function PrepareSection(lang, arr, elemID, forAlbum, isRootLevel) // example Pre
 
         const sTitle = item.t != '' ? DecodeText(item.t) : "&nbsp;";       // image title if any
 
-        const onclk = forAlbum ? "javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')" : 
-                                "javascript:ShowImage("+index+",'" + sTitle + "')";
-        const thumbnail = forAlbum? `${thd}${item.l}` : `${thd}${item.i}`
+        const onclk = forType ? "javascript:ShowImage("+index+",'" + sTitle + "')" : 
+								"javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')";
+        const thumbnail = forType? `${thd}${item.i}` : `${thd}${item.l}`
 
         // Create the img element
         const imgElement = document.createElement("img");  // <img w:600 h:400 class="thumb" src='../thumbs/123456.jpg' onclick=javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')"
@@ -431,7 +445,7 @@ function SetRandomLastImage()
 		return;
 	let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
 	elem.src= thd + ids[i].i + '.jpg';
-	//console.log("thumbsPath:"+thd + "i: "+i+"\nsrc: "+elem.src)
+//	console.log("thumbsPath:"+thd + " ids.length:" + ids.length + " ids[i]: "+ids[i].i+"\nsrc: "+elem.src)
 }
 
 function falconGLoad(latest,isRootLevel=false) {
@@ -443,10 +457,9 @@ function falconGLoad(latest,isRootLevel=false) {
         showDesc ^= 1;  // invert stored
     if(latest === 1)	// them ids is set in latest_XX.js
 	{
-		imgs = [];              // empty previous array
+		imgs = [];
 		if(cnt > ids.length)
 			cnt = ids.length;
-
 // DEBUG
 		let maxiter = 500
 
@@ -477,17 +490,23 @@ function falconGLoad(latest,isRootLevel=false) {
 
     // console.log("showDesc=" + showDesc)    
     ShowHide(showDesc);
-    //	console.log('*****PrepareSection load started')
+    //	console.log('*****PrepareSection load started, latest is '+(latest ? 'true':'false'))
     if(typeof imgs != 'undefined')
-        PrepareSection(lng,imgs,'images-section',0, isRootLevel);
+        PrepareSection(lng, imgs,'images-section',1, isRootLevel);
+	else
+		console.log("imgs is undefined");
     if(latest===0)
     {
         if(typeof vids != 'undefined')
-            PrepareSection(lng,vids,'videos-section',1, isRootLevel);
+            PrepareSection(lng,vids,'videos-section',2, isRootLevel);
+		else
+			console.log("vids is undefined");
         if(typeof albs != 'undefined')
-            PrepareSection(lng,albs,'albums-section',2, isRootLevel);
-    //	console.log('*****PrepareSection load finished')
+            PrepareSection(lng,albs,'albums-section',0, isRootLevel);
+		else
+			console.log("albs is undefined");
     }
+    // console.log('*****PrepareSection load finished')
 
     t1 = Date.time;
     const images = document.querySelectorAll("[data-src]");

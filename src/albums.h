@@ -510,7 +510,7 @@ private:
 	int _CleanUpOutput();	// remove files from output that were removed in input
 	// latest images
 	int _CollectLatestImagesAndVideos(LatestImages &here);
-	int _DoLatestJs();	// creates "javascript latest.js"
+	int _DoLatestJs();	// creates language dependent "javascript latest_XX.js"
 	int _DoLatestHelper(QString fileName, int lang);
 	int _DoLatest();
 	int _DoHtAccess();

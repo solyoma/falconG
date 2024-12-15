@@ -3992,7 +3992,7 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += "},\n";
 			}		
 		}
-		s += QString("\n var imgs=[\n%1];\n").arg(qsI);		// can't be const, because 'latest.js' must assign to it
+		s += QString("\n var imgs=[\n%1];\n").arg(qsI);		// can't be const, because we must assign to it
 		s += QString("\n const vids=[\n%1];\n").arg(qsV);
 		s += QString("\n const albs=[\n%1];\n").arg(qsA);
 
@@ -4965,7 +4965,7 @@ int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
  *				correct HTML files before the 'latest_common.js'
  *				file
  *			- generated into javascript directory
- *			- real generation is set in javascript file latest.js
+ *			- real generation is set in javascript file falconG.js
  *------------------------------------------------------------*/
 int AlbumGenerator::_DoLatestJs()
 {
@@ -4992,7 +4992,6 @@ int AlbumGenerator::_DoLatestJs()
 			"\n"
 			"// date of latest upload: " << _latestDateLimit.toString() << "\n"
 			"// period: " << config.newUploadInterval << " days, count: " << n << ",max count : " << config.nLatestCount << "\n\n"
-			"var imgs = [\n];\n"		// just for the randomly selected images, filled in in latest.js
 			"const ids =[\n";			// array for all max number of ID-s from which the imgs array is created
 
 		for (auto &latest : _latestImages.list)
@@ -5031,92 +5030,6 @@ int AlbumGenerator::_DoLatestJs()
 			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount.v : n) << ";\n"; // # of random images to show
 		f.close();
 	}
-/* ----------------
-			content of 'latest.js':
-
-// has array 'selectedList[]', 'cnt' and'imagePath' set
-let selected=[]
-//--------------------------------------------------------------------
-function select() {
-	// DEBUG
-	// console.log(window.location.pathname)
-
-	selected.length = 0;
-	let s = []
-	if(cnt > ids.count)
-		cnt = ids.count;
-	// DEBUG
-	//console.log("cnt:"+cnt);
-
-	while(cnt) {
-		let i = Math.floor(Math.random()*cnt); // index:0..cnt
-	// DEBUG
-	// console.log("i:"+i);
-		if(!s.includes(i))
-		{
-			s.push(i);
-			selected.push(ids[i]);
-			--cnt;
-		}
-	}
-	const section = document.getElementsByTagName('section')[0];
-
-	selected.forEach(item => {
-		const divImgContainer = document.createElement('div');
-		divImgContainer.classList.add('img-container');
-		// DEBUG
-		// console.log('item:'+item)
-			const divId = document.createElement('div');
-			divId.id=item.id;
-			divId.w= item.w;
-			divId.h= item.h;
-
-				const a = document.createElement('a');
-				a.classList.add('thumb');
-				a.href=`javascript:ShowImage('${imagePath}${item.id}.jpg','')`;
-		// DEBUG
-		// console.log('href:'+a.href)
-
-				const img = document.createElement('img');
-				img.src = `${imagePath}${item.id}.jpg`;
-				img.alt= `Image ${item.id}.jpg`;
-				img.classList.add('galleryImg');
-
-			const divDesc = document.createElement('div');
-			divDesc.classList.add('desc');
-
-				const pw = document.createElement('p');
-				pw.lang=lang;
-				if(typeof item.d === 'undefined')
-					pw.innerHTML ="&nbsp;";
-				else
-					pw.innerHTML = item.d;
-
-			const divLinks = document.createElement('div');
-			divLinks.classList.add('links');
-
-				const divTitle = document.createElement('div');
-				divTitle.classList.add('title');
-				divTitle.onclick = `javascript:ShowImage(''${imagePath}${item.id}.jpg','')`;
-				if(typeof item.t !== 'undefined')
-					divTitle.innerHTML ="&nbsp;";
-				else
-					divTitle.innerHTML = item.t;
-
-			divLinks.appendChild(divTitle);
-			divDesc.appendChild(pw);
-			a.appendChild(img);
-			divId.appendChild(a);
-		divImgContainer.appendChild(divId);
-		divImgContainer.appendChild(divDesc);
-		divImgContainer.appendChild(divLinks);
-
-		section.appendChild(divImgContainer);
-
-		// console.log(img.src + ' - processed');
-	})
-}
- -- end of latest.js */
 	return 0;
 }
 
