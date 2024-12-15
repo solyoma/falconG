@@ -27,7 +27,6 @@
     <file>Resources/falconG.js</file>
     <file>Resources/placeholder.jpg</file>
     <file>Resources/placeholder2.jpg</file>
-    <file>Resources/latest.js</file>
     <file>Resources/NoImage.jpg</file>
   </qresource>
 </RCC>
