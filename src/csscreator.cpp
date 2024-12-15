@@ -121,6 +121,11 @@ section {
 	max-width: 100%;
 }
 
+.no-scroll {	/* used on body when lightbox is active*/ 
+    overflow: hidden; /* Prevents scrolling */
+    height: 100%;     /* Ensures the page won't scroll */
+}
+
 )";
 }
 
@@ -368,7 +373,7 @@ void CssCreator::_CreateForLightboxTitle()
 }
 
 #lb-close-btn {
-    position: absolute;
+    position: fixed;
     top: 10px;
     right: 20px;
     font-size: 30px;

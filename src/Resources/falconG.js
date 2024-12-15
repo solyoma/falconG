@@ -158,58 +158,6 @@ function preloadImage(img) {
     img.src = src;
     img.removeAttribute("data-src");
 }
-
-function falconGLoad(latest,isRootLevel=false) {
-    ResizeThumbs();
-    showDesc = sessionStorage.getItem("showDescription");
-    if (!showDesc)       // e.g. not defined
-        showDesc = 0;
-    else
-        showDesc ^= 1;  // invert stored
-    if(latest === 1)
-        SetRandomLastImage()	// in 'latest.js'
-
-    lightboxContainer = document.getElementById('lb-container');
-
-    // console.log("showDesc=" + showDesc)    
-    ShowHide(showDesc);
-    //	console.log('*****PrepareSection load started')
-    if(typeof imgs != 'undefined')
-        PrepareSection(lng,imgs,'#images-section',0, isRootLevel);
-    if(latest===0)
-    {
-        if(typeof vids != 'undefined')
-            PrepareSection(lng,vids,'#videos-section',1, isRootLevel);
-        if(typeof albs != 'undefined')
-            PrepareSection(lng,albs,'#albums-section',2, isRootLevel);
-    //	console.log('*****PrepareSection load finished')
-    }
-
-    t1 = Date.time;
-    const images = document.querySelectorAll("[data-src]");
-    cnt = 0;
-
-    const imgObserver =
-    new IntersectionObserver((entries, imgObserver) => {
-        entries.forEach(entry => {
-            if (!entry.isIntersecting) { return; }
-            else {
-                preloadImage(entry.target);
-                imgObserver.unobserve(entry.target);
-            }
-        })
-    }, imgOptions);
-
-    images.forEach(image => {
-    imgObserver.observe(image);
-})
-
-
-var pos = sessionStorage.getItem(window.location.href);
-if ( typeof pos !== "undefined" && pos > 0)
-    document.body.scrollTo(0, pos);
-}
-
 // ********************************************************* Show lightbox
 
 function tstrFunc(event) {
@@ -230,12 +178,13 @@ function keyFunc(event) {
 
 function InitLightbox()
 {
-    if(typeof lightboxContainer == 'undefined') 
-        return;
+	if(typeof lightboxContainer == 'undefined') 
+		return;
 
-    lightboxContainer.addEventListener('touchstart', tstrFunc);
-    lightboxContainer.addEventListener('touchend', tstpFunc);
-    document.addEventListener('keydown',keyFunc)
+	lightboxContainer.addEventListener('touchstart', tstrFunc);
+	lightboxContainer.addEventListener('touchend', tstpFunc);
+	document.body.classList.add('no-scroll'); // Disable background scrolling
+	document.addEventListener('keydown',keyFunc)
 }
 
 function StopLightbox()
@@ -244,6 +193,7 @@ function StopLightbox()
         return;
     lightboxContainer.removeEventListener('touchstart', tstrFunc);
     lightboxContainer.removeEventListener('touchend', tstpFunc);
+	document.body.classList.remove('no-scroll'); // Re-enable scrolling
     document.removeEventListener('keydown', keyFunc);
 }
 
@@ -395,11 +345,11 @@ function PrevImage()
     </div>
 ...
  */
-function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example PrepareSection('hu',imgs,'#images',false,0)
+function PrepareSection(lang, arr, elemID, forAlbum, isRootLevel) // example PrepareSection('hu',imgs,'images-section',false,0)
 {
     let _ald = isRootLevel ? "" : ald;       // no album path unless for index_XX.html
     // Get the parent container where the images will be added
-    const galleryContainer = document.querySelector(selector);  // selector MUST exist
+    const galleryContainer = document.getElementById(elemID);  // elemID MUST exist
     if(typeof galleryContainer == 'undefined' )//|| galleryContainer.length == 0)
         return;
     // console.log("galleryContainer", galleryContainer.length);
@@ -421,9 +371,9 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
 
         const sTitle = item.t != '' ? DecodeText(item.t) : "&nbsp;";       // image title if any
 
-        const onclk = forWhat ? "javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')" : 
+        const onclk = forAlbum ? "javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')" : 
                                 "javascript:ShowImage("+index+",'" + sTitle + "')";
-        const thumbnail = forWhat? `${thd}${item.l}` : `${thd}${item.i}`
+        const thumbnail = forAlbum? `${thd}${item.l}` : `${thd}${item.i}`
 
         // Create the img element
         const imgElement = document.createElement("img");  // <img w:600 h:400 class="thumb" src='../thumbs/123456.jpg' onclick=javascript:ShowImage('../imgs/3305654134.jpg', 'Látkép')"
@@ -474,3 +424,93 @@ function PrepareSection(lang, arr, selector, forWhat, isRootLevel) // example Pr
         galleryContainer.appendChild(imgContainer);
     })
 };
+function SetRandomLastImage()
+{
+	let elem = document.getElementById('latest');
+	if(typeof elem === 'undefined' || !elem)
+		return;
+	let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
+	elem.src= thd + ids[i].i + '.jpg';
+	//console.log("thumbsPath:"+thd + "i: "+i+"\nsrc: "+elem.src)
+}
+
+function falconGLoad(latest,isRootLevel=false) {
+    ResizeThumbs();
+    showDesc = sessionStorage.getItem("showDescription");
+    if (!showDesc)       // e.g. not defined
+        showDesc = 0;
+    else
+        showDesc ^= 1;  // invert stored
+    if(latest === 1)	// them ids is set in latest_XX.js
+	{
+		imgs = [];              // empty previous array
+		if(cnt > ids.length)
+			cnt = ids.length;
+
+// DEBUG
+		let maxiter = 500
+
+		let remaining = cnt;    // # of images to randomly select for display
+	
+		while(remaining) {
+// debug		
+			if(--maxiter ==  0)
+			{
+				alert("maxiter timeout");
+				break;
+			}
+		
+			let i = Math.floor(Math.random()*ids.length); // index:0..# of found items
+			if(!imgs.includes(ids[i]))
+			{
+		// DEBUG
+		//console.log("i: "+ i +", remaining: "+remaining);
+				imgs.push(ids[i]);
+				--remaining;
+			}
+		}
+	}
+	else
+		SetRandomLastImage();
+
+    lightboxContainer = document.getElementById('lb-container');
+
+    // console.log("showDesc=" + showDesc)    
+    ShowHide(showDesc);
+    //	console.log('*****PrepareSection load started')
+    if(typeof imgs != 'undefined')
+        PrepareSection(lng,imgs,'images-section',0, isRootLevel);
+    if(latest===0)
+    {
+        if(typeof vids != 'undefined')
+            PrepareSection(lng,vids,'videos-section',1, isRootLevel);
+        if(typeof albs != 'undefined')
+            PrepareSection(lng,albs,'albums-section',2, isRootLevel);
+    //	console.log('*****PrepareSection load finished')
+    }
+
+    t1 = Date.time;
+    const images = document.querySelectorAll("[data-src]");
+    cnt = 0;
+
+    const imgObserver =
+    new IntersectionObserver((entries, imgObserver) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) { return; }
+            else {
+                preloadImage(entry.target);
+                imgObserver.unobserve(entry.target);
+            }
+        })
+    }, imgOptions);
+
+    images.forEach(image => {
+		imgObserver.observe(image);
+	})
+
+
+	var pos = sessionStorage.getItem(window.location.href);
+	if ( typeof pos !== "undefined" && pos > 0)
+		document.body.scrollTo(0, pos);
+}
+

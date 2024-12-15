@@ -3894,14 +3894,21 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		s += QString("<meta name=\"keywords\" content=\"" + config.sKeywords + "\"/>\n");
 
 	s += QString(sCssLink + "falconG.css\">\n");
-	if (album.ID == TOPMOST_ALBUM_ID && config.bGenerateLatestUploads)
-		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>\n" +
-				"<script type=\"text/javascript\" src=\"" + supdir + "js/latest.js\"></script>";
 
 	if (config.bFacebookLink)
 		s += _IncludeFacebookLibrary();
 
-	if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
+	if (album.ID == RECENT_ALBUM_ID)
+	{
+		QString qs = "\n<script type=\"text/javascript\">\nconst lng='" + ((*languages["language"])[_actLanguage]) + "'\n"
+			"const imd='../" + config.dsImageDir.ToString() + "'\n"
+			"const thd='../" + config.dsThumbDir.ToString() + "'\n"
+			"const ald=''\n</script>"			// no videos  or albums here
+		;
+		s += qs;
+
+	}
+	else if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
 
 		auto encodeStr = [](QString str)
@@ -3913,8 +3920,8 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 
 				return str;		// will encode the names to obfuscate them from users
 			};
-		// the real web page is created in havascript in gengallery.js
-		// these are thr data it needs
+		// the real web page is created in javascript in falconG.js
+		// these are the data it needs
 		s += QString("\n<script type=\"text/javascript\">\n"); 
 
 		// important configuration
@@ -3992,7 +3999,8 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		qs = QString("  const icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
 		s += qs + QString("</script>\n");
 	}
-	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
+	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>\n" +
+		 "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
 
 	s += QString("\n</head>\n");
 
@@ -4495,7 +4503,8 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	emit SignalProgressPos(++processedCount, _albumMap.size() * languages.LanguageCount());
 
 	_ofs << _PageHeadToString(album)	// for root album set random thumbnail to most recent gallery
-		 << " <body onload = \"falconGLoad(" + QString(album.ID == TOPMOST_ALBUM_ID  && !config.bFixedLatestThumbnail && config.bGenerateLatestUploads ? "1":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
+		 << " <body onload = \"falconGLoad(0)\" onbeforeunload=\"BeforeUnload()\"";
+// was 		 << " <body onload = \"falconGLoad(" + QString(album.ID == TOPMOST_ALBUM_ID  && !config.bFixedLatestThumbnail && config.bGenerateLatestUploads ? "0":"0") + ")\" onbeforeunload=\"BeforeUnload()\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"
@@ -4978,15 +4987,11 @@ int AlbumGenerator::_DoLatestJs()
 		QTextStream ofjs(&f);
 		ofjs.setCodec("UTF-8");
 
-		ofjs << "// Copyright  András Sólyom (2018-)\n" << PROGRAM_CONFIG::copyrightYear <<
-			"// email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com).\n"
+		ofjs << "// Copyright  András Sólyom (2018-" << PROGRAM_CONFIG::copyrightYear << 
+			")\n// email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com).\n"
 			"\n"
 			"// date of latest upload: " << _latestDateLimit.toString() << "\n"
 			"// period: " << config.newUploadInterval << " days, count: " << n << ",max count : " << config.nLatestCount << "\n\n"
-			"const lng='" << ((*languages["language"])[lang]) << "'\n"
-			"const imd='../" << config.dsImageDir.ToString() << "'\n"
-			"const thd='../" << config.dsThumbDir.ToString() << "'\n"
-			"const ald=''\n"			// no videos  or albums here
 			"var imgs = [\n];\n"		// just for the randomly selected images, filled in in latest.js
 			"const ids =[\n";			// array for all max number of ID-s from which the imgs array is created
 
@@ -5023,7 +5028,7 @@ int AlbumGenerator::_DoLatestJs()
 			//}
 		}
 		ofjs << "];\n"
-			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount.v : n) << ", icnt=cnt;\n"; // # of random images to show
+			<< "var cnt = " << (config.nLatestCount <= n ? config.nLatestCount.v : n) << ";\n"; // # of random images to show
 		f.close();
 	}
 /* ----------------
@@ -5144,7 +5149,7 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 	_ofs.setCodec("UTF-8");
 
 	_ofs << _PageHeadToString(_albumMap[RECENT_ALBUM_ID])
-		 << " <body onload = \"select()\"";
+		 << " <body onload = \"falconGLoad(1)\"";
 	if (config.bRightClickProtected)
 		_ofs << " oncontextmenu=\"return false;\"";
 	_ofs << ">\n"
@@ -5167,8 +5172,6 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
             "		</section>\n"
 			"	</div>\n"
 			"</div>\n"
-			"<script language=\"javascript\" src=\"../js/latestList"<< (languages.LanguageCount() > 1 ? (*languages["abbrev"])[_actLanguage] : "") << ".js\"></script>\n"
-			"<script language=\"javascript\" src=\"../js/latest.js\"></script>\n"
 			"</body>\n"
 			"</html>\n";
 	_ofs.flush();
