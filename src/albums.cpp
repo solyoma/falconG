@@ -2147,6 +2147,10 @@ static bool __SameLevel(int level, QString line)
 *--------------------------------------------------------------------------*/
 void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct & ids, int level)
 {
+	const QString& sTitleTag = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_TITLE_TAG : TITLE_TAG,
+				 & sDescTag  = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_DESCRIPTION_TAG : DESCRIPTION_TAG,
+				 & sThumbTag  = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_THUMBNAIL_TAG : THUMBNAIL_TAG;
+
 	LanguageTexts texts(languages.LanguageCount());
 
 	// order of tags are arbitrary
@@ -2162,22 +2166,22 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 	do		 // for each line with text in []);
 	{
 		int lang = -1;		// THUMBNAIL_TAG
-		if (reader.l()[level + 1] != THUMBNAIL_TAG[0])
+		if (reader.l()[level + 1] != sThumbTag[0])
 		{
 
 			for (lang = 0; lang < languages.LanguageCount(); ++lang)
 			{
 				int len = (*languages["language"])[lang].length();
-				if (reader.l().mid(level + TITLE_TAG.length() + 1, len) == (*languages["language"])[lang])
+				if (reader.l().mid(level + sTitleTag.length() + 1, len) == (*languages["language"])[lang])
 					break;
 			}
 			if (lang == languages.LanguageCount())		// safety
 				lang = 0;
 		}
 
-		if (reader.l()[level + 1] == THUMBNAIL_TAG[0])
+		if (reader.l()[level + 1] == sThumbTag[0])
 			newTag = IdsFromStruct::thumbnail;
-		else if (reader.l()[level + 1] == TITLE_TAG[0])
+		else if (reader.l()[level + 1] == sTitleTag[0])
 			newTag = IdsFromStruct::title;
 		else
 			newTag = IdsFromStruct::description;
@@ -2210,14 +2214,14 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 
 		if(newTag == IdsFromStruct::thumbnail)
 		{
-			int len = (reader.l().length() - 1) - level - THUMBNAIL_TAG.length() - 2; // cut ending ']'
+			int len = (reader.l().length() - 1) - level - sThumbTag.length() - 2; // cut ending ']'
 			if (!len)		   // empty thumbnail text?
 				continue;
 			// see if this is a processed line or an image path string
 			// image path strings starting with a character other than a decimal digit may follow after a space or a colon
 			// but image names in the source directory that start with a decimal digit must be written after a colon!
-			bool b = reader.l()[level + THUMBNAIL_TAG.length() + 1] == ':';
-			QString s = reader.l().mid(level + THUMBNAIL_TAG.length() + 2, len);  // ID or path name
+			bool b = reader.l()[level + sThumbTag.length() + 1] == ':';
+			QString s = reader.l().mid(level + sThumbTag.length() + 2, len);  // ID or path name
 			if (b && s[0].isDigit())
 				ids.thumbnailIDVal = s.toULongLong();
 			else
@@ -2237,7 +2241,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			while (len && s[--len] != ']')	// find last ']'
 				;
 			++len;		// include closing ']' but not the possible ID/collision
-			int clen = TITLE_TAG.length() + (*languages["language"])[lang].length() + 2;	// 1 for '[' + 1 for ':'
+			int clen = sTitleTag.length() + (*languages["language"])[lang].length() + 2;	// 1 for '[' + 1 for ':'
 			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
 			if (config.majorStructVersion == 1)
 			{						// none = there is no asterix followed by a number

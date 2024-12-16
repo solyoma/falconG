@@ -27,9 +27,14 @@
 #include "stylehandler.h"
 #include "languages.h"
 
-const QString TITLE_TAG = "Title-";	// used in 'struct' files
-const QString DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
-const QString THUMBNAIL_TAG = "Icon";	// "album icon"
+const QString OLD_TITLE_TAG = "Title-";	// used in 'struct' files
+const QString OLD_DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
+const QString OLD_THUMBNAIL_TAG = "Icon";	// "album icon"
+
+const QString TITLE_TAG = "T-";			// used in 'struct' files
+const QString DESCRIPTION_TAG = "D-";	// e.g. [Tytle-hu:<text>]
+const QString THUMBNAIL_TAG = "I";		// "album icon"
+
 const QString ORPHAN_ID = "[Thumbnails not in any album";	// closed with a line only having a ']'
 const QString PATH_TABLE = "[Path table";
 //const QString SAVED_IMAGE_DESCRIPTIONS = "images.desc";
