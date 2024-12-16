@@ -3804,9 +3804,9 @@ void AlbumGenerator::_LightboxCodeIntoHtml(int nLightboxable)
 			"       <button id='lb-close-btn' onclick='LightboxFadeOut()'> &#x2715; </button>\n";	// close button: always present	   
 		if (nLightboxable > 1)			// no lightbox for folders				
 		{					// next and prev. buttons only when more than 1 image
-			_ofs << "		<div class=\"left-edge\"></div>\n"
+			_ofs << "		<div class=\"left-edge\" onclick='PrevImage()'></div>\n"
 				"       <button id=\"lb-prev-btn\" onclick='PrevImage()'>&#10094;</button>\n"
-				"		<div class=\"right-edge\"></div>\n"
+				"		<div class=\"right-edge\" onclick='NextImage()'></div>\n"
 				"       <button id=\"lb-next-btn\" onclick='NextImage()'>&#10095;</button>\n";
 		}
 		// image and caption are always present
