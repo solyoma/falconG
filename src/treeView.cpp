@@ -139,25 +139,31 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 		return QModelIndex();
 
 	AlbumMap &map = albumgen.Albums();
-	ID_t parentId = { ALBUM_ID_FLAG, (uint64_t)ind.internalPointer() };
-	if (!map.contains(parentId))
+	ID_t actualId = { ALBUM_ID_FLAG, (uint64_t)ind.internalPointer() };
+	if (!map.contains(actualId))	// it should!
 		return QModelIndex();
-	Album &ab = map[parentId];
-	ID_t aParentID = ab.parentId;				   // get ID of parent
+	Album &thisAlbum = map[actualId];
+	ID_t aParentID = thisAlbum.parentId;		   // get ID of parent
 	if (aParentID.IsInvalid())					   // no parent: topmost element
 		return QModelIndex(); // invalid index(0, ind.column());		   // it is the first and only such
 
-	Album &abp = map[aParentID];				  // parent album
+	Album &abp = map[aParentID];				// parent album
+	// parent album is found, but we need its row index in its parent's list
 	ID_t bParentID = abp.parentId;				// parent's parent
 	if (bParentID == ID_t( ALBUM_ID_FLAG, 0) )	  // parent is the topmost element
-		return createIndex(0, ind.column(), quintptr(TOPMOST_ALBUM_ID.Val()));
+		return createIndex(ind.row(), 0, quintptr(TOPMOST_ALBUM_ID.Val()));
 
-	IdList albums = map[bParentID].items;			// parent's parent
-	int size = albums.size();					// go through its list
+	IdList parentsSiblings = map[bParentID].items;		// go through parent's parent's
+	int size = parentsSiblings.size();					// list, i.e. parent's siblings
+	// and as the tree does not contain images we need to use only the albums
+	int row = 0;
 	for (int i = 0; i < size; ++i)
 	{
-		if (albums[i] == aParentID)				// aParent contains ALBUM_ID_FLAG
-			return createIndex(i, ind.column(), quintptr(aParentID.Val()));
+		if (!parentsSiblings[i].IsAlbum())
+			continue;
+		if (parentsSiblings[i] == aParentID)				// aParent contains ALBUM_ID_FLAG
+			return createIndex(row, ind.column(), quintptr(aParentID.Val()));
+		++row;
 	}
 	return QModelIndex();
 }

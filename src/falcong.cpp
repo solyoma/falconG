@@ -4550,9 +4550,9 @@ void FalconG::_SlotWebPageLoaded(bool ready)
 void FalconG::_SlotAlbumStructSelectionChanged(const QItemSelection &current, const QItemSelection &previous)
 {
 	_SaveChangedTexts();
-	_current = current;
+	_currentSelection = current;
 
-	int n = _current.indexes().size();
+	int n = _currentSelection.indexes().size();
 	if (n == 1)
 	{
 
@@ -4574,11 +4574,11 @@ void FalconG::_SlotLoadItemsToListView()
 
 	ui.tnvImages->Clear();
 
-	int n = _current.indexes().size();
+	int n = _currentSelection.indexes().size();
 	if (n == 1)		 // single selection and valid
 	{
 		// collect its images into list
-		_currentTreeViewIndex = _current.indexes()[0];
+		_currentTreeViewIndex = _currentSelection.indexes()[0];
 		ID_t id = { ALBUM_ID_FLAG, uint64_t(_currentTreeViewIndex.internalPointer()) };	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);

@@ -110,7 +110,7 @@ private:
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
-	QItemSelection _current;
+	QItemSelection _currentSelection;
 	QModelIndex _currentTreeViewIndex;
 	bool _bNewTreeViewSelection = true;	// when true _current contains single actual selection
 
