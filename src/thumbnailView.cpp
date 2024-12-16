@@ -2216,6 +2216,7 @@ void ThumbnailView::SetAsAlbumThumbnail()
         albumgen.SetAlbumModified(*parent);
     }
     albumgen.SetAlbumModified(_albumId);
+    emit SignalAlbumChanged();
 }
 
 /*=============================================================
@@ -2280,6 +2281,7 @@ void ThumbnailView::SelectAsAlbumThumbnail()
         Album* parent = albumgen.AlbumForID(album.parentId);
         albumgen.SetAlbumModified(*parent);
     }
+    emit SignalAlbumChanged();
 }
 
 
