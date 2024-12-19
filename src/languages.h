@@ -35,7 +35,7 @@ struct Languages : public LanguageMap	// each language has a text file named <te
 	Languages();
 	~Languages();
 
-	int _Read(QString name);		// defult: single language, name: "English" countryCode: "en_US", no icon
+	int _Read(QString name);	// defult: single language, name: "English" countryCode: "en_US", no icon
 	int Read();					// reads all language files from program directory
 	void Clear(int newSize = 0);
 	int LanguageCount()

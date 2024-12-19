@@ -3933,15 +3933,19 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 								"thd='%3%4',"	// thumbnail dir
 								"rsd='%5%6',"	// resource dir
 								"ald='%7%8',"	// albumdir - only used for root and generated programs
-								"alb='%9',"	// base name of albums
-								"lng='%10';"	// 2 letter language abbrev,
+								"alb='%9',"		// base name of albums
+								"lng="			// argument added below
 		).arg(supdir).arg(config.dsImageDir.ToString())
 		 .arg(supdir).arg(config.dsThumbDir.ToString())
 			.arg(supdir).arg("res/")
 		 .arg(supdir).arg(config.dsAlbumDir.ToString())
 		 .arg(config.sBaseName.ToString())
-		 .arg((*languages["language"])[_actLanguage])
 			;
+									
+		if ((*languages["language"]).size() > 1)	// 2 letter language abbrev,
+			qs += QString("'%1';").arg((*languages["language"])[_actLanguage]);
+		else
+			qs += "'';";
 		
 		s += qs;
 
