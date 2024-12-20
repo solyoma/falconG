@@ -2148,7 +2148,7 @@ static bool __SameLevel(int level, QString line)
 void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct & ids, int level)
 {
 	const QString& sTitleTag = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_TITLE_TAG : TITLE_TAG,
-				 & sDescTag  = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_DESCRIPTION_TAG : DESCRIPTION_TAG,
+//				 & sDescTag  = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_DESCRIPTION_TAG : DESCRIPTION_TAG,
 				 & sThumbTag  = (config.majorStructVersion == 1 && config.minorStructVersion < 4) ? OLD_THUMBNAIL_TAG : THUMBNAIL_TAG;
 
 	LanguageTexts texts(languages.LanguageCount());
