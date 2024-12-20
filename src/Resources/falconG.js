@@ -116,14 +116,17 @@ function ResizeThumbs() {
 
 }
 
-function ShowHide() {
+function ShowHide(changeIt=true) {
+	if(changeIt)
+    {
+		showDesc ^= 1;
+		sessionStorage.setItem("showDescription", showDesc);
+	}
     var d = document.getElementsByClassName("desc");
+    //console.log("show descriptions ="+showDesc+", d.length="+ d.length);
     for (var i = 0; i < d.length; ++i) {
-        //    alert("showDesc ="+showDesc+", d.length="+ d.length +"\nI= "+i);
-        d[i].style.display = (showDesc == 0 ? "none" : "block");
+        d[i].style.display = (showDesc ? "block" : "none");
     }
-    showDesc ^= 1;
-    sessionStorage.setItem("showDescription", showDesc);
 }
 
 // ********************* SCROLL BACK TO POSITION *************
@@ -364,7 +367,7 @@ function PrepareSection(lang, arr, elemID, forType, isRootLevel) // example Prep
     const galleryContainer = document.getElementById(elemID);  // elemID MUST exist
     if(!galleryContainer == 'undefined' || !galleryContainer)
 	{
-		console.log("galleryContainer for "+elemID+" is undefined - exiting");
+		// console.log("galleryContainer for "+elemID+" is undefined - exiting");
 		return;
 	}
 		//console.log(a + "'s length is "+arr.length);
@@ -384,9 +387,10 @@ function PrepareSection(lang, arr, elemID, forType, isRootLevel) // example Prep
         innerDiv.id = item.i;
 
         const sTitle = item.t != '' ? DecodeText(item.t) : "&nbsp;";       // image title if any
+		const sLang = (lang == '' ? '' : '_') + lang;
 
         const onclk = forType ? "javascript:ShowImage("+index+",'" + sTitle + "')" : 
-								"javascript:LoadAlbum('"+`${_ald}${alb}${item.i}_${lang}.html`+"')";
+								"javascript:LoadAlbum('"+`${_ald}${alb}${item.i}${sLang}.html`+"')";
         const thumbnail = forType? `${thd}${item.i}` : `${thd}${item.l}`
 
         // Create the img element
@@ -405,22 +409,23 @@ function PrepareSection(lang, arr, elemID, forType, isRootLevel) // example Prep
         // Append the inner div to the imatte div
         imatte.appendChild(innerDiv);
 
+        // Create the links div
+        const linksDiv = document.createElement("div");
+        linksDiv.className = "links";
+
         // create the description
         if(item.d)
         {
             const descDiv = document.createElement("div");
             descDiv.className = "desc";
             const descPar = document.createElement("p")
-            descPar.className = "desc";
+            descPar.className = "descpar";
             descPar.setAttribute("lang",`${lang}`);
             descPar.innerHTML = DecodeText(item.d);
             descDiv.appendChild(descPar);
+			// Append the desc div to the links div
+			linksDiv.appendChild(descDiv);
         }
-
-        // Create the links div
-        const linksDiv = document.createElement("div");
-        linksDiv.className = "links";
-
         // Create the title div
         const titleDiv = document.createElement("div");
         titleDiv.className = "title";
@@ -429,6 +434,7 @@ function PrepareSection(lang, arr, elemID, forType, isRootLevel) // example Prep
 
         // Append the title div to the links div
         linksDiv.appendChild(titleDiv);
+
 
         // Append imatte and links to the main img-container
         imgContainer.appendChild(imatte);
@@ -453,9 +459,8 @@ function falconGLoad(latest,isRootLevel=false) {
     showDesc = sessionStorage.getItem("showDescription");
     if (!showDesc)       // e.g. not defined
         showDesc = 0;
-    else
-        showDesc ^= 1;  // invert stored
-    if(latest === 1)	// them ids is set in latest_XX.js
+	
+    if(latest === 1)	// then ids is set in latest_XX.js
 	{
 		imgs = [];
 		if(cnt > ids.length)
@@ -488,8 +493,9 @@ function falconGLoad(latest,isRootLevel=false) {
 
     lightboxContainer = document.getElementById('lb-container');
 
-    // console.log("showDesc=" + showDesc)    
-    ShowHide(showDesc);
+    //console.log("onload: Before 'ShowHide(false) showDesc=" + showDesc)    ;
+    ShowHide(false);	// uses global 'showDesc' and doesn't change it
+    //console.log("onload: After 'ShowHide(false) showDesc=" + showDesc)    ;
     //	console.log('*****PrepareSection load started, latest is '+(latest ? 'true':'false'))
     if(typeof imgs != 'undefined')
         PrepareSection(lng, imgs,'images-section',1, isRootLevel);
