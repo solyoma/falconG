@@ -1009,7 +1009,11 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             // buttons added after the existing buttons
             QPushButton *pBeforeFolderBtn = mb.addButton(tr("Reposition"), QMessageBox::NoRole);
             QPushButton *pIntoFolderBtn = mb.addButton(tr("Move into"), QMessageBox::YesRole);
-            QPushButton *pCancelBtn = mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+
+#ifdef DEBUG
+            QPushButton *pCancelBtn = 
+#endif
+                mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
             mb.setDefaultButton(pBeforeFolderBtn);
 
             mb.exec();

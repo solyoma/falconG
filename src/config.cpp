@@ -1008,13 +1008,13 @@ void _CBorder::_Prepare()
 
 // -------------------------------------------------------------------------------------
 
-QString _CElem::ColorsForStyleSheet(bool addSemicolon)
+QString _CElem::ColorsForStyleSheet(bool addSemicolon) const
 {
 	return color.ForStyleSheet(addSemicolon, false) + 
 			background.ForStyleSheet(addSemicolon, true);
 }
 
-QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font with possibly semicolon
+QString _CElem::ForStyleSheet(bool semi) const	// w.o. different first line for font with possibly semicolon
 {											// because that must go to a different css class
 	QString qs = color.ForStyleSheet(semi, false);
 	if (ClassName() != "WEB" && !background.Name().isEmpty() && background.v != config.Web.background.v)
@@ -1035,7 +1035,7 @@ QString _CElem::ForStyleSheet(bool semi)	// w.o. different first line for font w
 
 bool _CElem::Changed() const
 {
-	bool res = color.Changed() | background.Changed() | font.Changed(); // '|' is enough, don't need '||' !
+	bool res = color.Changed() || background.Changed() || font.Changed(); // '|' is enough, don't need '||' !
 	if(_bMayShadow)
 	 	res |=  shadow1[0].Changed() | 
 				shadow2[0].Changed() | 
@@ -1242,7 +1242,7 @@ void _CBackgroundImage::SetNames(QString name)
 								// then name is relative to document root on server: i.e. gives the web name
 	if (fileName.at(0) == '/')	// unless 'chkSourceRelativePerSign' is checked (bSourceRelativePerSign is true)
 		fileName = (config.bSourceRelativePerSign ? srcDir : dstDir.ToString()) + fileName.mid(1);	// but try it in the source dir
-	webName = (dstDir + n).ToString();
+	webName = dstDir.ToString() + n;
 		// must use \" instead of ' because the whole string will be in ''
 		// when _RunJavaScript is called in falconG.cpp
 }

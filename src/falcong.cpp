@@ -1821,14 +1821,14 @@ void FalconG::on_btnPageBackground_clicked()
 	if (_busy)
 		return;
 
-	QColor qc(config.Web.background.Name()),
+	QColor qc(config.Web.background.Name(true)),
 		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
 
 	if (qcNew.isValid())
 	{
 		config.Web.background.SetColor(qcNew.name());
 		config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
-		ui.btnPageBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.background.Name()));
+		ui.btnPageBackground->setStyleSheet(QString("background-color:%1;").arg(config.Web.background.Name(true)));
 		_SetConfigChanged(true);
 		_PageBackgroundToSample();
 	}
@@ -1850,7 +1850,7 @@ void FalconG::on_btnPageColor_clicked()
 		if (qc != qcNew)
 		{
 			config.Web.color.SetColor(qcNew.name());
-			ui.btnPageColor->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(config.Web.color.Name()));
+			ui.btnPageColor->setStyleSheet(QString("background-color:%1;").arg(config.Web.color.Name()));
 			_SetConfigChanged(true);
 		}
 		_PageColorToSample();
@@ -1928,7 +1928,7 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
 		config.imageMatteColor = qcNew.name().mid(1);
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name(true));
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name());
 		_SetConfigChanged(true);
 //		emit SignalToClearIconList();
 	}

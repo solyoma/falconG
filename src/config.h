@@ -379,7 +379,7 @@ public:
 		return _opacity >= 0 && _opacity != 0xFF; 
 	}
 
-	QString Name(bool addHash = false) const				// no opacity!
+	QString Name(bool addHash = true) const				// no opacity!
 	{
 		return (addHash ? QString('#') + _colorName : _colorName);
 	}
@@ -885,8 +885,8 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	}
 
 	QString ClassName() const { return _className; }	// HTML class name for this element
-	QString ColorsForStyleSheet(bool addSemicolon);
-	QString ForStyleSheet(bool addSemicolon);		// internals of class for this element, excluding "first-line", ca't be const
+	QString ColorsForStyleSheet(bool addSemicolon) const;
+	QString ForStyleSheet(bool addSemicolon) const;		// internals of class for this element, excluding "first-line", ca't be const
 	bool Changed() const override;
 	void ClearChanged() override;
 
