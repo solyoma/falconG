@@ -106,8 +106,8 @@ Tényleg le akarod törölni ezeket a lemezről?</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="576"/>
-        <source>Generate (F9}</source>
-        <translation>Generálás (F9}</translation>
+        <source>Generate (F9)</source>
+        <translation>Generálás (F9)</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="1006"/>

@@ -308,7 +308,7 @@ private:
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
 	void _AddImagesFromList(QStringList qslFileNames, int row);
 	bool _AddFolder(QString folderName);	// returns if folder was added
-	bool _NewFolder(QString parent, QString folderName);	// returns if folder was created, false if did  already existed
+	bool _NewVirtualFolder(QString folderName);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
@@ -356,7 +356,7 @@ public slots:
 	void UndoDelete();
 	void AddImages();
 	void AddFolder();
-	void NewFolder();
+	void NewVirtualFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
 	void OpenAlbumThumbnail();			// any image for an album thumbnal

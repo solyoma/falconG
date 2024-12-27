@@ -469,6 +469,7 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 			_ReadLastAlbumStructure();
 
 			Album* root = albumgen.AlbumForID( TOPMOST_ALBUM_ID );
+			Q_ASSERT(root);
 			QString path;
 			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 		}
@@ -573,7 +574,7 @@ void FalconG::on_btnGenerate_clicked()
 
 		ui.pnlProgress->setVisible(false);
 		QGuiApplication::restoreOverrideCursor();
-		ui.btnGenerate->setText(tr("Generate (F9}"));
+		ui.btnGenerate->setText(tr("Generate (F9)"));
 		__SetShortcut(ui.btnGenerate, "F9");
 //		__SetShortcut(ui.btnPreview, "F12");
 		ui.btnSaveStyleSheet->setEnabled(true);
@@ -1035,6 +1036,7 @@ void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 	QModelIndex& cix = _currentTreeViewIndex;	
 	// get folder (album) index for row by discarding non-folder items
 	Album* album = albumgen.AlbumForID( ID_t(ALBUM_ID_FLAG, (uint64_t)cix.internalPointer()) );
+	Q_ASSERT(album);
 	int aix = 0;
 	for (int i = 0; i < row; ++i)
 		if (album->items[i].IsAlbum())
@@ -1430,6 +1432,7 @@ void FalconG::_ReadLastAlbumStructure()
 		if (QFile::exists(qs) && albumgen.Read(true))
 		{
 			Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+			Q_ASSERT(root);
 			QString path;
 			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 
@@ -3287,6 +3290,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 			_EnableButtons();
 		}
 		Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+		Q_ASSERT(root);
 		QString path;
 		SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
 	}

@@ -123,9 +123,8 @@ struct IABase
 	QString ShortSourcePathName() const;	// cuts the common part of paths (config.dsSrc)
 	QString LinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
 	QString FullLinkName(bool bLCExtension = false) const;		// used in HTML files, not the source name
-	QString Path() const;		// returns path from ID
+	QString Path() const;		// returns real or virtual path from pathID (can't be const)
 
-	uint64_t SetPathId(QString fromPath);
 	virtual QSize ThumbSize() const { return QSize(); }
 };
 //------------------------------------------
@@ -200,6 +199,27 @@ struct Video : IABase			// format: MP4, OOG, WebM
 };
 
 //------------------------------------------
+// A gallery is a hierarchy of albums which may contain other albums images and videos.
+// It resides in a physical folder on disk. A gallery folder contains the following:
+// - a '<name>.struct' file, a database which contains the structure of the gallery, and
+// - a '<name>.ini' file which contains the configuration of the gallery.
+// the <name> is (initially) the name of the gallery folder.
+// All albums in this hierarchy are considered virtual folders in the data base
+// even when they correspond to real folders on disk.
+// The albums in this hierarchy are identified by their ID which is a CRC32 of their path name
+// which is, for albumms that have physical folders, is the absolute path name of these folders.
+// Album folders may be outside the gallery folder. For virtual albums the path name is the
+// <absolute path of source folder>/<random 10 character string>/<logical name of album>
+// The random 10 character string is only used to calculate the ID of the album.
+// In the '.struct' file pure virtual albums (i.e. albums which have no physical presence on disk) 
+// have a pathID of 0.
+
+
+// The topmost album is the root album. It has no parent and its ID is 0
+// all albums (even when they correspond to real folders on disk)
+// are virtual. No folder is created when they are created or moved 
+// when they are moved.
+
 struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 {
 	ID_t parentId = { ALBUM_ID_FLAG, 0 };	// just a single parent is allowed Needed to re-generate parent's HTML files too when
@@ -280,16 +300,28 @@ public:
 
 //------------------------------------------
 // key contains ALBUM_ID_FLAG
+// all albums (even when they correspond to real folders on disk)
+// are virtual.
 class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
 	// last used album path is in 'albumGenerator::lastUsedAlbumPath'
 	// root path is in config.dsSrc
 public:
+	Album *AlbumForID(ID_t id) 
+	{ 
+		id.SetFlag(EXISTING_FLAG, false);
+		Album* pAlbum = nullptr;
+		if (contains(id))
+			pAlbum = &(*this)[id];
+		return pAlbum;
+	}
 	Album *Find(ID_t id);
-	Album *Find(QString albumPath);
+	Album *Find(QString albumFullPath);
+	Album *Find(uint64_t pathID, QString albumName);
+	Album *Find(uint64_t pathID, ID_t albumId);
 	bool Exists(QString albumPath);
-	ID_t Add(QString relativeAlbumPath, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
+	ID_t Add(ID_t parentId, const QString &name, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums
 };
@@ -361,6 +393,10 @@ public:
 				 (id.IsImage()) && _imageMap.contains(id)  ||
 				 (id.IsVideo()) && _videoMap.contains(id) ) ;
 	}
+	Album* AlbumForID(ID_t id)
+	{
+		return _albumMap.AlbumForID(id);
+	}
 	Image* ImageAt(ID_t id) 
 	{ 
 		return &_imageMap[id]; 
@@ -371,11 +407,6 @@ public:
 	LanguageTexts *TextsAt(int64_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
 
-	Album *AlbumForID(ID_t id) 
-	{ 
-		id.SetFlag(EXISTING_FLAG, false);
-		return &_albumMap[id]; 
-	}
 	IABase* IdToItem(ID_t id)
 	{
 		IABase* pItem = nullptr;
@@ -384,7 +415,7 @@ public:
 		else if (id.IsVideo())
 			pItem = VideoAt(id);
 		else
-			pItem = AlbumForID(id);
+			pItem = _albumMap.AlbumForID(id);
 
 		return pItem;
 	}

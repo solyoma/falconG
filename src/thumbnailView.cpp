@@ -1001,7 +1001,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         QVector<int> itemOrder;             // new item order indexes
         bool moveItemsIntoFolder = row >= 0 && (items[row].IsAlbum());
         if (moveItemsIntoFolder) // then move items into album with id items[row]
-        {                                             // album must be physical folder on disk
+        {                                             
             QMessageBox mb(this);
             mb.setWindowTitle(tr("falconG - Question"));
             mb.setText(tr("Move into this folder or move before it?"));
@@ -1027,9 +1027,19 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 int destItemSize = itemsDest.size();
 #endif
                 // ------------- housekeeping -----------
-                // add moved items to destination album  which doesn't have icons yet   
+                // add moved items to destination album  (which doesn't have icons yet )
                 for (int si = 0; si < thl.size(); ++si)
-                    itemsDest.push_back(items[thl[si]] );
+                {
+                    ID_t itemID = items[thl[si]];
+                    if (itemID.IsAlbum())
+                    {
+                        Album* pab = albumgen.AlbumForID(itemID);
+                        Q_ASSERT(pab);
+						pab->parentId = pDestAlbum->ID;            // reparent album
+                    }
+					pDestAlbum->items.push_back(itemID);
+                    itemsDest.push_back(itemID);
+                }
 
                 // remove indexes of moved items from source gallery and icon indices
                 QVector<int> origOrder = fileIcons.IconOrder();  // original order of icons for actual album
@@ -1050,7 +1060,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
                 fileIcons.SetIconOrder(newIconOrder);
                 _InitThumbs();
-                            // ----- ??  move items physically to destination folder --------
+                            // ----- never  move items physically to virtual destination folder --------
             }
             else if( pResBtn == pBeforeFolderBtn)
                 moveItemsIntoFolder = false;
@@ -1097,10 +1107,6 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             fileIcons.SetIconOrder(iconOrder);
             items = idl;
         }
-		//if (_dragFromHereInProgress)	// then remove from old spot
-		//{
-
-		//}
         albumgen.SetAlbumModified(*pAlbum);
 
         albumgen.WriteDirStruct(true);
@@ -1563,8 +1569,6 @@ void ThumbnailView::SetInsertPos(int here)
     _insertPos = here;
 }
 
-
-
 /*=============================================================
  * TASK:
  * PARAMS:
@@ -1739,7 +1743,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 
     menu.addSeparator();
 	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
-	connect(pact, &QAction::triggered, this, &ThumbnailView::NewFolder);
+	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
 	menu.addAction(pact);
 
     if(nSelSize > 1)
@@ -1966,7 +1970,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
     emit SignalAlbumStructWillChange();
-    ID_t id = albumgen.Albums().Add(folderName,added);
+    ID_t id = albumgen.Albums().Add(pParentAlbum->ID,folderName,added);
     if (added)
     {   
         atLeastOneFolderWasAdded = true;
@@ -1996,12 +2000,12 @@ bool ThumbnailView::_AddFolder(QString folderName)
 
 /*=============================================================
  * TASK:    internal function that creates a folder
- * PARAMS:  folderName - name of folder to add
+ * PARAMS:  folderName - name of folder to add w.o. any path
  * GLOBALS:
  * RETURNS: if folder was added
  * REMARKS: folder names must be unique
  *------------------------------------------------------------*/
-bool ThumbnailView::_NewFolder(QString parent, QString folder)
+bool ThumbnailView::_NewVirtualFolder(QString folderName)
 {
     auto errMsg = [&](QString text)
         {
@@ -2013,21 +2017,23 @@ bool ThumbnailView::_NewFolder(QString parent, QString folder)
     bool added = false,
          res = false;
 
-    if (albumgen.Albums().Exists(folder))
-        errMsg(tr("The album is already in the gallery.") );
-    else
-    {
-        QDir dir(parent);               
-        // DEBUG
-        qDebug("Dir:%s, subdir:%s", dir.absolutePath().toStdString().c_str(), folder.toStdString().c_str());
-        // /DEBUG
-        if (dir.mkdir(folder))
-        {
-            Album* pParentAlbum = _ActAlbum();
+    Album* pParentAlbum = _ActAlbum();
+    ID_t id = albumgen.Albums().Add(pParentAlbum->ID, folderName, added);
+
+    //QString fullPath = parentPath + "/" + folderName;
+    //if (albumgen.Albums().Exists(fullPath))
+    //    errMsg(tr("The album is already in the gallery.") );
+    //else
+    //{
+    //    QDir dir(parentPath);               
+    //    // DEBUG
+    //    qDebug("Dir:%s, subdir:%s", dir.absolutePath().toStdString().c_str(), folderName.toStdString().c_str());
+    //    // /DEBUG
+    //    // usually no real folder is created, all of it is logical if (dir.mkdir(fullPath))
+    //    //{
 
             emit SignalInProcessing(true);
             emit SignalAlbumStructWillChange();
-            ID_t id = albumgen.Albums().Add(folder, added);
             if (added)
             {
                 albumgen.SetAlbumModified(*pParentAlbum);
@@ -2041,10 +2047,10 @@ bool ThumbnailView::_NewFolder(QString parent, QString folder)
                 errMsg(tr("Unknown error: Folder created but wasn't added to gallery") );
             emit SignalInProcessing(false);
             emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
-        }
-        else
-           errMsg(tr("Creating folder \n%1\non disk was unsuccessful").arg(parent+"/"+folder));
-    }
+        //}
+        //else
+        //   errMsg(tr("Creating folder \n%1\non disk was unsuccessful").arg(parent+"/"+folder));
+//    }
     return res;
 }
 
@@ -2070,28 +2076,34 @@ void ThumbnailView::AddFolder()
 }
 
 /*=============================================================
- * TASK:   Display dialog box to create one folder in the 
- *          actual folder
+ * TASK:   Display dialog box to create one virtual folder in the 
+ *          actual (virtual or real) folder
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
  * REMARKS: - actual album is parent of new album folder
  *          - no thumbnail flag is set
  *------------------------------------------------------------*/
-void ThumbnailView::NewFolder()
+void ThumbnailView::NewVirtualFolder()
 {
     Album* pParentAlbum = _ActAlbum();
-    QString dir = pParentAlbum->FullSourceName();   // relative to config.dsSrc
+    QString parentPath = pParentAlbum->FullSourceName();   // relative to config.dsSrc
     QString qs;
     bool ok;
     bool b = false;
+
     while (1)
     {
-        qs = QInputDialog::getText(this, tr("falconG - New Folder"), tr("Folder Name:"), QLineEdit::Normal, qs, &ok);
+        qs = QInputDialog::getText(this, tr("falconG - New (Virtual) Folder"), tr("Folder Name:"), QLineEdit::Normal, qs, &ok);
 
         if(!ok || qs.isEmpty())
             return;
-        if ((b = _NewFolder(dir, qs)) == true)
+		if (qs.indexOf(QRegExp("[\\/:*?\"<>|]")) >= 0)
+		{
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder name contains invalid characters\nPlease use a different name!"));
+			continue;
+		}
+        if ((b = _NewVirtualFolder(qs)) == true)
         {
             Reload();
             break;

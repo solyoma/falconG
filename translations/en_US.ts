@@ -96,7 +96,7 @@ Really delete the selected items from disk?</source>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="576"/>
-        <source>Generate (F9}</source>
+        <source>Generate (F9)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

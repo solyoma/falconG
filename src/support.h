@@ -365,3 +365,4 @@ bool RemoveFolderRecursively(QString name, bool tryToTrash=true);			// won't ask
 bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
 
 char* StringToCString(QString string);
+QString MakeRandomStringOfLength(int length);

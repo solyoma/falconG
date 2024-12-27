@@ -1603,3 +1603,21 @@ char* StringToCString(QString string)
 	ba = string.toLocal8Bit();
 	return ba.data();
 }
+
+QString MakeRandomStringOfLength(int length)
+{
+
+	static constexpr const char array_str[] = "abcdefghijklmnopqrstuvwxyz_-+0123456789";
+	static constexpr int array_size = sizeof(array_str);
+
+	QString result;
+	int idx = 0;
+	for (int i = 0; i < length; ++i)
+	{
+		idx = QRandomGenerator::global()->bounded(array_size);
+		QChar ch = array_str[idx];
+		result.append(ch);
+	}
+
+	return result;
+}

@@ -241,15 +241,12 @@ QString IABase::FullLinkName(bool bLCExtension) const
 	return config.dsGallery.ToString() + s;
 }
 
-QString IABase::Path() const
+QString IABase::Path() const	// uses member 'pathID'. For Virtual albums path is 
 {
-	return pathMap.Path(pathId);
-}
-
-uint64_t IABase::SetPathId(QString fromPath)
-{
-
-	return 0;
+	if (pathId)
+		return pathMap.Path(pathId);
+	else
+		return QString();
 }
 
 /**************************** Image *****************************/
@@ -1090,41 +1087,50 @@ QString Album::NameFromID(int language)
 /**************************** AlbumMap *****************************/
 
 /*============================================================================
-* TASK:	  Add an album to the album map if it is not already in there
-* EXPECTS: fullPath: either full path name of album or a single name w.o.path delimiters
-*					IN - either an absolute path or a path relative to 
-*						 the source directory (!)
-*						e.g. "this/is/a/new/album"	- path relative to source directory 
+* TASK:	  Add a new album to the album map if it is not already in there
+* EXPECTS: name: IN - either just a name, an absolute path name or a path relative to 
+*						 the source album directory (!)
+*						e.g. "newAlbum"	- logical path name, no real path exists 
+*						     "this/is/a/new/album"	- path relative to source directory 
 *							 "c:/source/dir/this/is/a/new/album" 
 *									absolute path file in source dir
 *							 "c:/not/source/dir/this/is/a/new/album" absolute path 
 *									file not in source dir
-*							 "album" - virtual name, not on disk
-*		  added: OUT - set when thhe new album is added
-* RETURNS: id of album with ALBUM_ID_FLAG
+*		  added: OUT - set when the new album is added
+* RETURNS: unique id of album with ALBUM_ID_FLAG
 * GLOBALS:
 * REMARKS:	path may contain a logical name only, it need not exist
 *			if it exists then lastUsedAlbumPath is adjusted
 *--------------------------------------------------------------------------*/
-ID_t AlbumMap::Add(QString fullPath, bool &added)
+ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 {
 	Album ab;
 
-	added = false;
-	Album *found = Find(fullPath);		// already in database?
-	if (found)
-		return found->ID;	// same base ID, same name then same album
-
+	QString relativeParentPath = CutSourceRootFrom(name); // no cut if it isn't there
 	QString path;	// just the path that contains the album
-	fullPath = CutSourceRootFrom(fullPath);
-	SeparateFileNamePath(fullPath, path, ab.name);
-	ab.pathId = pathMap.Add(path);
-
-	ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, fullPath, false);   // using full path name only and not file content
-	if (QDir::isAbsolutePath(fullPath))
-		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists(fullPath));
+	SeparateFileNamePath(relativeParentPath, path, ab.name);
+	added = false;
+	if (path.isEmpty())
+	{
+		QString vpath = MakeRandomStringOfLength(10) + "/" + ab.name;
+		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, vpath, false);   // using full path name only and not file content
+		ab.pathId = 0;
+	}
 	else
-		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists((config.dsSrc + fullPath).ToString()));
+	{
+		Album* found = Find(path);		// already in database?
+		if (found)
+			return found->ID;	// same base ID, same name then same album
+		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, relativeParentPath, false);   // using full path name only and not file content
+		ab.pathId = pathMap.Add(path);
+	}
+
+	ab.parentId = parentId;
+
+	if (QDir::isAbsolutePath(relativeParentPath))
+		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists(relativeParentPath));
+	else
+		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists((config.dsSrc + relativeParentPath).ToString()));
 
 	if (ab.Exists())
 		AlbumGenerator::lastUsedAlbumPathId = pathMap.Add(path + ab.name + "/");
@@ -1192,6 +1198,18 @@ Album *AlbumMap::Find(QString albumPath)
 		if (i.value().name==n)
 			return &i.value();
 	return nullptr;
+}
+
+Album* AlbumMap::Find(uint64_t pathID, QString albumName)
+{
+	QString fullPath = pathMap.Path(pathID) + albumName;
+	return Find(fullPath);
+}
+
+Album* AlbumMap::Find(uint64_t pathID, ID_t albumId)
+{
+	QString fullPath = pathMap.Path(pathID) + AlbumForID(albumId)->name;
+	return Find(fullPath);
 }
 
 /*=============================================================
@@ -1284,6 +1302,7 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 ID_t AlbumGenerator::_AddItemToAlbum(ID_t parentID, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
 {
 	Album* ab = AlbumForID(parentID);
+	Q_ASSERT(ab);
 	ID_t id = ID_t::Invalid();
 
 	QString s = fi.filePath();
@@ -1297,8 +1316,9 @@ ID_t AlbumGenerator::_AddItemToAlbum(ID_t parentID, QFileInfo & fi, bool signalE
 		QString ds = fi.fileName();
 		if (ds == "res" || ds == "cache" || ds == "thumbs")
 			return { ALBUM_ID_FLAG,0 };
-		id = _albumMap.Add(s, added);		// add new album to global album list
+		id = _albumMap.Add(parentID, s, added);		// add new album to global album list
 		ab = AlbumForID(parentID);	// might have change item in memory
+		Q_ASSERT(ab);
 	}
 	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
 	{
@@ -1425,6 +1445,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
 bool AlbumGenerator::_ReadFromJAlbumOrderFile(ID_t parentID)
 {
 	Album *ab = AlbumForID(parentID);
+	Q_ASSERT(ab);
 	QString path = ab->FullSourceName();
 	if(path[path.length()-1] != '/')
 		path += '/';
@@ -1559,6 +1580,7 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 bool AlbumGenerator::_ReadJAlbumCommentFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
+	Q_ASSERT(ab);
 	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
@@ -1617,6 +1639,7 @@ bool AlbumGenerator::_ReadJAlbumCommentFile(ID_t albumId)
 bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
+	Q_ASSERT(ab);
 	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
@@ -1646,6 +1669,7 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
 		{
 			(void)AddItemToAlbum(albumId, path + line, true);	// add image or folder
 			ab = AlbumForID(albumId);		// might have changed
+			Q_ASSERT(ab);
 			continue;										// as folder thumbnail too
 		}
 		else if (ianame[0] != 'd')			// safety
@@ -1683,6 +1707,7 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
 void AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId, QString & path, QString name)
 {
 	Album* ab = AlbumForID(albumId);
+	Q_ASSERT(ab);
 	QString line;
 	FileReader reader(path + ".jalbum/" + name, frfNeedUtf8 | frfTrim);  // name of .info file
 
@@ -1743,6 +1768,7 @@ void AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId, QString & path, QString n
 bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
+	Q_ASSERT(ab);
 	QString path = ab->FullSourceName();
 	if (path[path.length() - 1] != '/')
 		path += '/';
@@ -2930,8 +2956,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			album.ID.SetFlag(EXISTING_FLAG, true);
 		}
 
-		bool added;
-		id = _albumMap.Add(pathMap.Path(parentPathId) + sl[0], added);	// add new album to global album list
+		bool added = false;
+		id = _albumMap.Add(parent, sl[0], added);	// add new album to global album list
 		// may invalidate aParent
 		album = _albumMap[id];
 		++_structChanged;		// and also album is changed
