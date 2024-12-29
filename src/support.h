@@ -69,6 +69,7 @@ public:
 	QString ReadLine(int flags = frfNormal);	// normal: use internal flags, other use this
 	QStringList ReadAndSplitLine(QChar sep);
 	QString NextLine(bool doNotDiscardComment=false);	// reads and returns even empty or comment lines!
+
 	inline QString l() const { return _line; }	 // last read line
 	int ReadCount() const { return _readLineCount; }
 };

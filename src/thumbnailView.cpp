@@ -20,6 +20,9 @@
  *  along with Phototonic.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+#include <functional>
+
 #include <QIcon>
 #include <QWidget>
 
@@ -40,7 +43,7 @@ void FileIcons::Clear()
 }
 int FileIcons::Size() const
 { 
-    return _iconList.size(); 
+    return _iconOrder.size();   // because _iconList may contain more items than shown
 }
 void FileIcons::SetMaximumSizes(int thumbsize, int borderwidth)
 {
@@ -69,7 +72,7 @@ QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
 	if (pos < 0)
 		return QIcon();
 
-	if (pos >= _iconList.size())
+	if (pos >= _iconList.size())    // _iconList may contain more items than _iconOrder
         Insert(-1, flags.testFlag(fiFolder), imageName);    // -1: push back
 
     // pos-th item MUST exist
@@ -81,11 +84,11 @@ QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
 	return micon.ToIcon();
 }
 
-QVector<int> FileIcons::IconOrder() const
+const QVector<int> &FileIcons::IconOrder() const
 {
     return _iconOrder;
 }
-void FileIcons::SetIconOrder(QVector<int>& order)
+void FileIcons::SetIconOrder(const QVector<int>& order)
 {
     _iconOrder = order;
 }
@@ -1042,22 +1045,24 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 }
 
                 // remove indexes of moved items from source gallery and icon indices
-                QVector<int> origOrder = fileIcons.IconOrder();  // original order of icons for actual album
-                for(int si = --itemSize; si >= 0; --si)
-                    if (thl.indexOf(si) >= 0)
-                    {
-                    }
-
-                IdList srcItems;
+                const QVector<int> &origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
                 QVector<int> newIconOrder;                       // new icon order indexes
-                for (int si = 0; si < itemSize; ++si)            // although icons remain on list until actual album changes
-                    if (thl.indexOf(si) < 0)                     // all will be discarded for next album
+				IdList newItems;                                 // w.o. moved items
+                
+                for (int si = 0; si < itemSize; ++si)            // origIconOrder has the same number of items as items itself
+                {
+                    int o = origIconOrder[si];
+                    if (thl.indexOf(o) < 0)
                     {
-                        srcItems.push_back(items[origOrder[si] ] );
-                        newIconOrder.push_back(si);
+                        newItems.push_back(items[o]);
+                        newIconOrder.push_back(o);
                     }
-                items = srcItems;
-
+                }
+                // discard moved icons
+                //for (int si = itemSize - 1; si << itemSize >= 0; --si)   // origIconOrder has the same number of items as items itself
+                //    if (thl.indexOf(origIconOrder[si]) >= 0)
+                //        fileIcons.Remove(origIconOrder[si]);
+                items = newItems;
                 fileIcons.SetIconOrder(newIconOrder);
                 _InitThumbs();
                             // ----- never  move items physically to virtual destination folder --------
@@ -1067,7 +1072,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             // else cancel is pressed
         }
 
-        if(!moveItemsIntoFolder)    // move before selected item (or after the last one)
+        if(!moveItemsIntoFolder)    // = just relocate, move before selected item (or after the last one)
         {
             itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
 
@@ -1097,12 +1102,12 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 idl[i] = items[itemOrder[i]];
 
             // modify original stored itemOrder
-            QVector<int> origOrder = fileIcons.IconOrder();  // original order might have been changed
+            const QVector<int> &origIconOrder = fileIcons.IconOrder();  // original order might have been changed
             // so we must rearrange that according to 'itemOrder'
             QVector<int> iconOrder;                          // new icon order indexes
             iconOrder.resize(itemSize);
             for (int i = 0; i < itemOrder.size(); ++i)
-                iconOrder[i] = origOrder[itemOrder[i]];
+                iconOrder[i] = origIconOrder[itemOrder[i]];
 
             fileIcons.SetIconOrder(iconOrder);
             items = idl;
@@ -1307,10 +1312,8 @@ void ThumbnailView::_InitThumbs()
 	int timeOutCnt = 1;
     Album &album = albumgen.Albums()[_albumId];
 
-    // DEBUG
-    //qDebug("Entered _InitThumb");
-    // Add images
     _thumbnailViewModel->BeginResetModel();
+    _thumbnailViewModel->Clear();
 	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < album.items.size(); ++fileIndex)
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
@@ -1674,7 +1677,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             else
                 pItem = albumgen.AlbumForID(id);
 
-            bool exists = QFile::exists(pItem->FullSourceName());
+            bool exists = id.IsAlbum() ? true : QFile::exists(pItem->FullSourceName());
 
             if (exists)
             {
@@ -1732,6 +1735,11 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
         }
     }
+	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
+	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
+	menu.addAction(pact);
+
+    menu.addSeparator();
 	pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 	pact->setEnabled(true);
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
@@ -1739,11 +1747,6 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 
 	pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
-	menu.addAction(pact);
-
-    menu.addSeparator();
-	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
-	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
 	menu.addAction(pact);
 
     if(nSelSize > 1)
@@ -2105,7 +2108,7 @@ void ThumbnailView::NewVirtualFolder()
 		}
         if ((b = _NewVirtualFolder(qs)) == true)
         {
-            Reload();
+//            Reload();
             break;
         }
         //qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
@@ -2192,7 +2195,7 @@ void ThumbnailView::OpenAlbumThumbnail()
     {
         bool added;
         ID_t id = albumgen.Images().Add(s, added, true);      // will not add it when it is already in data base
-        album->SetThumbnail(id);
+        album->SetThumbnail(id);                              // increases image's thumbnailCount
         Reload();
     }
 }
@@ -2225,13 +2228,9 @@ void ThumbnailView::SetAsAlbumThumbnail()
     ID_t th = album.items[pos];
 
     album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID );
-    albumgen.SetAlbumModified(album);
-    if(album.parentId.Val())
-    {
-        Album * parent = albumgen.AlbumForID(album.parentId);
-        albumgen.SetAlbumModified(*parent);
-    }
     albumgen.SetAlbumModified(_albumId);
+    if(album.parentId.Val())
+        albumgen.SetAlbumModified(album.parentId);
     emit SignalAlbumChanged();
 }
 
@@ -2291,6 +2290,7 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     albumgen.AddItemToAlbum(_albumId, thname, true, false, true);
 
     Album& album = *_ActAlbum();
+    albumgen.SetAlbumModified(album);
 
     if (album.parentId.Val())
     {

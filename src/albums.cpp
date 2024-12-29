@@ -350,10 +350,14 @@ void Image::GetResizedDimensions(QSize& destSize)	// 'destSize' is size of exist
 	//}
 }
 
-void Image::SetThumbSize()
+void Image::SetThumbSize()	// calculates the size of the thumbnail when the height equals to config.thumbHeight
 {
 	QSize ctsize = config.ThumbSize();
-	tsize = osize;
+	double factor = (double)ctsize.height() / (double)osize.height();
+#if 1
+	tsize.setHeight(ctsize.height());
+	tsize.setWidth(round(factor * osize.width()));
+#else
 	// get minimum size that fills the 'tsize' rectangle. It may extend outside the allowed rectangle
 	tsize.scale(ctsize, Qt::KeepAspectRatio);
 	// thumbnails must have the vertical size the same as in ctsize
@@ -362,6 +366,7 @@ void Image::SetThumbSize()
 		tsize.setWidth(round((double)ctsize.height() / (double)tsize.height() * tsize.width()));
 		tsize.setHeight(ctsize.height());
 	}
+#endif
 }
 
 void Image::SetNewDimensions()
@@ -639,9 +644,7 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	added = false;
 	if (pImg)
 	{
-		if (forThumbNail)
-			++pImg->thumbnailCount;
-		else
+		if (!forThumbNail)			// thumbnailCount will be increased in SetThumbnail
 			++pImg->usageCount;
 		return pImg->ID;
 	}
@@ -713,9 +716,7 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	added = true;
 	img.ID = id;
 
-	if (forThumbNail)		// then added from one album
-		++img.thumbnailCount;
-	else
+	if (!forThumbNail)		// thumbNailCount is increased in SetThumbNail
 		++img.usageCount;
 
 	insert(id, img);
@@ -915,6 +916,7 @@ ID_t Album::ThumbID()
 		return thumbnailId;
 	if (items.isEmpty())
 		return { IMAGE_ID_FLAG,0 };
+	// else thumbnail was not yet set. Get first image as a thumbnail
 	for (auto &iid : items)
 		if (iid.IsImage())
 			return SetThumbnail(iid);
@@ -933,9 +935,13 @@ ID_t Album::ThumbID()
  * RETURNS:	id
  * REMARKS: - the usage count of the new thumbnail is increased,
  *				the old thumbnail's is decreased
+ *			- set the 'changed' flag in caller
  *------------------------------------------------------------*/
 ID_t Album::SetThumbnail(ID_t id)
 {
+	if (id == thumbnailId)	// new and old are the same image
+		return id;
+
 	id.SetFlag(uint8_t(~TYPE_FLAGS), false);
 	ID_t oldThumbnail = thumbnailId;
 	thumbnailId = id;
@@ -1259,22 +1265,24 @@ QString AlbumGenerator::SiteLink(int language)
 }
 
 /*============================================================================
-  * TASK:	 add a new image from structure to image map
-  * EXPECTS:  imagePath: path name relative to source directory
+  * TASK:	 add a new image/video from structure to image/video map
+  * EXPECTS:  imagePath: path name is either relative to source directory
+  *						 or absolute path
   *
   * RETURNS:  id of image/video added/found with type flag set
   *				It will not have any title or description as those
   *				will be added after this image is processed
   * GLOBALS:
-  * REMARKS:- new images may be added to the structure file by using the path
+  * REMARKS: - not called for already processed images/videos
+  *			 - new images may be added to the structure file by using the path
   *			  name, (absolute or relative to the gallery source) and nothing more.
   *			  In this case the new image must be processed and added to the
   *			  data base.
-  *			 - sets '_structChanged' to true
+  *			 - sets '_structFileChangeCount' to true
  *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool& added)
 {
-	++_structChanged;
+	++_structFileChangeCount;	 // always changed wehna non-processed image line is in the structure
 
 	ID_t id;
 
@@ -1493,12 +1501,12 @@ QString AlbumGenerator::_EncodeTitle(QString title)
 }
 
 /*============================================================================
-  * TASK: test the sizes of an existing thumbnail against config and see
-  *		  if it must be recreated
-  * EXPECTS: thumbPath - full path of thumbnail file
-  *	     img - image data from data base with correct thumbnail size set in it
-  * RETURNS: 'true' : actual size of thumbnail is not the same as the one in data base
-  *	     'false' : otherwise
+  * TASK:	test the sizes of an existing thumbnail against config and see
+  *			if it must be recreated
+  * EXPECTS:thumbPath - full path of thumbnail file
+  *			img - image data from data base with correct thumbnail size set in it
+  * RETURNS:'true' : actual size of thumbnail is not the same as the one in data base
+  *			'false' : otherwise
   * GLOBALS:
   * REMARKS: - the thumbnail is already a rotated image when needed
  *--------------------------------------------------------------------------*/
@@ -1509,7 +1517,7 @@ bool AlbumGenerator::_MustRecreateThumbBasedOnImageDimensions(QString thumbPath,
 			thumbSize = reader.size();	// read thumbnail image dimensions from file
 							// because integer arithmetic the calculated w & H may be different
 							// from that of the converted thumbnail file
-	return abs(thumbSize.width() - img.tsize.width()) > 2 || abs(thumbSize.height() - img.tsize.height()) > 2;
+	return abs(thumbSize.width() - img.tsize.width()) > 3 || abs(thumbSize.height() - img.tsize.height()) > 3;
 }
 
 /*==========================================================================
@@ -1917,7 +1925,7 @@ void AlbumGenerator::SetChangesWritten()
 	for (auto &a : _videoMap)
 		a.changed = false;
 	_slAlbumsModified.clear();
-	_structChanged = 0;
+	_structFileChangeCount = 0;
 }
 
 void AlbumGenerator::AddDirsRecursively(ID_t albumId)
@@ -1963,7 +1971,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 		Clear();
 	PROGRAM_CONFIG::MakeValidLastConfig();		// may add new config
 	QString s = PROGRAM_CONFIG::NameForConfig(false, ".struct");
-	_structChanged = 0;
+	_structFileChangeCount = 0;
 
 	bool newDataExists = true;
 
@@ -2221,7 +2229,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			else if (!textID)						// when no id in file
 			{
 				textID = texts.CalcID(_textMap);	// sets new unique id and usage count as well
-				++_structChanged;
+				++_structFileChangeCount;
 			}
 
 			if (!texts.usageCount)					// then not yet added
@@ -2253,11 +2261,8 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			else
 			{
 				bool added;
-				ids.thumbnailIDVal = _AddImageOrVideoFromPathInStruct(s, ftImage, added).Val();
-				++_structChanged;
+				ids.thumbnailIDVal = _AddImageOrVideoFromPathInStruct(s, ftImage, added).Val(); // sets _structFileChangeCount inside the function
 			}
-
-			ids.what = IdsFromStruct::thumbnail;
 		}
 		else		// common part for title and description
 		{			// because textID is always calculated using all texts for all languages
@@ -2274,7 +2279,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 				if (textID == 0)	// then this is the first line for the text
 				{
 					if (s.length() == len)
-						++_structChanged;		// because textID will be calculated
+						++_structFileChangeCount;		// because textID will be calculated
 					else
 					{
 						textID = texts.ID = s.mid(len + 1).toULongLong(); // len+1: length including '*'
@@ -2294,7 +2299,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 		else if (!textID)						// when no id in file
 		{
 			textID = texts.CalcID(_textMap);	// sets new unique id and usage count as well
-			++_structChanged;
+			++_structFileChangeCount;
 		}
 
 		if (!texts.usageCount)					// then not yet added
@@ -2316,26 +2321,24 @@ bool AlbumGenerator::_ReadPathTable(FileReader& reader)
 	if( (config.majorStructVersion == 1 && config.minorStructVersion < 3) || rline != PATH_TABLE) // older versions have no path table
 		return true;
 
+	auto __isID = [](QString s) ->bool
+		{
+			if (s.isEmpty())
+				return false;
+			for (auto& c : s)
+				if (!c.isDigit())
+					return false;
+			return true;
+		};
 	bool ok = reader.Ok();
 	while (ok && (rline = reader.ReadLine()) != ']')
 	{
 		// rline format: <full, or source relative path name of thumbnail>[:<id>]
-		if ( rline == ']' )
-			break;
 
 		QStringList sl = rline.split('|');
 		sl[1] = CutSourceRootFrom(sl[1]);
 		int n = sl.size();
 
-		auto __isID = [](QString s) ->bool
-			{
-				if (s.isEmpty())
-					return false;
-				for (auto& c : s)
-					if (!c.isDigit())
-						return false;
-				return true;
-			};
 		if (n != 2 || !__isID(sl[0]))
 			throw BadStruct(reader.ReadCount(), tr("Bad Path line"));
 
@@ -2359,7 +2362,7 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 	while (ok && (rline = reader.ReadLine()) != ']')
 	{
 		// rline format:  same as for any other image
-		ID_t id = _ImageOrVideoFromStruct(reader, 0, nullptr, true);
+		ID_t id = _ReadImageOrVideoFromStruct(reader, 0, nullptr, true);
 		ok = reader.Ok();
 	}
 	rline = reader.ReadLine();	// path table or first album line
@@ -2369,11 +2372,11 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 }
 
 /*==========================================================================
-* TASK:		helper - splits an image or video definition line into
-*				max 10 fields (see below):
-* EXPECTS: s : definition string w.o. the leading spaces that determines the level
-*				Formats (text not in < > is verbatim,  '-' starts remark):
-*				  yet unprocessed files:
+* TASK:		helper - splits an image or video definition text line into
+*				max 10 fields (see below) and returns a string list	of those
+* EXPECTS: s : definition string w.o. the leading spaces (which determine the level)
+*				Formats (notation: text not between < > is verbatim,  '-' starts remark):
+*				  for yet unprocessed images/videos:
 *					<full file path> OR
 *					<file name&ext only> - this uses last used path either
 *												from directory or previous file
@@ -2386,7 +2389,7 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 *						if 'V' is present it is a video file else it is an image file
 *					Format from V1.3
 *						Images:
-*							<file name&ext only>||<id>|<width>x<height>|<orig width>x<orig height>|<upload date>*<file length|<directory path ID as string>
+*							<file name&ext only>||<id>|<width>x<height>|<orig width>x<orig height>|<upload date>*<file length|<numeric directory path ID as string>
 *						Videos:
 *							<file name&ext only>||<id>|<upload date>|<file length>|<directory path ID as string>
 *																		Image Video
@@ -2507,7 +2510,7 @@ ID_t AlbumGenerator::AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail
  *					-1: append, other: insert before this position
  * GLOBALS: config
  * RETURNS: sucess or failure of the operation
- * REMARKS: C.f. :_ImageOrVideoFromStruct()
+ * REMARKS: C.f. :_ReadImageOrVideoFromStruct()
  *			marks album as changed, so it's get regenerated
  *------------------------------------------------------------*/
 bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& album, int pos)
@@ -2524,7 +2527,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 
 	bool added;
 	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // either add to maps or get id for image already added, has type flag set
-	SetAlbumModified(album.ID);			// set it as changed always
+	SetAlbumModified(album.ID);			// set it as changed always	 '_structFileChangeCount' is incremented in caller
 	if (type == ftImage)
 	{
 		if (_imageMap.contains(id))
@@ -2569,7 +2572,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 *				but not in the file
 *		   - throws 'BadStruct' on error
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail)
+ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail)
 {
 	IABase* pItem = nullptr;
 	Image img;
@@ -2577,12 +2580,18 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 
 	QStringList sl = __imageMapStructLineToList(reader.l().mid(level));
 	int n = sl.size();		// when all fields are present this should be 6 or 10 :
-							// if no path was given then 5 or 9
+							// n = 0 the invalid file type
+	if(!n)
+	{
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid file type for image or video in line #").arg(reader.ReadCount()));
+		return { 0,INVALID_ID_FLAG };
+	}
+	// if no path was given then 5 or 9
 							// if only the path name was given then just the first two
 		//
-		// index in sl:  0       1      2    3      4             5               6         7              8          9
-		// images:		name, "image", id, width, height, original width, original height, date, original file size, path/path ID
-		// videos:		name, "video", id, date,  file size,         path/path ID
+		// index in sl:  0     1    2    3      4               5               6         7              8             9
+		// images:		name, "I", id, width, height,    original width, original height, date, original file size, path ID/path
+		// videos:		name, "V", id, date,  file size, path/path ID
 
 	ID_t id;
 		// n:  images: 2 or 10, videos 2 or 5
@@ -2593,18 +2602,18 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 			throw BadStruct(reader.ReadCount(),
 							QString(FalconG::tr("Wrong image parameter count:")) + QString().setNum(n)); // or just the image name (from the same folder as the previous one)
 
-		// expects: original/image/directory/inside/source/name.ext and 'type' setbool added;
+		// expects: original/image/directory/inside/source/name.ext and 'type' 
 		bool added;
 		id = _AddImageOrVideoFromPathInStruct(sl[0],type, added);	 // then structure is changed
 		if (id.Val())		// has type flag set
 		{
 			if (thumbnail && album)		 // It's parent also changes
 			{
-				album->SetThumbnail(id);
+				album->SetThumbnail(id);		// and increments 'thumbNailCount'
 				if (album->parentId.Val() )
 					SetAlbumModified(album->parentId);
 			}
-			SetAlbumModified(album->ID);			// set it as changed always
+			SetAlbumModified(album->ID);			// set it as changed, always
 		}
 		if (type == ftImage)
 		{
@@ -2621,13 +2630,11 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	}
 	else  // processed video or image
 	{
-		id = ID_t::Invalid( sl[2].toULongLong() );	// no type yet
+		id = ID_t::Invalid( sl[2].toULongLong() );	// no type yet so at the moment an invalid type in ID is in sl[2]
 		if (type == ftImage)	// n == 9 or 10
 		{
-			id.SetFlag(IMAGE_ID_FLAG);
-			if (_imageMap.contains(id))
-				++_structChanged;
-			else
+			id.SetFlag(IMAGE_ID_FLAG);		// now we know the type, not invalid any more
+			if (!_imageMap.contains(id))
 			{
 				img.name = sl[0];
 				img.SetResizeType();	// removes possible starting '!!' and sets dontResize true in that case
@@ -2664,7 +2671,7 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 					if (f.exists())
 					{
 						img.fileSize = f.size();
-						++_structChanged;
+						++_structFileChangeCount;
 					}
 				}
 
@@ -2672,16 +2679,17 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 
 				_imageMap[id] = img;
 			}
+			if(thumbnail)
+				++_imageMap[id].thumbnailCount;
+			else
+				++_imageMap[id].usageCount;
 			pItem = &_imageMap[id];
-			++((Image*)pItem)->usageCount;
 
 		}
 		else		// video
 		{
 			id.SetFlag(VIDEO_ID_FLAG );
-			if (_videoMap.contains(id))
-				++_structChanged;
-			else
+			if (!_videoMap.contains(id))
 			{
 				vid.name = sl[0];
 				vid.ID = id;
@@ -2713,9 +2721,9 @@ ID_t AlbumGenerator::_ImageOrVideoFromStruct(FileReader &reader, int level, Albu
 	reader.NextLine();
 	if (!reader.l().isEmpty() && reader.l()[level] == '[')
 	{
-		int nChanges = _structChanged;			  // original value
+		int nChanges = _structFileChangeCount;			  // original value
 		_GetTextAndThumbnailIDsFromStruct(reader, ids, level);
-		if(nChanges != _structChanged && album)  // then image came from path in struct
+		if(nChanges != _structFileChangeCount && album)  // then image came from path in struct
 			SetAlbumModified(album->ID);
 	}
 
@@ -2787,8 +2795,8 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 	int pos = 0, pos0 = s.lastIndexOf(QChar('('));
 	if (pos0 < 0 || (s[pos0+1] != QChar('A') && s[pos0 + 1] != QChar('C')) || s[pos0+2] != QChar(':'))		// no path
 	{
-		sl.push_back(s);
-		changed = true;
+		sl.push_back(s);	// unprocessed data: full path name
+		changed = true;		// should be changed when processed
 		return sl;
 	}
 	changed = (s.at(pos0+1).unicode() != 'A');
@@ -2815,10 +2823,15 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *							<name>(A:id)'/'<original path>
 *							or <original path>'/'<name>
 *           parent: ID of parent,
-*					Set to 0 for root album and NOT TOPMOST_ALBUM_ID !
-*			level:	album level (number of spaces before name)
+*					Set to 0 for root album and NOT to TOPMOST_ALBUM_ID !
+*			level:	album level (number of spaces before name in the struct file)
 * RETURNS:	ID of new album from structure
-* REMARKS:	-if an album id line is in reader then the id inside it must be new
+* REMARKS:	- 'structFileChangCount' only  differs from zero after read 
+*				* if any album was marked as 'C' (changed) instead of 'A'
+*				* if any album, image or video is specified with its path
+*					(relative to source dir, or absolute if anywhere els)
+*					insted of a processed way
+*			-if an album id line is in reader then the id inside it must be new
 *			 otherwise the file is damaged
 *			- when a new album added, then its parent also changed
 *			- album definitions are delimited with a single empty line
@@ -2831,7 +2844,7 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *				albums to it
 *			- throws 'BadStruct' on error
 *			- album created here must be added to _albumMap in caller
-*				therefore it will be added later than its sub albums
+*				later than its sub albums, because its items may change
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level)
 {
@@ -2881,8 +2894,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	Album *aParent = parent.Val() ? &_albumMap[parent] : nullptr;
 	uint64_t parentPathId = aParent ? aParent->pathId : NO_ID;
 
-	int	changeCountBefore = _structChanged;		// save to determine if album changed
-												// if any text or the icon ID is new then _structChanged incremented
+	int	changeCountBefore = _structFileChangeCount;		// save to determine if album changed
+												// if any text or the icon ID is new then _structFileChangeCount incremented
 						// n == 3 most of the time that's why we check for it first
 						// expecting a little speedup
 	//int pathId = parentPathId;		// path id of this album, either from struct line or from parent
@@ -2959,15 +2972,15 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		bool added = false;
 		id = _albumMap.Add(parent, sl[0], added);	// add new album to global album list
 		// may invalidate aParent
-		album = _albumMap[id];
-		++_structChanged;		// and also album is changed
+		album = _albumMap[id];	// and also album is changed
+		++_structFileChangeCount;		// then we will write down the processed line into the new file
 	}
 	if (albumDefinitelyChanged)		// type was 'C' and not 'A'
 	{								// in this case immediate parent must be changed too
 		SetAlbumModified(album);
 		if (aParent != nullptr)
 			SetAlbumModified(*aParent);
-		++_structChanged;
+		++_structFileChangeCount;
 	}
 
 	reader.NextLine(); // next line after an album definition line
@@ -3028,7 +3041,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			if (reader.l()[level] == '[') // then title, description or thumbnail line
 			{
 				_GetTextAndThumbnailIDsFromStruct(reader, ids, level);
-				if (changeCountBefore != _structChanged)
+				if (changeCountBefore != _structFileChangeCount)
 				{
 					SetAlbumModified(album);
 					if (parent.Val())
@@ -3037,7 +3050,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
-				ID_t iid = _ImageOrVideoFromStruct(reader, level+1, &album, false);		   // false:not album thumbnail
+				ID_t iid = _ReadImageOrVideoFromStruct(reader, level+1, &album, false);		   // false:not album thumbnail
 				if(!iid.Val())
 					throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
 				album.items.push_back(iid);
@@ -3146,6 +3159,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 
 			// from now on we need the empty lines as well
 			// root directory may also contain name and path
+			rline = reader.l();
 			if (rline[0] != '(' || rline[1] != 'A' && rline[1] != 'C')	// old type?
 			{
 				bool b;
@@ -3287,7 +3301,7 @@ bool AlbumGenerator::_ReadFromDirs()
 	if (!_processing)
 		return false;
 
-	++_structChanged;					// i.e. must write 'gallery.struct'
+	++_structFileChangeCount;					// i.e. must write 'gallery.struct'
 	return true;
 }
 
@@ -3386,7 +3400,7 @@ int AlbumGenerator::WriteDirStruct(bool keep)
 	while (!_structWritten)		// before changing again wait for previous write to finish
 		;
 
-	if (!_structChanged)
+	if (!_structFileChangeCount)
 		return 0;
 
 	_structWritten = false;
@@ -3543,12 +3557,16 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
 	int doProcess = 0;	// suppose neither image nor thumb must be (re)created
+	QString src, dst, thumbName;
 
 										// resize and copy and  watermark
-	QString src = (config.dsSrc + im.Path()).ToString() + im.name,   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
-			dst = config.LocalImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions), // e.g. imgs/123456789.jpg
-			thumbName = config.LocalThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
+	if (!im.ID.Val())	// noimage.jpg in dest folder
+		src = PROGRAM_CONFIG::homePath + "sample/res/" + im.name;
+	else
+		src = (config.dsSrc + im.Path()).ToString() + im.name;   // e.g. i:/images/alma.jpg (windows), /images/alma.jpg (linux)
 
+	dst = config.LocalImageDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions); // e.g. imgs/123456789.jpg
+	thumbName = config.LocalThumbnailDirectory().ToString() + im.LinkName(config.bLowerCaseImageExtensions);// e.g. thumbs/123456789.jpg
 	// DEBUG
 	//int calls = 0;
 	//qDebug("%s - %d", im.name.toStdString().c_str(), ++calls);
@@ -3619,10 +3637,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		bool destIsNewer = dtDestCreated > dtSrc;	   // false for invalid date (no file)
 		int64_t	fiSize = fiSrc.size();
 
-		if (config.bRegenerateAllImages)
-			doProcess += prImage;			// then do not process
-		else if (im.bDestFileChangedOrMissing || (fiSize != im.fileSize) || !destIsNewer)
-			doProcess += prImage;			// then do process
+		if (config.bRegenerateAllImages || (im.bDestFileChangedOrMissing || (fiSize != im.fileSize) || !destIsNewer) )
+			doProcess |= prImage;			// then do process
 
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
@@ -3638,19 +3654,22 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		QDateTime dtThumb = fiThumb.lastModified();		  // date of creation of thumbnail image
 		bool thumbIsNewer = dtThumb > dtSrc;
 
-		if (config.bRegenerateAllImages || _MustRecreateThumbBasedOnImageDimensions(thumbName, im) && thumbIsNewer)
-			doProcess += prThumb;			// then do process
+		if (config.bRegenerateAllImages || _MustRecreateThumbBasedOnImageDimensions(thumbName, im) || !thumbIsNewer)
+			doProcess |= prThumb;			// then do process
 	}
 	else
-		doProcess += prThumb;			// then do process
+		doProcess |= prThumb;			// then do process
 
 	if (doProcess)
 	{
-		++_structChanged;			// when image changes structure must be re-saved
-
 		WaterMark *pwm = nullptr;
-		if (config.waterMark.used)
-			pwm = &config.waterMark;
+		if (im.ID.Val())				// else default NoImage.jpg
+		{
+			++_structFileChangeCount;	// when image changes structure must be re-saved
+
+			if (config.waterMark.used)	
+				pwm = &config.waterMark;
+		}
 		converter.flags = doProcess + (im.dontResize ? dontResize : 0) +
 							(config.doNotEnlarge ? dontEnlarge : 0);
 
@@ -3670,7 +3689,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 			QImage dstImage(dst);
 
 			im.dsize = dstImage.size();
-			im.changed = true;			// so check in struct file before writing to disk
+			im.changed = im.ID.Val();			// so check in struct file before writing to disk
 			_imageMap[im.ID] = im;
 		}
 
@@ -4344,7 +4363,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 	}
 	else		// video
 	{
-		pImage = &_imageMap[_videoMap[id].thumbnailId];
+		pImage = &_imageMap[_videoMap[id].thumbnailId]; // video thumbnail is an image
 		if (!pImage->Exists(CHECK))	
 			pImage = &_imageMap[NOIMAGE_ID];
 	}
@@ -4647,7 +4666,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		s = config.LocalAlbumDirectory().ToString() + album.NameFromID(language);
 
 	QFile f(s);
-	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structChanged*/)
+	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structFileChangeCount*/)
 	{
 		_remDsp.Update(processedCount);
 		emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
@@ -5221,7 +5240,7 @@ int AlbumGenerator::ProcessAndWrite()
 	_processing = false;
 
 	// do not save after read of structure
-	emit SignalAlbumStructChanged(_structChanged || !_slAlbumsModified.isEmpty());   // all album and image data
+	emit SignalAlbumStructChanged(_structFileChangeCount || !_slAlbumsModified.isEmpty());   // all album and image data
 
 	return i;
 }

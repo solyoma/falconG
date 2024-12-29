@@ -130,8 +130,8 @@ struct IABase
 //------------------------------------------
 struct Image : public IABase
 {
-	UsageCount usageCount = 0;	// image can be removed from disk only if both this is 0
-	UsageCount thumbnailCount = 0;		// and this is also 0	Orphan thumbnails must have 0 usageCount
+	UsageCount usageCount = 0;		// image can be removed from disk only if both this 
+	UsageCount thumbnailCount = 0;	// and this are 0	Orphan thumbnails must have 0 usageCount
 	QString checksum = 0;		// of content not used YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
@@ -141,12 +141,12 @@ struct Image : public IABase
 	QSize	osize = { 0, 0 },	// original dimensions read from struct file,
 			dsize = { 0, 0 },	// transformed size read either from .struct file or from destination file if it exists
 			rsize = { 0, 0 },	// image to be resized to this size
-			tsize;				// thumbnail size. Determined externally
+			tsize;				// thumbnail size. Determined in SetThumbSize(). Not stored in struct file
 
 	bool	bDestFileChangedOrMissing;		// from width and height
 
 	void GetResizedDimensions(QSize& destSize);
-	void SetThumbSize();
+	void SetThumbSize();		// calculates the size of the thumbnail when the height equals to config.thumbHeight
 
 	void SetNewDimensions();
 
@@ -174,7 +174,7 @@ struct Video : IABase			// format: MP4, OOG, WebM
 	// If no such file is present a default jpg will be supplied
 	enum Type {vtMp4, vtOgg, vtWebM} type;
 
-	UsageCount usageCount = 1;			// can be removed when this is 0
+	UsageCount usageCount = 1;	// video can be deleted when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
 	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// manually selected image as a thumbnail for this video
@@ -368,7 +368,7 @@ public:
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false);		
 	bool StructWritten() const { return _structWritten; }
-	bool StructChanged() const { return _structChanged;  }
+	bool StructChanged() const { return _structFileChangeCount;  }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
@@ -473,7 +473,7 @@ private:
 		int size() const { return list.size(); }
 	} _latestImages;
 // no need: read is fast enough 	bool _structAlreadyInMemory = false;
-	UsageCount _structChanged;	// signals wheather a new 'struct' file must be written
+	UsageCount _structFileChangeCount;	// signals whether a new 'struct' file must be written
 							// increase after a jalbum style read and after an album struct change
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
@@ -552,7 +552,7 @@ private:
 	int _DoHtAccess();
 				// read 'gallery.struct
 	bool _LanguageFromStruct(FileReader &reader);
-	ID_t _ImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
+	ID_t _ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
 	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parentId, int level);
 	void _AddAlbumThumbnail(Album &album, uint64_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);

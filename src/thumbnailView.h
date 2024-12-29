@@ -35,28 +35,32 @@ class ImageViewer;
 class FileIcons
 {
 
-	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
-									 // (not QList as in Qt6 QList is the same as QVector)
-									 // order never changes when items added or moved around
-									 // access elements through _iconOrder
-	QVector<int> _iconOrder;         // indirection through this
 public:
 	enum Flag { fiFolder=1, fiThumb=2, fiDontResize=4};
 	using Flags = QFlags<Flag>;
 
+	typedef QVector<int> dataType;
+
 	int posFolderIcon = -1;
 
 	void Clear();
-	int Size() const;
+	int Size() const;	// only the displaed size, not necessarily the count of icons
 	void SetMaximumSizes(int thumbsize = THUMBNAIL_SIZE, int borderwidth = 10);
 	bool HasIconFor(int pos);
 	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
 
 	QIcon IconForPosition(int pos, Flags flags, QString imageName = QString());
-	QVector<int> IconOrder() const;
-	void SetIconOrder(QVector<int>& order);
+	const dataType &IconOrder() const;
+	void SetIconOrder(const QVector<int>& order);
 	MarkedIcon* Insert(int pos, bool isFolder, QString imageName = QString());
 	void Remove(int pos);    // remove items _iconOrder[pos];
+private:
+	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
+									 // (Not QList because in Qt5 QList  does not store items adjacently.
+									 //  In Qt6 QList is the same as QVector, so it would be the same)
+									 // order never changes when items added or moved around
+									 // access elements through _iconOrder
+	dataType _iconOrder;         // indirection through this
 };
 
 extern FileIcons fileIcons;
@@ -76,18 +80,14 @@ public:
 
 public:
 	int type() const { return _itemType; }
-	//ID_t id() const 
-	//{ 
-	//	return (_albumId == 0xFFFFFFFFFFFFFFFFu || itemPos < 0) ? 0 : _ActAlbum()->items[itemPos];
-	//}
 	void SetType(Type typ) 
 	{ 
 		_itemType = typ; 
 	}
 
 	ThumbnailItem(int pos = 0, ID_t albumID = ID_t::Invalid(), Type typ = none, QIcon icon = QIcon());
-	ThumbnailItem(const ThumbnailItem &other) :ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
-	ThumbnailItem(const ThumbnailItem &&other):ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
+	ThumbnailItem(const ThumbnailItem &other)			:ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
+	ThumbnailItem(const ThumbnailItem &&other) noexcept	:ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
 	ThumbnailItem &operator=(const ThumbnailItem& other) 
 	{ 
 		QStandardItem::operator=(other); 
@@ -161,7 +161,7 @@ public:
 
 #if 1
 /*=============================================================
- * my thumb model
+ * My thumbnail model
  *------------------------------------------------------------*/
 class ThumbnailViewModel : public QStandardItemModel
 {
@@ -204,9 +204,9 @@ public:
 	{
 		return item(index.row(), 0);
 	}
-	void BeginResetModel() { beginResetModel(); }
-	void EndResetModel() { endResetModel(); }
-	int DummyPosition() const { return _dummyPosition;  }
+	inline void BeginResetModel() { beginResetModel(); }
+	inline void EndResetModel() { endResetModel(); }
+	inline int DummyPosition() const { return _dummyPosition;  }
 	void Clear();
 	
 };
@@ -280,18 +280,18 @@ private:
 	int _insertPos = -1;						// put a spacer at this position
     QDir::SortFlags _thumbsSortFlags;
     QString _filterString;
-    bool _isBusy;
+    bool _isBusy=false;
 	bool _dragFromHereInProgress = false;		// drag started from here
 
 //    QFileInfo thumbFileInfo;
-    int _currentItem;
+    int _currentItem=-1;
     QModelIndex _currentIndex;
     bool _doAbortThumbsLoading = false;
 	bool _isProcessing = false;
-    bool _isNeedToScroll;
-    bool _scrolledForward;
-    int _thumbsRangeFirst;
-    int _thumbsRangeLast;
+    bool _isNeedToScroll = false;
+    bool _scrolledForward = false;
+    int _thumbsRangeFirst = -1;
+    int _thumbsRangeLast = -1;
 	int _rowSelectedWithRightButton = -1;
 
 	QStringList _slSearchPaths;		// paths to search missing images against
