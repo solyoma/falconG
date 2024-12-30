@@ -1573,7 +1573,7 @@ void FalconG::on_btnBrowseDestination_clicked()
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - should svae last directory into config
+ * REMARKS: - should save last directory into config
  *-------------------------------------------------------*/
 void FalconG::on_btnBrowseForBackgroundImage()
 {
@@ -1587,6 +1587,7 @@ void FalconG::on_btnBrowseForBackgroundImage()
 		ui.edtBckImageName->setText(filename);
 		QPixmap pm(filename);
 		ui.lblbckImage->setPixmap(pm);
+		_SetConfigChanged(true);
 	}
 	config.backgroundImage.SetNames(filename);
 }
@@ -1935,6 +1936,12 @@ void FalconG::on_btnImageMatteColor_clicked()
 		_SetConfigChanged(true);
 //		emit SignalToClearIconList();
 	}
+}
+
+void FalconG::on_btnLink_clicked()
+{
+	config.imageSizesLinked = ui.btnLink->isChecked();
+	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -3727,7 +3734,8 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 		_aspect = (double)w / (double)val;
 
 	--_busy;
-// ????	_ChangesToSample();
+	_SetConfigChanged(true);
+	// ????	_ChangesToSample();
 }
 
 void FalconG::on_sbImageMargin_valueChanged(int m)
@@ -3809,6 +3817,7 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 	
 	if(h)	// else no change
 		_aspect = (double)val / (double)h;
+	_SetConfigChanged(true);
 	--_busy;
 // ????	_ChangesToSample(dp);
 }

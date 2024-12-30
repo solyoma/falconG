@@ -259,6 +259,7 @@ private slots:
 	void on_btnGradStopColor_clicked();
 	void on_btnImageBorderColor_clicked();
 	void on_btnImageMatteColor_clicked();
+	void on_btnLink_clicked();
 	void on_btnMoveSchemeDown_clicked();
 	void on_btnMoveSchemeUp_clicked();
 	void on_btnOpenBckImage_clicked();

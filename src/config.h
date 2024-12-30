@@ -224,7 +224,6 @@ struct _CBool : public _CFG_ITEM<bool>
 
 //--------------------------------------------------------------------------------------------
 
-
 struct _CInt : _CFG_ITEM<int>
 {
 	_CInt(int vd, QString namestr="cint") : _CFG_ITEM(vd, namestr) {}
