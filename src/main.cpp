@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 	//splashControl->Start();
 
 	splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
+	splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
 	splashScreen->show();
 	Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
 	splashScreen->showMessage(QObject::tr("falconG  - Setting up..\n\n\n"), topRight, Qt::white);
