@@ -2583,7 +2583,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 							// n = 0 the invalid file type
 	if(!n)
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid file type for image or video in line #").arg(reader.ReadCount()));
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid file type for image or video in line %1").arg(reader.ReadCount()));
 		return { 0,INVALID_ID_FLAG };
 	}
 	// if no path was given then 5 or 9
@@ -4749,7 +4749,7 @@ int AlbumGenerator::_CreateAboutPages()
 		}
 
 		if (_OutputAboutText(i) < 0)
-			QMessageBox::warning(frmMain, tr("FalconG - Warning"), QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i]));
+			QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i]));
 
 		_ofs << "<footer class = \"footer\"><br>\n"
 			<< (*languages["falconG"])[_actLanguage] << "<br>\n"
@@ -5608,7 +5608,7 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
 {
 	if (fromDisk)
-		if(QMessageBox::question(frmMain, tr("FalconG - Warning"),
+		if(QMessageBox::question(frmMain, tr("falconG - Warning"),
 								tr(	"If a folder is removed all the files and folders inside it will be deleted too!\n\n"
 									"This cannot be undone!\n\n"
 									"Really delete the selected items from disk?")) != QMessageBox::Yes)
