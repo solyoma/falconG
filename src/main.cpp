@@ -22,18 +22,6 @@ int main(int argc, char *argv[])
 
 	QApplication a(argc, argv);
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
-			// Splash Screen
-	//SplashControl* splashControl = new SplashControl();
-	//splashControl->Start();
-
-	splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
-	splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
-	splashScreen->show();
-	Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
-	splashScreen->showMessage(QObject::tr("falconG  - Setting up..\n\n\n"), topRight, Qt::white);
-
-	a.processEvents();
-
 	PROGRAM_CONFIG::GetHomePath();
 
 	// after a new translation is added add language radio boxes
@@ -62,12 +50,23 @@ int main(int argc, char *argv[])
 			if (!a.installTranslator(&translator))
 				QMessageBox::warning(nullptr, "falconG - Warning", "Can't load language " + qs + "using default");
 	}
+			// Splash Screen
+	splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
+	splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
+	splashScreen->show();
+	Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
+	splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::white);
+
+	a.processEvents();
+
 	FalconG w;
 	w.show();
 
 	splashScreen->finish(&w);
 	delete splashScreen;
 	splashScreen = nullptr;
-
+	w.raise();
+	w.activateWindow();
 	return a.exec();
 }
+

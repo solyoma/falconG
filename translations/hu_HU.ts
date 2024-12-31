@@ -1256,7 +1256,7 @@ Abszolút biztos vagy benne, hogy ezt akarod?</translation>
     </message>
     <message>
         <location filename="../src/main.cpp" line="32"/>
-        <source>falconG  - Setting up..
+        <source>falconG  - Setting up...
 
 
 </source>

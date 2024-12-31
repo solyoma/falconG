@@ -1102,7 +1102,7 @@ Are you &gt;&gt;really&lt;&lt; sure you want to do this?</source>
     </message>
     <message>
         <location filename="../src/main.cpp" line="32"/>
-        <source>falconG  - Setting up..
+        <source>falconG  - Setting up...
 
 
 </source>
