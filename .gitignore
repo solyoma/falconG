@@ -274,3 +274,17 @@ deleted/
 _/
 .vscode/
 enc_temp_folder/
+
+#no release
+_releases/
+_Deploy
+
+#no json in source
+FalconBoard/*.json
+*.mwb
+*.mwb~
+*.pdf
+*.json
+*temp*
+*.stash
+*~
