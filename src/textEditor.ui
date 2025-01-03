@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="falcong.qrc">
+    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QWidget" name="widget" native="true">
@@ -457,6 +461,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="falcong.qrc"/>
+ </resources>
  <connections/>
 </ui>

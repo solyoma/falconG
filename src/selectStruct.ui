@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>falconG - Gallery Source Selection</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="falcong.qrc">
+    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="leftMargin">
     <number>4</number>
@@ -99,7 +103,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="falcong.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>btnOk</sender>

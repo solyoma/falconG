@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>falconG - Image Viewer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="falcong.qrc">
+    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
+  </property>
   <widget class="QWidget" name="statusFrame" native="true">
    <property name="geometry">
     <rect>
@@ -141,6 +145,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="falcong.qrc"/>
+ </resources>
  <connections/>
 </ui>

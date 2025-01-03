@@ -40,8 +40,8 @@
    <string>Falcon's Gallery Generator</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>D:/sajat/photo/falconG/x64/Release/falconG.ico</normaloff>D:/sajat/photo/falconG/x64/Release/falconG.ico</iconset>
+   <iconset resource="falcong.qrc">
+    <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -1918,7 +1918,7 @@ when their source is no longer present</string>
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <widget class="QWidget" name="pgGlobal">
                        <property name="geometry">
@@ -4370,8 +4370,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>432</width>
-                         <height>446</height>
+                         <width>455</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <attribute name="label">
