@@ -293,6 +293,7 @@ private:
     int _thumbsRangeFirst = -1;
     int _thumbsRangeLast = -1;
 	int _rowSelectedWithRightButton = -1;
+	int _rowSelectedWithLeftButton = -1;
 
 	QStringList _slSearchPaths;		// paths to search missing images against
 
@@ -329,6 +330,7 @@ signals:
 	void SignalMayLoadNewItems();					// when there was a new album selected in tree view
 	void SignalAlbumChanged();					// add the new album to tree view as well
 	void SignalImageViewerAdded(bool enableclosebutton);
+	void SignalBackToParentAlbum();
 protected:
     void startDrag(Qt::DropActions);			// called by QListView() 
 // exper: comments

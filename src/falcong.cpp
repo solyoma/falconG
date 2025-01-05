@@ -244,6 +244,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_SlotTnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotFolderChanged);	
 	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEnableCloseAllViewers);
+	connect(ui.tnvImages, &ThumbnailView::SignalBackToParentAlbum,	this, &FalconG::on_btnBackToParentAlbum_clicked);
 
 	connect(this, &FalconG::SignalActAlbumChanged, ui.trvAlbums, &AlbumTreeView::SlotActAlbumChanged);
 

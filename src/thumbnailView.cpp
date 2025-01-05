@@ -1615,10 +1615,20 @@ void ThumbnailView::wheelEvent(QWheelEvent *event)
  *------------------------------------------------------------*/
 void ThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
-    {
-        _rowSelectedWithRightButton = indexAt(event->pos()).row();
-    }
+	switch (event->button())
+	{
+	    case Qt::LeftButton:
+		    _rowSelectedWithLeftButton = indexAt(event->pos()).row();
+		    break;
+	    case Qt::RightButton:
+		    _rowSelectedWithRightButton = indexAt(event->pos()).row();
+		    break;
+        case Qt::BackButton:
+			emit SignalBackToParentAlbum();
+			break;
+        case Qt::ForwardButton:
+            break;
+	}
 
 	QListView::mousePressEvent(event);
 }
