@@ -1311,6 +1311,8 @@ void ThumbnailView::_InitThumbs()
 	static QSize hintSize;
 	int timeOutCnt = 1;
     Album &album = albumgen.Albums()[_albumId];
+    if(album.pathId)
+        albumgen.lastUsedAlbumPathId = album.pathId;
 
     _thumbnailViewModel->BeginResetModel();
     _thumbnailViewModel->Clear();
@@ -1951,14 +1953,21 @@ void ThumbnailView::UndoDelete()
  *------------------------------------------------------------*/
 void ThumbnailView::AddImages()
 {
-    QString dir = _ActAlbum()->FullSourceName();
+    QString dir = pathMap.AbsPath(albumgen.lastUsedAlbumPathId)+_ActAlbum()->name;
     QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
+
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
 
     emit SignalInProcessing(true);
     _AddImagesFromList(qslFileNames, pos);
+    // now add last used path
+	int siz = qslFileNames.size();
+    QString s;
+	SeparateFileNamePath(qslFileNames[siz - 1], dir,s);
+    bool added=false;
+//	albumgen.lastUsedAlbumPathId = albumgen.Albums().Add(_ActAlbum()->ID, dir, added).Val();
     Reload();
     albumgen.WriteDirStruct(true);
 
@@ -2284,7 +2293,7 @@ void ThumbnailView::ToggleDontResizeFlag()
  *------------------------------------------------------------*/
 void ThumbnailView::SelectAsAlbumThumbnail()
 {
-    QString path = pathMap.Path(albumgen.Images().lastUsedPathId);
+    QString path = pathMap.AbsPath(albumgen.Images().lastUsedPathId);
     QString thname = QFileDialog::getOpenFileName(this, 
                                             tr("falconG - Select Thumbnail Image"),
                                             path, 

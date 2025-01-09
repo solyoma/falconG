@@ -14,6 +14,7 @@
 #include <QImageReader>
 #include <QPainter>
 #include <QTreeView>
+#include <QSplashScreen>
 //#include <QSet>
 #include <time.h>
 
@@ -342,7 +343,9 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 	return true;
 
 }
-//*****************************************																			//---------------------
+//*****************************************
+void ShowSplashScreen();
+void CloseSplashScreen();
 void ShowWarning(QString qs, QWidget *parent = nullptr);
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show = 0, QString checkboxtext = QString(), QWidget* parent = nullptr);
 // QuestionDialog returns a single bit at position 'show', which, when 1 may be QMessageBox::Yes or QMessageBox::Save only!

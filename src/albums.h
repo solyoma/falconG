@@ -62,7 +62,7 @@ public:
 											// path may end in a '/' which will be dropped ?
 
 	int Size() const { return _pathToId.size(); }
-	QString Path(uint64_t id) const;
+	QString AbsPath(uint64_t id) const;		// differs from operator[] as it adds source path if needed
 	uint64_t Id(QString path) const;
 	inline bool Contains(const QString &path) const
 	{

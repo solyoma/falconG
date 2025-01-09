@@ -1038,8 +1038,8 @@ void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 	// get folder (album) index for row by discarding non-folder items
 	Album* album = albumgen.AlbumForID( ID_t(ALBUM_ID_FLAG, (uint64_t)cix.internalPointer()) );
 	Q_ASSERT(album);
-	int aix = 0;
-	for (int i = 0; i < row; ++i)
+	int aix = 0;							 // get the row (index) of the album in the tree view
+	for (int i = 0; i < row; ++i)			 // the row-th album is we will get into
 		if (album->items[i].IsAlbum())
 			++aix;
 	emit SignalActAlbumChanged(aix);
@@ -1737,6 +1737,7 @@ void FalconG::on_btnBackground_clicked()
 	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
 	_SetConfigChanged(true);
 	_ElemToSample();
+	_SlotAlbumChanged();
 }
 
 void FalconG::on_btnBackToParentAlbum_clicked()

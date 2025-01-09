@@ -9,8 +9,6 @@
 #include <QThread>
 #include <QSplashScreen>
 
-static QSplashScreen* splashScreen = nullptr;
-
 int main(int argc, char *argv[])
 {
 	// This makes all widgets scale with dpi scaling, but the whole
@@ -24,6 +22,7 @@ int main(int argc, char *argv[])
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
 	PROGRAM_CONFIG::GetHomePath();
 
+	ShowSplashScreen();
 	// after a new translation is added add language radio boxes
 	// to falconG.ini and their handlers to code
 
@@ -50,21 +49,11 @@ int main(int argc, char *argv[])
 			if (!a.installTranslator(&translator))
 				QMessageBox::warning(nullptr, "falconG - Warning", "Can't load language " + qs + "using default");
 	}
-			// Splash Screen
-	splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
-	splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
-	splashScreen->show();
-	Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
-	splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::white);
-
-	a.processEvents();
 
 	FalconG w;
 	w.show();
 
-	splashScreen->finish(&w);
-	delete splashScreen;
-	splashScreen = nullptr;
+	CloseSplashScreen();
 	w.raise();
 	w.activateWindow();
 	return a.exec();

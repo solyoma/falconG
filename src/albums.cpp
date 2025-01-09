@@ -97,11 +97,16 @@ uint64_t PathMap::Add(const QString &path) // only new paths added
 	return id;
 }
 
-QString PathMap::Path(uint64_t id) const
+QString PathMap::AbsPath(uint64_t id) const
 {
-	if (_idToPath.contains(id) )
-		return _idToPath[id];
-	return QString();
+	QString path;
+	if (_idToPath.contains(id))
+	{
+		path = _idToPath[id];
+		if (QDir::isAbsolutePath(path))
+			return path;
+	}
+	return (config.dsSrc + path).ToString();
 }
 
 uint64_t PathMap::Id(QString path) const
@@ -147,7 +152,7 @@ QString &PathMap::operator[](uint64_t id)
 QString PathMap::Insert(uint64_t id, const QString& path)	// same id new path
 {
 	if (Contains(id))	// then replace the path
-		_pathToId.remove(Path(id));
+		_pathToId.remove(AbsPath(id));
 
 	_idToPath.insert(id, path);	 // add or possibly replaces path
 	_pathToId.insert(path, id);	 // new path with this id
@@ -241,10 +246,10 @@ QString IABase::FullLinkName(bool bLCExtension) const
 	return config.dsGallery.ToString() + s;
 }
 
-QString IABase::Path() const	// uses member 'pathID'. For Virtual albums path is 
+QString IABase::Path() const	// uses member 'pathID'. For Virtual albums path is empty
 {
 	if (pathId)
-		return pathMap.Path(pathId);
+		return pathMap.AbsPath(pathId);
 	else
 		return QString();
 }
@@ -654,7 +659,7 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	img.SetResizeType();	// using img.name, handles '!!'
 
 	if (imgPath.isEmpty())
-		imgPath = pathMap.Path(lastUsedPathId);
+		imgPath = pathMap.AbsPath(lastUsedPathId);
 
 	img.pathId = pathMap.Add(imgPath);	// only adds if it is not already there
 
@@ -1105,8 +1110,12 @@ QString Album::NameFromID(int language)
 *		  added: OUT - set when the new album is added
 * RETURNS: unique id of album with ALBUM_ID_FLAG
 * GLOBALS:
-* REMARKS:	path may contain a logical name only, it need not exist
+* REMARKS: - path may contain a logical name only, it need not exist
 *			if it exists then lastUsedAlbumPath is adjusted
+*		   - when a new album is created inside the program no real folder
+*			is created on disk. If later on a folder with the same name is
+*			created on disk and images are added from that folder, the virtual
+*			album's empty path is not modified with the path of the real album 
 *--------------------------------------------------------------------------*/
 ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 {
@@ -1124,11 +1133,11 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 	}
 	else
 	{
-		Album* found = Find(path);		// already in database?
+		Album* found = Find(relativeParentPath);		// already in database?
 		if (found)
 			return found->ID;	// same base ID, same name then same album
 		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, relativeParentPath, false);   // using full path name only and not file content
-		ab.pathId = pathMap.Add(path);
+		ab.pathId = pathMap.Add(relativeParentPath);
 	}
 
 	ab.parentId = parentId;
@@ -1208,13 +1217,13 @@ Album *AlbumMap::Find(QString albumPath)
 
 Album* AlbumMap::Find(uint64_t pathID, QString albumName)
 {
-	QString fullPath = pathMap.Path(pathID) + albumName;
+	QString fullPath = pathMap.AbsPath(pathID) + albumName;
 	return Find(fullPath);
 }
 
 Album* AlbumMap::Find(uint64_t pathID, ID_t albumId)
 {
-	QString fullPath = pathMap.Path(pathID) + AlbumForID(albumId)->name;
+	QString fullPath = pathMap.AbsPath(pathID) + AlbumForID(albumId)->name;
 	return Find(fullPath);
 }
 
@@ -1996,7 +2005,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 	else
 	{
 		if(bMustReRead)
-			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Album %1 does not exist").arg(s));
+			ShowWarning(tr("Album %1 does not exist").arg(s), frmMain);
 		newDataExists = false;
 	}
 
@@ -2359,7 +2368,9 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 		return true;
 
 	bool ok = reader.Ok();
-	while (ok && (rline = reader.ReadLine()) != ']')
+	reader.ReadLine();
+	ok = reader.Ok();
+	while (ok && (reader.l() != ']'))
 	{
 		// rline format:  same as for any other image
 		ID_t id = _ReadImageOrVideoFromStruct(reader, 0, nullptr, true);
@@ -2521,7 +2532,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	FileTypeImageVideo type = IsImageOrVideoFile(fullFilePath);
 	if (type == ftUnknown)
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Unknown file type\nFile name:\n%1")).arg(fullFilePath));
+		ShowWarning(QString(tr("Unknown file type\nFile name:\n%1")).arg(fullFilePath), frmMain);
 		return false;
 	}
 
@@ -2583,7 +2594,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 							// n = 0 the invalid file type
 	if(!n)
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid file type for image or video in line %1").arg(reader.ReadCount()));
+		ShowWarning(tr("Invalid file type for image or video in line %1").arg(reader.ReadCount()), frmMain);
 		return { 0,INVALID_ID_FLAG };
 	}
 	// if no path was given then 5 or 9
@@ -2660,7 +2671,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 						ImageMap::lastUsedPathId = sl[9].toULongLong();
 				}
 
-				QString path = pathMap.Path(ImageMap::lastUsedPathId);
+				QString path = pathMap.AbsPath(ImageMap::lastUsedPathId);
 				img.pathId = ImageMap::lastUsedPathId;
 				if (!img.fileSize)	// maybe file does not exist
 				{
@@ -2700,7 +2711,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 				if (vid.uploadDate.toJulianDay() < 0)
 					return ID_t::Invalid();
 
-				QString path = pathMap.Path(VideoMap::lastUsedPathId);
+				QString path = pathMap.AbsPath(VideoMap::lastUsedPathId);
 				vid.fileSize = sl[4].toULongLong();
 				if (n == 6)
 					if (config.majorStructVersion == 1 && config.minorStructVersion < 3)
@@ -3485,7 +3496,7 @@ int AlbumGenerator::_SaveFalconGCss()
 	tmpName = BackupAndRename(__CssDir.ToString() + "falconG.css", tmpName);
 	if (!tmpName.isEmpty())
 	{
-		QMessageBox::warning(nullptr, tr("falconG - Warning"), tmpName, QMessageBox::Ok);
+		ShowWarning(tmpName, frmMain);
 		return 8;
 	}
 	return 0;
@@ -4749,7 +4760,7 @@ int AlbumGenerator::_CreateAboutPages()
 		}
 
 		if (_OutputAboutText(i) < 0)
-			QMessageBox::warning(frmMain, tr("falconG - Warning"), QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i]));
+			ShowWarning(QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i])), frmMain;
 
 		_ofs << "<footer class = \"footer\"><br>\n"
 			<< (*languages["falconG"])[_actLanguage] << "<br>\n"
