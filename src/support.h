@@ -344,7 +344,7 @@ template<typename T> bool ValidUtf8String(const T& string, int len)
 
 }
 //*****************************************
-void ShowSplashScreen();
+void ShowSplashScreen(bool addText=false);
 void CloseSplashScreen();
 void ShowWarning(QString qs, QWidget *parent = nullptr);
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show = 0, QString checkboxtext = QString(), QWidget* parent = nullptr);

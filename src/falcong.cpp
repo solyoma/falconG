@@ -28,7 +28,6 @@
 #endif
 
 
-
 #define DEBUG_LOG(qs) \
 {							 \
 	QFile f("debug.log");		 \
@@ -200,6 +199,10 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 #if defined Q_OS_WINDOWS
 	ui.chkSourceRelativePerSign->setChecked(true);
 	ui.chkSourceRelativePerSign->setEnabled(false);
+#endif
+
+#if !defined (DEBUG) && !defined(_DEBUG)
+	ui.btnSaveStruct->setVisible(false);
 #endif
 
 	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::_SlotLinkClicked);
@@ -5388,6 +5391,11 @@ void FalconG::on_btnWmShadowColor_clicked()
 		config.waterMark.SetShadowColor( qc.name().mid(1).toInt(nullptr, 16) );
 		
 	}
+}
+
+void FalconG::on_btnSaveStruct_clicked()
+{
+	albumgen.WriteDirStruct(false, true);	// save into struct and do not replace struct~ file
 }
 
 /*============================================================================

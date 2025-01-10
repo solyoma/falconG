@@ -23,14 +23,20 @@ static void  WarningToFile(QString qs)
 
 static QSplashScreen* splashScreen = nullptr;
 
-void ShowSplashScreen()
+void ShowSplashScreen(bool addMessage)
 {
-	// Splash Screen
-	splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
-	splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
-	splashScreen->show();
-	Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
-	splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::white);
+	if (!splashScreen)
+		// Splash Screen
+	{
+		splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
+		splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
+		splashScreen->show();
+	}
+	if (addMessage)
+	{
+		Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
+		splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::white);
+	}
 
 	QApplication::processEvents();
 }

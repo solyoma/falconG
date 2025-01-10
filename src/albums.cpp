@@ -663,8 +663,10 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 
 	img.pathId = pathMap.Add(imgPath);	// only adds if it is not already there
 
-	if (!img.Exists(CHECK))	// checks if the image exists on disk and sets EXISTING_FLAG in it if it does
-		return NOIMAGE_ID;
+	if (img.Exists(CHECK))	// checks if the image exists on disk and sets EXISTING_FLAG in it if it does
+		// return NOIMAGE_ID;
+		img.ID.SetFlag(EXISTING_FLAG, true);
+
 
 	img.ID.SetFlag(IMAGE_ID_FLAG, true);
 	ID_t id(img.ID);
@@ -813,10 +815,10 @@ bool Album::operator==(const Album &i)
 *--------------------------------------------------------------------------*/
 int Album::ImageCount(bool forced)
 {
-	if (forced || _imageCount < 0)
+	if (forced || _imageCount <= 0)
 	{
 		_imageCount = 0;
-		for (auto a : items)
+		for (auto &a : items)
 			if (a.Val() && a.IsImage() && !a.IsExcluded() )
 				++_imageCount;
 	}
@@ -831,10 +833,10 @@ int Album::ImageCount(bool forced)
 *--------------------------------------------------------------------------*/
 int Album::VideoCount(bool forced)
 {
-	if (forced || _videoCount < 0)
+	if (forced || _videoCount <= 0)
 	{
 		_videoCount = 0;
-		for (auto a : items)
+		for (auto &a : items)
 			if (a.Val() && a.IsVideo() && !a.IsExcluded() )
 				++_videoCount;
 	}
@@ -851,14 +853,26 @@ int Album::SubAlbumCount(bool forced)
 {
 	if (items.isEmpty())
 		return 0;		// but don't modify _albumCount
-	if (forced || _albumCount < 0)
+	if (forced || _albumCount <= 0)
 	{
 		_albumCount = 0;
-		for (auto a : items)
+		for (auto &a : items)
 			if (a.Val() && a.IsAlbum() && !a.IsExcluded() )
 				++_albumCount;
 	}
 	return _albumCount;
+}
+
+void Album::RecalcItemCounts()
+{
+	_imageCount = _videoCount = _albumCount = 0;
+	for (auto& a : items)
+		if (a.IsImage())
+			++_imageCount;
+		else if (a.IsVideo())
+			++_videoCount;
+		else
+			++_albumCount;
 }
 
 
@@ -875,7 +889,7 @@ int Album::TitleCount()
 	if (_titleCount < 0)
 	{
 		_titleCount = 0;
-		for (auto a : items)
+		for (auto &a : items)
 			if ((a.Val()) &&
 				(
 					((a.IsAlbum()) && albumgen.Albums()[a].titleID) ||
@@ -901,7 +915,7 @@ int Album::DescCount()
 	if (_descCount < 0)
 	{
 		_descCount = 0;
-		for (auto a : items)
+		for (auto &a : items)
 			if (a.Val() &&
 				(
 					((a.IsAlbum()) && albumgen.Albums()[a].descID) ||
@@ -1044,11 +1058,11 @@ void Album::AddItem(ID_t id, int pos)
 	else
 		items.insert(pos, id);
 	if (id.IsAlbum())
-		++_albumCount;
+		_albumCount < 0 ? _albumCount = 1 : ++_albumCount;
 	else if (id.IsImage())
-		++_imageCount;
+		_imageCount < 0 ? _imageCount = 1 : ++_imageCount;
 	else if (id.IsVideo())
-		++_videoCount;
+		_videoCount < 0? _videoCount = 1 : ++_videoCount;
 }
 
 /*============================================================================
@@ -2434,11 +2448,11 @@ static QStringList __imageMapStructLineToList(QString s)
 	bool oldType = false;
 
 	int pos0 = 0,
-		pos = s.lastIndexOf("||"); 	// either the opening for file parameters after the file name
-									// or, when no such parameters, inside the file name
-	if (pos < 0)
+		pos = s.indexOf("||"); 	// the opening for file parameters after the file name
+								// because no file name may contain the '|' character (pair)
+	if (pos < 0)				// old format
 	{
-		pos = s.lastIndexOf('(');	// start of parameters
+		pos = s.lastIndexOf('(');	// start of parameters ('(' can appear in file name)
 		if (pos >= 0)
 		{							  
 			oldType = true;
@@ -2560,10 +2574,8 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 			VideoMap::lastUsedPathId = vid.pathId;
 	}
 	// add it to album even when it was already added
-	if (pos < 0)
-		album.items.push_back(id);
-	else
-		album.items.insert(pos, id);		// add BEFORE pos
+	album.AddItem(id, pos);	// and modify item count
+
 	return true;
 }
 
@@ -3062,8 +3074,9 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ReadImageOrVideoFromStruct(reader, level+1, &album, false);		   // false:not album thumbnail
-				if(!iid.Val())
-					throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
+				if (!iid.Val())
+					ShowWarning(FalconG::tr("Image not Found in line #%1").arg(reader.ReadCount()), frmMain);
+					//throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
 				album.items.push_back(iid);
 			}
 		}
@@ -3406,12 +3419,12 @@ int AlbumGenerator::_DoCopyRes()
 *			This way the original state (before any changes) can be
 *			restored if required.
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::WriteDirStruct(bool keep)
+int AlbumGenerator::WriteDirStruct(bool keep, bool unconditionalDebugSave)
 {
 	while (!_structWritten)		// before changing again wait for previous write to finish
 		;
 
-	if (!_structFileChangeCount)
+	if (!_structFileChangeCount && !unconditionalDebugSave)
 		return 0;
 
 	_structWritten = false;
@@ -4589,7 +4602,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
 	}
 	// get number of images and sub-albums
-	if (album.ImageCount(true) )		// force count calculation as images mey have been added or removed in the GUI
+	if (album.ImageCount(true) )		// force count calculation as images may have been added or removed in the GUI
 	{
 		_ofs << "<!--the images in this sub gallery-->\n"
 			<< "    <div id=\"images\" class=\"fgsection\">" << (*languages["images"])[_actLanguage] << "</div>\n"
@@ -4602,7 +4615,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
-	if (album.VideoCount(true))		// force count calculation as images mey have been added or removed in the GUI
+	if (album.VideoCount(true))		// force count calculation as images may have been added or removed in the GUI
 	{
 		_ofs << "<!--start section videos -->\n"
 			 << "    <div id=\"videos\" class=\"fgsection\">" << (*languages["videos"])[_actLanguage] << "</div>\n"
@@ -4614,7 +4627,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "    </section>\n<!-- end section Videos -->\n";
 	}
 
-	if (album.SubAlbumCount(true))		// force count calculation as images mey have been added or removed in the GUI
+	if (album.SubAlbumCount(true))		// force count calculation as images may have been added or removed in the GUI
 	{
 		_ofs << "<!--start section albums -->\n"
 			<< "    <div id=\"albums\" class=\"fgsection\">" << (*languages["albums"])[_actLanguage] << "</div>\n"
@@ -5485,25 +5498,28 @@ QSize Video::ThumbSize() const
 /*=============================================================
  * TASK:   recursive source album, and image/video deletion
  *			from data base and conditionally from disk
- * PARAMS: albumID			 - remove from this album's items
+ * PARAMS:	album			 - remove from this album's items
+ *			ix:				 - index of item to remove from 'items'
  *			fromDisk		 - delete source files from disk too
  * GLOBALS:
  * RETURNS:
- * REMARKS:	- if any item to be deleted is a folder all files inside
- *			  it will be deleted, even if they were not in the data base
+ * REMARKS:	- if the item to be deleted is a folder and 'fromDisk'
+ *				is specified all files inside it will be deleted, 
+ *				even if they were not in the data base
  *			- tries to move files into trashcan/recycle bin first
  *			- only deletes images when no album contains them and
  *				they are not used as thumbnails either. Otherwise
  *				just decrement the counters
  *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItem(ID_t id, bool fromDisk)
+void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 {
-	QString path;
+	QString path; 
+	ID_t id = album.items[ix];
 	if (id.IsAlbum()) // this item is an album, so all of >>its<< items
 	{						// must be removed
-		Album& album = _albumMap[id];
-		path = album.FullSourceName();
-		_RemoveAllItems(id, fromDisk);
+		Album& subAlbum = _albumMap[id];
+		path = subAlbum.FullSourceName();
+		_RemoveAllItemsFrom(id, fromDisk);
 		if (album.thumbnailId.Val() && _imageMap.contains(album.thumbnailId))
 		{
 			Image* img = &_imageMap[album.thumbnailId];
@@ -5520,38 +5536,44 @@ void AlbumGenerator::_RemoveItem(ID_t id, bool fromDisk)
 		// if they were not in the data base even after this!
 		if (fromDisk && !QFile::moveToTrash(path))
 			RemoveFolderRecursively(path);		// so those must also be deleted
+
+		album.DecrementAlbumCount();
 	}
-	else if (id.IsImage())    // remove from this album
+	else 
 	{
-		Image* img = &_imageMap[id];
-		if (!--img->usageCount && (!img->thumbnailCount) || fromDisk) 		// nobody uses this?
-		{	// if only used as thumbnail and the file is removed from disk, can't keep it
-			path = img->FullSourceName();
-			_imageMap.remove(id);
-			if (fromDisk && !QFile::moveToTrash(path))
-				QFile::remove(path);
-		}
-	}
-	else if (id.IsVideo())    // remove from this album
-	{
-		Video* vid = &_videoMap[id];
-		if (!--vid->usageCount)
+		if (id.IsImage())    // remove from 'album'
 		{
-			path = vid->FullSourceName();
-			_videoMap.remove(id);
-			if (fromDisk && !QFile::moveToTrash(path))
-				QFile::remove(path);
+			Image* img = &_imageMap[id];
+			if (!--img->usageCount && (!img->thumbnailCount)) 		// nobody uses this?
+			{	// if only used as thumbnail and the file is removed from disk, can't keep it
+				path = img->FullSourceName();
+				_imageMap.remove(id);
+				if (fromDisk && (img->usageCount || img->thumbnailCount) && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+			album.DecrementImageCount();
 		}
+		else if (id.IsVideo())    // remove from this album
+		{
+			Video* vid = &_videoMap[id];
+			if (!--vid->usageCount)
+			{
+				path = vid->FullSourceName();
+				_videoMap.remove(id);
+				if (fromDisk && (vid->usageCount) && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+			album.DecrementVideoCount();
+		}
+		// remove invalid item
+		album.items.remove(ix);
 	}
 }
 
 /*=============================================================
  * TASK:   recursive source album, and image/video deletion
  *			from data base and conditionally from disk
- * PARAMS: albumID			 - remove from this album's items
- *		   iconsForThisAlbum - remove also icons for items
- *		   ilx				 - list of indexes in album's items
- *								of items to be removed
+ * PARAMS: albumID			 - remove all of this album's items
  *			fromDisk		 - delete source files from disk too
  * GLOBALS:
  * RETURNS:
@@ -5559,12 +5581,12 @@ void AlbumGenerator::_RemoveItem(ID_t id, bool fromDisk)
  *			  it will be deleted, even if they were not in the data base
  *			- tries to move files into trashcan^recycle bin first
  *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveAllItems(ID_t albumID, bool fromDisk)
+void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID, bool fromDisk)
 {
 	Album& album = _albumMap[albumID];
 	QString path;
-	for (auto &id : album.items)
-		_RemoveItem(id, fromDisk);
+	for (int ix = 0; ix < album.items.count(); ++ix)
+		_RemoveItem(album, ix, fromDisk);
 	album.items.clear();
 	albumgen.SetAlbumModified(album);
 }
@@ -5588,8 +5610,7 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 	QString path;
 	for (auto ix : ilx)
 	{
-		ID_t id = album.items[ix];
-		_RemoveItem(id, fromDisk);
+		_RemoveItem(album, ix, fromDisk);
 		album.items[ix] = ID_t::Invalid();
 	}
 	// now delete marked elements (this way ilx need not be ordered)
@@ -5602,6 +5623,7 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
 		}
 	}
+	album.RecalcItemCounts();			// counts would reflect th number of items
 	albumgen.SetAlbumModified(album);
 }
 

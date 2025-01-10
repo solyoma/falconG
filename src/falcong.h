@@ -278,6 +278,7 @@ private slots:
 	void on_btnSelectSourceGallery_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
+	void on_btnSaveStruct_clicked();
 	
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 	void on_cbBaseLanguage_currentIndexChanged(int index);

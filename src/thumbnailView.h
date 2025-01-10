@@ -359,6 +359,7 @@ public slots:
 	void AddImages();
 	void AddFolder();
 	void NewVirtualFolder();
+	void RenameVirtualFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
 	void OpenAlbumThumbnail();			// any image for an album thumbnal

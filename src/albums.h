@@ -244,6 +244,12 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	int ImageCount(bool forced = false);		// only non-excluded existing images
 	int VideoCount(bool forced=false);		// only non-excluded existing videos
 	int SubAlbumCount(bool forced=false);	// only non excluded existing albums (removes excluded albums) = count of children
+	void RecalcItemCounts();
+
+	void DecrementImageCount(int n = 1) { _imageCount -= n; if (_imageCount < 0)_imageCount = 0; }
+	void DecrementVideoCount(int n = 1) { _videoCount -= n; if (_videoCount < 0)_videoCount = 0; }
+	void DecrementAlbumCount(int n = 1) { _albumCount -= n; if (_albumCount < 0)_albumCount = 0; }
+
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
@@ -366,7 +372,7 @@ public:
 	}
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
-	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false);		
+	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false, bool unconditionalDebugSave=false);		
 	bool StructWritten() const { return _structWritten; }
 	bool StructChanged() const { return _structFileChangeCount;  }
 	int SaveStyleSheets();
@@ -565,9 +571,9 @@ private:
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
-	void _RemoveItem(ID_t id, bool fromdisk);
+	void _RemoveItem(Album &album, int which, bool fromdisk); // which: index in album's items
 	void _RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
-	void _RemoveAllItems(ID_t albumID, bool fromdisk);
+	void _RemoveAllItemsFrom(ID_t albumID, bool fromdisk);
 };
 
 extern AlbumGenerator albumgen;

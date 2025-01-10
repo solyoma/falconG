@@ -1672,7 +1672,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
         }
     }
-    else // album(s) or image(s) is(are) selected
+    else // album(s) or image(s) or videos are selected
     {
         Album& album = albumgen.Albums()[_albumId];
 
@@ -1749,6 +1749,10 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     }
 	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
 	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
+	menu.addAction(pact);
+
+	pact = new QAction(tr("&Rename Folder..."), this);  // rename existing folder
+	connect(pact, &QAction::triggered, this, &ThumbnailView::RenameVirtualFolder);
 	menu.addAction(pact);
 
     menu.addSeparator();
@@ -2133,6 +2137,33 @@ void ThumbnailView::NewVirtualFolder()
         //qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
         //QMessageBox::warning(this, tr("falconG - Warning"), qs);
     }
+}
+
+/*=============================================================
+ * TASK   : rename selected virtual folde
+ * PARAMS : none
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS: none
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailView::RenameVirtualFolder()
+{
+	QModelIndexList list = selectionModel()->selectedIndexes(); // list must onle have a single item
+    ID_t id = _ActAlbum()->items[list[0].row()];
+    Album* pItem = albumgen.AlbumForID(id);
+    QString text = QInputDialog::getText(
+        this,                                                   // Parent widget
+        tr("falconG - Rename Virtual Album"),                   // Dialog title
+        tr("Old name:%1\n\nNew name:").arg(pItem->name),        // Prompt text
+        QLineEdit::Normal,                  // Input mode (QLineEdit::Normal for single-line text)
+        pItem->name                         // Default text
+    );
+	if (text.isEmpty())
+		return;
+	pItem->name = text;
+	albumgen.SetAlbumModified(*pItem);
+	Reload();
 }
 
 /*============================================================================

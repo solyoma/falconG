@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
 	PROGRAM_CONFIG::GetHomePath();
 
-	ShowSplashScreen();
+	ShowSplashScreen();		// no text
 	// after a new translation is added add language radio boxes
 	// to falconG.ini and their handlers to code
 
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 			if (!a.installTranslator(&translator))
 				QMessageBox::warning(nullptr, "falconG - Warning", "Can't load language " + qs + "using default");
 	}
+	ShowSplashScreen(true);	 // add text
 
 	FalconG w;
 	w.show();
