@@ -72,7 +72,7 @@ struct LanguageTexts				// both Album and Image uses this
 	int64_t ID = 0;		// same for all translations of this in all languages (0: invalid)
 	int collision = -1;	// (-1: not set) set when this text collided with an other one: ID = base id + (collision << TEXT_ID_COLLISION_FACTOR)
 	QVector<int> lenghts;	// set to have as many elements as there are languages, lang ID is index in text
-	QString textsForAllLanguages; //concatenated language texts
+	QString textsForAllLanguages; //concatenated encoded language texts
 	UsageCount usageCount; // how many times this same text is added to list
 
 	LanguageTexts(int languageCount = 0) { Clear(languageCount); }

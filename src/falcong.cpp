@@ -4093,9 +4093,6 @@ void FalconG::on_sbWmShadowBlur_valueChanged(int val)
 	_ElemToSample();
 }
 
-
-
-
 /*========================================================
  * TASK:	modifies the @import in the css file to include
  *			the actual Google fonts and default fonts
@@ -4186,8 +4183,8 @@ void FalconG::_SettingUpFontsCombo()
 void FalconG::_GetBaseTexts(int language)
 {
 	_busy = true;
-	ui.edtBaseTitle->setText(_selection.title[language]);
-	ui.edtBaseDescription->setText(_selection.description[language]);
+	ui.edtBaseTitle->setText(DecodeTextFor(_selection.title[language], dtPlain));
+	ui.edtBaseDescription->setText(DecodeTextFor(_selection.description[language],dtPlain) );
 	_busy = false;
 }
 
@@ -4201,8 +4198,8 @@ void FalconG::_GetBaseTexts(int language)
 void FalconG::_GetLangTexts(int language)
 {
 	_busy = true;
-	ui.edtTitleText->setText(_selection.title[language]);
-	ui.edtDescriptionText->setText(_selection.description[language]);
+	ui.edtTitleText->setText(DecodeTextFor(_selection.title[language], dtPlain));
+	ui.edtDescriptionText->setText(DecodeTextFor(_selection.description[language],dtPlain) );
 	_busy = false;
 }
 

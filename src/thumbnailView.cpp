@@ -763,7 +763,7 @@ void ThumbnailView::startDrag(Qt::DropActions)
 }
 
 #ifdef DEBUG
-QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEvent inherits this
+static QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEvent inherits this
 {
 	const Qt::DropAction action = event->proposedAction();
     QString qs = "Accepted actions are: ";

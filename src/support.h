@@ -31,6 +31,7 @@ const QString versionStr = "# falconG Gallery Structure file ";
 constexpr int majorStructVersion = 1,		// V 1.4.0 version string
 			  minorStructVersion = 4,
 			  subStructVersion   = 0;	
+enum DecodeTextTo {dtPlain, dtHtml, dtJavaScript };	// encoding and decoding text
 
 enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
 
@@ -355,8 +356,8 @@ int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent = nullptr); 
 
 const char* StringToUtf8CString(QString qs);
 
-QString EncodeLF(QString str);
-QString DecodeLF(QString str, int toHtmlOrJs = 0, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n (html) or <br> (Javascript)
+QString EncodeText(const QString str);	// replaces '\n' with '\\n', '&' with '&amp;', 
+QString DecodeTextFor(const QString str, DecodeTextTo to = dtPlain, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n (html) or <br> (Javascript)
 
 
 QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);

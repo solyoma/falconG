@@ -401,7 +401,7 @@ LanguageTexts& LanguageTexts::operator=(const QStringList& txts)
 	QString s;
 	for (int i = 0; i < txts.size(); ++i)
 	{
-		s = EncodeLF(txts[i]);
+		s = EncodeText(txts[i]);
 		lenghts.push_back(s.length());
 		textsForAllLanguages += txts[i];
 	}

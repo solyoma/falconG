@@ -537,7 +537,7 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 {
 	if (lang < 0 || lang > languages.LanguageCount())
 		return;
-	QString stmp = EncodeLF(str.trimmed());
+	QString stmp = EncodeText(str.trimmed());
 	int len = stmp.length();
 	if (lenghts.isEmpty())
 		Clear(languages.LanguageCount());
@@ -4267,17 +4267,17 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 	{
 		QString qs = (*languages["latestTitle"])[_actLanguage];
 		if(!qs.isEmpty())
-			_ofs << "     <h2 class=\"gallery-title\">" << DecodeLF(qs, 1) << "</h2><br><br>\n";
+			_ofs << "     <h2 class=\"gallery-title\">" << DecodeTextFor(qs, dtHtml) << "</h2><br><br>\n";
 		qs = (*languages["latestDesc"])[_actLanguage];
 		if(!qs.isEmpty())
-			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(qs, 1) << "</p>\n";
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeTextFor(qs, dtHtml) << "</p>\n";
 	}
 	else
 	{
-		QString title = album.titleID ? DecodeLF(_textMap[album.titleID][_actLanguage], 1) : album.name;
+		QString title = album.titleID ? DecodeTextFor(_textMap[album.titleID][_actLanguage], dtHtml) : album.name;
 			_ofs << "     <h2 class=\"gallery-title\">" << title << "</h2><br><br>\n";
 		if (album.descID)
-			_ofs << "     <p class=\"gallery-desc\">"   << DecodeLF(_textMap[album.descID][_actLanguage], 1) << "</p>\n";
+			_ofs << "     <p class=\"gallery-desc\">"   << DecodeTextFor(_textMap[album.descID][_actLanguage], dtHtml) << "</p>\n";
 	}
 
 	int nLightboxable = (album.ID == RECENT_ALBUM_ID) ?  config.nLatestCount : const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount();
@@ -4407,8 +4407,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 		uint64_t tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
 				 did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
 
-		title = DecodeLF(_textMap[tid][_actLanguage], 1);
-		desc = DecodeLF(_textMap[did][_actLanguage], 1);
+		title = DecodeTextFor(_textMap[tid][_actLanguage], dtHtml);
+		desc = DecodeTextFor(_textMap[did][_actLanguage], dtHtml);
 		if (isAlbum && title.isEmpty())	// no album title: use folder name
 			title = _albumMap[id].name;
 	}
@@ -4536,8 +4536,8 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 		    "					<source src=\"" << sVideoPath << "\" type = \"video/" << sVideoType << "\">\n"
 		 << "				</video>\n";
 
-	title = DecodeLF(_textMap[pVideo->titleID][_actLanguage], 1);
-	desc = DecodeLF(_textMap[(pVideo->descID)][_actLanguage], 1);
+	title = DecodeTextFor(_textMap[pVideo->titleID][_actLanguage], dtHtml);
+	desc = DecodeTextFor(_textMap[(pVideo->descID)][_actLanguage], dtHtml);
 	_ofs << "					<div class=\"title\">\n";	//#3	// video in the video directory
 	if (pVideo && config.bDebugging)
 		title += QString(" <br>%1<br>%2").arg(pVideo->name).arg(pVideo->ID.Val());
@@ -5082,11 +5082,11 @@ int AlbumGenerator::_DoLatestJs()
 				pim->SetThumbSize();
 				ofjs << "{ i:" << (idt.Val()) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
 				if (pim->titleID)
-					ofjs << ",t:\"" << DecodeLF(_textMap[pim->titleID][lang], 2, true) << "\"";
+					ofjs << ",t:\"" << DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript, true) << "\"";
 				else
 					ofjs << ",t:''";
 				if (pim->descID)
-					ofjs << ",d:\"" << DecodeLF(_textMap[pim->descID][lang], 2, true) << "\"";
+					ofjs << ",d:\"" << DecodeTextFor(_textMap[pim->descID][lang], dtJavaScript, true) << "\"";
 				else
 					ofjs << ",d:''";
 				ofjs << "},\n";
@@ -5097,9 +5097,9 @@ int AlbumGenerator::_DoLatestJs()
 			//	pvid = &_videoMap[idt];
 			//	ofjs << "{ id:" << (idt.Val()) << ",w:" << config.thumbWidth << ",h:" << config.thumbHeight;
 			//	if (pvid->titleID)
-			//		ofjs << ",t:\"" << DecodeLF(_textMap[pvid->titleID][lang], 2, true) << "\"";
+			//		ofjs << ",t:\"" << DecodeTextFor(_textMap[pvid->titleID][lang], 2, true) << "\"";
 			//	if (pvid->descID)
-			//		ofjs << ",d:\"" << DecodeLF(_textMap[pvid->descID][lang], 2, true) << "\"";
+			//		ofjs << ",d:\"" << DecodeTextFor(_textMap[pvid->descID][lang], 2, true) << "\"";
 			//	ofjs << "},\n";
 			//}
 		}

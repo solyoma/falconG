@@ -185,37 +185,82 @@ const char* StringToUtf8CString(QString qs)
 
 
 /*=============================================================
-* TASK:	replaces LF character in string 's'
-*			with the string \\n
+* TASK:	replaces LF character in string 's'	with the string \\n
+*				 '<' with '&lt;', '>' with '&gt;', '&' with '&amp;'
 * EXPECTS:
 * GLOBALS:
 * RETURNS:
 * REMARKS:
 *------------------------------------------------------------*/
-QString EncodeLF(QString s)
+QString EncodeText(const QString s)
 {
-	int pos;
-	while ((pos = s.indexOf("\n")) >= 0)
-		s = s.left(pos) + "\\n" +
-		s.mid(pos + 1);
-	return s;
+	QString res;
+	for (auto& a : s)
+	{
+		switch (a.unicode())
+		{
+			case '\n': res += "\\n"; break;
+			case '<': res += "&lt;"; break;
+			case '>': res += "&gt;"; break;
+			case '&': res += "&amp;"; break;
+			default: res += a;
+		}
+	}
+	return res;
 }
 
 /*=============================================================
 * TASK:   Replaces encded \\n strings with character <BR> and \n
 * EXPECTS:	s -string with \\n
-*			toHtmlOrJs - 0: not, 1: HTML, 2: JS
-*			lasoQuotes - tru: put quotes around it
+*			purpose - 0: just to'\n', 1: HTML '<br>\n', 2: JS '<br>'
+*			alsoQuotes - true: put '\"' quotes around it
 * GLOBALS:
 * RETURNS:
 * REMARKS:
 *------------------------------------------------------------*/
-QString DecodeLF(QString s, int toHtmlOrJs, bool alsoQuotes)
+QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 {
-	int pos;
-	const QString LF = toHtmlOrJs == 1 ? "<br>\n" : toHtmlOrJs == 2 ? "<br>" : "\n";
-	while ((pos = s.indexOf("\\n")) >= 0)
-		s = s.left(pos) + LF + s.mid(pos + 2);
+	int pos = 0;
+	QString LF;
+	switch (purpose)
+	{
+		case dtPlain:	LF = "\n"; break;
+		case dtHtml:	LF = "<br>\n"; break;
+		case dtJavaScript: LF = "<br>";break;
+	}
+	QString res;
+	for (; pos < s.length(); ++pos)
+	{
+		if (s[pos] == QChar('\\') && pos < s.length() - 1 && s[pos + 1] == QChar('n'))
+		{
+			res += LF;
+			++pos;
+		}
+		else if (s[pos] == QChar('&'))
+		{
+			if (s[pos + 1] == QChar('a') && s[pos + 2] == QChar('m') && s[pos + 3] == QChar('p') && s[pos + 4] == QChar(';'))
+			{
+				res += '&';
+				pos += 4;
+			}
+			else if (s[pos + 1] == QChar('l') && s[pos + 2] == QChar('t') && s[pos + 3] == QChar(';'))
+			{
+				res += '<';
+				pos += 3;
+			}
+			else if (s[pos + 1] == QChar('g') && s[pos + 2] == QChar('t') && s[pos + 3] == QChar(';'))
+			{
+				res += '>';
+				pos += 3;
+			}
+			else
+				res += s[pos];
+		}
+		//else if (s[pos] == QChar('"') || s[pos] == QChar('\"'))			???
+		//	res += '\\';
+		else
+			res += s[pos];
+	}
 
 	if (alsoQuotes)
 	{
@@ -226,9 +271,9 @@ QString DecodeLF(QString s, int toHtmlOrJs, bool alsoQuotes)
 				res += '\\';
 			res += s[pos];
 		}
-		return res;
 	}
-	return s;
+
+	return res;
 }
 #if 0
 /*============================================================================
