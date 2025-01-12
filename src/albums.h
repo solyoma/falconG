@@ -47,8 +47,13 @@ class PathMap
 	typedef QMap<uint64_t, QString> base_type1;
 	typedef QMap<QString, uint64_t> base_type2;
 
+	typedef base_type1::iterator iterator1;
+	typedef base_type2::iterator iterator2;
+
 	base_type1 _idToPath;
 	base_type2 _pathToId;
+	iterator1 _it1;
+	iterator2 _it2;
 
 	uint64_t _CalcId(const QString & path);
 	friend QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -78,6 +83,9 @@ public:
 	//uint64_t insert(QString path, uint64_t id);	// if id is an existing id then path is replaced only
 	QString Insert(uint64_t id, const QString &path);	// path must not be already in the map
 	QString Insert(const QString ids, const QString &path);	// path must not be already in the map
+	void Remove(uint64_t id);	// removes both path and id
+	uint64_t FirstId();	// returns the first id from _idToPath
+	uint64_t NextId();	// returns the next id from _idToPath
 };
 
 QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -514,11 +522,11 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _ReadFromJAlbumOrderFile(ID_t albumId);		// albumfiles.txt
-	bool _ReadJAlbumCommentFile(ID_t albumId);	// comments.properties
-	bool _ReadJAlbumMetaFile(ID_t albumId);		// meta.properties
-	void _ReadJAlbumInfoFile(ID_t albumId, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
-	bool _ReadJAlbumInfoFile(ID_t albumId);			// album and image titles in hidden .jalbum sub directories
+	bool _JAlbumReadOrderFile(ID_t albumId);		// albumfiles.txt
+	bool _JAlbumReadCommentFile(ID_t albumId);	// comments.properties
+	bool _JAlbumReadMetaFile(ID_t albumId);		// meta.properties
+	void _JAlbumReadInfoFile(ID_t albumId, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
+	bool _JAlbumReadInfoFile(ID_t albumId);			// album and image titles in hidden .jalbum sub directories
 	void _RecursivelyReadSubAlbums(ID_t albumId);
 	ID_t _AddItemToAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
@@ -563,6 +571,7 @@ private:
 	void _AddAlbumThumbnail(Album &album, uint64_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadPathTable(FileReader& reader);
+	void _CleanupPathTable();	// remove unused paths from pathMap
 	bool _ReadOrphanTable(FileReader& reader);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 

@@ -169,6 +169,41 @@ QString PathMap::Insert(const QString ids, const QString& path)
 	return path;
 }
 
+/*=============================================================
+ * TASK   :	remove an item from both maps
+ * PARAMS :	id: id of item to remove
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:none
+ * REMARKS:
+ *------------------------------------------------------------*/
+void PathMap::Remove(uint64_t id)
+{
+	if (_idToPath.contains(id))
+	{
+		QString path = _idToPath[id];
+		_idToPath.remove(id);
+		_pathToId.remove(path);
+	}
+}
+
+uint64_t PathMap::FirstId()
+{
+	if (_idToPath.size())
+	{
+		_it1 = _idToPath.begin();
+		return _it1.key();
+	}
+	return 0;
+}
+
+uint64_t PathMap::NextId()
+{
+	if (_it1 == _idToPath.end() || ++_it1 == _idToPath.end())
+		return 0;
+	return (_it1).key();
+}
+
 // ************* PathMap output *******************
 QTextStream& operator<<(QTextStream& ofs, const PathMap& map)
 {
@@ -537,7 +572,7 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 {
 	if (lang < 0 || lang > languages.LanguageCount())
 		return;
-	QString stmp = EncodeText(str.trimmed());
+	QString stmp = /*EncodeText*/(str.trimmed());
 	int len = stmp.length();
 	if (lenghts.isEmpty())
 		Clear(languages.LanguageCount());
@@ -1473,7 +1508,7 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
  *        	- images/albums not mentioned in file are added to the end of
  *				the ordered list of images
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadFromJAlbumOrderFile(ID_t parentID)
+bool AlbumGenerator::_JAlbumReadOrderFile(ID_t parentID)
 {
 	Album *ab = AlbumForID(parentID);
 	Q_ASSERT(ab);
@@ -1608,7 +1643,7 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 *		   - languages ar separated by double '@' characters
 *		   - only as many languages are used as are set in global 'Languages'
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumCommentFile(ID_t albumId)
+bool AlbumGenerator::_JAlbumReadCommentFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
 	Q_ASSERT(ab);
@@ -1667,7 +1702,7 @@ bool AlbumGenerator::_ReadJAlbumCommentFile(ID_t albumId)
 *				'folderIcon'=<image file name for 'ab'>
 *				'descript'=<description for 'ab'>
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
+bool AlbumGenerator::_JAlbumReadMetaFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
 	Q_ASSERT(ab);
@@ -1735,7 +1770,7 @@ bool AlbumGenerator::_ReadJAlbumMetaFile(ID_t albumId)
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-void AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId, QString & path, QString name)
+void AlbumGenerator::_JAlbumReadInfoFile(ID_t albumId, QString & path, QString name)
 {
 	Album* ab = AlbumForID(albumId);
 	Q_ASSERT(ab);
@@ -1796,7 +1831,7 @@ void AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId, QString & path, QString n
 *			- if the same iamge has different titles in different albums
 *				the latest ones will be used
 *----------------------------------------------------------------*/
-bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
+bool AlbumGenerator::_JAlbumReadInfoFile(ID_t albumId)
 {
 	Album* ab = AlbumForID(albumId);
 	Q_ASSERT(ab);
@@ -1815,7 +1850,7 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
 		for (QString &s : list)
 		{
 			if(!_IsExcluded(*ab, s)) // check if the file this info entry refers to is excluded
-				_ReadJAlbumInfoFile(albumId, path, s);
+				_JAlbumReadInfoFile(albumId, path, s);
 		}
 	}
 	return true;
@@ -1828,7 +1863,7 @@ bool AlbumGenerator::_ReadJAlbumInfoFile(ID_t albumId)
  *			If it is a JAlbum directory with corresponding files
  *			adds only images and albums set in those files
  *			otherwise adds each image and sub-folders to it
- * EXPECTS: album (must already be on the global album list '_albumMap')
+ * EXPECTS: albumId (must already be on the global album list '_albumMap')
  * GLOBALS:
  * REMARKS: - first reads meta.properties and set parameters for this album
  *			- then reads file 'albumfiles.txt' if it exists and adds
@@ -1844,11 +1879,11 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	// TODO justChanges
 	bool isParentJAlbum = _isAJAlbum;
 	_isAJAlbum = false;		// set only if jalbum's file are in this directory
-	_ReadFromJAlbumOrderFile(albumId);	// ordering set in file ( including exlusions and real names)
+	_JAlbumReadOrderFile(albumId);	// ordering set in file ( including exlusions and real names)
 	// if there was a JAlbum 'albumfiles.txt' file in the folder then all images and albums stored in it are
 	// added to the corresponding map and _isJAlbum is set to true, else it is false
 
-	_isAJAlbum |= _ReadJAlbumMetaFile(albumId);		// thumbnail (image or sub-album) ID and description for the actual album
+	_isAJAlbum |= _JAlbumReadMetaFile(albumId);		// thumbnail (image or sub-album) ID and description for the actual album
 
 	// Append images and albums from disk
 
@@ -1889,8 +1924,8 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	}
 	if (_processing)
 	{
-		_isAJAlbum |= _ReadJAlbumCommentFile(albumId);	// descriptions for files and folders in ab
-		_isAJAlbum |= _ReadJAlbumInfoFile(   albumId);			// titles for album and images inside
+		_isAJAlbum |= _JAlbumReadCommentFile(albumId);	// descriptions for files and folders in ab
+		_isAJAlbum |= _JAlbumReadInfoFile(   albumId);			// titles for album and images inside
 		(void)ab.ImageCount();		// removes excluded ID s of 'ab.images'
 		(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
 		_AddAlbumThumbnail(ab, 0);	// only if there's no thumbnail already
@@ -2373,6 +2408,28 @@ bool AlbumGenerator::_ReadPathTable(FileReader& reader)
 		throw BadStruct(reader.ReadCount(), FalconG::tr("Missing ']'"));
 	return true;
 }
+
+void AlbumGenerator::_CleanupPathTable()
+{
+	QMap<uint64_t,uint64_t> pathIdVector;
+	for (auto& i : _imageMap)
+		pathIdVector[i.pathId] = i.pathId;
+	for (auto& i : _videoMap)
+		pathIdVector[i.pathId] = i.pathId;
+	for (auto& i : _albumMap)
+		pathIdVector[i.pathId] = i.pathId;
+
+	QVector<uint64_t> idsToDelete;
+	uint64_t pathID = pathMap.FirstId();
+	do
+	{
+		if (!pathIdVector.contains(pathID))
+			idsToDelete.push_back(pathID);
+	} while (pathID = pathMap.NextId());
+	for (auto& id : idsToDelete)
+		pathMap.Remove(id);
+}
+
 bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 {
 	QString rline = reader.l();
@@ -3195,6 +3252,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 					// recursive album read. there is only one top level album
 					// with id == TOPMOST_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
 			_ReadAlbumFromStruct(reader, { ALBUM_ID_FLAG, NO_ID }, 0);	// parent ID is 0 for root album!
+			_CleanupPathTable();
 //#ifdef DEBUG
 //			{
 //				// DEBUG

@@ -194,16 +194,55 @@ const char* StringToUtf8CString(QString qs)
 *------------------------------------------------------------*/
 QString EncodeText(const QString s)
 {
-	QString res;
-	for (auto& a : s)
+	if (s.isEmpty())
+		return s;
+
+	QString res, st;
+	int n =0;
+	for (int i = 0; i < s.length(); ++i)
 	{
-		switch (a.unicode())
+		switch (s[i].unicode())
 		{
-			case '\n': res += "\\n"; break;
-			case '<': res += "&lt;"; break;
-			case '>': res += "&gt;"; break;
-			case '&': res += "&amp;"; break;
-			default: res += a;
+			case '\n': 
+				res += "\\n"; 
+				break;
+			case '<': if(s.length() > i+1)
+					  {
+						if (s[i + 1].unicode() != ' ' && s[i + 1].unicode() > '9') 
+							res += "&lt;";
+						else
+							res += s[i];
+					  }
+					break;
+			case '>': if(i)
+					  {
+						if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
+							res += "&gt;";
+						else
+							res += s[i];
+					  }
+					break;
+			case '&': st = s.mid(i, 8);
+				n = 1;
+				if (s.left(5) == "&amp;") n = 5; 
+				else if (s.left(6) == "&nbsp;") n = 6; 
+				else if (s.left(2) == "&#")					  // unicode constant
+				{
+					i += 2;
+					while (i < s.length() && s[i].unicode() != ';')
+						++n,++i;
+					n += 2;
+				}
+
+				if(n == 1)
+					res += "&amp;";
+				else
+				{
+					res += s.left(n);
+					i += --n;
+				}
+				break;
+			default: res += s[i];
 		}
 	}
 	return res;
@@ -220,6 +259,9 @@ QString EncodeText(const QString s)
 *------------------------------------------------------------*/
 QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 {
+	if (s.isEmpty())
+		return s;
+
 	int pos = 0;
 	QString LF;
 	switch (purpose)
@@ -236,19 +278,19 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 			res += LF;
 			++pos;
 		}
-		else if (s[pos] == QChar('&'))
+		else if (s[pos].unicode() == '&')
 		{
-			if (s[pos + 1] == QChar('a') && s[pos + 2] == QChar('m') && s[pos + 3] == QChar('p') && s[pos + 4] == QChar(';'))
+			if (s.mid(pos, 5) == "&amp;")
 			{
 				res += '&';
 				pos += 4;
 			}
-			else if (s[pos + 1] == QChar('l') && s[pos + 2] == QChar('t') && s[pos + 3] == QChar(';'))
+			else if (s.mid(pos, 4) == "&lt;")
 			{
 				res += '<';
 				pos += 3;
 			}
-			else if (s[pos + 1] == QChar('g') && s[pos + 2] == QChar('t') && s[pos + 3] == QChar(';'))
+			else if (s.mid(pos, 4) == "&gt;")
 			{
 				res += '>';
 				pos += 3;
@@ -264,7 +306,6 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 
 	if (alsoQuotes)
 	{
-		QString res;
 		for (pos = 0; pos < s.length(); ++pos)
 		{
 			if (s[pos] == QChar('"') || s[pos] == QChar('\"'))
