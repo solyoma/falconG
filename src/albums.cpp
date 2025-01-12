@@ -1186,7 +1186,7 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 		if (found)
 			return found->ID;	// same base ID, same name then same album
 		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, relativeParentPath, false);   // using full path name only and not file content
-		ab.pathId = pathMap.Add(relativeParentPath);
+		ab.pathId = pathMap.Add(path);
 	}
 
 	ab.parentId = parentId;

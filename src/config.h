@@ -1026,8 +1026,8 @@ public:
 
 	CONFIG &operator=(const CONFIG &cfg);
 
-	QString RemoveSourceFromPath(QString path);
-	QString AddSourceToPath(QString path);	// conditionally
+	QString RemoveSourceFromPath(QString path) const;
+	QString AddSourceToPath(QString path) const;	// conditionally
 
 	void FromDesign(const CONFIG &cfg);	// set designer part of cfg 
 	void FromOther(const CONFIG &cfg);	// set other part from cfg
@@ -1132,7 +1132,7 @@ public:
 	_CString sMailTo = {"","sMailTo"};			// send user emails here no defaults
 	_CString sAbout = {"","sAbout"};			// address of about page, either relative to dsGRoot or any URI
 	_CBool bOvrImages = {true,"bOvrImages"};			// overwrite images (default: true)
-	_CBool bSourceRelativePerSign = {true,"bSourceRelativePerSign"}; // when true add source gallery to paths starting with '/'
+	_CBool bSourceRelativeForwardSlash = {true,"bSourceRelativeForwardSlash"}; // when true add source gallery to paths starting with '/'
 
 		 		// latest uploads
 	_CBool bGenerateLatestUploads = { false,"bGenerateLatestUploads"};	// or not

@@ -1984,7 +1984,7 @@ void ThumbnailView::AddImages()
 
 /*=============================================================
  * TASK:    internal function that adds a folder recursively
- * PARAMS:  folderName - name of folder to add
+ * PARAMS:  folderName - full path name of folder to add
  * GLOBALS:
  * RETURNS: if folder was added
  * REMARKS: 

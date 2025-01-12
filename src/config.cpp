@@ -259,7 +259,7 @@ QString &_CDirStr::operator=(const QString s)
 * RETURNS: the result
 * REMARKS: JAlbum quirk: if a link is relative to the JAlbuum root dir. the path to the
 *		file name starts with a '/' instead of the full path. Therefore 
-*		when config.bSourceRelativePerSign is set such paths are considered relative
+*		when config.bSourceRelativeForwardSlash is set such paths are considered relative
 *--------------------------------------------------------------------------*/
 _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 {
@@ -267,7 +267,7 @@ _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 			sub = subdir.ToString();
 	if(dir.isEmpty() || dir[dir.length()-1] != '/')
 		dir += '/';
-	if( (sub.length() > 2 && sub[1] == ':') || !config.bSourceRelativePerSign) 
+	if( (sub.length() > 2 && sub[1] == ':') || !config.bSourceRelativeForwardSlash) 
 	{
 		if (QDir::isAbsolutePath(sub))	// then it cannot be my sub directory
 			return *const_cast<_CDirStr *>(&subdir);	// so the result will be it
@@ -1240,8 +1240,8 @@ void _CBackgroundImage::SetNames(QString name)
 	else
 		dstDir = config.dsBckImageDir;
 								// then name is relative to document root on server: i.e. gives the web name
-	if (fileName.at(0) == '/')	// unless 'chkSourceRelativePerSign' is checked (bSourceRelativePerSign is true)
-		fileName = (config.bSourceRelativePerSign ? srcDir : dstDir.ToString()) + fileName.mid(1);	// but try it in the source dir
+	if (fileName.at(0) == '/')	// unless 'chkSourceRelativeForwardSlash' is checked (bSourceRelativeForwardSlash is true)
+		fileName = (config.bSourceRelativeForwardSlash ? srcDir : dstDir.ToString()) + fileName.mid(1);	// but try it in the source dir
 	webName = dstDir.ToString() + n;
 		// must use \" instead of ' because the whole string will be in ''
 		// when _RunJavaScript is called in falconG.cpp
@@ -1393,7 +1393,7 @@ void CONFIG::ClearChanged()
 	bCanDownload.ClearChanged();
 	bForceSSL.ClearChanged();
 	bOvrImages.ClearChanged();
-	bSourceRelativePerSign.ClearChanged();
+	bSourceRelativeForwardSlash.ClearChanged();
 	bFacebookLink.ClearChanged();
 
 	dsImageDir.ClearChanged();
@@ -1463,7 +1463,7 @@ CONFIG &CONFIG::operator=(const CONFIG &cfg)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-QString CONFIG::RemoveSourceFromPath(QString s)
+QString CONFIG::RemoveSourceFromPath(QString s)	 const
 {
 	QString sd = dsSrc.ToString();
 	QString sp = s;
@@ -1479,25 +1479,32 @@ QString CONFIG::RemoveSourceFromPath(QString s)
 	return s;
 }
 
-QString CONFIG::AddSourceToPath(QString s)
+QString CONFIG::AddSourceToPath(QString s) const
 {
 	QString sd = dsSrc.ToString();
 	QString sp = s;
-
-	bool isAbsName = QDir::isAbsolutePath(s);
-	// letter case doesn't matter in Windows or on a Mac
 #if defined(Q_OS_WINDOWS) || defined (Q_OS_MACOS)
-	sp = sp.toLower();
-	sd = sd.toLower();
+	// letter case doesn't matter in Windows or on a Mac
+	sp = sp.toUpper();
+	sd = sd.toUpper();
 #endif
-#if !defined Q_OS_WINDOWS
-	// on linux or OS X abs. paths starts with '/'
-	if (config.bSourceRelativePerSign)
-		isAbsName = false;
+#if defined Q_OS_WINDOWS
+	if (s[0].unicode() == '/')
+		return sd + s;
 #endif
-	if (!isAbsName && sp.left(sd.length()) != sd)
-		s = dsSrc.ToString() + s;
-	return s;
+	// on linux or OS X abs. paths start with '/'
+	if (s[0].unicode() == '/' && config.bSourceRelativeForwardSlash)
+	{
+		if (sp.left(sd.length()) == sd)	// already starts with this pathe
+			return s;
+		return sd + s;
+	}
+	bool isAbsName = QDir::isAbsolutePath(s); // Windows: "C:...", linux Mac "/..."
+	if (isAbsName)
+		return s;
+
+	// relative path
+	return sd + s;
 }
 /*===========================================================================
  * TASK:  assign other configuration parameters
@@ -1722,7 +1729,7 @@ void CONFIG::Read()		// synchronize with Write!
 	bCanDownload.Read(s);
 	bForceSSL.Read(s);
 	bOvrImages.Read(s);
-	bSourceRelativePerSign.Read(s);
+	bSourceRelativeForwardSlash.Read(s);
 	bFacebookLink.Read(s);
 
 	dsImageDir.Read(s);
@@ -1865,7 +1872,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	bCanDownload.Write(s);
 	bForceSSL.Write(s);
 	bOvrImages.Write(s);
-	bSourceRelativePerSign.Write(s);
+	bSourceRelativeForwardSlash.Write(s);
 	bFacebookLink.Write(s);
 
 	dsImageDir.Write(s);

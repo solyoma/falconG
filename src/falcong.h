@@ -329,7 +329,7 @@ private slots:
 	void on_chkSetAll_toggled(bool);			// background colors
 	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
 	void on_chkShadowOn_toggled(bool on);
-	void on_chkSourceRelativePerSign_toggled(bool);
+	void on_chkSourceRelativeForwardSlash_toggled(bool);
 	void on_chkTdLinethrough_toggled(bool);
 	void on_chkTdOverline_toggled(bool);
 	void on_chkTdUnderline_toggled(bool);

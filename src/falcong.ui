@@ -191,7 +191,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QCheckBox" name="chkSourceRelativePerSign">
+            <widget class="QCheckBox" name="chkSourceRelativeForwardSlash">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -7757,7 +7757,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>btnBrowseSource</tabstop>
   <tabstop>edtDestGallery</tabstop>
   <tabstop>btnBrowseDestination</tabstop>
-  <tabstop>chkSourceRelativePerSign</tabstop>
+  <tabstop>chkSourceRelativeForwardSlash</tabstop>
   <tabstop>edtServerAddress</tabstop>
   <tabstop>edtGalleryRoot</tabstop>
   <tabstop>edtUplink</tabstop>

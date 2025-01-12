@@ -197,8 +197,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.pnlProgress->setVisible(false);
 
 #if defined Q_OS_WINDOWS
-	ui.chkSourceRelativePerSign->setChecked(true);
-	ui.chkSourceRelativePerSign->setEnabled(false);
+	ui.chkSourceRelativeForwardSlash->setChecked(true);
+	ui.chkSourceRelativeForwardSlash->setEnabled(false);
 #endif
 
 #if !defined (DEBUG) && !defined(_DEBUG)
@@ -1208,7 +1208,7 @@ void FalconG::_OtherToUi()
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
 	ui.chkFixedLatestThumbnail->setChecked(config.bFixedLatestThumbnail);
-	ui.chkSourceRelativePerSign->setChecked(config.bSourceRelativePerSign);
+	ui.chkSourceRelativeForwardSlash->setChecked(config.bSourceRelativeForwardSlash);
 	ui.chkLowerCaseImageExtensions->setChecked(config.bLowerCaseImageExtensions);
 	ui.chkMenuToAbout->setChecked(config.bMenuToAbout);
 	ui.chkMenuToContact->setChecked(config.bMenuToContact);
@@ -2844,11 +2844,11 @@ void FalconG::on_chkShadowOn_toggled(bool on)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_chkSourceRelativePerSign_toggled(bool on)
+void FalconG::on_chkSourceRelativeForwardSlash_toggled(bool on)
 {
 	if (_busy)
 		return;
-	config.bSourceRelativePerSign = on;
+	config.bSourceRelativeForwardSlash = on;
 	_SetConfigChanged(true);
 	_EnableButtons();
 }
