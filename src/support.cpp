@@ -26,7 +26,6 @@ static QSplashScreen* splashScreen = nullptr;
 void ShowSplashScreen(bool addMessage)
 {
 	if (!splashScreen)
-		// Splash Screen
 	{
 		splashScreen = new QSplashScreen(QPixmap(":/icons/Resources/falconG-splash.png"));
 		splashScreen->setWindowFlag(Qt::WindowStaysOnTopHint);
@@ -35,7 +34,7 @@ void ShowSplashScreen(bool addMessage)
 	if (addMessage)
 	{
 		Qt::Alignment topRight = Qt::AlignHCenter | Qt::AlignBottom;
-		splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::white);
+		splashScreen->showMessage(QObject::tr("falconG  - Setting up...\n\n\n"), topRight, Qt::black);
 	}
 
 	QApplication::processEvents();
