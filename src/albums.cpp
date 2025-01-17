@@ -5059,7 +5059,7 @@ int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
 	int cnt = MAX_LATEST_COUNT;
 
 	for (auto &a : _imageMap)
-		if (a.uploadDate >= dt)
+		if (a.ID.Val() && a.uploadDate >= dt)
 		{
 			here.list.push_back(a.ID);
 			if (a.descID)
@@ -5073,7 +5073,7 @@ int AlbumGenerator::_CollectLatestImagesAndVideos(LatestImages& here)
 	if (cnt)
 	{
 		for (auto &a : _videoMap)
-			if (a.uploadDate >= dt)
+			if (a.ID.Val() && a.uploadDate >= dt)
 			{
 				here.list.push_back(a.ID);
 				if (a.descID)
@@ -5140,7 +5140,10 @@ int AlbumGenerator::_DoLatestJs()
 				pim->SetThumbSize();
 				ofjs << "{ i:" << (idt.Val()) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
 				if (pim->titleID)
+				{
+					QString s = DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript, true);
 					ofjs << ",t:\"" << DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript, true) << "\"";
+				}
 				else
 					ofjs << ",t:''";
 				if (pim->descID)
@@ -5713,7 +5716,6 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 
 void AlbumGenerator::SetAlbumModified(Album& album)
 {
-
 	if (_slAlbumsModified.indexOf(album.ID) < 0)
 	{
 		_slAlbumsModified << album.ID;
@@ -5725,6 +5727,7 @@ void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
 	if (_slAlbumsModified.indexOf(albumId) < 0)
 	{
 		Album& album = _albumMap[albumId];
-		SetAlbumModified(album);
+		_slAlbumsModified << albumId;
+		album.changed = true;
 	}
 }

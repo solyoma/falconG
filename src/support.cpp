@@ -300,16 +300,11 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 		//else if (s[pos] == QChar('"') || s[pos] == QChar('\"'))			???
 		//	res += '\\';
 		else
-			res += s[pos];
-	}
-
-	if (alsoQuotes)
-	{
-		for (pos = 0; pos < s.length(); ++pos)
 		{
-			if (s[pos] == QChar('"') || s[pos] == QChar('\"'))
+			if (alsoQuotes && (s[pos] == QChar('"') || s[pos] == QChar('\"')) )
 				res += '\\';
-			res += s[pos];
+			else
+				res += s[pos];
 		}
 	}
 
