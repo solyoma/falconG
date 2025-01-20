@@ -136,9 +136,10 @@ const uint8_t IMAGE_ID_FLAG = 0x01;	// when set ID is for a image
 const uint8_t VIDEO_ID_FLAG = 0x02;	// when set ID is for a video
 const uint8_t ALBUM_ID_FLAG = 0x04;	// when set ID is for an album (used for albums as folder thumbnails)
 // removed: thumbnailCount is used instead   const uint8_t THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
-const uint8_t EXCLUDED_FLAG = 0x20;
-const uint8_t ORPHAN_FLAG	= 0x40;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
-const uint8_t EXISTING_FLAG = 0x80;	// on albums this signals a real folder on disk Otherwise it is a logical album
+const uint8_t EXCLUDED_FLAG = 0x10;
+const uint8_t ORPHAN_FLAG	= 0x20;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
+const uint8_t EXISTING_FLAG = 0x40;	// on albums this signals a real folder on disk Otherwise it is a logical album
+const uint8_t DELETE_IT_FLAG = 0x80;	// on albums this signals a real folder on disk Otherwise it is a logical album
 
 const uint8_t TYPE_FLAGS	= 0x0F;
 
@@ -201,6 +202,7 @@ public:
 	constexpr inline bool IsImage() const		{ return _flags & IMAGE_ID_FLAG; }
 	constexpr inline bool IsVideo() const		{ return _flags & VIDEO_ID_FLAG; }
 	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
+	constexpr inline bool ShouldDelete() const	{ return _flags & DELETE_IT_FLAG; }
 };
 const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
 const ID_t TOPMOST_ALBUM_ID = { ALBUM_ID_FLAG, 0x01};

@@ -5670,16 +5670,13 @@ void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList 
 	Album& album = _albumMap[albumID];
 	QString path;
 	for (auto ix : ilx)
-	{
-		_RemoveItem(album, ix, fromDisk);
-		album.items[ix] = ID_t::Invalid();
-	}
+		album.items[ix].SetFlag(DELETE_IT_FLAG, true);
 	// now delete marked elements (this way ilx need not be ordered)
 	for (int ix = album.items.size() - 1; ix >= 0; --ix)
 	{
-		if (!album.items[ix].Val())
+		if (album.items[ix].ShouldDelete())
 		{
-			album.items.remove(ix);
+			_RemoveItem(album, ix, fromDisk);
 			if(iconsForThisAlbum)
 				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
 		}
