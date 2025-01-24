@@ -24,7 +24,7 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 	{
 		ofs << indent << "[" << what << (*languages["language"])[i] << ":";
 		if (id != 0)
-			ofs << text[i];
+			ofs << EncodeText(text[i]);
 		ofs << "]";
 		if (id && !i)					// only write text ID for first language
 			ofs << "*" << id;

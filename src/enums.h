@@ -146,6 +146,17 @@ const uint8_t TYPE_FLAGS	= 0x0F;
 class ID_t
 {
 	uint64_t _uval = 0;
+	//struct _Flags
+	//{
+	//	uint8_t _isImage : 1;		// when set ID is for an image
+	//	uint8_t _isVideo : 1;		// when set ID is for a video
+	//	uint8_t _isAlbum : 1;		// when set ID is for an album
+	//	uint8_t _isExcluded : 1;	// when it should be excluded
+	//	uint8_t _isOrphan : 1;		// when not in any album just an album thumbnail
+	//	uint8_t _isExisting : 1;	// when the object (image, video, album) exists
+	//	uint8_t _isToDelete : 1;	// when set delete this from data base
+	//} _flags = { 0 };
+
 	uint8_t _flags=0;			// types and other _flags 
 public:
 	constexpr ID_t() {}

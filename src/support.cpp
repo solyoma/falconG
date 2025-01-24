@@ -303,8 +303,7 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 		{
 			if (alsoQuotes && (s[pos] == QChar('"') || s[pos] == QChar('\"')) )
 				res += '\\';
-			else
-				res += s[pos];
+			res += s[pos];
 		}
 	}
 
