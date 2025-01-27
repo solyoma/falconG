@@ -22,9 +22,6 @@ using namespace Enums;
 
 class ImageViewer;	// in imageviewer.h
 
-// ************************ helper **********************
-QStringList GetTranslations();	// list of translation files
-// ************************ /helper ********************** 
 /*------------------------------------- macros ------------------------------------*/
 #define AS_HEX_COLOR_STRING(n) QString("%1").arg(n, 6, 16, QChar('0'))
 #define TO_COLOR_STRING(s,n) s = "#" + AS_HEX_COLOR_STRING(n)
