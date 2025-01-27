@@ -185,7 +185,7 @@ const char* StringToUtf8CString(QString qs)
 
 /*=============================================================
 * TASK:	replaces LF character in string 's'	with the string \\n
-*				 '<' with '&lt;', '>' with '&gt;', '&' with '&amp;'
+*				 '&' with '&amp;'
 * EXPECTS:
 * GLOBALS:
 * RETURNS:
@@ -205,27 +205,30 @@ QString EncodeText(const QString s)
 			case '\n': 
 				res += "\\n"; 
 				break;
-			case '<': if(s.length() > i+1)
-					  {
-						if (s[i + 1].unicode() != ' ' && s[i + 1].unicode() > '9') 
-							res += "&lt;";
-						else
-							res += s[i];
-					  }
-					break;
-			case '>': if(i)
-					  {
-						if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
-							res += "&gt;";
-						else
-							res += s[i];
-					  }
-					break;
+				// '<' with '&lt;', '>' with '&gt;',
+			//case '<': if(s.length() > i+1)
+			//		  {
+			//			if (s[i + 1].unicode() != ' ' && (s[i + 1].unicode() > '9' || s[i + 1].unicode() == '/') )
+			//				res += "&lt;";
+			//			else
+			//				res += s[i];
+			//		  }
+			//		break;
+			//case '>': if(i)
+			//		  {
+			//			if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
+			//				res += "&gt;";
+			//			else
+			//				res += s[i];
+			//		  }
+			//		break;
 			case '&': st = s.mid(i, 8);
 				n = 1;
-				if (s.left(5) == "&amp;") n = 5; 
-				else if (s.left(6) == "&nbsp;") n = 6; 
-				else if (s.left(2) == "&#")					  // unicode constant
+				if (st.left(5) == "&amp;") n = 5; 
+				else if (st.left(6) == "&lt;") n = 4; 
+				else if (st.left(6) == "&gt;") n = 4; 
+				else if (st.left(6) == "&nbsp;") n = 6; 
+				else if (st.left(2) == "&#")					  // unicode constant
 				{
 					i += 2;
 					while (i < s.length() && s[i].unicode() != ';')
@@ -237,7 +240,7 @@ QString EncodeText(const QString s)
 					res += "&amp;";
 				else
 				{
-					res += s.left(n);
+					res += st.left(n);
 					i += --n;
 				}
 				break;
@@ -256,16 +259,19 @@ QString EncodeText(const QString s)
 * RETURNS:
 * REMARKS:
 *------------------------------------------------------------*/
-QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
+QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 {
 	if (s.isEmpty())
 		return s;
 
 	int pos = 0;
 	QString LF;
+	bool alsoQuotes = true;	// for Html and JavaScript when inside quotes
+	char quote = 0;
 	switch (purpose)
 	{
-		case dtPlain:	LF = "\n"; break;
+		default:
+		case dtPlain:	LF = "\n"; alsoQuotes = false; break;
 		case dtHtml:	LF = "<br>\n"; break;
 		case dtJavaScript: LF = "<br>";break;
 	}
@@ -297,14 +303,21 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose, bool alsoQuotes)
 			else
 				res += s[pos];
 		}
-		//else if (s[pos] == QChar('"') || s[pos] == QChar('\"'))			???
-		//	res += '\\';
-		else
+		else if (alsoQuotes && (s[pos].unicode() == '\'' || s[pos].unicode() == '\"') )
 		{
-			if (alsoQuotes && (s[pos] == QChar('"') || s[pos] == QChar('\"')) )
-				res += '\\';
-			res += s[pos];
+			if (!quote)								// starting new quote?
+				quote = s[pos].unicode();
+			else 
+			{
+				if (quote == s[pos].unicode())		// ending quote?
+					quote = 0;
+				else								// other quote: escape it
+					res += QChar('\\');
+				res += s[pos];
+			}
 		}
+		else
+			res += s[pos];
 	}
 
 	return res;

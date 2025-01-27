@@ -357,7 +357,8 @@ int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent = nullptr); 
 const char* StringToUtf8CString(QString qs);
 
 QString EncodeText(const QString str);	// replaces '\n' with '\\n', '&' with '&amp;', 
-QString DecodeTextFor(const QString str, DecodeTextTo to = dtPlain, bool alsoQuotes = false);		// string \\n to character \n or string<br>\n (html) or <br> (Javascript)
+QString DecodeTextFor(const QString str, DecodeTextTo to = dtPlain);		// for dtPlain -  "\\n" -> '\n', for Html "\\n" to "<br>\n"
+																			// for dtJavascript "\\n" -> "<br>" and quotos by escaped quotes \' or \"
 
 
 QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);

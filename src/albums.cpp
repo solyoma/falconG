@@ -5141,13 +5141,13 @@ int AlbumGenerator::_DoLatestJs()
 				ofjs << "{ i:" << (idt.Val()) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
 				if (pim->titleID)
 				{
-					QString s = DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript, true);
-					ofjs << ",t:\"" << DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript, true) << "\"";
+					QString s = DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript);
+					ofjs << ",t:\"" << DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript) << "\"";
 				}
 				else
 					ofjs << ",t:''";
 				if (pim->descID)
-					ofjs << ",d:\"" << DecodeTextFor(_textMap[pim->descID][lang], dtJavaScript, true) << "\"";
+					ofjs << ",d:\"" << DecodeTextFor(_textMap[pim->descID][lang], dtJavaScript) << "\"";
 				else
 					ofjs << ",d:''";
 				ofjs << "},\n";
