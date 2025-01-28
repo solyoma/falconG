@@ -185,7 +185,6 @@ const char* StringToUtf8CString(QString qs)
 
 /*=============================================================
 * TASK:	replaces LF character in string 's'	with the string \\n
-*				 '&' with '&amp;'
 * EXPECTS:
 * GLOBALS:
 * RETURNS:
@@ -193,70 +192,85 @@ const char* StringToUtf8CString(QString qs)
 *------------------------------------------------------------*/
 QString EncodeText(const QString s)
 {
-	if (s.isEmpty())
+	if (s.isEmpty() || s.indexOf('\n') < 0)
 		return s;
 
-	QString res, st;
-	int n =0;
-	for (int i = 0; i < s.length(); ++i)
-	{
-		switch (s[i].unicode())
-		{
-			case '\n': 
-				res += "\\n"; 
-				break;
-				// '<' with '&lt;', '>' with '&gt;',
-			//case '<': if(s.length() > i+1)
-			//		  {
-			//			if (s[i + 1].unicode() != ' ' && (s[i + 1].unicode() > '9' || s[i + 1].unicode() == '/') )
-			//				res += "&lt;";
-			//			else
-			//				res += s[i];
-			//		  }
-			//		break;
-			//case '>': if(i)
-			//		  {
-			//			if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
-			//				res += "&gt;";
-			//			else
-			//				res += s[i];
-			//		  }
-			//		break;
-			case '&': st = s.mid(i, 8);
-				n = 1;
-				if (st.left(5) == "&amp;") n = 5; 
-				else if (st.left(6) == "&lt;") n = 4; 
-				else if (st.left(6) == "&gt;") n = 4; 
-				else if (st.left(6) == "&nbsp;") n = 6; 
-				else if (st.left(2) == "&#")					  // unicode constant
-				{
-					i += 2;
-					while (i < s.length() && s[i].unicode() != ';')
-						++n,++i;
-					n += 2;
-				}
+	
 
-				if(n == 1)
-					res += "&amp;";
-				else
-				{
-					res += st.left(n);
-					i += --n;
-				}
-				break;
-			default: res += s[i];
-		}
-	}
-	return res;
+	QString res = s;
+	return res.replace("\n", "\\n");
+	
+	//
+	//
+	//
+	//, st;
+	//int n =0;
+	//for (int i = 0; i < s.length(); ++i)
+	//{
+	//	switch (s[i].unicode())
+	//	{
+	//		case '\n': 
+	//			res += "\\n"; 
+	//			break;
+	//			// '<' with '&lt;', '>' with '&gt;',
+	//		//case '<': if(s.length() > i+1)
+	//		//		  {
+	//		//			if (s[i + 1].unicode() != ' ' && (s[i + 1].unicode() > '9' || s[i + 1].unicode() == '/') )
+	//		//				res += "&lt;";
+	//		//			else
+	//		//				res += s[i];
+	//		//		  }
+	//		//		break;
+	//		//case '>': if(i)
+	//		//		  {
+	//		//			if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
+	//		//				res += "&gt;";
+	//		//			else
+	//		//				res += s[i];
+	//		//		  }
+	//		//		break;
+	//		case '&': st = s.mid(i, 8);
+	//			n = 1;
+	//			if (st.left(5) == "&amp;") n = 5; 
+	//			else if (st.left(6) == "&lt;") n = 4; 
+	//			else if (st.left(6) == "&gt;") n = 4; 
+	//			else if (st.left(6) == "&nbsp;") n = 6; 
+	//			else if (st.left(2) == "&#")					  // unicode constant
+	//			{
+	//				i += 2;
+	//				while (i < s.length() && s[i].unicode() != ';')
+	//					++n,++i;
+	//				n += 2;
+	//			}
+
+	//			if(n == 1)
+	//				res += "&amp;";
+	//			else
+	//			{
+	//				res += st.left(n);
+	//				i += --n;
+	//			}
+	//			break;
+	//		default: res += s[i];
+	//	}
+	//}
+	//return res;
 }
 
 /*=============================================================
-* TASK:   Replaces encded \\n strings with character <BR> and \n
-* EXPECTS:	s -string with \\n
-*			purpose - 0: just to'\n', 1: HTML '<br>\n', 2: JS '<br>'
-*			alsoQuotes - true: put '\"' quotes around it
+* TASK:   Replaces encoded "\\n", "&amp;", "&lt;","&gt;" strings 
+*			with one for the given purpose
+* EXPECTS:	s		- string which may contain any of the above
+*			purpose - dtPlain: plain text  
+*							"\\n" => '\n', "&amp;" => '&',
+*							"&lt;"=> '<', "&gt;"=> '>',
+*					  dtHtml: HTML ->'\n', 
+*							"\\n" => "<br>\n" 
+*					  dtJS: JS -> '<br>'
+*							"\\n" => "<br>" 
+*							"&lt;"=> '<', "&gt;"=> '>',
 * GLOBALS:
-* RETURNS:
+* RETURNS:	string after all replacements
 * REMARKS:
 *------------------------------------------------------------*/
 QString DecodeTextFor(const QString s, DecodeTextTo purpose)
@@ -264,63 +278,92 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 	if (s.isEmpty())
 		return s;
 
-	int pos = 0;
-	QString LF;
-	bool alsoQuotes = true;	// for Html and JavaScript when inside quotes
-	char quote = 0;
+	QString res = s;
 	switch (purpose)
 	{
-		default:
-		case dtPlain:	LF = "\n"; alsoQuotes = false; break;
-		case dtHtml:	LF = "<br>\n"; break;
-		case dtJavaScript: LF = "<br>";break;
+		case dtPlain:
+			res.replace("\\n", "\n");
+			res.replace("&amp;", "&");
+			res.replace("&lt;", "<");
+			res.replace("&gt;", ">");
+			break;
+		case dtHtml:
+			res.replace("\\n", "<br>\n");
+			break;
+		case dtJavaScript:
+			if (res.indexOf('\n')>=0)
+				res.replace("\n", "<br>");
+			else if (res.indexOf("\\n") >= 0)
+				res.replace("\\n", "<br>");
+			res.replace("&lt;", "<");
+			res.replace("&gt;", ">");
+			res.replace('\'', 0x02);
+			res.replace('\'', 0x03);
+			res.replace('"' , 0x04);
+			res.replace('\\', 0x05);
+			break;
 	}
-	QString res;
-	for (; pos < s.length(); ++pos)
-	{
-		if (s[pos] == QChar('\\') && pos < s.length() - 1 && s[pos + 1] == QChar('n'))
-		{
-			res += LF;
-			++pos;
-		}
-		else if (s[pos].unicode() == '&')
-		{
-			if (s.mid(pos, 5) == "&amp;")
-			{
-				res += '&';
-				pos += 4;
-			}
-			else if (s.mid(pos, 4) == "&lt;")
-			{
-				res += '<';
-				pos += 3;
-			}
-			else if (s.mid(pos, 4) == "&gt;")
-			{
-				res += '>';
-				pos += 3;
-			}
-			else
-				res += s[pos];
-		}
-		else if (alsoQuotes && (s[pos].unicode() == '\'' || s[pos].unicode() == '\"') )
-		{
-			if (!quote)								// starting new quote?
-				quote = s[pos].unicode();
-			else 
-			{
-				if (quote == s[pos].unicode())		// ending quote?
-					quote = 0;
-				else								// other quote: escape it
-					res += QChar('\\');
-				res += s[pos];
-			}
-		}
-		else
-			res += s[pos];
-	}
-
 	return res;
+
+	//int pos = 0;
+	//QString LF;
+	//bool alsoQuotes = true;	// for Html and JavaScript when inside quotes
+	//int quote = 0;
+	//switch (purpose)
+	//{
+	//	default:
+	//	case dtPlain:	LF = "\n"; alsoQuotes = false; break;
+	//	case dtHtml:	LF = "<br>\n"; break;
+	//	case dtJavaScript: LF = "<br>";break;
+	//}
+	//QString res;
+	//for (; pos < s.length(); ++pos)
+	//{
+	//	if (s[pos] == QChar('\\') && pos < s.length() - 1 && s[pos + 1] == QChar('n'))
+	//	{
+	//		res += LF;
+	//		++pos;
+	//	}
+	//	else if (s[pos].unicode() == '&')
+	//	{
+	//		if (s.mid(pos, 5) == "&amp;")
+	//		{
+	//			res += '&';
+	//			pos += 4;
+	//		}
+	//		else if (s.mid(pos, 4) == "&lt;")
+	//		{
+	//			res += '<';
+	//			pos += 3;
+	//		}
+	//		else if (s.mid(pos, 4) == "&gt;")
+	//		{
+	//			res += '>';
+	//			pos += 3;
+	//		}
+	//		else
+	//			res += s[pos];
+	//	}
+	//	else if (alsoQuotes && (s[pos].unicode() == '\'' || s[pos].unicode() == '\"') )
+	//	{
+	//		if (!quote)								// starting new quote?
+	//			quote = s[pos].unicode();
+	//		else 
+	//		{
+	//			if (quote == s[pos].unicode())		// same type -> ending quote
+	//			{
+	//				quote = 0;
+	//				res += s[pos];
+	//			}
+	//			else								// other quote: 
+	//				res += QChar('\\');
+	//		}
+	//	}
+	//	else
+	//		res += s[pos];
+	//}
+
+	//return res;
 }
 #if 0
 /*============================================================================

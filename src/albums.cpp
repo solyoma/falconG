@@ -1340,7 +1340,7 @@ QString AlbumGenerator::SiteLink(int language)
  *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool& added)
 {
-	++_structFileChangeCount;	 // always changed wehna non-processed image line is in the structure
+	++_structFileChangeCount;	 // always changed when a non-processed image line is in the structure
 
 	ID_t id;
 
@@ -1974,16 +1974,30 @@ void AlbumGenerator::Clear()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void AlbumGenerator::SetChangesWritten()
+bool  AlbumGenerator::SetChangesWritten()
 {
-	for (auto &a : _albumMap)
+	bool res = false;
+	for (auto& a : _albumMap)
+	{
+		if (a.changed)
+			res = true;
 		a.changed = false;
+	}
 	for (auto &a : _imageMap)
+	{
+		if (a.changed)
+			res = true;
 		a.changed = false;
+	}
 	for (auto &a : _videoMap)
+	{
+		if (a.changed)
+			res = true;
 		a.changed = false;
+	}
 	_slAlbumsModified.clear();
-	_structFileChangeCount = 0;
+	_structFileChangeCount = res ? 1 : 0 ;
+	return res;
 }
 
 void AlbumGenerator::AddDirsRecursively(ID_t albumId)
@@ -3460,7 +3474,8 @@ int AlbumGenerator::_DoCopyRes()
 
 /*============================================================================
 * TASK:		Writes whole directory structure into 'gallery.struct' in a separate thread
-* EXPECTS: 'keep' - do not replace backup file with original
+* EXPECTS:  wm   (def.  WriteMode::wmOnlyIfChanged)	: should write even when didn't change? 
+			bm   (def. BackupMode::wmReplace)		: should replace backup file with original
 * GLOBALS:
 * REMARKS: Directory structure is written into file gallery.tmp, so if an
 *			error occurs then the original structure file is still available.
@@ -3475,21 +3490,21 @@ int AlbumGenerator::_DoCopyRes()
 *				to '*.struct.tmp' and the temporary file is renamed
 *				to 'gallery.struct'
 *			This way the original state (before any changes) can be
-*			restored if required.
+*			restored (once only!) if required.
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::WriteDirStruct(bool keep, bool unconditionalDebugSave)
+int AlbumGenerator::WriteDirStruct(BackupMode bm, WriteMode wm)
 {
-	while (!_structWritten)		// before changing again wait for previous write to finish
+	while (_structIsBeingWritten)		// before changing again wait for previous write to finish
 		;
 
-	if (!_structFileChangeCount && !unconditionalDebugSave)
+	if (wm == WriteMode::wmOnlyIfChanged && !_structFileChangeCount)
 		return 0;
 
-	_structWritten = false;
-	pWriteStructThread = new AlbumStructWriterThread(*this, keep);
+	_structIsBeingWritten = true;
+	pWriteStructThread = new AlbumStructWriterThread(*this, bm == BackupMode::bmKeep);
 	connect(pWriteStructThread, &AlbumStructWriterThread::resultReady, this, &AlbumGenerator::_WriteStructReady);
 	connect(pWriteStructThread, &AlbumStructWriterThread::finished, pWriteStructThread, &QObject::deleteLater);
-	_keepPreviousBackup = keep;
+	_keepPreviousBackup = bm == BackupMode::bmKeep;
 
 // DEBUG 	pWriteStructThread->start();
 	pWriteStructThread->run();
@@ -4041,16 +4056,6 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 	}
 	else if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
-
-		auto encodeStr = [](QString str)
-			{
-				str.replace('\'', 0x01);
-				str.replace('\"', 0x02);
-				str.replace("\\n", QChar(0x04) );
-				str.replace('\\',  0x05 );
-
-				return str;		// will encode the names to obfuscate them from users
-			};
 		// the real web page is created in javascript in falconG.js
 		// these are the data it needs
 		s += QString("\n<script type=\"text/javascript\">\n"); 
@@ -4114,12 +4119,12 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += QString("{i:'%1',w:%2,h:%3,").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
 				LanguageTexts* plt = _textMap.Find(pIa->titleID);
 				if (plt)
-					*pqs += "t:'" + encodeStr( (*plt)[_actLanguage]) + "',";
+					*pqs += "t:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtJavaScript) + "',";
 				else
 					*pqs += "t:'',";
 				plt = _textMap.Find(pIa->descID);
 				if (plt)
-					*pqs += "d:'" + encodeStr((*plt)[_actLanguage]) + "',";
+					*pqs += "d:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtJavaScript) + "',";
 				else
 					*pqs += "d:'',";
 				if (a.TestFlag(ALBUM_ID_FLAG))
@@ -5350,7 +5355,7 @@ int AlbumGenerator::SaveStyleSheets()
 *--------------------------------------------------------------------------*/
 void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString sStructTmp)
 {
-	_structWritten = true;
+	_structIsBeingWritten = false;
 
 	if (!s.isEmpty())		// then error message
 	{
@@ -5706,8 +5711,8 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 			return;
 	emit SignalAlbumStructWillChange();
 	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);	// also from icon list for this album
-	albumgen.WriteDirStruct(true);								// keep .struct~ file and create a new backup from the original
-						//emit SignalAlbumStructChanged(true);						// album structure changed and not yet saved
+	albumgen.WriteDirStruct(BackupMode::bmKeep, WriteMode::wmAlways);				// keep .struct~ file and create a new backup from the original
+						
 	emit SignalAlbumStructChanged(false);						// album structure changed and saved
 }
 

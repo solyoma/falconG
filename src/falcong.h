@@ -118,8 +118,6 @@ private:
 	double _aspect=1.0;		// image_width/image_height
 			   // these fields are used when editing image/album texts
 	FalconGEditTabSelection _selection;	// selection in tree view
-	bool _edited = false;		// when image/album text etc modified in program
-								// asks for save at exit
 	QColor _lastUsedMenuForegroundColor = Qt::white;
 
 	QTextStream ifs, ofs;

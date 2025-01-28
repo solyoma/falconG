@@ -349,7 +349,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	QFile fTmp(qsTmpName);
 	QFile fs(qsConfigName);
 
-	if (!_edited && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)) )
+	if (!albumgen.StructChanged() && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
 	{
 		fs.rename(qsSafetyCopyName);
 		if (fTmp.rename(qsConfigName))
@@ -357,18 +357,18 @@ void FalconG::closeEvent(QCloseEvent * event)
 		else
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
 	}
-	if(_edited)
+	if(albumgen.StructChanged())
 	{
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
 		int res = QuestionDialog( tr("falconG - albums edited"),
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
 								dboSaveEdited, 
 								this,
-								tr("Don't ask again (use Options to re-enable)")
+								tr("Yes and don't ask again (use Options to re-enable)")
 							   );
 		if (res == QMessageBox::Yes)
 		{
-			albumgen.WriteDirStruct();	// do not mark albums as not changed
+			albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmAlways);			// never marks albums as not changed
 			while (!albumgen.StructWritten())	// wait until write finished
 				;
 		}
@@ -557,15 +557,14 @@ void FalconG::on_btnGenerate_clicked()
 			config.waterMark.SetRegenerationMode(ui.chkRegenAllWithWatermark->isChecked()); // when watermark changed
 
 			bool bAlbumWriteOK = albumgen.ProcessAndWrite() == 0; // generate struct, pages, images, thumbs
-			if (_edited)
+			if (albumgen.SetChangesWritten())	// then there were changes
 			{
-				albumgen.WriteDirStruct();
-				albumgen.SetChangesWritten();	// nothing changed
+				albumgen.WriteDirStruct();		// replace backup and write
+				albumgen.SetStructChanged(false);
 			}
 
 			config.waterMark.ClearChanges();
 
-			_edited = false;
 
 			ui.btnPreview->setEnabled(bAlbumWriteOK);
 			if (!bAlbumWriteOK)		// no switch to edit TAB
@@ -1447,7 +1446,7 @@ void FalconG::_ReadLastAlbumStructure()
 		else
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error"));
 	}
-	_edited = false;
+	albumgen.SetStructChanged(false);
 }
 
 
@@ -4932,7 +4931,8 @@ void FalconG::_SaveChangedTexts()
 	int64_t otid = _selection.title.ID,
 		 odid = _selection.description.ID;
 	
-	albumgen.SetAlbumModified(_selection.actAlbum);
+	Album& actAlbum = albumgen.Albums()[_selection.actAlbum];
+	actAlbum.changed = true;
 
 	if (_selection.changed & fsTitle)
 		_StoreLanguageTexts(_selection.title);
@@ -4948,16 +4948,19 @@ void FalconG::_SaveChangedTexts()
 	{
 		albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;
 		albumgen.Images()[_selection.selectedImage].descID  = _selection.description.ID;
+//		actAlbum.changed = true;
 	}
 	else if(_selection.selectedAlbum.Val())
 	{
 		albumgen.Albums()[_selection.selectedAlbum].titleID = _selection.title.ID;
 		albumgen.Albums()[_selection.selectedAlbum].descID = _selection.description.ID;
+		albumgen.Albums()[_selection.selectedAlbum].changed = true;
 	}
 	else // nothing selected: change for actual album
 	{
-		albumgen.Albums()[_selection.actAlbum].titleID = _selection.title.ID;
-		albumgen.Albums()[_selection.actAlbum].descID = _selection.description.ID;
+		actAlbum.titleID = _selection.title.ID;
+		actAlbum.descID  = _selection.description.ID;
+//		actAlbum.changed = true;
 	}
 
 	if (ui.chkChangeTitleEverywhere->isChecked())
@@ -4982,8 +4985,8 @@ void FalconG::_SaveChangedTexts()
 	}
 
 	_selection.changed = fsNothing;			// all changes saved
-
-	albumgen.WriteDirStruct(true);			// keep previous backup file
+											// keep previous backup file and album's @changed@ status
+	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmAlways);			
 }
 
 void FalconG::_SetLayoutMargins(int which)
@@ -5392,7 +5395,7 @@ void FalconG::on_btnWmShadowColor_clicked()
 
 void FalconG::on_btnSaveStruct_clicked()
 {
-	albumgen.WriteDirStruct(false, true);	// save into struct and do not replace struct~ file
+	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmReplace, AlbumGenerator::WriteMode::wmAlways);	// save into struct and do not replace struct~ file
 }
 
 /*============================================================================
@@ -5797,7 +5800,7 @@ void FalconG::_SlotAlbumStructWillChange()
 
 /*=============================================================
  * TASK:   slot for signal when album added/removed changed
- * EXPECTS:	'yesItDid' - set _edited so we will save the structure
+ * EXPECTS:	'yesItDid' - set structure changed flag so we will save the structure
  *					at program termination
  * GLOBALS:
  * RETURNS:
@@ -5806,7 +5809,7 @@ void FalconG::_SlotAlbumStructWillChange()
  *------------------------------------------------------------*/
 void FalconG::_SlotAlbumStructChanged(bool yesItDid)
 {
-	_edited = yesItDid;	// so that we save it at program termination if not processed
+	albumgen.SetStructChanged(yesItDid);	// so that we save it at program termination if not processed
 	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->EndResetModel();
 	ui.trvAlbums->setCurrentIndex(_currentTreeViewIndex);
 	ui.trvAlbums->expandToDepth(1);
@@ -5818,12 +5821,12 @@ void FalconG::_SlotAlbumStructChanged(bool yesItDid)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:- sets _edited to mark that unprocessed album 
+ * REMARKS:- sets structure changed flag to mark that unprocessed album 
  *				structure must be saved at exit
  *------------------------------------------------------------*/
 void FalconG::_SlotAlbumChanged()
 {
-	_edited = true;
+	albumgen.SetStructChanged(true);
 }
 
 /*============================================================================

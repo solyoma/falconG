@@ -1114,7 +1114,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         }
         albumgen.SetAlbumModified(*pAlbum);
 
-        albumgen.WriteDirStruct(true);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
 	}
 //    emit SignalFolderAdded();
 }
@@ -1973,7 +1973,7 @@ void ThumbnailView::AddImages()
     bool added=false;
 //	albumgen.lastUsedAlbumPathId = albumgen.Albums().Add(_ActAlbum()->ID, dir, added).Val();
     Reload();
-    albumgen.WriteDirStruct(true);
+    albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
 
     emit SignalInProcessing(false);
     emit SignalAlbumChanged();
@@ -2016,7 +2016,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
             folderName = albumgen.Images()[idth].FullSourceName();
         (void)fileIcons.Insert(pos, true,folderName);
 
-        albumgen.WriteDirStruct(true);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
     }
 
     emit SignalInProcessing(false);
@@ -2066,7 +2066,7 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
                 Album& album = *albumgen.AlbumForID(id);
                 album.parentId = _albumId;
                 pParentAlbum->AddItem(id, -1);
-                albumgen.WriteDirStruct(true);
+                albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
                 res = true;
             }
             else

@@ -363,11 +363,13 @@ class AlbumGenerator : public QObject
 
 public:
 	static uint64_t lastUsedAlbumPathId;	// config.dsSrc relative path to image so that we can add 
-										// an image by its name (relative to this path) only
+											// an image by its name (relative to this path) only
+	enum class BackupMode {bmKeep, bmReplace};
+	enum class WriteMode {wmOnlyIfChanged, wmAlways};
 	AlbumGenerator() { Init();  };
 	void Init();
 	void Clear();
-	void SetChangesWritten();
+	bool SetChangesWritten();
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
 	void RecursivelyAddAlbums(ID_t albumId);
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
@@ -380,9 +382,10 @@ public:
 	}
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
-	int WriteDirStruct(bool doNotReplaceExistingBackupFile=false, bool unconditionalDebugSave=false);		
-	bool StructWritten() const { return _structWritten; }
+	int WriteDirStruct(BackupMode bm=BackupMode::bmKeep, WriteMode wm=WriteMode::wmOnlyIfChanged);		
+	bool StructWritten() const { return !_structIsBeingWritten; }
 	bool StructChanged() const { return _structFileChangeCount;  }
+	void SetStructChanged(bool val) { _structFileChangeCount = (val ? 1 : 0); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
@@ -497,11 +500,11 @@ private:
 	//------------
 
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
-
-	AlbumStructWriterThread *pWriteStructThread=nullptr;		// write structure in separate thread
-	volatile bool _structWritten = true;
+									  // structure write
+	AlbumStructWriterThread *pWriteStructThread=nullptr;// write structure in separate thread
+	volatile bool _structIsBeingWritten = false;		// set true before write and false when writing is finished
+	bool _keepPreviousBackup	= false;				// do not overwrite backup
 	bool _mustRecreateAllAlbums = false;				// set to true when signaled from FalconG class that uplink etc changed
-	bool _keepPreviousBackup = false; // rename temporary file ?
 
 	int _actLanguage = 0;	// actual language used in album generation
 
