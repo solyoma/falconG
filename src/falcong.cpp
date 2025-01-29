@@ -3826,6 +3826,21 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 // ????	_ChangesToSample(dp);
 }
 
+void FalconG::on_sbItemCount_valueChanged(int n)
+{
+	if (_busy)
+		return;
+	++_busy;
+	if (n && n < 1000)
+	{
+		n = 1000;
+		ui.spItemCount->setValue(n);
+	}
+	config.nFilesInOneDir.v = n;
+	config.SetChanged(true);
+	--_busy;
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:

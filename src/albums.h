@@ -117,8 +117,18 @@ struct IABase
 	int64_t titleID = NO_ID;// default text ID of image title
 	int64_t descID = NO_ID;	// default text ID of image description
 	QString name;			// without path but with extension and no ending '/' even for albums
-	// QString path;		// either relative to confg.dsSrc or an absolute path. may be empty otherwise ends with '/'	  @ just until path ids implemented
+	
 	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
+	// the actual and the previous value of the index that determines which directory this item is to be stored
+	// If it isn't 0 it is stored in the .struct file for all items after the ID and a trailing letter 'i'
+	// // E.g. if the ID is 123456789 and dirIndex = 7 then the ID is stored as 123456789i7
+	// Recalculated at each album generation and if changed image and video files that changed dirIndex
+	// but didn't re-generated are moved from one directory to another on disk
+	// TODO
+	uint dirIndex = 0,		
+		lastDirIndex = 0;	// == 0: directories: albums: albums/album<ID>_<lang>.html, images: imgs/<ID>.jpg, thumbs: thumbs/<ID>.jpg, videos: vids/<ID>.mp4
+							//  > 0:			  albums: album<dirIndex>/album<ID>.html, images: imgs<dirIndex>/<ID>.jpg, 
+							//						thumbs: thumbs<dirIndex>/<ID>.jpg, videos: vids<dirIndex>/<ID>.mp4
 
 	IABase& operator=(const IABase& a);
 

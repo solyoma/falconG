@@ -1090,6 +1090,8 @@ public:
 	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
 	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// lats new image is loaded from here
 
+	_CInt nFilesInOneDir = { 0, "nFilesInOneDir" };		// n = 0: any number, n < 1000 => 1000, n > 1000 => n
+
 
 	_CBool bCleanupGalleryAfterGenerate = { true, "bCleanUp" };
 	_CBool bSeparateFoldersForLanguages = { false, "cbSFL"};
