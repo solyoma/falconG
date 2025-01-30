@@ -1970,8 +1970,7 @@ void ThumbnailView::AddImages()
 	int siz = qslFileNames.size();
     QString s;
 	SeparateFileNamePath(qslFileNames[siz - 1], dir,s);
-    bool added=false;
-//	albumgen.lastUsedAlbumPathId = albumgen.Albums().Add(_ActAlbum()->ID, dir, added).Val();
+
     Reload();
     albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
 

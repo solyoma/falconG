@@ -522,8 +522,6 @@ private:
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
-
-	bool _isAJAlbum = false;
 	//------------
 
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
@@ -552,11 +550,6 @@ private:
 						// writing 
 
 						  // reading (and copying) data
-	bool _JAlbumReadOrderFile(ID_t albumId);		// albumfiles.txt
-	bool _JAlbumReadCommentFile(ID_t albumId);	// comments.properties
-	bool _JAlbumReadMetaFile(ID_t albumId);		// meta.properties
-	void _JAlbumReadInfoFile(ID_t albumId, QString &path, QString name);	// '.info' files, add to _textMap and album or image title
-	bool _JAlbumReadInfoFile(ID_t albumId);			// album and image titles in hidden .jalbum sub directories
 	void _RecursivelyReadSubAlbums(ID_t albumId);
 	ID_t _AddItemToAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);

@@ -1356,7 +1356,7 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 *			from directory unless they are excluded
 * EXPECTS:	albumId - ID of album to add images and sub albums to
 *			fi - info of a file and album
-* GLOBALS:	_isAJAlbum
+* GLOBALS:	
 * RETURNS:	id of data , for albums with ALBUM_ID_FLAG,
 *				with videos with VIDEO_ID_FLAG set
 * REMARKS:  - must use id because album address may change in _albumMap
@@ -1495,56 +1495,6 @@ void AlbumGenerator::_TitleFromPath(QString path, LangConstList & ltl)
 	ltl.Fill(n);
 }
 
-/*==========================================================================
- * TASK:	read 'albumfiles.txt' (custom file filtering and ordering)
- *			if exists from the directory 'path' into
- * EXPECTS:	parentID: existing album
- * RETURNS:	true: data read into 'images' and 'albums' without calculating CRC
- *			false no such file
- * REMARKS: - 'albumfiles.txt'
- *					max 3 fields in every line separated by\TAB(s):
- *				<image name>	[<link image path>]	[<time in seconds>]
- *					if no link image path then 2 TABs after each other
- *        	- images/albums not mentioned in file are added to the end of
- *				the ordered list of images
-*--------------------------------------------------------------------------*/
-bool AlbumGenerator::_JAlbumReadOrderFile(ID_t parentID)
-{
-	Album *ab = AlbumForID(parentID);
-	Q_ASSERT(ab);
-	QString path = ab->FullSourceName();
-	if(path[path.length()-1] != '/')
-		path += '/';
-
-	FileReader fr(path + "albumfiles.txt", frfTrim);
-	if (!fr.Ok())
-		return false;
-
-
-	QString line;
-	QStringList sl;
-	bool excluded = false;
-	_isAJAlbum = true;
-
-	while (!(line = fr.ReadLine()).isEmpty())
-	{
-		if( (excluded = (line[0] == '-')) == true )	// '-' : do not use this image/album in this album
-			line = line.mid(1);						// but still process it to put its ID to the excluded list
-
-		sl = line.split('\t');
-		if (sl.size() == 1 || sl[1].isEmpty())		// if name is not a link to an external file
-			line = path + sl[0];	// then this is its full name
-		else
-			line = QDir().cleanPath(sl[1]);			// else this is the real full name
-
-		ID_t id = AddItemToAlbum(parentID, line, false, _signalProgress);   // to lists (_albumMap or _imageMap) and (albums or images) and order
-		if (excluded)
-			id.SetFlag(EXCLUDED_FLAG);
-
-		// ab.items.push_back(id); already added
-	}
-	return true;
-}
 
 QString AlbumGenerator::_EncodeTitle(QString title)
 {
@@ -1632,237 +1582,10 @@ QStringList AlbumGenerator::_SeparateLanguageTexts(QString line)
 	return list;
 }
 
-/*==========================================================================
-* TASK:	read dexcriptions for images and albums in the given album and
-*		fills in data
-* EXPECTS: albumId - existing album
-* RETURNS: success or error
-* REMARKS: - if an image or sub-album was not set earlier it is created here
-*		   - structure of file:
-*				<name of image or directory>=<description in many languages>
-*		   - languages ar separated by double '@' characters
-*		   - only as many languages are used as are set in global 'Languages'
-*--------------------------------------------------------------------------*/
-bool AlbumGenerator::_JAlbumReadCommentFile(ID_t albumId)
-{
-	Album* ab = AlbumForID(albumId);
-	Q_ASSERT(ab);
-	QString path = ab->FullSourceName();
-	if (path[path.length() - 1] != '/')
-		path += '/';
-
-	FileReader fr(path + "comments.properties", frfTrim);
-	if (!fr.Ok())
-		return false;
-	QString	line,		// <ianame>=<texts>
-			ianame;
-	QStringList sl;
-	ID_t id;
-	FileTypeImageVideo type;
-	while (!(line = fr.ReadLine()).isEmpty())
-	{
-		int posText = line.indexOf('=');
-		if (posText < 0)
-			continue;
-		ianame = line.left(posText).trimmed(); // image/directory name
-		line = line.mid(posText + 1).trimmed();
-		if(line.isEmpty())
-			continue;
-
-		id = AddItemToAlbum(albumId, path + ianame, false);	// not thumbnail
-
-		// DEBUG
-		if (_albumMap.size() > 10)
-			id = id;
-
-		type = id.IsVideo() ? ftVideo : ftImage;
-		if (id.Val())		// then image existed
-		{			// set text to image or album description
-			sl = _SeparateLanguageTexts(line);
-			bool added;
-			uint64_t tid = _textMap.Add(sl, added);	// same id for all languages
-			if (id.IsAlbum())		// description to sub-album
-				_albumMap[id].descID = tid;
-			else if(id.IsVideo())
-				_videoMap[id].descID = tid;
-			else
-				_imageMap[id].descID = tid;
-		}
-	}
-	return true;
-}
-
-/*==========================================================================
-* TASK:		read 'meta.properties' from album directory
-*			and sets album thumbnail (image or folder) ID and descriptions
-* EXPECTS:	ab - album to add parameters to
-* RETURNS:	true: file existed, false: file did not exist or read error
-* REMARKS: - structure of lines in 'meta.properties'
-*				'ordering='custom'
-*				'folderIcon'=<image file name for 'ab'>
-*				'descript'=<description for 'ab'>
-*--------------------------------------------------------------------------*/
-bool AlbumGenerator::_JAlbumReadMetaFile(ID_t albumId)
-{
-	Album* ab = AlbumForID(albumId);
-	Q_ASSERT(ab);
-	QString path = ab->FullSourceName();
-	if (path[path.length() - 1] != '/')
-		path += '/';
-
-	FileReader fr(path + "meta.properties", frfTrim);
-	if (!fr.Ok())
-		return false;
-
-	QString	line,		// <ianame>=<texts>
-		ianame;
-	QStringList sl;
-	int pos;
-	bool added;
-	while (!(line = fr.ReadLine()).isEmpty())
-	{
-		pos = line.indexOf('=');
-		if (pos < 0)
-			continue;
-		ianame = line.left(pos).trimmed(); // image/directory name
-		line = line.mid(pos + 1).trimmed();
-		if (line.isEmpty())
-			continue;
-
-		if (ianame[0] == 'o')			// ordering
-			continue;					// don't care
-		else if (ianame[0] == 'f')		// folder icon
-		{
-			(void)AddItemToAlbum(albumId, path + line, true);	// add image or folder
-			ab = AlbumForID(albumId);		// might have changed
-			Q_ASSERT(ab);
-			continue;										// as folder thumbnail too
-		}
-		else if (ianame[0] != 'd')			// safety
-			continue;
-					// else 'description line for 'ab'
-
-		sl = _SeparateLanguageTexts(line);
-		// set text to image or album description
-		int slSize = sl.size();
-		if (slSize)
-		{
-			uint64_t tid = _textMap.Add(sl, added);	  // more languages than texts
-			ab->descID = tid;			  // description to sub-album
-		}
-	}
-	return true;
-}
-
-
-/*=================================================================
-* TASK: put album and image title texts from a '*.info' files in
-*		the '.jalbum' subdirectory of the album's directory into
-*		ab and the images inside it
-* EXPECTS:	ab - album (already on global album list '_albumMap')
-* RETURNS: true...
-* REMARKS: - '.info' files contain album titles,
-*			 '<image name>.info' files image titles
-*			- format:
-*				line #x			<string>title</string>
-*				line #(x+1)		<string>title text</string>
-*		    - use after reading all image files and comments
-*			- if the same iamge has different titles in different albums
-*				the latest ones will be used
-*----------------------------------------------------------------*/
-void AlbumGenerator::_JAlbumReadInfoFile(ID_t albumId, QString & path, QString name)
-{
-	Album* ab = AlbumForID(albumId);
-	Q_ASSERT(ab);
-	QString line;
-	FileReader reader(path + ".jalbum/" + name, frfNeedUtf8 | frfTrim);  // name of .info file
-
-	LangConstList ltl(-1,"",languages.LanguageCount());			// set default title here into this dummy
-
-	if (!reader.Ok())		// file read problem
-		return;
-
-	bool titleLineNext = false;
-	while (!(line = reader.ReadLine()).isEmpty())
-	{
-		if (titleLineNext)
-		{
-			int pos = line.lastIndexOf('<');
-			line = line.mid(8, pos - 8);	// title in all languages
-			break;
-		}
-		titleLineNext = line == "<string>title</string>";
-	}
-
-	bool added;
-	if (line.isEmpty()) // no title
-	{
-		if (name == ".info")			// just for the album
-		{
-			_TitleFromPath(path, ltl);
-			ab->titleID = _textMap.Add(ltl, added);
-		}
-	}
-	else
-	{
-		QStringList sl;
-		sl = _SeparateLanguageTexts(line);
-		uint64_t tid = _textMap.Add(sl, added);	// same id for all languages
-
-		if (name[0] == '.') //  ".info"	fo actual album
-			ab->titleID = tid;
-		else			   // image
-		{
-			name = name.left(name.length() - 5);
-			Image *img = _imageMap.Find(path + name);
-			if (img)
-				img->titleID = tid;
-		}
-	}
-}
-
-/*=================================================================
-* TASK: put album and image title texts from '*.info' files in
-*		the '.jalbum' subdirectory of the album's directory into
-*		ab and the images inside it
-* EXPECTS:	albumId - album (already on global album list '_albumMap')
-* RETURNS: true...
-* REMARKS:  - use after reading all image files and comments
-*			- if the same iamge has different titles in different albums
-*				the latest ones will be used
-*----------------------------------------------------------------*/
-bool AlbumGenerator::_JAlbumReadInfoFile(ID_t albumId)
-{
-	Album* ab = AlbumForID(albumId);
-	Q_ASSERT(ab);
-	QString path = ab->FullSourceName();
-	if (path[path.length() - 1] != '/')
-		path += '/';
-
-	QDir infoDir(path + ".jalbum");	// place for the info files
-	if (infoDir.exists())
-	{
-		QStringList filters;
-		filters << "*.info";
-
-		QStringList list = infoDir.entryList(filters, QDir::Files, QDir::NoSort);	// get all files and sub directories
-
-		for (QString &s : list)
-		{
-			if(!_IsExcluded(*ab, s)) // check if the file this info entry refers to is excluded
-				_JAlbumReadInfoFile(albumId, path, s);
-		}
-	}
-	return true;
-}
-
 /*=================================================================
  * TASK: read a directory tree of images and order them into an album
  *		  hierarchy recursively
  *			Reads whole gallery hierarchy starting at 'albumId'
- *			If it is a JAlbum directory with corresponding files
- *			adds only images and albums set in those files
- *			otherwise adds each image and sub-folders to it
  * EXPECTS: albumId (must already be on the global album list '_albumMap')
  * GLOBALS:
  * REMARKS: - first reads meta.properties and set parameters for this album
@@ -1877,14 +1600,6 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 {
 	// get number of images and albums already read in
 	// TODO justChanges
-	bool isParentJAlbum = _isAJAlbum;
-	_isAJAlbum = false;		// set only if jalbum's file are in this directory
-	_JAlbumReadOrderFile(albumId);	// ordering set in file ( including exlusions and real names)
-	// if there was a JAlbum 'albumfiles.txt' file in the folder then all images and albums stored in it are
-	// added to the corresponding map and _isJAlbum is set to true, else it is false
-
-	_isAJAlbum |= _JAlbumReadMetaFile(albumId);		// thumbnail (image or sub-album) ID and description for the actual album
-
 	// Append images and albums from disk
 
 	// at path 'ab.FullSourceName()' and add
@@ -1901,7 +1616,6 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 		SetAlbumModified(ab);
 
 	ID_t id;
-
 
 	static int debugCnt = 0;
 	for (auto &fi : list)		// elements in directory
@@ -1924,13 +1638,10 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	}
 	if (_processing)
 	{
-		_isAJAlbum |= _JAlbumReadCommentFile(albumId);	// descriptions for files and folders in ab
-		_isAJAlbum |= _JAlbumReadInfoFile(   albumId);			// titles for album and images inside
 		(void)ab.ImageCount();		// removes excluded ID s of 'ab.images'
 		(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
 		_AddAlbumThumbnail(ab, 0);	// only if there's no thumbnail already
 	}
-	_isAJAlbum = isParentJAlbum;	// restore for parent
 }
 
 void AlbumGenerator::Init()
@@ -2021,7 +1732,7 @@ void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
 *					memory then tries to read it. If the read is unsuccessful
 *					then all data is cleared from memory
 *				if 'config.bReadFromDirs' is checked always reads the list of
-*					all images (using JAlbum's files too if they exist)
+*					all images
 *					starting at directory 'root'
 * PARAMS:	'bMustReRead' must read original '.struct' file even when one
 *					is already in memory
@@ -3337,9 +3048,6 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 
 /*==========================================================================
 * TASK:		Reads whole gallery hierarchy starting at directory 'root'
-*			If it is a JAlbum directory with corresponding files
-*			adds only images and albums set in those files
-*			otherwise adds each image and sub-folders to it
 * EXPECTS: 'root' path name of uppermost source album directory
 * RETURNS: success
 * REMARKS: - prepares _root album and recursively processes all levels
