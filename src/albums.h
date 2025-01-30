@@ -518,7 +518,7 @@ private:
 	} _latestImages;
 // no need: read is fast enough 	bool _structAlreadyInMemory = false;
 	UsageCount _structFileChangeCount;	// signals whether a new 'struct' file must be written
-							// increase after a jalbum style read and after an album struct change
+							// increase after an album struct change
 							// this is used to determine that actual album was changed or not
 							// record its value before the changes and compare with this after the changes
 							// only used as a bool value otherwise
@@ -598,8 +598,7 @@ private:
 	bool _ReadOrphanTable(FileReader& reader);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
-			// read 'Jalbum' file structure
-	bool _ReadFromDirs();	//or if it does not exist loads them from supposedly jalbum directory dsSrc
+	bool _ReadFromDirs();	
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !

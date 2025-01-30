@@ -319,7 +319,6 @@ private slots:
 	void on_chkMenuToToggleCaptions_toggled(bool);
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkReadFromGallery_toggled(bool);
-	void on_chkReadJAlbum_toggled(bool);
 	void on_chkRightClickProtected_toggled(bool);
 	void on_chkSeparateFoldersForLanguages_toggled(bool);
 	void on_chkSetAll_toggled(bool);			// background colors

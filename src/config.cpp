@@ -257,9 +257,7 @@ QString &_CDirStr::operator=(const QString s)
 * EXPECTS: subdir - absolute or relative directory name
 * GLOBALS: config
 * RETURNS: the result
-* REMARKS: JAlbum quirk: if a link is relative to the JAlbuum root dir. the path to the
-*		file name starts with a '/' instead of the full path. Therefore 
-*		when config.bSourceRelativeForwardSlash is set such paths are considered relative
+* REMARKS: 
 *--------------------------------------------------------------------------*/
 _CDirStr _CDirStr::operator+(const _CDirStr &subdir)
 {

@@ -141,7 +141,7 @@
               </font>
              </property>
              <property name="placeholderText">
-              <string>Directory for the hierarchy descriptions 'gallery.struct' or a 'jalbum' source gallery</string>
+              <string>Directory for the hierarchy descriptions ('.struct' file)</string>
              </property>
             </widget>
            </item>
@@ -1399,7 +1399,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 </widget>
                </item>
                <item row="1" column="5">
-                <widget class="QCheckBox" name="chkUseItemCount">
+                <widget class="QCheckBox" name="chkUseMaxItemCountPerDir">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -1433,16 +1433,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           <property name="bottomMargin">
            <number>4</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="chkReadJAlbum">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create or overwrite existing .struct file using&lt;/p&gt;&lt;p&gt;data from the source directory tree. &lt;/p&gt;&lt;p&gt;If that data contains files from a JAlbum Version &amp;lt; 12,&lt;/p&gt;&lt;p&gt;that will be used to get image and album descriptions and titles.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If no .struct file is present in the source directory then&lt;/p&gt;&lt;p&gt;that directory will automatically be processed as if&lt;/p&gt;&lt;p&gt;this option were selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Read from directories/JAlbum</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QCheckBox" name="chkLowerCaseImageExtensions">
             <property name="text">
@@ -7837,7 +7827,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>edtAlbumDir</tabstop>
   <tabstop>edtBaseName</tabstop>
   <tabstop>chkReadFromGallery</tabstop>
-  <tabstop>chkReadJAlbum</tabstop>
   <tabstop>chkOvrImages</tabstop>
   <tabstop>chkLowerCaseImageExtensions</tabstop>
   <tabstop>chkKeepDuplicates</tabstop>

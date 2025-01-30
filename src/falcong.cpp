@@ -597,8 +597,6 @@ void FalconG::on_btnGenerate_clicked()
 	}
 
 	ui.btnSaveStyleSheet->setEnabled(!_running);
-	if (!_running)
-		ui.chkReadJAlbum->setChecked(false);
 }
 
 /*=============================================================
@@ -612,23 +610,6 @@ void FalconG::on_btnCloseAllViewers_clicked()
 {
 	emit SignalToCloseAllViewers();
 }
-
-/*============================================================================
-* TASK:	  (Re)creates all albums.txt, meta.properties, comment.properties and
-*		  *.info files for (possibly modified) image data into the same
-*		 directory structure as JAlbum could use to generate its album
-*		 in directory 'src' under the destination directory
-* EXPECTS:	_albumMap, _imageMap and _textMap are either generated or read in
-* GLOBALS: albumgen
-* REMARKS:	- original files are not modified
-*			- all new files are encoded as UTF-8
-*			- .info files are copied from source
-*			- albumfiles.txt links to original images in source directories
-*--------------------------------------------------------------------------*/
-//void FalconG::on_btnCreateJAlbum_clicked()
-//{
-//}
-
 
 /*============================================================================
 * TASK:
@@ -1202,7 +1183,6 @@ void FalconG::_OtherToUi()
 	ui.chkForceSSL->setChecked(config.bForceSSL);
 // not saved/restored:
 //	ui.chkReadFromGallery->setChecked(config.bReadFromGallery);
-//	ui.chkReadJAlbum->setChecked(config.bReadFromDirs);	  
 	ui.chkKeepDuplicates->setChecked(config.bKeepDuplicates);
 	ui.chkRightClickProtected->setChecked(config.bRightClickProtected);
 	ui.chkSetLatest->setChecked(config.bGenerateLatestUploads);
@@ -2779,22 +2759,6 @@ void FalconG::on_chkReadFromGallery_toggled(bool on)
 		return;
 	config.bReadFromGallery = on;
 	_SetConfigChanged(true);
-
-	_EnableButtons();
-}
-
-/*============================================================================
-* TASK:	toggle state of structure disregard gallery struct box
-* EXPECTS:	on - new state
-* GLOBALS:
-* REMARKS:	this bool is not saved into the configuration
-*--------------------------------------------------------------------------*/
-void FalconG::on_chkReadJAlbum_toggled(bool on)
-{
-	if (_busy)
-		return;
-	config.bReadFromDirs = on;
-	//	_SetConfigChanged(true);	no configuration change!
 
 	_EnableButtons();
 }
