@@ -1344,14 +1344,16 @@ static bool __CancelCreate(QString s)
 /*==========================================================================
 * TASK:		Recurvely creates directory and conditionally asks for confirmation
 * EXPECTS:	sdir - directory to create
-*			aks	- if directory does not exist then ask permission to proceed?
+*			dirIndex - if not 0 appended to the name after a dash. Example: album-7
 * RETURNS:  1: directory exists (or created successfully)
 *			0: directory creation error
 *			-1: cancelled
 * REMARKS: 	 
 *--------------------------------------------------------------------------*/
-bool CreateDir(QString sdir) // only create if needed
+bool CreateDir(QString sdir, int dirIndex) // only create if needed
 {										// ask - if does not exist ask what to do
+	if (dirIndex)
+		sdir += QString("-%1").arg(dirIndex);
 	QDir folder;
 	if (folder.exists(sdir))
 		return true;
@@ -1361,7 +1363,7 @@ bool CreateDir(QString sdir) // only create if needed
 	QStringList qsl = sdir.split('/');
 	QString spath;
 	bool res = true;
-	for (auto s : qsl)
+	for (auto &s : qsl)
 	{
 		spath += s;
 		if (!s.isEmpty() && spath != "/")

@@ -97,23 +97,33 @@ void AlbumStructWriterThread::run()
 
 void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
 {
+	QString s;
+	QString delim = QStringLiteral("|"),
+		ddelim = QStringLiteral("||");
 	if (pImg->Exists())
 	{
 		if (!pImg->rsize.width())	// transformed size is 0, if we did not process images
 			pImg->rsize = pImg->dsize;
 
-		_ofs << indent;
+		s +=indent;
 		if (pImg->dontResize)
-			_ofs << "!!";
-		_ofs << pImg->name << "||" 										   // field #1
-			<< (pImg->ID.Val()) << "|"								   // field #2
-			<< pImg->rsize.width() << "x" << pImg->rsize.height() << "|"   // field #3 - #4
-			<< pImg->osize.width() << "x" << pImg->osize.height() << "|"   // field #5 - #6
+			s +="!!";
+		s += pImg->name  															// field #1
+			+ ddelim +
+			QString().setNum(pImg->ID.Val());										// field #2
+		if (pImg->dirIndex)
+			s +="i" + QString().setNum(pImg->dirIndex);
+		s += QString("%1x%2").arg(pImg->rsize.width()).arg(pImg->rsize.height())	// field #3 - #4
+			+ delim
+			+ QString("%1x%2").arg(pImg->osize.width()).arg(pImg->osize.height())	// field #5 - #6
+			+ delim
 			// ISO 8601 extended format: yyyy-MM-dd for dates
-			<< pImg->uploadDate.toString(Qt::ISODate) << "|"			   // field #7
-			<< pImg->fileSize	<< "|"									   // field #8
-			<< pImg->pathId		<< "\n";
-		// field #9
+			+ pImg->uploadDate.toString(Qt::ISODate) 								// field #7
+			+ QString().setNum(pImg->fileSize)										// field #8
+			+ delim
+			+ QString("%1\n").setNum(pImg->pathId);									// field #9
+
+		_ofs << s;
 	}
 	else
 		_ofs << indent << pImg->name << " # is missing\n";
@@ -136,8 +146,10 @@ void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString i
 
 void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString indent)
 {
-	Video* pVid;
 	QString s;
+	QString delim = QStringLiteral("|"),
+		ddelim = QStringLiteral("||");
+	Video* pVid;
 
 	pVid = &_videoMap[id];
 	if (pVid->changed)
@@ -146,14 +158,16 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 	}
 	if (pVid->Exists())
 	{
-		_ofs << indent;
-		_ofs << pVid->name << "(V"									   // field #1
-			<< pVid->ID.Val()	<< ","								   // field #2
+		s = indent +
+			pVid->name + ddelim +								   // field #1
+			QString().setNum(pVid->ID.Val());					   // field #2
+		if(pVid->dirIndex)
+			s += "i" + QString().setNum(pVid->dirIndex);
 			// ISO 8601 extended format: yyyy-MM-dd for dates
-			<< pVid->uploadDate.toString(Qt::ISODate) << ","		   // field #3
-			<< pVid->fileSize << ")"								   // field #4
-			<< pVid->pathId		<< "\n";
-		// field #9
+		s += pVid->uploadDate.toString(Qt::ISODate) + delim		   // field #3
+			+ QString().setNum(pVid->fileSize) + delim			   // field #4
+			+ QString("%1\n").arg(pVid->pathId);
+		_ofs << s;
 	}
 	else
 		_ofs << indent << pVid->name << " # is missing\n";
@@ -219,7 +233,10 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 	ID_t thumbnail = album.thumbnailId = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << ( album.changed ? "(C:" :"(A:") << album.ID.Val() << ")" << /*s*/ album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
+		<< album.name << (album.changed ? "(C:" : "(A:") << album.ID.Val(); 
+	if (album.dirIndex)
+		_ofs << "i" << album.dirIndex;
+	_ofs << ")" << /*s*/ album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 

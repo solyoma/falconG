@@ -2112,7 +2112,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 *					js					javascript files
 *					res					icon files, stb
 *--------------------------------------------------------------------------*/
-bool AlbumGenerator::_CreateDirectories()
+bool AlbumGenerator::_CreateBaseDirectories()
 {
 	__DestDir = config.dsGallery;		// destination directory the new gallery is
 										// put inside it
@@ -5298,7 +5298,7 @@ int AlbumGenerator::_DoHtAccess()
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::ProcessAndWrite()
 {
-	if (!_CreateDirectories()) // from 'config'
+	if (!_CreateBaseDirectories()) // from 'config'
 		return 64;
 
 	emit SignalAlbumStructWillChange();

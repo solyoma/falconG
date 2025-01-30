@@ -1099,6 +1099,7 @@ public:
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
+	_CBool bUseMaxItemCountPerDir = { false,"bUseMaxItemCountPerDir" };	// use the value in 'ui.sbMaxItemCountPerDir' ?
 	_CBool bReadFromDirs = {false,"bReadFromDirs"};			// do not process gallery.struct, read from JAlbum structure
 	_CBool bReadFromGallery = {false,"bReadFromGallery"};	// read back from HTML files in gallery (you loose original names and paths!
 		// next three bools will not be read from or saved into the configuration file

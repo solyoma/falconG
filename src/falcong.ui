@@ -1259,7 +1259,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                 </widget>
                </item>
                <item row="1" column="4">
-                <widget class="QSpinBox" name="spItemCount">
+                <widget class="QSpinBox" name="sbMaxItemCountPerDir">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -1273,8 +1273,14 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how many images/videos and albums&lt;br/&gt;can be stored in the same folder.&lt;/p&gt;&lt;p&gt;Default:0, no limit&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
+                 <property name="suffix">
+                  <string>000</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
                  <property name="maximum">
-                  <number>1000</number>
+                  <number>100000</number>
                  </property>
                  <property name="singleStep">
                   <number>1</number>
@@ -1358,13 +1364,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                 </widget>
                </item>
-               <item row="1" column="5">
-                <widget class="QLabel" name="label_89">
-                 <property name="text">
-                  <string> x 1000</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="4" colspan="2">
                 <widget class="QLineEdit" name="edtThumb">
                  <property name="font">
@@ -1396,6 +1395,20 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                  <property name="placeholderText">
                   <string>album</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QCheckBox" name="chkUseItemCount">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>use</string>
                  </property>
                 </widget>
                </item>
@@ -4404,8 +4417,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>432</width>
-                         <height>446</height>
+                         <width>455</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <attribute name="label">

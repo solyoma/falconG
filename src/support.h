@@ -366,7 +366,8 @@ QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge = 
 QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge = true);
 
 bool CopyOneFile(QString src, QString dest, bool overWrite = true);
-bool CreateDir(QString sdir); // recursive creation of directories, returns 0: error, 1: created, -1: cancelled
+bool CreateDir(QString sdir, int dirIndex=0); // recursive creation of directories, returns 0: error, 1: created, -1: cancelled
+											  // if dirIndex > 0: create a directory with a number appended to the name after a dash
 bool RemoveFolderRecursively(QString name, bool tryToTrash=true);			// won't ask
 bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
 

@@ -312,6 +312,7 @@ private slots:
 	void on_chkItalic_toggled(bool);
 	void on_chkKeepDuplicates_toggled(bool);
 	void on_chkLowerCaseImageExtensions_toggled(bool);
+	void on_chkUseMaxItemCountPerDir_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
 	void on_chkMenuToContact_toggled(bool);
 	void on_chkMenuToDescriptions_toggled(bool);
@@ -404,7 +405,7 @@ private slots:
 	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
 	void on_sbImageMatteWidth_valueChanged(int val);
 	void on_sbImageWidth_valueChanged(int w);			// image width
-	void on_sbItemCount_valueChanged(int n);
+	void on_sbMaxItemCountPerDir_valueChanged(int n);
 	void on_sbLatestCount_valueChanged(int val);
 	void on_sbNewDays_valueChanged(int val);
 	void on_sbShadowBlur1_valueChanged(int val);

@@ -119,16 +119,33 @@ struct IABase
 	QString name;			// without path but with extension and no ending '/' even for albums
 	
 	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
-	// the actual and the previous value of the index that determines which directory this item is to be stored
-	// If it isn't 0 it is stored in the .struct file for all items after the ID and a trailing letter 'i'
-	// // E.g. if the ID is 123456789 and dirIndex = 7 then the ID is stored as 123456789i7
-	// Recalculated at each album generation and if changed image and video files that changed dirIndex
-	// but didn't re-generated are moved from one directory to another on disk
-	// TODO
-	uint dirIndex = 0,		
-		lastDirIndex = 0;	// == 0: directories: albums: albums/album<ID>_<lang>.html, images: imgs/<ID>.jpg, thumbs: thumbs/<ID>.jpg, videos: vids/<ID>.mp4
-							//  > 0:			  albums: album<dirIndex>/album<ID>.html, images: imgs<dirIndex>/<ID>.jpg, 
-							//						thumbs: thumbs<dirIndex>/<ID>.jpg, videos: vids<dirIndex>/<ID>.mp4
+
+	// 'this 'dirIndex' determines which directory this item is to be stored
+	// Items with 'dirIndex' == 0 are stored in the same directories
+	// as before, and 'dirIndex' is not recorded in the .struct file.
+	// i.e. albums are stored in albums, images in imgs, thumbnails in thumbs
+	// and videos in vids directories.
+	// 
+	// If it isn't 0 'dirIndex' is stored in the .struct file after the ID and a 
+	// trailing letter 'i'. Example: 123456i7. In this case items are stored in 
+	// directories depending on item type:
+	//				albums in: albums-<dirIndex>
+	//				images in: imgs-<dirIndex>
+	//				thumbs in: thumbs-<dirIndex>
+	//				videos in: vids-<dirIndex>
+
+	// When the state of checkbox 'chkUseMaxItemsPerDir' is changed relative to the value
+	// in the .ini file, then on album generation all existing directories with 
+	// indices  greater than 0 are deleted from disk, and all files from the base
+	// directories are also deleted. In this case the state of chekckboxes 
+	// 'chkGenerateAllPages', 'chkRegenAllImages' and 'chkNoImages' are ignored.
+	// 'dirIndex' is modified for all items and folders, and when
+	// 'chkUseMaxItemCountPerDir' is checked non-base folders are created.
+
+	// The number of folders created is determined by the count of items in the maps
+	// albumMap, imageMap, videoMap	when new items are added new directories may be created.
+
+	uint dirIndex = 0;
 
 	IABase& operator=(const IABase& a);
 
@@ -530,7 +547,7 @@ private:
 	QString _GoogleAnaliticsOn();
 	QString _PageHeadToString(const Album& album);
 
-	bool _CreateDirectories();	// from data in config
+	bool _CreateBaseDirectories();	// from data in config
 
 						// writing 
 

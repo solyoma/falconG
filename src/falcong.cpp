@@ -2685,6 +2685,11 @@ void FalconG::on_chkLowerCaseImageExtensions_toggled(bool on)
 	config.bLowerCaseImageExtensions = on;
 }
 
+void FalconG::on_chkUseMaxItemCountPerDir_toggled(bool b)
+{
+	config.bUseMaxItemCountPerDir = b;
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -3826,16 +3831,11 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 // ????	_ChangesToSample(dp);
 }
 
-void FalconG::on_sbItemCount_valueChanged(int n)
+void FalconG::on_sbMaxItemCountPerDir_valueChanged(int n)
 {
 	if (_busy)
 		return;
 	++_busy;
-	if (n && n < 1000)
-	{
-		n = 1000;
-		ui.spItemCount->setValue(n);
-	}
 	config.nFilesInOneDir.v = n;
 	config.SetChanged(true);
 	--_busy;
