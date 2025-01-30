@@ -598,7 +598,6 @@ private:
 	bool _ReadOrphanTable(FileReader& reader);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
-	bool _ReadFromDirs();	
 	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !

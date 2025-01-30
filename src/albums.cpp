@@ -1731,9 +1731,6 @@ void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
 *				if a corresponding '.struct' file exists and not yet read into
 *					memory then tries to read it. If the read is unsuccessful
 *					then all data is cleared from memory
-*				if 'config.bReadFromDirs' is checked always reads the list of
-*					all images
-*					starting at directory 'root'
 * PARAMS:	'bMustReRead' must read original '.struct' file even when one
 *					is already in memory
 * EXPECTS: 'root' path name of uppermost source album directory
@@ -1748,8 +1745,6 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	bool result = false;
 
-	//bool _justChanges = !config.bReadFromDirs && (AlbumCount() != 0 && ImageCount() != 0 && !config.bGenerateAllPages);		// else full creation
-
 	if (bMustReRead) // wrong: !_justChanges)
 		Clear();
 	PROGRAM_CONFIG::MakeValidLastConfig();		// may add new config
@@ -1758,9 +1753,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 
 	bool newDataExists = true;
 
-	if (config.bReadFromDirs)
-		result = _ReadFromDirs();
-	else if (QFileInfo::exists(s))
+	if (QFileInfo::exists(s))
 	{
 		if ((bMustReRead || AlbumCount() <= 1))	// only root album?
 		{
@@ -3044,69 +3037,6 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 		throw(b);
 		return false;
 	}
-}
-
-/*==========================================================================
-* TASK:		Reads whole gallery hierarchy starting at directory 'root'
-* EXPECTS: 'root' path name of uppermost source album directory
-* RETURNS: success
-* REMARKS: - prepares _root album and recursively processes all levels
-*--------------------------------------------------------------------------*/
-bool AlbumGenerator::_ReadFromDirs()
-{
-	if (!languages.Read())		// cancelled, no default set
-		return false;
-			// first languages from en.lang, etc
-	emit SignalSetupLanguagesToUI();
-
-			// get number of sub albums for display only, iterator points BEFORE first entry
-	QDirIterator dirIter(config.dsSrc.ToString(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);	// count directories
-	int directoryCount = 0;	// this many valid directory
-	int omittedDirectoryCount = 0;
-	QString s;
-	emit SignalToSetProgressParams(0, 0, 0, 0);	// phase 0
-	while (dirIter.hasNext())
-	{
-		QFileInfo fi(dirIter.next());
-		if (fi.isDir())
-		{
-			s = dirIter.fileName();
-			if (s[0] != '.' && s != "res" && s != "cache" && s != "thumbs")	// not a hidden or resource directory?
-			{
-				++directoryCount;
-				emit SignalProgressPos(directoryCount, directoryCount);
-			}
-			else if(s != "." && s != "..")
-				++omittedDirectoryCount;
-		}
-	}
-
-	emit SetDirectoryCountTo(directoryCount + omittedDirectoryCount);
-	emit SignalToSetProgressParams(0, directoryCount, 0, 0);	// phase 0
-
-
-	QString root = config.dsSrc.ToString();
-	QDir dir(root);
-
-	// dummy album for latest Images must come first as sets album's ID
-	Album tmp;
-	// tmp has no name and no path it is inside config.dsSrc
-	tmp.ID = TOPMOST_ALBUM_ID;							// id = 1 (id = 0 -> invalid)
-	tmp.ID.SetFlag(EXISTING_FLAG, false);	// virtual;
-	_albumMap[TOPMOST_ALBUM_ID] = tmp;	// a copy of _root is first on list
-
-	tmp.Clear();
-	tmp.ID = RECENT_ALBUM_ID;
-	tmp.ID.SetFlag(EXISTING_FLAG, false);		// do not check: virtual!
-	_albumMap[RECENT_ALBUM_ID] = tmp;
-
-	_remDsp.Init(directoryCount + omittedDirectoryCount);
-	_RecursivelyReadSubAlbums(TOPMOST_ALBUM_ID);	// recursive read of all levels
-	if (!_processing)
-		return false;
-
-	++_structFileChangeCount;					// i.e. must write 'gallery.struct'
-	return true;
 }
 
 /*============================================================================

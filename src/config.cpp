@@ -1538,7 +1538,6 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	bAddTitlesToAll = cfg.bAddTitlesToAll;
 	bAddDescriptionsToAll = cfg.bAddDescriptionsToAll;
 	bLowerCaseImageExtensions = cfg.bLowerCaseImageExtensions;
-	bReadFromDirs = cfg.bReadFromDirs;
 	bReadFromGallery = cfg.bReadFromGallery;
 	bMenuToContact = cfg.bMenuToContact;
 	bMenuToAbout = cfg.bMenuToAbout;
