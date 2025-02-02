@@ -338,6 +338,8 @@ protected:
 	void dragLeaveEvent(QDragLeaveEvent *event);
 	void dragMoveEvent(QDragMoveEvent *event);
 
+	bool mayScrollOneStep();
+
 	void _DropFromExternalSource(const ThumbMimeData *mimeData, int row);
 	void dropEvent(QDropEvent *event);			// when item is dropped
 

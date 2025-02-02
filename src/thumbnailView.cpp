@@ -845,6 +845,8 @@ void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
 //	QListView::dragLeaveEvent(event);
 }
 
+
+
 /*=============================================================
  * TASK:
  * EXPECTS:
@@ -896,10 +898,25 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 //	QListView::dragMoveEvent(event);
 	int pose = event->pos().y();
 
-	if (pose < 30)
-		verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
-	else if (pose > height() - 30)
-		verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+    if (pose < 30)
+    {
+        if(mayScrollOneStep())
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+    }
+    else if (pose > height() - 30)
+    {
+        if(mayScrollOneStep())
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+    }
+}
+
+bool ThumbnailView::mayScrollOneStep()
+{
+    static int steps = 0;
+    if(steps++ < 10000)
+        return false;
+    steps = 0;
+    return true;
 }
 
 /*=============================================================

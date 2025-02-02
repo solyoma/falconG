@@ -111,15 +111,17 @@ void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
 		s += pImg->name  															// field #1
 			+ ddelim 
 			+ pImg->ID.ValToString()												// field #2
+			+ delim
 			+ QString("%1x%2").arg(pImg->rsize.width()).arg(pImg->rsize.height())	// field #3 - #4
 			+ delim
 			+ QString("%1x%2").arg(pImg->osize.width()).arg(pImg->osize.height())	// field #5 - #6
 			+ delim
 			// ISO 8601 extended format: yyyy-MM-dd for dates
 			+ pImg->uploadDate.toString(Qt::ISODate) 								// field #7
+			+ delim
 			+ QString().setNum(pImg->fileSize)										// field #8
 			+ delim
-			+ QString("%1\n").setNum(pImg->pathId);									// field #9
+			+ QString("%1\n").arg(pImg->pathId);									// field #9
 
 		_ofs << s;
 	}
@@ -158,9 +160,9 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 	{
 		s = indent +
 			pVid->name + ddelim +								   // field #1
-			pVid->ID.ValToString();								   // field #2
+			pVid->ID.ValToString() + delim +					   // field #2
 			// ISO 8601 extended format: yyyy-MM-dd for dates
-		s += pVid->uploadDate.toString(Qt::ISODate) + delim		   // field #3
+		    pVid->uploadDate.toString(Qt::ISODate) + delim		   // field #3
 			+ QString().setNum(pVid->fileSize) + delim			   // field #4
 			+ QString("%1\n").arg(pVid->pathId);
 		_ofs << s;

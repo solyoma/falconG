@@ -2192,7 +2192,7 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 		ID_t id = _ReadImageOrVideoFromStruct(reader, 0, nullptr, true);
 		ok = reader.Ok();
 	}
-	rline = reader.ReadLine();	// path table or first album line
+	rline = reader.ReadLine();	// first album line
 	if (!reader.Ok())
 		throw BadStruct(reader.ReadCount(), FalconG::tr("Missing ']'"));
 	return true;
@@ -2986,6 +2986,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 			if (!_ReadOrphanTable(reader))
 				throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid orphan table"));
 
+			// 1st directory must be the (root directory)
 			// from now on we need the empty lines as well
 			// root directory may also contain name and path
 			rline = reader.l();
@@ -2993,7 +2994,8 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 			{
 				bool b;
 				QStringList sl1 = __albumMapStructLineToList(rline, b);
-				if(sl1.size() > 2 && sl1[1] != "1")
+				ID_t id(sl1[1], ALBUM_ID_FLAG);
+				if(sl1.size() > 2 && id.Val() != TOPMOST_ALBUM_ID.Val())
 					throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
 			}
 

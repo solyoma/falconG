@@ -227,7 +227,7 @@ public:
 	constexpr uint64_t Val() const { return _uval; }
 	QString ValToString() const 
 	{ 
-		if (_dirIndex) 
+		if (_dirIndex && _dirIndex != NOT_SET) 
 			return QString("%1i%2").arg(_uval).arg(_dirIndex); 
 		else 
 			return QString().setNum(_uval); 
