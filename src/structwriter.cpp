@@ -109,11 +109,9 @@ void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
 		if (pImg->dontResize)
 			s +="!!";
 		s += pImg->name  															// field #1
-			+ ddelim +
-			QString().setNum(pImg->ID.Val());										// field #2
-		if (pImg->dirIndex)
-			s +="i" + QString().setNum(pImg->dirIndex);
-		s += QString("%1x%2").arg(pImg->rsize.width()).arg(pImg->rsize.height())	// field #3 - #4
+			+ ddelim 
+			+ pImg->ID.ValToString()												// field #2
+			+ QString("%1x%2").arg(pImg->rsize.width()).arg(pImg->rsize.height())	// field #3 - #4
 			+ delim
 			+ QString("%1x%2").arg(pImg->osize.width()).arg(pImg->osize.height())	// field #5 - #6
 			+ delim
@@ -160,9 +158,7 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 	{
 		s = indent +
 			pVid->name + ddelim +								   // field #1
-			QString().setNum(pVid->ID.Val());					   // field #2
-		if(pVid->dirIndex)
-			s += "i" + QString().setNum(pVid->dirIndex);
+			pVid->ID.ValToString();								   // field #2
 			// ISO 8601 extended format: yyyy-MM-dd for dates
 		s += pVid->uploadDate.toString(Qt::ISODate) + delim		   // field #3
 			+ QString().setNum(pVid->fileSize) + delim			   // field #4
@@ -234,8 +230,8 @@ void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
 		<< album.name << (album.changed ? "(C:" : "(A:") << album.ID.Val(); 
-	if (album.dirIndex)
-		_ofs << "i" << album.dirIndex;
+	if (album.ID.DirIndex())
+		_ofs << "i" << album.ID.DirIndex();
 	_ofs << ")" << /*s*/ album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);

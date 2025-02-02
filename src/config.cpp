@@ -294,6 +294,20 @@ _CDirStr _CDirStr::operator+(const QString subdir)
 	return (*this) + path;
 }
 
+/*=============================================================
+ * TASK   : when dirId is not 0 and not NOT_SET create a path
+ *			string that ends with "-<dirid>/"
+ * PARAMS : dirid
+ * EXPECTS:
+ * GLOBALS: config
+ * RETURNS: modified path
+ * REMARKS:
+ *------------------------------------------------------------*/
+QString _CDirStr::AddDirId(uint dirid)
+{
+	return config.AddDirId(ToString(), dirid); // path will 
+}
+
 /*===========================================================================
  * TASK: assig a bool to a CBOOL
  * EXPECTS: s - bool
@@ -1504,6 +1518,27 @@ QString CONFIG::AddSourceToPath(QString s) const
 	// relative path
 	return sd + s;
 }
+/*=============================================================
+ * TASK   :when dirId is not 0 and not NOT_SET create a path
+ *			string that ends with "-<dirid>/"
+ * PARAMS : path  - original path, ending with '/'
+ *			dirid - id of directory to append to path
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: - if dirid is 0 or NOT_SET returns path
+ *			- path must end with '/'
+ *------------------------------------------------------------*/
+QString CONFIG::AddDirId(QString path, uint dirid)
+{
+	if (dirid && dirid != NOT_SET)
+	{
+		path.chop(1);	// remove '/'
+		path.append('-').append(QString::number(dirid)).append('/');
+	}
+	return path;
+}
+
 /*===========================================================================
  * TASK:  assign other configuration parameters
  * EXPECTS:	cfg - other config
@@ -1728,6 +1763,8 @@ void CONFIG::Read()		// synchronize with Write!
 	bOvrImages.Read(s);
 	bSourceRelativeForwardSlash.Read(s);
 	bFacebookLink.Read(s);
+	bUseMaxItemCountPerDir.Read(s);
+	nMaxItemsInDirs.Read(s);
 
 	dsImageDir.Read(s);
 	dsVideoDir.Read(s);
@@ -1871,6 +1908,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	bOvrImages.Write(s);
 	bSourceRelativeForwardSlash.Write(s);
 	bFacebookLink.Write(s);
+	bUseMaxItemCountPerDir.Write(s);
+	nMaxItemsInDirs.Write(s);
 
 	dsImageDir.Write(s);
 	dsVideoDir.Write(s);
@@ -1961,6 +2000,37 @@ void CONFIG::Write()			// synchronize with Read!
 	__bClearChangedFlag = false;
 
 	ClearChanged();
+}
+
+/*=============================================================
+ * TASK   : set dirIndex for the actual item in a given map
+ * PARAMS : dirIndex - value from actual item
+ *			size - size of the map
+ *			lastN - last value of dirIndex stored in the map
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS: new directory index
+ * REMARKS:	- max. # of items in one directory is (nMaxItemsInDirs*1000)
+ *			  unless bUseMaxItemCountPerDir is false, when it is
+ *			  unlimited
+ *			- if the value of 'dirIndex is not 0 
+ *			  or dirIndex is 0 then the input value is returned
+ * 
+ *------------------------------------------------------------*/
+uint CONFIG::GetDirIndexFor(uint& dirIndex, int size, uint& lastN) const
+{
+	if (dirIndex  || !bUseMaxItemCountPerDir)
+		return dirIndex;
+
+	uint di = (++size + (nMaxItemsInDirs * 1000 - 1))/ (nMaxItemsInDirs * 1000) - 1;
+	if (di > lastN)
+	{
+		lastN = di;
+		dirIndex = di;
+	}	
+	else
+		dirIndex = lastN;
+	return dirIndex;
 }
 
 QString _CTextAlign::ForStyleSheet(bool addSemiColon) const

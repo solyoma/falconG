@@ -193,7 +193,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
 	ui.setupUi(this);
-	ui.lblVersion->setText(QString(tr("falconG Version - %1.%2.%3")).arg(majorStructVersion).arg(minorStructVersion).arg(subStructVersion)); // in support.h
+	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorStructVersion).arg(minorStructVersion).arg(subStructVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
 
 #if defined Q_OS_WINDOWS
@@ -532,6 +532,8 @@ void FalconG::on_btnGenerate_clicked()
 		ui.btnExit->setEnabled(false);
 		ui.actionExit->setEnabled(false);
 		ui.btnPreview->setEnabled(false);
+		ui.chkUseMaxItemCountPerDir->setEnabled(false);
+		ui.sbMaxItemCountPerDir->setEnabled(false);
 
 		QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -586,6 +588,8 @@ void FalconG::on_btnGenerate_clicked()
 
 		ui.btnExit->setEnabled(true);
 		ui.actionExit->setEnabled(true);
+		ui.chkUseMaxItemCountPerDir->setEnabled(true);
+		ui.sbMaxItemCountPerDir->setEnabled(true);
 
 		--_running;
 		if (_phase != -1)
@@ -3800,7 +3804,7 @@ void FalconG::on_sbMaxItemCountPerDir_valueChanged(int n)
 	if (_busy)
 		return;
 	++_busy;
-	config.nFilesInOneDir.v = n;
+	config.nMaxItemsInDirs.v = n;
 	config.SetChanged(true);
 	--_busy;
 }

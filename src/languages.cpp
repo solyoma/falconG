@@ -1,6 +1,7 @@
 #include <QMainWindow>
-#include "enums.h"
-using namespace Enums;
+#include "common.h"
+using namespace Common;
+
 #include "support.h"
 #include "crc32.h"
 #include "config.h"

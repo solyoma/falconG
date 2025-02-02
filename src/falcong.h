@@ -6,8 +6,8 @@
 #include <QtWebEngineWidgets/QWebEngineProfile>
 #include <QtWebEngineWidgets/QWebEngineView>
 
-#include "enums.h"
-using namespace Enums;
+#include "common.h"
+using namespace Common;
 
 #include "support.h"
 #include "config.h"

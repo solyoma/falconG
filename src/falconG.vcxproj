@@ -266,7 +266,7 @@
     <ClInclude Include="crc32.h" />
     <QtMoc Include="treeView.h" />
     <QtMoc Include="sourcehistory.h" />
-    <ClInclude Include="enums.h" />
+    <ClInclude Include="common.h" />
     <QtMoc Include="imageviewer.h" />
     <QtMoc Include="hidden.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

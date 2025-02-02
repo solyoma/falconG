@@ -54,6 +54,172 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout_20">
+    <item row="1" column="0">
+     <widget class="QWidget" name="pnlButtons" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>41</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QPushButton" name="btnGenerate">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Generate (F9)</string>
+         </property>
+         <property name="shortcut">
+          <string>F9</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkGenerateAllPages">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>&amp;all pages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkRegenAllImages">
+         <property name="text">
+          <string>all i&amp;mages</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoImages">
+         <property name="text">
+          <string>except images</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPreview">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Preview (F12)</string>
+         </property>
+         <property name="shortcut">
+          <string>F12</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>200</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblVersion">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="text">
+          <string>falconG - Ver. 1.2.x</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_20">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>200</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveStruct">
+         <property name="toolTip">
+          <string>Save struct file (Debug only)</string>
+         </property>
+         <property name="text">
+          <string>Save struct</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveStyleSheet">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save CSS</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save con&amp;fig.</string>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkCleanUp">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Clean up and</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnExit">
+         <property name="text">
+          <string>E&amp;xit (Alt+X)</string>
+         </property>
+         <property name="shortcut">
+          <string>Alt+X</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabFalconG">
       <property name="minimumSize">
@@ -287,7 +453,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Gallery root directory</string>
+              <string>Root gallery folder</string>
              </property>
              <property name="buddy">
               <cstring>edtGalleryRoot</cstring>
@@ -307,7 +473,7 @@
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually 'public_html' in your home directory. This will be the directory of the top level Web page(s).  All of falconG's other files and directories will be inside this directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
-              <string>Path of gallery root  on your site,. default: empty</string>
+              <string>Path of gallery root on your site. Default: leave this field empty</string>
              </property>
             </widget>
            </item>
@@ -762,7 +928,7 @@
                </property>
               </widget>
              </item>
-             <item row="9" column="2">
+             <item row="9" column="2" colspan="2">
               <widget class="QCheckBox" name="chkSeparateFoldersForLanguages">
                <property name="font">
                 <font>
@@ -772,10 +938,10 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked HTML files for the different languages will be put into separate folders with names of the country codes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Example: two languages (en_US and hu_HU) then the name &lt;span style=&quot; font-weight:600;&quot;&gt;album12345.html&lt;/span&gt;  will be used in both folders &lt;span style=&quot; font-weight:600;&quot;&gt;en_US&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;hu_HU &lt;/span&gt;inside &lt;span style=&quot; font-weight:600;&quot;&gt;albums&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If unchecked: each albums will be put in the same folder, but the country code will be used as a suffix.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Example: &lt;span style=&quot; font-weight:600;&quot;&gt;album12345-hu_HU.html&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;album12345-en_US.html &lt;/span&gt;will be put into the same folder &lt;span style=&quot; font-weight:600;&quot;&gt;albums&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;We suggest, unless you have very many albums ( more than a few thousand) leave this unchecked.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked and more than one language is specified then album (.html) &lt;br/&gt;files for each language will be put into separate album folders instead &lt;br/&gt;of the same one. &lt;/p&gt;&lt;p&gt;Example: two languages (en_US and hu_HU), name of album folder&lt;br/&gt;is the default 'albums' and maximum item count is unlimited. Then file &lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;albumXXX_en.html&lt;/span&gt; is put into folder &lt;span style=&quot; font-weight:600;&quot;&gt;en_US&lt;/span&gt; inside folder &lt;span style=&quot; font-weight:600;&quot;&gt;albums&lt;/span&gt; and &lt;br/&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;albumXXX_hu.html&lt;/span&gt; is put into folder &lt;span style=&quot; font-weight:600;&quot;&gt;en_US&lt;/span&gt; inside &lt;span style=&quot; font-weight:600;&quot;&gt;albums.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Leave this unchecked unless you have more than a few thousand albums.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Separate Folders for Languages</string>
+                <string>Separate folder for each languages</string>
                </property>
               </widget>
              </item>
@@ -810,11 +976,7 @@
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Will generate a web page for the last uploaded images.
-As many javascript (.js) files will be generated as you have languages
-(i.e. latestList.js for a single language, latestList_en.js, latestList_hu.js
-for two languages, English and Hungarian).
-</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Will generate a web page to display a given&lt;br/&gt;number of images randomly selected from the &lt;br/&gt;last 100 images created in the time period given here.&lt;/p&gt;&lt;p&gt;Also creates javascript files for the list of these images &lt;br/&gt;for each language.&lt;/p&gt;&lt;p&gt;For a single language a single .js file: &lt;span style=&quot; font-style:italic;&quot;&gt;latestList.js&lt;/span&gt; is used, &lt;br/&gt;for two languages, (e.g. en_US and hu_HU) two .js files &lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;latestList_en.js, latestList_hu.js&lt;/span&gt; are generated.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>Generate</string>
@@ -1016,7 +1178,7 @@ every time you refresh the album page.</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>100</height>
+                <height>0</height>
                </size>
               </property>
               <property name="font">
@@ -1054,7 +1216,7 @@ every time you refresh the album page.</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) enclose it into quotes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) use quotes around it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
                   <string>Comma separated font names on Google</string>
@@ -1172,8 +1334,42 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
               <property name="title">
                <string>Advanced (you may leave these alone)</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_17">
+              <layout class="QGridLayout" name="gridLayout_17" columnstretch="1,2,1,2,0">
                <item row="0" column="0">
+                <widget class="QLabel" name="label_22">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Album Folder</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtAlbumDir</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="edtAlbumDir">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base folder name for all albums inside&lt;br/&gt;gallery root unless absolute path is &lt;br/&gt;set here.&lt;/p&gt;&lt;p&gt;If maximum item count is used or&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Separate folder for each language&lt;/span&gt;&lt;br/&gt;is checked album names will start with this.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>albums</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
                 <widget class="QLabel" name="label_56">
                  <property name="minimumSize">
                   <size>
@@ -1189,15 +1385,15 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                   </font>
                  </property>
                  <property name="text">
-                  <string>Image Directory</string>
+                  <string>Image Folder</string>
                  </property>
                  <property name="buddy">
                   <cstring>edtThumb</cstring>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_8">
+               <item row="0" column="3" colspan="2">
+                <widget class="QLineEdit" name="edtImg">
                  <property name="font">
                   <font>
                    <family>Arial</family>
@@ -1205,12 +1401,15 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                    <bold>false</bold>
                   </font>
                  </property>
-                 <property name="text">
-                  <string>Video Directory</string>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base folder name for images. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute&lt;br/&gt;path is entered here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>imgs</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="3">
+               <item row="1" column="0">
                 <widget class="QLabel" name="label_45">
                  <property name="font">
                   <font>
@@ -1227,7 +1426,95 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                 </widget>
                </item>
-               <item row="1" column="3">
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="edtBaseName">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All albums are referred as &amp;lt;base link name&amp;gt;&amp;lt;index number&amp;gt; &lt;br/&gt;not by their album name, which may contain any UTF-8 characters.&lt;/p&gt;&lt;p&gt;Example: the album &lt;span style=&quot; font-style:italic;&quot;&gt;'Őrség&amp;quot;&lt;/span&gt; may be referred as&lt;span style=&quot; font-style:italic;&quot;&gt; album123456.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>album</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLabel" name="label_8">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Video Folder</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3" colspan="2">
+                <widget class="QLineEdit" name="edtVid">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base folder name for videos. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute path is&lt;br/&gt;entered here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>vids</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_23">
+                 <property name="minimumSize">
+                  <size>
+                   <width>93</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Thumbnails into</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtThumb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="edtThumb">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base folder name for thumbnails.&lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute path &lt;br/&gt;is entered here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>thumbs</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
                 <widget class="QLabel" name="label_43">
                  <property name="font">
                   <font>
@@ -1241,27 +1528,10 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_22">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Album Directory </string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtAlbumDir</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="4">
+               <item row="2" column="3">
                 <widget class="QSpinBox" name="sbMaxItemCountPerDir">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="font">
                   <font>
@@ -1290,115 +1560,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                  </property>
                 </widget>
                </item>
-               <item row="0" column="3">
-                <widget class="QLabel" name="label_23">
-                 <property name="minimumSize">
-                  <size>
-                   <width>93</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Thumbnails into</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtThumb</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QLineEdit" name="edtAlbumDir">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all albums. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>albums</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="edtVid">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all videos. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>vids</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="edtImg">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>imgs</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="4" colspan="2">
-                <widget class="QLineEdit" name="edtThumb">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory for all images. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Inside gallery root if no absolute or relative path is given.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>thumbs</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="4" colspan="2">
-                <widget class="QLineEdit" name="edtBaseName">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All albums are referred as &amp;lt;base link name&amp;gt;&amp;lt;index number&amp;gt; &lt;br/&gt;not by their album name, which may contain any UTF-8 characters.&lt;/p&gt;&lt;p&gt;Example: the album &lt;span style=&quot; font-style:italic;&quot;&gt;'Őrség&amp;quot;&lt;/span&gt; may be referred as&lt;span style=&quot; font-style:italic;&quot;&gt; album123456.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>album</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="5">
+               <item row="2" column="4">
                 <widget class="QCheckBox" name="chkUseMaxItemCountPerDir">
                  <property name="font">
                   <font>
@@ -1406,6 +1568,9 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
                    <weight>50</weight>
                    <bold>false</bold>
                   </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unchecked: unlimited items&lt;/p&gt;&lt;p&gt;are allowed in the same folder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>use</string>
@@ -1436,7 +1601,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
           <item row="1" column="1">
            <widget class="QCheckBox" name="chkLowerCaseImageExtensions">
             <property name="text">
-             <string>Lower case image extensions</string>
+             <string>Lower case extensions (e.g. &quot;.jpg&quot;)</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -1462,7 +1627,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add title fields for images in 'gallery struct', which dosn't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Title fields for all</string>
+             <string>Create title fields for all</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -1511,7 +1676,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add description fields for images in 'gallery struct', which don't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Description fields for all</string>
+             <string>Create description fields for all</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -1962,8 +2127,8 @@ when their source is no longer present</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -2355,7 +2520,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>426</width>
+                         <width>419</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -5429,8 +5594,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7581,172 +7746,6 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QWidget" name="pnlButtons" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>41</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QPushButton" name="btnGenerate">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Generate (F9)</string>
-         </property>
-         <property name="shortcut">
-          <string>F9</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkGenerateAllPages">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>&amp;all pages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkRegenAllImages">
-         <property name="text">
-          <string>all i&amp;mages</string>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkNoImages">
-         <property name="text">
-          <string>except images</string>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnPreview">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Preview (F12)</string>
-         </property>
-         <property name="shortcut">
-          <string>F12</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>200</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblVersion">
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="text">
-          <string>falconG - Version 1.2.x</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_20">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>200</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveStruct">
-         <property name="toolTip">
-          <string>Save struct file (Debug only)</string>
-         </property>
-         <property name="text">
-          <string>Save struct</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveStyleSheet">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save CSS</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveConfig">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save con&amp;fig.</string>
-         </property>
-         <property name="shortcut">
-          <string>Ctrl+S</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkCleanUp">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Clean up and</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnExit">
-         <property name="text">
-          <string>E&amp;xit (Alt+X)</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+X</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>

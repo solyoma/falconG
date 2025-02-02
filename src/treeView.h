@@ -4,7 +4,7 @@
 #include <QTreeView>
 #include <QAbstractItemModel>
 
-#include "enums.h"
+#include "common.h"
 
 /*============================================================================
   * TASK:		model for tree view of albums

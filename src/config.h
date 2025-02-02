@@ -2,8 +2,9 @@
 #pragma once
 
 #include <QtCore>
-#include "enums.h"
-using namespace Enums;
+#include "common.h"
+using namespace Common;
+
 #include "support.h"
 #include "stylehandler.h"
 
@@ -96,7 +97,6 @@ protected:
 
 struct _CString : public _CFG_ITEM<QString>
 {
-
 	_CString(QString vd, QString namestr) : _CFG_ITEM(vd, namestr) {}
 	_CString() : _CFG_ITEM(QString(), "cstring") {}
 
@@ -104,12 +104,11 @@ struct _CString : public _CFG_ITEM<QString>
 	QString& operator=(const _CString& s) { _CFG_ITEM::operator=(s);  return v; };
 	bool operator==(const QString s) { return v == s; }
 	bool operator==(const _CString &s) { return v == s.v; }
-//	operator const QString() const { return ToString(); }
 	operator QString() const { return ToString(); }
 	void Clear() { v.clear(); }
 	bool IsEmpty() const { return v.isEmpty();  }
-	QString ToString() const { return v.isEmpty() ? vd : v; }
 	int Length() const { return ToString().length(); }
+	QString ToString() const { return v.isEmpty() ? vd : v; }
 };
 
 //--------------------------------------------------------------------------------------------
@@ -135,6 +134,8 @@ struct _CDirStr : public _CString	 // always ends with '/'
 			qs += "/"; 
 		return qs;
 	}
+
+	QString AddDirId(uint dirid);
 private:
 	void _Setup() override { AddSep(v); AddSep(v0); AddSep(vd); }
 };
@@ -1003,7 +1004,7 @@ public:
 
 	int majorStructVersion = 1, 		// version read from config file 1.2.
 		minorStructVersion = 2,			// C.f. support.h constexpr with same names
-		subStructVersion = 6;			// 	
+		subStructVersion = 8;			// 	the value in falconG.ui is overwritten on run
 	bool dontRegenerateAnyImage = false;
 	StyleHandler styleHandler;	// for the main window with all of its elements
 
@@ -1012,6 +1013,7 @@ public:
 
 	long AlbumVersion() const { return (majorStructVersion << 16) + (minorStructVersion << 8) + subStructVersion; }
 
+	uint GetDirIndexFor(uint &dirIndex, int size, uint &lastN) const;	// depends on 'bUseMaxItemCountPerDir' and 'nMaxItemsInDirs'
 	bool Changed() const		
 	{ 
 		return _changed; 
@@ -1022,12 +1024,14 @@ public:
 		_changed |= chg; 
 		return _changed; 
 	}
+
 	void ClearChanged();
 
 	CONFIG &operator=(const CONFIG &cfg);
 
 	QString RemoveSourceFromPath(QString path) const;
 	QString AddSourceToPath(QString path) const;	// conditionally
+	QString AddDirId(QString path, uint dirid);
 
 	void FromDesign(const CONFIG &cfg);	// set designer part of cfg 
 	void FromOther(const CONFIG &cfg);	// set other part from cfg
@@ -1090,7 +1094,7 @@ public:
 	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
 	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// lats new image is loaded from here
 
-	_CInt nFilesInOneDir = { 0, "nFilesInOneDir" };		// n = 0: any number, n < 1000 => 1000, n > 1000 => n
+	_CInt nMaxItemsInDirs = { 0, "nMaxItemsInDirs" };		// n = 0: any number, n < 1000 => 1000, n > 1000 => n
 
 
 	_CBool bCleanupGalleryAfterGenerate = { true, "bCleanUp" };
@@ -1099,7 +1103,7 @@ public:
 	_CBool bAddTitlesToAll = {false,"bAddTitlesToAll"};		// into gallery.struct
 	_CBool bAddDescriptionsToAll = {false,"bAddDescriptionsToAll"}; // into gallery.struct
 	_CBool bLowerCaseImageExtensions = {true,"bLowerCaseImageExtensions"}; // convert all image extensions to lowercase
-	_CBool bUseMaxItemCountPerDir = { false,"bUseMaxItemCountPerDir" };	// use the value in 'ui.sbMaxItemCountPerDir' ?
+	_CBool bUseMaxItemCountPerDir = { false,"bUseMaxItemCountPerDir" };	// use the value in 'nMaxItemsInDirs' ?
 	_CBool bReadFromGallery = {false,"bReadFromGallery"};	// read back from HTML files in gallery (you loose original names and paths!
 		// next three bools will not be read from or saved into the configuration file
 	_CBool bRegenerateAllImages = { false, "bRegereateImages" };	// all images must be re-generated

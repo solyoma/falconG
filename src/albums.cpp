@@ -7,7 +7,7 @@
 #include <atomic>
 #include <chrono>
 
-#include "enums.h"
+#include "common.h"
 #include "albums.h"
 #include "falcong.h"
 #include "csscreator.h"
@@ -16,6 +16,8 @@
 #if QT_VERSION < 0x051000
     #define created created
 #endif
+
+bool AlbumGenerator::bSetDirIndexToo = false;
 
 PathMap pathMap;	// id -> path, path->id of source folders relative to dsSrc
 
@@ -225,6 +227,22 @@ IABase& IABase::operator=(const IABase& a)
 	return *this;
 }
 
+void IABase::SetDirIndexFor(int size, uint& lastDirIndex)	// depends on 'bUseMaxItemCountPerDir' and 'nMaxItemsInDirs'
+{
+	if (config.bUseMaxItemCountPerDir)
+	{
+		uint di = 0;
+		config.GetDirIndexFor(di, size, lastDirIndex);
+		ID.SetDirIndex(di);
+		changed = true;
+	}
+	else if (ID.DirIndex() && ID.DirIndex() != NOT_SET)
+	{
+		ID.SetDirIndex(0);
+		changed = true;
+	}
+}
+
 bool IABase::Valid() const { return ID.Val(); }
 bool IABase::Exists(bool bPhysicalCheck)
 {
@@ -294,9 +312,10 @@ int Image::operator<(const Image& i)
 {
 	switch (searchBy)
 	{
-	case byID: return ID < i.ID;
-	case byName: return name < i.name;
-	default: return pathId < i.pathId || (pathId == i.pathId && name < i.name);
+		case byID: return ID < i.ID;
+		case byBaseID: return (ID.Val() & BASE_ID_MASK) < (i.ID.Val() & BASE_ID_MASK);
+		case byName: return name < i.name;
+		default: return pathId < i.pathId || (pathId == i.pathId && name < i.name);
 	}
 }
 
@@ -310,10 +329,10 @@ bool Image::operator==(const Image& i)
 {
 	switch (searchBy)
 	{
-	case byID: return ID == i.ID;
-	case byBaseID: return (ID.Val()) == (i.ID.Val()) ? (name.toLower() == i.name.toLower() ? true : false) : false;
-	case byName: return name == i.name;
-	default: return pathId == i.pathId && name == i.name;
+		case byID: return ID == i.ID;
+		case byBaseID: return (ID.Val() & BASE_ID_MASK) == (i.ID.Val() & BASE_ID_MASK) ? (name.toLower() == i.name.toLower() ? true : false) : false;
+		case byName: return name == i.name;
+		default: return pathId == i.pathId && name == i.name;
 	}
 }
 
@@ -761,10 +780,12 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	if (!forThumbNail)		// thumbNailCount is increased in SetThumbNail
 		++img.usageCount;
 
+	if (albumgen.bSetDirIndexToo)
+		img.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
+
 	insert(id, img);
 	return id;
 }
-
 /*=============================================================
  * TASK   : remove on image from imageMap
  * PARAMS :	id: ID of image to remove
@@ -779,6 +800,7 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
  *				the image data is removed from the data base
  *			- if the image down't exis nothing happens
  *------------------------------------------------------------*/
+
 void ImageMap::Remove(ID_t id, bool isThumbnail)
 {
 	if (!contains(id))
@@ -1199,6 +1221,9 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 	if (ab.Exists())
 		AlbumGenerator::lastUsedAlbumPathId = pathMap.Add(path + ab.name + "/");
 	added = true;		// always add, even when it does not exist
+	if(albumgen.bSetDirIndexToo)
+		ab.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
+	
 	(*this)[ab.ID] = ab;
 	return ab.ID;
 }
@@ -1346,7 +1371,7 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 
 	if (ftyp == ftImage)
 		id = _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
-	else
+	else										// also set dirIndex when 'bUseMaxItemCountPerDir' is true
 		id = _videoMap.Add(imagePath, added);
 	return id.ClearNonTypeFlags();
 }
@@ -1382,7 +1407,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(ID_t parentID, QFileInfo & fi, bool signalE
 		QString ds = fi.fileName();
 		if (ds == "res" || ds == "cache" || ds == "thumbs")
 			return { ALBUM_ID_FLAG,0 };
-		id = _albumMap.Add(parentID, s, added);		// add new album to global album list
+		id = _albumMap.Add(parentID, s, added);	// add new album to global album list
 		ab = AlbumForID(parentID);	// might have change item in memory
 		Q_ASSERT(ab);
 	}
@@ -1740,6 +1765,7 @@ void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
 bool AlbumGenerator::Read(bool bMustReRead)
 {
 	_processing = true;
+	bSetDirIndexToo = false;
 
 	emit SignalAlbumStructWillChange();
 
@@ -1793,6 +1819,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 	emit SignalAlbumStructChanged(true);	// show list of albums in GUI
 //	if (result)
 //		_structAlreadyInMemory = true;
+	bSetDirIndexToo = true;	// so for new items will always check ad set the dirIndex when config.bUseMaxItemCountPerDir is true
 	return result;
 }
 //*****      END OF READ PART, START OF WRITE PART  *****
@@ -2382,7 +2409,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 	if(!n)
 	{
 		ShowWarning(tr("Invalid file type for image or video in line %1").arg(reader.ReadCount()), frmMain);
-		return { 0,INVALID_ID_FLAG };
+		return ID_t(INVALID_ID_FLAG, 0);
 	}
 	// if no path was given then 5 or 9
 							// if only the path name was given then just the first two
@@ -2606,7 +2633,7 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 	if (pos < 0)
 		return sl;
 
-	sl.push_back(s.mid(pos0, pos - pos0));	// ID as string
+	sl.push_back(s.mid(pos0, pos - pos0));	// ID as string	(including dirIndex)
 	if (pos + 1 < s.length())
 		sl.push_back(s.mid(pos + 1));		// path, or path ID as string
 	return sl;
@@ -2667,7 +2694,10 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	else
 	{
 		album.name = sl[0];
-		id = (n > 1 ? ID_t(ALBUM_ID_FLAG, sl[1].toULongLong()) : TOPMOST_ALBUM_ID);	// n == 0 => root album, already added;
+		if (n < 2)
+			id = TOPMOST_ALBUM_ID;			 // n == 1 => root album, already added;
+		else
+			id = ID_t(sl[1], ALBUM_ID_FLAG);
 		album.ID = id;
 	}
 	// DEBUG
@@ -3040,12 +3070,13 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 }
 
 /*============================================================================
-  * TASK:   recrates album structure but can't recover album paths and
-  *			image names or dimensions
+  * TASK:   to recrate album structure from an existing album 
+  *			(but can't recover album paths and image names or dimensions)
   * EXPECTS:config is set up
   * RETURNS: true wen success and album in memory and writes gallery.struct.recovered
   * GLOBALS: config
-  * REMARKS: use in an emergency when both the gallery.struct and the gallerry.struct~
+  * REMARKS: TODO
+  *			 use in an emergency when both the gallery.struct and the gallerry.struct~
   *				files are lost
   *			 if any version of the same gallery struct exists then at least some of the
   *				lost information may be recovered by hand
@@ -4014,7 +4045,8 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 * GLOBALS: config, Languages, _actLanguage
 * RETURNS:	0: OK, -1: album does not exist, -2: image does not exist
 * REMARKS:  - root albums (ID == TOPMOST_ALBUM_ID) are written into gallery root, others
-*			  are put into directory 'albums'
+*			  are put into directory 'albums' (when _dirIndex is 0) or 'albums-<dirIndex>'
+*		      when it isn't	 0
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
 *--------------------------------------------------------------------------*/
@@ -4045,10 +4077,11 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 	}
 	else
 	{
-		sAlbumDir = "";			   // non root album: other albums are here
+		// ? do i need to specify the album in which the images are?
+		sAlbumDir = "";
 		sOneDirUp = "../";		   // and img directory here
 	}
-
+			   // these paths don't contain dirId
 	sImageDir = (QDir::isAbsolutePath(config.dsImageDir.ToString())		? "" : sOneDirUp) + config.dsImageDir.ToString();
 	sThumbnailDir = (QDir::isAbsolutePath(config.dsThumbDir.ToString()) ? "" : sOneDirUp) + config.dsThumbDir.ToString();
 
@@ -4056,7 +4089,6 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 	ID_t thumb;
 	if (isAlbum)
 	{
-
 		if (idIndex >= 0)
 			thumb = ThumbnailID(_albumMap[id], _albumMap);
 		else
@@ -4069,8 +4101,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 				pImage = &_imageMap[thumb];
 			else	  // the thumbnail image is not in data base, but
 			{		  // it can be present on the disk so set paths from it
-				sImagePath = sImageDir + QString("%1.jpg").arg(thumb.Val());
-				sThumbnailPath = sThumbnailDir + QString("%1.jpg").arg(thumb.Val());
+				sImagePath = config.AddDirId(sImageDir, thumb.DirIndex())			+ QString("%1.jpg").arg(thumb.Val());
+				sThumbnailPath = config.AddDirId(sThumbnailDir, thumb.DirIndex())	+ QString("%1.jpg").arg(thumb.Val());
 				if (!QFile::exists(sImagePath) || !QFile::exists(sThumbnailPath))
 				{
 					sImagePath.clear(); sThumbnailPath.clear();
@@ -4252,18 +4284,31 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 
 /*============================================================================
 * TASK: Creates one html file for a given album
-* EXPECTS:	album ,
-*			Language - index of actual language
-*			uplink - uplink : one level up
-*			processedCount - output parameter
+* EXPECTS:	f		- IN file to write to, name determined in caller
+*			album	- IN actual album to write,
+*			Language- IN index of actual language
+*			uplink	- IN uplink : one level up
+*			processedCount - OUT
 * GLOBALS:	'config'
 *				uplink - used as 'uplink' with the uplink button (unless top level)
 *				homeLink - The 'home' button links to this page
 *
 * RETURNS: 0: OK, 16: error writing file
-* REMARKS: - root albums (ID == TOPMOST_ALBUM_ID) are written into gallery root, all others in 'albums'
-*			  so sub-album links must point into the 'albums' sub -directory EXCEPT for
-*		   - non root
+* REMARKS: 	- only called if either album is changed or must recreate all albums!
+*			- root albums (ID == TOPMOST_ALBUM_ID) are written into gallery root, 
+*			 others into folders determined by settings in 'config':
+*				config.bUseMaxItemCountPerDir    config.bSeparateFoldersForLanguages
+*					false							  false
+*							'albums' directory
+*					false							  true
+*							'albums/<language string>' directories
+*					true							  false
+*							'albums-<dirIndex>' directories
+* 					true							  true
+* 							'albums-<dirIndex>/<language string>' directories
+*			 but this is determined in caller wher the path of f is set
+*		   - links for images, videos and albums inside this album 
+*				must also reflect these settings
 *--------------------------------------------------------------------------*/
 int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, QString uplink, int & processedCount)
 {
@@ -4298,7 +4343,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	{
 		_ofs << "<br><br><!-- section for latest uploads -->\n"
 			<< "    <section id=\"latest-section\">\n";
-		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads> the thumbnail is set by javascript 'GetRandomLastImage()'
+		_WriteGalleryContainer(album, ALBUM_ID_FLAG, -1);		// -1: latest uploads: the thumbnail is set by javascript 'GetRandomLastImage()'
 
 		_ofs << "    </section>\n<!-- end section for latest uploads -->\n";
 	}
@@ -4309,10 +4354,6 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 			<< "    <div id=\"images\" class=\"fgsection\">" << (*languages["images"])[_actLanguage] << "</div>\n"
 			<< "    <section id=\"images-section\">\n";
 		// for the images first: content added in javascript (falconG.js)
-		//// first the images
-		//for (int i = 0; _processing && i < album.items.size(); ++i)
-		//	if(album.items[i].IsImage() && !(album.items[i].IsExcluded()))
-		//		_WriteGalleryContainer(album, IMAGE_ID_FLAG, i);
 		_ofs << "    </section>\n<!-- end section Images -->\n";
 	}
 
@@ -4333,13 +4374,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		_ofs << "<!--start section albums -->\n"
 			<< "    <div id=\"albums\" class=\"fgsection\">" << (*languages["albums"])[_actLanguage] << "</div>\n"
 			"    <section id=\"albums-section\">\n";
-		// filled in injavascript
-		//for (int i = 0; _processing && i < album.items.size(); ++i)
-		//{
-		//	ID_t idSub = album.items[i];
-		//	if ((idSub.IsAlbum()) && !(_albumMap[idSub].ID.IsExcluded()))
-		//		_WriteGalleryContainer(album, ALBUM_ID_FLAG, i);
-		//}
+		// filled in in javascript
 		_ofs << "    </section>\n<!-- end section Albums -->\n";
 	}
 
@@ -5103,34 +5138,36 @@ ID_t VideoMap::Add(QString path, bool& added)
 	QFileInfo fi(path);
 
 	Video* found = Find({ VIDEO_ID_FLAG, id64 }); // check if a file with this same base id is already in data base?
-							  // can't use reference as we may want to modify 'found' below
-	if (config.bKeepDuplicates)
+												  // can't use reference as we may want to modify 'found' below
+	if (found)
 	{
-		do
-			id64 += ID_INCREMENT;
-		while (Find({ VIDEO_ID_FLAG, id64 }, false)); // full by ID
-	}
-	else
-	{
-		if (found->Valid())		  // yes an video with the same base ID as this video was found
-		{						  // the ID can still be different from the id of the found video though
-			do					  // loop thorugh all videos with the same base ID
-			{
-				if (found->name == vid.name)	// if name is the same too then same video
-				{								// even when they are in different directories!
-					if (found->ID.DoesExist())
-						if (!vid.ID.DoesExist() || (vid.ID.DoesExist() && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
-						{
-							++found->usageCount;
-							return found->ID;	  // do not change path as video already existed
-						}
-					id64 = found->ID.Val();		// else found video did not exist,
-					break;				// replace it with this video but with the same ID as the old one
-				}
-				else						// same ID, different name - new video
-					id64 += ID_INCREMENT;
-				// repeat until a matching name with the new ID is found or no more videos
-			} while ((found = Find({ VIDEO_ID_FLAG, id64 }, false))->Valid()); // full by ID
+		if (config.bKeepDuplicates)
+		{
+			while (Find({ VIDEO_ID_FLAG, id64 }, false)); // full by ID
+				id64 += ID_INCREMENT;
+		}
+		else
+		{
+			if (found->Valid())		  // yes an video with the same base ID as this video was found
+			{						  // the ID can still be different from the id of the found video though
+				do					  // loop thorugh all videos with the same base ID
+				{
+					if (found->name == vid.name)	// if name is the same too then same video
+					{								// even when they are in different directories!
+						if (found->ID.DoesExist())
+							if (!vid.ID.DoesExist() || (vid.ID.DoesExist() && (found->uploadDate >= fi.lastModified().date() || found->fileSize >= fi.size())))
+							{
+								++found->usageCount;
+								return found->ID;	  // do not change path as video already existed
+							}
+						id64 = found->ID.Val();		// else found video did not exist,
+						break;				// replace it with this video but with the same ID as the old one
+					}
+					else						// same ID, different name - new video
+						id64 += ID_INCREMENT;
+					// repeat until a matching name with the new ID is found or no more videos
+				} while ((found = Find({ VIDEO_ID_FLAG, id64 }, false))->Valid()); // full by ID
+			}
 		}
 	}
 	// now I have a new video to add
@@ -5142,6 +5179,9 @@ ID_t VideoMap::Add(QString path, bool& added)
 	}
 
 	added = true;
+	if (albumgen.bSetDirIndexToo)
+		vid.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
+
 	vid.ID = { VIDEO_ID_FLAG, id64 };
 	insert(vid.ID, vid);
 	return vid.ID;
@@ -5161,6 +5201,7 @@ int Video::operator<(const Video& i)
 	switch (searchBy)
 	{
 		case byID: return ID < i.ID;
+		case byBaseID: return (ID.Val() & BASE_ID_MASK) < (i.ID.Val() & BASE_ID_MASK);
 		case byName: return name < i.name;
 		default: return pathId < i.pathId || (pathId == i.pathId && name < i.name);
 	}

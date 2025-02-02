@@ -1,9 +1,12 @@
 #pragma once
+#ifndef COMMON_H
+#define COMMON_H
 
+#include <QtCore>
 #include <QString>
 #include <QMap>
 
-namespace Enums
+namespace Common
 {
 	enum DialogBitsOrder : int {
 		dboNone,
@@ -143,28 +146,93 @@ const uint8_t DELETE_IT_FLAG = 0x80;	// on albums this signals a real folder on 
 
 const uint8_t TYPE_FLAGS	= 0x0F;
 
+const uint NOT_SET = uint(-1);
+
+/*=============================================================
+ * Class to use as image/video/album ID
+ *  '_dirIndex', 'config.bSeparateFoldersForLanguage' 
+ *	'config.bUseMaxItemsPerDir' and 'config.nMaxItemsPerDir'
+ *	are used to determine which directory this item is to 
+ *	be stored
+ * 
+ * '_dirIndex' may be non 0 or NOT_SET only when
+ *  'config.bUseMaxItemsPerDir' is true
+ * 
+ * When config.bSeparateFoldersForLanguages is true then
+ * folders inside the ones shown below are used for items
+ * Example: language code string is en_US 
+ *			'config.bSeparateFoldersForLanguage' is true
+ *			and _dirIndex is 0 then English albums named 
+ *			albumXXXXX_en.html are stored
+ *			in the 'albums/en_US/' directory, and when _dirIndex is 1
+ *			in the 'albums-1/en_US/' directory.
+ * 
+ * Using the default folder names below:
+ * 	   when '_dirIndex' is NOT_SET or 0 use the base folders:
+ *				albums are stored in: 'albums'
+ *				images are stored in: 'imgs'
+ *				thumbs are stored in: 'thumbs'
+ *				videos are stored in: 'vids'
+ *	  when '_dirIndex' is any other value:
+ *				albums are stored in: albums-<dirIndex>
+ *				images are stored in: imgs-<dirIndex>
+ *				thumbs are stored in: thumbs-<dirIndex>
+ *				videos are stored in: vids-<dirIndex>
+ *		in this case these folders are created only when the number of items
+ *		would exceed 'config.nMaxItemsPerDir'.
+ * 
+ *	'_dirIndex' is also recorded in the .struct file after the ID and a
+ *		trailing letter 'i'. Example: 123456i7.
+ * 
+ * On album generation if the state of 'config.bUseMaxItemsPerDir' differs
+ *	 from the value  in the '.ini' file, all existing 'XXX-<dirIndex> named folders
+ * and files inside them are deleted from disk, and '_dirIndex' is recalculated
+ * using the new value, as follows:	If the new value of 'config.bUseMaxItemsPerDir'
+ * 
+ *	- is false then all '_dirIndex' values are set to 0
+ *	- is true then all files inside the base folders
+ *			are also deleted, the required number of non-base folders are created
+ *			The number of folders created is determined by the count of items in maps
+ *			albumMap, imageMap, videoMap and the value of 'config.nMaxItemsPerDir'
+ *		'_dirIndex' values for each items in each maps are calculated and set
+ *		In this case the state of chekckboxes 'chkGenerateAllPages', 
+ *		'chkRegenAllImages' and 'chkNoImages' are ignored and values 'false,fals,false'
+ *		are used instead
+ *
+ *		When new items are added new directories may be created.
+ *------------------------------------------------------------*/
+
 class ID_t
 {
-	uint64_t _uval = 0;
-	//struct _Flags
-	//{
-	//	uint8_t _isImage : 1;		// when set ID is for an image
-	//	uint8_t _isVideo : 1;		// when set ID is for a video
-	//	uint8_t _isAlbum : 1;		// when set ID is for an album
-	//	uint8_t _isExcluded : 1;	// when it should be excluded
-	//	uint8_t _isOrphan : 1;		// when not in any album just an album thumbnail
-	//	uint8_t _isExisting : 1;	// when the object (image, video, album) exists
-	//	uint8_t _isToDelete : 1;	// when set delete this from data base
-	//} _flags = { 0 };
-
+	uint64_t _uval = 0;			// bits 56-63 is not used so _flags may be put there, 
+	uint _dirIndex = NOT_SET;	// index of the directory this item is inside
 	uint8_t _flags=0;			// types and other _flags 
 public:
 	constexpr ID_t() {}
 	constexpr ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags) {}
 	constexpr ID_t(uint8_t _flags, uint64_t id) : _uval(id),_flags(_flags) {}
-	//ID_t(uint64_t val) : _uval(val) {}
+	ID_t(QString idString, uint8_t flags) : _flags(flags)
+	{
+		if (idString.isEmpty())
+			_uval = 0;
+		else if (idString.lastIndexOf('i') > 0)
+		{
+			_uval = idString.left(idString.lastIndexOf('i')).toULongLong();
+			_dirIndex = idString.mid(idString.lastIndexOf('i') + 1).toUInt();
+		}
+		else
+			_uval = idString.toULongLong();
+	}
 
 	constexpr uint64_t Val() const { return _uval; }
+	QString ValToString() const 
+	{ 
+		if (_dirIndex) 
+			return QString("%1i%2").arg(_uval).arg(_dirIndex); 
+		else 
+			return QString().setNum(_uval); 
+	}
+	constexpr uint DirIndex() const { return _dirIndex; }
 	constexpr uint8_t Flags() const { return _flags; }
 	inline static const ID_t Invalid(uint64_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
 	constexpr inline bool IsInvalid() const { return !_uval || !_flags; }
@@ -173,7 +241,10 @@ public:
 	{
 		_uval = val;
 	}
-
+	constexpr void SetDirIndex(uint dirIndex)	// do not use this directly but through config.SetDirIndexFor()
+	{
+		_dirIndex = dirIndex;
+	}
 	constexpr uint8_t SetFlag(uint8_t which, bool setIt=true)	// which can be contain _flags ORed
 	{														// returns resulting _flags
 		_flags &= ~which;
@@ -196,10 +267,11 @@ public:
 
 	constexpr inline ID_t& Increment(uint64_t inc) { _uval += inc; return *this; }
 
-	constexpr inline ID_t& operator=(const ID_t& v) { _uval = v._uval; _flags = v._flags; return *this; }
+	constexpr inline ID_t& operator=(const ID_t& v) { _uval = v._uval; _flags = v._flags; _dirIndex = v._dirIndex; return *this; }
 	//constexpr inline ID_t& operator=(const uint64_t v) { _uval = v; return *this; }
 
 	//constexpr inline bool operator==(const uint64_t v) const { return _uval == v; }
+	// in the following _dirIndex doesn't count
 	inline bool operator==(const ID_t v) const { return _uval == v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
 	inline bool operator!=(const ID_t v) const { return _uval != v._uval || (_flags & TYPE_FLAGS) != (_flags & TYPE_FLAGS); }
 	inline bool operator<(const ID_t v) const { return _uval < v._uval && (_flags & TYPE_FLAGS) == (v._flags & TYPE_FLAGS); }
@@ -208,11 +280,12 @@ public:
 	
 	constexpr inline bool IsSameType(uint8_t type) const { return (Flags() & TYPE_FLAGS & type) != 0; }
 
+	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
 	constexpr inline bool IsAlbum() const		{ return _flags & ALBUM_ID_FLAG; }
 	constexpr inline bool IsExcluded() const	{ return _flags & EXCLUDED_FLAG; }
 	constexpr inline bool IsImage() const		{ return _flags & IMAGE_ID_FLAG; }
 	constexpr inline bool IsVideo() const		{ return _flags & VIDEO_ID_FLAG; }
-	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
+	constexpr inline bool IsDirIndexSet() const	{ return _dirIndex != NOT_SET;   }
 	constexpr inline bool ShouldDelete() const	{ return _flags & DELETE_IT_FLAG; }
 };
 const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
@@ -224,3 +297,4 @@ const ID_t NOIMAGE_ID		= { IMAGE_ID_FLAG, 0 };
 using IntList = QVector<int>;
 using IdList = QVector<ID_t>;
 
+#endif // COMMON_H

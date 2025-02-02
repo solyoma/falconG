@@ -20,7 +20,7 @@
 	#include <QtDebug>
 #endif
 
-#include "enums.h"
+#include "common.h"
 #include "support.h"
 #include "config.h"
 #include "crc32.h"
@@ -120,34 +120,9 @@ struct IABase
 	
 	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
 
-	// 'this 'dirIndex' determines which directory this item is to be stored
-	// Items with 'dirIndex' == 0 are stored in the same directories
-	// as before, and 'dirIndex' is not recorded in the .struct file.
-	// i.e. albums are stored in albums, images in imgs, thumbnails in thumbs
-	// and videos in vids directories.
-	// 
-	// If it isn't 0 'dirIndex' is stored in the .struct file after the ID and a 
-	// trailing letter 'i'. Example: 123456i7. In this case items are stored in 
-	// directories depending on item type:
-	//				albums in: albums-<dirIndex>
-	//				images in: imgs-<dirIndex>
-	//				thumbs in: thumbs-<dirIndex>
-	//				videos in: vids-<dirIndex>
-
-	// When the state of checkbox 'chkUseMaxItemsPerDir' is changed relative to the value
-	// in the .ini file, then on album generation all existing directories with 
-	// indices  greater than 0 are deleted from disk, and all files from the base
-	// directories are also deleted. In this case the state of chekckboxes 
-	// 'chkGenerateAllPages', 'chkRegenAllImages' and 'chkNoImages' are ignored.
-	// 'dirIndex' is modified for all items and folders, and when
-	// 'chkUseMaxItemCountPerDir' is checked non-base folders are created.
-
-	// The number of folders created is determined by the count of items in the maps
-	// albumMap, imageMap, videoMap	when new items are added new directories may be created.
-
-	uint dirIndex = 0;
-
 	IABase& operator=(const IABase& a);
+
+	void SetDirIndexFor(int size, uint& lastDirIndex);	// depends on 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
 
 	bool Valid() const;
 	bool Exists(bool bPhysicalCheck = DONTCHECK);
@@ -185,7 +160,7 @@ struct Image : public IABase
 
 	void SetNewDimensions();
 
-	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
+	static SearchCond searchBy;	// by ID, by Base Id, by name, by full source name
 
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image& i);
@@ -313,11 +288,14 @@ class ImageMap : public QMap<ID_t, Image>
 	//friend class ALbumGenerator; miert nem volt eleg
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
+	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
+
 	static Image invalid;
 	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 
-	Image *Find(ID_t id, bool useBase = true);
-	Image *Find(QString FullSourceName);
+	Image* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
+												// if 'useBase' finds the first one with the same base ID
+	Image *Find(QString FullSourceName);		// returns nullptr if not found
 	ID_t Add(QString image, bool &added, bool isThumbnail=false);	// returns ID and if added
 	void Remove(ID_t id, bool isThumbnail);
 	Image &Item(int index);
@@ -333,8 +311,11 @@ public:
 	static Video invalid;
 	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 									// an video by its name (relative to this path) only
-	Video *Find(ID_t id, bool useBase = true);
-	Video *Find(QString FullSourceName);
+	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
+
+	Video* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
+												// if 'useBase' finds the first one with the same base ID	
+	Video* Find(QString FullSourceName);		// returns nullptr if not found
 	ID_t Add(QString image, bool& added);	// returns ID and if added
 	Video& Item(int index);
 };
@@ -349,6 +330,8 @@ class AlbumMap : public QMap<ID_t, Album>
 	// last used album path is in 'albumGenerator::lastUsedAlbumPath'
 	// root path is in config.dsSrc
 public:
+	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
+
 	Album *AlbumForID(ID_t id) 
 	{ 
 		id.SetFlag(EXISTING_FLAG, false);
@@ -357,7 +340,7 @@ public:
 			pAlbum = &(*this)[id];
 		return pAlbum;
 	}
-	Album *Find(ID_t id);
+	Album *Find(ID_t id);	// 'Find' functions return nullptr if album is not found
 	Album *Find(QString albumFullPath);
 	Album *Find(uint64_t pathID, QString albumName);
 	Album *Find(uint64_t pathID, ID_t albumId);
@@ -391,6 +374,8 @@ class AlbumGenerator : public QObject
 public:
 	static uint64_t lastUsedAlbumPathId;	// config.dsSrc relative path to image so that we can add 
 											// an image by its name (relative to this path) only
+	static bool bSetDirIndexToo;	// if true then the number of items in a directory is limited
+
 	enum class BackupMode {bmKeep, bmReplace};
 	enum class WriteMode {wmOnlyIfChanged, wmAlways};
 	AlbumGenerator() { Init();  };
@@ -552,7 +537,7 @@ private:
 						  // reading (and copying) data
 	void _RecursivelyReadSubAlbums(ID_t albumId);
 	ID_t _AddItemToAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
-	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool&added);
+	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool &added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
 	void _CleanupAlbums();	// exclude empty albums and albums with only albums in them each empty
@@ -571,7 +556,7 @@ private:
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into 'imgs' directory
 	int _ProcessVideos(); // into 'vids' directory
-	int _CreateOneHtmlAlbum(QFile &f, Album &album, int language, QString uplink, int &processedCount);
+	int _CreateOneHtmlAlbum(QFile& f, Album& album, int language, QString uplink, int& processedCount);
 	int _CreatePage(Album &album, int language, QString parent, int &processedCount);
 	int _CreateAboutPages();
 	int _CreateHomePage();
@@ -598,7 +583,8 @@ private:
 	bool _ReadOrphanTable(FileReader& reader);
 	bool _ReadStruct(QString from);	// from gallery.struct (first dest, then src directory) 
 
-	bool _ReadFromGallery();	// recrates album structure but can't recover album paths and image names or dimensions
+	bool _ReadFromGallery();	// TODO recrates album structure from existing gallery 
+								// but can't recover album paths, image names or image dimensions
 private:
 	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
 	void _RemoveItem(Album &album, int which, bool fromdisk); // which: index in album's items

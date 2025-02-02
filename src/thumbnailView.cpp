@@ -1995,7 +1995,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
     emit SignalAlbumStructWillChange();
-    ID_t id = albumgen.Albums().Add(pParentAlbum->ID,folderName,added);
+    ID_t id = albumgen.Albums().Add(pParentAlbum->ID, folderName, added);     // set new dirIndex too
     if (added)
     {   
         atLeastOneFolderWasAdded = true;
@@ -2242,9 +2242,9 @@ void ThumbnailView::OpenAlbumThumbnail()
                                             
     if (!s.isEmpty())
     {
-        bool added;
-        ID_t id = albumgen.Images().Add(s, added, true);      // will not add it when it is already in data base
-        album->SetThumbnail(id);                              // increases image's thumbnailCount
+        bool added;             //            as thumbnail
+        ID_t id = albumgen.Images().Add(s, added, true);   // will not add it when it is already in data base
+        album->SetThumbnail(id);                                 // increases image's thumbnailCount
         Reload();
     }
 }

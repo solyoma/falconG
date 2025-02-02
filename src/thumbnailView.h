@@ -21,7 +21,7 @@
 #pragma once
 
 #include <QtWidgets>
-#include "enums.h"
+#include "common.h"
 #include "schemes.h"
 #include "albums.h"
 
