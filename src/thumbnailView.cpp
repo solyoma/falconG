@@ -860,63 +860,20 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 		return;
 
 	QModelIndex index = indexAt(event->pos());
-// DEBUG
-#if 1
-//	dynamic_cast<ThumbnailViewModel *>(model())->SetDummyPos(row);
-// DEBUG
- //   if (pDragDropLabel)
-	//{
-	//	delete pDragDropLabel;
- //       pDragDropLabel = nullptr;
-	//}
-// /DEBUG
-// 
-//	int row = index.row();
-//	QString qs = QString("mouse: (%1,%2), Item:%3").arg(event->pos().x()).arg(event->pos().y()).arg(row);
-//	QString qs = QString("mouse: %1,%2, row:%3, col:%4, dummy:%5").arg(event->pos().x()).arg(event->pos().y()).arg(row).arg(index.column()).arg(dynamic_cast<ThumbnailViewModel *>(model())->DummyPosition());
-// DEBUG
-    // QString qs = __DebugPrintDragAndDrop(event) + QString(" r:%1").arg(row);
-    //pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
-    //pDragDropLabel->setVisible(true);
-    // /DEBUG
-#endif
-// /DEBUG
-	//if (row >= 0)
-	//{
-	//	if (event->pos().y() < 10)
-	//	{
-	//		index =
-	//			scrollTo(index);
-	//	}
-	//}
+
 	event->accept();
-	// get drop position
-//	QModelIndex index = indexAt(event->pos());
-	// add temporary list element to correct position
-	//...
-	// call original ?
-//	QListView::dragMoveEvent(event);
 	int pose = event->pos().y();
 
     if (pose < 30)
     {
-        if(mayScrollOneStep())
-            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+        QThread::msleep(200);
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
     }
     else if (pose > height() - 30)
     {
-        if(mayScrollOneStep())
-            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+        QThread::msleep(200);
+        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
     }
-}
-
-bool ThumbnailView::mayScrollOneStep()
-{
-    static int steps = 0;
-    if(steps++ < 10000)
-        return false;
-    steps = 0;
-    return true;
 }
 
 /*=============================================================
