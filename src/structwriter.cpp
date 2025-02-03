@@ -39,8 +39,8 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 
 
 
-//***************************** class AlbumStructWriterThread ****************
-AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator& generator, bool recordChanges, QObject* parent) :
+//***************************** class AlbumStructWriter ****************
+AlbumStructWriter::AlbumStructWriter(AlbumGenerator& generator, bool recordChanges, QObject* parent) :
 	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), 
 	_videoMap(generator.Videos()), _recordChanges(recordChanges),
 	QThread(parent)
@@ -53,7 +53,7 @@ AlbumStructWriterThread::AlbumStructWriterThread(AlbumGenerator& generator, bool
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void AlbumStructWriterThread::run()
+void AlbumStructWriter::run()
 {
 	QString result;
 	QMutexLocker locker(&_albumMapStructIsBeingWritten);
@@ -88,14 +88,14 @@ void AlbumStructWriterThread::run()
 	_ofs << "# Album structure:\n";
 
 	QString indent;	// for directory structure file: indent line with spaces to indicate hierarchy
-	_WriteStructAlbums(_albumMap[TOPMOST_ALBUM_ID], indent);
+	_WriteAlbums(_albumMap[TOPMOST_ALBUM_ID], indent);
 	_ofs.flush();
 	f.close();
 
 	emit resultReady(result, sStructPath, sStructTmp);
 }
 
-void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
+void AlbumStructWriter::_WriteImageRecord(Image* pImg, QString indent)
 {
 	QString s;
 	QString delim = QStringLiteral("|"),
@@ -129,7 +129,7 @@ void AlbumStructWriterThread::_WriteImageRecord(Image* pImg, QString indent)
 		_ofs << indent << pImg->name << " # is missing\n";
 }
 
-void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString indent)
+void AlbumStructWriter::_WriteStructImage(Album& album, ID_t id, QString indent)
 {
 	Image* pImg;
 	QString s;
@@ -144,7 +144,7 @@ void AlbumStructWriterThread::_WriteStructImage(Album& album, ID_t id, QString i
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, pImg->titleID, indent);
 }
 
-void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString indent)
+void AlbumStructWriter::_WriteVideo(Album& album, ID_t id, QString indent)
 {
 	QString s;
 	QString delim = QStringLiteral("|"),
@@ -189,7 +189,7 @@ void AlbumStructWriterThread::_WriteStructVideo(Album& album, ID_t id, QString i
 *					***
 *			- this is a co routin with '_WriteStructAlbum'
 *--------------------------------------------------------------------------*/
-void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QString indent)
+void AlbumStructWriter::_WriteImagesThenSubAlbums(Album& album, QString indent)
 {
 	// IMAGES
 	// format: [!!]<name>'('<id>,<width>'x'<height>,<owidth>'x'<oheight>,<date string><file size>')'<dSrc relative or absolute path>
@@ -200,14 +200,14 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 				if (id.IsImage())		// not excluded
 					_WriteStructImage(album, id, indent);	// DEBUG
 				else if (id.IsVideo())
-					_WriteStructVideo(album, id, indent);
+					_WriteVideo(album, id, indent);
 	}
 
 	if (album.SubAlbumCount())
 	{
 		for (ID_t id : album.items)
 			if (!id.IsExcluded() && id.IsAlbum())		// not excluded
-				_WriteStructAlbums(_albumMap[id], indent);
+				_WriteAlbums(_albumMap[id], indent);
 	}
 }
 
@@ -217,38 +217,31 @@ void AlbumStructWriterThread::_WriteStructImagesThenSubAlbums(Album& album, QStr
 * EXPECTS: album  - to write
 *		   indent - level of this album in the hierarchy
 * GLOBALS:
-* REMARKS: co-routine with '_WriteStructImagesThenSubAlbums'
+* REMARKS: co-routine with '_WriteImagesThenSubAlbums'
 *			if the sub album has sub albums then this function is called
-*			again from '_WriteStructImagesThenSubAlbums'
+*			again from '_WriteImagesThenSubAlbums'
 *--------------------------------------------------------------------------*/
-void AlbumStructWriterThread::_WriteStructAlbums(Album& album, QString indent)
+void AlbumStructWriter::_WriteAlbums(Album& album, QString indent)
 {
-	//if (album.Exists() == exNot)
-	//	return;
-
-	// QString s = config.RemoveSourceFromPath(pathMap[album.pathId]);
-
 	ID_t thumbnail = album.thumbnailId = AlbumGenerator::ThumbnailID(album, _albumMap);		// thumbnail may have been a folder
 																// name  originally, now it is an ID
 	_ofs << "\n" << indent
-		<< album.name << (album.changed ? "(C:" : "(A:") << album.ID.Val(); 
-	if (album.ID.DirIndex())
-		_ofs << "i" << album.ID.DirIndex();
-	_ofs << ")" << /*s*/ album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
+		<< album.name << (album.changed ? "(C:" : "(A:") << album.ID.ValToString()
+		<< ")" << album.pathId << "\n"; // always write album unchanged, but do not modify' changed' flag
 	WriteStructLanguageTexts(_ofs, _textMap, TITLE_TAG, album.titleID, indent);
 	WriteStructLanguageTexts(_ofs, _textMap, DESCRIPTION_TAG, album.descID, indent);
 
 	_ofs << indent << "[" << THUMBNAIL_TAG << ":" << thumbnail.Val() << "]\n"; // ID may be 0!
 
-	_WriteStructImagesThenSubAlbums(album, indent + " ");
+	_WriteImagesThenSubAlbums(album, indent + " ");
 }
 
-void AlbumStructWriterThread::_WritePathsTable()
+void AlbumStructWriter::_WritePathsTable()
 {
 	_ofs << PATH_TABLE << "\n" << pathMap << "]\n\n";
 }
 
-void AlbumStructWriterThread::_WriteLanguageTable()
+void AlbumStructWriter::_WriteLanguageTable()
 {
 	_ofs << "\n\n[Language count:" << languages.LanguageCount() << "\n";
 	for (int i = 0; i < languages.LanguageCount(); ++i)
@@ -260,7 +253,7 @@ void AlbumStructWriterThread::_WriteLanguageTable()
 	_ofs << "]\n\n";
 }
 
-void AlbumStructWriterThread::_WriteOrphanThumbnails()
+void AlbumStructWriter::_WriteOrphanThumbnails()
 {
 	_ofs << ORPHAN_ID << "\n";
    for(auto &img : _imageMap)

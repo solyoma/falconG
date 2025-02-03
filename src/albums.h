@@ -361,7 +361,7 @@ struct IdsFromStruct
 };
 
 //------------------------------------------
-class AlbumStructWriterThread;		// forward
+class AlbumStructWriter;		// forward
 class ProcessImageThread;
 /* =============== Albumgenerator ==================*/
 
@@ -511,7 +511,8 @@ private:
 
 	int _ItemSize() const { return _imageMap.size() + _videoMap.size(); }
 									  // structure write
-	AlbumStructWriterThread *pWriteStructThread=nullptr;// write structure in separate thread
+	QThread writerThread;
+	AlbumStructWriter *pStructWiter=nullptr;// write structure in separate thread
 	volatile bool _structIsBeingWritten = false;		// set true before write and false when writing is finished
 	bool _keepPreviousBackup	= false;				// do not overwrite backup
 	bool _mustRecreateAllAlbums = false;				// set to true when signaled from FalconG class that uplink etc changed

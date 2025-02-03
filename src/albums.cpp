@@ -3172,13 +3172,15 @@ int AlbumGenerator::WriteDirStruct(BackupMode bm, WriteMode wm)
 		return 0;
 
 	_structIsBeingWritten = true;
-	pWriteStructThread = new AlbumStructWriterThread(*this, bm == BackupMode::bmKeep);
-	connect(pWriteStructThread, &AlbumStructWriterThread::resultReady, this, &AlbumGenerator::_WriteStructReady);
-	connect(pWriteStructThread, &AlbumStructWriterThread::finished, pWriteStructThread, &QObject::deleteLater);
+	pStructWiter = new AlbumStructWriter(*this, bm == BackupMode::bmKeep);
+	connect(pStructWiter, &AlbumStructWriter::resultReady, this, &AlbumGenerator::_WriteStructReady);
+	connect(pStructWiter, &AlbumStructWriter::finished, pStructWiter, &QObject::deleteLater);
 	_keepPreviousBackup = bm == BackupMode::bmKeep;
 
-// DEBUG 	pWriteStructThread->start();
-	pWriteStructThread->run();
+// comment out for DEBUG
+ 	pStructWiter->start();
+// uncomment only for DEBUG:	
+//	pStructWiter->run();
 	return 0;
 }
 /*============================================================================

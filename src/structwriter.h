@@ -14,7 +14,7 @@
 //------------------------------------------
 // Thread to write album structure (simplest: no message loop inside thread)
 
-class AlbumStructWriterThread : public QThread
+class AlbumStructWriter : public QThread
 {
 	Q_OBJECT
 
@@ -30,9 +30,9 @@ class AlbumStructWriterThread : public QThread
 
 	void _WriteImageRecord(Image* pImg, QString indent);
 	void _WriteStructImage(Album &album, ID_t id, QString indent);
-	void _WriteStructVideo(Album &album, ID_t id, QString indent);
-	void _WriteStructImagesThenSubAlbums(Album& album, QString indent);
-	void _WriteStructAlbums(Album& album, QString indent);
+	void _WriteVideo(Album &album, ID_t id, QString indent);
+	void _WriteImagesThenSubAlbums(Album& album, QString indent);
+	void _WriteAlbums(Album& album, QString indent);
 	void _WriteLanguageTable();
 	void _WritePathsTable();	// ID - PATH
 	void _WriteOrphanThumbnails();
@@ -41,7 +41,7 @@ signals:
 	void resultReady(QString s, QString sStructPath, QString sStructTmp);
 public:
 	void run() override;  // the actual writing
-	AlbumStructWriterThread(AlbumGenerator& generator, bool keepChanged = true, QObject* parent = Q_NULLPTR);
+	AlbumStructWriter(AlbumGenerator& generator, bool keepChanged = true, QObject* parent = Q_NULLPTR);
 };
 //------------------------------------------
 #endif
