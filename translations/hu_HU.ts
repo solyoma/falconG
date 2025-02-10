@@ -1751,7 +1751,7 @@ Bistos ezt akarod?</translation>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1014"/>
         <source>Move into</source>
-        <translation>Bemásolás</translation>
+        <translation>Áthelyezés</translation>
     </message>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1668"/>
