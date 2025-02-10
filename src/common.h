@@ -120,6 +120,7 @@ namespace Common
 }
 
 // not ENUM, but common
+const bool SIGNAL_ELAPSED_TIME = true, ADD_TO_ALBUM_ITEMS = true, IS_THUMBNAIL = true;
 const bool CHECK = true;
 const bool DONTCHECK = false;
 const uint64_t NO_ID = 0x00;	// for the album tree root as parent of the root and recent album

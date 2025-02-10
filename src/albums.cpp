@@ -3,6 +3,7 @@
 #include <QtCore>
 #include <QString>
 #include <QTextCodec>
+
 #include <time.h>
 #include <atomic>
 #include <chrono>
@@ -1018,6 +1019,7 @@ ID_t Album::SetThumbnail(ID_t id)
 	if (id == thumbnailId)	// new and old are the same image
 		return id;
 
+	albumgen.SetAlbumModified(ID);
 	id.SetFlag(uint8_t(~TYPE_FLAGS), false);
 	ID_t oldThumbnail = thumbnailId;
 	thumbnailId = id;
@@ -1739,16 +1741,17 @@ bool  AlbumGenerator::SetChangesWritten()
 void AlbumGenerator::AddDirsRecursively(ID_t albumId)
 {
 	_signalProgress = false;
+
 	_processing = true;
-	 RecursivelyAddAlbums(albumId);
+	_RecursivelyReadSubAlbums(albumId);
 	_processing = false;
+
+	SetAlbumModified(albumId);	// sets the changed flag and updates album only when not _processing
+	AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
+	ptrv->update();
+
 	_signalProgress = true;
 	return;
-}
-
-void AlbumGenerator::RecursivelyAddAlbums(ID_t albumId)
-{
-	_RecursivelyReadSubAlbums(albumId);
 }
 
 /*==========================================================================
@@ -1820,6 +1823,7 @@ bool AlbumGenerator::Read(bool bMustReRead)
 //	if (result)
 //		_structAlreadyInMemory = true;
 	bSetDirIndexToo = true;	// so for new items will always check ad set the dirIndex when config.bUseMaxItemCountPerDir is true
+	_processing = false;
 	return result;
 }
 //*****      END OF READ PART, START OF WRITE PART  *****
@@ -4980,6 +4984,8 @@ int AlbumGenerator::ProcessAndWrite()
 
 	emit SignalAlbumStructWillChange();
 
+	_processing = true;
+
 	_ProcessImages();	// copy from from source into image directory
 						// determine image dimensions and latest upload date
 	_ProcessVideos();
@@ -5401,6 +5407,9 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 
 void AlbumGenerator::SetAlbumModified(Album& album)
 {
+	if (_processing)
+		return;
+
 	if (_slAlbumsModified.indexOf(album.ID) < 0)
 	{
 		_slAlbumsModified << album.ID;
@@ -5409,6 +5418,9 @@ void AlbumGenerator::SetAlbumModified(Album& album)
 }
 void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
 {
+	if (_processing)
+		return;
+
 	if (_slAlbumsModified.indexOf(albumId) < 0)
 	{
 		Album& album = _albumMap[albumId];

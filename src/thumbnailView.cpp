@@ -26,9 +26,11 @@
 #include <QIcon>
 #include <QWidget>
 
-#include "thumbnailView.h"
 #include "config.h"
+#include "thumbnailView.h"
 #include "imageviewer.h"
+#include "treeView.h"
+#include "falconG.h"
 
 // ************************ FileIcons *************************
 
@@ -490,7 +492,7 @@ QString ThumbnailView::GetSingleSelectionFilename()
  * RETURNS:	new row or -1 when no more rows
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailView::GetNextItem()
+int ThumbnailView::GetNextItem() const
 {
     if (_currentItem == _thumbnailViewModel->rowCount() - 1) 
         return -1;
@@ -505,7 +507,7 @@ int ThumbnailView::GetNextItem()
 * RETURNS:	new row or -1 when no previous row
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailView::GetPrevItem()
+int ThumbnailView::GetPrevItem() const
 {
     if (_currentItem == 0) 
         return -1;
@@ -520,7 +522,7 @@ int ThumbnailView::GetPrevItem()
  * RETURNS: image count -1
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailView::GetLastItem()
+int ThumbnailView::GetLastItem() const
 {
     return _thumbnailViewModel->rowCount() - 1;
 }
@@ -532,7 +534,7 @@ int ThumbnailView::GetLastItem()
 * RETURNS: ordinal of random thumbnail
 * REMARKS:
 *------------------------------------------------------------*/
-int ThumbnailView::GetRandomItem()
+int ThumbnailView::GetRandomItem() const
 {
     return QRandomGenerator::global()->generate() % (_thumbnailViewModel->rowCount());
 }
@@ -544,7 +546,7 @@ int ThumbnailView::GetRandomItem()
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-int ThumbnailView::GetCurrentItem()
+int ThumbnailView::GetCurrentItem() const
 {
     return _currentItem;
 }
@@ -1205,6 +1207,19 @@ void ThumbnailView::LoadFileList()
 	emit SignalStatusChanged(statusStr);
 	emit SignalTitleChanged(title);
 	emit SignalInProcessing(false);
+}
+
+void ThumbnailView::UpdateTreeView(bool forParentOfCurrentIndex)
+{
+    AlbumTreeView* ptrv = frmMain->GetTreeViewPointer(); // signal it on the treeView too
+    QModelIndex mx = ptrv->currentIndex(), pmx = mx.parent().isValid() ? mx.parent() : QModelIndex();
+    if (forParentOfCurrentIndex)
+    {
+        if (pmx.isValid())
+			ptrv->update(pmx);      // show changed flag on parent
+    }
+    else
+        ptrv->update(mx);           // show changed flag on actual index
 }
 
 void ThumbnailView::Load() 
@@ -2104,7 +2119,8 @@ void ThumbnailView::NewVirtualFolder()
 		}
         if ((b = _NewVirtualFolder(qs)) == true)
         {
-//            Reload();
+            AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
+			ptrv->update();
             break;
         }
         //qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
@@ -2136,7 +2152,9 @@ void ThumbnailView::RenameVirtualFolder()
 		return;
 	pItem->name = text;
 	albumgen.SetAlbumModified(*pItem);
-	Reload();
+    AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
+    ptrv->update(ptrv->currentIndex());
+    Reload();
 }
 
 /*============================================================================
@@ -2217,8 +2235,8 @@ void ThumbnailView::OpenAlbumThumbnail()
     if (!s.isEmpty())
     {
         bool added;             //            as thumbnail
-        ID_t id = albumgen.Images().Add(s, added, true);   // will not add it when it is already in data base
-        album->SetThumbnail(id);                                 // increases image's thumbnailCount
+        ID_t id = albumgen.Images().Add(s, added, IS_THUMBNAIL);   // will not add it when it is already in data base
+        album->SetThumbnail(id);                                   // increases image's thumbnailCount
         Reload();
     }
 }
@@ -2252,8 +2270,13 @@ void ThumbnailView::SetAsAlbumThumbnail()
 
     album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID );
     albumgen.SetAlbumModified(_albumId);
-    if(album.parentId.Val())
+
+    UpdateTreeView(false);
+    if (album.parentId.Val())
+    {
+        UpdateTreeView(true);
         albumgen.SetAlbumModified(album.parentId);
+    }
     emit SignalAlbumChanged();
 }
 
@@ -2309,8 +2332,8 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     QString name;
     SeparateFileNamePath(thname, qsd, name);
     albumgen.Images().lastUsedPathId = pathMap.Add(qsd);
-    // add as thumbnail to this album, but do not signal elapsed time and do not add to items
-    albumgen.AddItemToAlbum(_albumId, thname, true, false, true);
+    // add as thumbnail to this album
+    albumgen.AddItemToAlbum(_albumId, thname, IS_THUMBNAIL, !SIGNAL_ELAPSED_TIME, !ADD_TO_ALBUM_ITEMS);
 
     Album& album = *_ActAlbum();
     albumgen.SetAlbumModified(album);

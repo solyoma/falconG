@@ -383,7 +383,6 @@ public:
 	void Clear();
 	bool SetChangesWritten();
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
-	void RecursivelyAddAlbums(ID_t albumId);
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 
 	void RemoveItems(ID_t albumID, IntList ilx, bool fromdisk, bool iconsForThisAlbum = true);
@@ -450,7 +449,7 @@ public:
 	}
 	QString SiteLink(int language);
 
-	ID_t AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail=false, bool doSignalElapsedTime=true, bool doNotAddToAlbumItemList = false);
+	ID_t AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList);
 	bool AddImageOrVideoFromString(QString inpstr, Album& album, int pos = -1);
 
 signals:

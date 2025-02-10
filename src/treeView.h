@@ -20,7 +20,7 @@ class AlbumTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
 	bool _busy = false;
-	bool _bBeginResetModelCalled = false;
+	bool _inResetMode = false;
 public:
 	AlbumTreeModel(QObject *parent = Q_NULLPTR) : QAbstractItemModel(parent) {}
 
@@ -35,17 +35,17 @@ public:
 
 	void BeginResetModel()
 	{
-		if (_bBeginResetModelCalled)
+		if (_inResetMode)
 			return;
 		beginResetModel();	   // makes currentItem and selection invalid
-		_bBeginResetModelCalled = true;
+		_inResetMode = true;
 	}
 	void EndResetModel() 
 	{
-		if (!_bBeginResetModelCalled)
+		if (!_inResetMode)
 			return;
 		endResetModel();
-		_bBeginResetModelCalled = false;
+		_inResetMode = false;
 	}
 
 // these are moving around
@@ -78,10 +78,10 @@ class AlbumTreeView : public QTreeView
 {
 	Q_OBJECT
 
-		ThumbnailView* ptnv = nullptr;
+		ThumbnailView* _ptnv = nullptr;
 public:
 	AlbumTreeView(QWidget* parent = nullptr);
-	void SetTnv(ThumbnailView* p) { ptnv = p; }
+	void SetViewer(ThumbnailView* p) { _ptnv = p; }
 	bool event(QEvent* event);
 	void mousePressEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent* event);

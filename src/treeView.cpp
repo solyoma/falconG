@@ -419,11 +419,11 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 		}
 		pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 		pact->setEnabled(true);
-		connect(pact, &QAction::triggered, ptnv, &ThumbnailView::AddImages);
+		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::AddImages);
 		menu.addAction(pact);
 
 		pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
-		connect(pact, &QAction::triggered, ptnv, &ThumbnailView::AddFolder);
+		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::AddFolder);
 		menu.addAction(pact);
 
 		menu.addSeparator();

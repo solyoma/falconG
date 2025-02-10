@@ -232,6 +232,7 @@ public:
     void Load();
 	void Reload();
     void LoadFileList();
+	void UpdateTreeView(bool forParentOfCurrentIndex);
     bool SetCurrentIndexByName(QString &fileName);
     bool setCurrentIndexByItem(int itemIndex);	   
     void SetCurrentItem(int itemIndex);
@@ -246,11 +247,11 @@ public:
 		return !_isProcessing; 
 	}
     void selectThumbByItem(int itemIndex);
-    int GetNextItem();
-    int GetPrevItem();
-    int GetLastItem();
-    int GetRandomItem();
-    int GetCurrentItem();
+    int GetNextItem() const;	
+    int GetPrevItem() const;
+    int GetLastItem() const ;
+    int GetRandomItem() const;
+    int GetCurrentItem() const;
 	ID_t AlbumID() const { return _albumId; }
 
     QStringList GetSelectedThumbsList();

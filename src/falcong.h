@@ -69,6 +69,9 @@ public:
 signals:
 	void LinkClickedSignal(QString);
 };
+// external
+class AlbumTreeView;
+
 //---------------
 class FalconG : public QMainWindow
 {
@@ -83,6 +86,8 @@ public:
 	int GetProgressBarPos();
 	int IsRunning() { return _running; }
 	void Stop() { --_running; }
+
+	AlbumTreeView* GetTreeViewPointer() const;
 
 signals:
 	void SignalCancelRun();

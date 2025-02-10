@@ -218,7 +218,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
-	ui.trvAlbums->SetTnv(ui.tnvImages);
+	ui.trvAlbums->SetViewer(ui.tnvImages);
 
 	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::SlotDeleteSelectedList);
 	connect(ui.trvAlbums, &AlbumTreeView::SignalGetSelectionCount, ui.tnvImages, &ThumbnailView::SlotGetSelectionCount);
@@ -1730,6 +1730,12 @@ void FalconG::on_btnBackToParentAlbum_clicked()
 {
 	// change index for parent in 'trvAlbums'
 	QModelIndex mix = ui.trvAlbums->currentIndex();
+	qDebug("btnBackToParentAlbum clicked. Current(%s):%u, parent(%s):%u",
+		mix.isValid() ? "true":"false",
+		mix.internalPointer(), 
+		mix.parent().isValid() ?  "true":"false",
+		mix.parent().internalPointer());
+
 	if (!mix.isValid() || !mix.parent().isValid())
 		return;
 	ui.trvAlbums->setCurrentIndex(mix.parent()); // ???
@@ -5467,6 +5473,10 @@ void FalconG::_SlotSetProgressBar(int minimum, int maximum, int pos, int phase)
 int FalconG::GetProgressBarPos()
 {
 	return ui.progressBar->value();
+}
+AlbumTreeView* FalconG::GetTreeViewPointer() const
+{
+	return ui.trvAlbums;
 }
 
 /*============================================================================
