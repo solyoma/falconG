@@ -396,7 +396,7 @@ public:
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeep, WriteMode wm=WriteMode::wmOnlyIfChanged);		
 	bool StructWritten() const { return !_structIsBeingWritten; }
 	bool StructChanged() const { return _structFileChangeCount;  }
-	void SetStructChanged(bool val) { _structFileChangeCount = (val ? 1 : 0); }
+	void SetStructChanged(bool val) { _structFileChangeCount += (val ? 1 : -_structFileChangeCount); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 

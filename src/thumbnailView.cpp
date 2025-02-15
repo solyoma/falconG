@@ -986,8 +986,8 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             mb.setText(tr("Move into this folder or move before it?"));
             mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
             // buttons added after the existing buttons
-            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Reposition"), QMessageBox::NoRole);
-            QPushButton *pIntoFolderBtn = mb.addButton(tr("Move into"), QMessageBox::YesRole);
+            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::NoRole);
+            QPushButton *pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::YesRole);
 
 #ifdef DEBUG
             QPushButton *pCancelBtn = 
@@ -1015,6 +1015,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                         Album* pab = albumgen.AlbumForID(itemID);
                         Q_ASSERT(pab);
 						pab->parentId = pDestAlbum->ID;            // reparent album
+                        albumgen.SetAlbumModified(pab->ID);        // so that it gets written 
                     }
 					pDestAlbum->items.push_back(itemID);
                     itemsDest.push_back(itemID);

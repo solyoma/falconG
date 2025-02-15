@@ -5036,19 +5036,19 @@ int AlbumGenerator::SaveStyleSheets()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void AlbumGenerator::_WriteStructReady(QString s, QString sStructPath, QString sStructTmp)
+void AlbumGenerator::_WriteStructReady(QString sErrorMessage, QString sStructPath, QString sStructTmp)
 {
 	_structIsBeingWritten = false;
 
-	if (!s.isEmpty())		// then error message
+	if (!sErrorMessage.isEmpty())		// then error message
 	{
-		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
+		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
 		return;
 	}
 
-	s = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
-	if (!s.isEmpty())
-		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), s, QMessageBox::Close, frmMain).exec();
+	sErrorMessage = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
+	if (!sErrorMessage.isEmpty())
+		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
 	//else
 	//	SetChangesWritten();	// clear all 'changed' flag
 }
@@ -5399,10 +5399,10 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 									"Really delete the selected items from disk?")) != QMessageBox::Yes)
 			return;
 	emit SignalAlbumStructWillChange();
-	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);	// also from icon list for this album
-	albumgen.WriteDirStruct(BackupMode::bmKeep, WriteMode::wmAlways);				// keep .struct~ file and create a new backup from the original
+	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
+	albumgen.WriteDirStruct(BackupMode::bmKeep, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original
 						
-	emit SignalAlbumStructChanged(false);						// album structure changed and saved
+	emit SignalAlbumStructChanged(false);								// album structure changed and saved
 }
 
 void AlbumGenerator::SetAlbumModified(Album& album)
@@ -5415,7 +5415,9 @@ void AlbumGenerator::SetAlbumModified(Album& album)
 		_slAlbumsModified << album.ID;
 		album.changed = true;
 	}
+	emit SignalAlbumStructChanged(true);
 }
+
 void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
 {
 	if (_processing)
@@ -5427,4 +5429,5 @@ void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
 		_slAlbumsModified << albumId;
 		album.changed = true;
 	}
+	emit SignalAlbumStructChanged(true);
 }
