@@ -136,7 +136,7 @@ private:
 #endif
 
 
-	void _SetIconColor(QIcon &icon, _CElem &elem);
+	void _SetIconColor(QIcon &icon, _CElem &elem) const;
 	QIcon _SetUplinkIcon(QString iconName = QString());
 
 	QString _SelectStructFileFromDir(QString& dirName);

@@ -1245,6 +1245,7 @@ void ThumbnailView::Reload()
     setSpacing(QFontMetrics(font()).height());
 
     _InitThumbs();
+
     if (_isProcessing)
     {
         _UpdateThumbsCount();
@@ -1310,6 +1311,7 @@ void ThumbnailView::_InitThumbs()
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
 		_thumbnailViewModel->appendRow(thumbItem);
+
 		++timeOutCnt;
 		if (timeOutCnt > 10)
 		{
@@ -1318,6 +1320,7 @@ void ThumbnailView::_InitThumbs()
 		}
 	}
     _thumbnailViewModel->EndResetModel();
+
     if (_doAbortThumbsLoading)
     {
         _isProcessing = _doAbortThumbsLoading = false;  // aborted

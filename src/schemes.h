@@ -29,6 +29,8 @@ struct FalconGScheme
 		sProgressBarChunk,
 		sWarningColor,
 		sBoldTitleColor,
+		sSelectionColor,
+		sSelectionBackground,
 		sSpacerColor;		// for drag & drop in tnvImages
 
 	QString MenuTitleForLanguage(int lang)
@@ -82,14 +84,17 @@ struct FalconGScheme
 		const char* c7,	 // sSelectedInputBgr
 		const char* c8,	 // sFocusedBorder
 		const char* c9,	 // sDisabledFg
-		const char* c10,	 // sDisabledBg
-		const char* c11,	 // sImageBackground
-		const char* c12,	 // sPressedBg	-	button pressed
-		const char* c13,	 // sDefaultBg
-		const char* c14,	 // sProgressBarChunk
-		const char* c15,	 // sWarningColor
-		const char* c16,	 // sBoldTitleColor - GroupBox title
-		const char* c17	 // sSpacerColor - spacer for drop operations
+		const char* c10, // sDisabledBg
+		const char* c11, // sImageBackground
+		const char* c12, // sPressedBg	-	button pressed
+		const char* c13, // sDefaultBg
+		const char* c14, // sProgressBarChunk
+		const char* c15, // sWarningColor
+		const char* c16, // sBoldTitleColo
+		const char* c17, // SelectionColor
+		const char* c18, // SelectionBackground
+
+		const char* c19	 //sSpacerColor - spacer for drop operations
 	)
 	{
 		MenuTitle = t;			// this will appear in the menu bar
@@ -110,7 +115,10 @@ struct FalconGScheme
 		sProgressBarChunk = c14;
 		sWarningColor = c15;
 		sBoldTitleColor = c16;
-		sSpacerColor = c17;
+		sSelectionColor = c17;
+		sSelectionBackground = c18;
+
+		sSpacerColor = c19;
 	}
 
 };

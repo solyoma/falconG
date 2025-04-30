@@ -300,21 +300,21 @@ bool AlbumTreeView::event(QEvent* event)
 		return true;
 	}
 
-	QWidget::event(event);
+	QTreeView::event(event);
 	return false;
 }
 
 void AlbumTreeView::mousePressEvent(QMouseEvent* event)
 {
-	if (event->button() == Qt::RightButton)
+	if (event->button() != Qt::LeftButton)
 		return;
 	return QTreeView::mousePressEvent(event);
 }
 
-void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
-{
-	return QTreeView::mouseReleaseEvent(event);
-}
+//void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
+//{
+//	return QTreeView::mouseReleaseEvent(event);
+//}
 
 //void AlbumTreeView::mouseMoveEvent(QMouseEvent* event)
 //{

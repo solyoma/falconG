@@ -84,7 +84,7 @@ public:
 	void SetViewer(ThumbnailView* p) { _ptnv = p; }
 	bool event(QEvent* event);
 	void mousePressEvent(QMouseEvent* event);
-	void mouseReleaseEvent(QMouseEvent* event);
+	//void mouseReleaseEvent(QMouseEvent* event);
 
 signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);

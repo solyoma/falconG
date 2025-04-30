@@ -23,6 +23,8 @@ FalconGScheme FSchemeVector::blue("Blue:Kék",
 	"#feb60e",
 	"#f0a91f",
 	"#e28308",
+	"#747474",
+	"#bbbb00",
 	"#aaaaaa"
 ),
 FSchemeVector::dark("Dark:Sötét",
@@ -43,7 +45,9 @@ FSchemeVector::dark("Dark:Sötét",
 	"#feb60e",
 	"#f0a91f",
 	"#e28308",
-	"#aaaaaa"
+	"#4d4d4d",
+	"#808080",
+	"#0000aa"
 ),
 FSchemeVector::black("Black:Fekete",
 	"#191919",
@@ -63,7 +67,9 @@ FSchemeVector::black("Black:Fekete",
 	"#feb60e",
 	"#f0a91f",
 	"#e28308",
-	"#aaaaaa"
+	"#323232",
+	"#f0f0f0",
+	"#0000aa"
 );
 
 FSchemeVector schemes;		// default styles: default, system, blue, dark, black
@@ -105,6 +111,9 @@ void FSchemeVector::ReadAndSetupSchemes()
 			fgst.sProgressBarChunk = s.value("ProgressBarChunk", "").toString();
 			fgst.sWarningColor = s.value("WarningColor", "").toString();
 			fgst.sBoldTitleColor = s.value("BoldTitleColor", "").toString();
+			fgst.sSelectionColor = s.value     ("SelectionColor", "").toString();
+			fgst.sSelectionBackground = s.value("SelectionBackground", "").toString();
+
 			fgst.sSpacerColor = s.value("SpacerColor", "").toString();
 			s.endGroup();
 			push_back(fgst);
@@ -156,6 +165,8 @@ void FSchemeVector::Save()
 		s.setValue("ProgressBarChunk", fgst.sProgressBarChunk);
 		s.setValue("WarningColor", fgst.sWarningColor);
 		s.setValue("BoldTitleColor", fgst.sBoldTitleColor);
+		s.setValue("SelectionColor", fgst.sSelectionColor);
+		s.setValue("SelectionBackground",fgst.sSelectionBackground);
 		s.setValue("SpacerColor", fgst.sSpacerColor);
 		s.endGroup();
 	}

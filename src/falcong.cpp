@@ -1489,7 +1489,8 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 				_tmpScheme.sDefaultBg = ;
 				_tmpScheme.sProgressBarChunk = ;
 				_tmpScheme.sWarningColor = ;
-				_tmpScheme.sBoldTitleColor = ;
+				_tmpScheme.sSelectionColor = ;
+				_tmpScheme.sSelectionBackground = ;
 		*/
 		ui.lwColorScheme->addItem(_tmpScheme.MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 		schemes.push_back(_tmpScheme);
@@ -4367,6 +4368,24 @@ void FalconG::_AddSchemeButtons()
 	pLayout->addRow(plabel, pButton );
 	_pSchemeMapper->setMapping(pButton , i);
 	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+
+	++i;
+	plabel = new QLabel(tr("Selection color"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton);
+	_pSchemeMapper->setMapping(_pSchemeButtons[i], i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+	++i;
+	plabel = new QLabel(tr("Selection background"));
+	plabel->setFont(font);
+	pButton = new QPushButton("");
+	_pSchemeButtons.push_back(pButton);
+	pLayout->addRow(plabel, pButton);
+	_pSchemeMapper->setMapping(_pSchemeButtons[i], i);
+	connect(pButton, SIGNAL(clicked()), _pSchemeMapper, SLOT(map()));
+
 	++i;
 	plabel = new QLabel(tr("Border color"));
 	plabel->setFont(font);
@@ -5039,6 +5058,8 @@ void FalconG::_SetProgramScheme()
 * {
 	background-color:%1;       /* %1 background */
 	color:%2;                  /* %2 color */
+	selection-color: %18;		
+	Selection-background-color: %19;
 }
         
 /* ------------------- geometry ------------------*/        
@@ -5116,6 +5137,10 @@ QTreeView::branch:open:has-children {
 }
 QTreeView::branch:closed:has-children {
 	color:%2;
+}
+QTreeView::item:selected, 
+QTreeView::item:selected:!active {
+	background-color:%19;
 }
         
 /* ------------------ borders ----------------------*/   
@@ -5244,7 +5269,9 @@ QPusButton:default {
 			.arg(schemes[which].sProgressBarChunk)	// %15
 			.arg(schemes[which].sWarningColor)		// %16
 			.arg(schemes[which].sBoldTitleColor)	// %17
-//			.arg(schemes[which].sSpacerColor)		// %18
+			.arg(schemes[which].sSelectionColor)	// %18
+			.arg(schemes[which].sSelectionBackground)	// %19
+//			.arg(schemes[which].sSpacerColor)		// %20
 			;
 
 		if (which == stBlue)		// blue
@@ -5273,7 +5300,7 @@ QCheckBox::indicator:unchecked {
   * GLOBALS: 
   * REMARKS: 
  *--------------------------------------------------------------------------*/
-void FalconG::_SetIconColor(QIcon &icon, _CElem & elem)
+void FalconG::_SetIconColor(QIcon &icon, _CElem & elem) const
 {
 	QPixmap pm;
 	pm = icon.pixmap(64, 64);
