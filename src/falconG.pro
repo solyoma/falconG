@@ -44,8 +44,10 @@ FORMS += ./falcong.ui \
         ./imageviewer.ui \
         ./sourcehistory.ui \
 		./textEditor.ui
-	
+		
+RC_FILE = Resources/falconG.rc
 RESOURCES += falcong.qrc
+
 QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter
 #QT += widgets webenginewidgets
 QT += widgets
