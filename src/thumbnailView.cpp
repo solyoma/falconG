@@ -1,4 +1,4 @@
-/*
+﻿/*
  * part of the code is taken from Ofer Kashayov's <oferkv@live.com>
  * free Phototonic image viewer
  * My code is marked with SA in the remarks of the function descriptions
@@ -705,6 +705,9 @@ QStringList ThumbnailView::GetSelectedThumbsList()
  *------------------------------------------------------------*/
 void ThumbnailView::startDrag(Qt::DropActions)
 {
+    if (_isBusy)    // during load
+        return;
+
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     if (indexesList.isEmpty()) 
         return;
@@ -806,7 +809,10 @@ static QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEv
  *------------------------------------------------------------*/
 void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
 {
-	if (_IsAllowedTypeToDrop(event) )
+    if (_isBusy)
+        return;
+
+    if (_IsAllowedTypeToDrop(event) )
 	{
 // DEBUG
 #if 1
@@ -858,7 +864,10 @@ void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 {
-	if (!_IsAllowedTypeToDrop(event))
+    if (_isBusy)
+        return;
+
+    if (!_IsAllowedTypeToDrop(event))
 		return;
 
 	QModelIndex index = indexAt(event->pos());
@@ -890,6 +899,9 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
 {
+    if (_isBusy)
+        return;
+
     QStringList qsl, qslF;      // for files and Folders
     auto what = [&](QString s)  {
         QFileInfo fi(s);
@@ -951,7 +963,7 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
  *------------------------------------------------------------*/
 void ThumbnailView::dropEvent(QDropEvent * event)
 {
-	if (!_IsAllowedTypeToDrop(event))
+	if (_isBusy || !_IsAllowedTypeToDrop(event))
 		return;
 
 	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData*>(event->mimeData());
@@ -1014,6 +1026,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                     {
                         Album* pab = albumgen.AlbumForID(itemID);
                         Q_ASSERT(pab);
+						albumgen.ChangeParentList(pab->ID, pDestAlbum->ID, pab->parentId); // replace old parent ID
 						pab->parentId = pDestAlbum->ID;            // reparent album
                         albumgen.SetAlbumModified(pab->ID);        // so that it gets written 
                     }
@@ -1091,7 +1104,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         }
         albumgen.SetAlbumModified(*pAlbum);
 
-        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
 	}
 //    emit SignalFolderAdded();
 }
@@ -1965,7 +1978,7 @@ void ThumbnailView::AddImages()
 	SeparateFileNamePath(qslFileNames[siz - 1], dir,s);
 
     Reload();
-    albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+    albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
 
     emit SignalInProcessing(false);
     emit SignalAlbumChanged();
@@ -1993,7 +2006,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     {   
         atLeastOneFolderWasAdded = true;
         pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
-        albumgen.SetAlbumModified(*pParentAlbum);
+        albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); // albumgen.SetAlbumModified(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
         album.parentId = _albumId;
         albumgen.AddDirsRecursively(id);
@@ -2008,7 +2021,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
             folderName = albumgen.Images()[idth].FullSourceName();
         (void)fileIcons.Insert(pos, true,folderName);
 
-        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
     }
 
     emit SignalInProcessing(false);
@@ -2054,11 +2067,11 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
             emit SignalAlbumStructWillChange();
             if (added)
             {
-                albumgen.SetAlbumModified(*pParentAlbum);
+                albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); // albumgen.SetAlbumModified(*pParentAlbum);
                 Album& album = *albumgen.AlbumForID(id);
                 album.parentId = _albumId;
                 pParentAlbum->AddItem(id, -1);
-                albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+                albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
                 res = true;
             }
             else
@@ -2279,7 +2292,8 @@ void ThumbnailView::SetAsAlbumThumbnail()
     if (album.parentId.Val())
     {
         UpdateTreeView(true);
-        albumgen.SetAlbumModified(album.parentId);
+        albumgen.SetAlbumModified(album.parentId);  // the parent of this album always changes
+        albumgen.MarkParentsWithoutThumbnailsAsChanged(album.parentId); // but the other parents may not
     }
     emit SignalAlbumChanged();
 }
@@ -2345,7 +2359,8 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     if (album.parentId.Val())
     {
         Album* parent = albumgen.AlbumForID(album.parentId);
-        albumgen.SetAlbumModified(*parent);
+
+        albumgen.SetAlbumModified(*parent);     // only for the parent of this album and not all parents!
     }
     emit SignalAlbumChanged();
 }

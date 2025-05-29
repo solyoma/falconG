@@ -1,4 +1,4 @@
-#include <QCloseEvent>
+﻿#include <QCloseEvent>
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QColorDialog>
@@ -234,7 +234,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_SlotShowRemainingTime);
 	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,			this, &FalconG::_SlotCreateUplinkIcon);
-	connect(&albumgen, &AlbumGenerator::SetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
+	connect(&albumgen, &AlbumGenerator::SignalSetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
 
 	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_SlotTnvSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection,	this, &FalconG::_SlotTnvMultipleSelection);
@@ -359,6 +359,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 	if(albumgen.StructChanged())
 	{
+		event->ignore();
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
 		int res = QuestionDialog( tr("falconG - albums edited"),
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
@@ -368,15 +369,20 @@ void FalconG::closeEvent(QCloseEvent * event)
 							   );
 		if (res == QMessageBox::Yes)
 		{
-			albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmAlways);			// never marks albums as not changed
-			while (!albumgen.StructWritten())	// wait until write finished
-				;
+			// must have an event loop here to wait the thread to complete, otherwise the SignalResultIsReady signal never arrives to the destination
+			QEventLoop loop;
+			connect(&albumgen, &AlbumGenerator::SignalStructWritten, &loop, &QEventLoop::quit);
+			albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmAlways);			// never marks albums as not changed
+			loop.exec();
+			//while (!albumgen.StructWritten())	// wait until write finished
+			//	;
 		}
 		else if (res == QMessageBox::Cancel)
 		{
 			event->ignore();
 			return;
 		}
+		QMainWindow::closeEvent(event);
 	}
 
 	QFile::remove(qsTmpName);
@@ -594,7 +600,7 @@ void FalconG::on_btnGenerate_clicked()
 		--_running;
 		if (_phase != -1)
 		{
-			ui.tabFalconG->setCurrentIndex(2);	// show 'Edit' page
+			ui.tabFalconG->setCurrentIndex(1);	// show 'Edit' page
 //			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0,0));
 		}
 		albumgen.SetRecrateAllAlbumsFlag(config.bGenerateAllPages);	// not until relevant changes
@@ -4994,7 +5000,7 @@ void FalconG::_SaveChangedTexts()
 
 	_selection.changed = fsNothing;			// all changes saved
 											// keep previous backup file and album's @changed@ status
-	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeep, AlbumGenerator::WriteMode::wmAlways);			
+	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmAlways);			
 }
 
 void FalconG::_SetLayoutMargins(int which)
@@ -5411,7 +5417,7 @@ void FalconG::on_btnWmShadowColor_clicked()
 
 void FalconG::on_btnSaveStruct_clicked()
 {
-	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmReplace, AlbumGenerator::WriteMode::wmAlways);	// save into struct and do not replace struct~ file
+	albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmReplaceFile, AlbumGenerator::WriteMode::wmAlways);	// save into struct and do not replace struct~ file
 }
 
 /*============================================================================

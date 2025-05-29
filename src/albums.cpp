@@ -516,37 +516,6 @@ static void __SetBaseDirs()
 }
 
 /*============================================================================
-* TASK:		gets image ID for album thumbnail recursively
-* EXPECTS: album - album.thumbnailId is an ID of an image or another album or 0
-*		   albums: map for finding the album which is a thumbnail in
-* GLOBALS:
-* REMARKS:	- may modify 'album'
-*			- if the album thumbnail is the path of an image its thumbnail
-*			  will be the ID of that image
-*			- if the thumbnail is 0	and the album has images than its thumbnail
-*				will be the first of its images
-*			- if the thumbnail is 0	and the album has sub-albums than its thumbnail
-*				will be the thumnbnail of the first of its sub-albums if
-*				the sub-album has one, or continue to search for a thumbnail
-*				recursively
-*			- if the thumbnail is 0	and the album contains no images and
-*				no asub-albums, then its thumbnail will be 0
-*--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::ThumbnailID(Album & album, AlbumMap& albums)
-{
-	if (album.thumbnailId.Val() == 0) // then the first image  or sub-album
-	{						  // will be set as its thumbnailId
-		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
-			return { IMAGE_ID_FLAG, 0 };
-		if (!album.ImageCount() && !album.VideoCount()) // then get thumbnailId for first sub-album
-			return ThumbnailID(albums[album.IdOfItemOfType(ALBUM_ID_FLAG,0)], albums);
-		else
-			return album.IdOfItemOfType(IMAGE_ID_FLAG | VIDEO_ID_FLAG, 0);
-	}
-	return album.thumbnailId;
-}
-
-/*============================================================================
 * TASK:
 * EXPECTS:
 * GLOBALS:
@@ -1208,7 +1177,10 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 	{
 		Album* found = Find(relativeParentPath);		// already in database?
 		if (found)
+		{
+			ShowWarning(QObject::tr("There's an album named \n'%1'\n already here!").arg(name), frmMain);
 			return found->ID;	// same base ID, same name then same album
+		}
 		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, relativeParentPath, false);   // using full path name only and not file content
 		ab.pathId = pathMap.Add(path);
 	}
@@ -1332,6 +1304,37 @@ Album *AlbumMap::Find(ID_t id)
 }
 
 /************************** Albumgenerator *************************/
+/*============================================================================
+* TASK:		gets image ID for album thumbnail recursively
+* EXPECTS: album - album.thumbnailId is an ID of an image or another album or 0
+*		   albums: map for finding the album which is a thumbnail in
+* GLOBALS:
+* REMARKS:	- may modify 'album'
+*			- if the album thumbnail is the path of an image its thumbnail
+*			  will be the ID of that image
+*			- if the thumbnail is 0	and the album has images than its thumbnail
+*				will be the first of its images
+*			- if the thumbnail is 0	and the album has sub-albums than its thumbnail
+*				will be the thumnbnail of the first of its sub-albums if
+*				the sub-album has one, or continue to search for a thumbnail
+*				recursively
+*			- if the thumbnail is 0	and the album contains no images and
+*				no asub-albums, then its thumbnail will be 0
+*--------------------------------------------------------------------------*/
+ID_t AlbumGenerator::ThumbnailID(Album& album, AlbumMap& albums)
+{
+	if (album.thumbnailId.Val() == 0) // then the first image  or sub-album
+	{						  // will be set as its thumbnailId
+		if (!album.ImageCount() && !album.VideoCount() && !album.SubAlbumCount())
+			return { IMAGE_ID_FLAG, 0 };
+		if (!album.ImageCount() && !album.VideoCount()) // then get thumbnailId for first sub-album
+			return ThumbnailID(albums[album.IdOfItemOfType(ALBUM_ID_FLAG, 0)], albums);
+		else
+			return album.IdOfItemOfType(IMAGE_ID_FLAG | VIDEO_ID_FLAG, 0);
+	}
+	return album.thumbnailId;
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -2439,8 +2442,8 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 			if (thumbnail && album)		 // It's parent also changes
 			{
 				album->SetThumbnail(id);		// and increments 'thumbNailCount'
-				if (album->parentId.Val() )
-					SetAlbumModified(album->parentId);
+				if (album->parentId.Val())
+					MarkAllParentsAsChanged(album->ID); //  SetAlbumModified(album->parentId);
 			}
 			SetAlbumModified(album->ID);			// set it as changed, always
 		}
@@ -2782,7 +2785,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	if (n == 1)   // n == 1  	no ID is determined yet, sl[0] contains either the path (existing image) or just the name (top level folder)
 	{								 // TODO
 		if (aParent)
-			SetAlbumModified(*aParent);		// aParent must exist for each non-root album
+			MarkAllParentsAsChanged(aParent->ID); //  SetAlbumModified(*aParent);		// aParent must exist for each non-root album
 
 		QString path;
 		SeparateFileNamePath(sl[0], path, album.name);
@@ -2811,7 +2814,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	{								// in this case immediate parent must be changed too
 		SetAlbumModified(album);
 		if (aParent != nullptr)
-			SetAlbumModified(*aParent);
+			MarkAllParentsAsChanged(aParent->ID); //  SetAlbumModified(*aParent);		// aParent must exist for each non-root album
+		
 		++_structFileChangeCount;
 	}
 
@@ -2877,7 +2881,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 				{
 					SetAlbumModified(album);
 					if (parent.Val())
-						SetAlbumModified(parent);	// aParent pointer might be invalidated
+						MarkAllParentsAsChanged(parent); //  SetAlbumModified(parent);	// aParent pointer might be invalidated
 				}
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
@@ -3149,8 +3153,8 @@ int AlbumGenerator::_DoCopyRes()
 
 /*============================================================================
 * TASK:		Writes whole directory structure into 'gallery.struct' in a separate thread
-* EXPECTS:  wm   (def.  WriteMode::wmOnlyIfChanged)	: should write even when didn't change? 
-			bm   (def. BackupMode::wmReplace)		: should replace backup file with original
+* EXPECTS:  bm   (def. BackupMode::wmReplace)		: should replace backup file with original
+*			wm   (def.  WriteMode::wmOnlyIfChanged)	: should write even when didn't change? 
 * GLOBALS:
 * REMARKS: Directory structure is written into file gallery.tmp, so if an
 *			error occurs then the original structure file is still available.
@@ -3176,10 +3180,10 @@ int AlbumGenerator::WriteDirStruct(BackupMode bm, WriteMode wm)
 		return 0;
 
 	_structIsBeingWritten = true;
-	pStructWiter = new AlbumStructWriter(*this, bm == BackupMode::bmKeep);
-	connect(pStructWiter, &AlbumStructWriter::resultReady, this, &AlbumGenerator::_WriteStructReady);
+	pStructWiter = new AlbumStructWriter(*this, bm == BackupMode::bmKeepBackupFile);
+	connect(pStructWiter, &AlbumStructWriter::SignalResultIsReady, this, &AlbumGenerator::_SlotForStructWriterFinished);
 	connect(pStructWiter, &AlbumStructWriter::finished, pStructWiter, &QObject::deleteLater);
-	_keepPreviousBackup = bm == BackupMode::bmKeep;
+	_keepPreviousBackup = bm == BackupMode::bmKeepBackupFile;
 
 // comment out for DEBUG
  	pStructWiter->start();
@@ -3721,15 +3725,16 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 	if (config.bFacebookLink)
 		s += _IncludeFacebookLibrary();
 
+	QString sLang = languages["abbrev"]->size() > 1 ? ((*languages["language"])[_actLanguage]) : QString(),
+			sLangU = (sLang.isEmpty() ? "" : "_" + sLang);
+
 	if (album.ID == RECENT_ALBUM_ID)
 	{
-		QString qs = "\n<script type=\"text/javascript\">\nconst lng='" + ((*languages["language"])[_actLanguage]) + "'\n"
+		s += "\n<script type=\"text/javascript\">\nconst lng='" + sLangU + "'\n"
 			"const imd='../" + config.dsImageDir.ToString() + "'\n"
 			"const thd='../" + config.dsThumbDir.ToString() + "'\n"
 			"const ald=''\n</script>"			// no videos  or albums here
 		;
-		s += qs;
-
 	}
 	else if (album.items.size()) // const_cast<Album&>(album).ImageCount() + const_cast<Album&>(album).VideoCount() )
 	{
@@ -3738,25 +3743,19 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		s += QString("\n<script type=\"text/javascript\">\n"); 
 
 		// important configuration
-		QString qs = QString(	" const imd='%1%2',"		// image dir
+		s += QString(	" const imd='%1%2',"		// image dir
 								"thd='%3%4',"	// thumbnail dir
 								"rsd='%5%6',"	// resource dir
 								"ald='%7%8',"	// albumdir - only used for root and generated programs
 								"alb='%9',"		// base name of albums
-								"lng="			// argument added below
+								"lng='%10';"		// language abbreviation
 		).arg(supdir).arg(config.dsImageDir.ToString())
 		 .arg(supdir).arg(config.dsThumbDir.ToString())
 			.arg(supdir).arg("res/")
 		 .arg(supdir).arg(config.dsAlbumDir.ToString())
 		 .arg(config.sBaseName.ToString())
+		 .arg(sLang)
 			;
-									
-		if ((*languages["language"]).size() > 1)	// 2 letter language abbrev,
-			qs += QString("'%1';").arg((*languages["language"])[_actLanguage]);
-		else
-			qs += "'';";
-		
-		s += qs;
 
 		int icnt=0, vcnt=0, acnt=0;	// count of images videos and albums
 
@@ -3766,11 +3765,10 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		//		file name (number), type (I: image, V: video), width (w), height (h), title (or ''), description (or '')
 
 		IABase* pIa = nullptr;
-		QString qsI, qsV, qsA, *pqs=nullptr;
+		QString qs, qsI, qsV, qsA, *pqs=nullptr;
 
 		for (auto& a : album.items)
 		{
-			qs.clear();
 			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
 			{
 				++icnt;
@@ -3809,17 +3807,16 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += "},\n";
 			}		
 		}
-		s += QString("\n var imgs=[\n%1];\n").arg(qsI);		// can't be const, because we must assign to it
-		s += QString("\n const vids=[\n%1];\n").arg(qsV);
-		s += QString("\n const albs=[\n%1];\n").arg(qsA);
-
-		qs = QString("  const icnt=%1,vcnt=%2,acnt=%3;\n").arg(icnt).arg(vcnt).arg(acnt);
-		s += qs + QString("</script>\n");
+		s += QString("\n var imgs=[\n%1];\n"
+			         "\n const vids=[\n%2];\n"
+					 "\n const albs=[\n%3];\n"
+					 "  const icnt=%4,vcnt=%5,acnt=%6;\n"
+					 "</script>\n"
+									).arg(qsI).arg(qsV).arg(qsA).arg(icnt).arg(vcnt).arg(acnt);
 	}
-	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList"+ (*languages["abbrev"])[_actLanguage] +".js\"></script>\n" +
-		 "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>";
-
-	s += QString("\n</head>\n");
+	if (config.bGenerateLatestUploads)
+		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList" + sLangU + ".js\"></script>\n";
+	s += "<script type=\"text/javascript\" src=\"" + supdir + "js/falconG.js\"></script>\n</head>\n";
 
 	return s;
 }
@@ -4389,7 +4386,7 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 	if (_processing)		// else leave the page unfinished
 	{
 		// main section is finished
-		_ofs << "\n   </main> <!-- end of main section -->\n";
+		_ofs << "\n   </div> <!-- end of main section -->\n";
 		// footer section
 		_WriteFooterSection(album);
 		// end html
@@ -5036,7 +5033,7 @@ int AlbumGenerator::SaveStyleSheets()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void AlbumGenerator::_WriteStructReady(QString sErrorMessage, QString sStructPath, QString sStructTmp)
+void AlbumGenerator::_SlotForStructWriterFinished(QString sErrorMessage, QString sStructPath, QString sStructTmp)
 {
 	_structIsBeingWritten = false;
 
@@ -5051,6 +5048,7 @@ void AlbumGenerator::_WriteStructReady(QString sErrorMessage, QString sStructPat
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
 	//else
 	//	SetChangesWritten();	// clear all 'changed' flag
+	emit SignalStructWritten();
 }
 
 
@@ -5084,6 +5082,233 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 		tprev = tAct;
 	}
 }
+
+/*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS:	album			 - remove from this album's items
+ *			ix:				 - index of item to remove from 'items'
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if the item to be deleted is a folder and 'fromDisk'
+ *				is specified all files inside it will be deleted, 
+ *				even if they were not in the data base
+ *			- tries to move files into trashcan/recycle bin first
+ *			- only deletes images when no album contains them and
+ *				they are not used as thumbnails either. Otherwise
+ *				just decrement the counters
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
+{
+	QString path; 
+	ID_t id = album.items[ix];
+	if (id.IsAlbum()) // this item is an album, so all of >>its<< items
+	{						// must be removed
+		Album& subAlbum = _albumMap[id];
+		path = subAlbum.FullSourceName();
+		_RemoveAllItemsFrom(id, fromDisk);
+		if (album.thumbnailId.Val() && _imageMap.contains(album.thumbnailId))
+		{
+			Image* img = &_imageMap[album.thumbnailId];
+			--img->thumbnailCount;
+			if (!img->usageCount && !img->thumbnailCount)
+			{
+				_imageMap.remove(album.thumbnailId);
+				if (fromDisk && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+		}
+		_albumMap.remove(id);
+		// folders and files may be left in sub-folders
+		// if they were not in the data base even after this!
+		if (fromDisk && !QFile::moveToTrash(path))
+			RemoveFolderRecursively(path);		// so those must also be deleted
+
+		album.DecrementAlbumCount();
+	}
+	else 
+	{
+		if (id.IsImage())    // remove from 'album'
+		{
+			Image* img = &_imageMap[id];
+			if (!--img->usageCount && (!img->thumbnailCount)) 		// nobody uses this?
+			{	// if only used as thumbnail and the file is removed from disk, can't keep it
+				path = img->FullSourceName();
+				_imageMap.remove(id);
+				if (fromDisk && (img->usageCount || img->thumbnailCount) && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+			album.DecrementImageCount();
+		}
+		else if (id.IsVideo())    // remove from this album
+		{
+			Video* vid = &_videoMap[id];
+			if (!--vid->usageCount)
+			{
+				path = vid->FullSourceName();
+				_videoMap.remove(id);
+				if (fromDisk && (vid->usageCount) && !QFile::moveToTrash(path))
+					QFile::remove(path);
+			}
+			album.DecrementVideoCount();
+		}
+		// remove invalid item
+		album.items.remove(ix);
+	}
+}
+
+/*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS: albumID			 - remove all of this album's items
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if any item to be deleted is a folder all files inside
+ *			  it will be deleted, even if they were not in the data base
+ *			- tries to move files into trashcan^recycle bin first
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID, bool fromDisk)
+{
+	Album& album = _albumMap[albumID];
+	QString path;
+	for (int ix = 0; ix < album.items.count(); ++ix)
+		_RemoveItem(album, ix, fromDisk);
+	album.items.clear();
+	albumgen.SetAlbumModified(album);
+}
+/*=============================================================
+ * TASK:   recursive source album, and image/video deletion
+ *			from data base and conditionally from disk
+ * PARAMS: albumID			 - remove from this album's items
+ *		   iconsForThisAlbum - remove also icons for items
+ *		   ilx				 - list of indexes in album's items
+ *								of items to be removed
+ *			fromDisk		 - delete source files from disk too
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- if any item to be deleted is a folder all files inside
+ *			  it will be deleted, even if they were not in the data base
+ *			- tries to move files into trashcan/recycle bin first
+ *------------------------------------------------------------*/
+void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
+{
+	Album& album = _albumMap[albumID];
+	QString path;
+	for (auto ix : ilx)
+		album.items[ix].SetFlag(DELETE_IT_FLAG, true);
+	// now delete marked elements (this way ilx need not be ordered)
+	for (int ix = album.items.size() - 1; ix >= 0; --ix)
+	{
+		if (album.items[ix].ShouldDelete())
+		{
+			_RemoveItem(album, ix, fromDisk);
+			if(iconsForThisAlbum)
+				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
+		}
+	}
+	album.RecalcItemCounts();			// counts would reflect th number of items
+	albumgen.SetAlbumModified(album);
+}
+
+/*=============================================================
+ * TASK:	remove albums and others from structures
+ *			and possibly from >>source<< gallery on disk too
+ * PARAMS:	albumID - parent album, whose items are to be removed
+ *			ilx - array of id-s to remove. Ids have type flag set
+ *				this must be ordered from last item to first
+ *			fromdisk:deletes it from disk too, but only after confirmation
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
+{
+	if (fromDisk)
+		if(QMessageBox::question(frmMain, tr("falconG - Warning"),
+								tr(	"If a folder is removed all the files and folders inside it will be deleted too!\n\n"
+									"This cannot be undone!\n\n"
+									"Really delete the selected items from disk?")) != QMessageBox::Yes)
+			return;
+	emit SignalAlbumStructWillChange();
+	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
+	albumgen.WriteDirStruct(BackupMode::bmKeepBackupFile, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original
+						
+	emit SignalAlbumStructChanged(false);								// album structure changed and saved
+}
+
+void AlbumGenerator::SetAlbumModified(Album& album)
+{
+	if (_processing)
+		return;
+
+	if (_slAlbumsModified.indexOf(album.ID) < 0)
+	{
+		_slAlbumsModified << album.ID;
+		album.changed = true;
+	}
+	emit SignalAlbumStructChanged(true);
+}
+
+void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
+{
+	if (_processing)
+		return;
+
+	if (_slAlbumsModified.indexOf(albumId) < 0)
+	{
+		Album& album = _albumMap[albumId];
+		_slAlbumsModified << albumId;
+		album.changed = true;
+	}
+	emit SignalAlbumStructChanged(true);
+}
+
+//************************* AlbumParentsMap ******************************************
+
+void AlbumGenerator::MarkAllParentsAsChanged(ID_t albumId)	// marks all parents of this album as changed
+{
+	if (_albumParentsMap.contains(albumId))
+	{
+		QList<ID_t> parents = _albumParentsMap.values(albumId);
+		for (ID_t parentId : parents)
+			SetAlbumModified(parentId);
+
+		albumgen.SignalAlbumStructChanged(true);
+	}
+}
+
+void AlbumGenerator::MarkParentsWithoutThumbnailsAsChanged(ID_t albumId)
+{
+	if (_albumParentsMap.contains(albumId))
+	{
+		QList<ID_t> parents = _albumParentsMap.values(albumId);
+		for (ID_t parentId : parents)
+		{
+			Album& parent = _albumMap[parentId];
+			if (!parent.thumbnailId.Val())
+				SetAlbumModified(parentId);
+		}
+	}
+}
+
+void AlbumGenerator::ChangeParentList(ID_t albumID, ID_t parentID, ID_t oldParentID)
+{
+	if (oldParentID.Val())
+	{
+		SetAlbumModified(oldParentID);
+		_albumParentsMap.remove(albumID, oldParentID);
+	}
+	if (parentID.Val())
+	{
+		SetAlbumModified(parentID);
+		_albumParentsMap.insert(albumID, oldParentID);
+	}
+}
+
+
+//************************* VideoMap ******************************************
 Video* VideoMap::Find(ID_t id, bool useBase)
 {
 	uint64_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
@@ -5248,186 +5473,4 @@ QString Video::AsString(int width, int height)
 QSize Video::ThumbSize() const
 {
 	return ThumbSizeFromId(thumbnailId);
-}
-
-/*=============================================================
- * TASK:   recursive source album, and image/video deletion
- *			from data base and conditionally from disk
- * PARAMS:	album			 - remove from this album's items
- *			ix:				 - index of item to remove from 'items'
- *			fromDisk		 - delete source files from disk too
- * GLOBALS:
- * RETURNS:
- * REMARKS:	- if the item to be deleted is a folder and 'fromDisk'
- *				is specified all files inside it will be deleted, 
- *				even if they were not in the data base
- *			- tries to move files into trashcan/recycle bin first
- *			- only deletes images when no album contains them and
- *				they are not used as thumbnails either. Otherwise
- *				just decrement the counters
- *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
-{
-	QString path; 
-	ID_t id = album.items[ix];
-	if (id.IsAlbum()) // this item is an album, so all of >>its<< items
-	{						// must be removed
-		Album& subAlbum = _albumMap[id];
-		path = subAlbum.FullSourceName();
-		_RemoveAllItemsFrom(id, fromDisk);
-		if (album.thumbnailId.Val() && _imageMap.contains(album.thumbnailId))
-		{
-			Image* img = &_imageMap[album.thumbnailId];
-			--img->thumbnailCount;
-			if (!img->usageCount && !img->thumbnailCount)
-			{
-				_imageMap.remove(album.thumbnailId);
-				if (fromDisk && !QFile::moveToTrash(path))
-					QFile::remove(path);
-			}
-		}
-		_albumMap.remove(id);
-		// folders and files may be left in sub-folders
-		// if they were not in the data base even after this!
-		if (fromDisk && !QFile::moveToTrash(path))
-			RemoveFolderRecursively(path);		// so those must also be deleted
-
-		album.DecrementAlbumCount();
-	}
-	else 
-	{
-		if (id.IsImage())    // remove from 'album'
-		{
-			Image* img = &_imageMap[id];
-			if (!--img->usageCount && (!img->thumbnailCount)) 		// nobody uses this?
-			{	// if only used as thumbnail and the file is removed from disk, can't keep it
-				path = img->FullSourceName();
-				_imageMap.remove(id);
-				if (fromDisk && (img->usageCount || img->thumbnailCount) && !QFile::moveToTrash(path))
-					QFile::remove(path);
-			}
-			album.DecrementImageCount();
-		}
-		else if (id.IsVideo())    // remove from this album
-		{
-			Video* vid = &_videoMap[id];
-			if (!--vid->usageCount)
-			{
-				path = vid->FullSourceName();
-				_videoMap.remove(id);
-				if (fromDisk && (vid->usageCount) && !QFile::moveToTrash(path))
-					QFile::remove(path);
-			}
-			album.DecrementVideoCount();
-		}
-		// remove invalid item
-		album.items.remove(ix);
-	}
-}
-
-/*=============================================================
- * TASK:   recursive source album, and image/video deletion
- *			from data base and conditionally from disk
- * PARAMS: albumID			 - remove all of this album's items
- *			fromDisk		 - delete source files from disk too
- * GLOBALS:
- * RETURNS:
- * REMARKS:	- if any item to be deleted is a folder all files inside
- *			  it will be deleted, even if they were not in the data base
- *			- tries to move files into trashcan^recycle bin first
- *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID, bool fromDisk)
-{
-	Album& album = _albumMap[albumID];
-	QString path;
-	for (int ix = 0; ix < album.items.count(); ++ix)
-		_RemoveItem(album, ix, fromDisk);
-	album.items.clear();
-	albumgen.SetAlbumModified(album);
-}
-/*=============================================================
- * TASK:   recursive source album, and image/video deletion
- *			from data base and conditionally from disk
- * PARAMS: albumID			 - remove from this album's items
- *		   iconsForThisAlbum - remove also icons for items
- *		   ilx				 - list of indexes in album's items
- *								of items to be removed
- *			fromDisk		 - delete source files from disk too
- * GLOBALS:
- * RETURNS:
- * REMARKS:	- if any item to be deleted is a folder all files inside
- *			  it will be deleted, even if they were not in the data base
- *			- tries to move files into trashcan/recycle bin first
- *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
-{
-	Album& album = _albumMap[albumID];
-	QString path;
-	for (auto ix : ilx)
-		album.items[ix].SetFlag(DELETE_IT_FLAG, true);
-	// now delete marked elements (this way ilx need not be ordered)
-	for (int ix = album.items.size() - 1; ix >= 0; --ix)
-	{
-		if (album.items[ix].ShouldDelete())
-		{
-			_RemoveItem(album, ix, fromDisk);
-			if(iconsForThisAlbum)
-				fileIcons.Remove(ix);	// fileIcons in thumbnailView.cpp
-		}
-	}
-	album.RecalcItemCounts();			// counts would reflect th number of items
-	albumgen.SetAlbumModified(album);
-}
-
-/*=============================================================
- * TASK:	remove albums and others from structures
- *			and possibly from >>source<< gallery on disk too
- * PARAMS:	albumID - parent album, whose items are to be removed
- *			ilx - array of id-s to remove. Ids have type flag set
- *				this must be ordered from last item to first
- *			fromdisk:deletes it from disk too, but only after confirmation
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
-{
-	if (fromDisk)
-		if(QMessageBox::question(frmMain, tr("falconG - Warning"),
-								tr(	"If a folder is removed all the files and folders inside it will be deleted too!\n\n"
-									"This cannot be undone!\n\n"
-									"Really delete the selected items from disk?")) != QMessageBox::Yes)
-			return;
-	emit SignalAlbumStructWillChange();
-	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
-	albumgen.WriteDirStruct(BackupMode::bmKeep, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original
-						
-	emit SignalAlbumStructChanged(false);								// album structure changed and saved
-}
-
-void AlbumGenerator::SetAlbumModified(Album& album)
-{
-	if (_processing)
-		return;
-
-	if (_slAlbumsModified.indexOf(album.ID) < 0)
-	{
-		_slAlbumsModified << album.ID;
-		album.changed = true;
-	}
-	emit SignalAlbumStructChanged(true);
-}
-
-void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
-{
-	if (_processing)
-		return;
-
-	if (_slAlbumsModified.indexOf(albumId) < 0)
-	{
-		Album& album = _albumMap[albumId];
-		_slAlbumsModified << albumId;
-		album.changed = true;
-	}
-	emit SignalAlbumStructChanged(true);
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef _ALBUMS_H
 	#define _ALBUMS_H
 
@@ -209,15 +209,30 @@ struct Video : IABase			// format: MP4, OOG, WebM
 };
 
 //------------------------------------------
-// A gallery is a hierarchy of albums which may contain other albums images and videos.
+// A gallery is a hierarchy of albums which may contain other albums, images and videos.
 // It resides in a physical folder on disk. A gallery folder contains the following:
 // - a '<name>.struct' file, a database which contains the structure of the gallery, and
 // - a '<name>.ini' file which contains the configuration of the gallery.
 // the <name> is (initially) the name of the gallery folder.
+// 
 // All albums in this hierarchy are considered virtual folders in the data base
 // even when they correspond to real folders on disk.
-// The albums in this hierarchy are identified by their ID which is a CRC32 of their path name
-// which is, for albumms that have physical folders, is the absolute path name of these folders.
+// 
+// There are three categories of albums in the data base:
+//		(virtual) albums which have a corresponding physical presence on disk
+// 		(virtual) albums which doesn't have physical folders on disk
+// 		(virtual) albums which are links to other (virtual) albums
+//				  these have separate parent from album they refer to and
+//				  may or may not have their own texts (display name, description), 
+//				  but always share the thumbnail
+//  (If you want a sub-album (hierarchy) to mirror another one but with different thumbnail(s)
+//   then create new virtual folders (or folder hierarchy) for them 
+//   then add the same images/videos to them as the original album has.)
+// 
+// The albums in this hierarchy are identified by their unique ID which is a CRC32 of their path name
+// plus some overhead to avoid collisions, which, for albumms that have physical folders, 
+// is the absolute path name of these folders.
+// 
 // Album folders may be outside the gallery folder. For virtual albums the path name is the
 // <absolute path of source folder>/<random 10 character string>/<logical name of album>
 // The random 10 character string is only used to calculate the ID of the album.
@@ -232,8 +247,10 @@ struct Video : IABase			// format: MP4, OOG, WebM
 
 struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 {
-	ID_t parentId = { ALBUM_ID_FLAG, 0 };	// just a single parent is allowed Needed to re-generate parent's HTML files too when
-						// this album changes. Must be modified when this album is moved into another one(**TODO**)
+	ID_t parentId = { ALBUM_ID_FLAG, 0 };	// just a single parent is allowed Needed to re-generate
+											// parent's HTML files too when this album changes. 
+											// Link albums have their own parent
+											// Must be modified when this album is moved into another one(**TODO**)
 	ID_t thumbnailId = ID_t(IMAGE_ID_FLAG, 0);	// image ID	or 0
 
 	IdList items;		// for all images, videos and albums in this album GET item for position using IdOfItem!!
@@ -349,6 +366,26 @@ public:
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums
 };
+					 // id of album->Ids of parents
+class AlbumParentsMap : public QMultiMap<ID_t, ID_t>
+{
+public:
+	AlbumParentsMap() {}
+	~AlbumParentsMap() {}
+	void Add(ID_t id, ID_t parentId) { insert(id, parentId); }
+	void Remove(ID_t id, ID_t parentId) { remove(id, parentId); }
+	void Remove(ID_t id) { remove(id); }	// removes all parents of this album
+	void Clear() { clear(); }
+	ID_t ParentOf(ID_t id) const
+	{
+		return contains(id) ? value(id) : ID_t::Invalid();
+	}
+	void RemoveParent(ID_t id, ID_t parentId)	// removes the parent of this album
+	{
+		if (contains(id))
+			remove(id, parentId);
+	}
+};
 
 struct IdsFromStruct
 {
@@ -376,7 +413,7 @@ public:
 											// an image by its name (relative to this path) only
 	static bool bSetDirIndexToo;	// if true then the number of items in a directory is limited
 
-	enum class BackupMode {bmKeep, bmReplace};
+	enum class BackupMode {bmKeepBackupFile, bmReplaceFile};
 	enum class WriteMode {wmOnlyIfChanged, wmAlways};
 	AlbumGenerator() { Init();  };
 	void Init();
@@ -392,11 +429,15 @@ public:
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
 
+	void MarkAllParentsAsChanged(ID_t albumId);	// marks all parents of this album as changed
+	void MarkParentsWithoutThumbnailsAsChanged(ID_t albumId);	// marks all parents of this album as changed
+	void ChangeParentList(ID_t albumID, ID_t parentID, ID_t oldParentID);		// add to or modify the parent list of this album
+
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
-	int WriteDirStruct(BackupMode bm=BackupMode::bmKeep, WriteMode wm=WriteMode::wmOnlyIfChanged);		
+	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
 	bool StructWritten() const { return !_structIsBeingWritten; }
 	bool StructChanged() const { return _structFileChangeCount;  }
-	void SetStructChanged(bool val) { _structFileChangeCount += (val ? 1 : -_structFileChangeCount); }
+	void SetStructChanged(bool val) { _structFileChangeCount = (val ? ++ _structFileChangeCount : 0); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
@@ -462,7 +503,8 @@ signals:
 	void SignalAlbumStructChanged(bool yes);
 	void SignalToShowRemainingTime(time_t actual, time_t total, int count, bool speed);
 	void SignalToCreateUplinkIcon(QString destPath, QString destName);
-	void SetDirectoryCountTo(int cnt);
+	void SignalSetDirectoryCountTo(int cnt);
+	void SignalStructWritten();
 public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }
 
@@ -485,6 +527,7 @@ private:
 
 	TextMap	 _textMap;		// all texts for all albums and images
 	AlbumMap _albumMap;		// all source albums			ID.flag has ALBUM_ID_FLAG
+	AlbumParentsMap _albumParentsMap;	// all source albums and their parents
 	ImageMap _imageMap;		// all images for all albums	ID.flag has IMAGE_ID_FLAG and possibly ORPHAN_FLAG
 	VideoMap _videoMap;		// all videos from all albums	ID.flag has ALBUM_ID_FLAG
 
@@ -586,7 +629,7 @@ private:
 	bool _ReadFromGallery();	// TODO recrates album structure from existing gallery 
 								// but can't recover album paths, image names or image dimensions
 private:
-	void _WriteStructReady(QString s, QString sStructPath, QString sStructTmp);		// slot !
+	void _SlotForStructWriterFinished(QString s, QString sStructPath, QString sStructTmp);		// slot !
 	void _RemoveItem(Album &album, int which, bool fromdisk); // which: index in album's items
 	void _RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
 	void _RemoveAllItemsFrom(ID_t albumID, bool fromdisk);

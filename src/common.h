@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -139,6 +139,7 @@ const uint8_t INVALID_ID_FLAG = 0x00;
 const uint8_t IMAGE_ID_FLAG = 0x01;	// when set ID is for a image
 const uint8_t VIDEO_ID_FLAG = 0x02;	// when set ID is for a video
 const uint8_t ALBUM_ID_FLAG = 0x04;	// when set ID is for an album (used for albums as folder thumbnails)
+const uint8_t ALBUM_LINK_FLAG = 0x08;	// when set ID is for an album already in the database
 // removed: thumbnailCount is used instead   const uint8_t THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
 const uint8_t EXCLUDED_FLAG = 0x10;
 const uint8_t ORPHAN_FLAG	= 0x20;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
@@ -283,12 +284,14 @@ public:
 
 	constexpr inline bool DoesExist() const		{ return _flags & EXISTING_FLAG; }
 	constexpr inline bool IsAlbum() const		{ return _flags & ALBUM_ID_FLAG; }
+	constexpr inline bool IsAlbumLink() const	{ return _flags & ALBUM_LINK_FLAG; }
 	constexpr inline bool IsExcluded() const	{ return _flags & EXCLUDED_FLAG; }
 	constexpr inline bool IsImage() const		{ return _flags & IMAGE_ID_FLAG; }
 	constexpr inline bool IsVideo() const		{ return _flags & VIDEO_ID_FLAG; }
 	constexpr inline bool IsDirIndexSet() const	{ return _dirIndex != NOT_SET;   }
 	constexpr inline bool ShouldDelete() const	{ return _flags & DELETE_IT_FLAG; }
 };
+
 const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
 const ID_t TOPMOST_ALBUM_ID = { ALBUM_ID_FLAG, 0x01};
 const ID_t RECENT_ALBUM_ID	= { ALBUM_ID_FLAG, 0x02 };

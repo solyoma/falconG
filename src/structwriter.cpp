@@ -1,4 +1,4 @@
-#include "structwriter.h"
+ï»¿#include "structwriter.h"
 
 
 /*============================================================================
@@ -55,7 +55,6 @@ AlbumStructWriter::AlbumStructWriter(AlbumGenerator& generator, bool recordChang
 *--------------------------------------------------------------------------*/
 void AlbumStructWriter::run()
 {
-	QString result;
 	QMutexLocker locker(&_albumMapStructIsBeingWritten);
 			// mutex is locked and will bw unlocked when function returns
 
@@ -68,15 +67,14 @@ void AlbumStructWriter::run()
 	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		// error
-		result = "Can't write file";
-		emit resultReady(result, sStructPath, sStructTmp);
+		emit SignalResultIsReady("Can't write file", sStructPath, sStructTmp);
 		return;
 	}
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
 	_ofs << versionStr << majorStructVersion << "." << minorStructVersion << "." << subStructVersion
-		<< "\n#  © - András Sólyom (2018-)" << QString().setNum(PROGRAM_CONFIG::copyrightYear)  // default values may differ from 'config'
+		<< "\n#  Â© - AndrÃ¡s SÃ³lyom (2018-)" << QString().setNum(PROGRAM_CONFIG::copyrightYear)  // default values may differ from 'config'
 		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()
@@ -92,7 +90,7 @@ void AlbumStructWriter::run()
 	_ofs.flush();
 	f.close();
 
-	emit resultReady(result, sStructPath, sStructTmp);
+	emit SignalResultIsReady(QString(), sStructPath, sStructTmp);
 }
 
 void AlbumStructWriter::_WriteImageRecord(Image* pImg, QString indent)

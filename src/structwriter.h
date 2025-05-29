@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _STRUCTWRITER_H
 	#define _STRUCTWRITER_H
@@ -38,9 +38,9 @@ class AlbumStructWriter : public QThread
 	void _WriteOrphanThumbnails();
 
 signals:
-	void resultReady(QString s, QString sStructPath, QString sStructTmp);
+	void SignalResultIsReady(QString s, QString sStructPath, QString sStructTmp);
 public:
-	void run() override;  // the actual writing
+	void run() override;  // the actual writing happens here
 	AlbumStructWriter(AlbumGenerator& generator, bool keepChanged = true, QObject* parent = Q_NULLPTR);
 };
 //------------------------------------------
