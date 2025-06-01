@@ -1,4 +1,4 @@
-#include <QObject>
+﻿#include <QObject>
 #include <QtWidgets>
 #include <QtDebug>
 #include <QImageReader>
@@ -149,15 +149,17 @@ int QuestionDialog(QString title, QString text, Common::DialogBitsOrder show, QW
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 {
 	QString plurali = QObject::tr("images"), plurala = QObject::tr("albums");   // plural for image and album. May differ in other languages
-	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk \n(including items and sub-albums for album),\n or just to remove them from gallery?")
+	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk\n"
+							 "(including items and sub-albums for album),\n"
+							 "or just to remove them from gallery?")
 		.arg(list.size() > 1 ? plurali : QObject::tr("image"))
 		.arg(list.size() > 1 ? plurala : QObject::tr("album"));
 	QMessageBox msg;
 	msg.setWindowTitle(QObject::tr("falconG - Delete Images and albums"));
 	msg.setText(qs);
-	msg.addButton(QObject::tr("Just remove"), QMessageBox::NoRole);               // 0
-	msg.addButton(QObject::tr("From disk"), QMessageBox::YesRole);                // 1
-	QPushButton *pbCancel = msg.addButton(QObject::tr("Cancel"), QMessageBox::RejectRole);                // 2
+	msg.addButton(QObject::tr("Just remove"), QMessageBox::NoRole);							// 0
+	msg.addButton(QObject::tr("From disk"), QMessageBox::YesRole);							// 1
+	QPushButton *pbCancel = msg.addButton(QObject::tr("Cancel"), QMessageBox::RejectRole);  // 2
 	msg.setDefaultButton(pbCancel);
 	msg.setIcon(QMessageBox::Question);
 	int res = msg.exec();

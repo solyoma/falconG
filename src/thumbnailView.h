@@ -1,4 +1,4 @@
-/*
+﻿/*
  * from Phototonic Image Viewer
  *
  *  Copyright (C) 2013 Ofer Kashayov <oferkv@live.com>
@@ -74,7 +74,7 @@ class ThumbnailItem : public QStandardItem
 public:
 	enum Type { none = QStandardItem::UserType + 1, image, video, folder };
 	int itemPos=-1;		// original position of this item in one of the image, 
-						// video or album lists of the album with '_albumId'
+						// video or album lists of the album with '_ownerIdVal'
 						// set in constructor (parameter 'pos')
 	static int thumbHeight;
 
@@ -85,25 +85,25 @@ public:
 		_itemType = typ; 
 	}
 
-	ThumbnailItem(int pos = 0, ID_t albumID = ID_t::Invalid(), Type typ = none, QIcon icon = QIcon());
-	ThumbnailItem(const ThumbnailItem &other)			:ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
-	ThumbnailItem(const ThumbnailItem &&other) noexcept	:ThumbnailItem(other.itemPos, other._albumId, other._itemType, other._icon) {}
+	ThumbnailItem(int pos = 0, IDVal_t ownerIDVal = ID_t::Invalid().Val(), Type typ = none, QIcon icon = QIcon());
+	ThumbnailItem(const ThumbnailItem &other)			:ThumbnailItem(other.itemPos, other._ownerIdVal, other._itemType, other._icon) {}
+	ThumbnailItem(const ThumbnailItem &&other) noexcept	:ThumbnailItem(other.itemPos, other._ownerIdVal, other._itemType, other._icon) {}
 	ThumbnailItem &operator=(const ThumbnailItem& other) 
 	{ 
 		QStandardItem::operator=(other); 
 		itemPos = other.itemPos; 
-		_albumId = other._albumId; 
+		_ownerIdVal = other._ownerIdVal; 
 		_itemType = other._itemType; 
 		return *this;
 	}
 	// set this only once for each run (static)
 	static void SetThumbHeight(int th) {thumbHeight = th;  }
 		// use this after constructing 
-	void SetOwnerId(ID_t id) 
+	void SetOwnerId(IDVal_t id)
 	{ 
-		if (id.Val()==NO_ID) 
-			id = TOPMOST_ALBUM_ID;
-		_albumId = id; 
+		if (id == NO_ID) 
+			id = TOPMOST_ALBUM_ID.Val();
+		_ownerIdVal = id; 
 	}
 
 
@@ -115,19 +115,14 @@ public:
 	QString FullSourcePath() const;
 	QString FullLinkName() const;
 	QString DisplayName() const;
-	QIcon   IconForFile() const;		// uses _albumId and itemPos
+	QIcon   IconForFile() const;		// uses _ownerIdVal and itemPos
 
 private:
-	ID_t _albumId = { ALBUM_ID_FLAG, 0xFFFFFFFFFFFFFFFFu };	// for parent album, set before anything else
+	IDVal_t _ownerIdVal = 0xFFFFFFFFFFFFFFFFu;	// for parent album, set before anything else
 	Type _itemType;
 	QIcon _icon;
 
-	Album	*_ActAlbum() const { return albumgen.AlbumForID(_albumId); }
-	Album   *_ParentAlbum() const 
-	{ 
-		Album* pa = _ActAlbum();
-		return pa->parentId.Val() ? albumgen.AlbumForID(pa->parentId) : nullptr;
-	}
+	Album* _ActOwner() const { return albumgen.AlbumForIDVal(_ownerIdVal); }
 	QString _ImageToolTip() const;
 	QString _VideoToolTip() const;
 	QString _FolderToolTip() const;
@@ -216,6 +211,9 @@ using ThumbnailViewModel = QStandardItemModel;
  /*=============================================================
  * my list view that shows icons
  * REMARKS:	In a QListView 'index' gives the 0 based index of the icon
+ * 
+ * members:
+ *	_albumId		- ID of the album to show thumbs from
  *------------------------------------------------------------*/
 
 class ThumbnailView : public QListView 
@@ -303,6 +301,7 @@ private:
 	{ 
 		return _albumId.Val() ? &albumgen.Albums()[_albumId] : nullptr;
 	}
+	constexpr ID_t _ActAlbumId() const { return (_ActAlbum() ? _ActAlbum()->ID : TOPMOST_ALBUM_ID); }
     void _InitThumbs();
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();
@@ -363,7 +362,7 @@ public slots:
 	void RenameVirtualFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
-	void OpenAlbumThumbnail();			// any image for an album thumbnal
+	void AskAndGetThumbnail();			// any image for an album thumbnal
 	void SetAsAlbumThumbnail();			// from existing image/album image
 	void ToggleDontResizeFlag();
 	void SelectAsAlbumThumbnail();

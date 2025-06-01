@@ -478,7 +478,7 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 
 			_ReadLastAlbumStructure();
 
-			Album* root = albumgen.AlbumForID( TOPMOST_ALBUM_ID );
+			Album* root = albumgen.AlbumForID( TOPMOST_ALBUM_ID);
 			Q_ASSERT(root);
 			QString path;
 			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
@@ -1029,7 +1029,7 @@ void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 {												// row: item index
 	QModelIndex& cix = _currentTreeViewIndex;	
 	// get folder (album) index for row by discarding non-folder items
-	Album* album = albumgen.AlbumForID( ID_t(ALBUM_ID_FLAG, (uint64_t)cix.internalPointer()) );
+	Album* album = albumgen.AlbumForIDVal( (IDVal_t)cix.internalPointer() );
 	Q_ASSERT(album);
 	int aix = 0;							 // get the row (index) of the album in the tree view
 	for (int i = 0; i < row; ++i)			 // the row-th album is we will get into
@@ -4236,7 +4236,7 @@ void FalconG::_SaveEditedTextsIntoSelection()
 void FalconG::_StoreLanguageTexts(LanguageTexts& texts)
 {
 	TextMap& tmap = albumgen.Texts();
-	uint64_t txtid = texts.ID;					// possible old id for text or 0
+	IDVal_t txtid = texts.ID;					// possible old id for text or 0
 	texts.CalcBaseID();						// new id for text
 	
 	if (txtid && tmap.contains(txtid))
@@ -4607,7 +4607,7 @@ void FalconG::_SlotLoadItemsToListView()
 	{
 		// collect its images into list
 		_currentTreeViewIndex = _currentSelection.indexes()[0];
-		ID_t id = { ALBUM_ID_FLAG, uint64_t(_currentTreeViewIndex.internalPointer()) };	// store ID of last selected album
+		ID_t id = { ALBUM_ID_FLAG, IDVal_t(_currentTreeViewIndex.internalPointer()) };	// store ID of last selected album
 
 		ui.tnvImages->Setup(id);
 		_selection.selectedAlbum = id;	// only single selection is used

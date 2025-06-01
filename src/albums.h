@@ -44,8 +44,8 @@ const QString PATH_TABLE = "[Path table";
 /* =============== Id To Path and Path to Id Mapping ==================*/
 class PathMap 
 {
-	typedef QMap<uint64_t, QString> base_type1;
-	typedef QMap<QString, uint64_t> base_type2;
+	typedef QMap<IDVal_t, QString> base_type1;
+	typedef QMap<QString, IDVal_t> base_type2;
 
 	typedef base_type1::iterator iterator1;
 	typedef base_type2::iterator iterator2;
@@ -55,37 +55,37 @@ class PathMap
 	iterator1 _it1;
 	iterator2 _it2;
 
-	uint64_t _CalcId(const QString & path);
+	IDVal_t _CalcId(const QString & path);
 	friend QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
 
 public:
 	PathMap() {}
 
-	uint64_t Add(const QString &path);		// handles empty paths - returns NO_ID,
+	IDVal_t Add(const QString &path);		// handles empty paths - returns NO_ID,
 											// existing paths - return existing id
 											// first cuts source folder path from path
 											// path may end in a '/' which will be dropped ?
 
 	int Size() const { return _pathToId.size(); }
-	QString AbsPath(uint64_t id) const;		// differs from operator[] as it adds source path if needed
-	uint64_t Id(QString path) const;
+	QString AbsPath(IDVal_t id) const;		// differs from operator[] as it adds source path if needed
+	IDVal_t Id(QString path) const;
 	inline bool Contains(const QString &path) const
 	{
 		return _pathToId.contains(path);
 	}
-	inline bool Contains(uint64_t id) const
+	inline bool Contains(IDVal_t id) const
 	{
 		return _idToPath.contains(id);
 	}
 
-	uint64_t &operator[](const QString &pPath);
-	QString &operator[](const uint64_t id);
-	//uint64_t insert(QString path, uint64_t id);	// if id is an existing id then path is replaced only
-	QString Insert(uint64_t id, const QString &path);	// path must not be already in the map
+	IDVal_t &operator[](const QString &pPath);
+	QString &operator[](const IDVal_t id);
+	//IDVal_t insert(QString path, ID_t id);	// if id is an existing id then path is replaced only
+	QString Insert(IDVal_t id, const QString &path);	// path must not be already in the map
 	QString Insert(const QString ids, const QString &path);	// path must not be already in the map
-	void Remove(uint64_t id);	// removes both path and id
-	uint64_t FirstId();	// returns the first id from _idToPath
-	uint64_t NextId();	// returns the next id from _idToPath
+	void Remove(IDVal_t id);	// removes both path and id
+	IDVal_t FirstId();	// returns the first id from _idToPath
+	IDVal_t NextId();	// returns the next id from _idToPath
 };
 
 QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -118,7 +118,7 @@ struct IABase
 	int64_t descID = NO_ID;	// default text ID of image description
 	QString name;			// without path but with extension and no ending '/' even for albums
 	
-	uint64_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
+	IDPath_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
 
 	IABase& operator=(const IABase& a);
 
@@ -209,7 +209,53 @@ struct Video : IABase			// format: MP4, OOG, WebM
 };
 
 //------------------------------------------
-// A gallery is a hierarchy of albums which may contain other albums, images and videos.
+// A gallery is a logical hierarchy (tree) of logical albums. 
+// 
+// The physical and logical representation may differ.
+// 
+// Albums may contain other albums, images and videos. 
+// 
+// The gallery has two representations: 
+// 1. source representation (the source folder) 
+//	  The source must contain at least two files: an '.ini' file which 
+//	  contains the configuration of the gallery, and a '.struct' file 
+//	  (database) which contains the structure of the gallery. 
+//    The name of these files is the name of the gallery itself and it must
+//    be the same as the name of the source folder. 
+// 
+//	  If the gallery is  multilingual then the source may contain one 
+//	  languge file for each languages. those are named by the first two letters
+//	  of the locale name (for  locale 'en_GB' it is 'en.lang') (* may change later on *)
+// 
+//	  The source folder may contain the hierarchy of albums, images and videos, but
+//	  those may reside anywhere on the disk, even outside the source folder, although
+//	  this is not recommended.
+// 
+// 2 destination representation (the gallery folder to be copied onto the server).
+//	  it is generated from the '.struct' file and has the following physical folders:
+//	  - one 'albums' folder or one _albumsXX folder for each language which contain
+//		the HTML files for each album,
+//	  - one image folder (default name 'imgs') which contains the images of the gallery,
+// 	  - one thumbnail folder (default name 'thumbs') which contains the thumbnails of the images,
+//    - one video folder (default name 'vids') which contains the videos of the gallery,
+//    - one CSS folder (default name 'css') which contains the CSS files for the gallery,
+//    - one font folder (default name 'fonts') which contains the font files for the gallery,
+//    - one 'res' folder which contains the resources for the gallery, such as icons, images, etc.
+//	  - one 'js' folder which contains the JavaScript files for the gallery,
+// 
+// The '.struct' database file describes the hierarchy of albums, images and videos in the gallery.
+// Each album inside it is describes either a virtual or physical subfolder of the gallery.
+// 
+// Any image or video may appear inside more than one album, but only one copy of them
+// will be uploaded onto the server. 
+// No album may appear inside more than one other album, however different aliases (symbolic links) 
+// for it may appear in other album. Those share the same 
+// sub-albums, thumbnails, images and videos, but does not duplicate the album description in
+// the '.struct' file, which is only recorded there for the first instance. If that album is removed
+// from the data base then the contents are transferred to an other instance. 
+// As all albums are virtual they can be moved around without moving any file on disk.
+// 
+// 
 // It resides in a physical folder on disk. A gallery folder contains the following:
 // - a '<name>.struct' file, a database which contains the structure of the gallery, and
 // - a '<name>.ini' file which contains the configuration of the gallery.
@@ -247,13 +293,24 @@ struct Video : IABase			// format: MP4, OOG, WebM
 
 struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 {
-	ID_t parentId = { ALBUM_ID_FLAG, 0 };	// just a single parent is allowed Needed to re-generate
+	IDVal_t parentId = 0;				// just a single parent is allowed Needed to re-generate
 											// parent's HTML files too when this album changes. 
 											// Link albums have their own parent
 											// Must be modified when this album is moved into another one(**TODO**)
+	IDVal_t baseAlbumId = NO_ID;	// if set it is the ID of the original album, for which
+											// this album is just a link to.
+	IDValList aliasesList;		// list of album ID values that this album is linked to
+								// (i.e. the ones that have this album as their 'baseAlbumId')
+								// used to update these albums when this one changes/ deleted
+								// only filled in for base albums, i.e. those that have no baseAlbumId set
 	ID_t thumbnailId = ID_t(IMAGE_ID_FLAG, 0);	// image ID	or 0
 
 	IdList items;		// for all images, videos and albums in this album GET item for position using IdOfItem!!
+
+	void SetAsAliasFor(Album* thatAlbum);		// transfer all data from old base album to new base album
+
+	Album* BaseAlbum() const;		// returns the base album for this album, i.e. the one that has the items
+										// or nullptr if this is the base album itself
 	ID_t IdOfItem(int pos) const 
 	{ 
 		return items.isEmpty() ||  (pos >= items.size()) ?  ID_t::Invalid() : items[pos];
@@ -280,11 +337,11 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	int TitleCount();		// sets/returns titleCount
 	int DescCount();		// sets/returns descCount
 	ID_t ThumbID();			// returns ID of thumbnail recursively, sets it if not yet set
+	ID_t SetThumbnail(IDVal_t id); // sets album thumbnail and increase the usage count of it
 	ID_t SetThumbnail(ID_t id); // sets album thumbnail and increase the usage count of it
-	ID_t SetThumbnail(uint64_t id); // sets album thumbnail and increase the usage count of it
 	QSize ThumbSize() const override;
 
-	ID_t IdOfItemOfType(int64_t type, int index);
+	ID_t IdOfItemOfType(uint8_t type, int index);
 
 	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
 	QString NameFromID(int language);
@@ -299,6 +356,23 @@ private:
 	int _titleCount = -1;
 	int _descCount  = -1;
 };
+// -------------- AlbumList -------------------
+class AlbumList : public QList<Album*>	// list of pointers to albums, used in album generator
+{
+public:
+	AlbumList() : QList<Album*>() {}
+	AlbumList(const AlbumList& other) : QList<Album*>(other) 
+	{
+		* const_cast<AlbumList*>(this) = *const_cast<AlbumList*>(&other);
+		_baseAlbumId = other._baseAlbumId;	// copy base album ID
+	}	
+	constexpr IDVal_t BaseAlbumId() const { return _baseAlbumId; }	// returns the base album ID of this list
+	constexpr void SetBaseAlbumId(IDVal_t id) { _baseAlbumId = id; }	// sets the base album ID of this list
+
+private:
+	IDVal_t _baseAlbumId = NO_ID;
+};
+
 //------------------------------------------
 class ImageMap : public QMap<ID_t, Image>
 {
@@ -308,7 +382,7 @@ public:
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
 	static Image invalid;
-	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
+	static IDVal_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 
 	Image* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
 												// if 'useBase' finds the first one with the same base ID
@@ -326,7 +400,7 @@ class VideoMap : public QMap<ID_t, Video>
 	//ahhoz, hogy ezt lassa:	static Image invalid;
 public:
 	static Video invalid;
-	static uint64_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
+	static IDVal_t lastUsedPathId;	// config.dsSrc relative path to image so that we can add 
 									// an video by its name (relative to this path) only
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
@@ -349,42 +423,28 @@ class AlbumMap : public QMap<ID_t, Album>
 public:
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
+	Album* AlbumForIDVal(IDVal_t id)
+	{
+		return AlbumForID(ID_t(ALBUM_ID_FLAG, id));
+	}
 	Album *AlbumForID(ID_t id) 
 	{ 
-		id.SetFlag(EXISTING_FLAG, false);
+		//id.SetFlag(EXISTING_FLAG, false);
 		Album* pAlbum = nullptr;
 		if (contains(id))
 			pAlbum = &(*this)[id];
 		return pAlbum;
 	}
+	Album *Find(IDVal_t idv);	// 'Find' functions return nullptr if album is not found
 	Album *Find(ID_t id);	// 'Find' functions return nullptr if album is not found
 	Album *Find(QString albumFullPath);
-	Album *Find(uint64_t pathID, QString albumName);
-	Album *Find(uint64_t pathID, ID_t albumId);
+	Album *Find(IDPath_t pathID, QString albumName);
+	Album *Find(IDPath_t pathID, ID_t albumId);
+	AlbumList GetAliases(IDVal_t id);	// returns all albums that have this album as their baseAlbumId
 	bool Exists(QString albumPath);
-	ID_t Add(ID_t parentId, const QString &name, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
+	ID_t Add(IDVal_t parentId, const QString &name, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
-	bool RemoveRecursively(ID_t id);		// album and it sll sub-albums
-};
-					 // id of album->Ids of parents
-class AlbumParentsMap : public QMultiMap<ID_t, ID_t>
-{
-public:
-	AlbumParentsMap() {}
-	~AlbumParentsMap() {}
-	void Add(ID_t id, ID_t parentId) { insert(id, parentId); }
-	void Remove(ID_t id, ID_t parentId) { remove(id, parentId); }
-	void Remove(ID_t id) { remove(id); }	// removes all parents of this album
-	void Clear() { clear(); }
-	ID_t ParentOf(ID_t id) const
-	{
-		return contains(id) ? value(id) : ID_t::Invalid();
-	}
-	void RemoveParent(ID_t id, ID_t parentId)	// removes the parent of this album
-	{
-		if (contains(id))
-			remove(id, parentId);
-	}
+	bool RemoveRecursively(ID_t id);		// album and its all sub-albums
 };
 
 struct IdsFromStruct
@@ -409,7 +469,7 @@ class AlbumGenerator : public QObject
 	Q_OBJECT
 
 public:
-	static uint64_t lastUsedAlbumPathId;	// config.dsSrc relative path to image so that we can add 
+	static IDVal_t lastUsedAlbumPathId;	// config.dsSrc relative path to image so that we can add 
 											// an image by its name (relative to this path) only
 	static bool bSetDirIndexToo;	// if true then the number of items in a directory is limited
 
@@ -428,10 +488,6 @@ public:
 	{
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
-
-	void MarkAllParentsAsChanged(ID_t albumId);	// marks all parents of this album as changed
-	void MarkParentsWithoutThumbnailsAsChanged(ID_t albumId);	// marks all parents of this album as changed
-	void ChangeParentList(ID_t albumID, ID_t parentID, ID_t oldParentID);		// add to or modify the parent list of this album
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
@@ -462,11 +518,15 @@ public:
 				 (id.IsImage()) && _imageMap.contains(id)  ||
 				 (id.IsVideo()) && _videoMap.contains(id) ) ;
 	}
-	Album* AlbumForID(ID_t id)
+	inline Album* AlbumForIDVal(IDVal_t idv)
+	{
+		return _albumMap.AlbumForIDVal(idv);
+	}
+	inline Album* AlbumForID(ID_t id)
 	{
 		return _albumMap.AlbumForID(id);
 	}
-	Image* ImageAt(ID_t id) 
+	inline Image* ImageAt(ID_t id) 
 	{ 
 		return &_imageMap[id]; 
 	}
@@ -522,13 +582,13 @@ private:
 
 	bool _processing = false;
 	bool _signalProgress = true;
-	QList<ID_t> _slAlbumsModified;
+	IDValList _slAlbumsModified;
 	QString _upLink;		// to parent page if there's one
 
 	TextMap	 _textMap;		// all texts for all albums and images
 	AlbumMap _albumMap;		// all source albums			ID.flag has ALBUM_ID_FLAG
-	AlbumParentsMap _albumParentsMap;	// all source albums and their parents
-	ImageMap _imageMap;		// all images for all albums	ID.flag has IMAGE_ID_FLAG and possibly ORPHAN_FLAG
+	// AlbumParentsMap _albumParentsMap;	// all source albums and their parents
+	ImageMap _imageMap;		// all images for all albums	ID.flag has IDFlags and possibly ORPHAN_FLAG
 	VideoMap _videoMap;		// all videos from all albums	ID.flag has ALBUM_ID_FLAG
 
 	IdList	_addedThumbnailIDsForImagesNotYetRead;
@@ -579,7 +639,7 @@ private:
 
 						  // reading (and copying) data
 	void _RecursivelyReadSubAlbums(ID_t albumId);
-	ID_t _AddItemToAlbum(ID_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
+	ID_t _AddItemToAlbum(IDVal_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
 	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool &added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
@@ -594,7 +654,7 @@ private:
 	void _OutputNav(Album &album, QString uplink);
 	int _WriteHeaderSection(Album &album);
 	int _WriteFooterSection(Album &album);
-	int _WriteGalleryContainer(Album &album, uint8_t typeFlag, int i);
+	int _WriteGalleryContainer(Album &album, IDFlags typeFlag, int i);
 	int _WriteVideoContainer(Album &album, int i);
 	void _ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt);
 	int _ProcessImages(); // into 'imgs' directory
@@ -619,7 +679,7 @@ private:
 	bool _LanguageFromStruct(FileReader &reader);
 	ID_t _ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
 	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parentId, int level);
-	void _AddAlbumThumbnail(Album &album, uint64_t id);
+	void _AddAlbumThumbnail(Album &album, ID_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadPathTable(FileReader& reader);
 	void _CleanupPathTable();	// remove unused paths from pathMap

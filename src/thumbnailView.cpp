@@ -123,7 +123,7 @@ void FileIcons::Remove(int pos)    // remove item _iconOrder[pos]
 // ****************** ThumbnailItem ******************
 int ThumbnailItem::thumbHeight=150;
 
-ThumbnailItem::ThumbnailItem(int pos,  ID_t albumID, Type typ, QIcon icon) : QStandardItem(pos, 1), _itemType(typ), _albumId(albumID), itemPos(pos)
+ThumbnailItem::ThumbnailItem(int pos, IDVal_t ownerID, Type typ, QIcon icon) : QStandardItem(pos, 1), _itemType(typ), _ownerIdVal(ownerID), itemPos(pos)
 {
     QSize hintSize = QSize(thumbHeight, thumbHeight + ((int)(QFontMetrics(font()).height() * 1.5)));
 
@@ -134,7 +134,7 @@ QIcon ThumbnailItem::IconForFile() const
 {
     QString imageName;
 
-    Album* pAlbum = _ActAlbum();
+    Album* pAlbum = _ActOwner();
 
     ID_t itemId = pAlbum->IdOfItem(itemPos);
     bool exists = false;
@@ -197,32 +197,32 @@ QVariant ThumbnailItem::data(int role) const      // based on _itemType
 {
     switch (role)
     {
-        case Qt::DisplayRole:   return DisplayName();              // destination (generated) file or directory name w.o. path
-        case Qt::ToolTipRole:   return ToolTip();               // string of full source name and destination name
-        case Qt::DecorationRole: return IconForFile();          // the icon of files or albums (used when QListView is set for it)
-        case TypeRole:          return _itemType;               // folder, image or video
-        case FilePathRole:      return FilePath();              // destination path
-        case FileNameRole:      return FileName();              // destination (generated) file or directory name w.o. path or source path if no dest. file
-        case SourcePathNameRole: return FullSourcePath();		// full path name of image source
-        case FullNameRole:      return FullLinkName(); // full destination path name
+        case Qt::DisplayRole:   return DisplayName();       // destination (generated) file or directory name w.o. path
+        case Qt::DecorationRole: return IconForFile();      // the icon of files or albums (used when QListView is set for it)
+        case Qt::ToolTipRole:   return ToolTip();           // string of full source name and destination name
+        case TypeRole:          return _itemType;           // folder, image or video
+        case FilePathRole:      return FilePath();          // destination path
+        case FileNameRole:      return FileName();          // destination (generated) file or directory name w.o. path or source path if no dest. file
+        case SourcePathNameRole: return FullSourcePath();	// full path name of image source
+        case FullNameRole:      return FullLinkName();      // full destination path name
     }
     return QVariant();
 }
 
 QString ThumbnailItem::_ImageToolTip() const    // only called for images
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItem(itemPos) );
+    Image* pImg = albumgen.ImageAt(_ActOwner()->IdOfItem(itemPos) );
     return QString(pImg->ShortSourcePathName() + " \n(" + pImg->LinkName(config.bLowerCaseImageExtensions) + ")");
 
 }
 QString ThumbnailItem::_VideoToolTip() const    // only called for videos
 {
-    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItem(itemPos));
+    Video* pVid = albumgen.VideoAt(_ActOwner()->IdOfItem(itemPos));
     return QString(pVid->ShortSourcePathName() + " \n(" + pVid->LinkName(config.bLowerCaseImageExtensions) + ")");
 }
-QString ThumbnailItem::_FolderToolTip() const   // only called for folders
+QString ThumbnailItem::_FolderToolTip() const   // only called for folders !
 {
-    Album* pAlbum = albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos));
+    Album* pAlbum = albumgen.AlbumForID(_ActOwner()->IdOfItem(itemPos));
 
     QString s = pAlbum->ShortSourcePathName() + " \n(" + pAlbum->LinkName(-1, true) + ")";
     return s;
@@ -265,7 +265,7 @@ QString ThumbnailItem::_FolderFilePath() const
  *------------------------------------------------------------*/
 QString ThumbnailItem::_ImageFileName() const
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItem(itemPos));
+    Image* pImg = albumgen.ImageAt(_ActOwner()->IdOfItem(itemPos));
     if (!pImg)
         return QString();
     if (QFileInfo::exists(pImg->FullLinkName()))
@@ -276,7 +276,7 @@ QString ThumbnailItem::_ImageFileName() const
 
 QString ThumbnailItem::_VideoFileName() const
 {
-    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItem(itemPos));
+    Video* pVid = albumgen.VideoAt(_ActOwner()->IdOfItem(itemPos));
     if (!pVid)
         return QString();
 
@@ -288,8 +288,8 @@ QString ThumbnailItem::_VideoFileName() const
 
 QString ThumbnailItem::_FolderFileName() const
 {
-   Album album = albumgen.Albums()[_albumId];
-   return album.LinkName(-1); // no language and extension
+   Album  owner = albumgen.Albums()[ID_t(ALBUM_ID_FLAG, _ownerIdVal)];
+   return owner.LinkName(-1); // no language and extension
 }
 
 QString ThumbnailItem::FilePath() const
@@ -318,19 +318,19 @@ QString ThumbnailItem::FileName() const
 
 QString ThumbnailItem::_ImageFullSourceName() const
 {
-    Image* pImg = albumgen.ImageAt(_ActAlbum()->IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
+    Image* pImg = albumgen.ImageAt(_ActOwner()->IdOfItemOfType(IMAGE_ID_FLAG, itemPos));
     return pImg->FullSourceName();
 }
 QString ThumbnailItem::_VideoFullSourceName() const
 {
-    Video* pVid = albumgen.VideoAt(_ActAlbum()->IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
+    Video* pVid = albumgen.VideoAt(_ActOwner()->IdOfItemOfType(VIDEO_ID_FLAG, itemPos));
     return pVid->FullSourceName();
 }
 QString ThumbnailItem::_FolderFullSourceName() const
 {
-    //Image* pImg = albumgen.ImageAt(_ActAlbum()-->thumbnailId);
+    //Image* pImg = albumgen.ImageAt(_ActOwner()-->thumbnailId);
     //return pImg->FullSourceName();
-    return albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos))->FullSourceName();
+    return albumgen.AlbumForID(_ActOwner()->IdOfItem(itemPos))->FullSourceName();
 }
 
 QString ThumbnailItem::text()  const
@@ -363,7 +363,7 @@ QString ThumbnailItem::DisplayName() const
     {
         case image: return _ImageFileName();
         case video: return _VideoFileName();
-        case folder: return albumgen.AlbumForID(_ActAlbum()->IdOfItem(itemPos))->name;
+        case folder: return albumgen.AlbumForID(_ActOwner()->IdOfItem(itemPos))->name;
         default: break;
     }
     return QString();
@@ -631,11 +631,11 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     int selectedCount = indexesList.size();
 	if(!selectedCount)
-		emit SignalSingleSelection(_ActAlbum()->ID, _albumId);
+		emit SignalSingleSelection(_ActAlbum()->ID, _ActAlbumId());
     else if (selectedCount == 1)
 	{
         SetCurrentItem(indexesList.first().row());
-		emit SignalSingleSelection(_ActAlbum()->items[_currentItem], _albumId);
+		emit SignalSingleSelection(_ActAlbum()->items[_currentItem], _ActAlbumId());
 	}
     else
     {
@@ -647,7 +647,7 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
             if (idList.indexOf(id) < 0)
                 idList << items[e.row()];
 
-            emit SignalMultipleSelection(idList, _albumId);
+            emit SignalMultipleSelection(idList, _ActAlbumId());
         }
     }
 
@@ -717,7 +717,7 @@ void ThumbnailView::startDrag(Qt::DropActions)
     QList<QUrl> urls;	// create pixmap from this list of names
 	for (auto &f : indexesList)
 	{
-	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type() );
+	    ThumbnailItem thumbRec(f.row(), _albumId.Val(), (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type());
 		urls << QUrl(thumbRec.FileName());
 		thumbRec.itemPos = f.row();
 		mimeData->thumbList << f.row();
@@ -959,7 +959,10 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
  *              images can be put to the same position they 
  *              were before
  *          - changes the icon order in 'fileIcons' too
- *          - 
+ *          - when album(s) moved into another album checks 
+ *              for clash which may occur because
+ *              - the destination album may already contains
+ *                either this album or a link to this album
  *------------------------------------------------------------*/
 void ThumbnailView::dropEvent(QDropEvent * event)
 {
@@ -1017,6 +1020,44 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 #ifdef DEBUG
                 int destItemSize = itemsDest.size();
 #endif
+                // -- check if any of the items to move is a folder and if it is then
+				//    whether it or any of its siblings are is already in the destination album
+
+				for (int i = 0; i < thl.size(); ++i)
+				{
+					ID_t itemID = items[thl[i]];
+					if (itemID.IsAlbum())
+					{
+						Album* pab = albumgen.AlbumForID(itemID);
+						Q_ASSERT(pab);
+
+                        IDVal_t isThere = NO_ID;
+						IDValList idvl = pab->BaseAlbum()->aliasesList; //list of albums linked to this album
+                        if (idvl.isEmpty())     // no linked albums for this one
+							isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
+                        else
+                            for (auto& v : idvl)
+                            {
+                                ID_t idv(ALBUM_ID_FLAG, v);
+                                if (pDestAlbum->items.indexOf(idv) >= 0)
+								{
+									isThere = v;
+									break;  // found at least one linked album in destination album
+								}
+                            }
+
+						if (isThere != NO_ID)    // album is already in destination album
+						{
+                            QString qs = tr("The album '%1' to be moved is already in the destination album '%2'.\n").arg(pab->name).arg(pDestAlbum->name);
+                            if (isThere != itemID.Val())             // another alias for the same album
+                                qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
+							qs += tr("Please remove it from the selection!");
+							QMessageBox::warning(this, tr("falconG - Warning"), qs);
+							return;
+						}
+					}
+				}
+
                 // ------------- housekeeping -----------
                 // add moved items to destination album  (which doesn't have icons yet )
                 for (int si = 0; si < thl.size(); ++si)
@@ -1026,11 +1067,9 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                     {
                         Album* pab = albumgen.AlbumForID(itemID);
                         Q_ASSERT(pab);
-						albumgen.ChangeParentList(pab->ID, pDestAlbum->ID, pab->parentId); // replace old parent ID
-						pab->parentId = pDestAlbum->ID;            // reparent album
-                        albumgen.SetAlbumModified(pab->ID);        // so that it gets written 
+						pab->parentId = pDestAlbum->ID.Val();      // reparent album
+                        albumgen.SetAlbumModified(itemID);   // so that it gets written 
                     }
-					pDestAlbum->items.push_back(itemID);
                     itemsDest.push_back(itemID);
                 }
 
@@ -1322,7 +1361,7 @@ void ThumbnailView::_InitThumbs()
     _thumbnailViewModel->Clear();
 	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < album.items.size(); ++fileIndex)
 	{
-	    thumbItem = new ThumbnailItem(fileIndex, album.ID, _TypeFor(album.items[fileIndex]));
+	    thumbItem = new ThumbnailItem(fileIndex, _albumId.Val(), _TypeFor(album.items[fileIndex]));
 		_thumbnailViewModel->appendRow(thumbItem);
 
 		++timeOutCnt;
@@ -1532,13 +1571,13 @@ void ThumbnailView::loadThumbsRange()
  *					albumgen.Albums()[_albumID]'s 
  *                  image, video or album lists
  *          typ   - which list should be used
- * GLOBALS: _albumId set
+ * GLOBALS: _ownerIdVal set
  * RETURNS:	nothing
  * REMARKS:	- sets albums to changed
  *------------------------------------------------------------*/
 void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
 {
-    ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId, type);
+    ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId.Val(), type);
     QImageReader thumbReader;
     QSize currThumbSize;
 
@@ -1702,7 +1741,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
                 if (pItem->ID.IsAlbum())
                 {
                     pact = new QAction(tr("Bro&wse for Album Thumbnail..."), this);
-                    connect(pact, &QAction::triggered, this, &ThumbnailView::OpenAlbumThumbnail);
+                    connect(pact, &QAction::triggered, this, &ThumbnailView::AskAndGetThumbnail);
                     menu.addAction(pact);           // select any image
                 }
                 if(!pItem->ID.IsAlbum() || (pItem->ID.IsAlbum() && albumgen.ImageAt(reinterpret_cast<Album*>(pItem)->thumbnailId)->Exists()))
@@ -1897,7 +1936,7 @@ void ThumbnailView::SynchronizeTexts()
         return pItem;
     };
 
-    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _albumId);
+    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _ActAlbumId());
 
     if (QuestionDialog(tr("falconG - Question"),
         tr("This will set the texts to all of selected items\n"
@@ -2001,14 +2040,16 @@ bool ThumbnailView::_AddFolder(QString folderName)
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
     emit SignalAlbumStructWillChange();
-    ID_t id = albumgen.Albums().Add(pParentAlbum->ID, folderName, added);     // set new dirIndex too
+    IDVal_t idVal = pParentAlbum->ID.Val();
+    ID_t id = albumgen.Albums().Add(idVal, folderName, added);     // set new dirIndex too
     if (added)
     {   
         atLeastOneFolderWasAdded = true;
         pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
-        albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); // albumgen.SetAlbumModified(*pParentAlbum);
+        /*albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); */
+        albumgen.SetAlbumModified(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
-        album.parentId = _albumId;
+        album.parentId = _albumId.Val();
         albumgen.AddDirsRecursively(id);
 
         int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
@@ -2049,7 +2090,8 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
          res = false;
 
     Album* pParentAlbum = _ActAlbum();
-    ID_t id = albumgen.Albums().Add(pParentAlbum->ID, folderName, added);
+	IDVal_t idPVal = pParentAlbum->ID.Val();
+    ID_t id = albumgen.Albums().Add(idPVal, folderName, added);
 
     //QString fullPath = parentPath + "/" + folderName;
     //if (albumgen.Albums().Exists(fullPath))
@@ -2067,9 +2109,10 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
             emit SignalAlbumStructWillChange();
             if (added)
             {
-                albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); // albumgen.SetAlbumModified(*pParentAlbum);
+                    /*albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); */
+                albumgen.SetAlbumModified(*pParentAlbum);
                 Album& album = *albumgen.AlbumForID(id);
-                album.parentId = _albumId;
+                album.parentId = _albumId.Val();
                 pParentAlbum->AddItem(id, -1);
                 albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
                 res = true;
@@ -2146,7 +2189,7 @@ void ThumbnailView::NewVirtualFolder()
 }
 
 /*=============================================================
- * TASK   : rename selected virtual folde
+ * TASK   : rename selected virtual folder
  * PARAMS : none
  * EXPECTS:
  * GLOBALS:
@@ -2236,10 +2279,9 @@ void ThumbnailView::CopyOriginalNamesToClipboard()
  * RETURNS: nothing
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::OpenAlbumThumbnail()
+void ThumbnailView::AskAndGetThumbnail()
 {
     int pos = currentIndex().row();     // new thumbnail index for actual item
-    ID_t parentId = _albumId;
     Album* pParent =  &albumgen.Albums()[_albumId]; 
     // get actual selected album inside parent
     Album *album = pParent ? &albumgen.Albums()[ pParent->items[pos]] : &albumgen.Albums()[_albumId];
@@ -2283,17 +2325,16 @@ void ThumbnailView::SetAsAlbumThumbnail()
     if (cthix == pos)       // no change
         return;
 
-    ID_t th = album.items[pos];
+    ID_t th = album.items[pos];                                  
 
-    album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID );
+    album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
     albumgen.SetAlbumModified(_albumId);
 
     UpdateTreeView(false);
-    if (album.parentId.Val())
+    if (album.parentId)
     {
         UpdateTreeView(true);
-        albumgen.SetAlbumModified(album.parentId);  // the parent of this album always changes
-        albumgen.MarkParentsWithoutThumbnailsAsChanged(album.parentId); // but the other parents may not
+        albumgen.SetAlbumModified(ID_t(ALBUM_ID_FLAG, album.parentId) );  // the parent of this album always changes
     }
     emit SignalAlbumChanged();
 }
@@ -2356,9 +2397,9 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     Album& album = *_ActAlbum();
     albumgen.SetAlbumModified(album);
 
-    if (album.parentId.Val())
+    if (album.parentId)
     {
-        Album* parent = albumgen.AlbumForID(album.parentId);
+        Album* parent = albumgen.AlbumForIDVal(album.parentId);
 
         albumgen.SetAlbumModified(*parent);     // only for the parent of this album and not all parents!
     }

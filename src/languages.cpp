@@ -1,4 +1,4 @@
-#include <QMainWindow>
+﻿#include <QMainWindow>
 #include "common.h"
 using namespace Common;
 

@@ -54,9 +54,9 @@ static QDate DateFromString(QString s)
 * RETURNS:  crc 32
 * REMARKS:	only returns 0 if str is empty
 *--------------------------------------------------------------------------*/
-static uint64_t CalcCrc(const QString& str, bool isContent)
+static IDVal_t CalcCrc(const QString& str, bool isContent)
 {
-	uint64_t id;
+	IDVal_t id;
 	if (isContent)							// file contente
 	{
 		CRC32 crc(str);
@@ -73,17 +73,17 @@ static uint64_t CalcCrc(const QString& str, bool isContent)
 }
 
 		// ******************* PathMap ********************
-uint64_t PathMap::_CalcId(const QString&path)
+IDVal_t PathMap::_CalcId(const QString& path)
 {
-	uint64_t id = CalcCrc(path, false);
+	IDVal_t id = CalcCrc(path, false);
 	while (_idToPath.contains(id))
 		id += ID_INCREMENT;
 	return id;
 }
 
-uint64_t PathMap::Add(const QString &path) // only new paths added
+IDVal_t PathMap::Add(const QString &path) // only new paths added
 {
-	uint64_t id;
+	IDVal_t id;
 
 	if (path.isEmpty())
 		return id = NO_ID;
@@ -100,7 +100,7 @@ uint64_t PathMap::Add(const QString &path) // only new paths added
 	return id;
 }
 
-QString PathMap::AbsPath(uint64_t id) const
+QString PathMap::AbsPath(IDVal_t id) const
 {
 	QString path;
 	if (_idToPath.contains(id))
@@ -112,7 +112,7 @@ QString PathMap::AbsPath(uint64_t id) const
 	return (config.dsSrc + path).ToString();
 }
 
-uint64_t PathMap::Id(QString path) const
+IDVal_t PathMap::Id(QString path) const
 {
 	if (_pathToId.contains(path))
 		return _pathToId[path];
@@ -124,14 +124,14 @@ uint64_t PathMap::Id(QString path) const
 //	return _pathToId.contains(path);
 //}
 //
-//inline bool PathMap::Contains(uint64_t id) const
+//inline bool PathMap::Contains(ID_t id) const
 //{
 //	return _idToPath.contains(id);
 //}
 
-uint64_t &PathMap::operator[](const QString &path)
+IDVal_t &PathMap::operator[](const QString &path)
 {
-	static uint64_t dummy;
+	static IDVal_t dummy;
 	if (path.isEmpty())
 		return dummy;
 
@@ -141,7 +141,7 @@ uint64_t &PathMap::operator[](const QString &path)
 	return _pathToId[path];
 }
 
-QString &PathMap::operator[](uint64_t id)
+QString &PathMap::operator[](IDVal_t id)
 {   
 	//static QString dummy;
 
@@ -152,7 +152,7 @@ QString &PathMap::operator[](uint64_t id)
 }
 
 
-QString PathMap::Insert(uint64_t id, const QString& path)	// same id new path
+QString PathMap::Insert(IDVal_t id, const QString& path)	// same id new path
 {
 	if (Contains(id))	// then replace the path
 		_pathToId.remove(AbsPath(id));
@@ -180,7 +180,7 @@ QString PathMap::Insert(const QString ids, const QString& path)
  * RETURNS:none
  * REMARKS:
  *------------------------------------------------------------*/
-void PathMap::Remove(uint64_t id)
+void PathMap::Remove(IDVal_t id)
 {
 	if (_idToPath.contains(id))
 	{
@@ -190,7 +190,7 @@ void PathMap::Remove(uint64_t id)
 	}
 }
 
-uint64_t PathMap::FirstId()
+IDVal_t PathMap::FirstId()
 {
 	if (_idToPath.size())
 	{
@@ -200,7 +200,7 @@ uint64_t PathMap::FirstId()
 	return 0;
 }
 
-uint64_t PathMap::NextId()
+IDVal_t PathMap::NextId()
 {
 	if (_it1 == _idToPath.end() || ++_it1 == _idToPath.end())
 		return 0;
@@ -476,9 +476,9 @@ struct BadStruct
 Image ImageMap::invalid;
 Video VideoMap::invalid;
 Album AlbumMap::invalid;
-uint64_t ImageMap::lastUsedPathId;		// first check if next pathless image
-uint64_t VideoMap::lastUsedPathId;		// or video is here
-uint64_t AlbumGenerator::lastUsedAlbumPathId;		// or album is here
+IDVal_t ImageMap::lastUsedPathId;		// first check if next pathless image
+IDVal_t VideoMap::lastUsedPathId;		// or video is here
+IDVal_t AlbumGenerator::lastUsedAlbumPathId;		// or album is here
 
 // used directories put here and not into class 'AlbumGenerator'
 // because of include order
@@ -524,12 +524,21 @@ static void __SetBaseDirs()
 template<typename Map> ID_t GetUniqueID(Map &map, int8_t typeFlag, QString &name, bool isContent = false)
 {
 
-	uint64_t id = CalcCrc(name, isContent);
+	ID_t id = CalcCrc(name, isContent);
 	while (map.contains(ID_t(typeFlag,id)))
-	{
 		id += ID_INCREMENT;
-	}
+
 	return ID_t(typeFlag, id);
+}
+
+static ID_t GetUniqueAlbumID(AlbumMap &map, QString& name, bool isContent = false)
+{
+
+	IDVal_t id = CalcCrc(name, isContent);
+	while (map.contains(ID_t(ALBUM_ID_FLAG, id)))
+		id += ID_INCREMENT;
+
+	return ID_t(ALBUM_ID_FLAG, id);
 }
 
 /**************************** LanguageTexts *****************************/
@@ -608,10 +617,10 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 *--------------------------------------------------------------------------*/
 Image *ImageMap::Find(ID_t id, bool useBase)
 {
-	uint64_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
+	IDVal_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
 	Image im; 
 	im.ID = id;
-	uint64_t v = im.ID.Val() & mask;
+	IDVal_t v = im.ID.Val() & mask;
 	for (auto i = begin(); i != end(); ++i)
 		if ( (i.key().Val() & mask)  == v )
 			return &i.value();
@@ -834,6 +843,55 @@ bool Album::operator==(const Album &i)
 	return 0;
 }
 
+/*=============================================================
+ * TASK   : Set this album as an alias for another album
+ *			and modify its aliasesList
+ * PARAMS :	thatAlbum: a non zero pointer to the base album
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS: none
+ * REMARKS: - if this album is already an alias for thatAlbum
+ *			  does nothing
+ *			- if this alias to be has a list of items, i.e.
+ *			  was a base album itself then 
+ *				* those items are added to the items of the base album
+ *				* and all albums that was an alias to this album 
+ *					will be aliases of 'thatAlbum'
+ *				* this will also be an alias to 'thatAlbum'
+ *------------------------------------------------------------*/
+void Album::SetAsAliasFor(Album* thatAlbum)		// thatAlbum must exist, pointer mustn't be 0
+{
+	if (!thatAlbum  || (thatAlbum && (baseAlbumId == thatAlbum->ID.Val()|| thatAlbum->ID.Val() == NO_ID)) )
+		return;		// already an alias for that album or can't be an alias
+	IDVal_t ourId = ID.Val();
+	baseAlbumId = thatAlbum->ID.Val();			// new base album
+	changed = true;	// this album changed
+	if (items.count() > 0)	// if this album has items
+	{
+		thatAlbum->items += items; // add to 'thatAlbum' items and remove them from here
+		items.clear();
+	}
+	if (aliasesList.count() > 0)	// if this album was a base album and had aliases
+	{
+		for (auto& idv : aliasesList)	// set the new base album for those albums
+		{
+			ID_t id(ALBUM_ID_FLAG, idv);
+			albumgen.Albums()[id].baseAlbumId = baseAlbumId;
+			albumgen.Albums()[id].changed = true;
+		}
+		thatAlbum->aliasesList += aliasesList;	// and all of our aliases will be aliases to the new base album
+	}
+	thatAlbum->aliasesList += ourId;			// add this album to the aliases of 'thatAlbum' too
+	thatAlbum->aliasesList.remove(baseAlbumId);	// remove 'thatAlbum' from its own aliases list
+
+	aliasesList.clear();	// as we are an alias ourselves we will have no aliases
+}
+
+Album* Album::BaseAlbum() const		// returns the base album for this album, i.e. the one that has no baseAlbumId set
+{
+	return baseAlbumId == NO_ID ? nullptr : albumgen.Albums().AlbumForIDVal(baseAlbumId);
+}
+
 /*============================================================================
 * TASK: get number of non-excluded images from local image list
 * EXPECTS:
@@ -966,9 +1024,9 @@ ID_t Album::ThumbID()
 	for (auto &iid : items)
 		if (iid.IsImage())
 			return SetThumbnail(iid);
-	// if here then no image inside album, just sub-albums
+	// from here no image or video is inside album, just sub-albums
 	for (auto &iid : items)
-		if ((id = albumgen.AlbumForID(iid)->ThumbID()).Val())
+		if ((id == albumgen.AlbumForID(iid)->ThumbID()))
 			return SetThumbnail(id);
 	return { IMAGE_ID_FLAG,0 };
 }
@@ -989,7 +1047,7 @@ ID_t Album::SetThumbnail(ID_t id)
 		return id;
 
 	albumgen.SetAlbumModified(ID);
-	id.SetFlag(uint8_t(~TYPE_FLAGS), false);
+	id.SetFlag(IDFlags(~TYPE_FLAGS), false);
 	ID_t oldThumbnail = thumbnailId;
 	thumbnailId = id;
 	if(albumgen.Contains(id))
@@ -1005,7 +1063,7 @@ ID_t Album::SetThumbnail(ID_t id)
 	return id;
 }
 
-ID_t Album::SetThumbnail(uint64_t id)
+ID_t Album::SetThumbnail(IDVal_t id)
 {
 	return SetThumbnail(ID_t(IMAGE_ID_FLAG, id));
 }
@@ -1027,7 +1085,7 @@ QSize Album::ThumbSize() const
  * REMARKS: - does not change or store startPos
  *			- 'index' must be less than 'items.size()'
  *-------------------------------------------------------*/
-ID_t Album::IdOfItemOfType(int64_t type, int index)
+ID_t Album::IdOfItemOfType(uint8_t type, int index)
 {
 	if (index >= items.size())
 		return ID_t();		// MUST NOT
@@ -1141,7 +1199,8 @@ QString Album::NameFromID(int language)
 
 /*============================================================================
 * TASK:	  Add a new album to the album map if it is not already in there
-* EXPECTS: name: IN - either just a name, an absolute path name or a path relative to 
+* EXPECTS: 	parentID - ID of parent album, 0: topmost album
+*			name: IN - either just a name, an absolute path name or a path relative to 
 *						 the source album directory (!)
 *						e.g. "newAlbum"	- logical path name, no real path exists 
 *						     "this/is/a/new/album"	- path relative to source directory 
@@ -1159,7 +1218,7 @@ QString Album::NameFromID(int language)
 *			created on disk and images are added from that folder, the virtual
 *			album's empty path is not modified with the path of the real album 
 *--------------------------------------------------------------------------*/
-ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
+ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added)
 {
 	Album ab;
 
@@ -1170,7 +1229,7 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 	if (path.isEmpty())
 	{
 		QString vpath = MakeRandomStringOfLength(10) + "/" + ab.name;
-		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, vpath, false);   // using full path name only and not file content
+		ab.ID = GetUniqueAlbumID(*this, vpath, false);   // using full path name only and not file content
 		ab.pathId = 0;
 	}
 	else
@@ -1181,7 +1240,7 @@ ID_t AlbumMap::Add(ID_t parentId, const QString &name, bool &added)
 			ShowWarning(QObject::tr("There's an album named \n'%1'\n already here!").arg(name), frmMain);
 			return found->ID;	// same base ID, same name then same album
 		}
-		ab.ID = GetUniqueID(*this, ALBUM_ID_FLAG, relativeParentPath, false);   // using full path name only and not file content
+		ab.ID = GetUniqueAlbumID(*this, relativeParentPath, false);   // using full path name only and not file content
 		ab.pathId = pathMap.Add(path);
 	}
 
@@ -1222,7 +1281,7 @@ Album & AlbumMap::Item(int index)
  * TASK:	remove album and all of its sub-albums, but
  *			leave the images and videos intact, as they might
  * 			be used in other albums
- * PARAMS:	id - id of album to remove. MUST have the ALBUM_ID_FLAG bit set
+ * PARAMS:	id - id of album to remove. 
  * GLOBALS:
  * RETURNS:	true: success, false: album or any sub albums not found
  * REMARKS:
@@ -1235,10 +1294,31 @@ bool AlbumMap::RemoveRecursively(ID_t id)
 		Album *album = Find(id);
 		if ((album->ID.IsAlbum()) == 0)
 			return false;
+		Album* pBase = album->BaseAlbum();
+		if (pBase)	 // if this album is an alias for another album
+		{
+			pBase->aliasesList.remove(id.Val());	// remove this album from the list of aliases of the base album
+			remove(id);						// and also remove this album from the map
+			return true;					// no other processing needed
+		}
+		if (!album->aliasesList.isEmpty()) 	// then this album is a base album for other albums
+		{
+			Album* pNewBaseAlbum = Find(album->aliasesList[0]);	// get the first alias
+			assert(pNewBaseAlbum);	// must be there
+			album->SetAsAliasFor(pNewBaseAlbum);	// set this album as an alias for the new base album
+													// so this album can be removed from the map
+			pNewBaseAlbum->aliasesList.remove(id.Val());	// remove this album from the aliases of the new base album
+			album->aliasesList.clear();				// and clear the aliases list of this album
+			  // now this is a single album with no aliases
+		}
+			// if this album is not an alias for another album
+											// then first remove its sub albums recursively
 		for (int i = 0; res && i < album->items.size(); ++i)
 			if (album->items[i].IsAlbum())
-				res = RemoveRecursively(album->items[i]);
-		remove(id);
+				res &= RemoveRecursively(album->items[i]);
+		
+
+		remove(id );
 		return res;
 	}
 	return false;
@@ -1263,16 +1343,43 @@ Album *AlbumMap::Find(QString albumPath)
 	return nullptr;
 }
 
-Album* AlbumMap::Find(uint64_t pathID, QString albumName)
+Album* AlbumMap::Find(IDPath_t pathID, QString albumName)
 {
 	QString fullPath = pathMap.AbsPath(pathID) + albumName;
 	return Find(fullPath);
 }
 
-Album* AlbumMap::Find(uint64_t pathID, ID_t albumId)
+Album* AlbumMap::Find(IDPath_t pathID, ID_t albumId)
 {
 	QString fullPath = pathMap.AbsPath(pathID) + AlbumForID(albumId)->name;
 	return Find(fullPath);
+}
+
+/*=============================================================
+ * TASK   :	see if this album has a list of aliases and get their
+ *			pointers into  a list
+ * PARAMS :	id : id of album we search aleases for
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+AlbumList AlbumMap::GetAliases(IDVal_t idv)
+{
+	ID_t id = ID_t(ALBUM_ID_FLAG, idv);
+
+	if (idv == NO_ID || !contains(id))
+		return AlbumList();
+	Album* p = &operator[](id);
+
+	AlbumList alst;
+
+	if (p->baseAlbumId == NO_ID)	// this is the base album
+		alst.SetBaseAlbumId(idv);	// set the base album
+	else
+		alst.SetBaseAlbumId(p->baseAlbumId);
+
+	return alst;
 }
 
 /*=============================================================
@@ -1296,11 +1403,18 @@ bool AlbumMap::Exists(QString albumPath)
 *--------------------------------------------------------------------------*/
 Album *AlbumMap::Find(ID_t id)
 {
-	Album ab;
-	ab.searchBy = Album::byID;
-	ab.ID = id;
+	// Delete!
+	//ID_t idt(ALBUM_ID_FLAG, id);
+	//Album ab;
+	//ab.searchBy = Album::byID;
+	//ab.ID = idt;
 
 	return contains(id) ? &(*this)[id] : nullptr;
+}
+
+Album* AlbumMap::Find(IDVal_t idv)
+{
+	return Find(ID_t(ALBUM_ID_FLAG, idv));
 }
 
 /************************** Albumgenerator *************************/
@@ -1382,7 +1496,7 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 }
 
 /*==========================================================================
-* TASK:		add a sub-album or an image to global arrays and album 'parentID'
+* TASK:		add a sub-album or an image or video to global arrays and album 'parentID'
 *			from directory unless they are excluded
 * EXPECTS:	albumId - ID of album to add images and sub albums to
 *			fi - info of a file and album
@@ -1395,9 +1509,9 @@ ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTyp
 *			- adds new images/videos and id's to the corresponding id list of 'ab'
 *			- shows progress using frmMain's progress bar
 *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddItemToAlbum(ID_t parentID, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
+ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
 {
-	Album* ab = AlbumForID(parentID);
+	Album* ab = AlbumForIDVal(parentID);
 	Q_ASSERT(ab);
 	ID_t id = ID_t::Invalid();
 
@@ -1413,7 +1527,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(ID_t parentID, QFileInfo & fi, bool signalE
 		if (ds == "res" || ds == "cache" || ds == "thumbs")
 			return { ALBUM_ID_FLAG,0 };
 		id = _albumMap.Add(parentID, s, added);	// add new album to global album list
-		ab = AlbumForID(parentID);	// might have change item in memory
+		ab = AlbumForIDVal(parentID);	// might have change item in memory
 		Q_ASSERT(ab);
 	}
 	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
@@ -1446,7 +1560,7 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 
 	if (a.ImageCount() == 0 && a.VideoCount() == 0)	// just sub-albums
 	{
-		for (auto b : a.items)
+		for (auto &b : a.items)
 			if (!_IsAlbumAndItsSubAlbumsEmpty(_albumMap[b]))
 				return false;
 
@@ -1645,18 +1759,19 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	if (list.size())
 		SetAlbumModified(ab);
 
-	ID_t id;
+	ID_t id,
+		 idt(ALBUM_ID_FLAG, albumId.Val());
 
 	static int debugCnt = 0;
 	for (auto &fi : list)		// elements in directory
 	{
 		++debugCnt;
-		if( (id = _AddItemToAlbum(albumId, fi,_signalProgress)).Val() == 0)	// nothing added? (hidden file)
+		if( (id = _AddItemToAlbum(albumId.Val(), fi,_signalProgress)).Val() == 0)	// nothing added? (hidden file)
 			continue;
 		if (id.IsAlbum())		// sub album
 		{
 			Album& subA = _albumMap[id];
-			subA.parentId = albumId;	// signals this sub-album is in 'ab'
+			subA.parentId = albumId.Val();		// signals this sub-album is in 'ab'
 											// Must change when sub-albums moved to other album
 			if (subA.ID.DoesExist())
 				_RecursivelyReadSubAlbums(id);
@@ -1670,7 +1785,7 @@ void AlbumGenerator::_RecursivelyReadSubAlbums(ID_t albumId)
 	{
 		(void)ab.ImageCount();		// removes excluded ID s of 'ab.images'
 		(void)ab.SubAlbumCount();	// removes excluded ID s of 'ab.albums'
-		_AddAlbumThumbnail(ab, 0);	// only if there's no thumbnail already
+		_AddAlbumThumbnail(ab, NO_ALBUM);	// only if there's no thumbnail already
 	}
 }
 
@@ -1685,7 +1800,7 @@ void AlbumGenerator::Init()
 	// add "latest" album if required
 
 	album.ID = RECENT_ALBUM_ID;
-	_albumMap[RECENT_ALBUM_ID] = album;
+	_albumMap[album.ID] = album;
 
 	// add default image when no image is found This is the only one with id == 0
 	// the file 'NoImage.jpg' must be put into the 'res' directory
@@ -2002,7 +2117,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 	// ALL TAG TEXT MUST BE OF THE SAME LENGTH!
 	// and all tags must start with a different letter
 
-	uint64_t textID = 0;		// ID of last processed text
+	IDVal_t textID = 0;		// ID of last processed text
 	IdsFromStruct::IDS newTag = IdsFromStruct::nothing;
 
 	ids.what = IdsFromStruct::nothing;
@@ -2163,7 +2278,7 @@ bool AlbumGenerator::_ReadPathTable(FileReader& reader)
 
 void AlbumGenerator::_CleanupPathTable()
 {
-	QMap<uint64_t,uint64_t> pathIdVector;
+	QMap<IDVal_t,IDVal_t> pathIdVector;
 	for (auto& i : _imageMap)
 		pathIdVector[i.pathId] = i.pathId;
 	for (auto& i : _videoMap)
@@ -2171,8 +2286,8 @@ void AlbumGenerator::_CleanupPathTable()
 	for (auto& i : _albumMap)
 		pathIdVector[i.pathId] = i.pathId;
 
-	QVector<uint64_t> idsToDelete;
-	uint64_t pathID = pathMap.FirstId();
+	QVector<IDVal_t> idsToDelete;
+	IDPath_t pathID = pathMap.FirstId();
 	do
 	{
 		if (!pathIdVector.contains(pathID))
@@ -2317,7 +2432,7 @@ static QStringList __imageMapStructLineToList(QString s)
 
 /*==========================================================================
 * TASK:		add a sub-album or an image to global arrays and to album 'ab'
-* EXPECTS:	ab - album to add data to (parent)
+* EXPECTS:	albumId - ID of album to add data to (parent)
 *			path - full path name relative to  album root  or absolute path
 *			pos: - put position in images or in albums here
 *			folderIcon: if the file should be used as album thumbnail for this album
@@ -2329,7 +2444,7 @@ ID_t AlbumGenerator::AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail
 	if (!QDir::isAbsolutePath(path))
 		path = (config.dsSrc + path).ToString();
 	QFileInfo fi(path);
-	ID_t id = _AddItemToAlbum(albumId, fi, doSignalElapsedTime, doNotAddToAlbumItemList);
+	ID_t id = _AddItemToAlbum(albumId.Val(), fi, doSignalElapsedTime, doNotAddToAlbumItemList);
 	if (id.Val() && isThumbnail)	// an album can be a folder icon which means that its
 		_albumMap[albumId].SetThumbnail(id);		// folder icon is used here. This will be resolved later on
 
@@ -2442,8 +2557,8 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 			if (thumbnail && album)		 // It's parent also changes
 			{
 				album->SetThumbnail(id);		// and increments 'thumbNailCount'
-				if (album->parentId.Val())
-					MarkAllParentsAsChanged(album->ID); //  SetAlbumModified(album->parentId);
+				if (album->parentId)
+					SetAlbumModified(ID_t(ALBUM_ID_FLAG, album->parentId) );
 			}
 			SetAlbumModified(album->ID);			// set it as changed, always
 		}
@@ -2680,8 +2795,8 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level)
 {
-	Album album = _albumMap[ TOPMOST_ALBUM_ID ];	// temporary album to add to map, root album already added to map
-	album.parentId = parent;
+	Album album = _albumMap[ TOPMOST_ALBUM_ID];	// temporary album to add to map, root album already added to map
+	album.parentId = parent.Val();
 	album.pathId = 0;
 
 	bool albumDefinitelyChanged;
@@ -2721,13 +2836,13 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	//	QFile f("falconG_debug.log");
 	//	f.open(QIODevice::Append);
 	//	QTextStream ofsdbg(&f);
-	//	ofsdbg << sLevels << album.name << QString(": %1\n").arg(album.ID.Val());
+	//	ofsdbg << sLevels << album.name << QString(": %1\n").arg(album.ID);
 	//}
 	//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	// /DEBUG
 
 	Album *aParent = parent.Val() ? &_albumMap[parent] : nullptr;
-	uint64_t parentPathId = aParent ? aParent->pathId : NO_ID;
+	IDPath_t parentPathId = aParent ? aParent->pathId : NO_ID;
 
 	int	changeCountBefore = _structFileChangeCount;		// save to determine if album changed
 												// if any text or the icon ID is new then _structFileChangeCount incremented
@@ -2756,7 +2871,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 					album.pathId = 1;	// for topmost album already added to pathMap
 				else
 				{
-					uint64_t id1 = pathMap.Add(sl[2]);	// root relative name or absolute name
+					IDPath_t id1 = pathMap.Add(sl[2]);	// root relative name or absolute name
 					album.pathId = id1;
 				}
 				lastUsedAlbumPathId = album.pathId;
@@ -2785,12 +2900,12 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	if (n == 1)   // n == 1  	no ID is determined yet, sl[0] contains either the path (existing image) or just the name (top level folder)
 	{								 // TODO
 		if (aParent)
-			MarkAllParentsAsChanged(aParent->ID); //  SetAlbumModified(*aParent);		// aParent must exist for each non-root album
+			SetAlbumModified(parent);		// aParent must exist for each non-root album
 
 		QString path;
 		SeparateFileNamePath(sl[0], path, album.name);
 
-		uint64_t uid = pathMap.Add(path);	// handles empty paths, absolute paths, source relative paths and existing paths
+		IDPath_t uid = pathMap.Add(path);	// handles empty paths, absolute paths, source relative paths and existing paths
 		if (uid == NO_ID)	// no path was set in sl[0]
 			album.pathId = aParent ? parentPathId : lastUsedAlbumPathId;
 		else
@@ -2805,7 +2920,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		}
 
 		bool added = false;
-		id = _albumMap.Add(parent, sl[0], added);	// add new album to global album list
+		id = _albumMap.Add(parent.Val(), sl[0], added);	// add new album to global album list
 		// may invalidate aParent
 		album = _albumMap[id];	// and also album is changed
 		++_structFileChangeCount;		// then we will write down the processed line into the new file
@@ -2814,7 +2929,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 	{								// in this case immediate parent must be changed too
 		SetAlbumModified(album);
 		if (aParent != nullptr)
-			MarkAllParentsAsChanged(aParent->ID); //  SetAlbumModified(*aParent);		// aParent must exist for each non-root album
+			SetAlbumModified(parent);		// aParent must exist for each non-root album
 		
 		++_structFileChangeCount;
 	}
@@ -2832,7 +2947,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 					album.titleID = ids.titleIDVal;
 				if (ids.descIDVal)
 					album.descID = ids.descIDVal;
-				_AddAlbumThumbnail(album, ids.thumbnailIDVal);
+				_AddAlbumThumbnail(album, ID_t(IMAGE_ID_FLAG,ids.thumbnailIDVal));
 				ids.Clear();
 			}
 			while(reader.Ok() && reader.l().isEmpty())	// drop all consecutive empty lines
@@ -2866,7 +2981,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			//	QTextStream ofsdbg(&f);
 			//	ofsdbg << sLevels << "=> " + _albumMap[id].name << "\n";
 			//	for(int i =0; i < _albumMap[id].items.size(); ++i) 
-			//		ofsdbg << sLevels << QString("   : items[%1] = (%2,%3)\n").arg(i).arg(_albumMap[id].items[i].Val()).arg(_albumMap[id].items[i].Flags());
+			//		ofsdbg << sLevels << QString("   : items[%1] = (%2,%3)\n").arg(i).arg(_albumMap[id].items[i]).arg(_albumMap[id].items[i].Flags());
 			//}
 			//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 			// /DEBUG
@@ -2881,14 +2996,14 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 				{
 					SetAlbumModified(album);
 					if (parent.Val())
-						MarkAllParentsAsChanged(parent); //  SetAlbumModified(parent);	// aParent pointer might be invalidated
+						SetAlbumModified(parent);	// aParent pointer might be invalidated
 				}
 			}
 			else if(reader.Ok())		   // this must be an image line, unless file is ended
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ReadImageOrVideoFromStruct(reader, level+1, &album, false);		   // false:not album thumbnail
 				if (!iid.Val())
-					ShowWarning(FalconG::tr("Image not Found in line #%1").arg(reader.ReadCount()), frmMain);
+					ShowWarning(FalconG::tr("Image/video not Found in line #%1").arg(reader.ReadCount()), frmMain);
 					//throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
 				album.items.push_back(iid);
 			}
@@ -2922,13 +3037,13 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void AlbumGenerator::_AddAlbumThumbnail(Album& album, uint64_t id)
+void AlbumGenerator::_AddAlbumThumbnail(Album& album, ID_t id)
 {
 
 	if (album.thumbnailId.Val() || album.ID == TOPMOST_ALBUM_ID)
 		return;
 
-	if (id)
+	if (id.Val())
 	{
 		album.SetThumbnail(id);	 // when id given thumbnail is from structure file
 		return;
@@ -2945,7 +3060,7 @@ void AlbumGenerator::_AddAlbumThumbnail(Album& album, uint64_t id)
 	for (auto &a : album.items)
 	{
 		Album& alb = _albumMap[a];
-		_AddAlbumThumbnail(alb, 0);
+		_AddAlbumThumbnail(alb, NO_ALBUM);
 		if (alb.thumbnailId.Val())
 		{
 			album.SetThumbnail(alb.thumbnailId);
@@ -3003,13 +3118,13 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 				bool b;
 				QStringList sl1 = __albumMapStructLineToList(rline, b);
 				ID_t id(sl1[1], ALBUM_ID_FLAG);
-				if(sl1.size() > 2 && id.Val() != TOPMOST_ALBUM_ID.Val())
+				if(sl1.size() > 2 && id != TOPMOST_ALBUM_ID)
 					throw BadStruct(reader.ReadCount(), FalconG::tr("Invalid / empty root album line"));
 			}
 
 					// recursive album read. there is only one top level album
 					// with id == TOPMOST_ALBUM_ID (id == ALBUM_ID_FLAG is not used)
-			_ReadAlbumFromStruct(reader, { ALBUM_ID_FLAG, NO_ID }, 0);	// parent ID is 0 for root album!
+			_ReadAlbumFromStruct(reader, NO_ALBUM, 0);	// parent ID is 0 for root album!
 			_CleanupPathTable();
 //#ifdef DEBUG
 //			{
@@ -3024,7 +3139,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 //						s += QString("(root)");
 //					else
 //						s += pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("Invalid id:%1").arg(a.pathId);
-//					s += QString(" for album %1 (id:%2)").arg(a.name).arg(a.ID.Val());
+//					s += QString(" for album %1 (id:%2)").arg(a.name).arg(a.ID);
 //					map.insert(s, 1);
 //				}
 //				QFile f("falconG-paths.dbg.txt");
@@ -3046,7 +3161,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 //						s += QString("(root)");
 //					else
 //						s += pathMap.Contains(a.pathId) ? pathMap[a.pathId] : QString("Invalid id:%1").arg(a.pathId);
-//					s += QString(" for image %1 (id:%2)").arg(a.name).arg(a.ID.Val());
+//					s += QString(" for image %1 (id:%2)").arg(a.name).arg(a.ID);
 //					map.insert(s, 1);
 //				}
 //				QFile f("falconG-img-paths.dbg.txt");
@@ -3934,9 +4049,9 @@ void AlbumGenerator::_OutputNav(Album &album, QString uplink)
 		_ofs << s;
 	};
 
-	QString qsParent = album.parentId > RECENT_ALBUM_ID ? _albumMap[album.parentId].BareName() : config.sMainPage.ToString();
+	QString qsParent = album.parentId > RECENT_ALBUM_ID.Val() ? _albumMap[ID_t(ALBUM_ID_FLAG, album.parentId)].BareName() : config.sMainPage.ToString();
 	qsParent = RootNameFromBase(qsParent, _actLanguage);
-	if (album.parentId <= RECENT_ALBUM_ID)	// for uplinks to index you need to go up one directory, for others you do not
+	if (album.parentId <= RECENT_ALBUM_ID.Val())	// for uplinks to index you need to go up one directory, for others you do not
 		qsParent = "../" + qsParent;
 	// menu buttons
 	_ofs << "   <nav>\n";
@@ -4055,7 +4170,7 @@ int AlbumGenerator::_WriteFooterSection(Album & album)
 *			- common for images and albums as both have thumbnail
 *			- video section is written in _WriteVideoContainer()
 *--------------------------------------------------------------------------*/
-int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int idIndex)
+int AlbumGenerator::_WriteGalleryContainer(Album & album, IDFlags typeFlag, int idIndex)
 {
 	bool isAlbum = (typeFlag & ALBUM_ID_FLAG),
 		 isImage = (typeFlag & IMAGE_ID_FLAG)/*,
@@ -4142,8 +4257,8 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, uint8_t typeFlag, int 
 	}
 	else
 	{
-		uint64_t tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
-				 did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
+		IDVal_t tid = isAlbum ? _albumMap[id].titleID : _imageMap[id].titleID,
+				did = isAlbum ? _albumMap[id].descID : _imageMap[id].descID;
 
 		title = DecodeTextFor(_textMap[tid][_actLanguage], dtHtml);
 		desc = DecodeTextFor(_textMap[did][_actLanguage], dtHtml);
@@ -4839,7 +4954,7 @@ int AlbumGenerator::_DoLatestJs()
 			//else if (idt.IsVideo())	
 			//{
 			//	pvid = &_videoMap[idt];
-			//	ofjs << "{ id:" << (idt.Val()) << ",w:" << config.thumbWidth << ",h:" << config.thumbHeight;
+			//	ofjs << "{ id:" << (idt) << ",w:" << config.thumbWidth << ",h:" << config.thumbHeight;
 			//	if (pvid->titleID)
 			//		ofjs << ",t:\"" << DecodeTextFor(_textMap[pvid->titleID][lang], 2, true) << "\"";
 			//	if (pvid->descID)
@@ -5051,7 +5166,6 @@ void AlbumGenerator::_SlotForStructWriterFinished(QString sErrorMessage, QString
 	emit SignalStructWritten();
 }
 
-
 /*==========================================================================
 * TASK:
 * EXPECTS:
@@ -5169,7 +5283,7 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
  *			  it will be deleted, even if they were not in the data base
  *			- tries to move files into trashcan^recycle bin first
  *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID, bool fromDisk)
+void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID , bool fromDisk)
 {
 	Album& album = _albumMap[albumID];
 	QString path;
@@ -5188,13 +5302,13 @@ void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID, bool fromDisk)
  *			fromDisk		 - delete source files from disk too
  * GLOBALS:
  * RETURNS:
- * REMARKS:	- if any item to be deleted is a folder all files inside
+ * REMARKS:	- if any item to be deleted is a folder and 'fromDisk' is set all files inside
  *			  it will be deleted, even if they were not in the data base
  *			- tries to move files into trashcan/recycle bin first
  *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
+void AlbumGenerator::_RemoveItems(ID_t albumIDVal, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
 {
-	Album& album = _albumMap[albumID];
+	Album& album = _albumMap[albumIDVal];
 	QString path;
 	for (auto ix : ilx)
 		album.items[ix].SetFlag(DELETE_IT_FLAG, true);
@@ -5227,9 +5341,10 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 {
 	if (fromDisk)
 		if(QMessageBox::question(frmMain, tr("falconG - Warning"),
-								tr(	"If a folder is removed all the files and folders inside it will be deleted too!\n\n"
+								tr(	"If an album is removed all the files and albums inside it will be removed too,\n"
+									"but they remeain available in linked (alias) albums\n\n"
 									"This cannot be undone!\n\n"
-									"Really delete the selected items from disk?")) != QMessageBox::Yes)
+									"Really remove/delete the selected items from disk?")) != QMessageBox::Yes)
 			return;
 	emit SignalAlbumStructWillChange();
 	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
@@ -5243,9 +5358,9 @@ void AlbumGenerator::SetAlbumModified(Album& album)
 	if (_processing)
 		return;
 
-	if (_slAlbumsModified.indexOf(album.ID) < 0)
+	if (_slAlbumsModified.indexOf(album.ID.Val()) < 0)
 	{
-		_slAlbumsModified << album.ID;
+		_slAlbumsModified << album.ID.Val();
 		album.changed = true;
 	}
 	emit SignalAlbumStructChanged(true);
@@ -5256,64 +5371,21 @@ void AlbumGenerator::SetAlbumModified(ID_t albumId)		// albumId must be valid
 	if (_processing)
 		return;
 
-	if (_slAlbumsModified.indexOf(albumId) < 0)
+	if (_slAlbumsModified.indexOf(albumId.Val()) < 0)
 	{
 		Album& album = _albumMap[albumId];
-		_slAlbumsModified << albumId;
+		_slAlbumsModified << albumId.Val();
 		album.changed = true;
 	}
 	emit SignalAlbumStructChanged(true);
 }
 
-//************************* AlbumParentsMap ******************************************
-
-void AlbumGenerator::MarkAllParentsAsChanged(ID_t albumId)	// marks all parents of this album as changed
-{
-	if (_albumParentsMap.contains(albumId))
-	{
-		QList<ID_t> parents = _albumParentsMap.values(albumId);
-		for (ID_t parentId : parents)
-			SetAlbumModified(parentId);
-
-		albumgen.SignalAlbumStructChanged(true);
-	}
-}
-
-void AlbumGenerator::MarkParentsWithoutThumbnailsAsChanged(ID_t albumId)
-{
-	if (_albumParentsMap.contains(albumId))
-	{
-		QList<ID_t> parents = _albumParentsMap.values(albumId);
-		for (ID_t parentId : parents)
-		{
-			Album& parent = _albumMap[parentId];
-			if (!parent.thumbnailId.Val())
-				SetAlbumModified(parentId);
-		}
-	}
-}
-
-void AlbumGenerator::ChangeParentList(ID_t albumID, ID_t parentID, ID_t oldParentID)
-{
-	if (oldParentID.Val())
-	{
-		SetAlbumModified(oldParentID);
-		_albumParentsMap.remove(albumID, oldParentID);
-	}
-	if (parentID.Val())
-	{
-		SetAlbumModified(parentID);
-		_albumParentsMap.insert(albumID, oldParentID);
-	}
-}
-
-
 //************************* VideoMap ******************************************
 Video* VideoMap::Find(ID_t id, bool useBase)
 {
-	uint64_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
+	IDVal_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
 	Video vid;
-	uint64_t vidid = id.Val();
+	IDVal_t vidid = id.Val();
 	for (auto i = begin(); i != end(); ++i)
 		if ((i.key().Val() & mask) == (vidid & mask))
 			return &i.value();
@@ -5368,7 +5440,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 		vid.pathId = AlbumGenerator::lastUsedAlbumPathId;
 
 	added = false;
-	uint64_t id64 = CalcCrc(vid.name, false) ;	// just by name. CRC can but id can never be 0
+	IDVal_t id64 = CalcCrc(vid.name, false) ;	// just by name. CRC can but id can never be 0
 
 	QFileInfo fi(path);
 
@@ -5417,7 +5489,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 	if (albumgen.bSetDirIndexToo)
 		vid.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
 
-	vid.ID = { VIDEO_ID_FLAG, id64 };
+	vid.ID = ID_t( VIDEO_ID_FLAG, id64);
 	insert(vid.ID, vid);
 	return vid.ID;
 }
