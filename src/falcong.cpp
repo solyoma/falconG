@@ -5175,6 +5175,7 @@ QGroupBox::title {
 QTabBar::tab,
 QTextEdit:focus, 
 QLineEdit:focus,
+QComboBox:editable,
 QSpinBox:focus {
     color:%4;				/* %4 focused input */
 }
@@ -5200,17 +5201,20 @@ QTabBar::tab:selected {
 QToolButton,
 QTextEdit, 
 QLineEdit,
+QComboBox:editable,
 QSpinBox {
 	background-color:%7;	/* %7 - input background */
 }
 QTextEdit, 
 QLineEdit,
+QComboBox:editable,
 QSpinBox {
 	selection-background-color:%8;	/* %8 */
 }
 
 QTextEdit:focus, 
 QLineEdit:focus,
+QComboBox:editable,
 QSpinBox:focus {
 	border-color:%9;		/* %9 - focused border */
 }
