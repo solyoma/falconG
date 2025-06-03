@@ -11,6 +11,7 @@
 #include <QIcon>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <QThread>
 #include <QMutex>
@@ -442,7 +443,7 @@ public:
 	Album *Find(IDPath_t pathID, ID_t albumId);
 	AlbumList GetAliases(IDVal_t id);	// returns all albums that have this album as their baseAlbumId
 	bool Exists(QString albumPath);
-	ID_t Add(IDVal_t parentId, const QString &name, bool &added);			// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
+	ID_t Add(IDVal_t parentId, const QString &name, bool &added);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and its all sub-albums
 };

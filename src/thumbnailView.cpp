@@ -1792,7 +1792,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
         }
     }
-	pact = new QAction(tr("&New Folder..."), this);  // create new folder inside actual folder
+	pact = new QAction(tr("&New Folder..."), this);  // create new folder, or folder alias inside actual folder
 	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
 	menu.addAction(pact);
 
@@ -1801,12 +1801,12 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 	menu.addAction(pact);
 
     menu.addSeparator();
-	pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
+	pact = new QAction(tr("Add &Images from disk ..."), this);  // any number of images from a directory
 	pact->setEnabled(true);
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
 	menu.addAction(pact);
 
-	pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
+	pact = new QAction(tr("Add &Folder from disk..."), this);  // one folder added to the folder tree inside this album
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
 	menu.addAction(pact);
 
@@ -2152,6 +2152,8 @@ void ThumbnailView::AddFolder()
 /*=============================================================
  * TASK:   Display dialog box to create one virtual folder in the 
  *          actual (virtual or real) folder
+ *         This may be an alias to an exiting folder or a new one
+ *         
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -2163,28 +2165,20 @@ void ThumbnailView::NewVirtualFolder()
     Album* pParentAlbum = _ActAlbum();
     QString parentPath = pParentAlbum->FullSourceName();   // relative to config.dsSrc
     QString qs;
-    bool ok;
     bool b = false;
 
-    while (1)
-    {
-        qs = QInputDialog::getText(this, tr("falconG - New (Virtual) Folder"), tr("Folder Name:"), QLineEdit::Normal, qs, &ok);
+    GetNewAlbumNameDialog aDlg(albumgen.Albums(), this);
+    IDVal_t baseIdVal = NO_ID; // reset baseIdVal
 
-        if(!ok || qs.isEmpty())
-            return;
-		if (qs.indexOf(QRegExp("[\\/:*?\"<>|]")) >= 0)
-		{
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder name contains invalid characters\nPlease use a different name!"));
-			continue;
-		}
-        if ((b = _NewVirtualFolder(qs)) == true)
+    if (aDlg.exec() == QDialog::Accepted)
+    {
+        QString folderName = aDlg.GetFolderName(baseIdVal);
+
+        if ((b = _NewVirtualFolder(folderName)) == true)
         {
             AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
 			ptrv->update();
-            break;
         }
-        //qs = QString(tr("file or folder named \n'%1'\nalready exists\nPlease use a different name!")).arg(qs);
-        //QMessageBox::warning(this, tr("falconG - Warning"), qs);
     }
 }
 

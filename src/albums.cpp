@@ -1237,7 +1237,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added)
 		Album* found = Find(relativeParentPath);		// already in database?
 		if (found)
 		{
-			ShowWarning(QObject::tr("There's an album named \n'%1'\n already here!").arg(name), frmMain);
+			ShowWarning(QObject::tr("There's an album named \n'%1'\n already here.\nAdd an alias to it instead$").arg(name), frmMain);
 			return found->ID;	// same base ID, same name then same album
 		}
 		ab.ID = GetUniqueAlbumID(*this, relativeParentPath, false);   // using full path name only and not file content

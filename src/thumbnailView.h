@@ -24,6 +24,7 @@
 #include "common.h"
 #include "schemes.h"
 #include "albums.h"
+#include "CustomLineEdit.h"
 
 const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;
@@ -376,5 +377,160 @@ public slots:
 private slots:
     void loadThumbsRange();
 };
+
+/*=============================================================
+ * TASK   : a dialog to  ask for a name of a new virtual folder
+ *          which may be an alias (link) to an existing folder
+ * PARAMS : as for QInputDialog::getText()
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+
+ // ---dialog box to enter a new album name andenable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
+
+class AlbumFilterModel : public QSortFilterProxyModel
+{
+	Q_OBJECT
+public:
+	AlbumFilterModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
+	void setFilterPrefix(const QString& prefix) {
+		_prefix = prefix;
+		invalidateFilter();
+	}
+protected:
+	bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override {
+		if (_prefix.isEmpty()) return true;
+		QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
+		QString name = idx.data(Qt::DisplayRole).toString();
+		return name.startsWith(_prefix, Qt::CaseInsensitive);
+	}
+private:
+	QString _prefix;
+};
+
+class GetNewAlbumNameDialog : public QDialog
+{
+	Q_OBJECT
+public:
+	GetNewAlbumNameDialog(const AlbumMap& albumMap, QWidget* parent = nullptr)
+		: QDialog(parent), _selectedId(0)
+	{
+		setWindowTitle(tr("falconG - new Album"));
+
+		QVBoxLayout* layout = new QVBoxLayout(this);
+		_lineEdit = new QLineEdit(this);
+		_lineEdit->setPlaceholderText(tr("Name of the new album"));
+		QRegExpValidator validator(QRegExp("[^\\/:*?\"<>|]*"), this);
+		_lineEdit->setValidator(&validator);
+
+		QLabel* label = new QLabel(tr("Album's name:"), this);
+		layout->addWidget(label);
+		layout->addWidget(_lineEdit);
+
+		_checkBox = new QCheckBox(QObject::tr("make this an alias for:"), this);
+
+		connect(_checkBox, &QCheckBox::toggled, this, [this](bool checked) {
+			_comboBox->setEnabled(checked);
+			});
+		layout->addWidget(_checkBox);
+
+		_comboBox = new QComboBox(this);
+		_comboBox->setEditable(true);
+		_comboBox->setLineEdit(new CustomLineEdit(_comboBox, _comboBox));
+
+		// Prepare a list of pairs (name, id) for sorting
+		QList<QPair<QString, IDVal_t>> nameIdList;
+		for (auto it = albumMap.constBegin(); it != albumMap.constEnd(); ++it)
+			nameIdList.append(qMakePair(it.value().name, it.key().Val()));
+		std::sort(nameIdList.begin(), nameIdList.end(), [](const QPair<QString, IDVal_t>& a, const QPair<QString, IDVal_t>& b) {
+			return a.first.localeAwareCompare(b.first) < 0;
+			});
+
+		// Fill the model
+		_model = new QStandardItemModel(this);
+		for (const auto& pair : nameIdList) {
+			QStandardItem* item = new QStandardItem(pair.first);
+			item->setData(QVariant::fromValue(pair.second), Qt::UserRole + 1);
+			_model->appendRow(item);
+		}
+
+		// Filtering model
+		_filterModel = new AlbumFilterModel(this);
+		_filterModel->setSourceModel(_model);
+
+		_comboBox->setModel(_filterModel);
+
+		layout->addWidget(_comboBox);
+
+		// Connect filter
+		connect(_comboBox->lineEdit(), &QLineEdit::textEdited, _filterModel, &AlbumFilterModel::setFilterPrefix);
+
+		// Buttons
+		QHBoxLayout* btnLayout = new QHBoxLayout;
+		QPushButton* okBtn = new QPushButton(tr("O&K"), this);
+		okBtn->setEnabled(false); // Initially disabled, enabled on getting the name
+		QPushButton* cancelBtn = new QPushButton(tr("&Cancel"), this);
+		btnLayout->addWidget(okBtn);
+		btnLayout->addWidget(cancelBtn);
+		layout->addLayout(btnLayout);
+
+		connect(_lineEdit, &QLineEdit::textChanged, this, [okBtn](const QString& text)
+			{
+				okBtn->setEnabled(!text.trimmed().isEmpty()); // Enable if text is not empty
+			});
+
+		connect(okBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::accept);
+		connect(cancelBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::reject);
+	}
+
+	constexpr uint64_t SelectedId() const { return _selectedId; }
+	QString GetFolderName(IDVal_t& idBaseFolder) const
+	{
+		if (_checkBox->isChecked())
+			idBaseFolder = _selectedId;
+		else
+			idBaseFolder = 0; // No alias, just a new virtual folder
+
+		return _comboBox->currentText().trimmed();  // may be empty
+	}
+
+protected:
+	void accept() override
+	{
+		if (_checkBox->isChecked())     // ok button only enabled when lineEdit is not empty
+		{
+			QString selectedText = _comboBox->currentText().trimmed();
+			if (selectedText.isEmpty()) {
+				QMessageBox::warning(this, tr("Warning"), tr("Please select an album or enter a name."));
+				return;
+			}
+			QModelIndex idx = _filterModel->index(_comboBox->currentIndex(), 0);
+			if (idx.isValid())
+				_selectedId = idx.data(Qt::UserRole + 1).toULongLong();
+		}
+		else
+			_selectedId = 0; // No alias, just a new virtual folder
+
+		QDialog::accept();
+	}
+
+	void reject() override
+	{
+		_selectedId = 0; // Reset selected ID on cancel
+		QDialog::reject();
+	}
+
+private:
+	QCheckBox* _checkBox;
+	QLineEdit* _lineEdit;
+	QComboBox* _comboBox;
+	QStandardItemModel* _model;
+	AlbumFilterModel* _filterModel;
+	uint64_t _selectedId;
+};
+
+
 
 

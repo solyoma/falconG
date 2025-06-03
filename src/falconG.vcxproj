@@ -219,6 +219,7 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csscreator.cpp" />
+    <ClCompile Include="CustomLineEdit.cpp" />
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
@@ -239,7 +240,16 @@
     <ClCompile Include="stylehandler.cpp" />
     <ClCompile Include="support.cpp" />
     <ClCompile Include="textEditor.cpp" />
-    <ClCompile Include="thumbnailView.cpp" />
+    <ClCompile Include="thumbnailView.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
@@ -271,6 +281,7 @@
     <QtMoc Include="hidden.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </QtMoc>
+    <QtMoc Include="CustomLineEdit.h" />
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h" />
     <ClInclude Include="schemes.h" />

@@ -54,9 +54,6 @@
     <ClCompile Include="treeView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thumbnailView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="languages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thumbnailView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomLineEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,6 +111,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="selectStruct.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="CustomLineEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
