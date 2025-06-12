@@ -310,8 +310,8 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 
 	void SetAsAliasFor(Album* thatAlbum);		// transfer all data from old base album to new base album
 
-	Album* BaseAlbum() const;		// returns the base album for this album, i.e. the one that has the items
-										// or nullptr if this is the base album itself
+	Album* BaseAlbum();					// returns the base album for this album, i.e. the one that has the items
+										// or 'this' if this is a base album
 	ID_t IdOfItem(int pos) const 
 	{ 
 		return items.isEmpty() ||  (pos >= items.size()) ?  ID_t::Invalid() : items[pos];
@@ -344,9 +344,9 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 
 	ID_t IdOfItemOfType(uint8_t type, int index);
 
-	static QString NameFromID(ID_t id, int language, bool withAlbumPath);			// <basename><id><lang>.html
-	QString NameFromID(int language);
-	QString LinkName(int language, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
+	static QString HtmlNameFromID(ID_t id, int language, IDVal_t rootAliasId, bool withAlbumPath);			// <basename><id><lang>.html
+	QString HtmlNameFromID(int language, IDVal_t rootAliasId);
+	QString LinkName(int language, IDVal_t aliasRootId, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
 
 	void AddItem(ID_t id, int pos = -1);	// -1: append
@@ -443,7 +443,7 @@ public:
 	Album *Find(IDPath_t pathID, ID_t albumId);
 	AlbumList GetAliases(IDVal_t id);	// returns all albums that have this album as their baseAlbumId
 	bool Exists(QString albumPath);
-	ID_t Add(IDVal_t parentId, const QString &name, bool &added);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
+	ID_t Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t baseFolderID = NO_ID);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and its all sub-albums
 };
@@ -461,6 +461,15 @@ struct IdsFromStruct
 //------------------------------------------
 class AlbumStructWriter;		// forward
 class ProcessImageThread;
+
+
+
+/* =============== AliasList ==================*/
+using AliasItem = std::pair<IDVal_t, IDVal_t>;
+
+using AliasList = QList<AliasItem>;	// list of pairs of IDVal_t: (alias, baseAlbumId) 
+									// pairs used only for aliases for which the base 
+									// album wasn't read yet
 /* =============== Albumgenerator ==================*/
 
 class AlbumGenerator : public QObject
@@ -570,6 +579,7 @@ public:		// SLOT: connected with new syntax: no need for MOC to use this slot
 	void Cancelled() { _processing = false; }
 
 private:
+	//--- private variables ------------------
 	enum {ok, ready, rerr, nosuch} _status=ok; // can read further, no sub directories, read error or empty, no such file/dir
 	struct _RemainingDisplay
 	{
@@ -591,8 +601,15 @@ private:
 	// AlbumParentsMap _albumParentsMap;	// all source albums and their parents
 	ImageMap _imageMap;		// all images for all albums	ID.flag has IDFlags and possibly ORPHAN_FLAG
 	VideoMap _videoMap;		// all videos from all albums	ID.flag has ALBUM_ID_FLAG
+			// next two are used when generating the HTML files
+	UsageCount _aliasLevel;	// current alias level for album processing, 0: not inside a sub-album for an alias
+							// increased when we process a n album inside an alias album, decreased when we leave it
+	IDVal_t _aliasRootId = NO_ID;	// ID of the root alias album. When _aliasLevel is not 0
+							// append this to the path of the sub albums when determining the 
+							// name of the corresponding HTML file
 
 	IdList	_addedThumbnailIDsForImagesNotYetRead;
+	AliasList _unresolvedAliases;
 	// ID of top level album (first in '_albumMap', TOPMOST_ALBUM_ID)
 		// --------- latest images collection
 	QDate _latestDateLimit = QDate::fromJulianDay(0); // date of latest upload for generating the latest files
@@ -626,6 +643,8 @@ private:
 
 	QTextStream _ofs, _ifs;		// write (read) data to (from) here
 
+private:
+	//--- private functions------------------
 	bool _MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	bool _IsExcluded(const Album& album, QString name);
@@ -694,6 +713,56 @@ private:
 	void _RemoveItem(Album &album, int which, bool fromdisk); // which: index in album's items
 	void _RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
 	void _RemoveAllItemsFrom(ID_t albumID, bool fromdisk);
+};
+
+// ******* bread crumb ********
+struct Breadcrumb 
+{
+	QString name;
+	IDVal_t id=NO_ID;
+
+	Breadcrumb() {}	// format "name ( id )"
+	Breadcrumb(QString s)	// format "name ( id )"
+	{
+		if (s.at(0) == '/')		// root item
+		{
+			name = s.mid(2);
+			id = 1;
+			return;
+		}
+
+		int isx = s.lastIndexOf('('),
+			iex = isx >= 0 ? s.indexOf(')', isx+1) : -1;
+		if (isx >= 0)
+		{
+			name = s.left(isx - 1); // after name
+			while (s.at(isx) != QChar(')') && !s.at(isx).isDigit())
+				++isx;
+			if (isx < iex)
+				id = QString(s.mid(isx, iex - isx - 1)).toLongLong();
+			else
+				id = 1;
+		}
+	}
+
+};
+class BreadcrumbVector : public QVector<Breadcrumb>
+{
+public:
+	BreadcrumbVector() : QVector<Breadcrumb>() {}
+	QString ToString()
+	{
+		QString res;
+		if (!isEmpty())
+		{
+			QString qs = (*this)[0].name;
+			for (int i = 1; i < size(); ++i)
+				qs += Delimiter() + (*this)[i].name;
+		}
+		return res;
+	}
+	static inline QString Delimiter() { return QString(QChar(0x00BB)); }	// '>>' character
+
 };
 
 extern AlbumGenerator albumgen;

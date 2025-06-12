@@ -49,7 +49,7 @@ public:
 	}
 
 // these are moving around
-	QModelIndex CreateIndex(int row, int column, int64_t id)	// ID_t
+	QModelIndex CreateIndex(int row, int column, IDVal_t id)
 	{
 		return createIndex(row, column, quintptr(id));
 	}
@@ -70,9 +70,30 @@ public:
 	bool removeRows(int position, int rows,
 		const QModelIndex &parent = QModelIndex()) override;
 
+	// this to navigate to tree branch using the internal pointer
+	QModelIndex FindIndexByPointer(const void* targetPointer, const QModelIndex& parent = QModelIndex()) const
+	{
+		int rcp = rowCount(parent);
+		for (int row = 0; row < rcp; ++row) {
+			QModelIndex ix = index(row, 0, parent);
+			if (ix.internalPointer() == targetPointer) {
+				return ix;
+			}
+
+			// Recursively search children
+			QModelIndex child = FindIndexByPointer(targetPointer, ix);
+			if (child.isValid()) {
+				return child;
+			}
+		}
+		return QModelIndex();  // Not found
+	}
 };
 
 class ThumbnailView;					  // in thumbnailView.h for connecting there
+
+struct Breadcrumb;							// in albums.h
+class BreadcrumbVector;
 
 class AlbumTreeView : public QTreeView
 {
@@ -89,14 +110,17 @@ public:
 signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
 	void SignalGetSelectionCount(ID_t& remoteId, int& count);
+	void SignalTreePathChanged(const BreadcrumbVector &bcv);
 
 public slots:
 	void SlotDeleteSelectedAlbum();
 	void SlotMoveImages();
 	void SlotCopyImages();
 	void SlotActAlbumChanged(int row);
+	void SlotNavigateFromBreadcrumb(void*);
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);
-
+	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
 };

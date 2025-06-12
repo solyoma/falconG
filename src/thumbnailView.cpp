@@ -83,6 +83,7 @@ QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
     MarkedIcon& micon = _iconList[_iconOrder[pos]];
     micon.isFolderThumb = flags.testFlag(fiThumb);
     micon.dontResize = flags.testFlag(fiDontResize);
+    micon.isAlias = flags.testFlag(fiAlias);
 	return micon.ToIcon();
 }
 
@@ -140,22 +141,31 @@ QIcon ThumbnailItem::IconForFile() const
     bool exists = false;
     
     bool isFolder = itemId.IsAlbum();
-    bool bIsFolderIcon = false;
+    bool isFolderIcon = false;
+    bool isAlias = false;
 
     ID_t imgId = itemId;     // add marker for image that is the folder thumbnail (shown in parent)
 //    Album* parent = _ParentAlbum();
     if (isFolder)
-        imgId = albumgen.Albums()[itemId].thumbnailId;
+    {
+        Album& aitem = albumgen.Albums()[itemId];
+        imgId = aitem.thumbnailId;
 
-    bIsFolderIcon = (pAlbum->thumbnailId == imgId);
+        if (aitem.baseAlbumId)
+            isAlias = true;
+    }
+
+    isFolderIcon = (pAlbum->thumbnailId == imgId);
 
     if (fileIcons.HasIconFor(itemPos))
     {
         FileIcons::Flags flags;
         if (isFolder)
             flags.setFlag(FileIcons::fiFolder);
-        if (bIsFolderIcon)
+        if (isFolderIcon)
             flags.setFlag(FileIcons::fiThumb);
+        if(isAlias)
+            flags.setFlag(FileIcons::fiAlias);
         if(albumgen.ImageAt(imgId)->dontResize)
             flags.setFlag(FileIcons::fiDontResize);
 
@@ -184,7 +194,7 @@ QIcon ThumbnailItem::IconForFile() const
     FileIcons::Flags flags;
     if (isFolder)
         flags.setFlag(FileIcons::fiFolder);
-    if (bIsFolderIcon)
+    if (isFolderIcon)
         flags.setFlag(FileIcons::fiThumb);
     if (albumgen.ImageAt(imgId)->dontResize)
         flags.setFlag(FileIcons::fiDontResize);
@@ -289,7 +299,7 @@ QString ThumbnailItem::_VideoFileName() const
 QString ThumbnailItem::_FolderFileName() const
 {
    Album  owner = albumgen.Albums()[ID_t(ALBUM_ID_FLAG, _ownerIdVal)];
-   return owner.LinkName(-1); // no language and extension
+   return owner.LinkName(-1, NO_ID); // no language and extension no base ID ?
 }
 
 QString ThumbnailItem::FilePath() const
@@ -1347,6 +1357,16 @@ void ThumbnailView::_RemoveAllViewers()
     emit SignalImageViewerAdded(false);
 }
 
+/*=============================================================
+ * TASK   : load and prepare thumbnails
+ * PARAMS : none
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS: nothing
+ * REMARKS: -_albumId is the id of the album to load, but it can
+ *            be an alias for another album. If it is then use
+ *            the real album for the items
+ *------------------------------------------------------------*/
 void ThumbnailView::_InitThumbs()
 {
 	static QStandardItem *thumbItem;
@@ -1354,6 +1374,15 @@ void ThumbnailView::_InitThumbs()
 	static QSize hintSize;
 	int timeOutCnt = 1;
     Album &album = albumgen.Albums()[_albumId];
+    
+    if (album.baseAlbumId != NO_ID) // then use the base album for items
+    {
+        _isBaseAlbum = false;
+        album = *albumgen.AlbumForIDVal(album.baseAlbumId);
+    }
+    else
+		_isBaseAlbum = true;
+
     if(album.pathId)
         albumgen.lastUsedAlbumPathId = album.pathId;
 
@@ -1447,9 +1476,12 @@ void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
     bool res = true;
 
     int i;
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album& album = *thisAlbum.BaseAlbum();  // same as thisAlbum for non alias albums
+
     for (i = 0; i < qslFileNames.size(); ++i)
     {
-        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], *_ActAlbum(), row);
+        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], album, row);
         if (!res)     // then already used somewehere // TODO: virtual albums
         {
             QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new image / video failed!"));
@@ -1711,7 +1743,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
         if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
         {
             pact = new QAction(tr("Select As Album Thumbnail..."), this);  // any image
-            connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);
+			connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);         // for this album, even when it is an alias
             menu.addAction(pact);
 
             menu.addSeparator();
@@ -1801,7 +1833,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 	menu.addAction(pact);
 
     menu.addSeparator();
-	pact = new QAction(tr("Add &Images from disk ..."), this);  // any number of images from a directory
+	pact = new QAction(tr("Add &Images/Videos from disk ..."), this);  // any number of images from a directory
 	pact->setEnabled(true);
 	connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
 	menu.addAction(pact);
@@ -1874,7 +1906,8 @@ void ThumbnailView::SlotDeleteSelectedList(ID_t albumId, IntList& list, bool ico
 
     bool fromDisk = res == 1;       //  Yes
             // needs reverse order   (?)
-
+    Album* pAlbum = albumgen.Albums()[albumId].BaseAlbum();
+	albumId = pAlbum->ID;  // set the albumId to the base album id, so that it is not an alias
     albumgen.RemoveItems(albumId, list, fromDisk, iconsForThisAlbum);  // also remove cached file icons
     _albumId = albumId;
     Reload();
@@ -1921,7 +1954,7 @@ void ThumbnailView::SynchronizeTexts()
         return;
 
     IABase* pItem = nullptr;
-    Album* pAlbum = _ActAlbum();
+    Album* pAlbum = albumgen.Albums()[_albumId].BaseAlbum();
 
     auto Item = [&](int row)
     {
@@ -2035,7 +2068,7 @@ void ThumbnailView::AddImages()
  *------------------------------------------------------------*/
 bool ThumbnailView::_AddFolder(QString folderName)
 {
-    Album* pParentAlbum = _ActAlbum();
+    Album* pParentAlbum = albumgen.Albums()[_albumId].BaseAlbum();
 
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
@@ -2045,8 +2078,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     if (added)
     {   
         atLeastOneFolderWasAdded = true;
-        pParentAlbum = _ActAlbum();     // album position may have changed when new album was added to map
-        /*albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); */
+        pParentAlbum = albumgen.Albums()[_albumId].BaseAlbum();     // album position may have changed when new album was added to map
         albumgen.SetAlbumModified(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
         album.parentId = _albumId.Val();
@@ -2073,11 +2105,12 @@ bool ThumbnailView::_AddFolder(QString folderName)
 /*=============================================================
  * TASK:    internal function that creates a folder
  * PARAMS:  folderName - name of folder to add w.o. any path
+ *          baseAlbumId - id of real album or 0 if this album is not an alias
  * GLOBALS:
  * RETURNS: if folder was added
  * REMARKS: folder names must be unique
  *------------------------------------------------------------*/
-bool ThumbnailView::_NewVirtualFolder(QString folderName)
+bool ThumbnailView::_NewVirtualFolder(QString folderName, IDVal_t baseAlbumID)
 {
     auto errMsg = [&](QString text)
         {
@@ -2086,45 +2119,29 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
                                                                     "Album names must be unique.").arg(text));
         };
 
-    bool added = false,
+    bool addedToMap = false,
          res = false;
 
-    Album* pParentAlbum = _ActAlbum();
-	IDVal_t idPVal = pParentAlbum->ID.Val();
-    ID_t id = albumgen.Albums().Add(idPVal, folderName, added);
+    Album& thisAlbum = albumgen.Albums()[_albumId]; // either this is the parent of the new album
+    Album& parentAlbum = *thisAlbum.BaseAlbum();    // or its base album is
 
-    //QString fullPath = parentPath + "/" + folderName;
-    //if (albumgen.Albums().Exists(fullPath))
-    //    errMsg(tr("The album is already in the gallery.") );
-    //else
-    //{
-    //    QDir dir(parentPath);               
-    //    // DEBUG
-    //    qDebug("Dir:%s, subdir:%s", dir.absolutePath().toStdString().c_str(), folderName.toStdString().c_str());
-    //    // /DEBUG
-    //    // usually no real folder is created, all of it is logical if (dir.mkdir(fullPath))
-    //    //{
+	IDVal_t idPVal = parentAlbum.ID.Val();
+    ID_t id = albumgen.Albums().Add(idPVal, folderName, addedToMap, baseAlbumID);
 
-            emit SignalInProcessing(true);
-            emit SignalAlbumStructWillChange();
-            if (added)
-            {
-                    /*albumgen.MarkAllParentsAsChanged(pParentAlbum->ID); */
-                albumgen.SetAlbumModified(*pParentAlbum);
-                Album& album = *albumgen.AlbumForID(id);
-                album.parentId = _albumId.Val();
-                pParentAlbum->AddItem(id, -1);
-                albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
-                res = true;
-            }
-            else
-                errMsg(tr("Unknown error: Folder created but wasn't added to gallery") );
-            emit SignalInProcessing(false);
-            emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
-        //}
-        //else
-        //   errMsg(tr("Creating folder \n%1\non disk was unsuccessful").arg(parent+"/"+folder));
-//    }
+    emit SignalInProcessing(true);
+    emit SignalAlbumStructWillChange();
+    if (addedToMap)
+    {
+        albumgen.SetAlbumModified(parentAlbum);                 // either this album or its base album
+
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+        res = true;
+    }
+    else
+        errMsg(tr("Unknown error: Folder created but wasn't added to gallery") );
+    emit SignalInProcessing(false);
+    emit SignalAlbumStructChanged(false);   // changes already written to disk (no backup was made nor will be)
+
     return res;
 }
 
@@ -2139,8 +2156,8 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName)
  *------------------------------------------------------------*/
 void ThumbnailView::AddFolder()
 {
-    Album* pParentAlbum = _ActAlbum();
-    QString dir = pParentAlbum->FullSourceName();
+    Album* thisAlbum = albumgen.Albums()[_albumId].BaseAlbum();
+    QString dir = thisAlbum->FullSourceName();
     QString qs = QFileDialog::getExistingDirectory(this, tr("falconG - Add Directory"), dir);
     if (qs.isEmpty())
         return;
@@ -2162,19 +2179,15 @@ void ThumbnailView::AddFolder()
  *------------------------------------------------------------*/
 void ThumbnailView::NewVirtualFolder()
 {
-    Album* pParentAlbum = _ActAlbum();
-    QString parentPath = pParentAlbum->FullSourceName();   // relative to config.dsSrc
-    QString qs;
-    bool b = false;
 
     GetNewAlbumNameDialog aDlg(albumgen.Albums(), this);
     IDVal_t baseIdVal = NO_ID; // reset baseIdVal
 
     if (aDlg.exec() == QDialog::Accepted)
     {
-        QString folderName = aDlg.GetFolderName(baseIdVal);
+        QString folderName = aDlg.GetBaseName(baseIdVal);
 
-        if ((b = _NewVirtualFolder(folderName)) == true)
+        if (_NewVirtualFolder(folderName, baseIdVal))
         {
             AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
 			ptrv->update();
@@ -2193,7 +2206,9 @@ void ThumbnailView::NewVirtualFolder()
 void ThumbnailView::RenameVirtualFolder()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes(); // list must onle have a single item
-    ID_t id = _ActAlbum()->items[list[0].row()];
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album& album = *thisAlbum.BaseAlbum();
+    ID_t id = album.items[list[0].row()];
     Album* pItem = albumgen.AlbumForID(id);
     QString text = QInputDialog::getText(
         this,                                                   // Parent widget
@@ -2223,9 +2238,11 @@ void ThumbnailView::CopyNamesToClipboard()
 	QString s;
 	QModelIndexList list = selectionModel()->selectedIndexes();
     IABase* pItem;
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album* album = thisAlbum.BaseAlbum();
     for (auto &i : list)
     {
-        ID_t id = _ActAlbum()->items[i.row()];// ID_t(i.internalPointer());
+        ID_t id = album->items[i.row()];// ID_t(i.internalPointer());
         pItem = albumgen.IdToItem(id);
         
         switch (pItem->Type())
@@ -2236,7 +2253,7 @@ void ThumbnailView::CopyNamesToClipboard()
                 break;
             default:
             case IABase::iatAlbum:
-                s += config.sBaseName.ToString() + "\n";
+                s += config.sBaseName.ToString() + QString().setNum(id.Val()) +"\n";
                 break;
         }
     }
@@ -2276,7 +2293,7 @@ void ThumbnailView::CopyOriginalNamesToClipboard()
 void ThumbnailView::AskAndGetThumbnail()
 {
     int pos = currentIndex().row();     // new thumbnail index for actual item
-    Album* pParent =  &albumgen.Albums()[_albumId]; 
+    Album* pParent =  albumgen.Albums()[_albumId].BaseAlbum(); // real album which has the items
     // get actual selected album inside parent
     Album *album = pParent ? &albumgen.Albums()[ pParent->items[pos]] : &albumgen.Albums()[_albumId];
     QString s = album->FullSourceName();
@@ -2311,18 +2328,19 @@ void ThumbnailView::SetAsAlbumThumbnail()
 {
     int pos = currentIndex().row();     // new thumbnail index
 
-    Album& album = albumgen.Albums()[_albumId];
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album &album     = *thisAlbum.BaseAlbum(); // real album which has the items
     int cthix = -1;// old thumbnail index in 'items'. -1: not from current album
     for (int i = 0; i < album.items.size(); ++i)
-        if (album.thumbnailId == album.items[i])
+        if (thisAlbum.thumbnailId == album.items[i])
             cthix = i;
     if (cthix == pos)       // no change
         return;
 
     ID_t th = album.items[pos];                                  
 
-    album.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
-    albumgen.SetAlbumModified(_albumId);
+    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
+    albumgen.SetAlbumModified(_albumId);    // this one is modified, not the base album
 
     UpdateTreeView(false);
     if (album.parentId)
@@ -2342,7 +2360,8 @@ void ThumbnailView::SetAsAlbumThumbnail()
  *------------------------------------------------------------*/
 void ThumbnailView::ToggleDontResizeFlag()
 {
-    Album& album = albumgen.Albums()[_albumId];
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album& album = *thisAlbum.BaseAlbum();
     bool changed = false;
 
     QModelIndexList list = selectionModel()->selectedIndexes();
@@ -2454,7 +2473,8 @@ void ThumbnailView::SlotThumbnailSizeChanged(int newSize)
 void ThumbnailView::FindMissingImageOrVideo()
 {
     int pos = currentIndex().row();
-    Album& album = albumgen.Albums()[_albumId];
+    Album& thisAlbum = albumgen.Albums()[_albumId];
+    Album& album = *thisAlbum.BaseAlbum();  // real album that has the items
     ID_t id = album.items[pos];
     QString name, path;
     IABase* pItem = albumgen.IdToItem(id);
@@ -2553,4 +2573,100 @@ void ThumbnailViewModel::Clear()
     fileIcons.Clear();
     QStandardItemModel::clear();
     endResetModel();
+}
+
+//********* getNewAlbumsDialog **********
+GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget * parent)
+    : QDialog(parent), _selectedId(0)
+{
+    setWindowTitle(tr("falconG - new Album"));
+    /*
+    * Layout:                |---------------------------------|
+    *                        || album tree   | new album data ||
+    *                        ||          ...                  ||
+    *                        |---------------------------------
+	*                        ||     OK and Cancel buttons      ||
+	*                        |---------------------------------|
+    */
+	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	//mainLayout->setContentsMargins(1, 1, 1, 1);
+    // fill up the left side with album tree
+    QHBoxLayout* hLayout = new QHBoxLayout(this);
+
+    QWidget* w = new QWidget(this);
+    hLayout->addWidget(w);
+	QVBoxLayout* wLayout = new QVBoxLayout(w);
+    _treeView = new AlbumTreeView(w);          // selection of an album to be used as alias
+    _treeView->header()->hide();
+    _treeView->setModel(frmMain->GetTreeViewPointer()->model()); // use the album tree model
+    _treeView->setRootIsDecorated(false);
+    _treeView->expandAll();
+    // DEBUG
+    //int n = _treeView->model()->rowCount(),
+    //    n1= frmMain->GetTreeViewPointer()->model()->rowCount();        
+
+    _treeView->setEnabled(false); // until the checkbox is checked
+	w->layout()->addWidget(_treeView);
+
+    // the right side asks for the new album data
+    QVBoxLayout* layout = new QVBoxLayout(this);
+
+    QLabel* label = new QLabel(tr("Album's name:"), this);
+
+    _lineEdit = new QLineEdit(this);
+    _lineEdit->setPlaceholderText(tr("Name of the new album"));
+    QRegExpValidator validator(QRegExp("[^\\/:*?\"<>|]*"), this);
+    _lineEdit->setValidator(&validator);
+
+    layout->addWidget(label);
+    layout->addWidget(_lineEdit);
+
+    _checkBox = new QCheckBox(QObject::tr("Select an album from the left\nthis new album will be an alias for:"), this);
+
+    connect(_checkBox, &QCheckBox::toggled, this, [this](bool checked) {
+        _treeView->setEnabled(checked);
+        });
+    layout->addWidget(_checkBox);
+    _lblBaseName = new QLabel();
+    layout->addWidget(_lblBaseName);
+	layout->addItem(new QSpacerItem(40,80, QSizePolicy::Minimum, QSizePolicy::Expanding)); // fill up the space
+
+	hLayout->addLayout(layout);
+
+	mainLayout->addLayout(hLayout);
+
+    // Buttons
+    QHBoxLayout* btnLayout = new QHBoxLayout;
+    QPushButton* okBtn = new QPushButton(tr("O&K"), this);
+    okBtn->setEnabled(false); // Initially disabled, enabled on getting the name
+    QPushButton* cancelBtn = new QPushButton(tr("&Cancel"), this);
+    btnLayout->addWidget(okBtn);
+    btnLayout->addWidget(cancelBtn);
+    mainLayout->addLayout(btnLayout);
+
+    connect(_lineEdit, &QLineEdit::textChanged, this, [okBtn](const QString& text)
+        {
+            okBtn->setEnabled(!text.trimmed().isEmpty()); // Enable if text is not empty
+        });
+
+    connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &GetNewAlbumNameDialog::_SlotTreeSelectionChanged);
+
+    connect(okBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::accept);
+    connect(cancelBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::reject);
+}
+
+void GetNewAlbumNameDialog::_SlotTreeSelectionChanged(const QItemSelection& current, const QItemSelection& previous)
+{
+   if(current.indexes().size() == 1) // only one item selected
+    {
+        QModelIndex index = current.indexes().first();
+        _selectedId = IDVal_t(index.internalPointer()); // store the selected album id
+        Album* pa = albumgen.Albums().AlbumForIDVal(_selectedId);
+        _lblBaseName->setText(tr("%1(%2)").arg(pa->name).arg(_selectedId));
+    }
+    else
+    {
+        _selectedId = 0; // no valid selection
+        _lblBaseName->setText(tr(""));
+   }
 }

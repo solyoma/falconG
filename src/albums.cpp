@@ -288,7 +288,7 @@ QString IABase::LinkName(bool bLCExtension) const
 		QString ext = name.mid(pos);
 		if (bLCExtension)
 			ext = ext.toLower();
-		return QString().setNum(ID.Val()) + ext;	// e.g. 12345.jpg (images IDs has no flag set)
+		return QString().setNum(ID.Val()) + ext;	// e.g. 12345.jpg 
 	}
 	else
 		return name;
@@ -887,9 +887,9 @@ void Album::SetAsAliasFor(Album* thatAlbum)		// thatAlbum must exist, pointer mu
 	aliasesList.clear();	// as we are an alias ourselves we will have no aliases
 }
 
-Album* Album::BaseAlbum() const		// returns the base album for this album, i.e. the one that has no baseAlbumId set
-{
-	return baseAlbumId == NO_ID ? nullptr : albumgen.Albums().AlbumForIDVal(baseAlbumId);
+Album* Album::BaseAlbum() 		// returns the base album for this album, i.e. the one that has no baseAlbumId set
+{								// this may be the base album itself
+	return (baseAlbumId == NO_ID) ? this : albumgen.Albums().AlbumForIDVal(baseAlbumId); // only a single layer of aliases
 }
 
 /*============================================================================
@@ -1105,9 +1105,9 @@ ID_t Album::IdOfItemOfType(uint8_t type, int index)
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString Album::LinkName(int language, bool http) const
+QString Album::LinkName(int language, IDVal_t aliasRootId, bool http) const
 {
-	QString s = NameFromID(ID, language, http);
+	QString s = HtmlNameFromID(ID, language, aliasRootId, http);
 	if (http)
 	{
 		if (config.sServerAddress.ToString().toLower().left(4) == "http")
@@ -1143,6 +1143,8 @@ void Album::AddItem(ID_t id, int pos)
 		items.push_back(id);
 	else
 		items.insert(pos, id);
+	changed = true;
+
 	if (id.IsAlbum())
 		_albumCount < 0 ? _albumCount = 1 : ++_albumCount;
 	else if (id.IsImage())
@@ -1158,25 +1160,33 @@ void Album::AddItem(ID_t id, int pos)
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
+QString Album::HtmlNameFromID(ID_t id, int language, IDVal_t rootAliasId, bool withAlbumPath)
 {
 	QString s;
 
-	if (id == TOPMOST_ALBUM_ID)	// root album
+	if (id == TOPMOST_ALBUM_ID)	// root album, can't be an alias
 	{
 		s = config.sMainPage.ToString();
-		s = languages.FileNameForLanguage(s, language);
+		s = languages.FileNameForLanguage(s, language);		// creates full file name for an HTML file for any language
 	}
 	else
 	{
-		if (id == RECENT_ALBUM_ID)	// recent uploads
+		if (id == RECENT_ALBUM_ID)	// recent uploads also not an alias
 		{
 			s = "latest";
 			if(language >= 0)
 				s += (*languages["abbrev"])[language] + ".html";
 		}
 		else
-			s = languages.FileNameForLanguage(QString("%1%2.html").arg(config.sBaseName.ToString()).arg(id.Val()), language);
+		{
+			ID_t idt = id;
+			if (rootAliasId != NO_ID)
+			{
+				QString s1 = QString("%1%2").arg(rootAliasId).arg(id.Val());
+				idt = GetUniqueAlbumID(albumgen.Albums(), s1, false); // get a unique ID for the alias
+			}
+			s = languages.FileNameForLanguage(QString("%1%2.html").arg(config.sBaseName.ToString()).arg(idt.Val()), language);
+		}
 
 		if (withAlbumPath)
 			s = config.dsAlbumDir.ToString() + s;
@@ -1190,9 +1200,9 @@ QString Album::NameFromID(ID_t id, int language, bool withAlbumPath)
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString Album::NameFromID(int language)
+QString Album::HtmlNameFromID(int language, IDVal_t rootAliasId)
 {
-	return NameFromID(ID, language, false);
+	return HtmlNameFromID(ID, language, rootAliasId, false);
 }
 
 /**************************** AlbumMap *****************************/
@@ -1209,6 +1219,7 @@ QString Album::NameFromID(int language)
 *							 "c:/not/source/dir/this/is/a/new/album" absolute path 
 *									file not in source dir
 *		  added: OUT - set when the new album is added
+* 		  baseAlbumID: ID of the base album, 0: no base album, this isn't an alias
 * RETURNS: unique id of album with ALBUM_ID_FLAG
 * GLOBALS:
 * REMARKS: - path may contain a logical name only, it need not exist
@@ -1218,7 +1229,7 @@ QString Album::NameFromID(int language)
 *			created on disk and images are added from that folder, the virtual
 *			album's empty path is not modified with the path of the real album 
 *--------------------------------------------------------------------------*/
-ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added)
+ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t baseAlbumID)
 {
 	Album ab;
 
@@ -1228,23 +1239,40 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added)
 	added = false;
 	if (path.isEmpty())
 	{
+		Album* pBase = nullptr;
+		if( (baseAlbumID != NO_ID) && (pBase = albumgen.AlbumForIDVal(baseAlbumID)) != nullptr)   // this may also be an alias
+		{
+			pBase = pBase->BaseAlbum();				   // the album with the 'baseAlbumId may itself be an alias
+			baseAlbumID = pBase->ID.Val();             // and we need the real base album id *just one lvele of aliases
+		}
+		ab.baseAlbumId = baseAlbumID;
 		QString vpath = MakeRandomStringOfLength(10) + "/" + ab.name;
 		ab.ID = GetUniqueAlbumID(*this, vpath, false);   // using full path name only and not file content
 		ab.pathId = 0;
+		if (pBase)
+		{
+			pBase->aliasesList.push_back(ab.ID.Val());	// add this album to the aliases of the base album
+			ab.thumbnailId = pBase->thumbnailId;
+		}
 	}
 	else
 	{
 		Album* found = Find(relativeParentPath);		// already in database?
 		if (found)
 		{
-			ShowWarning(QObject::tr("There's an album named \n'%1'\n already here.\nAdd an alias to it instead$").arg(name), frmMain);
+			ShowWarning(QObject::tr("There's already a non virtual album named \n'%1'\n here.\nAdd an alias to it instead!").arg(name), frmMain);
 			return found->ID;	// same base ID, same name then same album
 		}
 		ab.ID = GetUniqueAlbumID(*this, relativeParentPath, false);   // using full path name only and not file content
 		ab.pathId = pathMap.Add(path);
 	}
 
-	ab.parentId = parentId;
+	if ((ab.parentId = parentId))			// for aliases, different from base album's parent
+	{
+		Album* parentAlbum = AlbumForIDVal(parentId);
+		if (!parentAlbum->items.contains(parentAlbum->ID))
+			parentAlbum->items.push_back(ab.ID);
+	}
 
 	if (QDir::isAbsolutePath(relativeParentPath))
 		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists(relativeParentPath));
@@ -1253,7 +1281,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added)
 
 	if (ab.Exists())
 		AlbumGenerator::lastUsedAlbumPathId = pathMap.Add(path + ab.name + "/");
-	added = true;		// always add, even when it does not exist
+	added = true;		// always add, even when it does not exist on disk
 	if(albumgen.bSetDirIndexToo)
 		ab.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
 	
@@ -1558,6 +1586,9 @@ bool AlbumGenerator::_IsAlbumAndItsSubAlbumsEmpty(Album& a)
 	if (a.ID.IsExcluded())
 		return true;
 
+	if (a.baseAlbumId)	// alias albums do not have items, but must not be marked as empty
+		return false;
+
 	if (a.ImageCount() == 0 && a.VideoCount() == 0)	// just sub-albums
 	{
 		for (auto &b : a.items)
@@ -1588,7 +1619,7 @@ void AlbumGenerator::_CleanupAlbums()
 	auto it = _albumMap.begin();	// root ID (smallest)
 	++it;							// last used (dummy)
 	for (++it; it != _albumMap.end() ; ++it)	// first album
-		if (it.value().items.isEmpty())
+		if (it.value().baseAlbumId == NO_ID && it.value().items.isEmpty())
 			it.value().ID.SetFlag(EXCLUDED_FLAG);
 		// pass #2: mark non empty albums which only contain empty albums recursively
 	it = _albumMap.begin();
@@ -2454,7 +2485,7 @@ ID_t AlbumGenerator::AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail
 /*=============================================================
  * TASK:	add new image or video to 'album',
  * PARAMS:	'fullFilePath':
- *			'album' - image or video is in this album
+ *			'album' - image or video is in this album which MUST be a base album
  *			'pos' -	position of new image or video in album
  *					-1: append, other: insert before this position
  * GLOBALS: config
@@ -2713,19 +2744,20 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 *						or when the type is set to 'C'
 * RETURNS: list of fields found  and 'changed' flag
 *		   Verson 1.2 and before:
-*			line count in list can be:
+*			field count in list can be:
 *						1 - new album	:  this/is/a/new/album
 *						2 - name and ID :  thisAlbum(A:ID)
 *							album is in parent's path
 *						3 - name, ID, path: name(A:ID)path/to/this
 *		   Version 1.3 and later:
-*			line count in list can be:
-*						1 - new album	:  this/is/a/new/album
+*			field count in list can be:
+*						1 - unprocessed album on disk:  this/is/a/new/album
 *						2 - name and ID :  thisAlbum (A:ID)
-*							for logical album
+*							for virtual album
 *						3 - name, ID, path: name(A:ID)pathID
 *							for physical album
-* 
+*						4 - name, ID, path, base ID: name(A:ID{baseID})pathID
+*						     for virtual album, with possibly empty path index
 * 
 * REMARKS:	- "normal" regular function split() could not be used as names
 *					may contain braces and commas
@@ -2748,16 +2780,31 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 	}
 	changed = (s.at(pos0+1).unicode() != 'A');
 
-	sl.push_back(s.mid(0, pos0));		// album name, may be empty
+	sl.push_back(s.mid(0, pos0));		// field #1 album name, may be empty
 
-	pos0 += 3;				// skip the '(A:' or '(C:'
-	pos = s.indexOf(')', pos0);
+	pos0 += 3;							// skip the '(A:' or '(C:'
+	pos = s.indexOf(')', pos0);			// end of ID
 	if (pos < 0)
 		return sl;
 
-	sl.push_back(s.mid(pos0, pos - pos0));	// ID as string	(including dirIndex)
+	QString sBaseID;
+	int pos1 = s.indexOf('{', pos0); // start of base ID if any and end of ID
+	if (pos1 > 0)
+	{
+		sl.push_back(s.mid(pos0, pos1 - pos0));	// field #2 : ID as string	(including dirIndex)
+		pos0 = pos1 + 1;
+		sBaseID = s.mid(pos0, pos - pos0-1);	// base ID as string
+	}
+	else
+		sl.push_back(s.mid(pos0, pos - pos0));	// field #2 : ID as string	(including dirIndex)
+
+	// field #3 		
 	if (pos + 1 < s.length())
-		sl.push_back(s.mid(pos + 1));		// path, or path ID as string
+		sl.push_back(s.mid(pos + 1));	// path, or path ID as string
+	else if(!sBaseID.isEmpty())
+		sl.push_back(QString());		// empty path, or path ID
+	if(!sBaseID.isEmpty())		// no base ID, so no {} in the line
+		sl.push_back(sBaseID);		// field #4: base ID as string, empty if not present
 	return sl;
 }
 
@@ -2805,7 +2852,8 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 							//	1: sl[0] = full path name (not yet processed)
 							//	2: top level album, just below album root, sl[0] = album name sl[1] = ID
 							//	3: sub album, sl[0] = album name sl[1] = ID, sl[2]= album path	  - also for root album since 1.2.1
-	if (!n || n > 3)
+							//  4: sl[0] = album name sl[1] = ID, sl[2]= album path, sl[3]=base album ID or empty
+	if (!n || n > 4)
 		throw BadStruct(reader.ReadCount(),"Wrong album parameter count");
 	ID_t id;
 
@@ -2818,8 +2866,19 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 		album.name = sl[0];
 		if (n < 2)
 			id = TOPMOST_ALBUM_ID;			 // n == 1 => root album, already added;
-		else
+		else  if (n >= 2)
+		{
 			id = ID_t(sl[1], ALBUM_ID_FLAG);
+			if (n == 4)
+			{
+				album.baseAlbumId = sl[3].toLongLong();
+				Album* pBase = album.BaseAlbum();	// base album may be nullptr
+				if (!pBase)	// base album wasn't read yet
+					_unresolvedAliases.push_back(std::make_pair(album.ID.Val(), album.baseAlbumId));
+				else if( pBase->aliasesList.indexOf(album.ID.Val()) < 0)
+						pBase->aliasesList.push_back(album.ID.Val());	// add this album to base album's aliases list
+			}
+		}
 		album.ID = id;
 	}
 	// DEBUG
@@ -4113,7 +4172,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 // TODO: when language count is larger than, say 3 use a combo box for selection
 	for (int i = 0; i < languages.LanguageCount(); ++i)
 		if (i != _actLanguage)
-			_ofs << "     <a class=\"langs\" href=\"" + album.NameFromID(i) + "\">" << (*languages["name"])[i] << "</a>&nbsp;&nbsp\n";
+			_ofs << "     <a class=\"langs\" href=\"" + album.HtmlNameFromID(i, _aliasRootId) + "\">" << (*languages["name"])[i] << "</a>&nbsp;&nbsp\n";
 	_ofs << "     <br><br><br>\n";
 	if (album.ID == RECENT_ALBUM_ID)
 	{
@@ -4294,7 +4353,7 @@ int AlbumGenerator::_WriteGalleryContainer(Album & album, IDFlags typeFlag, int 
 	QString qsLoc;		// empty for non root albums/images
 	if (isAlbum)
 		qsLoc = "javascript:LoadAlbum('" +
-					sAlbumDir + _albumMap[id].NameFromID(id, _actLanguage, false);
+					sAlbumDir + _albumMap[id].HtmlNameFromID(id, _actLanguage, _aliasRootId, false);
 	else
 		qsLoc = sImagePath.isEmpty() ? "#" : "javascript:ShowImage('" + sImagePath + "', '" + _EncodeTitle(title);
 	qsLoc += +"')";
@@ -4381,10 +4440,10 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 	if (pVideo)
 		_ofs << " id=\"V" << pVideo->ID.Val() << "\" w=" << config.thumbWidth << " h=" << config.thumbHeight;
 	_ofs << ">\n"
-			"				<video width=\"" << config.thumbWidth << "\" height=\"" << (int)config.thumbWidth*1080.0/1920.0
-		 << "\" onmouseover = \"this.controls=true\" onmouseout=\"this.controls=false\"";
+			"				<video width=\"" << config.thumbWidth << "\" height=\"" << (int)config.thumbWidth*1080.0/1920.0 <<
+								"\" onmouseover = \"this.controls=true\" onmouseout=\"this.controls=false\"";
 	if (!config.bCanDownload)
-		_ofs << "controlsset=\"nodownload\"";
+									_ofs << "controlsset=\"nodownload\"";
 	_ofs << ">\n"
 		    "					<source src=\"" << sVideoPath << "\" type = \"video/" << sVideoType << "\">\n"
 		 << "				</video>\n";
@@ -4426,7 +4485,7 @@ int AlbumGenerator::_WriteVideoContainer(Album& album, int i)
 *							'albums-<dirIndex>' directories
 * 					true							  true
 * 							'albums-<dirIndex>/<language string>' directories
-*			 but this is determined in caller wher the path of f is set
+*			 but this is determined in caller where the path of f is set
 *		   - links for images, videos and albums inside this album 
 *				must also reflect these settings
 *--------------------------------------------------------------------------*/
@@ -4543,7 +4602,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 	if ( album.ID == TOPMOST_ALBUM_ID)		// top level: use name from config
 		s = config.dsGallery.ToString() + RootNameFromBase(config.sMainPage.ToString(), language);
 	else		 // all non root albums are either in the same directory or in separate language directories inside it
-		s = config.LocalAlbumDirectory().ToString() + album.NameFromID(language);
+		s = config.LocalAlbumDirectory().ToString() + album.HtmlNameFromID(language, _aliasRootId);
 
 	QFile f(s);
 	if (!_mustRecreateAllAlbums && f.exists() && !album.changed /*&& !_structFileChangeCount*/)
@@ -4553,22 +4612,37 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 		emit SignalProgressPos(++processedCount, _albumMap.size() * languages.LanguageCount());
 	}
 	else
-		_CreateOneHtmlAlbum(f, album, language, uplink, processedCount);
+	{
+		Album* pBaseAlbum = &album;	 
+		if (album.baseAlbumId != NO_ID)		 // then each subalbum is sub to an alias album
+		{
+			if(!_aliasLevel)
+				_aliasRootId = album.ID.Val(); // all subalbum will be generated relative to this album
+			++_aliasLevel;
+			pBaseAlbum = album.BaseAlbum();
+		}
+
+		_CreateOneHtmlAlbum(f, *pBaseAlbum, language, uplink, processedCount);
+	}
 
 	if (_processing) 		// create sub albums
 	{
-		if (album.SubAlbumCount() >0)
+		Album* pBaseAlbum = album.BaseAlbum();	 
+
+		if (pBaseAlbum->SubAlbumCount() > 0)
 		{
-			uplink = album.NameFromID(language);
+			uplink = album.HtmlNameFromID(language,_aliasRootId);
 			if (album.ID == TOPMOST_ALBUM_ID)
 				uplink = QString("../") + uplink;
 
-			for (int i = 0; _processing && i < album.items.size(); ++i)
+			for (int i = 0; _processing && i < pBaseAlbum->items.size(); ++i)
 			{
-				if((album.items[i].IsAlbum()) )
-					_CreatePage(_albumMap[album.items[i]], language, uplink, processedCount);
+				if((pBaseAlbum->items[i].IsAlbum()) )
+					_CreatePage(_albumMap[pBaseAlbum->items[i]], language, uplink, processedCount);
 			}
 		}
+		--_aliasLevel;
+		_aliasRootId = NO_ID;
 	}
 	return 0;
 }

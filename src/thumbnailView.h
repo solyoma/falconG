@@ -24,6 +24,7 @@
 #include "common.h"
 #include "schemes.h"
 #include "albums.h"
+#include "treeView.h"
 #include "CustomLineEdit.h"
 
 const int BAD_IMAGE_SIZE = 64;
@@ -37,7 +38,7 @@ class FileIcons
 {
 
 public:
-	enum Flag { fiFolder=1, fiThumb=2, fiDontResize=4};
+	enum Flag { fiFolder=1, fiThumb=2, fiAlias = 4, fiDontResize=8};
 	using Flags = QFlags<Flag>;
 
 	typedef QVector<int> dataType;
@@ -266,6 +267,10 @@ public:
 private:
 // SA
 	ID_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album
+											// or the base album of this album
+	bool _isBaseAlbum = true;               // for aliases this is set to falso so the
+											// context menu can reflect this: all changes will
+											// be applied to the base album
 	IdList *_pIds = nullptr;				// images in this album
 
     QImage _insertPosImage;	// shows insert position
@@ -310,7 +315,7 @@ private:
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
 	void _AddImagesFromList(QStringList qslFileNames, int row);
 	bool _AddFolder(QString folderName);	// returns if folder was added
-	bool _NewVirtualFolder(QString folderName);	// returns if folder was created, false if did  already existed
+	bool _NewVirtualFolder(QString folderName, IDVal_t baseFolderID=NO_ID);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
@@ -410,105 +415,41 @@ private:
 	QString _prefix;
 };
 
+
+
+//-------------------------GetNewAlbumNameDialog----------------------------------------
+
 class GetNewAlbumNameDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	GetNewAlbumNameDialog(const AlbumMap& albumMap, QWidget* parent = nullptr)
-		: QDialog(parent), _selectedId(0)
-	{
-		setWindowTitle(tr("falconG - new Album"));
-
-		QVBoxLayout* layout = new QVBoxLayout(this);
-		_lineEdit = new QLineEdit(this);
-		_lineEdit->setPlaceholderText(tr("Name of the new album"));
-		QRegExpValidator validator(QRegExp("[^\\/:*?\"<>|]*"), this);
-		_lineEdit->setValidator(&validator);
-
-		QLabel* label = new QLabel(tr("Album's name:"), this);
-		layout->addWidget(label);
-		layout->addWidget(_lineEdit);
-
-		_checkBox = new QCheckBox(QObject::tr("make this an alias for:"), this);
-
-		connect(_checkBox, &QCheckBox::toggled, this, [this](bool checked) {
-			_comboBox->setEnabled(checked);
-			});
-		layout->addWidget(_checkBox);
-
-		_comboBox = new QComboBox(this);
-		_comboBox->setEditable(true);
-		_comboBox->setLineEdit(new CustomLineEdit(_comboBox, _comboBox));
-
-		// Prepare a list of pairs (name, id) for sorting
-		QList<QPair<QString, IDVal_t>> nameIdList;
-		for (auto it = albumMap.constBegin(); it != albumMap.constEnd(); ++it)
-			nameIdList.append(qMakePair(it.value().name, it.key().Val()));
-		std::sort(nameIdList.begin(), nameIdList.end(), [](const QPair<QString, IDVal_t>& a, const QPair<QString, IDVal_t>& b) {
-			return a.first.localeAwareCompare(b.first) < 0;
-			});
-
-		// Fill the model
-		_model = new QStandardItemModel(this);
-		for (const auto& pair : nameIdList) {
-			QStandardItem* item = new QStandardItem(pair.first);
-			item->setData(QVariant::fromValue(pair.second), Qt::UserRole + 1);
-			_model->appendRow(item);
-		}
-
-		// Filtering model
-		_filterModel = new AlbumFilterModel(this);
-		_filterModel->setSourceModel(_model);
-
-		_comboBox->setModel(_filterModel);
-
-		layout->addWidget(_comboBox);
-
-		// Connect filter
-		connect(_comboBox->lineEdit(), &QLineEdit::textEdited, _filterModel, &AlbumFilterModel::setFilterPrefix);
-
-		// Buttons
-		QHBoxLayout* btnLayout = new QHBoxLayout;
-		QPushButton* okBtn = new QPushButton(tr("O&K"), this);
-		okBtn->setEnabled(false); // Initially disabled, enabled on getting the name
-		QPushButton* cancelBtn = new QPushButton(tr("&Cancel"), this);
-		btnLayout->addWidget(okBtn);
-		btnLayout->addWidget(cancelBtn);
-		layout->addLayout(btnLayout);
-
-		connect(_lineEdit, &QLineEdit::textChanged, this, [okBtn](const QString& text)
-			{
-				okBtn->setEnabled(!text.trimmed().isEmpty()); // Enable if text is not empty
-			});
-
-		connect(okBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::accept);
-		connect(cancelBtn, &QPushButton::clicked, this, &GetNewAlbumNameDialog::reject);
-	}
+	GetNewAlbumNameDialog(const AlbumMap& albumMap, QWidget* parent = nullptr);
 
 	constexpr uint64_t SelectedId() const { return _selectedId; }
-	QString GetFolderName(IDVal_t& idBaseFolder) const
+	QString GetBaseName(IDVal_t& idBaseFolder) const
 	{
 		if (_checkBox->isChecked())
 			idBaseFolder = _selectedId;
 		else
 			idBaseFolder = 0; // No alias, just a new virtual folder
 
-		return _comboBox->currentText().trimmed();  // may be empty
+		QString s = _lblBaseName->text();
+		if (idBaseFolder)
+			return s.left(s.indexOf('(')).trimmed();
+		return s;  // may be empty
 	}
 
 protected:
 	void accept() override
 	{
-		if (_checkBox->isChecked())     // ok button only enabled when lineEdit is not empty
-		{
-			QString selectedText = _comboBox->currentText().trimmed();
+		QString selectedText = _lblBaseName->text().trimmed();
+		if (_checkBox->isChecked())      // ok button only enabled when album name is entered
+		{								 // but alias may not be set
 			if (selectedText.isEmpty()) {
 				QMessageBox::warning(this, tr("Warning"), tr("Please select an album or enter a name."));
 				return;
 			}
-			QModelIndex idx = _filterModel->index(_comboBox->currentIndex(), 0);
-			if (idx.isValid())
-				_selectedId = idx.data(Qt::UserRole + 1).toULongLong();
+			_selectedId = selectedText.mid(selectedText.indexOf('(') + 1, selectedText.indexOf(')') - selectedText.indexOf('(') - 1).toULongLong();
 		}
 		else
 			_selectedId = 0; // No alias, just a new virtual folder
@@ -522,12 +463,15 @@ protected:
 		QDialog::reject();
 	}
 
+private slots:
+	void _SlotTreeSelectionChanged(const QItemSelection& current, const QItemSelection& previous);
+
 private:
-	QCheckBox* _checkBox;
-	QLineEdit* _lineEdit;
-	QComboBox* _comboBox;
-	QStandardItemModel* _model;
-	AlbumFilterModel* _filterModel;
+	QLineEdit* _lineEdit;	// name of new album
+	QCheckBox* _checkBox;	// checked: select an album from tree
+	AlbumTreeView* _treeView; // same model as in treeview windo
+	QLabel* _lblBaseName;	// shows the name and ID selected from the tree view
+
 	uint64_t _selectedId;
 };
 

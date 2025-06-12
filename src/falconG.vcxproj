@@ -219,7 +219,6 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csscreator.cpp" />
-    <ClCompile Include="CustomLineEdit.cpp" />
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
@@ -281,7 +280,6 @@
     <QtMoc Include="hidden.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </QtMoc>
-    <QtMoc Include="CustomLineEdit.h" />
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h" />
     <ClInclude Include="schemes.h" />

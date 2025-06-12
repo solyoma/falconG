@@ -2057,6 +2057,9 @@ when their source is no longer present</string>
                    </widget>
                   </item>
                   <item>
+                   <layout class="QHBoxLayout" name="breadcrumbLayout"/>
+                  </item>
+                  <item>
                    <widget class="QWidget" name="widget" native="true">
                     <property name="minimumSize">
                      <size>
@@ -2065,20 +2068,6 @@ when their source is no longer present</string>
                      </size>
                     </property>
                     <layout class="QHBoxLayout" name="horizontalLayout_25">
-                     <item>
-                      <widget class="QToolButton" name="btnBackToParentAlbum">
-                       <property name="toolTip">
-                        <string>Jump to the album that contains this one</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="falcong.qrc">
-                         <normaloff>:/icons/Resources/up-icon.png</normaloff>:/icons/Resources/up-icon.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
                      <item>
                       <widget class="QPushButton" name="btnCloseAllViewers">
                        <property name="enabled">
@@ -2739,8 +2728,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3132,7 +3121,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>426</width>
+                         <width>419</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -5184,8 +5173,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>432</width>
-                         <height>446</height>
+                         <width>455</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -6206,8 +6195,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7950,7 +7939,6 @@ the last CSS save.</string>
   <tabstop>btnWmShadowColor</tabstop>
   <tabstop>trvAlbums</tabstop>
   <tabstop>tnvImages</tabstop>
-  <tabstop>btnBackToParentAlbum</tabstop>
   <tabstop>btnCloseAllViewers</tabstop>
   <tabstop>sldIconSize</tabstop>
   <tabstop>cbBaseLanguage</tabstop>

@@ -27,9 +27,10 @@ const QString versionStr = "# falconG Gallery Structure file ";
 //           1.1 - full text ID is saved after and '*' Calculated if missing
 //           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
 //			 1.3 - source image paths have an ID and the file contains this ID instead of the path for the images and videos
+//			 1.5 - album lines may contain a base album ID defining an alias to an existing album inside {}, before theclosing')'
 
-constexpr int majorStructVersion = 1,		// V 1.4.0 version string
-			  minorStructVersion = 4,
+constexpr int majorStructVersion = 1,		// V 1.5.0 version string
+			  minorStructVersion = 5,
 			  subStructVersion   = 0;	
 enum DecodeTextTo {dtPlain, dtHtml, dtJavaScript };	// encoding and decoding text
 
@@ -226,12 +227,14 @@ struct MarkedIcon
 	QPixmap pxmp;			// square pixmap contains image with a 'margin' wide border
 	bool isFolder = false;			// different border
 	bool isFolderThumb = false;		// if yes: mark the image
+	bool isAlias = false;			// - " -
 	bool dontResize = false;		// - " -
 	bool exists = false;			// - " -
 		// these ar used for each thumbnail
 		// QPixmaps can only be initialized after the GUI initilize (QT quirk)
 		// so we need pointers here
 	static QPixmap *folderThumbMark;	// if folder thumbnail mark with this	
+	static QPixmap *aliasMark;		// if folder is an alias
 	static QPixmap *noImageMark;	// image does not exist
 	static QPixmap *noresizeMark;	// do not resize image
 	static int thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
@@ -248,6 +251,7 @@ struct MarkedIcon
 	{
 		isFolder = other.isFolder;
 		isFolderThumb = other.isFolderThumb;
+		isAlias = other.isAlias;
 		exists = other.exists;
 		name = other.name;
 		pxmp = other.pxmp;
@@ -261,6 +265,10 @@ struct MarkedIcon
 	{
 		isFolderThumb = setth;
 	}
+	void SetAsAlias(bool setta)
+	{
+		isAlias = setta;
+	}
 	void SetNoResize(bool noresize) 
 	{ 
 		dontResize = noresize;  
@@ -271,6 +279,7 @@ struct MarkedIcon
 			return;
 
 		folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
+		aliasMark		= new QPixmap(":/icons/Resources/aliasIcon.png");
 		noImageMark		= new QPixmap(":/icons/Resources/noImageMark.png");
 		noresizeMark	= new QPixmap(":/icons/Resources/noresizeMark.png");
 		initted = true;
@@ -282,7 +291,7 @@ struct MarkedIcon
 	}
 
 	bool Read(QString name, bool isFolder);	// to pxmp, transforms rotated image on read, sets 'exists'
-	QIcon ToIcon();
+	QIcon ToIcon() const;
 };
 //QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
 

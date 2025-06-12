@@ -460,6 +460,7 @@ private:
 			v = QString("#%1").arg(op, 2, 16, QChar('0')) + _colorName;	// name with opacity
 		else if (!_colorName.isEmpty())
 		{
+			v = _colorName;
 			if (_colorName[0] != QChar('#'))
 				v = QString("#") + _colorName;
 		}

@@ -223,6 +223,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.trvAlbums, &AlbumTreeView::SignalDeleteSelectedList, ui.tnvImages, &ThumbnailView::SlotDeleteSelectedList);
 	connect(ui.trvAlbums, &AlbumTreeView::SignalGetSelectionCount, ui.tnvImages, &ThumbnailView::SlotGetSelectionCount);
 	connect(ui.trvAlbums->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FalconG::_SlotAlbumStructSelectionChanged);
+	connect(ui.trvAlbums, &AlbumTreeView::SignalTreePathChanged, this, &FalconG::_SlotTreePathChanged);
+
+	connect(this, &FalconG::SignalBreadcrumbButtonPressed, ui.trvAlbums, &AlbumTreeView::SlotNavigateFromBreadcrumb);
 
 	// connect with albumgen's 
 	connect(this,	   &FalconG::SignalCancelRun,					&albumgen,	  &AlbumGenerator::Cancelled);
@@ -233,8 +236,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 //	connect(&albumgen, &AlbumGenerator::SignalImageMapChanged,		this, &FalconG::_ImageMapChanged);
 	connect(&albumgen, &AlbumGenerator::SignalAlbumStructChanged,	this, &FalconG::_SlotAlbumStructChanged);
 	connect(&albumgen, &AlbumGenerator::SignalToShowRemainingTime,	this, &FalconG::_SlotShowRemainingTime);
-	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,			this, &FalconG::_SlotCreateUplinkIcon);
-	connect(&albumgen, &AlbumGenerator::SignalSetDirectoryCountTo,		this, &FalconG::_SlotSetDirectoryCountTo);
+	connect(&albumgen, &AlbumGenerator::SignalToCreateUplinkIcon,	this, &FalconG::_SlotCreateUplinkIcon);
+	connect(&albumgen, &AlbumGenerator::SignalSetDirectoryCountTo,	this, &FalconG::_SlotSetDirectoryCountTo);
 
 	connect(ui.tnvImages, &ThumbnailView::SignalSingleSelection,	this, &FalconG::_SlotTnvSelectionChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalMultipleSelection,	this, &FalconG::_SlotTnvMultipleSelection);
@@ -247,7 +250,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	connect(ui.tnvImages, &ThumbnailView::SignalStatusChanged,		this, &FalconG::_SlotTnvStatusChanged);
 	connect(ui.tnvImages, &ThumbnailView::SignalFolderChanged,		this, &FalconG::_SlotFolderChanged);	
 	connect(ui.tnvImages, &ThumbnailView::SignalImageViewerAdded,	this, &FalconG::_SlotForEnableCloseAllViewers);
-	connect(ui.tnvImages, &ThumbnailView::SignalBackToParentAlbum,	this, &FalconG::on_btnBackToParentAlbum_clicked);
 
 	connect(this, &FalconG::SignalActAlbumChanged, ui.trvAlbums, &AlbumTreeView::SlotActAlbumChanged);
 
@@ -306,12 +308,17 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	int h = ui.tabEdit->height();
 	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
+	// bread crumbs
+	ui.breadcrumbLayout->setSpacing(4);
+	ui.breadcrumbLayout->setContentsMargins(0, 0, 0, 0);
+
 
 	ui.edtAboutText->Setup();
 
 	_ReadLastAlbumStructure();
 
 	_EnableButtons();
+	ui.tabFalconG->setFocus();
 }
 
 /*============================================================================
@@ -1731,22 +1738,6 @@ void FalconG::on_btnBackground_clicked()
 	_SetConfigChanged(true);
 	_ElemToSample();
 	_SlotAlbumChanged();
-}
-
-void FalconG::on_btnBackToParentAlbum_clicked()
-{
-	// change index for parent in 'trvAlbums'
-	QModelIndex mix = ui.trvAlbums->currentIndex();
-	qDebug("btnBackToParentAlbum clicked. Current(%s):%u, parent(%s):%u",
-		mix.isValid() ? "true":"false",
-		mix.internalPointer(), 
-		mix.parent().isValid() ?  "true":"false",
-		mix.parent().internalPointer());
-
-	if (!mix.isValid() || !mix.parent().isValid())
-		return;
-	ui.trvAlbums->setCurrentIndex(mix.parent()); // ???
-
 }
 
 /*============================================================================
@@ -4563,6 +4554,59 @@ void FalconG::_SlotWebPageLoaded(bool ready)
 
 	_ActualSampleParamsToUi();
 	_ConfigToSample(); // to sample "WEB page"
+}
+
+void FalconG::_SlotTreePathChanged(const BreadcrumbVector& breadcrumbPath)
+{	// clean previous items dfrom the breadcrumb path
+	QLayoutItem* pli = nullptr;
+	while ( (pli = ui.breadcrumbLayout->takeAt(0)) != nullptr)
+	{
+		ui.breadcrumbLayout->removeItem(pli);
+		delete pli->widget();
+		delete pli;
+	}
+	// make buttons/text centered
+	ui.breadcrumbLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+	QLabel* plbl = new QLabel();
+	if (breadcrumbPath.size() == 1)		// then we are at top level
+	{
+		plbl->setText(breadcrumbPath[0].name);
+		ui.breadcrumbLayout->addWidget(plbl);
+	}
+	else
+	{
+		// not top level display path
+		for (int i = 0; i < breadcrumbPath.size()-1; ++i)
+		{
+			QToolButton* button = new QToolButton;
+			button->setFixedWidth(button->fontMetrics().horizontalAdvance(breadcrumbPath[i].name) + 20);
+			button->setText(breadcrumbPath[i].name);
+			button->setProperty("internalPointer", qintptr(breadcrumbPath[i].id));
+			button->setAutoRaise(true);
+			button->setCursor(Qt::PointingHandCursor);
+
+			// Use property or lambda to store index/path info
+			button->setProperty("index", i);
+
+			ui.breadcrumbLayout->addWidget(button);
+
+			QLabel* separator = new QLabel(BreadcrumbVector::Delimiter());
+			ui.breadcrumbLayout->addWidget(separator);
+
+			// Example: connect the button to a slot/lambda
+			//QObject::connect(button, &QToolButton::clicked, [=]() {
+			//	qDebug() << "Clicked part:" << i << breadcrumbPath[i].name << " ID: " << breadcrumbPath[i].id;
+			//	// emit a signal or update the UI accordingly
+			//	});
+			QObject::connect(button, &QToolButton::clicked, this, [=]() {
+				emit SignalBreadcrumbButtonPressed((void*)(breadcrumbPath[i].id)); });
+		}
+		plbl->setText(breadcrumbPath[breadcrumbPath.size() - 1].name);
+		ui.breadcrumbLayout->addWidget(plbl);
+	}
+	// make buttons/text centered
+	ui.breadcrumbLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
 }
 
 /*=============================================================

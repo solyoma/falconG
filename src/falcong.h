@@ -94,6 +94,7 @@ signals:
 	void SignalThumbSizeChanged(int newSize);
 	void SignalToCloseAllViewers();
 	void SignalActAlbumChanged(int row);
+	void SignalBreadcrumbButtonPressed(void*);
 	//void SignalToClearIconList();
 private:
 
@@ -236,6 +237,7 @@ private slots:
 	void _SlotTnvSelectionChanged(ID_t, ID_t);		// ID of selected item or ID of enclosing album for no items
 	void _SlotTnvStatusChanged(QString &); // thumbnail view status changed
 	void _SlotWebPageLoaded(bool ready);
+	void _SlotTreePathChanged(const BreadcrumbVector&);
 
 // auto connected slots
 private slots:
@@ -243,7 +245,6 @@ private slots:
 	void on_btnAlbumMatteColor_clicked();
 	void on_btnApplyColorScheme_clicked();
 	void on_btnBackground_clicked();
-	void on_btnBackToParentAlbum_clicked();
 	void on_btnBorderColor_clicked();
 	void on_btnBrowseDestination_clicked();
 	void on_btnBrowseForBackgroundImage();

@@ -373,6 +373,17 @@ void AlbumTreeView::SlotCopyImages()
 	qDebug("TODO:Copied images here from thumbnail viewer");
 }
 
+/*=============================================================
+ * TASK   : called when the actual album in changed in
+ *			thumbnailView
+ * PARAMS :
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	- called from thumbnailView through falconG 
+ *			- don't called when the album is changed from
+ *				AlbumTreeView
+ *------------------------------------------------------------*/
 void AlbumTreeView::SlotActAlbumChanged(int row)
 {
 	QModelIndex current = currentIndex();
@@ -385,6 +396,21 @@ void AlbumTreeView::SlotActAlbumChanged(int row)
 		QModelIndex newix = model()->index(row, 0, current);
 		setCurrentIndex(newix);
 	}
+}
+
+void AlbumTreeView::SlotNavigateFromBreadcrumb(void* ptr)
+{
+		QModelIndex index = reinterpret_cast<AlbumTreeModel*>(model())->FindIndexByPointer(ptr);
+
+		if (index.isValid()) {
+			setCurrentIndex(index);
+			scrollTo(index);  // Optional
+			expand(index.parent());  // Optional if the item is collapsed
+		}
+		else {
+			qDebug("SlotNavigateFromBreadcrumb: Item %p not found!", ptr);
+		}
+
 }
 
 void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
@@ -433,5 +459,27 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 
 	}
 	menu.exec(pevent->globalPos());
+}
+
+void AlbumTreeView::currentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+	BreadcrumbVector fullPath = GetBreadcrumbPath(current);
+	emit SignalTreePathChanged(fullPath);
+	QTreeView::currentChanged(current, previous);
+}
+
+BreadcrumbVector AlbumTreeView::GetBreadcrumbPath(QModelIndex index)	const
+{
+	BreadcrumbVector pathParts;
+	Breadcrumb br;
+	const QString delim = " " + QString(QChar(0x00BB)) + " ";  // »
+
+	while (index.isValid()) 
+	{
+		br = Breadcrumb(index.data().toString());
+		pathParts.push_front(br);
+		index = index.parent();
+	}
+	return pathParts;
 }
 

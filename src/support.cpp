@@ -1678,6 +1678,7 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 
 // =================================================================
 QPixmap *MarkedIcon::folderThumbMark = nullptr;
+QPixmap *MarkedIcon::aliasMark = nullptr;
 QPixmap *MarkedIcon::noImageMark = nullptr;
 QPixmap *MarkedIcon::noresizeMark = nullptr;
 int MarkedIcon::thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
@@ -1753,18 +1754,21 @@ bool MarkedIcon::Read(QString fname, bool is_folder)
  * REMARKS: If no markers are to be set on this item returns just 
  *			the pixmap 'pxmp'
  *------------------------------------------------------------*/
-QIcon MarkedIcon::ToIcon()
+QIcon MarkedIcon::ToIcon() const
 {
-	if (exists && !isFolderThumb && !dontResize)	// no markers on image
+	if (exists && !isFolderThumb && !dontResize && !isAlias)	// no markers on image
 		return QIcon(pxmp);
 
 	QPixmap tmppxmp(thumbSize, thumbSize);
 	QPainter painter(&tmppxmp);
 	painter.drawPixmap(0,0, pxmp);		// image with border
-	if (dontResize)
-		painter.drawPixmap(borderWidth, borderWidth, *noresizeMark);
-	if (isFolderThumb)
-		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *folderThumbMark);
+	if (isFolderThumb)	   // at top left position
+			painter.drawPixmap(borderWidth, borderWidth, *folderThumbMark);	 
+	if (isAlias)
+		painter.drawPixmap(borderWidth + (isFolderThumb ? aliasMark->width() : 0), borderWidth, *aliasMark);
+
+	if (dontResize)		  // at top right
+		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *noresizeMark);
 	if(!exists)
 		painter.drawPixmap(thumbSize - 2*noImageMark->width() - borderWidth, borderWidth, *noImageMark);
 
