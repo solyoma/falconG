@@ -308,30 +308,9 @@ QString _CDirStr::AddDirId(uint dirid)
 	return config.AddDirId(ToString(), dirid); // path will 
 }
 
-/*===========================================================================
- * TASK: assig a bool to a CBOOL
- * EXPECTS: s - bool
- * GLOBALS: config
- * RETURNS: the bool
- * REMARKS: may modify the 'changed' field of global variable 'config'
-*--------------------------------------------------------------------------*/
-//bool &_CBool::operator=(const bool s)
-//{ 
-//	return v = s; 
-//}
-
-/*===========================================================================
- * TASK: assign an into a CInt
- * EXPECTS: i - int
- * GLOBALS: config
- * RETURNS: the int
- * REMARKS: may modify the 'changed' field of global variable 'config'
-*--------------------------------------------------------------------------*/
-//int &_CInt::operator=(const int i)
-//{
-//	return v = i;
-//}
+// ***********************************************************************************
 // --------------------------- _CColor ------------------------------
+// ***********************************************************************************
 
 /*===========================================================================
  * TASK: assign a QString to a _CColor and modify opacity
@@ -362,6 +341,59 @@ void _CColor::Set(QString str, int opac)
 	_Prepare();		// setup 'v'
 }
 
+void _CColor::SetOpacity(int opac, bool used, bool percent)
+{
+	int limit = percent ? 100 : 255;
+	if (opac > limit)
+		opac = limit;
+
+	_opacity = opac;
+	if (percent)
+		_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
+	if (!used)
+		_opacity = -_opacity;
+
+	_Prepare();
+}
+
+int _CColor::Opacity(bool percent) const
+{
+	if (percent)
+		return int(((int64_t)100 * (int64_t)_opacity + 254) / 255);		// always stored as 0..255
+	else
+		return _opacity;
+}
+
+QString _CColor::ARGB() const
+{
+	// _opacity > 0 => #AA, #RGB, #RRGGBB, #AARRGGBB 
+	// _opacity < 0 => #AA-, #AARRGGBB-
+	if (_colorName.isEmpty())
+		return _colorName;
+
+	if (_opacity < 0 || _opacity != 0xFF)
+		return "#" + _colorName;
+
+	return QString("#%1").arg(_opacity, 2, 16, QChar('0')) + _colorName;	// name with opacity;
+}
+
+QString _CColor::ToRgbaStringForCss() const
+{
+	if (_colorName.isEmpty())
+		return QString();
+
+	// if not empty always 6 characters long
+	bool useOpacity = (_opacity >= 0 && _opacity != 0xFF);
+
+	QString qs = (useOpacity ? QString("rgba") : QString("rgb")) + QString("(%1,%2,%3").arg(_colorName.mid(0, 2).toInt(nullptr, 16))
+		.arg(_colorName.mid(2, 2).toInt(nullptr, 16))
+		.arg(_colorName.mid(4, 2).toInt(nullptr, 16));
+	if (_opacity >= 0)
+		qs += QString(",0%1").arg((double)_opacity / 255.0).mid(0, 2);
+	qs += ")";
+	return qs;
+}
+
 QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorthand) const
 {
 	QString qs;
@@ -375,7 +407,7 @@ QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorth
 		else
 			qs = "\tcolor:";
 		if (_opacity >= 0 && _opacity != 255)
-			qs += ToRgbaString();
+			qs += ToRgbaStringForCss();
 		else
 			qs += QString('#') + _colorName;
 
@@ -403,23 +435,21 @@ QString _CColor::operator=(QString s)
 		_colorName.clear();
 	else
 	{
-		_colorName = s.toLower();
+		_colorName = s.mid(1).toLower();
 		_Prepare();
 	}
 	return _colorName;
 }
-_CColor& _CColor::operator=(_CColor c)
+_CColor& _CColor::operator=(const _CColor c)
 {
-	v = c.v; v0 = c.v0;
-	_Setup();
+	v = c.v; v0 = c.v0; vd = c.vd;
+	_colorName = c._colorName;	
+	_opacity = c._opacity;	// may be -1, 0 or 255
 	return *this;
 }
 bool _CColor::operator==(const _CColor& o)
 {
-	bool res = _colorName == o._colorName;
-	if (_opacity >= 0 && o._opacity >= 0)
-		res &= _opacity == o._opacity;
-	return res;
+	return _colorName == o._colorName && _opacity == o._opacity;
 }
 bool _CColor::operator!=(const _CColor& o)
 {
@@ -436,12 +466,12 @@ bool _CColor::operator!=(const _CColor& o)
 
 /*========================================================
  * TASK:	checks wether s is a valid color number string
- * PARAMS:	s color string
+ * PARAMS:	s color string IN and OUT
  * GLOBALS:
  * RETURNS: true or false
  * REMARKS: - accepted formats (x: lower or upper case 
  *				hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
- *			after it returns the string always starts with '#'
+ *			- on return non empty strings will start with '#'
  *-------------------------------------------------------*/
 bool _CColor::_ColorStringValid(QString &s)
 {
@@ -462,7 +492,9 @@ bool _CColor::_ColorStringValid(QString &s)
 	return true;
 }
 
+// ***********************************************************************************
 // --------------------------- _CTextDecoration ------------------------------
+// ***********************************************************************************
 
 QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 {
@@ -482,7 +514,9 @@ QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 	return QString();
 }
 
+// ***********************************************************************************
 // --------------------------- _CFont ------------------------------
+// ***********************************************************************************
 
 QString _CFont::ForStyleSheet(bool addSemiColon) const
 {

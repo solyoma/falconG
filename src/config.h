@@ -324,7 +324,7 @@ private:
 //	ForStyleSheet() functions below must return a string which does not end in "\n" !
 //--------------------------------------------------------------------------------------------
 
-struct _CColor : _CFG_ITEM<QString>	
+struct _CColor : _CFG_ITEM<QString>		 // v,vd,v0 all starts with'#'
 {								
 private:
 	int _opacity = 255;		// 0..255 (=== 0..100 %), when < 0 => not used
@@ -334,7 +334,7 @@ private:
 	//	When not empty it is either 3, 4, 7, 9 or 10 character long:
 	//					#AA, #RGB, #RRGGBB, #AARRGGBB
 	//					#AA-, #AARRGGBB-
-	//	the '-' at the end is needed for signalling in the config file that opacity is not used, but not 0xFF 
+	//	the '-' at the end signals that opacity is specified, but not used
 	//	when opacity is missing full opacity (0xFF) is assumed
 public:
 	_CColor(QString defaultColorString, QString namestr = "ccolor") : _CFG_ITEM(defaultColorString, namestr)
@@ -349,30 +349,11 @@ public:
 
 	void Set(QString str, int opac);	  // set _colorName to a 8 or 6 character string in format AARRGGBB or RRGGBB
 										  // and opacity to opac if opac >= 0 Opacity must NOT be in percent!
-										  // when opac < 0 opacity is not changed
-	void SetColor(QString clr) { Set(clr, -1); }
-	void SetOpacity(int opac, bool used, bool percent)		// opac 0..255 OR  0..100 (percent)
-	{ 
-		int limit = percent ? 100 : 255;
-		if (opac > limit) 
-			opac = limit;
+										  // when opac < 0 opacity is not changed, str may change if not started with '#'
+	void SetColor(const QString clr) { Set(clr, -1); }
+	void SetOpacity(int opac, bool used, bool percent);		// opac 0..255 OR  0..100 (percent)
 
-		_opacity = opac;
-		if (percent)
-			_opacity = (int)(((int64_t)opac * (int64_t)255 + 100 / 2) / 100);
-		if(!used)
-			_opacity = -_opacity;
-		
-		_Prepare(); 
-	}
-
-	int Opacity(bool percent) const 			// opacity in percent 0..100 
-	{ 
-		if(percent)
-			return int( ((int64_t)100 * (int64_t)_opacity + 254)/255 );		// always stored as 0..255
-		else
-			return _opacity; 
-	}
+	int Opacity(bool percent) const; 			// opacity in percent 0..100 
 
 	bool IsOpacityUsed() const 
 	{ 
@@ -384,56 +365,31 @@ public:
 		return (addHash ? QString('#') + _colorName : _colorName);
 	}
 
-	QString ARGB() const	// may or may not have an opacity or color set 
-	{ 
-		QString res = "#";			// _opacity > 0 => #AA, #RGB, #RRGGBB, #AARRGGBB 
-									// _opacity < 0 => #AA-, #AARRGGBB-
-		if (_colorName.isEmpty())
-			return _colorName;
-
-		if (_opacity < 0 || _opacity != 0xFF)
-			return res + _colorName;
-
-		return QString("#%1").arg(_opacity, 2, 16, QChar('0')) + _colorName;	// name with opacity;
-	}
-	QString ToRgbaString() const		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/256.0) 
-	{
-		if (_colorName.isEmpty())
-			return QString();
-
-		// if not empty always 6 characters long
-		QString qs = QString("rgba(%1,%2,%3").arg(_colorName.mid(0, 2).toInt(nullptr, 16))
-												 .arg(_colorName.mid(2, 2).toInt(nullptr, 16))
-												 .arg(_colorName.mid(4, 2).toInt(nullptr, 16));
-		if (_opacity >= 0)
-			qs += QString(",%1").arg((double)_opacity / 255.0);
-		qs += ")";
-		return qs;
-	}
-
+	QString ARGB() const;	// may or may not have an opacity or color set 
+	QString ToRgbaStringForCss() const;		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/256.0) 
 	QString ForStyleSheet(bool addSemiColon, bool isBackground, bool shorthand = false) const;
 
-	QString operator=(QString s);
-	_CColor& operator=(_CColor c);
-	bool operator==(const _CColor& o);
-	bool operator!=(const _CColor& o);
+	QString operator=(QString s);			// also sets 'v'
+	_CColor& operator=(const _CColor c);
+	bool operator==(const _CColor& o);		// don't use v,v0 or vd
+	bool operator!=(const _CColor& o);		// - " -
 
 private:
 	void _NormalizeName()
 	{
 		if (_colorName.isEmpty())
 			return;
-		if (_colorName.at(0) == '#') 
-			_colorName = _colorName.mid(1);
+		//if (_colorName.at(0) == '#') 
+		//	_colorName = _colorName.mid(1);
 		if (_colorName.length() == 3)		// RGB ? => RRGGBB
 			_colorName = QString("%1%1%2%2%3%3").arg(_colorName.at(0)).arg(_colorName.at(1)).arg(_colorName.at(2));
 	}
 
 	void _Setup()			// from 'v' read from settings
 	{
-		if (!_ColorStringValid(v))
+		if (!_ColorStringValid(v))	// adds # at front of 'v' if it is not there
 			return;
-		_colorName = v.mid(1);	// cut '#'
+		_colorName = v.mid(1);		// but we cut the '#' here
 
 		int len = _colorName.length(),			// can be 2, 3, 6, 8, or 9 (AA, AA-, RGB, RRGGBB, AARRGGBB, AARRGGBB- )  
 			len1 = _colorName.at(len-1) == '-' ? len-1 : len; // without the '-' at the end, any other cases opacity is 100% (255) and not used
@@ -453,23 +409,26 @@ private:
 		_Prepare();
 	}
 	void _Prepare() override		// v from internal (changed) variables
-	{
-		// name w.o. opacity: #RRGGBB
+	{								// if not empty v starts with '#' and has 6 or 8 characters
+		// name w.o. opacity in _colorName: RRGGBB or AARRGGBB  (no # at the start!)
+		QString qs = _colorName;
+		if (qs.isEmpty())
+		{
+			v.clear();
+			return;
+		}
+		//if (qs.at(0) == QChar('#'))	never have # at front
+		//	qs.remove(QChar('#'));
 		int op = qAbs(_opacity);
 		if (op != 0xFF)
 			v = QString("#%1").arg(op, 2, 16, QChar('0')) + _colorName;	// name with opacity
-		else if (!_colorName.isEmpty())
-		{
-			v = _colorName;
-			if (_colorName[0] != QChar('#'))
-				v = QString("#") + _colorName;
-		}
 		else
-			v.clear();
+			v = "#" + qs;
 
 		if (!v.isEmpty() && op != 0xFF && _opacity < 0)		// name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
 			v = v + '-';
 	}
+
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
 };
 

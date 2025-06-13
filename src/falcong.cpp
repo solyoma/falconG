@@ -700,20 +700,6 @@ void FalconG::keyPressEvent(QKeyEvent* event)
 
 #endif
 
-
-//static QString __ColorToRGBAString(_CColor &cc)
-//{
-//	const QColor c(cc.ARGB());	// deals with #xyz #rrggbb and #aarrggbb
-//
-//	QString s = QString("(%1,%2,%3").arg(c.red()).arg(c.green()).arg(c.blue());
-//	if (c.alpha() != 0xff)
-//		s = QString("rgba" + s + ",%1);").arg(c.alphaF());
-//	else
-//		s = "rgb" + s + ");";
-//	return s;
-//}
-
-
 void FalconG::_SaveLinkIcon()
 {
 		QString qs = "res/up-link.png";		// existing icon
@@ -1923,8 +1909,11 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
-		config.imageMatteColor = qcNew.name().mid(1);
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name());
+		// DEBUG
+		qDebug() << "color name:" << qcNew.name();
+		// /DEBUG
+		config.imageMatteColor = qcNew.name();
+		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name(false));
 		_SetConfigChanged(true);
 //		emit SignalToClearIconList();
 	}
@@ -5756,7 +5745,7 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 			return;
 		qs = QString("SetPropertyForSelector('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 #ifdef DEBUG
-		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << (v.isValid() ? v.toString() : QString("invalid")); });
+		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << "Answer from callback:" << (v.isValid() ? v.toString() : QString("'' (empty)")); });
 #else
 		_page.runJavaScript(qs);
 #endif
