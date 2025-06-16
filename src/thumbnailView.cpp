@@ -1005,6 +1005,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
         QVector<int> itemOrder;             // new item order indexes
         bool moveItemsIntoFolder = row >= 0 && (items[row].IsAlbum());   // now just see if the items moved above an album
+
         if (moveItemsIntoFolder) // then possibly move items into album with id items[row]
         {                        // or relocate them or cancel operation                     
             QMessageBox mb(this);
@@ -1033,7 +1034,6 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 #endif
                 // -- check if any of the items to move is a folder and if it is then
                 //    whether it or any of its siblings are is already in the destination album
-
                 for (int i = 0; i < thl.size(); ++i)
                 {
                     ID_t itemID = items[thl[i]];
@@ -1042,8 +1042,17 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                         Album* pab = albumgen.AlbumForID(itemID);
                         Q_ASSERT(pab);
 
+                        if(albumgen.IsCircular(pab, pAlbum) ) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
+                        {
+                            QMessageBox::warning(this, tr("falconG - Warning"), tr("Ivalid move!\n"
+                                "Album \n'%1'\n is either an alias for album\n'%2'\n"
+                                "or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pAlbum->name) );
+                            return;
+                        }
+
+                                // now the album to be moved is not an alias of the album to move to.
                         IDVal_t isThere = NO_ID;
-                        IDValList idvl = pab->BaseAlbum()->aliasesList; //list of albums linked to this album
+                        IDValList idvl = pab->BaseAlbum()->aliasesList; // list of albums linked to this album
                         if (idvl.isEmpty())     // no linked albums for this one
                             isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
                         else

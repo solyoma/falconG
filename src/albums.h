@@ -501,6 +501,7 @@ public:
 	{
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
+	bool IsCircular(Album* pAlias, Album* pInHere); // if 'pAlias' is an alias, chack if it is already in the album hierarchy of 'pInHere'
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		

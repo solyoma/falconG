@@ -5176,6 +5176,48 @@ int AlbumGenerator::_DoHtAccess()
 }
 
 
+/*=============================================================
+ * TASK   : Check whether pAlbum is already inside pInHere or
+ *			- when pAlbum is an alias - then is there any sub- or
+ *			super album of pInHere where this alias is already present
+ * 
+ * PARAMS : pAlbum - check this album
+ *			pInHere - check whether an alias pAlbum is already 
+ *					inside this album
+ *					  
+ * EXPECTS: non alias albums can only occur exactly once in the database
+ * GLOBALS:	
+ * RETURNS:	true: there is a circular reference to pAlbum
+ *			false : no circular reference
+ * REMARKS:
+ *------------------------------------------------------------*/
+bool AlbumGenerator::IsCircular(Album* pAlbum, Album* pInHere)
+{
+	if (!pAlbum || !pInHere)
+		return false;
+	if( pInHere->items.contains(pAlbum->ID) )	
+		return true;	// pAlbum is already in pInHere
+						// doesn't matter if it is an alias or not
+	if (pAlbum->baseAlbumId != NO_ID)
+	{
+		// first check all parent of pInHere
+		if (pInHere->parentId && IsCircular(pAlbum, _albumMap.AlbumForIDVal(pInHere->parentId)))
+			return true;
+		// then check all childeren of pInHere
+		for(auto &ab: pInHere->items)
+		{
+			if (ab.IsAlbum()) // when pAlbum is inside pInHere we can't be here
+			{
+				Album* pSub = _albumMap.AlbumForIDVal(ab.Val());
+				if (pSub && IsCircular(pAlbum, pSub))	// recursive call
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 /*============================================================================
 * TASK:		Creates album in directory 'config.dsGallery
 *			- constants.php		-  from all parameters		(Error code 1)
