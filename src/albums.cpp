@@ -1285,7 +1285,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t b
 	if(albumgen.bSetDirIndexToo)
 		ab.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
 	
-	(*this)[ab.ID] = ab;
+	insert(ab.ID, ab);
 	return ab.ID;
 }
 
@@ -1851,7 +1851,33 @@ void AlbumGenerator::Clear()
 	_videoMap.clear();
 	_albumMap.clear();
 	_addedThumbnailIDsForImagesNotYetRead.clear();
+
+	pathMap.Clear();	// clear path map, too
 	Init();
+}
+
+QStringList AlbumGenerator::GetStructNamesFromDir(QString dirName) const
+{
+	QDir d(dirName);
+	return d.entryList(QStringList() << "*.struct");
+}
+
+void AlbumGenerator::CreateNewStruct(const QString& dirName)
+{
+	QString cleanDirName = QDir::cleanPath(dirName);
+	QStringList sl = GetStructNamesFromDir(cleanDirName);
+	if (sl.isEmpty() )
+	{
+		config.dsSrc = cleanDirName;
+		if (cleanDirName.right(1) == '/')
+			cleanDirName.resize(cleanDirName.length() - 1);	// remove ending '/'
+		int ix = cleanDirName.lastIndexOf('/');
+		if (ix > 0)		//	e.g.		/some/path/with/name
+			cleanDirName = cleanDirName.mid(ix+1);
+		Clear();
+		albumgen.RootAlbum().name = cleanDirName;	// set name to the directory name
+		albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmAlways);
+	}
 }
 
 /*=============================================================
@@ -5232,7 +5258,7 @@ void AlbumGenerator::_SlotForStructWriterFinished(QString sErrorMessage, QString
 		return;
 	}
 
-	sErrorMessage = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);
+	sErrorMessage = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);	// rename '.tmp' to '.struct'
 	if (!sErrorMessage.isEmpty())
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
 	//else

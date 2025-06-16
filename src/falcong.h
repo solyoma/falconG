@@ -140,7 +140,10 @@ private:
 	void _SetIconColor(QIcon &icon, _CElem &elem) const;
 	QIcon _SetUplinkIcon(QString iconName = QString());
 
-	QString _SelectStructFileFromDir(QString& dirName);
+	enum _SelectResult {srOk, srNoDir=1, srNoStruct=2, srDirCreated = 4, srDirCreateError=8};
+
+	bool _CreateNewAlbum(QString& dirName);
+	_SelectResult _SelectStructFileFromDir(QString& dirName, QString& structFileName);
 
 	void _ReadLastAlbumStructure();	// use after config read
 

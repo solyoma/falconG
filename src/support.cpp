@@ -848,16 +848,24 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 //*****************************************************
 
 /*============================================================================
-* TASK:		create backup of file 'name' by renaming it to 'name~'
-*			and rename the new file 'tmpName' to original 'name'
-* EXPECTS:	name		- name of existing file to be renamed and backed up
+* TASK:		create backup of file 'name' as 'name~'
+*			and rename file 'tmpName' to 'name'
+* EXPECTS:	name		- name of existing file (e.g. fo.struct) to be renamed and backed up
 *			tmpName		- name of yet temporary file to be renamed to 'name'
+*							(e.g. fo.tmp)
 *			keepPreviousBackup: 
-*						- true: keep existing backup file delete any 'name.tmp'
-*						        file, rename 'name' file to 'name.tmp' and then
-*								rename 'tmpFile' to name. 
-*						  false: an existing 
-*							backup file will be deleted
+*						- true: if a backup file named name~ exists, then
+*								    keep it,  else proceed as if this was false.
+*								1. delete any 'name.tmp' file
+*						        2. rename 'name' file to 'name.tmp' and then
+*								3. rename 'tmpFile' to name. 
+* 							  As a result we will have 3 files named
+*							  'name', 'name~' and 'name.tmp'
+*						- false: 1. delete 'name.tmp' file if it exists
+*								 2. delete name~ file if it exists,
+* 								 3. rename 'name' file to 'name~' and then			
+* 								 4. rename 'tmpFile' to name.
+* 								 
 * GLOBALS:	none
 * RETURNS:  empty QString when backup and rename was successful, error message 
 *			on error
@@ -865,48 +873,33 @@ QString FileReader::NextLine(bool doNotDiscardComment)
 *--------------------------------------------------------------------------*/
 QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 {
-	QString qsTmp = tmpName + QString("~");
-	QFile ft(name), ftmp(tmpName), ftmp1(qsTmp);
+	QString qsBackup = name + QString("~"), 
+			qsIntermed = name + ".tmp";
 	QString qsErr;
-	bool brt=true, brn;
-	bool bx = ft.exists(),
-		 bx1 = ftmp1.exists();
-	if (keepPreviousBackup)
-	{
 
-		brt = bx1 ? ftmp1.remove() : true;
-		brn = ft.rename(qsTmp);
-		bool brn1 = ftmp.rename(name);
-		if( (bx &&  !brt) ||  !brn ||!brn1)
-		{
-			qsErr = QMainWindow::tr("Either can't delete \n'%1'\n"
-								 " or can't rename '%2' to '%1'\n"
-								 "Modified file remains named as \n'%2'").arg(name).arg(tmpName);
-		}
-	}
-	else
-	{	
-		if (bx)
-		{
-			if (bx1)
-				QFile::remove(qsTmp);
-			QFile::remove(name + "~");
-			brt = ft.rename(name + "~");
-		}
+	bool bFileExists = QFile::exists(name),
+		 bBackupExists = QFile::exists(qsBackup),
+		 bIntermExists = QFile::exists(qsIntermed);
+									// remove .tmp file
+	if(bIntermExists)
+		if(!QFile::remove(qsIntermed) )		// delete any previous temporary file
+			qsErr = QMainWindow::tr("Can't delete existing temporary file\n'%1'\n").arg(qsIntermed);
 
-		brn = ftmp.rename(name);
-//		if ((ft.exists() && !ft.rename(name + "~")) || !f.rename(name))
-		if( (bx && !brt) || !brn)
-		{
-			qsErr = QMainWindow::tr("Can't create backup file\n'%1~'\n"
-								 "Temporary file\n'%2'\nwas not renamed").arg(name).arg(tmpName);
-		}
-	}
-	//if (bErr)
-	//{
-	//	QMessageBox(QMessageBox::Warning, st, sx, QMessageBox::Close, parent).exec();
-	//	return false;
-	//}
+	if (!bBackupExists)
+		keepPreviousBackup = false;	// no backup file exists, so we can't keep it
+
+	if( keepPreviousBackup)
+		qsBackup = qsIntermed;
+	else if(bBackupExists)
+		if(!QFile::remove(qsBackup))	// delete backup file if it exists
+			qsErr += QMainWindow::tr("Can't delete existing backup file\n'%1'\n").arg(qsBackup);
+
+	if(bFileExists )
+		if( !QFile::rename(name, qsBackup) )	// rename original file to temporary name
+				qsErr += QMainWindow::tr("Can't rename file\n'%1'\nto \n'%2'\n").arg(name).arg(qsBackup);
+	if(!QFile::rename(tmpName, name))	// rename temporary file to original name
+		qsErr += QMainWindow::tr("Can't rename file\n'%1'\nto \n'%2'").arg(tmpName).arg(name);
+
 	return qsErr;
 }
 
@@ -1348,13 +1341,14 @@ static bool __CancelCreate(QString s)
 /*==========================================================================
 * TASK:		Recurvely creates directory and conditionally asks for confirmation
 * EXPECTS:	sdir - directory to create
+*			ask - should ask the user to create the folder?
 *			dirIndex - if not 0 appended to the name after a dash. Example: album-7
 * RETURNS:  1: directory exists (or created successfully)
 *			0: directory creation error
 *			-1: cancelled
 * REMARKS: 	 
 *--------------------------------------------------------------------------*/
-bool CreateDir(QString sdir, int dirIndex) // only create if needed
+bool CreateDir(QString sdir, bool ask, int dirIndex) // only create if needed
 {										// ask - if does not exist ask what to do
 	if (dirIndex)
 		sdir += QString("-%1").arg(dirIndex);
@@ -1362,7 +1356,7 @@ bool CreateDir(QString sdir, int dirIndex) // only create if needed
 	if (folder.exists(sdir))
 		return true;
 
-	if (__CancelCreate(sdir))
+	if (ask && __CancelCreate(sdir))
 		return false;
 	QStringList qsl = sdir.split('/');
 	QString spath;

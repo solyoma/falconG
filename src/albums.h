@@ -87,6 +87,7 @@ public:
 	void Remove(IDVal_t id);	// removes both path and id
 	IDVal_t FirstId();	// returns the first id from _idToPath
 	IDVal_t NextId();	// returns the next id from _idToPath
+	void Clear() { _idToPath.clear(); _pathToId.clear(); _it1 = _idToPath.end(); _it2 = _pathToId.end(); }
 };
 
 QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -488,6 +489,8 @@ public:
 	AlbumGenerator() { Init();  };
 	void Init();
 	void Clear();
+	QStringList GetStructNamesFromDir(QString dirName) const;	// returns the name of the struct file for this directory	
+	void CreateNewStruct(const QString& name);	// if already exists don't do anything
 	bool SetChangesWritten();
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy

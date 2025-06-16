@@ -425,11 +425,16 @@ class GetNewAlbumNameDialog : public QDialog
 public:
 	GetNewAlbumNameDialog(const AlbumMap& albumMap, QWidget* parent = nullptr);
 
-	constexpr uint64_t SelectedId() const { return _selectedId; }
-	QString GetBaseName(IDVal_t& idBaseFolder) const
+	constexpr uint64_t GetBaseAlbumId() const { return _baseAlbumId; }
+	QString GetAlbumName() const
+	{
+		return _lineEdit->text().trimmed();
+	}
+
+	QString GetBaseAlbumName(IDVal_t& idBaseFolder) const
 	{
 		if (_checkBox->isChecked())
-			idBaseFolder = _selectedId;
+			idBaseFolder = _baseAlbumId;
 		else
 			idBaseFolder = 0; // No alias, just a new virtual folder
 
@@ -449,17 +454,17 @@ protected:
 				QMessageBox::warning(this, tr("Warning"), tr("Please select an album or enter a name."));
 				return;
 			}
-			_selectedId = selectedText.mid(selectedText.indexOf('(') + 1, selectedText.indexOf(')') - selectedText.indexOf('(') - 1).toULongLong();
+			_baseAlbumId = selectedText.mid(selectedText.indexOf('(') + 1, selectedText.indexOf(')') - selectedText.indexOf('(') - 1).toULongLong();
 		}
 		else
-			_selectedId = 0; // No alias, just a new virtual folder
+			_baseAlbumId = NO_ID; // No alias, just a new virtual folder
 
 		QDialog::accept();
 	}
 
 	void reject() override
 	{
-		_selectedId = 0; // Reset selected ID on cancel
+		_baseAlbumId = 0; // Reset selected ID on cancel
 		QDialog::reject();
 	}
 
@@ -469,10 +474,10 @@ private slots:
 private:
 	QLineEdit* _lineEdit;	// name of new album
 	QCheckBox* _checkBox;	// checked: select an album from tree
-	AlbumTreeView* _treeView; // same model as in treeview windo
+	AlbumTreeView* _treeView; // same model as in treeview window
 	QLabel* _lblBaseName;	// shows the name and ID selected from the tree view
 
-	uint64_t _selectedId;
+	IDVal_t _baseAlbumId = NO_ID;
 };
 
 

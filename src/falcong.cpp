@@ -1390,23 +1390,53 @@ QIcon FalconG::_SetUplinkIcon(QString iconName)
 	return icon;
 }
 
-QString FalconG::_SelectStructFileFromDir(QString& dirName)
+bool FalconG::_CreateNewAlbum(QString& dirName)
 {
-	QString sf;
+	QDir dir(dirName);
+	if (dir.exists())	// no such directory, no change
+	{
+		QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder \n'%1'\n already exists.").arg(QDir::toNativeSeparators(dirName)));
+		return true;
+	}
+	if (!CreateDir(dirName, false))
+	{
+		QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder \n'%1'\n can't be created").arg(QDir::toNativeSeparators(dirName)));
+		return false;
+	}
+	albumgen.CreateNewStruct(dirName);
+	return true;
+}
+
+FalconG::_SelectResult FalconG::_SelectStructFileFromDir(QString& dirName, QString& structFileName)
+{
 	dirName = QDir::fromNativeSeparators(dirName);
 	QDir dir(dirName);
 
 	if (!dir.exists())	// no such directory, no change
-		return sf;
+	{
+		if (QMessageBox::question(this, tr("falconG - Question"), tr("Folder doesn't exist.\nDo you want me to create it?"))==QMessageBox::Yes)
+		{
+			if(!_CreateNewAlbum(dirName))
+				return srDirCreateError;	// no such directory, no change
+		}
+		return srOk;	
+	}
 	
 	QString pattern = "*.struct";
 	QStringList files = dir.entryList(QStringList() << pattern, QDir::Files);
 	if (files.isEmpty())
-		return sf;
+	{
+		albumgen.WriteDirStruct();
+		return srNoStruct;
+	}
 	SelectStructDialog ssd(this, dirName, files);
 	if (ssd.exec() == QDialog::Accepted)
-		return ssd.SelectedStruct();
-	return sf;
+	{
+		structFileName = ssd.SelectedStruct();
+		return srOk;
+	}
+	return srNoStruct;
+
 }
 
 void FalconG::_ReadLastAlbumStructure()
@@ -1427,7 +1457,7 @@ void FalconG::_ReadLastAlbumStructure()
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
 		}
 		else
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error"));
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error on\n%1").arg(qs));
 	}
 	albumgen.SetStructChanged(false);
 }
@@ -3119,10 +3149,12 @@ void FalconG::on_edtSourceGallery_editingFinished()
 {
 	if (_busy)
 		return;
-	QString dirName = ui.edtGalleryRoot->text().trimmed();
-	QString sf = _SelectStructFileFromDir(dirName);
-	if(sf.isEmpty())
-		QMessageBox::warning(this, tr("FalconG - Warning"), tr("Either no such folder or no gallery file in there!") );
+	QString dirName = ui.edtSourceGallery->text().trimmed();
+	QString sf;
+	_SelectResult res = _SelectStructFileFromDir(dirName, sf);
+	if(res & srNoStruct)
+		QMessageBox::warning(this, tr("FalconG - Warning"), tr("No gallery struct file was found!\n"
+									   "Created.") );
 }
 
 /*============================================================================

@@ -44,6 +44,7 @@ void PROGRAM_CONFIG::Read()
 	copyrightYear = QDate::currentDate().year();
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in user's local home directory
+	s.setIniCodec("UTF-8");
 
 	lang = s.value("lang", -1).toInt();
 	splitterLeft = s.value("sll", 493).toInt();
@@ -53,24 +54,21 @@ void PROGRAM_CONFIG::Read()
 		schemeIndex = 0;
 
 	s.beginGroup("config_save"); //--------------------------------
-
 	maxSavedConfigs = s.value("maxSaveConfigs", 10).toInt();
-	int numSaveConfigs = s.value("numSaveConfigs", 0).toInt();
 	indexOfLastUsed = s.value("indexOfLastUsed", -1).toInt();
-	QString str;
-	for (int i = 0; i < numSaveConfigs; ++i)
-	{
-		str = s.value(QString().setNum(i), "").toString();
-		if (!str.trimmed().isEmpty())
-		{
-#ifdef _MSC_VER
-//			str = str.toLower();	// Windows: lC UC letters are the same in paths!
-#endif
-			lastConfigs.push_back(str);
-		}
-	}
 
+	QString str;
+	QStringList sl = s.allKeys();
+	for(int i = 0; i < sl.size(); ++i)
+		if (sl[i][0].isDigit())
+		{
+			str = s.value(sl[i], "").toString();
+			if (!str.trimmed().isEmpty())
+				lastConfigs.push_back(str);
+		}
 	s.endGroup();				//------------------------------------
+	if (indexOfLastUsed >= lastConfigs.size())
+		indexOfLastUsed = -1;
 }
 
 void PROGRAM_CONFIG::Write()
@@ -97,6 +95,8 @@ void PROGRAM_CONFIG::Write()
 	}
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+	s.setIniCodec("UTF-8");
+
 	s.setValue("lang", PROGRAM_CONFIG::lang);
 	s.setValue("schemeIndex", schemeIndex);
 	s.setValue("sll", splitterLeft);
@@ -104,7 +104,6 @@ void PROGRAM_CONFIG::Write()
 
 	s.beginGroup("config_save");
 		s.setValue("maxSaveConfigs", maxSavedConfigs);
-		s.setValue("numSaveConfigs", lastConfigs.size());
 		s.setValue("indexOfLastUsed", indexOfLastUsed);
 		for (int i = 0; i < lastConfigs.size(); ++i)
 			s.setValue(QString().setNum(i), lastConfigs.at(i));

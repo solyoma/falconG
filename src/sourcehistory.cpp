@@ -1,5 +1,6 @@
 #include "sourcehistory.h"
 #include <QStandardItemModel>
+#include "albums.h"
 
 // ************************ class Model ********************************
 
@@ -198,6 +199,10 @@ void SourceHistory::on_btnAddDirectory_clicked()
 	QString s = QFileDialog::getExistingDirectory(this, "Add a new source directory", _srcPath.isEmpty() ? "" : _srcPath);
 	if (!s.isEmpty())
 	{
+		QStringList sl = albumgen.GetStructNamesFromDir(s);
+		if (sl.isEmpty())
+			albumgen.CreateNewStruct(s);
+
 		Model *pmodel;
 		pmodel = dynamic_cast<Model*>(ui.lvHistory->model());
 		_changed = pmodel->Insert(s);
