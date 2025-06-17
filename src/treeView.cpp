@@ -76,7 +76,7 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
  *------------------------------------------------------------*/
 const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix) const
 {
-	ID_t id = ID_t(ALBUM_ID_FLAG, (IDVal_t)mix.internalPointer());
+	ID_t id = ID_t(ALBUM_ID_FLAG, (IDVal_t)mix.internalId());
 	Album& ab = albumgen.Albums()[id];
 	QString sChangedFlag = ab.changed ? "*" : "";
 	QString s = ab.name;
@@ -110,7 +110,13 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 	if (index.isValid())				// root id for tree element
 	{
 		if (!_busy && role == Qt::DisplayRole)
+		{
+//#if DEBUG
+//			QString qst = TextForIndex(index);
+//			qDebug("'%s', row:%d, ID:%u, parent (row:%d, ID:%u)", qst.toStdString().c_str(), index.row(), index.internalId(), index.parent().row(), index.parent().internalId());
+//#endif
 			return TextForIndex(index);
+		}
 	}
 	return QVariant();
 }

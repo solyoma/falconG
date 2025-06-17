@@ -321,6 +321,17 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	enum SearchCond {byID, byName};
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
 
+	/*Album& operator=(const Album& other)
+	{
+		IABase::operator=(*this);
+		parentId = other.parentId;
+		baseAlbumId = other.baseAlbumId;
+		aliasesList = other.aliasesList;
+		thumbnailId = other.thumbnailId;
+		items = other.items;
+		return *this;
+	}*/
+
 	int operator<(const Album &i);		 // uses searchBy
 	bool operator==(const Album &i);
 

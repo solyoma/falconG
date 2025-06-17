@@ -645,7 +645,7 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
     else if (selectedCount == 1)
 	{
         SetCurrentItem(indexesList.first().row());
-		emit SignalSingleSelection(_ActAlbum()->items[_currentItem], _ActAlbumId());
+		emit SignalSingleSelection(_ActAlbum()->BaseAlbum()->items[_currentItem], _ActAlbumId());
 	}
     else
     {
@@ -1389,23 +1389,16 @@ void ThumbnailView::_InitThumbs()
 	static QSize hintSize;
 	int timeOutCnt = 1;
     Album &album = albumgen.Albums()[_albumId];
+    Album* pBase = album.baseAlbumId != NO_ID ? albumgen.AlbumForIDVal(album.baseAlbumId) : &album;
     
-    if (album.baseAlbumId != NO_ID) // then use the base album for items
-    {
-        _isBaseAlbum = false;
-        album = *albumgen.AlbumForIDVal(album.baseAlbumId);
-    }
-    else
-		_isBaseAlbum = true;
-
-    if(album.pathId)
-        albumgen.lastUsedAlbumPathId = album.pathId;
+    if(pBase->pathId)
+        albumgen.lastUsedAlbumPathId = pBase->pathId;
 
     _thumbnailViewModel->BeginResetModel();
     _thumbnailViewModel->Clear();
-	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < album.items.size(); ++fileIndex)
+	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < pBase->items.size(); ++fileIndex)
 	{
-	    thumbItem = new ThumbnailItem(fileIndex, _albumId.Val(), _TypeFor(album.items[fileIndex]));
+	    thumbItem = new ThumbnailItem(fileIndex, pBase->ID.Val(), _TypeFor(pBase->items[fileIndex]));
 		_thumbnailViewModel->appendRow(thumbItem);
 
 		++timeOutCnt;
