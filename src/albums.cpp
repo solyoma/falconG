@@ -5361,6 +5361,13 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 	ID_t id = album.items[ix];
 	if (id.IsAlbum()) // this item is an album, so all of >>its<< items
 	{						// must be removed
+
+		if (id.Val() == NO_ID)		// error: 
+		{
+			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid album ID. Can't be removed"), QMessageBox::StandardButton::Close);
+			return;
+		}
+
 		Album& subAlbum = _albumMap[id];
 		path = subAlbum.FullSourceName();
 		_RemoveAllItemsFrom(id, fromDisk);
@@ -5378,7 +5385,7 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 		_albumMap.remove(id);
 		// folders and files may be left in sub-folders
 		// if they were not in the data base even after this!
-		if (fromDisk && !QFile::moveToTrash(path))
+		if (fromDisk && album.pathId != NO_ID && !QFile::moveToTrash(path))
 			RemoveFolderRecursively(path);		// so those must also be deleted
 
 		album.DecrementAlbumCount();
@@ -5409,9 +5416,9 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 			}
 			album.DecrementVideoCount();
 		}
-		// remove invalid item
-		album.items.remove(ix);
 	}
+	// remove invalid item
+	album.items.remove(ix);
 }
 
 /*=============================================================
@@ -5481,13 +5488,13 @@ void AlbumGenerator::_RemoveItems(ID_t albumIDVal, bool iconsForThisAlbum, IntLi
  *------------------------------------------------------------*/
 void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
 {
-	if (fromDisk)
-		if(QMessageBox::question(frmMain, tr("falconG - Warning"),
-								tr(	"If an album is removed all the files and albums inside it will be removed too,\n"
-									"but they remeain available in linked (alias) albums\n\n"
-									"This cannot be undone!\n\n"
-									"Really remove/delete the selected items from disk?")) != QMessageBox::Yes)
-			return;
+	//if (fromDisk)
+	//	if(QMessageBox::question(frmMain, tr("falconG - Warning"),
+	//							tr(	"If an album is removed all the files and albums inside it will be removed too,\n"
+	//								"but they remain available in linked (alias) albums\n\n"
+	//								"This cannot be undone!\n\n"
+	//								"Really remove/delete the selected items from disk?")) != QMessageBox::Yes)
+			//return;
 	emit SignalAlbumStructWillChange();
 	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
 	albumgen.WriteDirStruct(BackupMode::bmKeepBackupFile, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original

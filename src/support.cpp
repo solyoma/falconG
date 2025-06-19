@@ -8,6 +8,7 @@
 #include "support.h"
 #include "config.h"
 #include "falconG.h"
+#include "albums.h"
 
 static void  WarningToFile(QString qs)
 {
@@ -148,15 +149,27 @@ int QuestionDialog(QString title, QString text, Common::DialogBitsOrder show, QW
 
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 {
-	QString plurali = QObject::tr("images"), plurala = QObject::tr("albums");   // plural for image and album. May differ in other languages
-	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk\n"
-							 "(including items and sub-albums for album),\n"
-							 "or just to remove them from gallery?")
+	QString plurali = QObject::tr("images"), 
+			plurala = QObject::tr("albums"),   // plural for image and album. May differ in other languages
+			plurald = QObject::tr("them");      // plural for it, them, etc.plurald
+	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk,\n"
+							 "including images/videos and sub-albums inside selected albums,\n"
+							 "or just to remove %3 from gallery?")
 		.arg(list.size() > 1 ? plurali : QObject::tr("image"))
-		.arg(list.size() > 1 ? plurala : QObject::tr("album"));
+		.arg(list.size() > 1 ? plurala : QObject::tr("album"))
+		.arg(list.size() > 1 ? plurald: QObject::tr("it"));
+
 	QMessageBox msg;
 	msg.setWindowTitle(QObject::tr("falconG - Delete Images and albums"));
 	msg.setText(qs);
+
+	qs = QObject::tr("This operation cannot be undone!\n\n"
+					 "Even selecting 'From disk' does not quaranty the selection\n"
+		             "will be removed from disk. They may appear in other albums.\n"
+					 "If a base - non alias - album, which has aliases is deleted,\n"
+					 "its items are transferred into one of its aliases and the \n"
+					 "folder and its items remain intact.");
+
 	msg.addButton(QObject::tr("Just remove"), QMessageBox::NoRole);							// 0
 	msg.addButton(QObject::tr("From disk"), QMessageBox::YesRole);							// 1
 	QPushButton *pbCancel = msg.addButton(QObject::tr("Cancel"), QMessageBox::RejectRole);  // 2
@@ -164,18 +177,6 @@ int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 	msg.setIcon(QMessageBox::Question);
 	int res = msg.exec();
 
-	if (res == 2)                   // Cancel
-		return res;
-
-	extern FalconG* frmMain;
-	if (res == 1)    // delete from disk too
-	{
-		if (QMessageBox::question((QWidget*)frmMain, QObject::tr("falconG - Question"),
-			QObject::tr("This will delete all selected images and folders from disk.\n"
-				"This cannot be undone.\n\n"
-				"Are you >>really<< sure you want to do this?")) != QMessageBox::Yes)
-			return 2;
-	}
 	return res;
 }
 

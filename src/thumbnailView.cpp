@@ -1010,7 +1010,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         {                        // or relocate them or cancel operation                     
             QMessageBox mb(this);
             mb.setWindowTitle(tr("falconG - Question"));
-            mb.setText(tr("Move into this folder or move before it?"));
+            mb.setText(tr("Move into this folder or just reposition before it?"));
             mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
             // buttons added after the existing buttons
             QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::NoRole);
@@ -1019,7 +1019,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 #ifdef DEBUG
             QPushButton *pCancelBtn = 
 #endif
-                mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
             mb.setDefaultButton(pBeforeFolderBtn);
 
             mb.exec();
