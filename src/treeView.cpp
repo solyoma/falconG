@@ -74,7 +74,7 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix) const
+const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix, bool aliasTextToo) const
 {
 	ID_t id = ID_t(ALBUM_ID_FLAG, (IDVal_t)mix.internalId());
 	Album& ab = albumgen.Albums()[id];
@@ -84,7 +84,11 @@ const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix) const
 		s += "*";
 	if (id == TOPMOST_ALBUM_ID)
 		return "/ ( " + s + " )";
-	return s + " ( " + ab.BareName() + " )";  // no language or extension
+	s += " ( " + ab.BareName() + " )";  // no language or extension
+	if (aliasTextToo && ab.baseAlbumId != NO_ID)
+		s += QObject::tr("\n--- Alias for '%1'").arg(ab.BaseAlbum()->ShortSourcePathName()); 
+
+	return s;
 }
 
 /*============================================================================
@@ -299,7 +303,7 @@ bool AlbumTreeView::event(QEvent* event)
 		if (ix.isValid())
 		{
 			AlbumTreeModel* pm = reinterpret_cast<AlbumTreeModel*>(model());
-			QToolTip::showText(phe->globalPos(), pm->TextForIndex(ix));
+			QToolTip::showText(phe->globalPos(), pm->TextForIndex(ix, true));
 		}
 		else
 			QToolTip::hideText();

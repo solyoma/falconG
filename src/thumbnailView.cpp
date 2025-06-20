@@ -235,6 +235,8 @@ QString ThumbnailItem::_FolderToolTip() const   // only called for folders !
     Album* pAlbum = albumgen.AlbumForID(_ActOwner()->IdOfItem(itemPos));
 
     QString s = pAlbum->ShortSourcePathName() + " \n(" + pAlbum->LinkName(-1, true) + ")";
+    if (pAlbum->baseAlbumId != NO_ID)
+        s += QObject::tr("\n--- Alias for '%1'").arg(pAlbum->BaseAlbum()->ShortSourcePathName());
     return s;
 }
 

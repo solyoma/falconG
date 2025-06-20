@@ -25,7 +25,7 @@ public:
 	AlbumTreeModel(QObject *parent = Q_NULLPTR) : QAbstractItemModel(parent) {}
 
 // these are for reading
-	const QString TextForIndex(const QModelIndex &mix) const;
+	const QString TextForIndex(const QModelIndex &mix, bool aliasTextToo=false) const;
 
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
