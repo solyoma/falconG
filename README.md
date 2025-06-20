@@ -196,7 +196,7 @@ angolul használható, a generált galériák is többnyelvűek.
  - Ugyanaz a kép akárhány albumban megjelenhet ugyanazokkal a 
    szövegekkel, és csak egy példányban tárolódik
  - Egy album akárhány albumban megjelenhet, akár más címmel és leírással
-   is, mint az eredeti album. Ezek az albumok az "aliasok" (álnevek).
+   is, mint az eredeti album. Ezek az albumok a ""hivatkozások" (alias - álnevek).
  - mivel minden albumnak saját WEB oldala van könnyű rájuk hivatkozni
    a szociális médiumokon (facebook hivatkozási link beágyazható az oldalba)
  - Választható a Google Analytics és a facebook 'like' gomb használata az 

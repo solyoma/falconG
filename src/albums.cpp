@@ -5407,7 +5407,7 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 			if (!__bMessageShown)
 			{
 				__bMessageShown = true;
-				QMessageBox::warning(frmMain, tr("falcoG - Warning"), tr("Found an album alias. Album aliases are just removed from database\n"
+				QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Found an album alias. Album aliases are just removed from database\n"
 													"but their content isn't removed.\n\nNo more warning during this operation"), QMessageBox::Close);
 			}
 		}

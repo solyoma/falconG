@@ -4,22 +4,24 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="../src/albums.cpp" line="5417"/>
+        <location filename="../src/albums.cpp" line="5400"/>
+        <location filename="../src/albums.cpp" line="5410"/>
+        <location filename="../src/albums.cpp" line="5566"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="1953"/>
+        <location filename="../src/albums.cpp" line="2008"/>
         <source>Album %1 does not exist</source>
         <translation>A &apos;%1&apos; mappa nem létezik</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2299"/>
+        <location filename="../src/albums.cpp" line="2354"/>
         <source>Bad Path line</source>
         <translation>Hibás elérési út</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2504"/>
+        <location filename="../src/albums.cpp" line="2559"/>
         <source>Unknown file type
 File name:
 %1</source>
@@ -28,19 +30,40 @@ File neve:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2564"/>
+        <location filename="../src/albums.cpp" line="2619"/>
         <source>Invalid file type for image or video in line %1</source>
         <translation>Ismeretlen kép vagy videó típus a %1 sorban</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5418"/>
+        <location filename="../src/albums.cpp" line="5400"/>
+        <source>Invalid album ID. Can&apos;t be removed</source>
+        <translation>Érvénytelen album azonosító. Album nem távolítható el</translation>
+    </message>
+    <message>
+        <location filename="../src/albums.cpp" line="5410"/>
+        <source>Found an album alias. Album aliases are just removed from database
+but their content isn&apos;t removed.
+
+No more warning during this operation</source>
+        <translation>Album alias. Ezek eltávolítása nem távolítja el az elemeket magukat.
+
+ebben a műveletben nem lesz több ilyen értesítés</translation>
+    </message>
+    <message>
+        <location filename="../src/albums.cpp" line="5566"/>
+        <source>This is an alias album, the real data is elsewhere.
+Can&apos;t delete items from a base album through an alias album!</source>
+        <translation>Ez egy hivatkozó (&apos;alias&apos;) album, a valódi tartalom máshol van.
+Hivatkozó albumból az elemek nem törölhetőek!</translation>
+    </message>
+    <message>
         <source>If an album is removed all the files and albums inside it will be removed too,
 but they remeain available in linked (alias) albums
 
 This cannot be undone!
 
 Really remove/delete the selected items from disk?</source>
-        <translation>Ha egy albumot eltávolítasz, minden benne levő fájl és album is törlésre kerül!
+        <translation type="vanished">Ha egy albumot eltávolítasz, minden benne levő fájl és album is törlésre kerül!
 
 Ez nem visszavonható művelet!
 
@@ -55,18 +78,18 @@ Tényleg le akarod törölni ezeket a lemezről?</translation>
         <translation type="vanished">Érvénytelen kis-kép sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3235"/>
+        <location filename="../src/albums.cpp" line="3290"/>
         <source>Error</source>
         <translation>Hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="4706"/>
+        <location filename="../src/albums.cpp" line="4761"/>
         <source>Missing or unreadable &quot;about_text%1.txt&quot; file</source>
         <translation>Az &quot;about_text%1.txt&quot; fájl hiányzik, vagy nem olvasható</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5231"/>
-        <location filename="../src/albums.cpp" line="5237"/>
+        <location filename="../src/albums.cpp" line="5328"/>
+        <location filename="../src/albums.cpp" line="5334"/>
         <source>falconG - Generate</source>
         <translation>falconG - Generálás</translation>
     </message>
@@ -90,27 +113,27 @@ Tényleg le akarod törölni ezeket a lemezről?</translation>
 <context>
     <name>AlbumTreeView</name>
     <message>
-        <location filename="../src/treeView.cpp" line="434"/>
+        <location filename="../src/treeView.cpp" line="444"/>
         <source>&amp;Copy Selected Images Here</source>
         <translation>Kiválasztott képek másolása &amp;ide</translation>
     </message>
     <message>
-        <location filename="../src/treeView.cpp" line="439"/>
+        <location filename="../src/treeView.cpp" line="449"/>
         <source>&amp;Move Selected Images Here</source>
         <translation>Kiválasztott képek &amp;mozgatása ide</translation>
     </message>
     <message>
-        <location filename="../src/treeView.cpp" line="446"/>
+        <location filename="../src/treeView.cpp" line="456"/>
         <source>Add &amp;Images...</source>
         <translation>&amp;Képek hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/treeView.cpp" line="451"/>
+        <location filename="../src/treeView.cpp" line="461"/>
         <source>Add &amp;Folder...</source>
         <translation>&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/treeView.cpp" line="456"/>
+        <location filename="../src/treeView.cpp" line="466"/>
         <source>&amp;Remove</source>
         <translation>&amp;Eltávolítás</translation>
     </message>
@@ -128,29 +151,29 @@ Tényleg le akarod törölni ezeket a lemezről?</translation>
         <translation>Generálás (F9)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1008"/>
+        <location filename="../src/falcong.cpp" line="994"/>
         <source>Styles</source>
         <translation>Stílus</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1067"/>
-        <location filename="../src/falcong.cpp" line="1521"/>
-        <location filename="../src/falcong.cpp" line="1546"/>
-        <location filename="../src/falcong.cpp" line="1705"/>
-        <location filename="../src/falcong.cpp" line="1731"/>
-        <location filename="../src/falcong.cpp" line="1754"/>
-        <location filename="../src/falcong.cpp" line="1776"/>
-        <location filename="../src/falcong.cpp" line="1798"/>
-        <location filename="../src/falcong.cpp" line="1821"/>
-        <location filename="../src/falcong.cpp" line="1842"/>
-        <location filename="../src/falcong.cpp" line="1902"/>
-        <location filename="../src/falcong.cpp" line="1920"/>
-        <location filename="../src/falcong.cpp" line="1953"/>
+        <location filename="../src/falcong.cpp" line="1053"/>
+        <location filename="../src/falcong.cpp" line="1537"/>
+        <location filename="../src/falcong.cpp" line="1562"/>
+        <location filename="../src/falcong.cpp" line="1721"/>
+        <location filename="../src/falcong.cpp" line="1747"/>
+        <location filename="../src/falcong.cpp" line="1770"/>
+        <location filename="../src/falcong.cpp" line="1792"/>
+        <location filename="../src/falcong.cpp" line="1814"/>
+        <location filename="../src/falcong.cpp" line="1837"/>
+        <location filename="../src/falcong.cpp" line="1858"/>
+        <location filename="../src/falcong.cpp" line="1918"/>
+        <location filename="../src/falcong.cpp" line="1936"/>
+        <location filename="../src/falcong.cpp" line="1972"/>
         <source>Select Color</source>
         <translation>Színválasztás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1683"/>
+        <location filename="../src/falcong.cpp" line="1699"/>
         <source>Saved configuration
 &apos;%1&apos;
  into folder 
@@ -161,17 +184,17 @@ A  mentés mappája:
 &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1865"/>
+        <location filename="../src/falcong.cpp" line="1881"/>
         <source>falconG - Open Background Image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1865"/>
+        <location filename="../src/falcong.cpp" line="1881"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1583"/>
+        <location filename="../src/falcong.cpp" line="1599"/>
         <source>falconG - Open background image</source>
         <translation>falconG - Háttérkép megnyitása</translation>
     </message>
@@ -195,144 +218,148 @@ Azok a %2 fájlba kerülnek</translation>
 (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1444"/>
         <source>Album read error</source>
-        <translation>Album olvasási hiba</translation>
+        <translation type="vanished">Album olvasási hiba</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="3136"/>
         <source>Either no such folder or no gallery file in there!</source>
-        <translation>Nincs ilyen mappa, vagy file itt!</translation>
+        <translation type="vanished">Nincs ilyen mappa, vagy file itt!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="3136"/>
+        <location filename="../src/falcong.cpp" line="3156"/>
         <source>FalconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4349"/>
+        <location filename="../src/falcong.cpp" line="3156"/>
+        <source>No gallery struct file was found!
+Created.</source>
+        <translation>Nem találtam leíró (&quot;.struct&quot;) fájlt! Őjat hoztam létre.</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.cpp" line="4370"/>
         <source>Background color</source>
         <translation>Háttérszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4361"/>
+        <location filename="../src/falcong.cpp" line="4382"/>
         <source>Foreground (Text) color</source>
         <translation>Szöveg színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4370"/>
+        <location filename="../src/falcong.cpp" line="4391"/>
         <source>Selection color</source>
         <translation>Kiválasztás színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4378"/>
+        <location filename="../src/falcong.cpp" line="4399"/>
         <source>Selection background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4387"/>
+        <location filename="../src/falcong.cpp" line="4408"/>
         <source>Border color</source>
         <translation>Keret színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4395"/>
+        <location filename="../src/falcong.cpp" line="4416"/>
         <source>Focused Input color</source>
         <translation>Aktuális szövegszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4403"/>
+        <location filename="../src/falcong.cpp" line="4424"/>
         <source>Hover color</source>
         <translation>Mutató alatti szín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4411"/>
+        <location filename="../src/falcong.cpp" line="4432"/>
         <source>Tab Border color</source>
         <translation>Fül keretszín</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4419"/>
+        <location filename="../src/falcong.cpp" line="4440"/>
         <source>Input Background</source>
         <translation>Bevitel háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4427"/>
+        <location filename="../src/falcong.cpp" line="4448"/>
         <source>Selected Background</source>
         <translation>Kiválasztott elem háttere</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4435"/>
+        <location filename="../src/falcong.cpp" line="4456"/>
         <source>Focused Border color</source>
         <translation>Fokuszált elem keretszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4443"/>
+        <location filename="../src/falcong.cpp" line="4464"/>
         <source>Disabled Foreground</source>
         <translation>Érvénytelen mező betűszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4451"/>
+        <location filename="../src/falcong.cpp" line="4472"/>
         <source>Disabled Background</source>
         <translation>Érvénytelen mező háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4459"/>
+        <location filename="../src/falcong.cpp" line="4480"/>
         <source>Image Background</source>
         <translation>Kép háttérszíne</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4467"/>
+        <location filename="../src/falcong.cpp" line="4488"/>
         <source>Button Pressed Bg</source>
         <translation>Lenyomott gomb</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4475"/>
+        <location filename="../src/falcong.cpp" line="4496"/>
         <source>Default Background</source>
         <translation>Alapértelmezett háttér</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4483"/>
+        <location filename="../src/falcong.cpp" line="4504"/>
         <source>Progressbar Chunk color</source>
         <translation>Haladásjelző színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4491"/>
+        <location filename="../src/falcong.cpp" line="4512"/>
         <source>Warning color</source>
         <translation>Figyelmeztetés színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4499"/>
+        <location filename="../src/falcong.cpp" line="4520"/>
         <source>Groupbox Title Color</source>
         <translation>Doboz címének színe</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4507"/>
+        <location filename="../src/falcong.cpp" line="4528"/>
         <source>Drag &amp; Drop Insert Marker</source>
         <translation>Húzd &amp; Vidd jelző</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4681"/>
+        <location filename="../src/falcong.cpp" line="4702"/>
         <source>falconG - Color scheme changed</source>
         <translation>falconG - Szinősszeállítás megváltozott</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="4681"/>
+        <location filename="../src/falcong.cpp" line="4702"/>
         <source>Changes were not applied.
 Do you want to apply changes?</source>
         <translation>A változtatásokat nem alkalmaztad.
 Alkalmazzam a változtatásokat?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5544"/>
+        <location filename="../src/falcong.cpp" line="5565"/>
         <source>Phase 4: cleaning up gallery</source>
         <translation>4. fázis galéria tisztítása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5640"/>
+        <location filename="../src/falcong.cpp" line="5661"/>
         <source>%1 Albums, %2 images</source>
         <translation>%1 album és %2 kép</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1375"/>
+        <location filename="../src/falcong.cpp" line="1361"/>
         <source>No/not enough &apos;:&apos; in new name. The same name will be used for
 all program languages. Is this what you want?</source>
         <translation>Nincs (elég) &apos;:&apos; a névben. Ugyanazt a nevet fogja használni
@@ -340,13 +367,15 @@ több program nyelvre. Ezt akarod?</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="365"/>
-        <location filename="../src/falcong.cpp" line="1360"/>
-        <location filename="../src/falcong.cpp" line="1444"/>
-        <location filename="../src/falcong.cpp" line="1471"/>
-        <location filename="../src/falcong.cpp" line="1625"/>
-        <location filename="../src/falcong.cpp" line="2192"/>
-        <location filename="../src/falcong.cpp" line="2219"/>
-        <location filename="../src/falcong.cpp" line="2345"/>
+        <location filename="../src/falcong.cpp" line="1346"/>
+        <location filename="../src/falcong.cpp" line="1398"/>
+        <location filename="../src/falcong.cpp" line="1403"/>
+        <location filename="../src/falcong.cpp" line="1460"/>
+        <location filename="../src/falcong.cpp" line="1487"/>
+        <location filename="../src/falcong.cpp" line="1641"/>
+        <location filename="../src/falcong.cpp" line="2211"/>
+        <location filename="../src/falcong.cpp" line="2238"/>
+        <location filename="../src/falcong.cpp" line="2364"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -369,7 +398,7 @@ Do you want to save them?</source>
 El akarod menteni ezeket?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1685"/>
+        <location filename="../src/falcong.cpp" line="1701"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
@@ -384,18 +413,19 @@ El akarod menteni ezeket?</translation>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1360"/>
+        <location filename="../src/falcong.cpp" line="1346"/>
         <source>Please restart the program to change the language!</source>
         <translation>Megváltoztattad a program nyelvét. Kérlek indítsd újra a nyelvváltáshoz!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1367"/>
-        <location filename="../src/falcong.cpp" line="1374"/>
+        <location filename="../src/falcong.cpp" line="1353"/>
+        <location filename="../src/falcong.cpp" line="1360"/>
+        <location filename="../src/falcong.cpp" line="1417"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1365"/>
+        <location filename="../src/falcong.cpp" line="1351"/>
         <source>There is a scheme 
 &apos;%1&apos;
 with a title which at least partially
@@ -406,19 +436,19 @@ matches the modified title.
 Biztos felülírjam?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1471"/>
-        <location filename="../src/falcong.cpp" line="2219"/>
+        <location filename="../src/falcong.cpp" line="1487"/>
+        <location filename="../src/falcong.cpp" line="2238"/>
         <source>Invalid new name. Please use another!</source>
         <translation>Érvénytelen név. Kérem adj egy másikat!</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2345"/>
+        <location filename="../src/falcong.cpp" line="2364"/>
         <source>This will reset all dialogs.
 Do you want to proceed?</source>
         <translation>Valóba alaphelyzetbe akarod állítani az összes párbeszéd ablakot?</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1626"/>
+        <location filename="../src/falcong.cpp" line="1642"/>
         <source>Do you really want to delete this color scheme?</source>
         <translation>Törölni akarod ezt a színösszeállítást?</translation>
     </message>
@@ -428,95 +458,123 @@ Do you want to proceed?</source>
         <translation>falconG - %1.%2.%3. verzió</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1456"/>
+        <location filename="../src/falcong.cpp" line="1398"/>
+        <source>Folder 
+&apos;%1&apos;
+ already exists.</source>
+        <translation>A &apos;%1&apos; mappa már létezik.</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.cpp" line="1403"/>
+        <source>Folder 
+&apos;%1&apos;
+ can&apos;t be created</source>
+        <translation>A
+&apos;%1&apos;
+ mappa nem hozható létre</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.cpp" line="1417"/>
+        <source>Folder doesn&apos;t exist.
+Do you want me to create it?</source>
+        <translation>A mappa nem létezik. Létrehozzam?</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.cpp" line="1460"/>
+        <source>Album read error on
+%1</source>
+        <translation>Album olvasási hiba a %1-en</translation>
+    </message>
+    <message>
+        <location filename="../src/falcong.cpp" line="1472"/>
         <source>New Scheme Name
  (for </source>
         <translation>Új séma név a következő nyelvekre:
 ( </translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1457"/>
+        <location filename="../src/falcong.cpp" line="1473"/>
         <source>falconG - Input</source>
         <translation>falconG - Bevitel</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="1483"/>
+        <location filename="../src/falcong.cpp" line="1499"/>
         <source>Select background color.</source>
         <translation>Válassz háttérszínt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5386"/>
+        <location filename="../src/falcong.cpp" line="5407"/>
         <source>Saved style sheet &apos;falconG.css&apos;
 into %1</source>
         <translation>A &apos;falconG.css&apos; stíluslapot
 a %1 mappába mentettem</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5387"/>
+        <location filename="../src/falcong.cpp" line="5408"/>
         <source>Don&apos;t show again (use Options to re-enable)</source>
         <translation>Ne jelenjen meg mégegyszer. (A Beállításokban visszakapcsolhatod)</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5412"/>
+        <location filename="../src/falcong.cpp" line="5433"/>
         <source>Watermark sample text</source>
         <translation>Vízjel minta szöveg</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5431"/>
+        <location filename="../src/falcong.cpp" line="5452"/>
         <source>Select Watermark Color</source>
         <translation>Válasszon vízjel színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5456"/>
+        <location filename="../src/falcong.cpp" line="5477"/>
         <source>Select Watermark Shadow Color</source>
         <translation>Válasszon vízjel árnyék színt</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5516"/>
+        <location filename="../src/falcong.cpp" line="5537"/>
         <source>Phase 1: reading albums and images</source>
         <translation>1. fázis: albumok és képek olvasása</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5517"/>
+        <location filename="../src/falcong.cpp" line="5538"/>
         <source>albums / images</source>
         <translation>albumok / képek</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5528"/>
+        <location filename="../src/falcong.cpp" line="5549"/>
         <source>Phase 2: processing images</source>
         <translation>2. fázis: képfeldolgozás</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5529"/>
+        <location filename="../src/falcong.cpp" line="5550"/>
         <source>images / total</source>
         <translation>kép / összes</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5533"/>
+        <location filename="../src/falcong.cpp" line="5554"/>
         <source>Phase 3: Creating albums</source>
         <translation>3. fázis: Albumok készítése</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5534"/>
+        <location filename="../src/falcong.cpp" line="5555"/>
         <source>albums / total</source>
         <translation>album / összes</translation>
     </message>
     <message>
         <location filename="../src/falcong.cpp" line="410"/>
-        <location filename="../src/falcong.cpp" line="5385"/>
-        <location filename="../src/falcong.cpp" line="5611"/>
+        <location filename="../src/falcong.cpp" line="5406"/>
+        <location filename="../src/falcong.cpp" line="5632"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="2193"/>
+        <location filename="../src/falcong.cpp" line="2212"/>
         <source>Cannot open
 &apos;%1&apos;</source>
         <translation>&apos;%1&apos;
 nem megnyitható</translation>
     </message>
     <message>
-        <location filename="../src/falcong.cpp" line="5611"/>
+        <location filename="../src/falcong.cpp" line="5632"/>
         <source>Warning
 Can&apos;t read icon
 &apos;%1&apos;</source>
@@ -525,12 +583,12 @@ Az ikon nem olvasható
 &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2581"/>
+        <location filename="../src/albums.cpp" line="2636"/>
         <source>Wrong image parameter count:</source>
         <translation>Hibás kép paraméter szám:</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2952"/>
+        <location filename="../src/albums.cpp" line="3007"/>
         <source> - duplicated album ID</source>
         <translation> - ez az album azonosító már szerepelt</translation>
     </message>
@@ -540,23 +598,23 @@ Az ikon nem olvasható
 a .struct fájlban!</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3145"/>
+        <location filename="../src/albums.cpp" line="3200"/>
         <source>Read error</source>
         <translation>Olvasási hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3150"/>
+        <location filename="../src/albums.cpp" line="3205"/>
         <source>Bad version string</source>
         <translation>Hibás verzió sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3156"/>
+        <location filename="../src/albums.cpp" line="3211"/>
         <source>Missing &apos;.&apos; from version</source>
         <translation>Hiányzó &apos;.&apos; a verziósorban</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2306"/>
-        <location filename="../src/albums.cpp" line="2350"/>
+        <location filename="../src/albums.cpp" line="2361"/>
+        <location filename="../src/albums.cpp" line="2405"/>
         <source>Missing &apos;]&apos;</source>
         <translation>Hiányzó &apos;]&apos;</translation>
     </message>
@@ -565,39 +623,39 @@ a .struct fájlban!</translation>
         <translation type="vanished">Nincs ilyen kép (%1. sor)</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3065"/>
+        <location filename="../src/albums.cpp" line="3120"/>
         <source>Image/video not Found in line #%1</source>
         <translation>Nincs ilyen kép, vagy videó (%1. sor)</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3167"/>
+        <location filename="../src/albums.cpp" line="3222"/>
         <source>Invalid path table</source>
         <translation>Érvénytelen útvonal táblázat</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3169"/>
+        <location filename="../src/albums.cpp" line="3224"/>
         <source>Invalid orphan table</source>
         <translation>Érvénytelen magányos kép tábla</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3181"/>
+        <location filename="../src/albums.cpp" line="3236"/>
         <source>Invalid / empty root album line</source>
         <translation>Érvénytelen / üres album sor</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3241"/>
+        <location filename="../src/albums.cpp" line="3296"/>
         <source>falconG - Error</source>
         <translation>falconG - Hiba</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3242"/>
+        <location filename="../src/albums.cpp" line="3297"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation>Sérült szerkezeti fájl!
 Üzenet: &apos;</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3245"/>
+        <location filename="../src/albums.cpp" line="3300"/>
         <source>
 
 Processing aborted, because continuing
@@ -634,42 +692,47 @@ Idáig %1 sort olvastam. </translation>
 <context>
     <name>GetNewAlbumNameDialog</name>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2582"/>
+        <location filename="../src/thumbnailView.cpp" line="2592"/>
         <source>falconG - new Album</source>
         <translation>falconG -  Új album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2614"/>
+        <location filename="../src/thumbnailView.cpp" line="2624"/>
         <source>Album&apos;s name:</source>
         <translation>Album neve:</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2617"/>
+        <location filename="../src/thumbnailView.cpp" line="2627"/>
         <source>Name of the new album</source>
         <translation>Az új album neve</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2640"/>
+        <location filename="../src/thumbnailView.cpp" line="2641"/>
+        <source>No base album selected</source>
+        <translation>Nem választottás alap albumit</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2651"/>
         <source>O&amp;K</source>
         <translation>&amp;Rendben</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2642"/>
+        <location filename="../src/thumbnailView.cpp" line="2653"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2665"/>
+        <location filename="../src/thumbnailView.cpp" line="2676"/>
         <source>%1(%2)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.h" line="449"/>
+        <location filename="../src/thumbnailView.h" line="454"/>
         <source>Warning</source>
         <translation>Figyelem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.h" line="449"/>
+        <location filename="../src/thumbnailView.h" line="454"/>
         <source>Please select an album or enter a name.</source>
         <translation>Válassz egy albumot, vagycsak  írj be egy nevet.</translation>
     </message>
@@ -910,8 +973,8 @@ Kilépek</translation>
     </message>
     <message>
         <location filename="../src/languages.cpp" line="163"/>
-        <location filename="../src/support.cpp" line="70"/>
-        <location filename="../src/support.cpp" line="1380"/>
+        <location filename="../src/support.cpp" line="71"/>
+        <location filename="../src/support.cpp" line="1375"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
@@ -1013,23 +1076,22 @@ Ha a nyelvi szövegeket közvetlenül egy &apos;.struct&apos; fájlba írnánk b
 </translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="62"/>
+        <location filename="../src/support.cpp" line="63"/>
         <source>Unspecified message</source>
         <translation>Ismeretlen üzenet</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="71"/>
+        <location filename="../src/support.cpp" line="72"/>
         <source>No more warnings for this album</source>
         <translation>Nem kérek több figyelmeztetést ehhez az albumhoz</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="882"/>
         <source>Either can&apos;t delete 
 &apos;%1&apos;
  or can&apos;t rename &apos;%2&apos; to &apos;%1&apos;
 Modified file remains named as 
 &apos;%2&apos;</source>
-        <translation>Vagy a fájl
+        <translation type="vanished">Vagy a fájl
 &apos;%1&apos;
 nem törölhető, vagy csak a file
 &apos;%2&apos;, nem nevezhető át &apos;%1&apos;-re.
@@ -1038,61 +1100,102 @@ A módosított fájl neve
 megmarad</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="901"/>
         <source>Can&apos;t create backup file
 &apos;%1~&apos;
 Temporary file
 &apos;%2&apos;
 was not renamed</source>
-        <translation>A &apos;%1&apos; fájlról
+        <translation type="vanished">A &apos;%1&apos; fájlról
 nem készíthető biztonsági mentés.
 Az ideiglenes
 &apos;%2&apos;  fájl megmarad</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1162"/>
+        <location filename="../src/support.cpp" line="887"/>
+        <source>Can&apos;t delete existing temporary file
+&apos;%1&apos;
+</source>
+        <translation>A következő ideiglenes fájl nem törölhető
+&apos;%1&apos;
+</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="896"/>
+        <source>Can&apos;t delete existing backup file
+&apos;%1&apos;
+</source>
+        <translation>A következő biztonsági mentés fájlja nem törölhető
+&apos;%1&apos;
+</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="900"/>
+        <source>Can&apos;t rename file
+&apos;%1&apos;
+to 
+&apos;%2&apos;
+</source>
+        <translation>A 
+&apos;%1&apos;
+filet nem lehet átnevezni
+&apos;%2&apos;-re
+</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="902"/>
+        <source>Can&apos;t rename file
+&apos;%1&apos;
+to 
+&apos;%2&apos;</source>
+        <translation>A 
+&apos;%1&apos;
+filet nem lehet átnevezni
+&apos;%2&apos;-re</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="1156"/>
         <source>Destination file</source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1162"/>
+        <location filename="../src/support.cpp" line="1156"/>
         <source>exists and image override is not allowed!</source>
         <translation>fájl létezik és nem szabad felülírnom!</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1209"/>
+        <location filename="../src/support.cpp" line="1203"/>
         <source>Invalid sizes for thumbnail</source>
         <translation>Érvénytelen kis-kép méretek</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1331"/>
+        <location filename="../src/support.cpp" line="1325"/>
         <source>falconG - Question</source>
         <translation>falconG - kérdés</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1333"/>
+        <location filename="../src/support.cpp" line="1327"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation>A &apos;%1&apos; mappa nem létezik. Létrehozzam?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1336"/>
+        <location filename="../src/support.cpp" line="1330"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb! (A Beállításokban visszakapcsolhatod a kérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1379"/>
+        <location filename="../src/support.cpp" line="1374"/>
         <source>Can&apos;t create folder</source>
         <translation>Nem tudom létrehozni a mappát</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1446"/>
+        <location filename="../src/support.cpp" line="1441"/>
         <source>falconG</source>
         <translation>falconG</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1446"/>
+        <location filename="../src/support.cpp" line="1441"/>
         <source>Really remove %1 and all of its content?</source>
         <translation>Tényleg töröljem %1 -et a tartalmával együtt?</translation>
     </message>
@@ -1233,7 +1336,7 @@ programmal készítették. - © A.Sólyom 2018-2024</translation>
         <translation>Rendszerszínek</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3633"/>
+        <location filename="../src/albums.cpp" line="3688"/>
         <source>Conversion error:
 &apos;%1&apos;
 Error code:%2
@@ -1255,12 +1358,12 @@ programmal készítették. - © A.Sólyom 2018-%1</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/support.cpp" line="151"/>
+        <location filename="../src/support.cpp" line="152"/>
         <source>images</source>
         <translation>képek</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="151"/>
+        <location filename="../src/support.cpp" line="153"/>
         <source>albums</source>
         <translation>albumok</translation>
     </message>
@@ -1269,27 +1372,26 @@ programmal készítették. - © A.Sólyom 2018-%1</translation>
         <translation type="vanished">A kiválasztott %1 / %2 elemet &lt;i&gt;törölni&lt;/i&gt; is akarod, vagy csak eltávolítani a galériából?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="155"/>
+        <location filename="../src/support.cpp" line="158"/>
         <source>image</source>
         <translation>kép</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="156"/>
+        <location filename="../src/support.cpp" line="159"/>
         <source>album</source>
         <translation>album</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="173"/>
         <source>falconG - Question</source>
-        <translation>falconG - Kérdés</translation>
+        <translation type="vanished">falconG - Kérdés</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="160"/>
+        <location filename="../src/support.cpp" line="173"/>
         <source>Just remove</source>
         <translation>Csak az albumból</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="38"/>
+        <location filename="../src/support.cpp" line="39"/>
         <source>falconG  - Setting up...
 
 
@@ -1306,34 +1408,68 @@ programmal készítették. - © A.Sólyom 2018-%1</translation>
         <translation type="vanished">Le is akarod törölni a kiválasztott %1 /%2 a lemezről (beleértve a benne levő albumokatés azokban a fájlokat is), vagy csak a galériából akarod kivenni azokat?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="152"/>
         <source>Do you want to delete selected %1 / %2 from disk
 (including items and sub-albums for album),
 or just to remove them from gallery?</source>
-        <translation>Le is akarod törölni a kiválasztott %1 /%2 a lemezről (beleértve a benne levő albumokatés azokban a fájlokat is), vagy csak a galériából akarod kivenni azokat?</translation>
+        <translation type="vanished">Le is akarod törölni a kiválasztott %1 /%2 a lemezről (beleértve a benne levő albumokatés azokban a fájlokat is), vagy csak a galériából akarod kivenni azokat?</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="158"/>
+        <location filename="../src/support.cpp" line="154"/>
+        <source>them</source>
+        <translation>elemek</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="155"/>
+        <source>Do you want to delete selected %1 / %2 from disk,
+including images/videos and sub-albums inside selected albums,
+or just to remove %3 from gallery?</source>
+        <translation>Le is akarod törölni a kiválasztott %1 /%2 a lemezről
+(beleértve a benne levő albumokatés azokban a fájlokat is),
+ vagy csak a galériából akarod kivenni %3?</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="160"/>
+        <source>it</source>
+        <translation>azok</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="163"/>
         <source>falconG - Delete Images and albums</source>
         <translation>falconG - Képek és albumok törlése</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="161"/>
+        <location filename="../src/support.cpp" line="166"/>
+        <source>This operation cannot be undone!
+
+Even selecting &apos;From disk&apos; does not quaranty the selection
+will be removed from disk. They may appear in other albums.
+If a base - non alias - album, which has aliases is deleted,
+its items are transferred into one of its aliases and the 
+folder and its items remain intact.</source>
+        <translation>Ez a művelet nem visszavonható!
+
+Még a &quot;Lemezről is&quot; opció kiválasztása sem garantálja
+a  fizikai letörlést, mivel azok más albumokban is előfordulnak.
+Ha egy olyan alap (nem hivatkozás) albumot törölsz, amire
+vannak hivatkozások, akkor a tartalom átkerül az első
+hivatkozásba és nem törlődik.</translation>
+    </message>
+    <message>
+        <location filename="../src/support.cpp" line="174"/>
         <source>From disk</source>
         <translation>Lemezről is</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="162"/>
+        <location filename="../src/support.cpp" line="175"/>
         <source>Cancel</source>
         <translation>Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="174"/>
         <source>This will delete all selected images and folders from disk.
 This cannot be undone.
 
 Are you &gt;&gt;really&lt;&lt; sure you want to do this?</source>
-        <translation>Ez az összes kijelölt képet és mappát letörli a leemzről.
+        <translation type="vanished">Ez az összes kijelölt képet és mappát letörli a leemzről.
 Ez nem visszavonható művelet.
 Abszolút biztos vagy benne, hogy ezt akarod?</translation>
     </message>
@@ -1358,7 +1494,7 @@ Abszolút biztos vagy benne, hogy ezt akarod?</translation>
 		</translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="1263"/>
+        <location filename="../src/albums.cpp" line="1268"/>
         <source>There&apos;s already a non virtual album named 
 &apos;%1&apos;
  here.
@@ -1369,7 +1505,15 @@ Add an alias to it instead!</source>
 Használj egy másik nevet!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2624"/>
+        <location filename="../src/thumbnailView.cpp" line="239"/>
+        <location filename="../src/treeView.cpp" line="89"/>
+        <source>
+--- Alias for &apos;%1&apos;</source>
+        <translation>
+--- Hivatkozás &apos;%1&apos;-re</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2634"/>
         <source>Select an album from the left
 this new album will be an alias for:</source>
         <translation>Válaasz egy albumot, aminek ez csak hivatkozása lesz:</translation>
@@ -1601,24 +1745,24 @@ Abszolút biztos vagy benne, hogy ezt akarod?</translation>
 <context>
     <name>ThumbnailView</name>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="667"/>
+        <location filename="../src/thumbnailView.cpp" line="669"/>
         <source>Selected %1 of %2</source>
         <translation>%1 elemet választott ki a %2-ből</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/thumbnailView.cpp" line="668"/>
+        <location filename="../src/thumbnailView.cpp" line="670"/>
         <source> %n %3</source>
         <translation>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="669"/>
+        <location filename="../src/thumbnailView.cpp" line="671"/>
         <source>item</source>
         <translation>elem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="669"/>
+        <location filename="../src/thumbnailView.cpp" line="671"/>
         <source>items</source>
         <translation></translation>
     </message>
@@ -1635,25 +1779,61 @@ Cancel: to move the items at front of this folder!</source>
 Elvet (vagy Esc): mozgatás a megjelölt album elé!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1425"/>
+        <location filename="../src/thumbnailView.cpp" line="1435"/>
         <source>%1 item(s)</source>
         <translation>%1 elem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1427"/>
+        <location filename="../src/thumbnailView.cpp" line="1437"/>
         <source>No items</source>
         <translation>Nincsenek elemek</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1065"/>
-        <location filename="../src/thumbnailView.cpp" line="1487"/>
-        <location filename="../src/thumbnailView.cpp" line="2117"/>
-        <location filename="../src/thumbnailView.cpp" line="2519"/>
+        <location filename="../src/thumbnailView.cpp" line="1049"/>
+        <location filename="../src/thumbnailView.cpp" line="1077"/>
+        <location filename="../src/thumbnailView.cpp" line="1497"/>
+        <location filename="../src/thumbnailView.cpp" line="2125"/>
+        <location filename="../src/thumbnailView.cpp" line="2529"/>
         <source>falconG - Warning</source>
         <translation>falconG - Figyelmeztetés</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1487"/>
+        <location filename="../src/thumbnailView.cpp" line="1015"/>
+        <source>Move into this folder or just reposition before it?</source>
+        <translation>Mozgassuk be ebbe a mappába, vagy csak elé rakjuk?</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1049"/>
+        <source>Ivalid move!
+Album 
+&apos;%1&apos;
+ is either an alias for album
+&apos;%2&apos;
+or they are aliases of the same album.
+Cancelling move.</source>
+        <translation>Nem hajtható végre! 
+&apos;%1&apos; 
+vagy egy hivatkozás 
+&apos;%2&apos;-re,
+vagy mindkettő hivatkozás ugyanarra az albumra.
+Kilépek innen.</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1073"/>
+        <source>The album &apos;%1&apos; to be moved is already in the destination album &apos;%2&apos;.
+</source>
+        <translation>Az áthelyezni kívánt &apos;%1&apos; nevű album már létezik a &apos;%2&apos;  cél albumban.
+</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1075"/>
+        <source>under the name &apos;%1&apos;
+</source>
+        <translation>ott a neve &apos;%1&apos;
+</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1497"/>
         <source>Adding new image / video failed!</source>
         <translation>Új kép/video hozzáadása sikertelen!</translation>
     </message>
@@ -1666,22 +1846,22 @@ Elvet (vagy Esc): mozgatás a megjelölt album elé!</translation>
         <translation type="vanished">&amp;Beállítás album kisképként</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1790"/>
+        <location filename="../src/thumbnailView.cpp" line="1800"/>
         <source>Find missing item</source>
         <translation>Hiányzó elem keresése</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1808"/>
+        <location filename="../src/thumbnailView.cpp" line="1818"/>
         <source>Toggle &apos;Keep Original Size&apos;</source>
         <translation>&apos;Eredeti méret megtartása&apos; Ki/be</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1816"/>
+        <location filename="../src/thumbnailView.cpp" line="1826"/>
         <source>Copy &amp;Name(s)</source>
         <translation>&amp;Név/nevek vágólapra</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1820"/>
+        <location filename="../src/thumbnailView.cpp" line="1830"/>
         <source>Copy &amp;Original Name(s)</source>
         <translation>&amp;Eredeti név / nevek 
 vágólapra</translation>
@@ -1695,62 +1875,59 @@ vágólapra</translation>
         <translation type="vanished">&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1827"/>
+        <location filename="../src/thumbnailView.cpp" line="1837"/>
         <source>&amp;New Folder...</source>
         <translation>Ú&amp;j mappa...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1015"/>
+        <location filename="../src/thumbnailView.cpp" line="1019"/>
         <source>&amp;Move into</source>
         <translation>&amp;Bemozgatás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1061"/>
         <source>The album &apos;%1&apos; to be moved is already in the destination album &apos;%2&apos;.</source>
-        <translation>Az áthelyezni kívánt &apos;%1&apos; nevű album már létezik a &apos;%2&apos;  cél albumban.</translation>
+        <translation type="vanished">Az áthelyezni kívánt &apos;%1&apos; nevű album már létezik a &apos;%2&apos;  cél albumban.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1063"/>
         <source>under the name &apos;%1&apos;</source>
-        <translation>&apos;%1&apos; néven</translation>
+        <translation type="vanished">&apos;%1&apos; néven</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1064"/>
+        <location filename="../src/thumbnailView.cpp" line="1076"/>
         <source>Please remove it from the selection!</source>
         <translation>Vedd ki a kiválasztásból légy szíves!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1836"/>
+        <location filename="../src/thumbnailView.cpp" line="1846"/>
         <source>Add &amp;Images/Videos from disk ...</source>
         <translation>Ú&amp;j kép/video hozzáadása ...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1841"/>
+        <location filename="../src/thumbnailView.cpp" line="1851"/>
         <source>Add &amp;Folder from disk...</source>
         <translation>&amp;Mappa hozzáadása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1849"/>
+        <location filename="../src/thumbnailView.cpp" line="1859"/>
         <source>&amp;Synchronize texts</source>
         <translation>S&amp;zövegek szinkronizálása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1858"/>
         <source>&amp;Remove</source>
-        <translation>&amp;Eltávolítás</translation>
+        <translation type="vanished">&amp;Eltávolítás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1866"/>
+        <location filename="../src/thumbnailView.cpp" line="1876"/>
         <source>&amp;Undo Delete</source>
         <translation>&amp;Visszavonás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1980"/>
+        <location filename="../src/thumbnailView.cpp" line="1988"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation>Ne kérdezzen rá legközelebb (A Beállításokban visszakapcsolhatod a rákérdezést)</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2117"/>
+        <location filename="../src/thumbnailView.cpp" line="2125"/>
         <source>Adding new album failed!
 
 %1
@@ -1766,7 +1943,7 @@ Az albumnevek egyediek kell legyenek.</translation>
         <translation type="vanished">Ilyen nevű mappa már létezik.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2141"/>
+        <location filename="../src/thumbnailView.cpp" line="2149"/>
         <source>Unknown error: Folder created but wasn&apos;t added to gallery</source>
         <translation>Ismeretlen hiba: A mappa létrejött, de nem lehetett a galériához adni</translation>
     </message>
@@ -1777,12 +1954,12 @@ on disk was unsuccessful</source>
         <translation type="vanished">A &apos;%1&apos; mappát nem lehetett létrehozni</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2301"/>
+        <location filename="../src/thumbnailView.cpp" line="2311"/>
         <source>Image files (*.bmp *.gif *.jpg *.png)</source>
         <translation>Kép fájlok(*.bmp *.gif *.jpg *.png)</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2303"/>
+        <location filename="../src/thumbnailView.cpp" line="2313"/>
         <source>falconG - Open file for Thumbnail</source>
         <translation>Kiskép fájl betöltése</translation>
     </message>
@@ -1811,8 +1988,8 @@ on disk was unsuccessful</source>
         <translation type="vanished">album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1010"/>
-        <location filename="../src/thumbnailView.cpp" line="1974"/>
+        <location filename="../src/thumbnailView.cpp" line="1014"/>
+        <location filename="../src/thumbnailView.cpp" line="1982"/>
         <source>falconG - Question</source>
         <translation>falconG - Kérdés</translation>
     </message>
@@ -1821,7 +1998,7 @@ on disk was unsuccessful</source>
         <translation type="vanished">Lemezről is</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2519"/>
+        <location filename="../src/thumbnailView.cpp" line="2529"/>
         <source>File names do not match.
 Do you accept the new name?</source>
         <translation>A fájl nevek nem egeyznek meg
@@ -1840,7 +2017,7 @@ Are you &gt;&gt;really&lt;&lt; sure you want to do this?</source>
 Abszolút biztos vagy benne, hogy ezt akarod?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1975"/>
+        <location filename="../src/thumbnailView.cpp" line="1983"/>
         <source>This will set the texts to all of selected items
 to be the same as the item under the cursor when
 you choose this menu option
@@ -1858,22 +2035,21 @@ Ez egy nem visszavonható művelet!
 Bistos ezt akarod?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1020"/>
+        <location filename="../src/thumbnailView.cpp" line="1024"/>
         <source>Cancel</source>
         <translation>Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1011"/>
         <source>Move into this folder or move before it?</source>
-        <translation>Mozgassuk be ebbe a mappába, vagy csak elé rakjuk?</translation>
+        <translation type="vanished">Mozgassuk be ebbe a mappába, vagy csak elé rakjuk?</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1012"/>
+        <location filename="../src/thumbnailView.cpp" line="1016"/>
         <source>Press &apos;Cancel&apos; to discard possible position changes.</source>
         <translation>Nyomd meg az &quot;Elvet&apos; gombot, ha elveted a változásokat.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1014"/>
+        <location filename="../src/thumbnailView.cpp" line="1018"/>
         <source>Re&amp;position</source>
         <translation>Át&amp;helyezés</translation>
     </message>
@@ -1882,27 +2058,32 @@ Bistos ezt akarod?</translation>
         <translation type="vanished">&amp;Bemozgatás</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1745"/>
+        <location filename="../src/thumbnailView.cpp" line="1755"/>
         <source>Select As Album Thumbnail...</source>
         <translation>Album kiskép kiválasztása...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1775"/>
+        <location filename="../src/thumbnailView.cpp" line="1785"/>
         <source>Bro&amp;wse for Album Thumbnail...</source>
         <translation>Album kiské&amp;p a lemezről...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1781"/>
+        <location filename="../src/thumbnailView.cpp" line="1791"/>
         <source>Set As &amp;Thumbnail for Container</source>
         <translation>&amp;Legyen kiskép a befoglaló album számára</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1831"/>
+        <location filename="../src/thumbnailView.cpp" line="1841"/>
         <source>&amp;Rename Folder...</source>
         <translation>&amp;Mappa átnevezése...</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2039"/>
+        <location filename="../src/thumbnailView.cpp" line="1868"/>
+        <source>&amp;Remove/Delete</source>
+        <translation>&amp;Eltávolítás/Törlés</translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="2047"/>
         <source>falconG - Add images/videos</source>
         <translation>Új kép/video hozzáadása</translation>
     </message>
@@ -1916,12 +2097,12 @@ Please use a different name!</source>
         <translation type="vanished">A névben meg nem engedett jelek vannak. Kérlek javítsd!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2215"/>
+        <location filename="../src/thumbnailView.cpp" line="2225"/>
         <source>falconG - Rename Virtual Album</source>
         <translation>falconG - Virtuális mappa átnevezése</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2216"/>
+        <location filename="../src/thumbnailView.cpp" line="2226"/>
         <source>Old name:%1
 
 New name:</source>
@@ -1936,7 +2117,7 @@ Maybe the album is already in the gallery.</source>
 Talán ez a mappa már szerepel valahol.</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2161"/>
+        <location filename="../src/thumbnailView.cpp" line="2169"/>
         <source>falconG - Add Directory</source>
         <translation>falconG - Mappa kiválasztása</translation>
     </message>
@@ -1959,12 +2140,12 @@ Please use a different name!</source>
 Használj egy másik nevet!</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2397"/>
+        <location filename="../src/thumbnailView.cpp" line="2407"/>
         <source>falconG - Select Thumbnail Image</source>
         <translation>falconG - Kiskép kiválasztása</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2507"/>
+        <location filename="../src/thumbnailView.cpp" line="2517"/>
         <source>falconG - Find file: </source>
         <translation>falconG - Fájl keresése: </translation>
     </message>
