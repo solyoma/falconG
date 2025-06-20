@@ -1240,19 +1240,24 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t b
 	if (path.isEmpty())
 	{
 		Album* pBase = nullptr;
-		if( (baseAlbumID != NO_ID) && (pBase = albumgen.AlbumForIDVal(baseAlbumID)) != nullptr)   // this may also be an alias
-		{
-			pBase = pBase->BaseAlbum();				   // the album with the 'baseAlbumId may itself be an alias
-			baseAlbumID = pBase->ID.Val();             // and we need the real base album id *just one lvele of aliases
+		if( (baseAlbumID != NO_ID) && (pBase = albumgen.AlbumForIDVal(baseAlbumID)) != nullptr)   // '*pBase' may also be an alias
+		{											   // but if so its base album can't be, because just one level of aliases
+			pBase = pBase->BaseAlbum();				   // so this will be the base album in all cases, so
+			baseAlbumID = pBase->ID.Val();             // get the real base album id (again: only one level of aliases!)
 		}
 		ab.baseAlbumId = baseAlbumID;
 		QString vpath = MakeRandomStringOfLength(10) + "/" + ab.name;
 		ab.ID = GetUniqueAlbumID(*this, vpath, false);   // using full path name only and not file content
 		ab.pathId = 0;
-		if (pBase)
+
+		if (pBase)	// add this to base's aliases and copy thumbnail and texts from base album
 		{
 			pBase->aliasesList.push_back(ab.ID.Val());	// add this album to the aliases of the base album
 			ab.thumbnailId = pBase->thumbnailId;
+			if (pBase->thumbnailId.Val())
+				++albumgen.ImageAt(pBase->thumbnailId)->thumbnailCount;	// increase thumbnail count of the base album's thumbnail
+			ab.titleID = pBase->titleID;
+			ab.descID = pBase->descID;
 		}
 	}
 	else
@@ -1681,6 +1686,30 @@ QString AlbumGenerator::_EncodeTitle(QString title)
 		title.replace("\"", "\\\"");
 	}
 	return title;
+}
+
+void AlbumGenerator::_SwapAlbumWithAlias(Album& album, Album* pAlias, bool removeOld)
+{
+	if (!pAlias)
+		return;
+
+	pAlias->items = album.items;
+	pAlias->pathId = album.pathId;
+	pAlias->baseAlbumId = 0;                        // this will become the new base album
+
+	pAlias->aliasesList = album.aliasesList;      // transfer aliases
+	pAlias->aliasesList.remove(pAlias->ID.Val());   // and exlude pAlias from them
+	for (auto& ali : pAlias->aliasesList)           // set this as base for other aliases
+		albumgen.Albums().AlbumForIDVal(ali)->baseAlbumId = pAlias->ID.Val();
+	if (!removeOld)
+	{
+		pAlias->aliasesList.push_back(album.ID.Val());	// add original base album as an alias here
+		album.baseAlbumId = pAlias->ID.Val();
+		album.items.clear();
+		album.aliasesList.clear();
+	}
+	else
+		_albumMap.remove(album.ID);
 }
 
 /*============================================================================
@@ -5339,10 +5368,14 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
 	}
 }
 
+//********** flag to confine the number of error messages
+static bool __bMessageShown = false;
+
 /*=============================================================
  * TASK:   recursive source album, and image/video deletion
  *			from data base and conditionally from disk
  * PARAMS:	album			 - remove from this album's items
+ *								'album' is a not an alias
  *			ix:				 - index of item to remove from 'items'
  *			fromDisk		 - delete source files from disk too
  * GLOBALS:
@@ -5353,27 +5386,47 @@ void AlbumGenerator::_RemainingDisplay::Update(int cnt)
  *			- tries to move files into trashcan/recycle bin first
  *			- only deletes images when no album contains them and
  *				they are not used as thumbnails either. Otherwise
- *				just decrement the counters
+ *				just decrement the image counters
  *------------------------------------------------------------*/
 void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 {
 	QString path; 
-	ID_t id = album.items[ix];
-	if (id.IsAlbum()) // this item is an album, so all of >>its<< items
-	{						// must be removed
+	ID_t idSub = album.items[ix];
+	if (idSub.IsAlbum()) // this item is an album, so all of >>its<< items
+	{				  // must be removed, unless this is an alias
 
-		if (id.Val() == NO_ID)		// error: 
+		if (idSub.Val() == NO_ID)		// error: 
 		{
 			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid album ID. Can't be removed"), QMessageBox::StandardButton::Close);
 			return;
 		}
 
-		Album& subAlbum = _albumMap[id];
-		path = subAlbum.FullSourceName();
-		_RemoveAllItemsFrom(id, fromDisk);
-		if (album.thumbnailId.Val() && _imageMap.contains(album.thumbnailId))
+		Album& subAlbum = _albumMap[idSub];
+		if (subAlbum.baseAlbumId != NO_ID)
 		{
-			Image* img = &_imageMap[album.thumbnailId];
+			if (!__bMessageShown)
+			{
+				__bMessageShown = true;
+				QMessageBox::warning(frmMain, tr("falcoG - Warning"), tr("Found an album alias. Album aliases are just removed from database\n"
+													"but their content isn't removed.\n\nNo more warning during this operation"), QMessageBox::Close);
+			}
+		}
+		else   // for base albums: remove items unless there are aliases for it
+		{
+			if (subAlbum.aliasesList.isEmpty())
+				_RemoveAllItemsFrom(idSub, fromDisk);
+			else	   // it has aliases: so just move all of its data to the first alias
+			{
+				Album* pAlias = AlbumForIDVal(subAlbum.aliasesList[0]);
+				_SwapAlbumWithAlias(subAlbum, pAlias);
+			}
+
+			path = subAlbum.FullSourceName(); // used for physical removals of folder from disk
+		}
+		// album thumbnail
+		if (subAlbum.thumbnailId.Val() && _imageMap.contains(subAlbum.thumbnailId))
+		{
+			Image* img = &_imageMap[subAlbum.thumbnailId];
 			--img->thumbnailCount;
 			if (!img->usageCount && !img->thumbnailCount)
 			{
@@ -5382,35 +5435,38 @@ void AlbumGenerator::_RemoveItem(Album& album, int ix, bool fromDisk)
 					QFile::remove(path);
 			}
 		}
-		_albumMap.remove(id);
-		// folders and files may be left in sub-folders
-		// if they were not in the data base even after this!
-		if (fromDisk && album.pathId != NO_ID && !QFile::moveToTrash(path))
+		// both for base albums and aliases remove them from database
+		 
+		// If the album has a physical folder on disk, first try to move it to trash
+		// but if it doesn't work, then remove the folder recursively
+		// In both cases all files inside the album folder will be deleted!
+		if (fromDisk && subAlbum.pathId != NO_ID && !QFile::moveToTrash(path))
 			RemoveFolderRecursively(path);		// so those must also be deleted
 
+		_albumMap.remove(idSub);
 		album.DecrementAlbumCount();
 	}
 	else 
 	{
-		if (id.IsImage())    // remove from 'album'
+		if (idSub.IsImage())    // remove from 'album'
 		{
-			Image* img = &_imageMap[id];
+			Image* img = &_imageMap[idSub];
 			if (!--img->usageCount && (!img->thumbnailCount)) 		// nobody uses this?
 			{	// if only used as thumbnail and the file is removed from disk, can't keep it
 				path = img->FullSourceName();
-				_imageMap.remove(id);
+				_imageMap.remove(idSub);
 				if (fromDisk && (img->usageCount || img->thumbnailCount) && !QFile::moveToTrash(path))
 					QFile::remove(path);
 			}
 			album.DecrementImageCount();
 		}
-		else if (id.IsVideo())    // remove from this album
+		else if (idSub.IsVideo())    // remove from this album
 		{
-			Video* vid = &_videoMap[id];
+			Video* vid = &_videoMap[idSub];
 			if (!--vid->usageCount)
 			{
 				path = vid->FullSourceName();
-				_videoMap.remove(id);
+				_videoMap.remove(idSub);
 				if (fromDisk && (vid->usageCount) && !QFile::moveToTrash(path))
 					QFile::remove(path);
 			}
@@ -5444,27 +5500,36 @@ void AlbumGenerator::_RemoveAllItemsFrom(ID_t albumID , bool fromDisk)
 /*=============================================================
  * TASK:   recursive source album, and image/video deletion
  *			from data base and conditionally from disk
- * PARAMS: albumID			 - remove from this album's items
+ * PARAMS: albumIDVal		 - remove from this album's items
  *		   iconsForThisAlbum - remove also icons for items
  *		   ilx				 - list of indexes in album's items
  *								of items to be removed
- *			fromDisk		 - delete source files from disk too
+ *		   fromDisk			 - delete source files from disk too
+ * EXPECTS: this is not an alias album. Can't delete anything from 
+ *			an Alias albums. This must be dealt of in caller
  * GLOBALS:
  * RETURNS:
- * REMARKS:	- if any item to be deleted is a folder and 'fromDisk' is set all files inside
+ * REMARKS:	- alias albums removed without any item removal of its base album
+ *			- if a non-alias album which has aliases is removed all of its items are
+ *				transferred to the first of its aliases and then the album is removed
+ *				in this cas the album is NOT removed from disk
+ *			- if any item to be deleted is a folder and 'fromDisk' is set all files inside
  *			  it will be deleted, even if they were not in the data base
  *			- tries to move files into trashcan/recycle bin first
  *------------------------------------------------------------*/
-void AlbumGenerator::_RemoveItems(ID_t albumIDVal, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
+void AlbumGenerator::_RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromDisk)
 {
-	Album& album = _albumMap[albumIDVal];
-	QString path;
+	Album& album = _albumMap[albumID]; // remove/ delete items from here
+
+	// now this is a base album, however if it has aliases then
+	// just move everything into the first alias of this album
+
 	for (auto ix : ilx)
 		album.items[ix].SetFlag(DELETE_IT_FLAG, true);
 	// now delete marked elements (this way ilx need not be ordered)
 	for (int ix = album.items.size() - 1; ix >= 0; --ix)
 	{
-		if (album.items[ix].ShouldDelete())
+		if (album.items[ix].ShouldDelete())		// DELETE_IT_FLAG ?
 		{
 			_RemoveItem(album, ix, fromDisk);
 			if(iconsForThisAlbum)
@@ -5495,7 +5560,16 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 	//								"This cannot be undone!\n\n"
 	//								"Really remove/delete the selected items from disk?")) != QMessageBox::Yes)
 			//return;
+	Album& album = _albumMap[albumID];
+	if (album.baseAlbumId != NO_ID)	// base albums can't be modified through an alias album
+	{
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("This is an alias album, the real data is elsewhere.\n"
+																  "Can't delete items from a base album through an alias album!"), QMessageBox::Close);
+		return;
+	}
 	emit SignalAlbumStructWillChange();
+
+	__bMessageShown = false;
 	_RemoveItems(albumID, iconsForThisAlbum, ilx, fromDisk);			// also from icon list for this album
 	albumgen.WriteDirStruct(BackupMode::bmKeepBackupFile, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original
 						

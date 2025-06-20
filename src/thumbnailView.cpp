@@ -1863,7 +1863,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     if (nSelSize)
     {
 	    menu.addSeparator();
-        pact = new QAction(tr("&Remove"), this);
+        pact = new QAction(tr("&Remove/Delete"), this);
         connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
         menu.addAction(pact);
     }
@@ -1900,9 +1900,10 @@ void ThumbnailView::invertSelection()
  *          iconsForThisAlbum - should we remove the icon(s) too?
  * GLOBALS:
  * RETURNS:
- * REMARKS: does not delete generated images, videos and albums 
- *          from disk!
- *          Tries use the recycle bin (windows) or the trash (mac)
+ * REMARKS: - does not delete generated images, videos and albums 
+ *             from disk!
+ *          - Can't delete items from an alias album
+ *          - Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
 void ThumbnailView::SlotDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum)
 {
@@ -1913,9 +1914,6 @@ void ThumbnailView::SlotDeleteSelectedList(ID_t albumId, IntList& list, bool ico
         return;
 
     bool fromDisk = res == 1;       //  Yes
-            // needs reverse order   (?)
-    Album* pAlbum = albumgen.Albums()[albumId].BaseAlbum();
-	albumId = pAlbum->ID;  // set the albumId to the base album id, so that it is not an alias
     albumgen.RemoveItems(albumId, list, fromDisk, iconsForThisAlbum);  // also remove cached file icons
     _albumId = albumId;
     Reload();

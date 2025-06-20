@@ -310,7 +310,7 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	IdList items;		// for all images, videos and albums in this album GET item for position using IdOfItem!!
 
 	inline bool IsAlias() const { return baseAlbumId != NO_ID; }
-	void SetAsAliasFor(Album* thatAlbum);		// transfer all data from old base album to new base album
+	void SetAsAliasFor(Album* thatAlbum);		// transfer all data from this album to new base album
 
 	Album* BaseAlbum();					// returns the base album for this album, i.e. the one that has the items
 										// or 'this' if this is a base album
@@ -661,6 +661,9 @@ private:
 
 private:
 	//--- private functions------------------
+
+	void _SwapAlbumWithAlias(Album &album, Album *pAlias, bool andRemoveOriginalFromAlbumMap = false);
+
 	bool _MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
 	bool _IsExcluded(const Album& album, QString name);
