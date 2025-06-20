@@ -1021,14 +1021,20 @@ void FalconG::_SlotForSchemeChange(int which)
 void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 {												// row: item index
 	QModelIndex& cix = _currentTreeViewIndex;	
-	// get folder (album) index for row by discarding non-folder items
-	Album* album = albumgen.AlbumForIDVal( (IDVal_t)cix.internalPointer() );
+	// get folder (album) index for row by skipping over non-folder items
+	Album *pAlbum = albumgen.AlbumForIDVal( (IDVal_t)cix.internalPointer() ),
+		  *album = pAlbum;
 	Q_ASSERT(album);
-	int aix = 0;							 // get the row (index) of the album in the tree view
+
+	if (album->baseAlbumId)	// then an alias
+		album = album->BaseAlbum();
+
+						 // get the row (index) of the album in the tree view
+	int j = 0;
 	for (int i = 0; i < row; ++i)			 // the row-th album is we will get into
 		if (album->items[i].IsAlbum())
-			++aix;
-	emit SignalActAlbumChanged(aix);
+			++j;
+	emit SignalActAlbumChanged(album->items[j].Val());
 }
 
 void FalconG::_EnableColorSchemeButtons()

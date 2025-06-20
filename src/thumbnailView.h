@@ -303,9 +303,16 @@ private:
 	QStringList _slSearchPaths;		// paths to search missing images against
 
 private:
-	Album	*_ActAlbum() const 
+	Album	*_ActAlbum(bool getBase=false) const 		// may be an alias album!
 	{ 
-		return _albumId.Val() ? &albumgen.Albums()[_albumId] : nullptr;
+		if (_albumId.Val())
+		{
+			Album* album = albumgen.AlbumForID(_albumId);
+			if (getBase)
+				album = album->BaseAlbum();
+			return album;
+		}
+		return nullptr;
 	}
 	constexpr ID_t _ActAlbumId() const { return (_ActAlbum() ? _ActAlbum()->ID : TOPMOST_ALBUM_ID); }
     void _InitThumbs();

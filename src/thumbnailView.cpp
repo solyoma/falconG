@@ -647,12 +647,12 @@ void ThumbnailView::onSelectionChanged(const QItemSelection &)
     else if (selectedCount == 1)
 	{
         SetCurrentItem(indexesList.first().row());
-		emit SignalSingleSelection(_ActAlbum()->BaseAlbum()->items[_currentItem], _ActAlbumId());
+		emit SignalSingleSelection(_ActAlbum(true)->items[_currentItem], _ActAlbumId());
 	}
     else
     {
         IdList idList, 
-               &items = _ActAlbum()->items;
+               &items = _ActAlbum(true)->items;
         for (auto &e : indexesList)
         {
             ID_t id = items[e.row()];
@@ -907,7 +907,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
  * REMARKS: - Files and folders are not moved physically
  *          - Files and folders already in gallery are not
  *              added again. 
- *          - TODO: add folders as virtual folders
+ *          - can't drop anything onto alias albums
  *------------------------------------------------------------*/
 void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int row)
 {
@@ -997,6 +997,13 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         IntList thl = ((const ThumbMimeData*)mimeData)->thumbList;  // indices in actual album's items to move
 
         Album* pAlbum = const_cast<Album*>(_ActAlbum());
+        Q_ASSERT(pAlbum);
+        if(pAlbum->baseAlbumId != NO_ID) // then it is an alias for another album
+        {
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("You cannot drop items into an alias album.\n"
+                "Please switch to the original album '%1' first!").arg(pAlbum->BaseAlbum()->name));
+			return;
+		}
         IdList &items = pAlbum->items;   // original ordered items
 
         //IdList  droppedIds(thl.size());        // id for items at positions from 'thl'
@@ -1686,7 +1693,7 @@ void ThumbnailView::keyReleaseEvent(QKeyEvent* event)
 void ThumbnailView::wheelEvent(QWheelEvent *event)
 {
 
-    int step = verticalScrollBar()->maximum() / _ActAlbum()->items.size() * width() / (ThumbnailItem::thumbHeight + spacing());
+    int step = verticalScrollBar()->maximum() / _ActAlbum(true)->items.size() * width() / (ThumbnailItem::thumbHeight + spacing());
 
     if (event->angleDelta().y() < 0) {
         verticalScrollBar()->setValue(verticalScrollBar()->value() + step);
@@ -1803,7 +1810,6 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             }
         }
 
-
         if (nSelSize)
         {
             
@@ -1834,53 +1840,44 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
         }
     }
-	pact = new QAction(tr("&New Folder..."), this);  // create new folder, or folder alias inside actual folder
-	connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
-	menu.addAction(pact);
-
-	pact = new QAction(tr("&Rename Folder..."), this);  // rename existing folder
-	connect(pact, &QAction::triggered, this, &ThumbnailView::RenameVirtualFolder);
-	menu.addAction(pact);
-
-    menu.addSeparator();
-	pact = new QAction(tr("Add &Images/Videos from disk ..."), this);  // any number of images from a directory
-	pact->setEnabled(true);
-	connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
-	menu.addAction(pact);
-
-	pact = new QAction(tr("Add &Folder from disk..."), this);  // one folder added to the folder tree inside this album
-	connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
-	menu.addAction(pact);
-
-    if(nSelSize > 1)
+    if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
     {
-	    menu.addSeparator();
-
-        pact = new QAction(tr("&Synchronize texts"), this);
-        connect(pact, &QAction::triggered, this, &ThumbnailView::SynchronizeTexts);
+        pact = new QAction(tr("&New Folder..."), this);  // create new folder, or folder alias inside actual folder
+        connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
         menu.addAction(pact);
-    }
 
-
-    if (nSelSize)
-    {
-	    menu.addSeparator();
-        pact = new QAction(tr("&Remove/Delete"), this);
-        connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
+        pact = new QAction(tr("&Rename Folder..."), this);  // rename existing folder
+        connect(pact, &QAction::triggered, this, &ThumbnailView::RenameVirtualFolder);
         menu.addAction(pact);
+
+        menu.addSeparator();
+        pact = new QAction(tr("Add &Images/Videos from disk ..."), this);  // any number of images from a directory
+        pact->setEnabled(true);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::AddImages);
+        menu.addAction(pact);
+
+        pact = new QAction(tr("Add &Folder from disk..."), this);  // one folder added to the folder tree inside this album
+        connect(pact, &QAction::triggered, this, &ThumbnailView::AddFolder);
+        menu.addAction(pact);
+
+        if (nSelSize > 1)
+        {
+            menu.addSeparator();
+
+            pact = new QAction(tr("&Synchronize texts"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::SynchronizeTexts);
+            menu.addAction(pact);
+        }
+
+
+        if (nSelSize)
+        {
+            menu.addSeparator();
+            pact = new QAction(tr("&Remove/Delete"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
+            menu.addAction(pact);
+        }
     }
-
-
-#if 0
-    // how to make it work?
-    pact = new QAction(tr("&Undo Delete"), this);
-#define CAN_UNDO(a) (a && !a->NothingToUndo())
-	bool undo = model()->rowCount() && (CAN_UNDO() || CAN_UNDO);
-	pact->setEnabled(undo);
-	if (undo)
-		connect(pact, &QAction::triggered, this, &ThumbnailView::UndoDelete);
-	menu.addAction(pact);
-#endif
 
 	menu.exec(pevent->globalPos());
 }
@@ -2036,13 +2033,13 @@ void ThumbnailView::UndoDelete()
 
 /*=============================================================
  * TASK:   Display dialog box to add images to image list
- * EXPECTS:
+ * EXPECTS: not called for alias albums
  * GLOBALS:
  * RETURNS:
  * REMARKS: connected to popup menu
  *------------------------------------------------------------*/
 void ThumbnailView::AddImages()
-{
+{   
     QString dir = pathMap.AbsPath(albumgen.lastUsedAlbumPathId)+_ActAlbum()->name;
     QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png);;Videos(*.mp4,*.ogg);;All files(*.*)");
     if (qslFileNames.isEmpty())
@@ -2396,6 +2393,7 @@ void ThumbnailView::ToggleDontResizeFlag()
  *          and set it as album thumbnail shown on parent's
  *          image list
  * PARAMS:
+ * EXPECTS: not called for alias albums
  * GLOBALS:
  * RETURNS:
  * REMARKS:
@@ -2434,7 +2432,7 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
 {
 //    _currentIndex = mix;
     int row = mix.row();
-    ID_t id = _ActAlbum()->items[row];
+    ID_t id = _ActAlbum(true)->items[row];
     if (id.IsAlbum())
     {
         emit SignalFolderChanged(row);

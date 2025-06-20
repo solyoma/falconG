@@ -391,21 +391,22 @@ void AlbumTreeView::SlotCopyImages()
  * GLOBALS:
  * RETURNS:
  * REMARKS:	- called from thumbnailView through falconG 
- *			- don't called when the album is changed from
+ *			- doesn't called when the album is changed from
  *				AlbumTreeView
  *------------------------------------------------------------*/
-void AlbumTreeView::SlotActAlbumChanged(int row)
+void AlbumTreeView::SlotActAlbumChanged(IDVal_t idval)
 {
-	QModelIndex current = currentIndex();
-	if (current.isValid())
-	{
-		expand(current);
-#ifdef DEBUG
-		int rowCount = model()->rowCount();		 // rowCount var. only for debug
-#endif
-		QModelIndex newix = model()->index(row, 0, current);
-		setCurrentIndex(newix);
-	}
+	SlotNavigateFromBreadcrumb((void*)idval);
+//	QModelIndex current = currentIndex();
+//	if (current.isValid())
+//	{
+//		expand(current);
+//#ifdef DEBUG
+//		int rowCount = model()->rowCount();		 // rowCount var. only for debug
+//#endif
+//		QModelIndex newix = model()->index(row, 0, current);
+//		setCurrentIndex(newix);
+//	}
 }
 
 void AlbumTreeView::SlotNavigateFromBreadcrumb(void* ptr)

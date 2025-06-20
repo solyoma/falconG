@@ -93,7 +93,7 @@ signals:
 	void SignalCancelRun();
 	void SignalThumbSizeChanged(int newSize);
 	void SignalToCloseAllViewers();
-	void SignalActAlbumChanged(int row);
+	void SignalActAlbumChanged(IDVal_t idval);
 	void SignalBreadcrumbButtonPressed(void*);
 	//void SignalToClearIconList();
 private:

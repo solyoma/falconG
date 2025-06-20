@@ -116,7 +116,7 @@ public slots:
 	void SlotDeleteSelectedAlbum();
 	void SlotMoveImages();
 	void SlotCopyImages();
-	void SlotActAlbumChanged(int row);
+	void SlotActAlbumChanged(IDVal_t idval);
 	void SlotNavigateFromBreadcrumb(void*);
 
 protected:
