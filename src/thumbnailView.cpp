@@ -1677,7 +1677,8 @@ void ThumbnailView::SetInsertPos(int here)
  *------------------------------------------------------------*/
 void ThumbnailView::keyReleaseEvent(QKeyEvent* event)
 {
-    if (currentIndex().isValid() && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
+    Album& album = albumgen.Albums()[_albumId];
+    if (album.baseAlbumId == NO_ID && currentIndex().isValid() && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
         DeleteSelected();
     else
         QListView::keyReleaseEvent(event);
@@ -1747,7 +1748,7 @@ void ThumbnailView::mouseMoveEvent(QMouseEvent * event)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:
+ * REMARKS: - no modification of the content of alias albums
  *------------------------------------------------------------*/
 void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 {
@@ -1768,7 +1769,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     }
     else // album(s) or image(s) or videos are selected
     {
-        Album& album = albumgen.Albums()[_albumId];
+        Album& album = *albumgen.Albums()[_albumId].BaseAlbum();
 
         if (nSelSize == 1)
         {
@@ -1842,11 +1843,11 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     }
     if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
     {
-        pact = new QAction(tr("&New Folder..."), this);  // create new folder, or folder alias inside actual folder
+        pact = new QAction(tr("&New Album or Alias..."), this);  // create new folder, or folder alias inside actual folder
         connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
         menu.addAction(pact);
 
-        pact = new QAction(tr("&Rename Folder..."), this);  // rename existing folder
+        pact = new QAction(tr("&Rename Album..."), this);  // rename existing folder
         connect(pact, &QAction::triggered, this, &ThumbnailView::RenameVirtualFolder);
         menu.addAction(pact);
 

@@ -143,8 +143,9 @@ struct IABase
 struct Image : public IABase
 {
 	UsageCount usageCount = 0;		// image can be removed from disk only if both this 
-	UsageCount thumbnailCount = 0;	// and this are 0	Orphan thumbnails must have 0 usageCount
-	QString checksum = 0;		// of content not used YET
+	UsageCount thumbnailCount = 0;	// and this are 0. Orphan thumbnails must have 0 usageCount
+
+	QString checksum = 0;		// of content. NOT USED YET
 	bool dontResize = false;	// when image name is preceeded by double exclamation marks: !!
 								// either in the original path (this/image/!!notResized.jpg) or 
 								// in the precessed line (!!notresized(...)this/image/)
@@ -662,7 +663,7 @@ private:
 private:
 	//--- private functions------------------
 
-	void _SwapAlbumWithAlias(Album &album, Album *pAlias, bool andRemoveOriginalFromAlbumMap = false);
+	void _SwapAlbumWithAlias(Album &album, Album *pAlias);
 
 	bool _MustRecreateThumbBasedOnImageDimensions(QString thumbName, Image &img);
 	QStringList _SeparateLanguageTexts(QString line);		  // helpers
