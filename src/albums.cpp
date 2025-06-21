@@ -5410,7 +5410,7 @@ void AlbumGenerator::_RemoveItem(Album& fromAlbum, int ix, bool fromDisk)
 
 		if (idSub.Val() == NO_ID)		// error: 
 		{
-			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid fromAlbum ID. Can't be removed"), QMessageBox::StandardButton::Close);
+			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid Album ID. Can't be removed"), QMessageBox::StandardButton::Close);
 			return;
 		}
 
