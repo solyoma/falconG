@@ -2610,11 +2610,13 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
     _treeView->setModel(frmMain->GetTreeViewPointer()->model()); // use the album tree model
     _treeView->setRootIsDecorated(false);
     _treeView->expandAll();
+    _treeView->setMinimumWidth(300);
     // DEBUG
     //int n = _treeView->model()->rowCount(),
     //    n1= frmMain->GetTreeViewPointer()->model()->rowCount();        
 
-    _treeView->setEnabled(false); // until the checkbox is checked
+    // _treeView->setEnabled(false); // until the checkbox is checked
+    _treeView->setVisible(false);
 	w->layout()->addWidget(_treeView);
 
     // the right side asks for the new album data
@@ -2630,10 +2632,11 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
     layout->addWidget(label);
     layout->addWidget(_lineEdit);
 
-    _checkBox = new QCheckBox(QObject::tr("Select an album from the left\nthis new album will be an alias for:"), this);
+    _checkBox = new QCheckBox(QObject::tr("Use as alias for:"), this);
 
-    connect(_checkBox, &QCheckBox::toggled, this, [this](bool checked) {
-        _treeView->setEnabled(checked);
+    connect(_checkBox, &QCheckBox::toggled, this, [this, w](bool checked) {
+		// _treeView->setEnabled(checked); 
+        _treeView->setVisible(checked);
         });
     layout->addWidget(_checkBox);
     _lblBaseName = new QLabel();

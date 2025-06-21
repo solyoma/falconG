@@ -708,32 +708,32 @@ Idáig %1 sort olvastam. </translation>
         <translation>falconG -  Új album</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2623"/>
+        <location filename="../src/thumbnailView.cpp" line="2625"/>
         <source>Album&apos;s name:</source>
         <translation>Album neve:</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2626"/>
+        <location filename="../src/thumbnailView.cpp" line="2628"/>
         <source>Name of the new album</source>
         <translation>Az új album neve</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2640"/>
+        <location filename="../src/thumbnailView.cpp" line="2643"/>
         <source>No base album selected</source>
         <translation>Nem választottás alap albumit</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2650"/>
+        <location filename="../src/thumbnailView.cpp" line="2653"/>
         <source>O&amp;K</source>
         <translation>&amp;Rendben</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2652"/>
+        <location filename="../src/thumbnailView.cpp" line="2655"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Mégsem</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2675"/>
+        <location filename="../src/thumbnailView.cpp" line="2678"/>
         <source>%1(%2)</source>
         <translation></translation>
     </message>
@@ -1524,10 +1524,14 @@ Használj egy másik nevet!</translation>
 --- Hivatkozás &apos;%1&apos;-re</translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2633"/>
+        <location filename="../src/thumbnailView.cpp" line="2635"/>
+        <source>Use as alias for:</source>
+        <translation>Llegyen hivatkozás a következőre:</translation>
+    </message>
+    <message>
         <source>Select an album from the left
 this new album will be an alias for:</source>
-        <translation>Válaasz egy albumot, aminek ez csak hivatkozása lesz:</translation>
+        <translation type="vanished">Válaasz egy albumot, aminek ez csak hivatkozása lesz:</translation>
     </message>
 </context>
 <context>

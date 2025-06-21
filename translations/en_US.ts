@@ -617,32 +617,32 @@ could destroy your old .struct file!
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2623"/>
+        <location filename="../src/thumbnailView.cpp" line="2625"/>
         <source>Album&apos;s name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2626"/>
+        <location filename="../src/thumbnailView.cpp" line="2628"/>
         <source>Name of the new album</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2640"/>
+        <location filename="../src/thumbnailView.cpp" line="2643"/>
         <source>No base album selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2650"/>
+        <location filename="../src/thumbnailView.cpp" line="2653"/>
         <source>O&amp;K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2652"/>
+        <location filename="../src/thumbnailView.cpp" line="2655"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2675"/>
+        <location filename="../src/thumbnailView.cpp" line="2678"/>
         <source>%1(%2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1246,9 +1246,8 @@ Add an alias to it instead!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2633"/>
-        <source>Select an album from the left
-this new album will be an alias for:</source>
+        <location filename="../src/thumbnailView.cpp" line="2635"/>
+        <source>Use as alias for:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
