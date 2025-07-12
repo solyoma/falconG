@@ -118,10 +118,10 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Preview (F12)</string>
+          <string>Preview (F11)</string>
          </property>
          <property name="shortcut">
-          <string>F12</string>
+          <string>F11</string>
          </property>
         </widget>
        </item>
@@ -2728,8 +2728,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3121,7 +3121,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>419</width>
+                         <width>426</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -6195,8 +6195,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

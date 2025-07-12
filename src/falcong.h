@@ -275,19 +275,19 @@ private slots:
 	void on_btnResetDesign_clicked();
 	void on_btnResetDialogs_clicked();
 	void on_btnSaveConfig_clicked();
+	void on_btnSaveStruct_clicked();
 	void on_btnSaveStyleSheet_clicked();
+	void on_btnSelectSourceGallery_clicked();
 	void on_btnSelectUplinkIcon_clicked();
 	void on_btnSelectWmFont_clicked();
 	void on_btnShadowColor_clicked();
-	void on_btnSelectSourceGallery_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
-	void on_btnSaveStruct_clicked();
 	
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 	void on_cbBaseLanguage_currentIndexChanged(int index);
-	void on_cbDefineLanguge_currentIndexChanged(int index);
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
+	void on_cbDefineLanguge_currentIndexChanged(int index);
 	void on_cbFontSizeInPoints_currentTextChanged(const QString& txt);
 	void on_cbFonts_currentIndexChanged(int index);
 	void on_cbImageBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
@@ -303,10 +303,8 @@ private slots:
 	void on_chkAddTitlesToAll_toggled(bool);
 	void on_chkBackgroundOpacity_toggled(bool on);
 	void on_chkBold_toggled(bool);
-	void on_chkCleanupGallery_toggled(bool on);
-	void on_chkRegenAllImages_toggled(bool);
-	void on_chkNoImages_toggled(bool);
 	void on_chkCanDownload_toggled(bool);
+	void on_chkCleanupGallery_toggled(bool on);
 	void on_chkCropThumbnails_toggled(bool);
 	void on_chkDebugging_toggled(bool);
 	void on_chkDifferentFirstLine_toggled(bool b);
@@ -321,13 +319,14 @@ private slots:
 	void on_chkItalic_toggled(bool);
 	void on_chkKeepDuplicates_toggled(bool);
 	void on_chkLowerCaseImageExtensions_toggled(bool);
-	void on_chkUseMaxItemCountPerDir_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
 	void on_chkMenuToContact_toggled(bool);
 	void on_chkMenuToDescriptions_toggled(bool);
 	void on_chkMenuToToggleCaptions_toggled(bool);
+	void on_chkNoImages_toggled(bool);
 	void on_chkOvrImages_toggled(bool);		// used for image processing
 	void on_chkReadFromGallery_toggled(bool);
+	void on_chkRegenAllImages_toggled(bool);
 	void on_chkRightClickProtected_toggled(bool);
 	void on_chkSeparateFoldersForLanguages_toggled(bool);
 	void on_chkSetAll_toggled(bool);			// background colors
@@ -340,6 +339,7 @@ private slots:
 	void on_chkTextOpacity_toggled(bool on);
 	void on_chkUseGoogleAnalytics_toggled(bool);
 	void on_chkUseGradient_toggled(bool on);
+	void on_chkUseMaxItemCountPerDir_toggled(bool);
 	void on_chkUseWMShadow_toggled(bool);				// watermark
 	void on_chkUseWM_toggled(bool);				// watermark
 	
@@ -350,20 +350,21 @@ private slots:
 	void on_edtBckPathOnServer_textChanged();
 	void on_edtDefaultFonts_textChanged();
 	void on_edtDescriptionText_textChanged();
-	void on_edtSiteDescription_textChanged();
 	void on_edtDestGallery_textChanged();
 	void on_edtEmailTo_textChanged();
 	void on_edtFontDir_textChanged();
 	void on_edtFontFamily_textChanged();
 	void on_edtGalleryLanguages_textChanged();
-	void on_edtSourceGallery_textChanged();
+	void on_edtGalleryRoot_textChanged();
 	void on_edtGalleryTitle_textChanged();
 	void on_edtGoogleFonts_editingFinished();
 	void on_edtImg_textChanged();
 	void on_edtKeywords_textChanged();
 	void on_edtMainPage_textChanged();
 	void on_edtServerAddress_textChanged();
+	void on_edtSiteDescription_textChanged();
 	void on_edtSourceGallery_editingFinished();
+	void on_edtSourceGallery_textChanged();
 	void on_edtThumb_textChanged();
 	void on_edtTitleText_textChanged();
 	void on_edtTrackingCode_textChanged();
@@ -413,8 +414,8 @@ private slots:
 	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
 	void on_sbImageMatteWidth_valueChanged(int val);
 	void on_sbImageWidth_valueChanged(int w);			// image width
-	void on_sbMaxItemCountPerDir_valueChanged(int n);
 	void on_sbLatestCount_valueChanged(int val);
+	void on_sbMaxItemCountPerDir_valueChanged(int n);
 	void on_sbNewDays_valueChanged(int val);
 	void on_sbShadowBlur1_valueChanged(int val);
 	void on_sbShadowBlur2_valueChanged(int val);

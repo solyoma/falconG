@@ -3142,7 +3142,22 @@ void FalconG::on_edtFontFamily_textChanged()
 void FalconG::on_edtGalleryLanguages_textChanged()
 {
 	config.sGalleryLanguages = ui.edtGalleryLanguages->text().trimmed();
-	_SetConfigChanged(true);
+	_SetConfigChanged(config.sGalleryLanguages.Changed());
+}
+
+/*=============================================================
+ * TASK   :
+ * PARAMS :
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::on_edtGalleryRoot_textChanged()
+{
+	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
+	_SetConfigChanged(config.dsGRoot.Changed());
+	_EnableButtons();
 }
 
 /*============================================================================
