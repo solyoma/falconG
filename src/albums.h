@@ -180,17 +180,26 @@ private:
 								// 0: unset, else if owidth/oheight : aspect ratio >1 => landscape orientation
 };
 //------------------------------------------
-struct Video : IABase			// format: MP4, OOG, WebM
+struct VideoData
+{
+	QSize frameSize;
+	qreal frameRate = 0.0;
+
+};
+struct Video : IABase			// format: MP4
 {
 	// each video file should be accomplished by a JPG file for the thumbnail
 	// of the same name + ".jpg". Example: apple.mp4 and apple.mp4.jpg
-	// If no such file is present a default jpg will be supplied
-	enum Type {vtMp4, vtOgg, vtWebM} type;
+	// This jpg file is automatically created when the video is added to the album
+	// but can be re-created later
+	enum Type { vtMp4, vtOgg, vtWebM } type; // currently only used type is vtMp4 the only common format for Windows, Mac and linux
+
+	VideoData videoData;
 
 	UsageCount usageCount = 1;	// video can be deleted when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
-	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// manually selected image as a thumbnail for this video
+	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// selected image as thumbnail for this video
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -680,7 +689,8 @@ private:
 						  // reading (and copying) data
 	void _RecursivelyReadSubAlbums(ID_t albumId);
 	ID_t _AddItemToAlbum(IDVal_t albumId, QFileInfo& fi, bool signalElapsedTime = true, bool doNotAddToAlbumItemList = false);
-	ID_t _AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool &added);
+	ID_t _AddImageFromPathInStruct(QString imagePath, bool &added);
+	ID_t _AddVideoFromPathInStruct(QString videoPath, bool &added);
 
 	bool _IsAlbumAndItsSubAlbumsEmpty(Album&);	// use inside _CleanupAlbums()
 	void _CleanupAlbums();	// exclude empty albums and albums with only albums in them each empty

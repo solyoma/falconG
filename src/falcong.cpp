@@ -260,6 +260,10 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	connect(ui.btnSaveChangedDescription, &QPushButton::clicked,	this, &FalconG::_SlotSaveChangedTitleDescription);
 	connect(ui.btnSaveChangedTitle,		  &QPushButton::clicked,	this, &FalconG::_SlotSaveChangedTitleDescription);
+								 // for keeping opened branches of trvAlbums open after data changed
+    connect(ui.tnvImages, &ThumbnailView::SignalSaveTreeViewExpandedState,    ui.trvAlbums, &AlbumTreeView::SlotSaveExpandedState);
+    connect(ui.tnvImages, &ThumbnailView::SignalRestoreTreeViewExpandedState, ui.trvAlbums, &AlbumTreeView::SlotRestoreExpandedState);
+
 
 	// read styles
 

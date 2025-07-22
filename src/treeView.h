@@ -118,9 +118,26 @@ public slots:
 	void SlotCopyImages();
 	void SlotActAlbumChanged(IDVal_t idval);
 	void SlotNavigateFromBreadcrumb(void*);
+	void SlotSaveExpandedState()
+	{
+		_GetExpandedAlbumIds();
+	}
+	void SlotRestoreExpandedState()
+	{
+		_RestoreExpandedAlbums();
+	}
 
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);
 	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+
 	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
+private:
+	using ItemIdVector = QVector<qintptr>; 
+
+	ItemIdVector _idvExpandedIds;
+
+	ItemIdVector __GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
+	void _GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
+	void _RestoreExpandedAlbums(const QModelIndex& parent = QModelIndex());
 };

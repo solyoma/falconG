@@ -442,12 +442,12 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 	{
 		if (cnt && id != selId)
 		{
-			pact = new QAction(tr("&Copy Selected Images Here"), this);  // any number of images from a directory
+			pact = new QAction(tr("&Copy Selected Images Here"), this);  // any number of images from an album
 			pact->setEnabled(true);
 			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotCopyImages);
 			menu.addAction(pact);
 
-			pact = new QAction(tr("&Move Selected Images Here"), this);  // any number of images from a directory
+			pact = new QAction(tr("&Move Selected Images Here"), this);  // any number of images from an album
 			pact->setEnabled(true);
 			connect(pact, &QAction::triggered, this, &AlbumTreeView::SlotMoveImages);
 			menu.addAction(pact);
@@ -492,5 +492,37 @@ BreadcrumbVector AlbumTreeView::GetBreadcrumbPath(QModelIndex index)	const
 		index = index.parent();
 	}
 	return pathParts;
+}
+
+AlbumTreeView::ItemIdVector AlbumTreeView::__GetExpandedAlbumIds(const QModelIndex& parent) 
+{
+		int rowCount = model()->rowCount(parent);
+
+		AlbumTreeView::ItemIdVector idv;
+		for (int row = 0; row < rowCount; ++row)
+		{
+			QModelIndex index = model()->index(row, 0, parent);
+			if (isExpanded(index))
+				idv << index.internalId(); // or another role with unique album ID;
+			idv << __GetExpandedAlbumIds(index);
+		}
+		return idv;
+}
+void AlbumTreeView::_GetExpandedAlbumIds(const QModelIndex& parent)
+{
+	_idvExpandedIds = __GetExpandedAlbumIds(parent);
+}
+
+void AlbumTreeView::_RestoreExpandedAlbums(const QModelIndex& parent) 
+{
+	int rowCount = model()->rowCount(parent);
+	for (int row = 0; row < rowCount; ++row) 
+	{
+		QModelIndex index = model()->index(row, 0, parent);
+		qintptr id = index.internalId();
+		if (_idvExpandedIds.contains(id)) 
+			setExpanded(index, true);
+		_RestoreExpandedAlbums(index);
+	}
 }
 

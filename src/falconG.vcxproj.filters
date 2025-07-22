@@ -78,6 +78,9 @@
     <ClCompile Include="thumbnailView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="videoplayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -108,6 +111,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="selectStruct.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="videoplayer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

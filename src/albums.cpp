@@ -1500,31 +1500,57 @@ QString AlbumGenerator::SiteLink(int language)
 }
 
 /*============================================================================
-  * TASK:	 add a new image/video from structure to image/video map
+  * TASK:	 add a new image from structure to image map
   * EXPECTS:  imagePath: path name is either relative to source directory
   *						 or absolute path
   *
-  * RETURNS:  id of image/video added/found with type flag set
+  * RETURNS:  id of image added/found with type flag set
   *				It will not have any title or description as those
   *				will be added after this image is processed
   * GLOBALS:
-  * REMARKS: - not called for already processed images/videos
+  * REMARKS: - not called for already processed images
   *			 - new images may be added to the structure file by using the path
   *			  name, (absolute or relative to the gallery source) and nothing more.
   *			  In this case the new image must be processed and added to the
   *			  data base.
   *			 - sets '_structFileChangeCount' to true
  *--------------------------------------------------------------------------*/
-ID_t AlbumGenerator::_AddImageOrVideoFromPathInStruct(QString imagePath, FileTypeImageVideo ftyp, bool& added)
+ID_t AlbumGenerator::_AddImageFromPathInStruct(QString imagePath, bool& added)
 {
 	++_structFileChangeCount;	 // always changed when a non-processed image line is in the structure
 
 	ID_t id;
 
-	if (ftyp == ftImage)
-		id = _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
-	else										// also set dirIndex when 'bUseMaxItemCountPerDir' is true
-		id = _videoMap.Add(imagePath, added);
+	id = _imageMap.Add(imagePath, added);	// add new image to global image list or get id of existing
+	return id.ClearNonTypeFlags();
+}
+
+/*============================================================================
+  * TASK:	 add a new video from structure to video map
+  * EXPECTS:  imagePath: path name is either relative to source directory
+  *						 or absolute path
+  *
+  * RETURNS:  id of video added/found with type flag set
+  *				It will not have any title or description as those
+  *				will be added after this image is processed
+  * GLOBALS:
+  * REMARKS: - not called for already processed videos
+  *			 - thumbnails for videos automatically generated from the first video frame
+  *				and has the same name but with a .jpg extension. This can be selected
+  *				later using a 'VideoPlayer' widget
+  *			 - new videos may be added to the structure file by using the path
+  *			  name, (absolute or relative to the gallery source) and nothing more.
+  *			  In this case the new video must be processed and added to the
+  *			  data base.
+  *			 - sets '_structFileChangeCount' to true
+ *--------------------------------------------------------------------------*/
+ID_t AlbumGenerator::_AddVideoFromPathInStruct(QString videoPath, bool& added)
+{
+	++_structFileChangeCount;	 // always changed when a non-processed image line is in the structure
+
+	ID_t id;
+
+	id = _videoMap.Add(videoPath, added);	// add new video to global video list or get id of existing
 	return id.ClearNonTypeFlags();
 }
 
@@ -2285,7 +2311,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			else
 			{
 				bool added;
-				ids.thumbnailIDVal = _AddImageOrVideoFromPathInStruct(s, ftImage, added).Val(); // sets _structFileChangeCount inside the function
+				ids.thumbnailIDVal = _AddImageFromPathInStruct(s, added).Val(); // sets _structFileChangeCount inside the function
 			}
 		}
 		else		// common part for title and description
@@ -2444,21 +2470,21 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 * RETURNS: list of 0, 2, 5/6 or 9/10 strings:
 *		empty list:	  unknown file type
 *		for lists of 2 elements, when the unprocessed line has the full file path or just
-*		the file name, but no id and so on:
+*		the file name, but no id									   images  videos
 *				file name or path										(#0)	(#0)
 *				file type ('I', or 'V')									(#1)	(#1)
 *			 this may or may not be present:
 *				file ID													(#2)	(#2)
 *			 if ID is present then for images these are also present
-*				image width												(#3)
-*				image height											(#4)
+*				image/video frame width									(#3)	(#3)
+*				image/video frame height								(#4)	(#4)
 *				image original width									(#5)
 *				image original height									(#6)
 *			 and this is present for both images and videos
-*				image date												(#7)	(#3)
-*				file size - in bytes									(#8)	(#4)
+*				image date												(#7)	(#5)
+*				file size - in bytes									(#8)	(#6)
 *			this may be missing if so use last path)
-*				folder path/path Id for files							(#9)	(#5)
+*				folder path/path Id for files							(#9)	(#7)
 * REMARKS:	- "normal" regular function split() could not be used as names
 *					may contain braces and commas
 *			- file name may contain any number of brackets, but it must not have
@@ -2517,15 +2543,15 @@ static QStringList __imageMapStructLineToList(QString s)
 
 	QRegExp rexp("[,|x]");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#9 for image: ID, width, height, owidth, oheight, length, date
-												// index #2..#5 for video: ID, length, date
+												// index #2..#7 for video: ID, frame width, frame height, length, date
 
 //	if (typ == ftVideo && sl[2][0] == QChar('V'))	// for video files iD starts with 'V'
 //		sl[2] = sl[2].mid(1); no need
 
-	if ( (sl.size() != 9 && sl.size() != 5) || pos == s.length() )   // some problem, maybe path is missing (was s[pos + 1] != '/')
+	if ( (sl.size() != 9 && sl.size() != 7) || pos == s.length() )   // some problem, maybe path is missing (was s[pos + 1] != '/')
 		return sl;
 
-	sl.push_back(s.mid(pos + 1));		// index #6 or #10 - original path	or path ID (Version dependent)
+	sl.push_back(s.mid(pos + 1));		// index #8 or #10 - original path	or path ID (Version dependent)
 	return sl;
 }
 
@@ -2574,7 +2600,11 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	}
 
 	bool added;
-	ID_t id = _AddImageOrVideoFromPathInStruct(fullFilePath, type, added);	 // either add to maps or get id for image already added, has type flag set
+	ID_t id;
+	if (type == ftImage)
+		id = _AddImageFromPathInStruct(fullFilePath, added);	 // either add to map or get id for image already added, has type flag set
+	else 
+		id = _AddVideoFromPathInStruct(fullFilePath, added);	 // either add to map or get id for video already added, has type flag set
 	SetAlbumModified(album.ID);			// set it as changed always	 '_structFileChangeCount' is incremented in caller
 	if (type == ftImage)
 	{
@@ -2650,7 +2680,11 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 
 		// expects: original/image/directory/inside/source/name.ext and 'type' 
 		bool added;
-		id = _AddImageOrVideoFromPathInStruct(sl[0],type, added);	 // then structure is changed
+		if(type == ftImage)
+			id = _AddImageFromPathInStruct(sl[0],added);	 
+		else
+			id = _AddVideoFromPathInStruct(sl[0],added);	 
+
 		if (id.Val())		// has type flag set
 		{
 			if (thumbnail && album)		 // It's parent also changes
@@ -3079,7 +3113,7 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			}
 			while(reader.Ok() && reader.l().isEmpty())	// drop all consecutive empty lines
 				reader.NextLine();					// next album definition line
-			if (reader.Ok() && reader.l()[level] == ' ')		// new sub album)
+			if (reader.Ok() && reader.l()[level] == ' ')		// new sub album
 			{
 				if (level)
 				{

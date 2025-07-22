@@ -264,6 +264,10 @@ public:
 	QString statusStr;		// get status messages from here
 	QString title;			// use for window title
 
+signals:
+	void SignalSaveTreeViewExpandedState();
+	void SignalRestoreTreeViewExpandedState();
+
 private:
 // SA
 	ID_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album

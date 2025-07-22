@@ -157,12 +157,13 @@ void AlbumStructWriter::_WriteVideo(Album& album, ID_t id, QString indent)
 	if (pVid->Exists())
 	{
 		s = indent +
-			pVid->name + ddelim +								   // field #1
-			pVid->ID.ValToString() + delim +					   // field #2
+			pVid->name + ddelim +								// field #1
+			pVid->ID.ValToString() + delim +					// field #2
 			// ISO 8601 extended format: yyyy-MM-dd for dates
-		    pVid->uploadDate.toString(Qt::ISODate) + delim		   // field #3
-			+ QString().setNum(pVid->fileSize) + delim			   // field #4
-			+ QString("%1\n").arg(pVid->pathId);
+		    pVid->uploadDate.toString(Qt::ISODate) + delim		// field #3
+			+ QString("%1x%2").arg(pVid->videoData.frameSize.width()).arg(pVid->videoData.frameSize.height()) + delim	// field #4 - #5
+			+ QString().setNum(pVid->fileSize) + delim			// field #6
+			+ QString("%1\n").arg(pVid->pathId);				// field #7	
 		_ofs << s;
 	}
 	else

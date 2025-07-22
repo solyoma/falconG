@@ -2,7 +2,7 @@
  * part of the code is taken from Ofer Kashayov's <oferkv@live.com>
  * free Phototonic image viewer
  * My code is marked with SA in the remarks of the function descriptions
- * Ofer Kashayov's originla copyright notice:
+ * Ofer Kashayov's original copyright notice:
  *  Copyright (C) 2013-2014 Ofer Kashayov <oferkv@live.com>
  *  This file is part of Phototonic Image Viewer.
  *
@@ -2042,7 +2042,7 @@ void ThumbnailView::UndoDelete()
 void ThumbnailView::AddImages()
 {   
     QString dir = pathMap.AbsPath(albumgen.lastUsedAlbumPathId)+_ActAlbum()->name;
-    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png);;Videos(*.mp4,*.ogg);;All files(*.*)");
+    QStringList qslFileNames = QFileDialog::getOpenFileNames(this, tr("falconG - Add images/videos"), dir, "Images(*.bmp *.jpg *.png);;Videos(*.mp4);;All files(*.*)");
     if (qslFileNames.isEmpty())
         return;
 
@@ -2078,6 +2078,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
 
     bool added, atLeastOneFolderWasAdded = false;
     emit SignalInProcessing(true);
+	emit SignalSaveTreeViewExpandedState(); // save expanded state of tree view before changing album structure
     emit SignalAlbumStructWillChange();
     IDVal_t idVal = pParentAlbum->ID.Val();
     ID_t id = albumgen.Albums().Add(idVal, folderName, added);     // set new dirIndex too
@@ -2103,6 +2104,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
         albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
     }
 
+	emit SignalRestoreTreeViewExpandedState(); // restore expanded state of tree view after changing album structure
     emit SignalInProcessing(false);
 
     return atLeastOneFolderWasAdded;

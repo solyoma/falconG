@@ -49,7 +49,7 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>5.15.2_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;concurrent;webengine;webenginewidgets</QtModules>
+    <QtModules>core;gui;multimedia;widgets;concurrent;multimediawidgets;webengine;webenginewidgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
@@ -249,6 +249,7 @@
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
+    <ClCompile Include="videoplayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
@@ -268,6 +269,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="csscreator.h" />
+    <QtMoc Include="videoplayer.h" />
     <QtMoc Include="textEditor.h" />
     <QtMoc Include="thumbnailView.h" />
     <QtMoc Include="albums.h" />
