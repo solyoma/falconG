@@ -57,7 +57,6 @@
 #include <QWidget>
 #include <QtMultimedia/QMediaPlayer>
 #include <QtMultimedia/QMediaMetaData>
-#include <QtMultimedia/QMediaMetaData>
 #include <QtMultimedia/QVideoSurfaceFormat>
 #include <QtMultimedia/QAbstractVideoSurface>
 #include <QImage>
