@@ -38,23 +38,21 @@ class FileIcons
 {
 
 public:
-	enum Flag { fiFolder=1, fiThumb=2, fiAlias = 4, fiDontResize=8};
-	using Flags = QFlags<Flag>;
 
-	typedef QVector<int> dataType;
+	typedef QVector<int> DataType;
 
 	int posFolderIcon = -1;
 
 	void Clear();
-	int Size() const;	// only the displaed size, not necessarily the count of icons
+	int Size() const;	// only the displayed size, not necessarily the count of icons
 	void SetMaximumSizes(int thumbsize = THUMBNAIL_SIZE, int borderwidth = 10);
-	bool HasIconFor(int pos);
+	bool HasIconFor(int pos);	// i.e. pos < list length?
 	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
 
-	QIcon IconForPosition(int pos, Flags flags, QString imageName = QString());
-	const dataType &IconOrder() const;
+	QIcon IconForPosition(int pos, QString imageName = QString());
+	const DataType &IconOrder() const;
 	void SetIconOrder(const QVector<int>& order);
-	MarkedIcon* Insert(int pos, bool isFolder, QString imageName = QString());
+	MarkedIcon* Insert(int pos, QString imageName = QString());
 	void Remove(int pos);    // remove items _iconOrder[pos];
 private:
 	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
@@ -62,7 +60,7 @@ private:
 									 //  In Qt6 QList is the same as QVector, so it would be the same)
 									 // order never changes when items added or moved around
 									 // access elements through _iconOrder
-	dataType _iconOrder;         // indirection through this
+	DataType _iconOrder;         // indirection through this
 };
 
 extern FileIcons fileIcons;
@@ -324,10 +322,11 @@ private:
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
-	void _AddImagesFromList(QStringList qslFileNames, int row);
+	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row);
 	bool _AddFolder(QString folderName);	// returns if folder was added
 	bool _NewVirtualFolder(QString folderName, IDVal_t baseFolderID=NO_ID);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
+	void _ExportCSVFromAlbum(const Album& album, QTextStream& ofs, bool recursive = false);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
@@ -383,6 +382,7 @@ public slots:
 	void SetAsAlbumThumbnail();			// from existing image/album image
 	void ToggleDontResizeFlag();
 	void SelectAsAlbumThumbnail();
+	void ExportAsCSV();
 	void ItemDoubleClicked(const QModelIndex &);
 	void SlotThumbnailSizeChanged(int thumbSize);
 	void FindMissingImageOrVideo();		// maybe it was moved from its position

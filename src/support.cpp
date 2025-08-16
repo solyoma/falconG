@@ -80,7 +80,7 @@ void ShowWarning(QString qs, QWidget *parent)
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show, QString checkboxtext, QWidget* parent)
 {
 	if (WarningAndNotInfo)
-		WarningToFile(text);
+		WarningToFile(text);	// save for reference
 
 	if (config.doNotShowTheseDialogs.v & (1 << show))
 		return;
@@ -985,10 +985,10 @@ QString CutSourceRootFrom(QString path)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi)
+FileType FileTypeFromName(const QString &name, QFileInfo *fi)
 {
 	if (fi && fi->isDir())
-		return ftUnknown;
+		return ftFolder;
 	int pos = name.lastIndexOf('.');
 	QString s = name.mid(pos).toLower();
 	return (s == ".jpg") || (s == ".jpeg") || (s == ".png") ? ftImage : (s == ".mp4") || (s == ".ogg") || (s == ".webm") ? ftVideo : ftUnknown;
@@ -1692,48 +1692,69 @@ bool MarkedIcon::initted = false;				// images for icons read?
  * RETURNS:	if file read was successful
  * REMARKS: if read is unsuccessfull the pixmap still valid
  *------------------------------------------------------------*/
-bool MarkedIcon::Read(QString fname, bool is_folder)
+bool MarkedIcon::Read(QString fname, IconFlags iflags)
 {
 	name = fname;
-	isFolder = is_folder;
+	flags = iflags;
 
-	QImageReader reader(name);
-	reader.setAutoTransform(true);
-	QString colorname = (isFolder ? config.albumMatteColor : config.imageMatteColor).Name(true);
+	QString colorname = (flags & fiFolder ? config.albumMatteColor : config.imageMatteColor).Name(true);
 	QColor cbck = colorname;
 	if (!cbck.isValid())
 		return false;
-	reader.setBackgroundColor(cbck);
 
 	pxmp = QPixmap(thumbSize, thumbSize);
 	pxmp.fill(cbck);
 
-	exists = false;
+	QSize dsize;		// thumbnail size
+	static QImage img;	// thumbnail image (for video: get from video file)
 
-	QSize osize = reader.size(),
-		  dsize;
-	if (!osize.isValid())
-		return false;
-		
-	if (osize.width() >= osize.height())	// portrait
+	auto setDSize = [&](QSize osize)  // get destinaton size for thumbnail image
+		{
+			if (osize.width() >= osize.height())	// portrait
+			{
+				dsize.setWidth(thumbSize - 2 * borderWidth);
+				dsize.setHeight((double)(thumbSize - 2 * borderWidth) / (double)(osize.width()) * osize.height());
+			}
+			else
+			{
+				dsize.setHeight(thumbSize - 2 * borderWidth);
+				dsize.setWidth((double)(thumbSize - 2 * borderWidth) / (double)(osize.height()) * osize.width());
+			}							  
+		};
+
+	if (flags & fiVideo)	// then thumbnail is a frame from the video
 	{
-		dsize.setWidth(thumbSize - 2*borderWidth);
-		dsize.setHeight((double)(thumbSize - 2*borderWidth) / (double)(osize.width()) * osize.height());
+		Video* pvid = albumgen.Videos().Find(fname);
+		if (!pvid)
+			return false;	// no video found
+
+		if (!pvid->GetThumbnail(img, dsize, thumbSize))
+		{
+			QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), 
+				QMainWindow::tr("Can't get thumbnail for video file '%1'").arg(fname));
+			return false;
+		}
 	}
-	else
+	else   // image (may be a) folder thumbnail
 	{
-		dsize.setHeight(thumbSize - 2*borderWidth);
-		dsize.setWidth((double)(thumbSize - 2*borderWidth) / (double)(osize.height()) * osize.width());
+		QImageReader reader(name);
+		reader.setBackgroundColor(cbck);
+		reader.setAutoTransform(true);
+
+		exists = false;
+
+		QSize osize = reader.size();
+		if (!osize.isValid())
+			return false;
+		setDSize(osize);
+
+		reader.setScaledSize(dsize);
+
+		if (!reader.read(&img))		// maybe error display?
+			return false;
+
+		exists = true;
 	}
-
-	reader.setScaledSize(dsize);
-
-	static QImage img;
-	if(!reader.read(&img))		// maybe error display?
-		return false;
-
-	exists = true;
-
 	QPainter painter(&pxmp);	// leave the border outside
 	int xm =(pxmp.width() - dsize.width()) / 2, ym = (pxmp.height() - dsize.height()) / 2;
 	painter.drawImage(xm, ym, img);
@@ -1742,25 +1763,30 @@ bool MarkedIcon::Read(QString fname, bool is_folder)
 }
 
 /*=============================================================
- * TASK:	returns an icon with markers *folder Thumb an exists) on them
+ * TASK:	from pxmp returns an icon with markers on it
  * PARAMS:
+ * EXPECTS: pxmp contains the already rendered background 
+ *			(folders and others) and the image
  * GLOBALS:
  * RETURNS: an icon for image read. 
- * REMARKS: If no markers are to be set on this item returns just 
+ * REMARKS: - If no markers are to be set on this item returns just 
  *			the pixmap 'pxmp'
+ *			- thumbnail & alias markers are at top left, 
+ *				fon't resize and missing flag at top right
  *------------------------------------------------------------*/
 QIcon MarkedIcon::ToIcon() const
 {
-	if (exists && !isFolderThumb && !dontResize && !isAlias)	// no markers on image
+	static IconFlags __flags = { fiFolder, fiThumb, fiDontResize, fiAlias };
+	if (exists && (flags & __flags) ==0)	// no markers on image
 		return QIcon(pxmp);
 
 	QPixmap tmppxmp(thumbSize, thumbSize);
 	QPainter painter(&tmppxmp);
 	painter.drawPixmap(0,0, pxmp);		// image with border
-	if (isFolderThumb)	   // at top left position
+	if (flags & fiThumb)	   // at top left position
 			painter.drawPixmap(borderWidth, borderWidth, *folderThumbMark);	 
-	if (isAlias)
-		painter.drawPixmap(borderWidth + (isFolderThumb ? aliasMark->width() : 0), borderWidth, *aliasMark);
+	if (flags & fiAlias)
+		painter.drawPixmap(borderWidth + (flags & fiThumb ? aliasMark->width() : 0), borderWidth, *aliasMark);
 
 	if (dontResize)		  // at top right
 		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *noresizeMark);

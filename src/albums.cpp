@@ -9,10 +9,12 @@
 #include <chrono>
 
 #include "common.h"
+#include "support.h"
 #include "albums.h"
 #include "falcong.h"
 #include "csscreator.h"
 #include "structwriter.h"
+#include "videoplayer.h"
 
 #if QT_VERSION < 0x051000
     #define created created
@@ -621,9 +623,9 @@ Image *ImageMap::Find(ID_t id, bool useBase)
 	Image im; 
 	im.ID = id;
 	IDVal_t v = im.ID.Val() & mask;
-	for (auto i = begin(); i != end(); ++i)
-		if ( (i.key().Val() & mask)  == v )
-			return &i.value();
+	for (auto &i:*this)
+		if ( (i.ID.Val() & mask)  == v )
+			return &i;
 	return nullptr;
 }
 
@@ -641,9 +643,13 @@ Image *ImageMap::Find(QString FullSourceName)
 	SeparateFileNamePath(FullSourceName, path, img.name);
 	img.pathId = pathMap.Id(path);
 	Image::searchBy = Image::byFullSourceName;
-	for (auto i = begin(); i != end(); ++i)
-		if (i.value() == img)
-			return &i.value();
+
+	for (auto &i:*this)
+		if (i.pathId == img.pathId && i.name == img.name)
+			return &i;
+	//for (auto i = begin(); i != end(); ++i)
+	//	if (i.value() == img)
+	//		return &i.value();
 
 	return nullptr;
 }
@@ -1579,7 +1585,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool sign
 		return id;
 
 	bool added = false;
-	FileTypeImageVideo type;
+	FileType type;
 	if (fi.isDir())
 	{
 		QString ds = fi.fileName();
@@ -1589,7 +1595,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool sign
 		ab = AlbumForIDVal(parentID);	// might have change item in memory
 		Q_ASSERT(ab);
 	}
-	else if ((type=IsImageOrVideoFile(s))!= ftUnknown)
+	else if ((type=FileTypeFromName(s))!= ftUnknown)
 	{
 		if (type == ftImage)
 			id = _imageMap.Add(s, added);	// add new image to global image list or get id of existing
@@ -2511,14 +2517,14 @@ static QStringList __imageMapStructLineToList(QString s)
 	else
 		pos0 = pos + 2;			// skip the '||'
 
-	FileTypeImageVideo typ;
+	FileType typ;
 
 	auto typeStr = [&]() { return typ == ftImage ? "I" : "V"; };
 
-	typ = IsImageOrVideoFile(s.mid(0, pos < 0 ? -1 : pos));	// the part before the last '(' (old) or ('*') new name, based on file extension
+	typ = FileTypeFromName(s.mid(0, pos < 0 ? -1 : pos));	// the part before the last '(' (old) or ('*') new name, based on file extension
 	if (typ == ftUnknown)			// then maybe '('/'*' inside file name
 	{
-		typ = IsImageOrVideoFile(s);// so check full name based on file extension
+		typ = FileTypeFromName(s);// so check full name based on file extension
 		if (typ == ftUnknown)	// this is still an unknown file type, return empty list
 			return sl;
 		else
@@ -2592,7 +2598,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	Image img;
 	Video vid;
 
-	FileTypeImageVideo type = IsImageOrVideoFile(fullFilePath);
+	FileType type = FileTypeFromName(fullFilePath);
 	if (type == ftUnknown)
 	{
 		ShowWarning(QString(tr("Unknown file type\nFile name:\n%1")).arg(fullFilePath), frmMain);
@@ -2671,7 +2677,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 
 	ID_t id;
 		// n:  images: 2 or 10, videos 2 or 5
-	FileTypeImageVideo type = n >= 2 ? (sl[1][0] == QChar('I') ? ftImage : (sl[1][0] == QChar('V') ? ftVideo : ftUnknown)) : ftUnknown;
+	FileType type = n >= 2 ? (sl[1][0] == QChar('I') ? ftImage : (sl[1][0] == QChar('V') ? ftVideo : ftUnknown)) : ftUnknown;
 	if (n < 9 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
 	{
 		if (n != 2)	// it should be at least an ID for <config.dsSrc relative full path name> and <file type> (image or video or unknown)
@@ -3961,8 +3967,7 @@ void AlbumGenerator::_WriteFacebookLink(QString linkName, ID_t ID)
  * 
  *	const imd='<image dir>, thd='<thumbnail dir>, rsd='<resource dir>',
  *	const ald='<albumdir>, alb='<base name of albums>';
- *	const imgs=[<array of image objects>];
- *	const vids=[<array of video objects>];
+ *	const imgs=[<array of image and video objects>];
  *	const albs=[<array of album objects>
  *			- both itms and albms may be empty
  * 			- image and video objects have the same structure:
@@ -4041,11 +4046,14 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		//		file name (number), type (I: image, V: video), width (w), height (h), title (or ''), description (or '')
 
 		IABase* pIa = nullptr;
-		QString qs, qsI, qsV, qsA, *pqs=nullptr;
+		QString qs, 
+			qsI,				// collect all images and videos into this string
+			qsA,				// all albums here
+			*pqs=nullptr;		// through this pointer
 
 		for (auto& a : album.items)
 		{
-			if (a.TestFlag(IMAGE_ID_FLAG))			// albums are entered when clicked
+			if (a.TestFlag(IMAGE_ID_FLAG))			
 			{
 				++icnt;
 				pIa = &_imageMap[a];
@@ -4055,19 +4063,20 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 			{
 				++vcnt;
 				pIa = &_videoMap[a];
-				pqs = &qsV;
+				pqs = &qsI;
 			}
-			else				// albums
+			else							 // albums are entered when clicked
 			{
 				++acnt;
 				pIa = &_albumMap[a];
 				pqs = &qsA;
 			}
-			if (pIa)
+			Q_ASSERT(pIa != nullptr);
+//			if (pIa)
 			{
 				QSize size = pIa->ThumbSize();
-
-				*pqs += QString("{i:'%1',w:%2,h:%3,").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
+										// type is image even for albums
+				*pqs += QString("{%1:'%2',w:%3,h:%4,").arg(a.TestFlag(VIDEO_ID_FLAG)? "v" : "i").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
 				LanguageTexts* plt = _textMap.Find(pIa->titleID);
 				if (plt)
 					*pqs += "t:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtJavaScript) + "',";
@@ -4083,12 +4092,11 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += "},\n";
 			}		
 		}
-		s += QString("\n var imgs=[\n%1];\n"
-			         "\n const vids=[\n%2];\n"
-					 "\n const albs=[\n%3];\n"
-					 "  const icnt=%4,vcnt=%5,acnt=%6;\n"
+		s += QString("\n var imgs=[\n"+qsI+"];\n"
+					 "\n const albs=[\n"+qsA+"];\n"
+					 "  const icnt=%1,vcnt=%2,acnt=%3;\n"
 					 "</script>\n"
-									).arg(qsI).arg(qsV).arg(qsA).arg(icnt).arg(vcnt).arg(acnt);
+									).arg(icnt).arg(vcnt).arg(acnt);
 	}
 	if (config.bGenerateLatestUploads)
 		s += "<script type=\"text/javascript\" src=\"" + supdir + "js/latestList" + sLangU + ".js\"></script>\n";
@@ -5660,9 +5668,12 @@ Video* VideoMap::Find(ID_t id, bool useBase)
 	IDVal_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
 	Video vid;
 	IDVal_t vidid = id.Val();
-	for (auto i = begin(); i != end(); ++i)
-		if ((i.key().Val() & mask) == (vidid & mask))
-			return &i.value();
+	for(auto& v: *this)
+		if ((v.ID.Val() & mask) == (vidid & mask))	// compare only base ID
+			return &v;
+	//for (auto i = begin(); i != end(); ++i)
+	//	if ((i.key().Val() & mask) == (vidid & mask))
+	//		return &i.value();
 	return nullptr;
 }
 
@@ -5684,11 +5695,12 @@ Video* VideoMap::Find(QString FullSourceName)
 * EXPECTS:  path - full or config.dsSrc relative path name of the video
 *			added- output parameter: was this a new video?
 * GLOBALS:
-* RETURNS: id of video in map with the VIDEO_ID_FLAG
-* REMARKS: - id stored in video map has no VIDEO_ID_FLAG set
 * RETURNS: Id of image added + if it was added in 'added'
-* REMARKS: - Id of image is the CRC32 of the file name only
-*		   - If the same image ID is used and not added then
+* REMARKS: - id stored in video map has no VIDEO_ID_FLAG set
+*		   - thumbnail position is set to the first frame (pos == 0)
+*		   - video data is determined at first addition
+*		   - Id of image is the CRC32 of the file name only
+*		   - If the same video ID is used and not added then
 * 			 the usage Count is increased
 *		   - when collisions occur adds a unique value above 0xFFFFFFFF to the ID
 *		   - even non-existing videos are added to map
@@ -5698,20 +5710,14 @@ Video* VideoMap::Find(QString FullSourceName)
 *--------------------------------------------------------------------------*/
 ID_t VideoMap::Add(QString path, bool& added)
 {
-	QString basePath;
-
-	if (!QDir::isAbsolutePath(path))			// common part of path is not stored
-		basePath = config.dsSrc.ToString();		// but we need it
-
 	Video vid;
 	QString lpath;
-	path = CutSourceRootFrom(path);
 	SeparateFileNamePath(path, lpath, vid.name);
 
 	QDir dir;
-	vid.ID.SetFlag(EXISTING_FLAG, dir.exists(basePath + lpath + vid.name));
-	if (vid.Exists())
-		vid.pathId = AlbumGenerator::lastUsedAlbumPathId;
+	vid.ID.SetFlag(EXISTING_FLAG, dir.exists(path));
+	if (vid.Exists(true))	  // physical existance check
+		vid.pathId = AlbumGenerator::lastUsedAlbumPathId = pathMap.Add(lpath);
 
 	added = false;
 	IDVal_t id64 = CalcCrc(vid.name, false) ;	// just by name. CRC can but id can never be 0
@@ -5720,9 +5726,10 @@ ID_t VideoMap::Add(QString path, bool& added)
 
 	Video* found = Find({ VIDEO_ID_FLAG, id64 }); // check if a file with this same base id is already in data base?
 												  // can't use reference as we may want to modify 'found' below
-	if (found)
+
+	if (found)	  // then may be other videos with the same base id as this one
 	{
-		if (config.bKeepDuplicates)
+		if (config.bKeepDuplicates)	   // don't check, just add
 		{
 			while (Find({ VIDEO_ID_FLAG, id64 }, false)); // full by ID
 				id64 += ID_INCREMENT;
@@ -5764,6 +5771,8 @@ ID_t VideoMap::Add(QString path, bool& added)
 		vid.SetDirIndexFor(size(), lastDirIndex); // uses 'config.bUseMaxItemCountPerDir' and 'config.nMaxItemsInDirs'
 
 	vid.ID = ID_t( VIDEO_ID_FLAG, id64);
+
+
 	insert(vid.ID, vid);
 	return vid.ID;
 }
@@ -5814,6 +5823,30 @@ QString Video::AsString(int width, int height)
 		default:
 		case vtMp4: return QString(vs).arg(width).arg(height).arg(FullSourceName()).arg("mp4");
 	}
+}
+
+bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
+{
+	thumbnail = QImage();
+	VideoPlayer player(VideoPlayer::vpExtractFrame, &videoData);
+	auto w = [&]() -> bool{
+		if (player.Status() != VideoPlayer::vsOk)
+		{
+			InformationMessage(true, 
+								QObject::tr("falconG - Warning"), 
+								QObject::tr("Can't get thumbnail for video '%1'.\n%2").arg(name, player.LastErrorString()),
+								dboShowVideoThumbnailProblem);
+			return false;
+		}
+		return true;
+	};
+	if(!w())
+		return false;
+
+	if (player.SetUrl(FullSourceName()))
+		thumbnail = player.ExtractFrameAt(-1);
+	
+	return w();
 }
 
 QSize Video::ThumbSize() const

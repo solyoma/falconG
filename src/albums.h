@@ -180,18 +180,8 @@ private:
 								// 0: unset, else if owidth/oheight : aspect ratio >1 => landscape orientation
 };
 //------------------------------------------
-struct VideoData
-{
-	QSize frameSize;
-	qreal frameRate = 0.0;
-
-};
-struct Video : IABase			// format: MP4
-{
-	// each video file should be accomplished by a JPG file for the thumbnail
-	// of the same name + ".jpg". Example: apple.mp4 and apple.mp4.jpg
-	// This jpg file is automatically created when the video is added to the album
-	// but can be re-created later
+struct Video : IABase			// format: MP4 only (common for Windows, Linux and Macs (2025))
+{	// thumbnail is extracted from video at position videoData.thumbPosition
 	enum Type { vtMp4, vtOgg, vtWebM } type; // currently only used type is vtMp4 the only common format for Windows, Mac and linux
 
 	VideoData videoData;
@@ -199,7 +189,8 @@ struct Video : IABase			// format: MP4
 	UsageCount usageCount = 1;	// video can be deleted when this is 0
 	QString checksum = 0;		// of content not used YET
 	QDate uploadDate;
-	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// selected image as thumbnail for this video
+	ID_t  thumbnailId = { IMAGE_ID_FLAG, 0 };		// selected image as thumbnail for this video, _uval == 0: get from video file
+	QImage thumbnail;			// thumbnail image, for position in 'videoData', used when thumbnailId._uval is 0
 	int64_t fileSize = 0;		// of source file, set together with 'exists' (if file does not exist fileSize is 0)
 
 	static SearchCond searchBy;	// 0: by ID, 1: by name, 2 by full name
@@ -217,6 +208,7 @@ struct Video : IABase			// format: MP4
 	//}
 
 	QString AsString(int width = 320, int height = -1);
+	bool GetThumbnail(QImage& image, QSize& dsize, int thumbSize);
 	QSize ThumbSize() const override;
 };
 
@@ -431,7 +423,7 @@ public:
 	Video* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
 												// if 'useBase' finds the first one with the same base ID	
 	Video* Find(QString FullSourceName);		// returns nullptr if not found
-	ID_t Add(QString image, bool& added);	// returns ID and if added
+	ID_t Add(QString video, bool& added);	// returns ID and if added
 	Video& Item(int index);
 };
 

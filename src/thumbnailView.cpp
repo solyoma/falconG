@@ -32,6 +32,8 @@
 #include "treeView.h"
 #include "falconG.h"
 
+#include "videoplayer.h"
+
 // ************************ FileIcons *************************
 
 FileIcons fileIcons;
@@ -52,7 +54,7 @@ void FileIcons::SetMaximumSizes(int thumbsize, int borderwidth)
     MarkedIcon::SetMaximumSizes(thumbsize, borderwidth);
 }
 
-bool FileIcons::HasIconFor(int pos)
+inline bool FileIcons::HasIconFor(int pos)
 {
     return pos < _iconList.size();
 }
@@ -60,30 +62,36 @@ bool FileIcons::HasIconFor(int pos)
 void FileIcons::SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail)
 {
     // pos-th item MUST exist
-    MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
-	if (posFolderIcon >= 0)         // erase original folder icon
-		micon.isFolderThumb = false;
 
-	micon.isFolderThumb = bIsFolderThumbnail;    // and set this
-	if (bIsFolderThumbnail)
-		posFolderIcon = pos;
+    MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
+
+    bool b = micon.flags.testFlag(fiThumb);
+    if(posFolderIcon == pos && bIsFolderThumbnail == b)
+		return;    // already set
+
+	if (posFolderIcon >= 0 && b)   // erase original folder icon
+		micon.flags ^= fiThumb;    // remove fiThumb flag
+
+    if (bIsFolderThumbnail)
+    {
+		micon.flags |= fiThumb;    // set fiThumb flag
+        posFolderIcon = pos;
+    }
 }
 
-QIcon FileIcons::IconForPosition(int pos, Flags flags, QString imageName)
+QIcon FileIcons::IconForPosition(int pos, QString imageName)
 {
 	if (pos < 0)
 		return QIcon();
 
 	if (pos >= _iconList.size())    // _iconList may contain more items than _iconOrder
-        Insert(-1, flags.testFlag(fiFolder), imageName);    // -1: push back
+        Insert(-1, imageName);    // -1: push back
 
     // pos-th item MUST exist
     Q_ASSERT(pos < _iconOrder.size());
 
     MarkedIcon& micon = _iconList[_iconOrder[pos]];
-    micon.isFolderThumb = flags.testFlag(fiThumb);
-    micon.dontResize = flags.testFlag(fiDontResize);
-    micon.isAlias = flags.testFlag(fiAlias);
+
 	return micon.ToIcon();
 }
 
@@ -95,10 +103,13 @@ void FileIcons::SetIconOrder(const QVector<int>& order)
 {
     _iconOrder = order;
 }
-MarkedIcon * FileIcons::Insert(int pos, bool isFolder, QString imageName)
+MarkedIcon * FileIcons::Insert(int pos, QString imageName)
 {
 	MarkedIcon icon;
-	icon.Read(imageName, isFolder);
+    IconFlags flags;
+    FileType type = FileTypeFromName(imageName);
+    flags.setFlag(type == ftImage ? fiImage : type==ftVideo ? fiVideo : type == ftFolder ? fiFolder : fiNone);
+	icon.Read(imageName, flags); // for videos: get thumb frame
 
 	if (pos < 0)
         _iconOrder.push_back(_iconList.size());
@@ -133,73 +144,78 @@ ThumbnailItem::ThumbnailItem(int pos, IDVal_t ownerID, Type typ, QIcon icon) : Q
 
 QIcon ThumbnailItem::IconForFile() const
 {
-    QString imageName;
+    if (fileIcons.HasIconFor(itemPos))
+        return fileIcons.IconForPosition(itemPos);
+
+    IconFlags flags;
 
     Album* pAlbum = _ActOwner();
 
     ID_t itemId = pAlbum->IdOfItem(itemPos);
     bool exists = false;
     
-    bool isFolder = itemId.IsAlbum();
-    bool isFolderIcon = false;
-    bool isAlias = false;
 
-    ID_t imgId = itemId;     // add marker for image that is the folder thumbnail (shown in parent)
-//    Album* parent = _ParentAlbum();
-    if (isFolder)
+    if(itemId.IsVideo())       // inside of pAlbum
+        flags.setFlag(IconFlag::fiVideo);
+    else if(itemId.IsImage())  // inside of pAlbum
+        flags.setFlag(IconFlag::fiImage);
+    else if(itemId.IsAlbum())  // inside of pAlbum
+		flags.setFlag(IconFlag::fiFolder);
+
+	auto ISTHUMB = [flags]()->bool { return flags.testFlag(IconFlag::fiThumb); }; // thumbnail for pAlbum
+               // for items:
+	auto ISALBUM = [flags]()->bool { return flags.testFlag(IconFlag::fiFolder); }; 
+    auto ISIMAGE = [flags]()->bool { return flags.testFlag(IconFlag::fiImage); };
+    auto ISVIDEO = [flags]()->bool { return flags.testFlag(IconFlag::fiVideo); };
+
+    bool isAlias = false;                  // for another item
+
+    Image img;
+    ID_t imgId = itemId;     // at this point it may be the ID of a folder, an image or a video
+
+    if(pAlbum->thumbnailId == imgId)
+		flags.setFlag(fiThumb);    // this is the thumbnail of the album
+    QString imageName;
+    if (ISALBUM() )
     {
+        flags.setFlag(fiFolder);
         Album& aitem = albumgen.Albums()[itemId];
         imgId = aitem.thumbnailId;
 
         if (aitem.baseAlbumId)
             isAlias = true;
     }
+    if (albumgen.ImageAt(imgId)->dontResize)
+        flags.setFlag(fiDontResize);
 
-    isFolderIcon = (pAlbum->thumbnailId == imgId);
-
-    if (fileIcons.HasIconFor(itemPos))
-    {
-        FileIcons::Flags flags;
-        if (isFolder)
-            flags.setFlag(FileIcons::fiFolder);
-        if (isFolderIcon)
-            flags.setFlag(FileIcons::fiThumb);
-        if(isAlias)
-            flags.setFlag(FileIcons::fiAlias);
-        if(albumgen.ImageAt(imgId)->dontResize)
-            flags.setFlag(FileIcons::fiDontResize);
-
-        return fileIcons.IconForPosition(itemPos, flags);
-    }
             // else read and create icon
-
-
-//    imgId &= ID_MASK;
-    Image &img = albumgen.Images()[imgId];
-    if (!img.name.isEmpty())
+            // CHECFicon.rK code!
+    if (ISVIDEO())
     {
-        if ((exists = QFile::exists(img.FullLinkName())))
-            imageName = img.FullLinkName();
-        else if ((exists = QFile::exists(img.FullSourceName())))
-            imageName = img.FullSourceName();
+       imageName = albumgen.VideoAt(imgId)->FullLinkName();
+        if (!QFile::exists(imageName))
+            imageName = QString(":/Preview/Resources/NoImage.jpg");
+    }
+    else        // image
+    {
+        img = albumgen.Images()[imgId];
+        if (!img.name.isEmpty())
+        {
+            if ((exists = QFile::exists(img.FullLinkName())))
+                imageName = img.FullLinkName();
+            else if ((exists = QFile::exists(img.FullSourceName())))
+                imageName = img.FullSourceName();
+            else
+                imageName = QString(":/Preview/Resources/NoImage.jpg");
+        }
         else
             imageName = QString(":/Preview/Resources/NoImage.jpg");
     }
-    else
-        imageName = QString(":/Preview/Resources/NoImage.jpg");
-    
     // DEBUG
     // qDebug((QString("icon for file:'%1' of ID:%2, name:'%3'").arg(imageName).arg(itemId).arg(img.FullSourceName())).toStdString().c_str());
     // /DEBUG
-    FileIcons::Flags flags;
-    if (isFolder)
-        flags.setFlag(FileIcons::fiFolder);
-    if (isFolderIcon)
-        flags.setFlag(FileIcons::fiThumb);
-    if (albumgen.ImageAt(imgId)->dontResize)
-        flags.setFlag(FileIcons::fiDontResize);
 
-    return fileIcons.IconForPosition(itemPos, flags, imageName);
+    return fileIcons.IconForPosition(itemPos, imageName);
 }
 
 
@@ -942,21 +958,13 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
             qslF << s;
     }
     emit SignalAlbumStructWillChange();
-    _AddImagesFromList(qsl, row);
+    _AddImagesAndVideosFromList(qsl, row);
     // row += qsl.size();  // position for folders
     bool b = _AddFoldersFromList(qslF, row);
     emit SignalAlbumStructChanged(b);
     if(b)
         Reload();
-    _AddImagesFromList(qsl, row);
-    //row += qsl.size();  // position for folders
-    //bool b = false;
-    //emit SignalAlbumStructWillChange();
-    //if ((b = _AddFoldersFromList(qslF, row)))
-    //{
-    //    Reload();
-    //}
-    //emit SignalAlbumStructChanged(b);
+    // ??? why was this here too? _AddImagesAndVideosFromList(qsl, row);
 }
 
 /*=============================================================
@@ -1426,7 +1434,7 @@ void ThumbnailView::_InitThumbs()
     }
     else
     	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
-	    	selectThumbByItem(0);
+	    	selectThumbByItem(0);   // in thumbnailView
 }
 
 /*=============================================================
@@ -1488,7 +1496,7 @@ bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
  * RETURNS:
  * REMARKS: no thumbnail flag is set for any of the icons
  *------------------------------------------------------------*/
-void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
+void ThumbnailView::_AddImagesAndVideosFromList(QStringList qslFileNames,int row)
 {
     bool res = true;
 
@@ -1505,7 +1513,7 @@ void ThumbnailView::_AddImagesFromList(QStringList qslFileNames,int row)
             continue;
         }
         else
-            (void)fileIcons.Insert(row, false, qslFileNames[i]);  
+            (void)fileIcons.Insert(row, qslFileNames[i]);  
     }
 }
 
@@ -1534,8 +1542,8 @@ bool ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
  *------------------------------------------------------------*/
 void ThumbnailView::selectThumbByItem(int row)
 {
-    setCurrentIndexByItem(row);
-    selectCurrentIndex();
+    setCurrentIndexByItem(row);          // in thumbnailView
+    selectCurrentIndex();                // in thumbnailView
 }
 
 /*=============================================================
@@ -1765,6 +1773,17 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addAction(pact);
 
             menu.addSeparator();
+
+// even when no image or video recursive listing is possible            if (_ActAlbum()->ImageCount(true) + _ActAlbum()->VideoCount(true))
+            {
+                pact = new QAction(tr("E&xport CSV..."), this);
+                pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
+                connect(pact, &QAction::triggered, this, &ThumbnailView::ExportAsCSV);
+                menu.addAction(pact);
+
+                menu.addSeparator();
+            }
+
         }
     }
     else // album(s) or image(s) or videos are selected
@@ -2049,7 +2068,7 @@ void ThumbnailView::AddImages()
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
 
     emit SignalInProcessing(true);
-    _AddImagesFromList(qslFileNames, pos);
+    _AddImagesAndVideosFromList(qslFileNames, pos);
     // now add last used path
 	int siz = qslFileNames.size();
     QString s;
@@ -2099,13 +2118,14 @@ bool ThumbnailView::_AddFolder(QString folderName)
             folderName.clear();
         else
             folderName = albumgen.Images()[idth].FullSourceName();
-        (void)fileIcons.Insert(pos, true,folderName);
+        (void)fileIcons.Insert(pos,folderName);
 
         albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
     }
 
 	emit SignalRestoreTreeViewExpandedState(); // restore expanded state of tree view after changing album structure
     emit SignalInProcessing(false);
+    emit SignalAlbumStructChanged(true);
 
     return atLeastOneFolderWasAdded;
 }
@@ -2428,6 +2448,80 @@ void ThumbnailView::SelectAsAlbumThumbnail()
         albumgen.SetAlbumModified(*parent);     // only for the parent of this album and not all parents!
     }
     emit SignalAlbumChanged();
+}
+
+void ThumbnailView::_ExportCSVFromAlbum(const Album& album, QTextStream& out, bool recursive)
+{
+    for (ID_t id : album.items)
+    {
+        IABase* pItem = albumgen.IdToItem(id);
+        if (!id.IsAlbum())
+        {
+            QString sext = id.IsImage() ? ".jpg" : ".mp4";
+            out << '"' << pItem->name << "\", " << pItem->ID.ValToString() << sext << "\n";
+        }
+    }
+
+    if (recursive)
+    {
+        for (ID_t id : album.items)
+        {
+            if(id.IsAlbum())
+            {
+                Album* subAlbum = albumgen.AlbumForID(id);
+                if (subAlbum)
+                {
+                    out << subAlbum->name << "," << config.sBaseName.ToString() << subAlbum->ID.Val() << "\n";
+                    _ExportCSVFromAlbum(*subAlbum, out, recursive);
+                }
+            }
+		}
+    }
+};
+
+/*=============================================================
+ * TASK   : export both original and calculated file names from 
+ *          current album to a CSV file.
+ * PARAMS : none
+ * EXPECTS: there are image/video files in the current album
+ * GLOBALS: _albumId, _ActAlbum()
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+void ThumbnailView::ExportAsCSV()
+{
+	QFileDialog fd(this, tr("falconG - Export CSV"), pathMap.AbsPath(albumgen.Images().lastUsedPathId), "CSV files (*.csv)");
+
+	QStringList fileNames;
+    if(fd.exec())
+    {
+        fileNames = fd.selectedFiles();
+        if (fileNames.isEmpty())
+            return;
+    }
+    bool recursive = false;
+    if(_ActAlbum()->SubAlbumCount(true) > 0)
+    {
+        if (QMessageBox::question(this, tr("falconG - CSV export"), tr("There are sub-albums in this album\nDo you want to process sub-albums too?")) == QMessageBox::Yes)
+            recursive = true;
+	}
+    QString csvname = fileNames[0];
+    int extp = csvname.lastIndexOf(".");
+    if (extp < 0)
+        csvname += ".csv";
+    QFile file(csvname);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, tr("falconG - Warning"), tr("Cannot open file for writing: %1").arg(file.fileName()));
+        return;
+    }
+    QTextStream out(&file);
+
+	out << "falconG files in album '" << _ActAlbum()->name << "'\nOriginal,Generated\n";
+
+	_ExportCSVFromAlbum(*_ActAlbum(), out, recursive);
+
+	file.close();
 }
 
 

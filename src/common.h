@@ -17,6 +17,7 @@ namespace Common
 		dboAskCreateDir,
 		dboAskSynchronize,
 		dboNeverMoveIntoFolder,		// when drag & drop
+		dboShowVideoThumbnailProblem,
 		dboMax
 	};
 	enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
@@ -117,6 +118,22 @@ namespace Common
 		espLinkIcon,
 		espBackgroundImage
 	};
+
+	enum IconFlag {
+		fiFolder = 1, fiThumb = 2, fiAlias = 4, fiDontResize = 8,	// 1..8: what markers to draw on icon image
+		fiVideo = 16, fiImage = 32, fiNone = 0x00
+	};						// 16..32: what type of icon to draw
+	using IconFlags = QFlags<IconFlag>;
+
+	//--------------------------------------------------
+	// data for video
+	struct VideoData
+	{
+		QSize frameSize = QSize(-1, -1);			// determined when thumbnail image is extracted
+		qreal frameRate = 0.0;
+		qint64 thumbPosition = 0;	                // position in video file where the thumbnail is taken from
+	};
+
 }
 using IDVal_t = uint64_t;	// ID_t is a composite of flags, IDVal_t and dir. index
 using IDPath_t = uint64_t;	// IDPath_t is the type for path id's
@@ -260,9 +277,9 @@ public:
 			_flags |= which;
 		return _flags;
 	}
-	constexpr bool TestFlag(uint8_t withTheseFlag) const
+	constexpr bool TestFlag(uint8_t withTheseFlags) const
 	{
-		return _flags & withTheseFlag;
+		return _flags & withTheseFlags;
 	}
 	constexpr ID_t ClearNonTypeFlags(bool andModifyFlagsAsWell = false)
 	{

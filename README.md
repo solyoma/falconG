@@ -56,7 +56,7 @@ are already implemented
    are downloaded.
  - clicking/tapping on thumbnails shows "large" images
  
-## Deploy generated gallery on the WEB at the first time
+## How to deploy gallery on the WEB at the first time
 
  You need access to the **public_html** folder on the web server
  - Create the folder you set in **falconG** inside public_html
@@ -80,17 +80,19 @@ are already implemented
  - HTML based WYSIWYG editor for album design, in which
 	- colors, fonts, etc. are customizable with WYSIWYG album editor
 		title and description without duplicating the files
-	- simultaneous dual language display of image titles and 
+	- simultaneous dual language (selectable) display of image titles and 
 		descriptions in editor for easy translation of texts.
  - watermark editor
  - single click generation of whole gallery,
    unchanged albums and images are not re-processed
- - *falconG* resizes images for the web, but it is also possible 
-   not to resize certain images (e.g. panoramas)
-   but leave them at their source sizes for the larg image display
-   (thumbnail sizes doesn't change)
- - gallery structure is stored in a single, human readable (UTF-8)
-   text file, style directory and font information in another 
+ - *falconG* resizes images for the web. It creates thumbnails
+   with given dimensions. Those are shown first. It also creates
+   larger images for zooming in.
+   There's an option for each larger image (e.g. panoramas) not to be resized. 
+   (this sin't reflected on thumbnail sizes)
+ - vieos
+ - source gallery structure is stored in a single, human readable (UTF-8)
+   text file, while style, directory and font information in another 
    ".ini" file
  - source image files from which the gallery is generated
    can be anywhere on the system

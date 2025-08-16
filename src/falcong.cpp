@@ -22,6 +22,7 @@
 #include "csscreator.h"
 #include "imageviewer.h"
 #include "selectStruct.h"
+#include "videoplayer.h"
 
 #ifdef _DEBUG
 	#include "hidden.h"
@@ -1034,11 +1035,12 @@ void FalconG::_SlotFolderChanged(int row)		// called from thumbnailView.cpp
 		album = album->BaseAlbum();
 
 						 // get the row (index) of the album in the tree view
-	int j = 0;
-	for (int i = 0; i < row; ++i)			 // the row-th album is we will get into
-		if (album->items[i].IsAlbum())
-			++j;
-	emit SignalActAlbumChanged(album->items[j].Val());
+	//int j = 0;
+	//for (int i = 0; i < row; ++i)			 // the row-th album is we will get into
+	//	if (album->items[i].IsAlbum())
+	//		++j;
+//	emit SignalActAlbumChanged(album->items[j].Val());
+	emit SignalActAlbumChanged(album->items[row].Val());
 }
 
 void FalconG::_EnableColorSchemeButtons()

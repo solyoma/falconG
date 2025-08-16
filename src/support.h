@@ -34,7 +34,7 @@ constexpr int majorStructVersion = 1,		// V 1.5.0 version string
 			  subStructVersion   = 0;	
 enum DecodeTextTo {dtPlain, dtHtml, dtJavaScript };	// encoding and decoding text
 
-enum FileTypeImageVideo {ftUnknown, ftImage, ftVideo };
+enum FileType {ftUnknown, ftImage, ftVideo, ftFolder };
 
 //******************** text file reader ************
 // file header line(s)
@@ -225,13 +225,10 @@ struct MarkedIcon
 {
 	QString name;			// full path name of image for which we want an icon
 	QPixmap pxmp;			// square pixmap contains image with a 'margin' wide border
-	bool isFolder = false;			// different border
-	bool isFolderThumb = false;		// if yes: mark the image
-	bool isAlias = false;			// - " -
-	bool dontResize = false;		// - " -
-	bool exists = false;			// - " -
+	IconFlags flags;		// flags: fiFolder, fiThumb, fiAlias, fiDontResize, fiVideo, fiImage
+	bool exists = false;	
 		// these ar used for each thumbnail
-		// QPixmaps can only be initialized after the GUI initilize (QT quirk)
+		// QPixmaps can only be initialized after the GUI initialize (QT quirk)
 		// so we need pointers here
 	static QPixmap *folderThumbMark;	// if folder thumbnail mark with this	
 	static QPixmap *aliasMark;		// if folder is an alias
@@ -249,9 +246,7 @@ struct MarkedIcon
 
 	MarkedIcon(const MarkedIcon& other)
 	{
-		isFolder = other.isFolder;
-		isFolderThumb = other.isFolderThumb;
-		isAlias = other.isAlias;
+		flags = other.flags;
 		exists = other.exists;
 		name = other.name;
 		pxmp = other.pxmp;
@@ -263,15 +258,19 @@ struct MarkedIcon
 	}
 	void SetAsFolderThumb(bool setth)
 	{
-		isFolderThumb = setth;
+		flags.setFlag(fiThumb);
 	}
 	void SetAsAlias(bool setta)
 	{
-		isAlias = setta;
+		flags |= fiAlias;	// set alias flag
+		if(!setta)
+			flags ^= fiAlias;  // no clearFlag operation in flags
 	}
 	void SetNoResize(bool noresize) 
 	{ 
-		dontResize = noresize;  
+		flags.setFlag(fiDontResize);  
+		if(!noresize)
+			flags ^= fiDontResize;  // no clearFlag operation in flags
 	}
 	static void Init()
 	{
@@ -290,7 +289,7 @@ struct MarkedIcon
 		borderWidth = margin;
 	}
 
-	bool Read(QString name, bool isFolder);	// to pxmp, transforms rotated image on read, sets 'exists'
+	bool Read(QString name, IconFlags flag);	// to pxmp, transforms rotated image on read, sets 'exists'
 	QIcon ToIcon() const;
 };
 //QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
@@ -326,7 +325,7 @@ QString PrependSourcePathTo(const QString s);
 QString CutSourceRootFrom(QString path);
 QString TimeToHMSStr(time_t t);
 QString BackupAndRename(QString name, QString tmpName, bool keepBackup = false);
-FileTypeImageVideo IsImageOrVideoFile(const QString &name, QFileInfo *fi = nullptr);
+FileType FileTypeFromName(const QString &name, QFileInfo *fi = nullptr);
 QString ToUTF8(QString string);
 QStringList ToUTF8(QStringList &string);
 
