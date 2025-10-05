@@ -2593,7 +2593,7 @@ ID_t AlbumGenerator::AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail
  * REMARKS: C.f. :_ReadImageOrVideoFromStruct()
  *			marks album as changed, so it's get regenerated
  *------------------------------------------------------------*/
-bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& album, int pos)
+AlbumGenerator::AddedStatus AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& album, bool onlyNew, int pos)
 {
 	Image img;
 	Video vid;
@@ -2602,7 +2602,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	if (type == ftUnknown)
 	{
 		ShowWarning(QString(tr("Unknown file type\nFile name:\n%1")).arg(fullFilePath), frmMain);
-		return false;
+		return AddedStatus::asFailed;
 	}
 
 	bool added;
@@ -2611,6 +2611,10 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 		id = _AddImageFromPathInStruct(fullFilePath, added);	 // either add to map or get id for image already added, has type flag set
 	else 
 		id = _AddVideoFromPathInStruct(fullFilePath, added);	 // either add to map or get id for video already added, has type flag set
+
+	if (!added && onlyNew && album.items.count(id))	// already present
+		return AddedStatus::asDuplicate;
+
 	SetAlbumModified(album.ID);			// set it as changed always	 '_structFileChangeCount' is incremented in caller
 	if (type == ftImage)
 	{
@@ -2635,7 +2639,7 @@ bool AlbumGenerator::AddImageOrVideoFromString(QString fullFilePath, Album& albu
 	// add it to album even when it was already added
 	album.AddItem(id, pos);	// and modify item count
 
-	return true;
+	return AddedStatus::asAdded;
 }
 
 /*==========================================================================

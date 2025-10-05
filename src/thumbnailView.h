@@ -322,7 +322,7 @@ private:
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
-	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row);
+	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row, bool onlyNew);
 	bool _AddFolder(QString folderName);	// returns if folder was added
 	bool _NewVirtualFolder(QString folderName, IDVal_t baseFolderID=NO_ID);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);

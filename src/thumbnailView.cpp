@@ -957,13 +957,12 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
             qslF << s;
     }
     emit SignalAlbumStructWillChange();
-    _AddImagesAndVideosFromList(qsl, row);
+    _AddImagesAndVideosFromList(qsl, row, true);        // just new images, not duplicate ones
     // row += qsl.size();  // position for folders
     bool b = _AddFoldersFromList(qslF, row);
     emit SignalAlbumStructChanged(b);
     if(b)
         Reload();
-    // ??? why was this here too? _AddImagesAndVideosFromList(qsl, row);
 }
 
 /*=============================================================
@@ -1491,29 +1490,45 @@ bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
  *          plus into _thumbnailViewModel
  * PARAMS:  qslFileNames - file names to add
  *          row - add before this row
+ *          onlyNew - do not add duplicates to the same album
  * GLOBALS:
  * RETURNS:
- * REMARKS: no thumbnail flag is set for any of the icons
+ * REMARKS: - no thumbnail flag is set for any of the icons
+ *          - the same image may appear in any number of albums,
+ *             but not twice in the same album
  *------------------------------------------------------------*/
-void ThumbnailView::_AddImagesAndVideosFromList(QStringList qslFileNames,int row)
+void ThumbnailView::_AddImagesAndVideosFromList(QStringList qslFileNames,int row, bool onlyNew)
 {
-    bool res = true;
+	AlbumGenerator::AddedStatus ares = AlbumGenerator::AddedStatus::asAdded;
+    int notAddedCnt = 0, errcnt = 0;
+	int i;
+	Album& thisAlbum = albumgen.Albums()[_albumId];
+	Album& album = *thisAlbum.BaseAlbum();  // same as thisAlbum for non alias albums
 
-    int i;
-    Album& thisAlbum = albumgen.Albums()[_albumId];
-    Album& album = *thisAlbum.BaseAlbum();  // same as thisAlbum for non alias albums
-
-    for (i = 0; i < qslFileNames.size(); ++i)
-    {
-        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], album, row);
-        if (!res)     // then already used somewehere // TODO: virtual albums
+	for (i = 0; i < qslFileNames.size(); ++i)
+	{
+		ares = albumgen.AddImageOrVideoFromString(qslFileNames[i], album, onlyNew, row);
+        if (ares == AlbumGenerator::AddedStatus::asFailed)     // then already used somewehere // TODO: virtual albums
         {
             QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new image / video failed!"));
+            ++errcnt;
             continue;
         }
+        else if (ares == AlbumGenerator::AddedStatus::asAdded)       // do not add duplicates
+            (void)fileIcons.Insert(row, qslFileNames[i]);
         else
-            (void)fileIcons.Insert(row, qslFileNames[i]);  
+            ++notAddedCnt;
+	}
+    if (notAddedCnt)
+    {
+        QString msg = tr("Added %1 items, not added %2 duplicates.").arg(i-errcnt-notAddedCnt).arg(notAddedCnt);
+        if (errcnt)
+            msg += tr("\nFailed to add %1 items").arg(errcnt);
+        QMessageBox::information(this, tr("falconG - Information"), msg);
+
     }
+    else if(errcnt)
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding %1 new image%2 / video%2 failed!").arg(errcnt).arg(errcnt > 1 ? "s" : ""));
 }
 
 /*=============================================================
@@ -1773,7 +1788,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 
             menu.addSeparator();
 
-// even when no image or video recursive listing is possible            if (_ActAlbum()->ImageCount(true) + _ActAlbum()->VideoCount(true))
+// even when no image or video recursive listing is possible
             {
                 pact = new QAction(tr("E&xport CSV..."), this);
                 pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
@@ -2067,7 +2082,7 @@ void ThumbnailView::AddImages()
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
 
     emit SignalInProcessing(true);
-    _AddImagesAndVideosFromList(qslFileNames, pos);
+    _AddImagesAndVideosFromList(qslFileNames, pos, true);
     // now add last used path
 	int siz = qslFileNames.size();
     QString s;

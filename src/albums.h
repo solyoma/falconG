@@ -579,7 +579,9 @@ public:
 	QString SiteLink(int language);
 
 	ID_t AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList);
-	bool AddImageOrVideoFromString(QString inpstr, Album& album, int pos = -1);
+
+	enum class AddedStatus { asFailed, asAdded, asDuplicate};
+	AddedStatus AddImageOrVideoFromString(QString fullFilePath, Album& toThisAlbum, bool onlyNew, int beforeThisPos = -1);
 
 signals:
 	void SignalToSetProgressParams(int min, int max, int pos, int phase);
