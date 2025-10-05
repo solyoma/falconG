@@ -246,10 +246,16 @@ struct MarkedIcon
 
 	MarkedIcon(const MarkedIcon& other)
 	{
+		(void) operator=(other);
+	}
+
+	MarkedIcon& operator=(const MarkedIcon& other)
+	{
 		flags = other.flags;
 		exists = other.exists;
 		name = other.name;
 		pxmp = other.pxmp;
+		return *this;
 	}
 
 	~MarkedIcon()

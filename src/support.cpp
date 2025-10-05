@@ -1687,7 +1687,8 @@ bool MarkedIcon::initted = false;				// images for icons read?
  *			on a background whose color depends on the type of
  *			the image (folder thumbnail or image thumbnail)
  * PARAMS:	name: file name to read image from
- *			is_folder: if this will be for a folder
+ *			iflags: icon flags may contain other flags than 
+ *					image type
  * GLOBALS:	static members are set
  * RETURNS:	if file read was successful
  * REMARKS: if read is unsuccessfull the pixmap still valid
@@ -1777,7 +1778,7 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 QIcon MarkedIcon::ToIcon() const
 {
 	static IconFlags __flags = { fiFolder, fiThumb, fiDontResize, fiAlias };
-	if (exists && (flags & __flags) ==0)	// no markers on image
+	if (exists && (flags & __flags) ==0)	// no markers on images
 		return QIcon(pxmp);
 
 	QPixmap tmppxmp(thumbSize, thumbSize);

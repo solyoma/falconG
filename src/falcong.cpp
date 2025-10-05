@@ -4676,7 +4676,7 @@ void FalconG::_SlotAlbumStructSelectionChanged(const QItemSelection &current, co
 	if (n == 1)
 	{
 
-		ui.tnvImages->abort();		// will stop it if it was running
+		ui.tnvImages->Abort();		// will stop it if it was running
 
 		_bNewTreeViewSelection = true;
 		if (ui.tnvImages->IsFinished())

@@ -79,13 +79,13 @@ void FileIcons::SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail)
     }
 }
 
-QIcon FileIcons::IconForPosition(int pos, QString imageName)
+QIcon FileIcons::IconForPosition(int pos, IconFlags flags, QString imageName)
 {
 	if (pos < 0)
 		return QIcon();
 
-	if (pos >= _iconList.size())    // _iconList may contain more items than _iconOrder
-        Insert(-1, imageName);    // -1: push back
+	if (pos >= _iconList.size())        // _iconList may contain more items than _iconOrder
+        Insert(-1, imageName, flags);   // -1: push back
 
     // pos-th item MUST exist
     Q_ASSERT(pos < _iconOrder.size());
@@ -103,12 +103,12 @@ void FileIcons::SetIconOrder(const QVector<int>& order)
 {
     _iconOrder = order;
 }
-MarkedIcon * FileIcons::Insert(int pos, QString imageName)
+MarkedIcon * FileIcons::Insert(int pos, QString imageName, IconFlags flags)
 {
 	MarkedIcon icon;
-    IconFlags flags;
     FileType type = FileTypeFromName(imageName);
-    flags.setFlag(type == ftImage ? fiImage : type==ftVideo ? fiVideo : type == ftFolder ? fiFolder : fiNone);
+    if(flags == IconFlag::fiNone)
+        flags.setFlag(type == ftImage ? fiImage : type==ftVideo ? fiVideo : type == ftFolder ? fiFolder : fiNone);
 	icon.Read(imageName, flags); // for videos: get thumb frame
 
 	if (pos < 0)
@@ -178,7 +178,6 @@ QIcon ThumbnailItem::IconForFile() const
     QString imageName;
     if (ISALBUM() )
     {
-        flags.setFlag(fiFolder);
         Album& aitem = albumgen.Albums()[itemId];
         imgId = aitem.thumbnailId;
 
@@ -196,7 +195,7 @@ QIcon ThumbnailItem::IconForFile() const
         if (!QFile::exists(imageName))
             imageName = QString(":/Preview/Resources/NoImage.jpg");
     }
-    else        // image
+    else        // for image or album: imgId is set, videos: TODO
     {
         img = albumgen.Images()[imgId];
         if (!img.name.isEmpty())
@@ -215,7 +214,7 @@ QIcon ThumbnailItem::IconForFile() const
     // qDebug((QString("icon for file:'%1' of ID:%2, name:'%3'").arg(imageName).arg(itemId).arg(img.FullSourceName())).toStdString().c_str());
     // /DEBUG
 
-    return fileIcons.IconForPosition(itemPos, imageName);
+    return fileIcons.IconForPosition(itemPos, flags, imageName);
 }
 
 
@@ -487,7 +486,7 @@ ThumbnailView::ThumbnailView(QWidget *parent) : QListView(parent)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void ThumbnailView::selectCurrentIndex()
+void ThumbnailView::SelectCurrentIndex()
 {
     if (_currentIndex.isValid() && _thumbnailViewModel->rowCount() > 0) 
 	{
@@ -634,7 +633,7 @@ bool ThumbnailView::SetCurrentIndexByName(QString &fileName)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailView::setCurrentIndexByItem(int row)
+bool ThumbnailView::SetCurrentIndexByItem(int row)
 {
 	QModelIndex idx = _thumbnailViewModel->indexFromItem(_thumbnailViewModel->item(row));
 	if (idx.isValid()) 
@@ -1197,7 +1196,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::abort()
+void ThumbnailView::Abort()
 {
     _doAbortThumbsLoading = true;
 }
@@ -1434,7 +1433,7 @@ void ThumbnailView::_InitThumbs()
     }
     else
     	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
-	    	selectThumbByItem(0);   // in thumbnailView
+	    	SelectThumbByItem(0);   // in thumbnailView
 }
 
 /*=============================================================
@@ -1540,10 +1539,10 @@ bool ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::selectThumbByItem(int row)
+void ThumbnailView::SelectThumbByItem(int row)
 {
-    setCurrentIndexByItem(row);          // in thumbnailView
-    selectCurrentIndex();                // in thumbnailView
+    SetCurrentIndexByItem(row);          // in thumbnailView
+    SelectCurrentIndex();                // in thumbnailView
 }
 
 /*=============================================================
@@ -2667,7 +2666,7 @@ void ThumbnailView::SlotGetSelectionCount(ID_t &id, int &count)
 //    fileIcons.Clear();
 //}
 
-void ThumbnailView::setNeedToScroll(bool needToScroll) 
+void ThumbnailView::SetNeedToScroll(bool needToScroll) 
 {
     this->_isNeedToScroll = needToScroll;
 }

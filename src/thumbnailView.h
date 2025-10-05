@@ -49,10 +49,10 @@ public:
 	bool HasIconFor(int pos);	// i.e. pos < list length?
 	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
 
-	QIcon IconForPosition(int pos, QString imageName = QString());
+	QIcon IconForPosition(int pos, IconFlags flags = IconFlag::fiNone, QString imageName = QString());
 	const DataType &IconOrder() const;
 	void SetIconOrder(const QVector<int>& order);
-	MarkedIcon* Insert(int pos, QString imageName = QString());
+	MarkedIcon* Insert(int pos, QString imageName = QString(), IconFlags flags=IconFlag::fiNone);
 	void Remove(int pos);    // remove items _iconOrder[pos];
 private:
 	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
@@ -232,19 +232,19 @@ public:
     void LoadFileList();
 	void UpdateTreeView(bool forParentOfCurrentIndex);
     bool SetCurrentIndexByName(QString &fileName);
-    bool setCurrentIndexByItem(int itemIndex);	   
+    bool SetCurrentIndexByItem(int itemIndex);	   
     void SetCurrentItem(int itemIndex);
 	void SetTitle();
-    void setNeedToScroll(bool needToScroll);
-    void selectCurrentIndex();
+    void SetNeedToScroll(bool needToScroll);
+    void SelectCurrentIndex();
     void AddThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
 	void SetInsertPos(int here);		// into the model
-    void abort();		 // abort loading of thumbs
+    void Abort();		 // abort loading of thumbs
 	bool IsFinished()const 
 	{ 
 		return !_isProcessing; 
 	}
-    void selectThumbByItem(int itemIndex);
+    void SelectThumbByItem(int itemIndex);
     int GetNextItem() const;	
     int GetPrevItem() const;
     int GetLastItem() const ;
@@ -404,7 +404,7 @@ private slots:
  * REMARKS:
  *------------------------------------------------------------*/
 
- // ---dialog box to enter a new album name andenable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
+ // ---dialog box to enter a new album name and enable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
 
 class AlbumFilterModel : public QSortFilterProxyModel
 {
