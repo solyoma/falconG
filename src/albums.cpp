@@ -4083,12 +4083,12 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				*pqs += QString("{%1:'%2',w:%3,h:%4,").arg(a.TestFlag(VIDEO_ID_FLAG)? "v" : "i").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
 				LanguageTexts* plt = _textMap.Find(pIa->titleID);
 				if (plt)
-					*pqs += "t:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtJavaScript) + "',";
+					*pqs += "t:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtDescription) + "',";
 				else
 					*pqs += "t:'',";
 				plt = _textMap.Find(pIa->descID);
 				if (plt)
-					*pqs += "d:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtJavaScript) + "',";
+					*pqs += "d:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtDescription) + "',";
 				else
 					*pqs += "d:'',";
 				if (a.TestFlag(ALBUM_ID_FLAG))

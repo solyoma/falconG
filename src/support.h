@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QModelIndex>
 #include <QApplication>
 #include <QString>
@@ -32,7 +32,13 @@ const QString versionStr = "# falconG Gallery Structure file ";
 constexpr int majorStructVersion = 1,		// V 1.5.0 version string
 			  minorStructVersion = 5,
 			  subStructVersion   = 0;	
-enum DecodeTextTo {dtPlain, dtHtml, dtJavaScript };	// encoding and decoding text
+
+	// encoding and decoding text
+enum DecodeTextTo { dtPlain, 			// from html or javascript to plain text (&amp;, &quot; &apos; &lg; &gt; <br>)
+					dtDescription,		// similar to dtHTML, used in header for the description and title texts
+					dtHtml,				// for ',",\n,\\n, <,>
+					dtJavaScript 		// like HTML, but replaces with codes 2-5
+				};
 
 enum FileType {ftUnknown, ftImage, ftVideo, ftFolder };
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma once
 
 #include <QtCore>
@@ -967,7 +967,7 @@ public:
 
 	int majorStructVersion = 1, 		// version read from config file 1.2.
 		minorStructVersion = 2,			// C.f. support.h constexpr with same names
-		subStructVersion = 9;			// 	the value in falconG.ui is overwritten on run
+		subStructVersion = 10;			// 	the value in falconG.ui is overwritten on run
 	bool dontRegenerateAnyImage = false;
 	StyleHandler styleHandler;	// for the main window with all of its elements
 

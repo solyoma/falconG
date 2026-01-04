@@ -292,6 +292,9 @@
     <ClInclude Include="stylehandler.h" />
     <ClInclude Include="support.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="falconG.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
   <ImportGroup Label="ExtensionTargets">

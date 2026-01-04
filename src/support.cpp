@@ -270,7 +270,10 @@ QString EncodeText(const QString s)
 *							"\\n" => '\n', "&amp;" => '&',
 *							"&lt;"=> '<', "&gt;"=> '>',
 *					  dtHtml: HTML ->'\n', 
+*							"\n" => "<br>\n" 
 *							"\\n" => "<br>\n" 
+*							"\"" => "&quot;" 
+*							"'"  => "&apos;" 
 *					  dtJS: JS -> '<br>'
 *							"\\n" => "<br>" 
 *							"&lt;"=> '<', "&gt;"=> '>',
@@ -284,28 +287,39 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 		return s;
 
 	QString res = s;
+	bool inQuote = false;
+
 	switch (purpose)
 	{
 		case dtPlain:
 			res.replace("\\n", "\n");
+			res.replace("<br>", "\n");
+			res.replace("<br/>", "\n");
 			res.replace("&amp;", "&");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
 			break;
+		case dtDescription:
+			inQuote = true;
+			//[[fallthrough]]
 		case dtHtml:
-			res.replace("\\n", "<br>\n");
+			res.replace("\\n","<br/>");
+			res.replace("\n", "<br/>");
+			if(inQuote)
+			{
+				res.replace("\"", "&quot;"); // but only inside quotes or apostrophes
+				res.replace("\'", "&apos;"); // - " - 
+			}
 			break;
 		case dtJavaScript:
-			if (res.indexOf('\n')>=0)
-				res.replace("\n", "<br>");
-			else if (res.indexOf("\\n") >= 0)
-				res.replace("\\n", "<br>");
+			res.replace("\n", "<br>");
+			res.replace("\\n", "<br>");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
-			res.replace('\'', 0x02);
-			res.replace('\'', 0x03);
-			res.replace('"' , 0x04);
-			res.replace('\\', 0x05);
+			res.replace('\'', 0x02);  // STX
+			res.replace('\'', 0x03);  // ETX
+			res.replace('"' , 0x04);  // EOT
+			res.replace('\\', 0x05);  // ENQ
 			break;
 	}
 	return res;
