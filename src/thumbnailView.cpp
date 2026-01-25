@@ -1028,8 +1028,8 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             mb.setText(tr("Move into this folder or just reposition before it?"));
             mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
             // buttons added after the existing buttons
-            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::NoRole);
-            QPushButton *pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::YesRole);
+            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::YesRole); // YesRole comes first, no after and cancel after that
+            QPushButton *pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::NoRole);     
 
 #ifdef DEBUG
             QPushButton *pCancelBtn = 
@@ -1876,7 +1876,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
     }
     if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
     {
-        pact = new QAction(tr("&New Album or Alias..."), this);  // create new folder, or folder alias inside actual folder
+        pact = new QAction(tr("&New Album or new Alias..."), this);  // create new folder, or folder alias inside actual folder
         connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
         menu.addAction(pact);
 
@@ -2717,9 +2717,11 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
 	QVBoxLayout* wLayout = new QVBoxLayout(w);
     _treeView = new AlbumTreeView(w);          // selection of an album to be used as alias
     _treeView->header()->hide();
+    _treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _treeView->setModel(frmMain->GetTreeViewPointer()->model()); // use the album tree model
     _treeView->setRootIsDecorated(false);
-    _treeView->expandAll();
+    _treeView->setExpanded(_treeView->model()->index(0,0), true);
+    //_treeView->expandAll();
     _treeView->setMinimumWidth(300);
     // DEBUG
     //int n = _treeView->model()->rowCount(),

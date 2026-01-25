@@ -1376,8 +1376,15 @@ Album *AlbumMap::Find(QString albumPath)
 	albumPath = CutSourceRootFrom(albumPath);
 	SeparateFileNamePath(albumPath, p, n);
 
+	auto samePath = [&](Album &a) ->bool
+		{
+			if (!pathMap.Contains(a.pathId))
+				return false;
+			return pathMap[a.pathId] == p;
+		};
+
 	for (auto i = begin(); i != end(); ++i)
-		if (i.value().name==n)
+		if (i.value().name==n && samePath(i.value()))
 			return &i.value();
 	return nullptr;
 }
