@@ -314,8 +314,9 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	inline bool IsAlias() const { return baseAlbumId != NO_ID; }
 	void SetAsAliasFor(Album* thatAlbum);		// transfer all data from this album to new base album
 
-	Album* BaseAlbum();					// returns the base album for this album, i.e. the one that has the items
-										// or 'this' if this is a base album
+	Album* BaseAlbum(bool orNullptr = false);	// returns the base album for this album, i.e. the one that has the items
+												// or 'this' if this is a base album and orNullptr is false 
+												// or nullptr if orNullptr is true
 	ID_t IdOfItem(int pos) const 
 	{ 
 		return items.isEmpty() ||  (pos >= items.size()) ?  ID_t::Invalid() : items[pos];

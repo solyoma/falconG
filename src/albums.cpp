@@ -45,6 +45,8 @@ static QSize ThumbSizeFromId(ID_t id)	//id: thumbnail id
 *--------------------------------------------------------------------------*/
 static QDate DateFromString(QString s)
 {
+	if (s.isEmpty() || s.length() < 10)
+		return QDate::currentDate();
 	return QDate(s.mid(0, 4).toInt(), s.mid(5, 2).toInt(), s.mid(8, 2).toInt());
 }
 
@@ -893,9 +895,9 @@ void Album::SetAsAliasFor(Album* thatAlbum)		// thatAlbum must exist, pointer mu
 	aliasesList.clear();	// as we are an alias ourselves we will have no aliases
 }
 
-Album* Album::BaseAlbum() 		// returns the base album for this album, i.e. the one that has no baseAlbumId set
-{								// this may be the base album itself
-	return (baseAlbumId == NO_ID) ? this : albumgen.Albums().AlbumForIDVal(baseAlbumId); // only a single layer of aliases
+Album* Album::BaseAlbum(bool orNullptr) 		// returns the base album for this album, i.e. the one that has no baseAlbumId set
+{								// this may be the album itself
+	return (baseAlbumId == NO_ID) ? (orNullptr ? nullptr : this) : albumgen.Albums().AlbumForIDVal(baseAlbumId); // only a single layer of aliases
 }
 
 /*============================================================================
@@ -2746,7 +2748,12 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 					_latestDateLimit = img.uploadDate;
 				// DEBUG:
 				if (img.uploadDate.toJulianDay() < 0)
+				{
+					QString qs = tr("Julian day(%1) < 0 for image %2 in line %3").arg(img.uploadDate.toJulianDay()).arg(img.name).arg(reader.ReadCount());
+					QMessageBox::warning(nullptr, "FalconG - Debug Warning", qs);
+					reader.NextLine();
 					return ID_t::Invalid(id.Val());
+				}
 
 				img.fileSize = sl[8].toULongLong();
 				if (n == 10)
@@ -4056,7 +4063,8 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 		// the array has 6 items for each image or video:
 		//		file name (number), type (I: image, V: video), width (w), height (h), title (or ''), description (or '')
 
-		IABase* pIa = nullptr;
+		IABase* pIa = nullptr;					 
+		const Album* pBase = nullptr;
 		QString qs, 
 			qsI,				// collect all images and videos into this string
 			qsA,				// all albums here
@@ -4081,6 +4089,7 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				++acnt;
 				pIa = &_albumMap[a];
 				pqs = &qsA;
+				pBase = reinterpret_cast<Album*>(pIa)->BaseAlbum(true);	// returns nullptr when no base album instead of this album	
 			}
 			Q_ASSERT(pIa != nullptr);
 //			if (pIa)
@@ -4088,18 +4097,29 @@ QString AlbumGenerator::_PageHeadToString(const Album& album)
 				QSize size = pIa->ThumbSize();
 										// type is image even for albums
 				*pqs += QString("{%1:'%2',w:%3,h:%4,").arg(a.TestFlag(VIDEO_ID_FLAG)? "v" : "i").arg(pIa->ID.Val()).arg(size.width()).arg(size.height());
-				LanguageTexts* plt = _textMap.Find(pIa->titleID);
+				int64_t id = pIa->titleID;
+				if(!id && pBase )
+					id = pBase->titleID; // use base album title
+				LanguageTexts* plt = _textMap.Find(id);
 				if (plt)
 					*pqs += "t:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtDescription) + "',";
 				else
 					*pqs += "t:'',";
-				plt = _textMap.Find(pIa->descID);
+
+				id = pIa->descID;
+				if (!id && pBase)
+					id = pBase->descID; // use base album description
+				plt = _textMap.Find(id);
 				if (plt)
 					*pqs += "d:'" + DecodeTextFor((*plt)[_actLanguage], DecodeTextTo::dtDescription) + "',";
 				else
 					*pqs += "d:'',";
+
 				if (a.TestFlag(ALBUM_ID_FLAG))
-					*pqs += QString("l:'%1'").arg(reinterpret_cast<const Album*>(pIa)->thumbnailId.Val());
+					id = reinterpret_cast<const Album*>(pIa)->thumbnailId.Val();
+				if (!id && pBase)
+					id = pBase->thumbnailId.Val();
+				*pqs += QString("l:'%1'").arg(id);
 				*pqs += "},\n";
 			}		
 		}
@@ -4743,7 +4763,7 @@ int AlbumGenerator::_CreatePage(Album &album, int language, QString uplink, int 
 			pBaseAlbum = album.BaseAlbum();
 		}
 
-		_CreateOneHtmlAlbum(f, *pBaseAlbum, language, uplink, processedCount);
+		_CreateOneHtmlAlbum(f, *pBaseAlbum, language, uplink, processedCount) ;
 	}
 
 	if (_processing) 		// create sub albums
@@ -5133,12 +5153,10 @@ int AlbumGenerator::_DoLatestJs()
 				pim->SetThumbSize();
 				ofjs << "{ i:" << (idt.Val()) << ",w:" << pim->tsize.width() << ",h:" << pim->tsize.height();
 				if (pim->titleID)
-				{
-					QString s = DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript);
 					ofjs << ",t:\"" << DecodeTextFor(_textMap[pim->titleID][lang], dtJavaScript) << "\"";
-				}
 				else
 					ofjs << ",t:''";
+
 				if (pim->descID)
 					ofjs << ",d:\"" << DecodeTextFor(_textMap[pim->descID][lang], dtJavaScript) << "\"";
 				else
