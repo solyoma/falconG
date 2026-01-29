@@ -5607,11 +5607,6 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 	emit SignalAlbumStructChanged(false);								// album structure changed and saved
 }
 
-inline void AlbumGenerator::AddToModifiedList(Album& album, bool itemNotProcessedYet)
-{
-	AddToModifiedList(album.ID, itemNotProcessedYet);
-}
-
 void AlbumGenerator::AddToModifiedList(ID_t albumId, bool itemNotProcessedYet)		// albumId must be valid
 {
 	if (_processing && !itemNotProcessedYet)

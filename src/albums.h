@@ -534,7 +534,10 @@ public:
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
-	inline void AddToModifiedList(Album& album, bool itemNotProcessedYet = false);
+	void AddToModifiedList(Album& album, bool itemNotProcessedYet = false)
+	{
+		AddToModifiedList(album.ID, itemNotProcessedYet);
+	}
 	void AddToModifiedList(ID_t albumId, bool itemNotProcessedYet = false);		// albumId must be valid
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
