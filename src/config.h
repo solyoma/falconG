@@ -965,9 +965,9 @@ class CONFIG
 public:
 	CONFIG();
 
-	int majorStructVersion = 1, 		// version read from config file 1.2.
-		minorStructVersion = 2,			// C.f. support.h constexpr with same names
-		subStructVersion = 10;			// 	the value in falconG.ui is overwritten on run
+	int majorStructVersion = 2, 		// version read from '.struct' file. May differ from the program version
+		minorStructVersion = 0,			// in support.h  (similar names w.o. 'Struct' in them)
+		subStructVersion   = 0;			// the value displayed in falconG.ui is overwritten on run
 	bool dontRegenerateAnyImage = false;
 	StyleHandler styleHandler;	// for the main window with all of its elements
 

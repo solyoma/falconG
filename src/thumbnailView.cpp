@@ -1025,7 +1025,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         {                        // or relocate them or cancel operation                     
             QMessageBox mb(this);
             mb.setWindowTitle(tr("falconG - Question"));
-            mb.setText(tr("Move into this folder or just reposition before it?"));
+            mb.setText(tr("Reposition selection before this folder or Move into it?"));
             mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
             // buttons added after the existing buttons
             QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::YesRole); // YesRole comes first, no after and cancel after that
@@ -1103,7 +1103,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                         Album* pab = albumgen.AlbumForID(itemID);
                         Q_ASSERT(pab);
                         pab->parentId = pDestAlbum->ID.Val();      // reparent album
-                        albumgen.SetAlbumModified(itemID);   // so that it gets written 
+                        albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
                     }
                     itemsDest.push_back(itemID);
                 }
@@ -1180,7 +1180,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
         }
         if (doWriteStructFile)
         {
-            albumgen.SetAlbumModified(*pAlbum);
+            albumgen.AddToModifiedList(*pAlbum);
 
             albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
         }
@@ -1673,7 +1673,7 @@ void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
         currThumbSize.setWidth(BAD_IMAGE_SIZE);
     }
 
-    albumgen.SetAlbumModified(_albumId);
+    albumgen.AddToModifiedList(_albumId,true);
     _thumbnailViewModel->appendRow(thumbItem);
 }
 
@@ -2050,7 +2050,7 @@ void ThumbnailView::SynchronizeTexts()
     else    // clear save the state when the answer is no
         config.doNotShowTheseDialogs.v = config.doNotShowTheseDialogs.v & (~(1 << DialogBitsOrder::dboAskSynchronize));
 
-    albumgen.SetAlbumModified(*pAlbum);
+    albumgen.AddToModifiedList(*pAlbum);
 }
 
 /*=============================================================
@@ -2119,7 +2119,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     {   
         atLeastOneFolderWasAdded = true;
         pParentAlbum = albumgen.Albums()[_albumId].BaseAlbum();     // album position may have changed when new album was added to map
-        albumgen.SetAlbumModified(*pParentAlbum);
+        albumgen.AddToModifiedList(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
         album.parentId = _albumId.Val();
         albumgen.AddDirsRecursively(id);
@@ -2174,7 +2174,7 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName, IDVal_t baseAlbumID)
     emit SignalAlbumStructWillChange();
     if (addedToMap)
     {
-        albumgen.SetAlbumModified(parentAlbum);                 // either this album or its base album
+        albumgen.AddToModifiedList(parentAlbum);                 // either this album or its base album
 
         albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
         res = true;
@@ -2264,7 +2264,7 @@ void ThumbnailView::RenameVirtualFolder()
 	if (text.isEmpty())
 		return;
 	pItem->name = text;
-	albumgen.SetAlbumModified(*pItem);
+	albumgen.AddToModifiedList(*pItem);
     AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
     ptrv->update(ptrv->currentIndex());
     Reload();
@@ -2384,13 +2384,13 @@ void ThumbnailView::SetAsAlbumThumbnail()
     ID_t th = album.items[pos];                                  
 
     thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
-    albumgen.SetAlbumModified(_albumId);    // this one is modified, not the base album
+    albumgen.AddToModifiedList(_albumId, true);    // this one is modified, not the base album
 
     UpdateTreeView(false);
     if (album.parentId)
     {
         UpdateTreeView(true);
-        albumgen.SetAlbumModified(ID_t(ALBUM_ID_FLAG, album.parentId) );  // the parent of this album always changes
+        albumgen.AddToModifiedList(ID_t(ALBUM_ID_FLAG, album.parentId), true);  // the parent of this album always changes
     }
     emit SignalAlbumChanged();
 }
@@ -2453,13 +2453,13 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     albumgen.AddItemToAlbum(_albumId, thname, IS_THUMBNAIL, !SIGNAL_ELAPSED_TIME, !ADD_TO_ALBUM_ITEMS);
 
     Album& album = *_ActAlbum();
-    albumgen.SetAlbumModified(album);
+    albumgen.AddToModifiedList(album);
 
     if (album.parentId)
     {
         Album* parent = albumgen.AlbumForIDVal(album.parentId);
 
-        albumgen.SetAlbumModified(*parent);     // only for the parent of this album and not all parents!
+        albumgen.AddToModifiedList(*parent);     // only for the parent of this album and not all parents!
     }
     emit SignalAlbumChanged();
 }
@@ -2644,7 +2644,7 @@ void ThumbnailView::FindMissingImageOrVideo()
 
         pItem->ID.SetFlag(EXISTING_FLAG, QFile::exists(pItem->FullSourceName()) );  // must always be exExists because of dialog settings
         pItem->changed = true;
-        albumgen.SetAlbumModified(album);
+        albumgen.AddToModifiedList(album);
 
         // check all missing files against all search paths collected so far
         for (auto &id1 : album.items)

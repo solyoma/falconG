@@ -194,7 +194,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
 	ui.setupUi(this);
-	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorStructVersion).arg(minorStructVersion).arg(subStructVersion)); // in support.h
+	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
 
 #if defined Q_OS_WINDOWS
@@ -361,7 +361,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 	QFile fTmp(qsTmpName);
 	QFile fs(qsConfigName);
 
-	if (!albumgen.StructChanged() && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
+	if (!albumgen.IsStructChanged() && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
 	{
 		fs.rename(qsSafetyCopyName);
 		if (fTmp.rename(qsConfigName))
@@ -369,7 +369,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 		else
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
 	}
-	if(albumgen.StructChanged())
+	if(albumgen.IsStructChanged())
 	{
 		event->ignore();
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
@@ -1471,7 +1471,7 @@ void FalconG::_ReadLastAlbumStructure()
 		else
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error on\n%1").arg(qs));
 	}
-	albumgen.SetStructChanged(false);
+	albumgen.SetStructChanged(false);	// clears count of changes
 }
 
 
@@ -5074,7 +5074,7 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto &a : albumgen.Albums())
 			if (a.titleID == otid)
-				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.SetAlbumModified(a);
+				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.AddToModifiedList(a);
 		for (auto &a : albumgen.Images())
 			if (a.titleID == otid)
 				a.titleID = _selection.title.ID, tmap.Remove(otid);
@@ -5084,7 +5084,7 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto &a : albumgen.Albums())
 			if (a.descID == odid)
-				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.SetAlbumModified(a);
+				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.AddToModifiedList(a);
 		for (auto &a : albumgen.Images())
 			if (a.descID == odid)
 				a.descID = _selection.description.ID, tmap.Remove(odid);

@@ -435,6 +435,7 @@ public:
 class AlbumMap : public QMap<ID_t, Album>
 {
 	static Album invalid;
+	bool _changed = false;	// at least one album changed since last write
 	// last used album path is in 'albumGenerator::lastUsedAlbumPath'
 	// root path is in config.dsSrc
 public:
@@ -462,6 +463,13 @@ public:
 	ID_t Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t baseFolderID = NO_ID);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and its all sub-albums
+	void SetChanged(ID_t albumId, bool changed = true)
+	{
+		if (contains(albumId))
+			(*this)[albumId].changed = changed;
+		_changed = changed;
+	}
+	constexpr inline bool IsChanged() const { return _changed; }
 };
 
 struct IdsFromStruct
@@ -521,13 +529,13 @@ public:
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
 	bool StructWritten() const { return !_structIsBeingWritten; }
-	bool StructChanged() const { return _structFileChangeCount;  }
+	bool IsStructChanged() const { return _structFileChangeCount ? _structFileChangeCount : _albumMap.IsChanged();  }
 	void SetStructChanged(bool val) { _structFileChangeCount = (val ? ++ _structFileChangeCount : 0); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
-	void SetAlbumModified(Album& album);
-	void SetAlbumModified(ID_t albumId);		// albumId must be valid
+	inline void AddToModifiedList(Album& album, bool itemNotProcessedYet = false);
+	void AddToModifiedList(ID_t albumId, bool itemNotProcessedYet = false);		// albumId must be valid
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	int ActLanguage() const { return _actLanguage; }
@@ -547,15 +555,15 @@ public:
 				 (id.IsImage()) && _imageMap.contains(id)  ||
 				 (id.IsVideo()) && _videoMap.contains(id) ) ;
 	}
-	inline Album* AlbumForIDVal(IDVal_t idv)
+	inline Album* AlbumForIDVal(const IDVal_t idv)
 	{
 		return _albumMap.AlbumForIDVal(idv);
 	}
-	inline Album* AlbumForID(ID_t id)
+	inline Album* AlbumForID(const ID_t id)
 	{
 		return _albumMap.AlbumForID(id);
 	}
-	inline Image* ImageAt(ID_t id) 
+	inline Image* ImageAt(const ID_t id) 
 	{ 
 		return &_imageMap[id]; 
 	}
@@ -614,7 +622,6 @@ private:
 
 	bool _processing = false;
 	bool _signalProgress = true;
-	IDValList _slAlbumsModified;
 	QString _upLink;		// to parent page if there's one
 
 	TextMap	 _textMap;		// all texts for all albums and images
