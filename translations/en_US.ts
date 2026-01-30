@@ -4,58 +4,58 @@
 <context>
     <name>AlbumGenerator</name>
     <message>
-        <location filename="../src/albums.cpp" line="5459"/>
-        <location filename="../src/albums.cpp" line="5469"/>
-        <location filename="../src/albums.cpp" line="5583"/>
-        <location filename="../src/albums.cpp" line="5629"/>
+        <location filename="../src/albums.cpp" line="5427"/>
+        <location filename="../src/albums.cpp" line="5437"/>
+        <location filename="../src/albums.cpp" line="5551"/>
+        <location filename="../src/albums.cpp" line="5597"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2053"/>
+        <location filename="../src/albums.cpp" line="2063"/>
         <source>Album %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2399"/>
+        <location filename="../src/albums.cpp" line="2409"/>
         <source>Bad Path line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2604"/>
+        <location filename="../src/albums.cpp" line="2615"/>
         <source>Unknown file type
 File name:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2672"/>
+        <location filename="../src/albums.cpp" line="2686"/>
         <source>Invalid file type for image or video in line %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3347"/>
+        <location filename="../src/albums.cpp" line="3304"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="4820"/>
+        <location filename="../src/albums.cpp" line="4790"/>
         <source>Missing or unreadable &quot;about_text%1.txt&quot; file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5387"/>
-        <location filename="../src/albums.cpp" line="5393"/>
+        <location filename="../src/albums.cpp" line="5355"/>
+        <location filename="../src/albums.cpp" line="5361"/>
         <source>falconG - Generate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5459"/>
+        <location filename="../src/albums.cpp" line="5427"/>
         <source>Invalid Album ID. Can&apos;t be removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5469"/>
+        <location filename="../src/albums.cpp" line="5437"/>
         <source>Found an album alias. Album aliases are just removed from database
 but their content isn&apos;t removed.
 
@@ -63,13 +63,13 @@ No more warning during this operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5583"/>
+        <location filename="../src/albums.cpp" line="5551"/>
         <source>Cannot remove items from an alias album.
 Cancelling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5629"/>
+        <location filename="../src/albums.cpp" line="5597"/>
         <source>This is an alias album, the real data is elsewhere.
 Can&apos;t delete items from a base album through an alias album!</source>
         <translation type="unfinished"></translation>
@@ -518,69 +518,69 @@ Can&apos;t read icon
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2689"/>
+        <location filename="../src/albums.cpp" line="2707"/>
         <source>Wrong image parameter count:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3064"/>
+        <location filename="../src/albums.cpp" line="3050"/>
         <source> - duplicated album ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3177"/>
+        <location filename="../src/albums.cpp" line="3132"/>
         <source>Image/video not Found in line #%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3257"/>
+        <location filename="../src/albums.cpp" line="3214"/>
         <source>Read error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3262"/>
+        <location filename="../src/albums.cpp" line="3219"/>
         <source>Bad version string</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3268"/>
+        <location filename="../src/albums.cpp" line="3225"/>
         <source>Missing &apos;.&apos; from version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="2406"/>
-        <location filename="../src/albums.cpp" line="2450"/>
+        <location filename="../src/albums.cpp" line="2416"/>
+        <location filename="../src/albums.cpp" line="2460"/>
         <source>Missing &apos;]&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3279"/>
+        <location filename="../src/albums.cpp" line="3236"/>
         <source>Invalid path table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3281"/>
+        <location filename="../src/albums.cpp" line="3238"/>
         <source>Invalid orphan table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3293"/>
+        <location filename="../src/albums.cpp" line="3250"/>
         <source>Invalid / empty root album line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3353"/>
+        <location filename="../src/albums.cpp" line="3310"/>
         <source>falconG - Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3354"/>
+        <location filename="../src/albums.cpp" line="3311"/>
         <source>Damaged structure file!
 Message: &apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3357"/>
+        <location filename="../src/albums.cpp" line="3314"/>
         <source>
 
 Processing aborted, because continuing
@@ -617,32 +617,32 @@ could destroy your old .struct file!
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2735"/>
+        <location filename="../src/thumbnailView.cpp" line="2737"/>
         <source>Album&apos;s name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2738"/>
+        <location filename="../src/thumbnailView.cpp" line="2740"/>
         <source>Name of the new album</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2753"/>
+        <location filename="../src/thumbnailView.cpp" line="2755"/>
         <source>No base album selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2763"/>
+        <location filename="../src/thumbnailView.cpp" line="2765"/>
         <source>O&amp;K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2765"/>
+        <location filename="../src/thumbnailView.cpp" line="2767"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2788"/>
+        <location filename="../src/thumbnailView.cpp" line="2790"/>
         <source>%1(%2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -881,8 +881,8 @@ Exiting</source>
     <message>
         <location filename="../src/languages.cpp" line="163"/>
         <location filename="../src/support.cpp" line="71"/>
-        <location filename="../src/support.cpp" line="1375"/>
-        <location filename="../src/support.cpp" line="1734"/>
+        <location filename="../src/support.cpp" line="1389"/>
+        <location filename="../src/support.cpp" line="1748"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -946,21 +946,21 @@ When the language texts are put into the struct file, there must be as many
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="887"/>
+        <location filename="../src/support.cpp" line="901"/>
         <source>Can&apos;t delete existing temporary file
 &apos;%1&apos;
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="896"/>
+        <location filename="../src/support.cpp" line="910"/>
         <source>Can&apos;t delete existing backup file
 &apos;%1&apos;
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="900"/>
+        <location filename="../src/support.cpp" line="914"/>
         <source>Can&apos;t rename file
 &apos;%1&apos;
 to 
@@ -969,7 +969,7 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="902"/>
+        <location filename="../src/support.cpp" line="916"/>
         <source>Can&apos;t rename file
 &apos;%1&apos;
 to 
@@ -977,54 +977,54 @@ to
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1156"/>
+        <location filename="../src/support.cpp" line="1170"/>
         <source>Destination file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1156"/>
+        <location filename="../src/support.cpp" line="1170"/>
         <source>exists and image override is not allowed!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1203"/>
+        <location filename="../src/support.cpp" line="1217"/>
         <source>Invalid sizes for thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1325"/>
+        <location filename="../src/support.cpp" line="1339"/>
         <source>falconG - Question</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1327"/>
+        <location filename="../src/support.cpp" line="1341"/>
         <source>Directory &apos;%1&apos; does not exist.
 
 Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1330"/>
+        <location filename="../src/support.cpp" line="1344"/>
         <source>Don&apos;t ask again (use Options to re-enable)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1374"/>
+        <location filename="../src/support.cpp" line="1388"/>
         <source>Can&apos;t create folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1441"/>
+        <location filename="../src/support.cpp" line="1455"/>
         <source>falconG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1441"/>
+        <location filename="../src/support.cpp" line="1455"/>
         <source>Really remove %1 and all of its content?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/support.cpp" line="1735"/>
+        <location filename="../src/support.cpp" line="1749"/>
         <source>Can&apos;t get thumbnail for video file &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1144,7 +1144,7 @@ Create?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="3745"/>
+        <location filename="../src/albums.cpp" line="3702"/>
         <source>Conversion error:
 &apos;%1&apos;
 Error code:%2
@@ -1237,7 +1237,7 @@ folder and its items remain intact.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="1274"/>
+        <location filename="../src/albums.cpp" line="1278"/>
         <source>There&apos;s already a non virtual album named 
 &apos;%1&apos;
  here.
@@ -1245,12 +1245,12 @@ Add an alias to it instead!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5840"/>
+        <location filename="../src/albums.cpp" line="5790"/>
         <source>falconG - Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/albums.cpp" line="5841"/>
+        <location filename="../src/albums.cpp" line="5791"/>
         <source>Can&apos;t get thumbnail for video &apos;%1&apos;.
 %2</source>
         <translation type="unfinished"></translation>
@@ -1263,7 +1263,7 @@ Add an alias to it instead!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="2745"/>
+        <location filename="../src/thumbnailView.cpp" line="2747"/>
         <source>Use as alias for:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1506,11 +1506,6 @@ Add an alias to it instead!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1028"/>
-        <source>Move into this folder or just reposition before it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/thumbnailView.cpp" line="1031"/>
         <source>Re&amp;position</source>
         <translation type="unfinished"></translation>
@@ -1579,11 +1574,6 @@ Add an alias to it instead!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/thumbnailView.cpp" line="1879"/>
-        <source>&amp;New Album or Alias...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/thumbnailView.cpp" line="1883"/>
         <source>&amp;Rename Album...</source>
         <translation type="unfinished"></translation>
@@ -1624,6 +1614,11 @@ Do you really want to do this?</source>
         <location filename="../src/thumbnailView.cpp" line="1009"/>
         <source>You cannot drop items into an alias album.
 Please switch to the original album &apos;%1&apos; first!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1028"/>
+        <source>Reposition selection before this folder or Move into it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1708,6 +1703,11 @@ Failed to add %1 items</source>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1832"/>
         <source>Set As &amp;Thumbnail for Container</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/thumbnailView.cpp" line="1879"/>
+        <source>&amp;New Album or new Alias...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
