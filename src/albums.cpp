@@ -2340,7 +2340,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			++len;		// include closing ']' but not the possible ID/collision
 			int clen = sTitleTag.length() + (*languages["language"])[lang].length() + 2;	// 1 for '[' + 1 for ':'
 			texts.SetTextForLanguageNoID(s.mid(level + clen, len - level - clen-1), lang);
-			if (config.majorStructVersion == 1)
+			if (config.majorStructVersion >= 1)
 			{						// none = there is no asterix followed by a number
 				if (textID == 0)	// then this is the first line for the text
 				{

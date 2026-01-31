@@ -30,7 +30,7 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;	 // from Albumgen::Albums()
 	QModelIndex parent(const QModelIndex &index) const;
 
 	void BeginResetModel()

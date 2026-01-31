@@ -883,7 +883,7 @@ void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
 
 
 /*=============================================================
- * TASK:
+ * TASK:   handles dragged object move
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -897,6 +897,8 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
     if (!_IsAllowedTypeToDrop(event))
 		return;
 
+    static QTimer *movetimer = nullptr;
+
 	QModelIndex index = indexAt(event->pos());
 
 	event->accept();
@@ -904,13 +906,30 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 
     if (pose < 30)
     {
-        QThread::msleep(200);
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+        if (!movetimer)
+        {
+            movetimer = new QTimer(this);
+            QThread::msleep(200);
+            connect(movetimer, &QTimer::timeout, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); });
+            movetimer->start(200);
+        }
+
     }
     else if (pose > height() - 30)
     {
-        QThread::msleep(200);
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+        if (!movetimer)
+        {
+            movetimer = new QTimer(this);
+            QThread::msleep(200);               // works with both 4 parameters with 'this' or with 3 paramas without it as above
+            connect(movetimer, &QTimer::timeout, this, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); });
+            movetimer->start(200);
+        }
+    }
+    else if (movetimer)
+    {
+		disconnect(movetimer, nullptr, this, nullptr);
+        delete movetimer;
+        movetimer = nullptr;
     }
 }
 
@@ -1108,7 +1127,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                     if(!itemsDest.contains(itemID))
                         itemsDest.push_back(itemID);
                 }
-                pDestAlbum->items += itemsDest;
+                pDestAlbum->items = itemsDest;
 
                 // remove indexes of moved items from source gallery and icon indices
                 const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
@@ -1772,37 +1791,21 @@ void ThumbnailView::mouseMoveEvent(QMouseEvent * event)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - no modification of the content of alias albums
+ * REMARKS: - items can't be added to nor deleted from or moved
+ *            outside of an alias album
+ *          - title and description however can be modified even
+ *            in an alias album
+ *          - menus depend on how many and what kind of items 
+ *            are selected
  *------------------------------------------------------------*/
 void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 {
 	QMenu menu(this);
 	QAction *pact;
+	bool isAliasAlbum = (_ActAlbum()->baseAlbumId != NO_ID);
     int nSelSize = selectionModel()->selectedIndexes().size();
 
-    if (nSelSize == 0)
-    {       // 2 albums always added to AlbumMap: root and latest
-        if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
-        {
-            pact = new QAction(tr("Select As Album Thumbnail..."), this);  // any image
-			connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);         // for this album, even when it is an alias
-            menu.addAction(pact);
-
-            menu.addSeparator();
-
-// even when no image or video recursive listing is possible
-            {
-                pact = new QAction(tr("E&xport CSV..."), this);
-                pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
-                connect(pact, &QAction::triggered, this, &ThumbnailView::ExportAsCSV);
-                menu.addAction(pact);
-
-                menu.addSeparator();
-            }
-
-        }
-    }
-    else // album(s) or image(s) or videos are selected
+    if(nSelSize) // album(s) or image(s) or videos are selected
     {
         Album& album = *albumgen.Albums()[_albumId].BaseAlbum();
 
@@ -1838,7 +1841,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 				}
                 menu.addSeparator();
             }
-            else
+            else if(!isAliasAlbum)
             {
                 pact = new QAction(tr("Find missing item"), this);
                 connect(pact, &QAction::triggered, this, &ThumbnailView::FindMissingImageOrVideo);
@@ -1911,6 +1914,27 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addSeparator();
             pact = new QAction(tr("&Remove/Delete"), this);
             connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
+            menu.addAction(pact);
+        }
+    }
+    if (nSelSize == 0)
+    {
+        menu.addSeparator();   
+        // 2 albums always added to AlbumMap: root and latest
+        if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
+        {
+            pact = new QAction(tr("Thumbnail for Parent..."), this);  // any image
+            connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);         // for this album, even when it is an alias
+            menu.addAction(pact);
+
+            menu.addSeparator();
+        }
+
+        // even when no image or video recursive listing is possible
+        {
+            pact = new QAction(tr("E&xport list to CSV..."), this);
+            pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
+            connect(pact, &QAction::triggered, this, &ThumbnailView::ExportAsCSV);
             menu.addAction(pact);
         }
     }
@@ -2229,15 +2253,12 @@ void ThumbnailView::NewVirtualFolder()
 
     if (aDlg.exec() == QDialog::Accepted)
     {
-		baseIdVal = aDlg.GetBaseAlbumId(); // may be NO_ID for new album
+        baseIdVal = aDlg.GetBaseAlbumId(); // may be NO_ID for new album
         QString folderName = aDlg.GetAlbumName(),
-                baseAlbumName = aDlg.GetBaseAlbumName(baseIdVal);
+            baseAlbumName = aDlg.GetBaseAlbumName(baseIdVal);
 
-        if (_NewVirtualFolder(folderName, baseIdVal))
-        {
-            AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
-			ptrv->update();
-        }
+        if (_NewVirtualFolder(folderName, baseIdVal)) // refreshes treeview's model too
+            frmMain->GetTreeViewPointer()->update();
     }
 }
 

@@ -404,7 +404,6 @@ private slots:
  * REMARKS:
  *------------------------------------------------------------*/
 
- // ---dialog box to enter a new album name and enable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
 
 class AlbumFilterModel : public QSortFilterProxyModel
 {
@@ -429,6 +428,7 @@ private:
 
 
 //-------------------------GetNewAlbumNameDialog----------------------------------------
+// ---dialog box to enter a new album name and enable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
 
 class GetNewAlbumNameDialog : public QDialog
 {

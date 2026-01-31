@@ -1645,7 +1645,7 @@ void FalconG::on_btnBrowseSource_clicked()
  *			- when the actual selected scheme is deleted
  *				it still remains active, so you may
  *				restore it by writing the name into the combo box
- *			- the first tow shemes (Default and System Colors)
+ *			- the first two shemes (Default and System Colors)
  *				cannot be deleted or edited!
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
@@ -2330,6 +2330,22 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	--_busy;
 	_EnableColorSchemeButtons();
 	schemes.Save();
+}
+
+void FalconG::on_btnNextLanguage_clicked()
+{
+	int i = ui.cbLanguage->currentIndex() + 1;
+	if (i == ui.cbLanguage->count())
+		i = 0;
+	ui.cbLanguage->setCurrentIndex(i);
+}
+
+void FalconG::on_btnPrevLanguage_clicked()
+{
+	int i = ui.cbLanguage->currentIndex() - 1;
+	if (i < 0)
+		i = ui.cbLanguage->count() - 1;
+	ui.cbLanguage->setCurrentIndex(i);
 }
 
 /*========================================================
@@ -5151,15 +5167,8 @@ void FalconG::_SetProgramScheme()
 		// change these for new color set
 							//			   def. system    blue		 dark		  black		 
 	 // theme style string used only when not the default style is used
-	static QString styles = {
-	R"END(
-* {
-	background-color:%1;       /* %1 background */
-	color:%2;                  /* %2 color */
-	selection-color: %18;		
-	Selection-background-color: %19;
-}
-        
+	static QString styles =
+R"END(
 /* ------------------- geometry ------------------*/        
 
 QTabWidget::tab-bar {
@@ -5182,11 +5191,6 @@ QToolTip {
 QProgressBar,
 QPushButton:flat {
 	border:0;
-}
-
-QProgressBar::chunk{
-	width: 10px;
-	background-color:%15;	   /* %15 progressbar chunk */
 }
 
 QToolButton {
@@ -5228,7 +5232,36 @@ QTreeView,
 QListView {
     border-radius: 10px;
 }
-						/* these 2 do not work */
+/* ------------------ borders ----------------------*/   
+QTabBar::tab, 
+QToolTip,
+QTextEdit, 
+QLineEdit,
+QGroupBox,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border-width: 2px;
+}
+
+#btnImage {
+	border-radius:0px;
+}
+
+/* ------------------ colors --------------------*/
+* {
+	background-color:%1;       /* %1 background */
+	color:%2;                  /* %2 color */
+	selection-color: %18;		
+	Selection-background-color: %19;
+}
+        
+#btnImage {
+	border-radius:0px;
+}
+
+/* these 2 do not work */
 QTreeView::branch:open:has-children {
 	color %2;
 
@@ -5241,25 +5274,6 @@ QTreeView::item:selected:!active {
 	background-color:%19;
 }
         
-/* ------------------ borders ----------------------*/   
-QTabWidget:pane,     
-QTabBar::tab, 
-QToolTip,
-QTextEdit, 
-QLineEdit,
-QGroupBox,
-QSpinBox,
-QPushButton,
-QTreeView, 
-QListView {
-    border: 2px solid %3;	  /* %3   border color */
-}
-
-#btnImage {
-	border-radius:0px;
-}
-
-/* ------------------ colors --------------------*/
 QGroupBox::title {
 	color:%17				/* %17 bold title color */
 }
@@ -5297,6 +5311,16 @@ QComboBox:editable,
 QSpinBox {
 	background-color:%7;	/* %7 - input background */
 }
+#btnPrevLanguage,
+#btnNextLanguage {
+	background-color:%1;	/* %1 - background */
+}
+
+QSplitter::handle {
+	margin:0 9px 0 9px;	
+	background-color: %2;	/* %2 - color */
+}
+
 QTextEdit, 
 QLineEdit,
 QComboBox:editable,
@@ -5347,8 +5371,27 @@ QPusButton:default {
 #btnDeleteColorScheme {
 	background-color:%9;	/* %9 focused border */
 }
-)END"
-	};
+
+QProgressBar::chunk{
+	width: 10px;
+	background-color:%15;	   /* %15 progressbar chunk */
+}
+
+/* ------------------ borders ----------------------*/   
+QTabWidget:pane,     
+QTabBar::tab, 
+QToolTip,
+QTextEdit, 
+QLineEdit,
+QGroupBox,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border: 2px solid %3;	  /* %3   border color */
+}
+)END";
+
 	PROGRAM_CONFIG::schemeIndex = which;
 	if (which)
 	{
@@ -5373,7 +5416,7 @@ QPusButton:default {
 			.arg(schemes[which].sBoldTitleColor)	// %17
 			.arg(schemes[which].sSelectionColor)	// %18
 			.arg(schemes[which].sSelectionBackground)	// %19
-//			.arg(schemes[which].sSpacerColor)		// %20
+//			.arg(schemes[which].sSpacerColor)		// %20										   `
 			;
 
 		if (which == stBlue)		// blue
