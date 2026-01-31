@@ -1048,7 +1048,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                 int destItemSize = itemsDest.size();
 #endif
                 // -- check if any of the items to move is a folder and if it is then
-                //    whether it or any of its siblings are is already in the destination album
+                //    whether it or any of its siblings are already in the destination album
                 for (int i = 0; i < thl.size(); ++i)
                 {
                     ID_t itemID = items[thl[i]];
@@ -1105,8 +1105,10 @@ void ThumbnailView::dropEvent(QDropEvent * event)
                         pab->parentId = pDestAlbum->ID.Val();      // reparent album
                         albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
                     }
-                    itemsDest.push_back(itemID);
+                    if(!itemsDest.contains(itemID))
+                        itemsDest.push_back(itemID);
                 }
+                pDestAlbum->items += itemsDest;
 
                 // remove indexes of moved items from source gallery and icon indices
                 const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album

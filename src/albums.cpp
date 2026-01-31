@@ -2671,6 +2671,7 @@ AlbumGenerator::AddedStatus AlbumGenerator::AddImageOrVideoFromString(QString fu
 *			- image/video flag is set for them here and in _imageMap, and _videoMap
 *				but not in the file
 *			- throws 'BadStruct' on error
+*			- doesn't set or modify image sizes or upload dates
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail)
 {
