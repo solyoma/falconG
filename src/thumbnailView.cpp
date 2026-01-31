@@ -841,21 +841,6 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
 
     if (_IsAllowedTypeToDrop(event) )
 	{
-// DEBUG
-#if 1
-// DEBUG
-  //      if (pDragDropLabel)
-		//{
-		//	delete pDragDropLabel;
-  //          pDragDropLabel = nullptr;
-		//}
-// /DEBUG
-// DEBUG
-//        QString qs = __DebugPrintDragAndDrop(event);
-  //      pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
-		//pDragDropLabel->setVisible(true);
-// /DEBUG
-#endif
 		event->acceptProposedAction();
 	}
 }
@@ -869,15 +854,12 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
 {
-// DEBUG
-    //if (pDragDropLabel)
-    //{
-    //    delete pDragDropLabel;
-    //    pDragDropLabel = nullptr;
-    //}
-// /DEBUG
-    //	dynamic_cast<ThumbnailViewModel *>(model())->SetDummyPos(-1);
-//	QListView::dragLeaveEvent(event);
+    if (_movetimer)
+    {
+        disconnect(_movetimer, nullptr, this, nullptr);
+        delete _movetimer;
+        _movetimer = nullptr;
+    }
 }
 
 
@@ -897,8 +879,6 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
     if (!_IsAllowedTypeToDrop(event))
 		return;
 
-    static QTimer *movetimer = nullptr;
-
 	QModelIndex index = indexAt(event->pos());
 
 	event->accept();
@@ -906,30 +886,30 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 
     if (pose < 30)
     {
-        if (!movetimer)
+        if (!_movetimer)
         {
-            movetimer = new QTimer(this);
+            _movetimer = new QTimer(this);
             QThread::msleep(200);
-            connect(movetimer, &QTimer::timeout, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); });
-            movetimer->start(200);
+            connect(_movetimer, &QTimer::timeout, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); });
+            _movetimer->start(200);
         }
 
     }
     else if (pose > height() - 30)
     {
-        if (!movetimer)
+        if (!_movetimer)
         {
-            movetimer = new QTimer(this);
+            _movetimer = new QTimer(this);
             QThread::msleep(200);               // works with both 4 parameters with 'this' or with 3 paramas without it as above
-            connect(movetimer, &QTimer::timeout, this, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); });
-            movetimer->start(200);
+            connect(_movetimer, &QTimer::timeout, this, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); });
+            _movetimer->start(200);
         }
     }
-    else if (movetimer)
+    else if (_movetimer)
     {
-		disconnect(movetimer, nullptr, this, nullptr);
-        delete movetimer;
-        movetimer = nullptr;
+		disconnect(_movetimer, nullptr, this, nullptr);
+        delete _movetimer;
+        _movetimer = nullptr;
     }
 }
 

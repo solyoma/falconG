@@ -277,6 +277,8 @@ private:
 
     QImage _insertPosImage;	// shows insert position
 
+	QTimer* _movetimer = nullptr;
+
 	bool _dontRemoveImageViewerFromList = false; // used when all viewers are removed by user
 	QList<ImageViewer*> _lstActiveViewers;		// visible image viewers
 // /SA
