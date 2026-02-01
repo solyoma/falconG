@@ -2170,14 +2170,15 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName, IDVal_t baseAlbumID)
     bool addedToMap = false,
          res = false;
 
+    emit SignalInProcessing(true);
+    emit SignalAlbumStructWillChange();
+
     Album& thisAlbum = albumgen.Albums()[_albumId]; // either this is the parent of the new album
     Album& parentAlbum = *thisAlbum.BaseAlbum();    // or its base album is
 
 	IDVal_t idPVal = parentAlbum.ID.Val();
     ID_t id = albumgen.Albums().Add(idPVal, folderName, addedToMap, baseAlbumID);
 
-    emit SignalInProcessing(true);
-    emit SignalAlbumStructWillChange();
     if (addedToMap)
     {
         albumgen.AddToModifiedList(parentAlbum);                 // either this album or its base album

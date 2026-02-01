@@ -266,11 +266,13 @@ private slots:
 	void on_btnLink_clicked();
 	void on_btnMoveSchemeDown_clicked();
 	void on_btnMoveSchemeUp_clicked();
+	void on_btnNextBaseLanguage_clicked();
 	void on_btnNextLanguage_clicked();
 	void on_btnOpenBckImage_clicked();
 	void on_btnPageBackground_clicked();
 	void on_btnPageColor_clicked();
 	void on_btnPreview_clicked();
+	void on_btnPrevBaseLanguage_clicked();
 	void on_btnPrevLanguage_clicked();
 	void on_btnReload_clicked();
 	void on_btnResetColorScheme_clicked();

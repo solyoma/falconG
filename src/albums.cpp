@@ -2948,14 +2948,20 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *			file
 * EXPECTS: reader - open file reader,
 *					reader.l() :
-*						album definition line:
+*						album definition line (ver < 1.2):
 *							<name>(A:id)'/'<original path>
+*											  (ver > 1.2)
+*							<name>(<A|C>:id[{base ID]})Path ID
 *							or <original path>'/'<name>
 *           parent: ID of parent,
 *					Set to 0 for root album and NOT to TOPMOST_ALBUM_ID !
 *			level:	album level (number of spaces before name in the struct file)
 * RETURNS:	ID of new album from structure
-* REMARKS:	- 'structFileChangCount' only  differs from zero after read 
+* REMARKS:	- because of structure of .struct images/videos are read first 
+*				followed by the sub-albums. Therefore if the order  of albums
+*				and other items was changed in the editor these changes are
+*				lost (TODO ?)
+*			- 'structFileChangCount' only  differs from zero after read 
 *				* if any album was marked as 'C' (changed) instead of 'A'
 *				* if any album, image or video is specified with its path
 *					(relative to source dir, or absolute if anywhere els)
@@ -2969,11 +2975,9 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *				as this album, then returns
 *			- expects a single root album
 *			- albums are added to '_albumMap' as soon as they are identified
-*				and that record is modified later by adding the images and
+*				and that record is modified later after adding the images and
 *				albums to it
 *			- throws 'BadStruct' on error
-*			- album created here must be added to _albumMap in caller
-*				later than its sub albums, because its items may change
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int level)
 {

@@ -2203,13 +2203,72 @@ when their source is no longer present</string>
                  <number>6</number>
                 </property>
                 <item>
-                 <widget class="QComboBox" name="cbBaseLanguage">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <widget class="QWidget" name="pnlBaseLangSelect" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>24</height>
+                   </size>
                   </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_27">
+                   <property name="spacing">
+                    <number>1</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QToolButton" name="btnPrevBaseLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select previous language</string>
+                     </property>
+                     <property name="text">
+                      <string>◄</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QToolButton" name="btnNextBaseLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select Next Language</string>
+                     </property>
+                     <property name="text">
+                      <string>►</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="cbBaseLanguage">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
@@ -2805,8 +2864,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3198,7 +3257,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>426</width>
+                         <width>419</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -6272,8 +6331,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -8018,7 +8077,6 @@ the last CSS save.</string>
   <tabstop>tnvImages</tabstop>
   <tabstop>btnCloseAllViewers</tabstop>
   <tabstop>sldIconSize</tabstop>
-  <tabstop>cbBaseLanguage</tabstop>
   <tabstop>edtBaseTitle</tabstop>
   <tabstop>edtBaseDescription</tabstop>
   <tabstop>btnSaveChangedTitle</tabstop>

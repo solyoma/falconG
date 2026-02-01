@@ -2332,6 +2332,22 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	schemes.Save();
 }
 
+void FalconG::on_btnNextBaseLanguage_clicked()
+{
+	int i =  ui.cbBaseLanguage->currentIndex() + 1;
+	if (i == ui.cbBaseLanguage->count())
+		i = 0;
+	ui.cbBaseLanguage->setCurrentIndex(i);
+}
+
+void FalconG::on_btnPrevBaseLanguage_clicked()
+{
+	int i = ui.cbBaseLanguage->currentIndex() - 1;
+	if (i < 0)
+		i = ui.cbBaseLanguage->count() - 1;
+	ui.cbBaseLanguage->setCurrentIndex(i);
+}
+
 void FalconG::on_btnNextLanguage_clicked()
 {
 	int i = ui.cbLanguage->currentIndex() + 1;
@@ -5311,6 +5327,8 @@ QComboBox:editable,
 QSpinBox {
 	background-color:%7;	/* %7 - input background */
 }
+#btnPrevBaseLanguage,
+#btnNextBaseLanguage,
 #btnPrevLanguage,
 #btnNextLanguage {
 	background-color:%1;	/* %1 - background */
