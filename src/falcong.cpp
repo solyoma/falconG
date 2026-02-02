@@ -312,7 +312,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	config.ClearChanged();
 
 	int h = ui.tabEdit->height();
-	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
+	ui.editSplitter->setSizes({h*95/100,h*5/100});// ({532,220 });
 	// bread crumbs
 	ui.breadcrumbLayout->setSpacing(4);
 	ui.breadcrumbLayout->setContentsMargins(0, 0, 0, 0);
@@ -361,15 +361,18 @@ void FalconG::closeEvent(QCloseEvent * event)
 	QFile fTmp(qsTmpName);
 	QFile fs(qsConfigName);
 
-	if (!albumgen.IsStructChanged() && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
+	if ( !albumgen.IsStructChanged() )
 	{
-		fs.rename(qsSafetyCopyName);
-		if (fTmp.rename(qsConfigName))
-			QFile::remove(qsSafetyCopyName);
-		else
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+		if (fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
+		{
+			fs.rename(qsSafetyCopyName);
+			if (fTmp.rename(qsConfigName))
+				QFile::remove(qsSafetyCopyName);
+			else
+				QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+		}
 	}
-	if(albumgen.IsStructChanged())
+	else	  // struct changed
 	{
 		event->ignore();
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
@@ -377,7 +380,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
 								dboSaveEdited, 
 								this,
-								tr("Yes and don't ask again (use Options to re-enable)")
+								tr("Yes and don't ask again (use Options to re-enable)"),
+								resB
 							   );
 		if (res == QMessageBox::Yes)
 		{
