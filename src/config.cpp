@@ -1,4 +1,4 @@
-#include "config.h"
+﻿#include "config.h"
 
 // helper adds a semicolon and LF after the string
 // if s has more than one property (each should be in separate lines
@@ -26,8 +26,18 @@ CONFIG *PROGRAM_CONFIG::parent = nullptr;
 
 int PROGRAM_CONFIG::lang = -1;
 QStringList PROGRAM_CONFIG::qslLangNames;
-int PROGRAM_CONFIG::splitterLeft = 493;
-int PROGRAM_CONFIG::splitterRight = 543;
+int designSplitterLeft;		// horizontal on design TAB
+int designSplitterRight;
+int editSplitterTop;		// vertical on edit TAB
+int editSplitterBottom;
+int editWSplitterLeft;		// horizontal -"- top part
+int editWSplitterRight;
+int PROGRAM_CONFIG::designSplitterLeft = 493;
+int PROGRAM_CONFIG::designSplitterRight= 256;
+int PROGRAM_CONFIG::editWSplitterLeft  = 704;
+int PROGRAM_CONFIG::editWSplitterRight = 543;
+int PROGRAM_CONFIG::editSplitterTop	   = 532;
+int PROGRAM_CONFIG::editSplitterBottom = 220;
 int PROGRAM_CONFIG::copyrightYear = 2025;
 int PROGRAM_CONFIG::schemeIndex = 0;
 
@@ -47,9 +57,13 @@ void PROGRAM_CONFIG::Read()
 	s.setIniCodec("UTF-8");
 
 	lang = s.value("lang", -1).toInt();
-	splitterLeft = s.value("sll", 493).toInt();
-	splitterRight = s.value("slr", 543).toInt();
-	schemeIndex = s.value("schemeIndex", 0).toInt();
+	designSplitterLeft	= s.value("sdll", 493).toInt();
+	designSplitterRight = s.value("sdlr", 493).toInt();
+	editWSplitterLeft	= s.value("sell", 493).toInt();
+	editWSplitterRight	= s.value("selr", 493).toInt();
+	editSplitterTop		= s.value("selt", 892).toInt();
+	editSplitterBottom	= s.value("selb", 100).toInt();
+	schemeIndex		= s.value("schemeIndex", 0).toInt();
 	if (schemeIndex < 0) 
 		schemeIndex = 0;
 
@@ -99,8 +113,12 @@ void PROGRAM_CONFIG::Write()
 
 	s.setValue("lang", PROGRAM_CONFIG::lang);
 	s.setValue("schemeIndex", schemeIndex);
-	s.setValue("sll", splitterLeft);
-	s.setValue("slr", splitterRight);
+	s.setValue("sdll", designSplitterLeft);
+	s.setValue("sdlr", designSplitterRight);
+	s.setValue("sell", editWSplitterLeft);
+	s.setValue("selr", editWSplitterRight);
+	s.setValue("selt", editSplitterTop);
+	s.setValue("selb", editSplitterBottom);
 
 	s.beginGroup("config_save");
 		s.setValue("maxSaveConfigs", maxSavedConfigs);

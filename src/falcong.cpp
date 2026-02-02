@@ -290,7 +290,19 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	languages.Read();
 
-	ui.designSplitter->setSizes({ PROGRAM_CONFIG::splitterLeft, PROGRAM_CONFIG::splitterRight } );
+							// on design page
+	int wspl = PROGRAM_CONFIG::designSplitterLeft,	 // left
+		wspr = PROGRAM_CONFIG::designSplitterRight;	 // right
+
+	ui.designSplitter->setSizes({ wspl, wspr } );
+						  // on edit page
+	wspl = PROGRAM_CONFIG::editWSplitterLeft,	
+	wspr = PROGRAM_CONFIG::editWSplitterRight;	
+	ui.editWSplitter->setSizes({ wspl,  wspr} );
+
+	wspl = PROGRAM_CONFIG::editSplitterTop,		// top
+	wspr = PROGRAM_CONFIG::editSplitterBottom;	// bottom
+	ui.editSplitter->setSizes({ wspl,  wspr} );
 // DEBUG
 //	qDebug("Splitter sizes: %d %d", ui.designSplitter->sizes().at(0), ui.designSplitter->sizes().at(1));
 
@@ -311,8 +323,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	config.ClearChanged();
 
-	int h = ui.tabEdit->height();
-	ui.editSplitter->setSizes({h*95/100,h*5/100});// ({532,220 });
 	// bread crumbs
 	ui.breadcrumbLayout->setSpacing(4);
 	ui.breadcrumbLayout->setContentsMargins(0, 0, 0, 0);
@@ -402,13 +412,20 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 
 	QFile::remove(qsTmpName);
+			// write program (common) part of config
+	QList<int> splSizes = ui.designSplitter->sizes();
 
-	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
-	{
-		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
-		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
-	}
+	PROGRAM_CONFIG::designSplitterLeft  = splSizes.at(0);
+	PROGRAM_CONFIG::designSplitterRight = splSizes.at(1);
+
+	splSizes = ui.editWSplitter->sizes();
+	PROGRAM_CONFIG::editWSplitterLeft   = splSizes.at(0);
+	PROGRAM_CONFIG::editWSplitterRight  = splSizes.at(1);
+
+	splSizes = ui.editSplitter->sizes();
+	PROGRAM_CONFIG::editSplitterTop		= splSizes.at(0);
+	PROGRAM_CONFIG::editSplitterBottom  = splSizes.at(1);
+
 	PROGRAM_CONFIG::Write();
 
 	if (config.Changed())
@@ -1699,12 +1716,12 @@ void FalconG::on_btnReload_clicked()
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnSaveConfig_clicked()
 {
-	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
-	{
-		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
-		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
-	}
+	PROGRAM_CONFIG::designSplitterLeft  = ui.designSplitter->sizes().at(0);
+	PROGRAM_CONFIG::designSplitterRight = ui.designSplitter->sizes().at(1);
+	PROGRAM_CONFIG::editWSplitterLeft	= ui.editWSplitter->sizes().at(0);
+	PROGRAM_CONFIG::editWSplitterRight	= ui.editWSplitter->sizes().at(1);
+	PROGRAM_CONFIG::editSplitterTop		= ui.editSplitter->sizes().at(0);
+	PROGRAM_CONFIG::editSplitterBottom	= ui.editSplitter->sizes().at(1);
 	config.Write();
 
 	QString s = PROGRAM_CONFIG::NameForConfig(true, ".ini"),

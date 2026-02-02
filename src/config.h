@@ -932,8 +932,12 @@ struct PROGRAM_CONFIG
 	static QString homePath;	// local home directory
 	static QString samplePath;	// sample directory
 	// design page
-	static int splitterLeft;
-	static int splitterRight;
+	static int designSplitterLeft;
+	static int designSplitterRight;
+	static int editSplitterTop;	// splits the thumbnails and descriptions
+	static int editSplitterBottom;
+	static int editWSplitterLeft;
+	static int editWSplitterRight;
 	static int copyrightYear;
 	// Options page
 	static int lang;
