@@ -1803,7 +1803,7 @@ QIcon MarkedIcon::ToIcon() const
 	if (flags & fiAlias)
 		painter.drawPixmap(borderWidth + (flags & fiThumb ? aliasMark->width() : 0), borderWidth, *aliasMark);
 
-	if (dontResize)		  // at top right
+	if (flags & dontResize)		  // at top right
 		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *noresizeMark);
 	if(!exists)
 		painter.drawPixmap(thumbSize - 2*noImageMark->width() - borderWidth, borderWidth, *noImageMark);

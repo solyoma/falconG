@@ -91,6 +91,10 @@ QIcon FileIcons::IconForPosition(int pos, IconFlags flags, QString imageName)
     Q_ASSERT(pos < _iconOrder.size());
 
     MarkedIcon& micon = _iconList[_iconOrder[pos]];
+    // DEBUG
+  //  if(micon.flags.testFlag(fiDontResize))
+		//qDebug((QString("IconForPosition: pos:%1, name:'%2', flags: %3").arg(pos).arg(imageName).arg((int)flags)).toStdString().c_str());
+    // /DEBUG
 
 	return micon.ToIcon();
 }

@@ -281,14 +281,16 @@ struct MarkedIcon
 	}
 	void SetAsAlias(bool setta)
 	{
-		flags |= fiAlias;	// set alias flag
-		if(!setta)
+		if(setta)
+			flags |= fiAlias;	// set alias flag
+		else // if(!setta)
 			flags ^= fiAlias;  // no clearFlag operation in flags
 	}
 	void SetNoResize(bool noresize) 
 	{ 
-		flags.setFlag(fiDontResize);  
-		if(!noresize)
+		if(noresize)
+			flags.setFlag(fiDontResize);  
+		else // if(!noresize)
 			flags ^= fiDontResize;  // no clearFlag operation in flags
 	}
 	static void Init()
