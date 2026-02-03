@@ -3134,8 +3134,10 @@ ID_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, ID_t parent, int l
 			{							   // but image files are inside the album (one level down)
 				ID_t iid = _ReadImageOrVideoFromStruct(reader, level+1, &album, false);		   // false:not album thumbnail
 				if (!iid.Val())
+				{
 					ShowWarning(FalconG::tr("Image/video not Found in line #%1").arg(reader.ReadCount()), frmMain);
-					//throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
+					throw BadStruct(reader.ReadCount(), FalconG::tr("Image id is 0! Try to remove text after image name in the .struct file!"));
+				}
 				album.items.push_back(iid);
 			}
 		}
