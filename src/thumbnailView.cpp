@@ -1143,48 +1143,49 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
         }
 
-        if(doWriteStructFile && !moveItemsIntoFolder)    // = just relocate, move before selected item (or after the last one)
-        {
-            itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
-
-            int si = 0,     // original index
-                di = 0;     // index in idl
-
-            // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
-            if (row < 0)
-                row = itemSize;
-
-            for (; si < itemSize && si < row; ++si)
-                if (thl.indexOf(si) < 0)
-                    itemOrder[di++] = si;
-
-            for (int i = 0; i < thl.size(); ++i)
-                itemOrder[di++] = thl[i];
-
-            for (si = row; si < itemSize; ++si)
-                if (thl.indexOf(si) < 0)
-                    itemOrder[di++] = si;
-
-            // new order in 'itemOrder' set
-            IdList idl;                         // new ordered items
-            idl.resize(itemSize);
-
-            for (int i = 0; i < itemOrder.size(); ++i)
-                idl[i] = items[itemOrder[i]];
-
-            // modify original stored itemOrder
-            const QVector<int> &origIconOrder = fileIcons.IconOrder();  // original order might have been changed
-            // so we must rearrange that according to 'itemOrder'
-            QVector<int> iconOrder;                          // new icon order indexes
-            iconOrder.resize(itemSize);
-            for (int i = 0; i < itemOrder.size(); ++i)
-                iconOrder[i] = origIconOrder[itemOrder[i]];
-
-            fileIcons.SetIconOrder(iconOrder);
-            items = idl;
-        }
         if (doWriteStructFile)
         {
+            if (!moveItemsIntoFolder)    // = just relocate, move before selected item (or after the last one)
+            {
+                itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
+
+                int si = 0,     // original index
+                    di = 0;     // index in idl
+
+                // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
+                if (row < 0)
+                    row = itemSize;
+
+                for (; si < itemSize && si < row; ++si)
+                    if (thl.indexOf(si) < 0)
+                        itemOrder[di++] = si;
+
+                for (int i = 0; i < thl.size(); ++i)
+                    itemOrder[di++] = thl[i];
+
+                for (si = row; si < itemSize; ++si)
+                    if (thl.indexOf(si) < 0)
+                        itemOrder[di++] = si;
+
+                // new order in 'itemOrder' set
+                IdList idl;                         // new ordered items
+                idl.resize(itemSize);
+
+                for (int i = 0; i < itemOrder.size(); ++i)
+                    idl[i] = items[itemOrder[i]];
+
+                // modify original stored itemOrder
+                const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order might have been changed
+                // so we must rearrange that according to 'itemOrder'
+                QVector<int> iconOrder;                          // new icon order indexes
+                iconOrder.resize(itemSize);
+                for (int i = 0; i < itemOrder.size(); ++i)
+                    iconOrder[i] = origIconOrder[itemOrder[i]];
+
+                fileIcons.SetIconOrder(iconOrder);
+                items = idl;
+            }
+            // coomon for relocate and move
             albumgen.AddToModifiedList(*pAlbum);
 
             albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
