@@ -317,6 +317,7 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	Album* BaseAlbum(bool orNullptr = false);	// returns the base album for this album, i.e. the one that has the items
 												// or 'this' if this is a base album and orNullptr is false 
 												// or nullptr if orNullptr is true
+	Album* ParentAlbum() const;	// returns the parent album for this album or nullptr if this is the root album
 	ID_t IdOfItem(int pos) const 
 	{ 
 		return items.isEmpty() ||  (pos >= items.size()) ?  ID_t::Invalid() : items[pos];

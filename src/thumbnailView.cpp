@@ -1035,103 +1035,11 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             QAbstractButton* pResBtn = mb.clickedButton();
 
             if (pResBtn == pIntoFolderBtn)
-            {
-                Album* pDestAlbum = &albumgen.Albums()[items[row]];
-                IdList itemsDest = pDestAlbum->items;
-#ifdef DEBUG
-                int destItemSize = itemsDest.size();
-#endif
-                // -- check if any of the items to move is a folder and if it is then
-                //    whether it or any of its siblings are already in the destination album
-                for (int i = 0; i < thl.size(); ++i)
-                {
-                    ID_t itemID = items[thl[i]];
-                    if (itemID.IsAlbum())
-                    {
-                        Album* pab = albumgen.AlbumForID(itemID);
-                        Q_ASSERT(pab);
-
-                        if(albumgen.IsCircular(pab, pAlbum) ) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
-                        {
-                            QMessageBox::warning(this, tr("falconG - Warning"), tr("Ivalid move!\n"
-                                "Album \n'%1'\n is either an alias for album\n'%2'\n"
-                                "or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pAlbum->name) );
-                            return;
-                        }
-
-                                // now the album to be moved is not an alias of the album to move to.
-                        IDVal_t isThere = NO_ID;
-                        IDValList idvl = pab->BaseAlbum()->aliasesList; // list of albums linked to this album
-                        if (idvl.isEmpty())     // no linked albums for this one
-                            isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
-                        else
-                            for (auto& v : idvl)
-                            {
-                                ID_t idv(ALBUM_ID_FLAG, v);
-                                if (pDestAlbum->items.indexOf(idv) >= 0)
-                                {
-                                    isThere = v;
-                                    break;  // found at least one linked album in destination album
-                                }
-                            }
-
-                        if (isThere != NO_ID)    // album is already in destination album
-                        {
-                            QString qs = tr("The album '%1' to be moved is already in the destination album '%2'.\n").arg(pab->name).arg(pDestAlbum->name);
-                            if (isThere != itemID.Val())             // another alias for the same album
-                                qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
-                            qs += tr("Please remove it from the selection!");
-                            QMessageBox::warning(this, tr("falconG - Warning"), qs);
-                            return;
-                        }
-                    }
-                }
-
-                // ------------- housekeeping -----------
-                // add moved items to destination album  (which doesn't have icons yet )
-                for (int si = 0; si < thl.size(); ++si)
-                {
-                    ID_t itemID = items[thl[si]];
-                    if (itemID.IsAlbum())
-                    {
-                        Album* pab = albumgen.AlbumForID(itemID);
-                        Q_ASSERT(pab);
-                        pab->parentId = pDestAlbum->ID.Val();      // reparent album
-                        albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
-                    }
-                    if(!itemsDest.contains(itemID))
-                        itemsDest.push_back(itemID);
-                }
-                pDestAlbum->items = itemsDest;
-
-                // remove indexes of moved items from source gallery and icon indices
-                const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
-                QVector<int> newIconOrder;                       // new icon order indexes
-                IdList newItems;                                 // w.o. moved items
-
-                for (int si = 0; si < itemSize; ++si)            // origIconOrder has the same number of items as items itself
-                {
-                    int o = origIconOrder[si];
-                    if (thl.indexOf(o) < 0)
-                    {
-                        newItems.push_back(items[o]);
-                        newIconOrder.push_back(o);
-                    }
-                }
-                // discard moved icons
-                //for (int si = itemSize - 1; si << itemSize >= 0; --si)   // origIconOrder has the same number of items as items itself
-                //    if (thl.indexOf(origIconOrder[si]) >= 0)
-                //        fileIcons.Remove(origIconOrder[si]);
-                items = newItems;
-                fileIcons.SetIconOrder(newIconOrder);
-                _InitThumbs();
-                // ----- never  move items physically to virtual destination folder --------
-            }
+                _MoveItemsToAlbum(thl, items[row], mimeData->hasUrls() ? true : false);    // true: drop from External source
             else if (pResBtn == pBeforeFolderBtn)
-                moveItemsIntoFolder = false;
+                moveItemsIntoFolder = false;                 // default: true
             else        // else cancel is pressed
-                doWriteStructFile = false;
-
+                doWriteStructFile = false;                   // default: true
         }
 
         if (doWriteStructFile)
@@ -1369,6 +1277,107 @@ void ThumbnailView::RemoveViewer(ImageViewer* pv)
             _lstActiveViewers.removeAt(n);
     }
     emit SignalImageViewerAdded(!_lstActiveViewers.isEmpty());
+}
+
+bool ThumbnailView::_MoveItemsToAlbum(const IntList& thl, ID_t destAlbumId, bool fromExternalDrop)
+{
+    Album* pActAlbum  = &albumgen.Albums()[_albumId];
+    Album* pDestAlbum = &albumgen.Albums()[destAlbumId];
+	Album* pAlbumForCheck = fromExternalDrop ? pActAlbum : pDestAlbum;
+    IdList itemsDest  = pDestAlbum->items;
+#ifdef DEBUG
+    int destItemSize = itemsDest.size();
+#endif
+
+    // -- check if any of the items to move is a folder and if it is then
+    //    whether it or any of its siblings are already in the destination album
+    for (int i = 0; i < thl.size(); ++i)
+    {
+        ID_t itemID = pActAlbum->items[thl[i]];
+        if (itemID.IsAlbum())
+        {
+            Album* pab = albumgen.AlbumForID(itemID);
+            Q_ASSERT(pab);
+
+            if (albumgen.IsCircular(pab, pAlbumForCheck)) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
+            {
+                QMessageBox::warning(this, tr("falconG - Warning"), tr("Ivalid move!\n"
+                    "Album \n'%1'\n is either an alias for album\n'%2'\n"
+                    "or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pActAlbum->name));
+                return false;
+            }
+
+            // now the album to be moved is not an alias of the album to move to.
+            IDVal_t isThere = NO_ID;
+            IDValList idvl = pab->BaseAlbum()->aliasesList; // list of albums linked to this album
+            if (idvl.isEmpty())     // no linked albums for this one
+                isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
+            else
+                for (auto& v : idvl)
+                {
+                    ID_t idv(ALBUM_ID_FLAG, v);
+                    if (pDestAlbum->items.indexOf(idv) >= 0)
+                    {
+                        isThere = v;
+                        break;  // found at least one linked album in destination album
+                    }
+                }
+
+            if (isThere != NO_ID)    // album is already in destination album
+            {
+                QString qs = tr("The album '%1' to be moved is already in the destination album '%2'.\n").arg(pab->name).arg(pDestAlbum->name);
+                if (isThere != itemID.Val())             // another alias for the same album
+                    qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
+                qs += tr("Please remove it from the selection!");
+                QMessageBox::warning(this, tr("falconG - Warning"), qs);
+                return false;
+            }
+        }
+    }
+
+    // ------------- housekeeping -----------
+    // add moved items to destination album  (which doesn't have icons yet )
+    IdList& items = pActAlbum->items;   // original ordered items
+    for (int si = 0; si < thl.size(); ++si)
+    {
+        ID_t itemID = items[thl[si]];
+        if (itemID.IsAlbum())
+        {
+            Album* pab = albumgen.AlbumForID(itemID);
+            Q_ASSERT(pab);
+            pab->parentId = pDestAlbum->ID.Val();      // reparent album
+            albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
+        }
+        if (!itemsDest.contains(itemID))
+            itemsDest.push_back(itemID);
+    }
+    pDestAlbum->items = itemsDest;
+
+    // remove indexes of moved items from source gallery and icon indices
+    const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
+    QVector<int> newIconOrder;                       // new icon order indexes
+    IdList newItems;                                 // w.o. moved items
+    int itemSize = items.size();
+    for (int si = 0; si < itemSize; ++si)            // origIconOrder has the same number of items as items itself
+    {
+        int o = origIconOrder[si];
+        if (thl.indexOf(o) < 0)
+        {
+            newItems.push_back(items[o]);
+            newIconOrder.push_back(o);
+        }
+    }
+    // discard moved icons
+    //for (int si = itemSize - 1; si << itemSize >= 0; --si)   // origIconOrder has the same number of items as items itself
+    //    if (thl.indexOf(origIconOrder[si]) >= 0)
+    //        fileIcons.Remove(origIconOrder[si]);
+    items = newItems;
+    fileIcons.SetIconOrder(newIconOrder);
+    _InitThumbs();
+    // ----- never  move items physically to virtual destination folder --------
+    albumgen.AddToModifiedList(*pActAlbum);
+    albumgen.AddToModifiedList(*pDestAlbum);
+    return true;
 }
 
 void ThumbnailView::_RemoveAllViewers()
@@ -1825,12 +1834,11 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             }
         }
 
-        if (nSelSize)
+        QModelIndexList list = selectionModel()->selectedIndexes();
+        if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
         {
-            
-            QModelIndexList list = selectionModel()->selectedIndexes();
             ID_t id;
-            for (auto &i : list) // if at least a single image then this is valid
+            for (auto& i : list) // if at least a single image then this is valid
             {
                 id = album.items[i.row()];
 
@@ -1843,20 +1851,28 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
                 }
             }
             menu.addSeparator();
-
-            pact = new QAction(tr("Copy &Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
-            menu.addAction(pact);
-
-            pact = new QAction(tr("Copy &Original Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyOriginalNamesToClipboard);
-            menu.addAction(pact);
-
-            menu.addSeparator();
         }
+
+        pact = new QAction(tr("Copy &Name(s)"), this);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
+        menu.addAction(pact);
+
+        pact = new QAction(tr("Copy &Original Name(s)"), this);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::CopyOriginalNamesToClipboard);
+        menu.addAction(pact);
+
+        menu.addSeparator();
     }
+         // nSelSize may be 0 here
     if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
     {
+        if (nSelSize && _ActAlbum()->parentId > 0)
+        {
+            pact = new QAction(tr("Move selected items to parent album"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::MoveToParentFolder);
+            menu.addAction(pact);
+        }
+
         pact = new QAction(tr("&New Album or new Alias..."), this);  // create new folder, or folder alias inside actual folder
         connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
         menu.addAction(pact);
@@ -1883,7 +1899,6 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             connect(pact, &QAction::triggered, this, &ThumbnailView::SynchronizeTexts);
             menu.addAction(pact);
         }
-
 
         if (nSelSize)
         {
@@ -2237,6 +2252,24 @@ void ThumbnailView::NewVirtualFolder()
         if (_NewVirtualFolder(folderName, baseIdVal)) // refreshes treeview's model too
             frmMain->GetTreeViewPointer()->update();
     }
+}
+
+void ThumbnailView::MoveToParentFolder()
+{
+    QModelIndexList indexesList = selectionModel()->selectedIndexes();
+    if (indexesList.isEmpty())  // should never happen
+        return;
+
+    if(QMessageBox::question(this, tr("falconG - Question"), tr("Move selected items into parent album?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    {
+        IntList ids;
+        for (auto& f : indexesList)
+            ids << f.row();
+
+		_MoveItemsToAlbum(ids, albumgen.Albums()[_albumId].ParentAlbum()->ID, false);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+        Reload();
+	}
 }
 
 /*=============================================================

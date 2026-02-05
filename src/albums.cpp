@@ -902,6 +902,11 @@ Album* Album::BaseAlbum(bool orNullptr) 		// returns the base album for this alb
 	return (baseAlbumId == NO_ID) ? (orNullptr ? nullptr : this) : albumgen.Albums().AlbumForIDVal(baseAlbumId); // only a single layer of aliases
 }
 
+Album* Album::ParentAlbum()	const
+{
+	return parentId == NO_ID ? nullptr : albumgen.Albums().AlbumForIDVal(parentId);
+}
+
 /*============================================================================
 * TASK: get number of non-excluded images from local image list
 * EXPECTS:

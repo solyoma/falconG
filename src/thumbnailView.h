@@ -333,6 +333,7 @@ private:
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
+	bool _MoveItemsToAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
 
 	void _RemoveAllViewers();
 
@@ -344,8 +345,8 @@ signals:
 	void SignalMultipleSelection(IdList, ID_t insideThis);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructWillChange();			// emitted befor new folder(s) added
-	void SignalAlbumStructChanged(bool success);			// after the new folder is added
-	void SignalMayLoadNewItems();					// when there was a new album selected in tree view
+	void SignalAlbumStructChanged(bool success);// after the new folder is added
+	void SignalMayLoadNewItems();				// when there was a new album selected in tree view
 	void SignalAlbumChanged();					// add the new album to tree view as well
 	void SignalImageViewerAdded(bool enableclosebutton);
 	void SignalBackToParentAlbum();
@@ -377,6 +378,7 @@ public slots:
 	void AddImages();
 	void AddFolder();
 	void NewVirtualFolder();
+	void MoveToParentFolder();
 	void RenameVirtualFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
