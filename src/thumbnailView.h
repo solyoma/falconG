@@ -47,7 +47,7 @@ public:
 	int Size() const;	// only the displayed size, not necessarily the count of icons
 	void SetMaximumSizes(int thumbsize = THUMBNAIL_SIZE, int borderwidth = 10);
 	bool HasIconFor(int pos);	// i.e. pos < list length?
-	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
+	void ToggleThumbnailMarkFor(int pos);
 
 	QIcon IconForPosition(int pos, IconFlags flags = IconFlag::fiNone, QString imageName = QString());
 	const DataType &IconOrder() const;

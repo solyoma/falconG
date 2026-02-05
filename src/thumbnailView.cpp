@@ -59,24 +59,15 @@ inline bool FileIcons::HasIconFor(int pos)
     return pos < _iconList.size();
 }
 
-void FileIcons::SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail)
+void FileIcons::ToggleThumbnailMarkFor(int pos)
 {
+    if (pos < 0)
+        return;
+
     // pos-th item MUST exist
-
     MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
-
-    bool b = micon.flags.testFlag(fiThumb);
-    if(posFolderIcon == pos && bIsFolderThumbnail == b)
-		return;    // already set
-
-	if (posFolderIcon >= 0 && b)   // erase original folder icon
-		micon.flags ^= fiThumb;    // remove fiThumb flag
-
-    if (bIsFolderThumbnail)
-    {
-		micon.flags |= fiThumb;    // set fiThumb flag
+    if(micon.ToggleFolderThumbFlag())
         posFolderIcon = pos;
-    }
 }
 
 QIcon FileIcons::IconForPosition(int pos, IconFlags flags, QString imageName)
@@ -1442,7 +1433,7 @@ void ThumbnailView::_InitThumbs()
 }
 
 /*=============================================================
- * TASK:	emit a signal tha image count changed
+ * TASK:	emit a signal that image count changed
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -2392,7 +2383,10 @@ void ThumbnailView::SetAsAlbumThumbnail()
 
     ID_t th = album.items[pos];                                  
 
-    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
+    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID); 
+    fileIcons.ToggleThumbnailMarkFor(cthix);
+    fileIcons.ToggleThumbnailMarkFor(pos);
+    
     albumgen.AddToModifiedList(_albumId, true);    // this one is modified, not the base album
 
     UpdateTreeView(false);

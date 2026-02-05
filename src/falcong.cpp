@@ -332,6 +332,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	_ReadLastAlbumStructure();
 
+	ui.trvAlbums->expandToDepth(1);
+
 	_EnableButtons();
 	ui.tabFalconG->setFocus();
 }
