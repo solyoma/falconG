@@ -2260,7 +2260,8 @@ void ThumbnailView::MoveToParentFolder()
     if (indexesList.isEmpty())  // should never happen
         return;
 
-    if(QMessageBox::question(this, tr("falconG - Question"), tr("Move selected items into parent album?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    if( QuestionDialog(tr("falconG - Question"), tr("Move selected items into parent album?"), 
+                             dboAskIfToMoveIntoParentFolder, this, tr(""), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
         IntList ids;
         for (auto& f : indexesList)

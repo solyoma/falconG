@@ -18,6 +18,7 @@ namespace Common
 		dboAskSynchronize,
 		dboNeverMoveIntoFolder,		// when drag & drop
 		dboShowVideoThumbnailProblem,
+		dboAskIfToMoveIntoParentFolder,
 		dboMax
 	};
 	enum _What : int { wNone, wColor, wBackground, wNoClosingBrace = 0x8000 };
