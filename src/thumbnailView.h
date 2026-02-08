@@ -333,6 +333,7 @@ private:
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
+	void _ItemDoubleClicked(int row);
 	bool _MoveItemsIntoAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
 
 	void _RemoveAllViewers();

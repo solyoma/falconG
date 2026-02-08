@@ -483,6 +483,33 @@ void AlbumTreeView::currentChanged(const QModelIndex& current, const QModelIndex
 	emit SignalTreePathChanged(fullPath);
 	QTreeView::currentChanged(current, previous);
 }
+/*=============================================================
+ * TASK:	 sent when dragging is in progress
+ * EXPECTS: either a list of file names or a mime data of type
+ *			x-thumbs
+ * GLOBALS:
+ * RETURNS:	none
+ * REMARKS: follewd immediately by a dragMoveEvent()
+ *------------------------------------------------------------*/
+void AlbumTreeView::dragEnterEvent(QDragEnterEvent* event)
+{
+	//if (_isBusy)
+	//	return;
+
+	//if (_IsAllowedTypeToDrop(event))
+	//{
+	//	event->acceptProposedAction();
+	//}
+}
+void AlbumTreeView::dragLeaveEvent(QDragLeaveEvent* event)
+{
+
+}
+void AlbumTreeView::dragMoveEvent(QDragMoveEvent* event)
+{
+
+}
+
 
 BreadcrumbVector AlbumTreeView::GetBreadcrumbPath(QModelIndex index)	const
 {

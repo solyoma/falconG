@@ -1992,7 +1992,7 @@ Failed to add %1 items</source>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1902"/>
         <source>Add &amp;Images/Videos from disk ...</source>
-        <translation>Ú&amp;j kép/video hozzáadása ...</translation>
+        <translation>&amp;Kép/video hozzáadása ...</translation>
     </message>
     <message>
         <location filename="../src/thumbnailView.cpp" line="1907"/>

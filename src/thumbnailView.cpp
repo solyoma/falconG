@@ -1723,8 +1723,12 @@ void ThumbnailView::SetInsertPos(int here)
 void ThumbnailView::keyReleaseEvent(QKeyEvent* event)
 {
     Album& album = albumgen.Albums()[_albumId];
+    int row = currentIndex().row();
+
     if (album.baseAlbumId == NO_ID && currentIndex().isValid() && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
         DeleteSelected();
+    else if (currentIndex().isValid() && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return))
+        _ItemDoubleClicked(currentIndex().row());
     else
         QListView::keyReleaseEvent(event);
 }
@@ -2592,11 +2596,8 @@ void ThumbnailView::ExportAsCSV()
 	file.close();
 }
 
-
-void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
+void ThumbnailView::_ItemDoubleClicked(int row)
 {
-//    _currentIndex = mix;
-    int row = mix.row();
     ID_t id = _ActAlbum(true)->items[row];
     if (id.IsAlbum())
     {
@@ -2623,6 +2624,13 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
             delete pViewer;
         }
     }
+}
+
+void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
+{
+//    _currentIndex = mix;
+    int row = mix.row();
+    _ItemDoubleClicked(row);
 }
 
 void ThumbnailView::SlotThumbnailSizeChanged(int newSize)

@@ -132,6 +132,10 @@ protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);
 	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
 
+	void dragEnterEvent(QDragEnterEvent* event);	// when a drag enters this widget
+	void dragLeaveEvent(QDragLeaveEvent* event);
+	void dragMoveEvent(QDragMoveEvent* event);
+
 	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
 private:
 	using ItemIdVector = QVector<qintptr>; 
