@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>HiddenFileListerClass</class>
  <widget class="QDialog" name="HiddenFileListerClass">
@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FalconG - Search source files</string>
+   <string>falconG - Search source files</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">

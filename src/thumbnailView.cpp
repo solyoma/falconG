@@ -966,7 +966,14 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
  *              a list of indexes in actual albums items' list
  * GLOBALS: 
  * RETURNS:
- * REMARKS: - on move images
+ * REMARKS: - when dropped from external source mime data is a
+ *              list of file paths
+ *          - when dropped from moving items around mime data
+ *              is a list of item indices in current album
+ *          - when dropped to an album during movement
+ *              we must check whether the album we drop it into is
+ *              among the selected
+ *          - on move images
  *              order in thumbList depends on selection order
  *              images can be put to the same position they 
  *              were before
@@ -1017,29 +1024,39 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
         if (moveItemsIntoFolder) // then possibly move items into album with id items[row]
         {                        // or relocate them or cancel operation                     
-            QMessageBox mb(this);
-            mb.setWindowTitle(tr("falconG - Question"));
-            mb.setText(tr("Reposition selection before this folder or Move into it?"));
-            mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
-            // buttons added after the existing buttons
-            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::YesRole); // YesRole comes first, no after and cancel after that
-            QPushButton *pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::NoRole);     
+            // check if the destination album is also in the list
+            if (thl.indexOf(row) >= 0)      // then list contains the folder to drop into
+            {
+                doWriteStructFile = false;                   // default: true
+                QString msg = thl.size() == 1 ? tr("An album cannot be dropped into itself!") : tr("List of items to drop contains the album to drop into!");
+                QMessageBox::warning(this, tr("falconG - Warning"), msg);
+            }
+            else
+            {
+                QMessageBox mb(this);
+                mb.setWindowTitle(tr("falconG - Question"));
+                mb.setText(tr("Reposition selection before this folder or Move into it?"));
+                mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
+                // buttons added after the existing buttons
+                QPushButton* pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::YesRole); // YesRole comes first, no after and cancel after that
+                QPushButton* pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::NoRole);
 
 #ifdef DEBUG
-            QPushButton *pCancelBtn = 
+                QPushButton* pCancelBtn =
 #endif
-            mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
-            mb.setDefaultButton(pBeforeFolderBtn);
+                    mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+                mb.setDefaultButton(pBeforeFolderBtn);
 
-            mb.exec();
-            QAbstractButton* pResBtn = mb.clickedButton();
+                mb.exec();
+                QAbstractButton* pResBtn = mb.clickedButton();
 
-            if (pResBtn == pIntoFolderBtn)
-                _MoveItemsToAlbum(thl, items[row], mimeData->hasUrls() ? true : false);    // true: drop from External source
-            else if (pResBtn == pBeforeFolderBtn)
-                moveItemsIntoFolder = false;                 // default: true
-            else        // else cancel is pressed
-                doWriteStructFile = false;                   // default: true
+                if (pResBtn == pIntoFolderBtn)
+                    _MoveItemsIntoAlbum(thl, items[row], false); // mimeData->hasUrls() == true : drop from External source, already handled
+                else if (pResBtn == pBeforeFolderBtn)
+                    moveItemsIntoFolder = false;                 // default: true
+                else        // else cancel is pressed
+                    doWriteStructFile = false;                   // default: true
+            }
         }
 
         if (doWriteStructFile)
@@ -1279,7 +1296,7 @@ void ThumbnailView::RemoveViewer(ImageViewer* pv)
     emit SignalImageViewerAdded(!_lstActiveViewers.isEmpty());
 }
 
-bool ThumbnailView::_MoveItemsToAlbum(const IntList& thl, ID_t destAlbumId, bool fromExternalDrop)
+bool ThumbnailView::_MoveItemsIntoAlbum(const IntList& thl, ID_t destAlbumId, bool fromExternalDrop)
 {
     Album* pActAlbum  = &albumgen.Albums()[_albumId];
     Album* pDestAlbum = &albumgen.Albums()[destAlbumId];
@@ -2267,7 +2284,7 @@ void ThumbnailView::MoveToParentFolder()
         for (auto& f : indexesList)
             ids << f.row();
 
-		_MoveItemsToAlbum(ids, albumgen.Albums()[_albumId].ParentAlbum()->ID, false);
+		_MoveItemsIntoAlbum(ids, albumgen.Albums()[_albumId].ParentAlbum()->ID, false);
         albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
         Reload();
 	}

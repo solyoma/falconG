@@ -2767,7 +2767,7 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 				//if (img.uploadDate.toJulianDay() < 0)
 				//{
 				//	QString qs = tr("Julian day(%1) < 0 for image %2 in line %3").arg(img.uploadDate.toJulianDay()).arg(img.name).arg(reader.ReadCount());
-				//	QMessageBox::warning(nullptr, "FalconG - Debug Warning", qs);
+				//	QMessageBox::warning(nullptr, "falconG - Debug Warning", qs);
 				//	reader.NextLine();
 				//	return ID_t::Invalid(id.Val());
 				//}

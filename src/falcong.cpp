@@ -3235,7 +3235,7 @@ void FalconG::on_edtSourceGallery_editingFinished()
 	QString sf;
 	_SelectResult res = _SelectStructFileFromDir(dirName, sf);
 	if(res & srNoStruct)
-		QMessageBox::warning(this, tr("FalconG - Warning"), tr("No gallery struct file was found!\n"
+		QMessageBox::warning(this, tr("falconG - Warning"), tr("No gallery struct file was found!\n"
 									   "Created.") );
 }
 

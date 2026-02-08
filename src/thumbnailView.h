@@ -333,7 +333,7 @@ private:
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
-	bool _MoveItemsToAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
+	bool _MoveItemsIntoAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
 
 	void _RemoveAllViewers();
 
