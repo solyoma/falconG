@@ -285,6 +285,11 @@ bool AlbumTreeModel::removeRows(int position, int rows, const QModelIndex & pare
 AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
 {
 	setRootIsDecorated(false);
+
+	setDragEnabled(true);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
+
 }
 /*=============================================================
  * TASK:	tooltips for folder names

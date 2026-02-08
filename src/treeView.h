@@ -111,6 +111,7 @@ signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
 	void SignalGetSelectionCount(ID_t& remoteId, int& count);
 	void SignalTreePathChanged(const BreadcrumbVector &bcv);
+	void SignalItemsDropped(const ID_t& targetAlbumId, const IntList& itemIds, bool move);
 
 public slots:
 	void SlotDeleteSelectedAlbum();

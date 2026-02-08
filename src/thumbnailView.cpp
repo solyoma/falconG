@@ -2713,6 +2713,12 @@ void ThumbnailView::SlotGetSelectionCount(ID_t &id, int &count)
     count = selectionModel()->selectedIndexes().size();
 }
 
+void ThumbnailView::SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop)
+{
+
+	qDebug("ThumbnailView::SlotItemsDroppedOnTreeView: destAlbumId=%ul, ids count=%d, fromDrop=%d",destAlbumId.Val(),ids.size(),fromDrop);
+}
+
 //void ThumbnailView::SlotToClearIconList()
 //{
 //    fileIcons.Clear();

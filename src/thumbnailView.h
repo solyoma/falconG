@@ -392,6 +392,7 @@ public slots:
 	void FindMissingImageOrVideo();		// maybe it was moved from its position
 	void SlotToCloseAllViewers();
 	void SlotGetSelectionCount(ID_t &id, int &count );
+	void SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop);
 //	void SlotToClearIconList();
 
 private slots:
