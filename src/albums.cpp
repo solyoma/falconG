@@ -2447,7 +2447,7 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 {
 	QString rline = reader.l();
 	// read orphan thumbnails: images which are just thumbnails, but not in any album
-	// they may be anywhere not just in the sorce album folder or one of its subfolder
+	// they may be anywhere not just in the source album folder or one of its subfolder
 	if (rline != ORPHAN_ID)
 		return true;
 
@@ -2457,7 +2457,11 @@ bool AlbumGenerator::_ReadOrphanTable(FileReader& reader)
 	while (ok && (reader.l() != ']'))
 	{
 		// rline format:  same as for any other image
-		ID_t id = _ReadImageOrVideoFromStruct(reader, 0, nullptr, true);
+		//	except image must exist on disk
+		if (QFile::exists(reader.l()))
+			(void)_ReadImageOrVideoFromStruct(reader, 0, nullptr, true);
+		else
+			reader.NextLine();
 		ok = reader.Ok();
 	}
 	rline = reader.ReadLine();	// first album line
