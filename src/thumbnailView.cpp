@@ -834,7 +834,7 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
     if (_isBusy)
         return;
 
-    if (_IsAllowedTypeToDrop(event) )
+    if (IsAllowedTypeToDrop(event) )
 	{
 		event->acceptProposedAction();
 	}
@@ -857,8 +857,6 @@ void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
     }
 }
 
-
-
 /*=============================================================
  * TASK:   handles dragged object move
  * EXPECTS:
@@ -871,7 +869,7 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
     if (_isBusy)
         return;
 
-    if (!_IsAllowedTypeToDrop(event))
+    if (!IsAllowedTypeToDrop(event))
 		return;
 
 	QModelIndex index = indexAt(event->pos());
@@ -985,7 +983,7 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
  *------------------------------------------------------------*/
 void ThumbnailView::dropEvent(QDropEvent * event)
 {
-	if (_isBusy || !_IsAllowedTypeToDrop(event))
+	if (_isBusy || !IsAllowedTypeToDrop(event))
 		return;
 
 	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData*>(event->mimeData());
@@ -1028,8 +1026,11 @@ void ThumbnailView::dropEvent(QDropEvent * event)
             if (thl.indexOf(row) >= 0)      // then list contains the folder to drop into
             {
                 doWriteStructFile = false;                   // default: true
-                QString msg = thl.size() == 1 ? tr("An album cannot be dropped into itself!") : tr("List of items to drop contains the album to drop into!");
-                QMessageBox::warning(this, tr("falconG - Warning"), msg);
+                if (thl.size() > 1)         // otherwise a single album is dropped into itself, so the drop is just cancelled
+                {
+                    QString msg = thl.size() == 1 ? tr("An album cannot be dropped into itself!") : tr("List of items to drop contains the album to drop into!");
+                    QMessageBox::warning(this, tr("falconG - Warning"), msg);
+                }
             }
             else
             {
@@ -1473,38 +1474,6 @@ void ThumbnailView::_UpdateThumbsCount()
 		statusStr = tr("No items");
 	emit SignalStatusChanged(statusStr);
 	emit SignalTitleChanged(title);
-}
-
-/*=============================================================
- * TASK:	signal if suitable mime data to drop is available
- * EXPECTS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: does not check if the files or folders in an url list
- *          are acceptable, just looks at the allowed types
- *------------------------------------------------------------*/
-bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
-{
-    // DEBUG
-    //qDebug() << "Mime text: " << event->mimeData()->text() 
-    //         << ", hasUrls ? " << event->mimeData()->hasUrls()
-    //         << "mimeData is null?" << (event->mimeData() ? "no":"yes")
-    //         << ", hasImage ? " << event->mimeData()->hasImage()
-    //         << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
-    //    ;
-    // qDebug() << "IsAllowedTypeToDrop: row=" << indexAt(event->pos()).row();
-
-    // DEBUG
-    QString qs = event->mimeData()->text();
-    /*bool b = event->mimeData()->hasUrls(),
-        b1 = event->mimeData()->hasImage(),
-        b3 = event->mimeData()->hasFormat("application/x-thumb");*/
-    // /DEBUG
-     return /* (indexAt(event->pos()).row() >= 0) && */
-            (event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName, each nami in its own line
-            event->mimeData()->hasImage() ||    // image/...
-		    event->mimeData()->hasFormat("application/x-thumb")     // drag and drop inside this application
-                );
 }
 
 /*=============================================================

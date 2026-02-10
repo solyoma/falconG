@@ -409,3 +409,5 @@ bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
 
 char* StringToCString(QString string);
 QString MakeRandomStringOfLength(int length);
+// D&D
+bool IsAllowedTypeToDrop(const QDropEvent* event);

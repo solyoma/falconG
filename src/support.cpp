@@ -1835,3 +1835,35 @@ QString MakeRandomStringOfLength(int length)
 
 	return result;
 }
+
+/*=============================================================
+ * TASK:	signal if suitable mime data to drop is available
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: does not check if the files or folders in an url list
+ *          are acceptable, just looks at the allowed types
+ *------------------------------------------------------------*/
+bool IsAllowedTypeToDrop(const QDropEvent* event)
+{
+	// DEBUG
+	//qDebug() << "Mime text: " << event->mimeData()->text() 
+	//         << ", hasUrls ? " << event->mimeData()->hasUrls()
+	//         << "mimeData is null?" << (event->mimeData() ? "no":"yes")
+	//         << ", hasImage ? " << event->mimeData()->hasImage()
+	//         << ", x-thumb ? " << event->mimeData()->hasFormat("application/x-thumb")
+	//    ;
+	// qDebug() << "IsAllowedTypeToDrop: row=" << indexAt(event->pos()).row();
+
+	// DEBUG
+	QString qs = event->mimeData()->text();
+	/*bool b = event->mimeData()->hasUrls(),
+		b1 = event->mimeData()->hasImage(),
+		b3 = event->mimeData()->hasFormat("application/x-thumb");*/
+		// /DEBUG
+	return /* (indexAt(event->pos()).row() >= 0) && */
+		(event->mimeData()->hasUrls() ||    // e.g. text() == file:///I:/alma.jpg, or text() == file:///I:/folderName, each nami in its own line
+			event->mimeData()->hasImage() ||    // image/...
+			event->mimeData()->hasFormat("application/x-thumb")     // drag and drop inside this application
+			);
+}

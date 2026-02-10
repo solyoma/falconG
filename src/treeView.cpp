@@ -496,10 +496,10 @@ void AlbumTreeView::dragEnterEvent(QDragEnterEvent* event)
 	//if (_isBusy)
 	//	return;
 
-	//if (_IsAllowedTypeToDrop(event))
-	//{
-	//	event->acceptProposedAction();
-	//}
+	if (IsAllowedTypeToDrop(event))
+	{
+		event->acceptProposedAction();
+	}
 }
 void AlbumTreeView::dragLeaveEvent(QDragLeaveEvent* event)
 {
@@ -507,6 +507,13 @@ void AlbumTreeView::dragLeaveEvent(QDragLeaveEvent* event)
 }
 void AlbumTreeView::dragMoveEvent(QDragMoveEvent* event)
 {
+	if (!IsAllowedTypeToDrop(event))
+		return;
+
+	QModelIndex index = indexAt(event->pos());
+
+	event->accept();
+	int pose = event->pos().y();
 
 }
 
