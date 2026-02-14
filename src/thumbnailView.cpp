@@ -989,8 +989,9 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 	if (_isBusy || !_IsAllowedTypeToDrop(event))
 		return;
 
-	const ThumbMimeData *mimeData = qobject_cast<const ThumbMimeData*>(event->mimeData());
-    if (!mimeData)      // why does it occur?
+    const ThumbMimeData* mimeData = reinterpret_cast<const ThumbMimeData*>(event->mimeData());
+     
+    if (!mimeData)      // why does it occur?                                           
         return;
 	// get drop position
 	QModelIndex index = indexAt(event->pos());
