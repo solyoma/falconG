@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef _SCHEMES_H
 #define _SCHEMES_H
 
@@ -12,13 +12,13 @@ struct FalconGScheme
 {
 	QString
 		MenuTitle,			// this will appear in the menu bar	it may contain a series of titles for all languages separated by commas
-		sBackground,
-		sTextColor,
-		sBorderColor,
+		sBackground,		// default: QPalette::Window
+		sTextColor,			//			QPalette::WindowText (general) or QPalette::Text (inputs)
+		sBorderColor,		// usualy same as QPalette::WindowText
 		sFocusedInput,
 		sHoverColor,
 		sTabBorder,				 
-		sInputBackground,
+		sInputBackground,	//			QPalette::Base
 		sSelectedInputBgr,
 		sFocusedBorder,
 		sDisabledFg,
@@ -147,11 +147,9 @@ public:
 
 	FSchemeVector()
 	{
-		reserve(5);		// for default, system, blue, dark, black 
-		resize(2);		// default and system
+		reserve(5);		// for default, blue, dark, black 
+		resize(1);		// default
 		operator[](0).MenuTitle = QMainWindow::tr("Default");
-		operator[](1).MenuTitle = QMainWindow::tr("System Colors");
-		operator[](1).sBorderColor = "#747474";
 	}
 	void ReadAndSetupSchemes();	// into menu items
 	void Save();			// into "falconG.fsty"

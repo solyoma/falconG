@@ -1,9 +1,7 @@
-#include "schemes.h"
+﻿#include "schemes.h"
 #include "config.h"
 #include <QSettings>
 #include <QFile>
-
-
 
 FalconGScheme FSchemeVector::blue("Blue:Kék",
 	"#3b5876",
@@ -90,7 +88,7 @@ void FSchemeVector::ReadAndSetupSchemes()
 		s.setIniCodec("UTF-8");
 		QStringList keys = s.childGroups();	// get all top level keys with subkeys
 		FalconGScheme fgst;
-		for (auto k : keys)
+		for (auto &k : keys)
 		{
 			s.beginGroup(k);
 			fgst.MenuTitle = s.value("Title", "").toString();			// this will appear in the menu bar

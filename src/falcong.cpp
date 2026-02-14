@@ -194,7 +194,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
 	ui.setupUi(this);
-	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorStructVersion).arg(minorStructVersion).arg(subStructVersion)); // in support.h
+	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
 
 #if defined Q_OS_WINDOWS
@@ -290,7 +290,19 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	languages.Read();
 
-	ui.designSplitter->setSizes({ PROGRAM_CONFIG::splitterLeft, PROGRAM_CONFIG::splitterRight } );
+							// on design page
+	int wspl = PROGRAM_CONFIG::designSplitterLeft,	 // left
+		wspr = PROGRAM_CONFIG::designSplitterRight;	 // right
+
+	ui.designSplitter->setSizes({ wspl, wspr } );
+						  // on edit page
+	wspl = PROGRAM_CONFIG::editWSplitterLeft,	
+	wspr = PROGRAM_CONFIG::editWSplitterRight;	
+	ui.editWSplitter->setSizes({ wspl,  wspr} );
+
+	wspl = PROGRAM_CONFIG::editSplitterTop,		// top
+	wspr = PROGRAM_CONFIG::editSplitterBottom;	// bottom
+	ui.editSplitter->setSizes({ wspl,  wspr} );
 // DEBUG
 //	qDebug("Splitter sizes: %d %d", ui.designSplitter->sizes().at(0), ui.designSplitter->sizes().at(1));
 
@@ -311,8 +323,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	config.ClearChanged();
 
-	int h = ui.tabEdit->height();
-	ui.editSplitter->setSizes({h*70/100,h*30/100});// ({532,220 });
 	// bread crumbs
 	ui.breadcrumbLayout->setSpacing(4);
 	ui.breadcrumbLayout->setContentsMargins(0, 0, 0, 0);
@@ -321,6 +331,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.edtAboutText->Setup();
 
 	_ReadLastAlbumStructure();
+
+	ui.trvAlbums->expandToDepth(1);
 
 	_EnableButtons();
 	ui.tabFalconG->setFocus();
@@ -361,15 +373,18 @@ void FalconG::closeEvent(QCloseEvent * event)
 	QFile fTmp(qsTmpName);
 	QFile fs(qsConfigName);
 
-	if (!albumgen.StructChanged() && fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
+	if ( !albumgen.IsStructChanged() )
 	{
-		fs.rename(qsSafetyCopyName);
-		if (fTmp.rename(qsConfigName))
-			QFile::remove(qsSafetyCopyName);
-		else
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+		if (fTmp.exists() && (fTmp.fileTime(QFileDevice::FileBirthTime) > fs.fileTime(QFileDevice::FileBirthTime)))
+		{
+			fs.rename(qsSafetyCopyName);
+			if (fTmp.rename(qsConfigName))
+				QFile::remove(qsSafetyCopyName);
+			else
+				QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+		}
 	}
-	if(albumgen.StructChanged())
+	else	  // struct changed
 	{
 		event->ignore();
 		QMessageBox::StandardButtons resB = QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel;
@@ -377,7 +392,8 @@ void FalconG::closeEvent(QCloseEvent * event)
 								tr("There are unsaved changes in the albums / images\nDo you want to save them?"),
 								dboSaveEdited, 
 								this,
-								tr("Yes and don't ask again (use Options to re-enable)")
+								tr("Yes and don't ask again (use Options to re-enable)"),
+								resB
 							   );
 		if (res == QMessageBox::Yes)
 		{
@@ -398,13 +414,20 @@ void FalconG::closeEvent(QCloseEvent * event)
 	}
 
 	QFile::remove(qsTmpName);
+			// write program (common) part of config
+	QList<int> splSizes = ui.designSplitter->sizes();
 
-	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
-	{
-		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
-		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
-	}
+	PROGRAM_CONFIG::designSplitterLeft  = splSizes.at(0);
+	PROGRAM_CONFIG::designSplitterRight = splSizes.at(1);
+
+	splSizes = ui.editWSplitter->sizes();
+	PROGRAM_CONFIG::editWSplitterLeft   = splSizes.at(0);
+	PROGRAM_CONFIG::editWSplitterRight  = splSizes.at(1);
+
+	splSizes = ui.editSplitter->sizes();
+	PROGRAM_CONFIG::editSplitterTop		= splSizes.at(0);
+	PROGRAM_CONFIG::editSplitterBottom  = splSizes.at(1);
+
 	PROGRAM_CONFIG::Write();
 
 	if (config.Changed())
@@ -1471,7 +1494,7 @@ void FalconG::_ReadLastAlbumStructure()
 		else
 			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error on\n%1").arg(qs));
 	}
-	albumgen.SetStructChanged(false);
+	albumgen.SetStructChanged(false);	// clears count of changes
 }
 
 
@@ -1645,7 +1668,7 @@ void FalconG::on_btnBrowseSource_clicked()
  *			- when the actual selected scheme is deleted
  *				it still remains active, so you may
  *				restore it by writing the name into the combo box
- *			- the first tow shemes (Default and System Colors)
+ *			- the first two shemes (Default and System Colors)
  *				cannot be deleted or edited!
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
@@ -1695,12 +1718,12 @@ void FalconG::on_btnReload_clicked()
 *--------------------------------------------------------------------------*/
 void FalconG::on_btnSaveConfig_clicked()
 {
-	QList<int> splitterSizes = ui.designSplitter->sizes();
-	if (PROGRAM_CONFIG::splitterLeft != splitterSizes.at(0) && splitterSizes.at(0) >= 360)	// splitter does not change the size if never was visible!
-	{
-		PROGRAM_CONFIG::splitterLeft = splitterSizes.at(0);
-		PROGRAM_CONFIG::splitterRight = splitterSizes.at(1);
-	}
+	PROGRAM_CONFIG::designSplitterLeft  = ui.designSplitter->sizes().at(0);
+	PROGRAM_CONFIG::designSplitterRight = ui.designSplitter->sizes().at(1);
+	PROGRAM_CONFIG::editWSplitterLeft	= ui.editWSplitter->sizes().at(0);
+	PROGRAM_CONFIG::editWSplitterRight	= ui.editWSplitter->sizes().at(1);
+	PROGRAM_CONFIG::editSplitterTop		= ui.editSplitter->sizes().at(0);
+	PROGRAM_CONFIG::editSplitterBottom	= ui.editSplitter->sizes().at(1);
 	config.Write();
 
 	QString s = PROGRAM_CONFIG::NameForConfig(true, ".ini"),
@@ -2330,6 +2353,38 @@ void FalconG::on_btnMoveSchemeUp_clicked()
 	--_busy;
 	_EnableColorSchemeButtons();
 	schemes.Save();
+}
+
+void FalconG::on_btnNextBaseLanguage_clicked()
+{
+	int i =  ui.cbBaseLanguage->currentIndex() + 1;
+	if (i == ui.cbBaseLanguage->count())
+		i = 0;
+	ui.cbBaseLanguage->setCurrentIndex(i);
+}
+
+void FalconG::on_btnPrevBaseLanguage_clicked()
+{
+	int i = ui.cbBaseLanguage->currentIndex() - 1;
+	if (i < 0)
+		i = ui.cbBaseLanguage->count() - 1;
+	ui.cbBaseLanguage->setCurrentIndex(i);
+}
+
+void FalconG::on_btnNextLanguage_clicked()
+{
+	int i = ui.cbLanguage->currentIndex() + 1;
+	if (i == ui.cbLanguage->count())
+		i = 0;
+	ui.cbLanguage->setCurrentIndex(i);
+}
+
+void FalconG::on_btnPrevLanguage_clicked()
+{
+	int i = ui.cbLanguage->currentIndex() - 1;
+	if (i < 0)
+		i = ui.cbLanguage->count() - 1;
+	ui.cbLanguage->setCurrentIndex(i);
 }
 
 /*========================================================
@@ -3180,7 +3235,7 @@ void FalconG::on_edtSourceGallery_editingFinished()
 	QString sf;
 	_SelectResult res = _SelectStructFileFromDir(dirName, sf);
 	if(res & srNoStruct)
-		QMessageBox::warning(this, tr("FalconG - Warning"), tr("No gallery struct file was found!\n"
+		QMessageBox::warning(this, tr("falconG - Warning"), tr("No gallery struct file was found!\n"
 									   "Created.") );
 }
 
@@ -4676,7 +4731,7 @@ void FalconG::_SlotAlbumStructSelectionChanged(const QItemSelection &current, co
 	if (n == 1)
 	{
 
-		ui.tnvImages->abort();		// will stop it if it was running
+		ui.tnvImages->Abort();		// will stop it if it was running
 
 		_bNewTreeViewSelection = true;
 		if (ui.tnvImages->IsFinished())
@@ -5074,7 +5129,7 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto &a : albumgen.Albums())
 			if (a.titleID == otid)
-				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.SetAlbumModified(a);
+				a.titleID = _selection.title.ID, tmap.Remove(otid), albumgen.AddToModifiedList(a);
 		for (auto &a : albumgen.Images())
 			if (a.titleID == otid)
 				a.titleID = _selection.title.ID, tmap.Remove(otid);
@@ -5084,7 +5139,7 @@ void FalconG::_SaveChangedTexts()
 							// replace the old ID with the new everywhere
 		for (auto &a : albumgen.Albums())
 			if (a.descID == odid)
-				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.SetAlbumModified(a);
+				a.descID = _selection.description.ID, tmap.Remove(odid), albumgen.AddToModifiedList(a);
 		for (auto &a : albumgen.Images())
 			if (a.descID == odid)
 				a.descID = _selection.description.ID, tmap.Remove(odid);
@@ -5151,15 +5206,8 @@ void FalconG::_SetProgramScheme()
 		// change these for new color set
 							//			   def. system    blue		 dark		  black		 
 	 // theme style string used only when not the default style is used
-	static QString styles = {
-	R"END(
-* {
-	background-color:%1;       /* %1 background */
-	color:%2;                  /* %2 color */
-	selection-color: %18;		
-	Selection-background-color: %19;
-}
-        
+	static QString styles =
+R"END(
 /* ------------------- geometry ------------------*/        
 
 QTabWidget::tab-bar {
@@ -5182,11 +5230,6 @@ QToolTip {
 QProgressBar,
 QPushButton:flat {
 	border:0;
-}
-
-QProgressBar::chunk{
-	width: 10px;
-	background-color:%15;	   /* %15 progressbar chunk */
 }
 
 QToolButton {
@@ -5228,7 +5271,36 @@ QTreeView,
 QListView {
     border-radius: 10px;
 }
-						/* these 2 do not work */
+/* ------------------ borders ----------------------*/   
+QTabBar::tab, 
+QToolTip,
+QTextEdit, 
+QLineEdit,
+QGroupBox,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border-width: 2px;
+}
+
+#btnImage {
+	border-radius:0px;
+}
+
+/* ------------------ colors --------------------*/
+* {
+	background-color:%1;       /* %1 background */
+	color:%2;                  /* %2 color */
+	selection-color: %18;		
+	Selection-background-color: %19;
+}
+        
+#btnImage {
+	border-radius:0px;
+}
+
+/* these 2 do not work */
 QTreeView::branch:open:has-children {
 	color %2;
 
@@ -5241,25 +5313,6 @@ QTreeView::item:selected:!active {
 	background-color:%19;
 }
         
-/* ------------------ borders ----------------------*/   
-QTabWidget:pane,     
-QTabBar::tab, 
-QToolTip,
-QTextEdit, 
-QLineEdit,
-QGroupBox,
-QSpinBox,
-QPushButton,
-QTreeView, 
-QListView {
-    border: 2px solid %3;	  /* %3   border color */
-}
-
-#btnImage {
-	border-radius:0px;
-}
-
-/* ------------------ colors --------------------*/
 QGroupBox::title {
 	color:%17				/* %17 bold title color */
 }
@@ -5297,6 +5350,18 @@ QComboBox:editable,
 QSpinBox {
 	background-color:%7;	/* %7 - input background */
 }
+#btnPrevBaseLanguage,
+#btnNextBaseLanguage,
+#btnPrevLanguage,
+#btnNextLanguage {
+	background-color:%1;	/* %1 - background */
+}
+
+QSplitter::handle {
+	margin:0 9px 0 9px;	
+	background-color: %2;	/* %2 - color */
+}
+
 QTextEdit, 
 QLineEdit,
 QComboBox:editable,
@@ -5347,8 +5412,27 @@ QPusButton:default {
 #btnDeleteColorScheme {
 	background-color:%9;	/* %9 focused border */
 }
-)END"
-	};
+
+QProgressBar::chunk{
+	width: 10px;
+	background-color:%15;	   /* %15 progressbar chunk */
+}
+
+/* ------------------ borders ----------------------*/   
+QTabWidget:pane,     
+QTabBar::tab, 
+QToolTip,
+QTextEdit, 
+QLineEdit,
+QGroupBox,
+QSpinBox,
+QPushButton,
+QTreeView, 
+QListView {
+    border: 2px solid %3;	  /* %3   border color */
+}
+)END";
+
 	PROGRAM_CONFIG::schemeIndex = which;
 	if (which)
 	{
@@ -5373,7 +5457,7 @@ QPusButton:default {
 			.arg(schemes[which].sBoldTitleColor)	// %17
 			.arg(schemes[which].sSelectionColor)	// %18
 			.arg(schemes[which].sSelectionBackground)	// %19
-//			.arg(schemes[which].sSpacerColor)		// %20
+//			.arg(schemes[which].sSpacerColor)		// %20										   `
 			;
 
 		if (which == stBlue)		// blue
@@ -5934,7 +6018,7 @@ void FalconG::_SlotAlbumStructChanged(bool yesItDid)
 	albumgen.SetStructChanged(yesItDid);	// so that we save it at program termination if not processed
 	reinterpret_cast<AlbumTreeModel*>(ui.trvAlbums->model())->EndResetModel();
 	ui.trvAlbums->setCurrentIndex(_currentTreeViewIndex);
-	ui.trvAlbums->expandToDepth(1);
+	// ui.trvAlbums->expandToDepth(1);
 	// ui.trvAlbums->expandAll();
 }
 

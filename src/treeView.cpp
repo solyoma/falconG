@@ -285,6 +285,11 @@ bool AlbumTreeModel::removeRows(int position, int rows, const QModelIndex & pare
 AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
 {
 	setRootIsDecorated(false);
+
+	setDragEnabled(true);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
+
 }
 /*=============================================================
  * TASK:	tooltips for folder names
@@ -478,6 +483,33 @@ void AlbumTreeView::currentChanged(const QModelIndex& current, const QModelIndex
 	emit SignalTreePathChanged(fullPath);
 	QTreeView::currentChanged(current, previous);
 }
+/*=============================================================
+ * TASK:	 sent when dragging is in progress
+ * EXPECTS: either a list of file names or a mime data of type
+ *			x-thumbs
+ * GLOBALS:
+ * RETURNS:	none
+ * REMARKS: follewd immediately by a dragMoveEvent()
+ *------------------------------------------------------------*/
+void AlbumTreeView::dragEnterEvent(QDragEnterEvent* event)
+{
+	//if (_isBusy)
+	//	return;
+
+	//if (_IsAllowedTypeToDrop(event))
+	//{
+	//	event->acceptProposedAction();
+	//}
+}
+void AlbumTreeView::dragLeaveEvent(QDragLeaveEvent* event)
+{
+
+}
+void AlbumTreeView::dragMoveEvent(QDragMoveEvent* event)
+{
+
+}
+
 
 BreadcrumbVector AlbumTreeView::GetBreadcrumbPath(QModelIndex index)	const
 {

@@ -30,7 +30,7 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;	 // from Albumgen::Albums()
 	QModelIndex parent(const QModelIndex &index) const;
 
 	void BeginResetModel()
@@ -111,6 +111,7 @@ signals:
 	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
 	void SignalGetSelectionCount(ID_t& remoteId, int& count);
 	void SignalTreePathChanged(const BreadcrumbVector &bcv);
+	void SignalItemsDropped(const ID_t& targetAlbumId, const IntList& itemIds, bool move);
 
 public slots:
 	void SlotDeleteSelectedAlbum();
@@ -130,6 +131,10 @@ public slots:
 protected:
 	void contextMenuEvent(QContextMenuEvent* pevent);
 	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+
+	void dragEnterEvent(QDragEnterEvent* event);	// when a drag enters this widget
+	void dragLeaveEvent(QDragLeaveEvent* event);
+	void dragMoveEvent(QDragMoveEvent* event);
 
 	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
 private:

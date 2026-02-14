@@ -43,9 +43,6 @@
    <iconset resource="falcong.qrc">
     <normaloff>:/icons/Resources/falconG-icon.png</normaloff>:/icons/Resources/falconG-icon.png</iconset>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="minimumSize">
     <size>
@@ -1910,13 +1907,19 @@ when their source is no longer present</string>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
           <property name="handleWidth">
            <number>10</number>
           </property>
-          <widget class="QWidget" name="widget_3" native="true">
+          <widget class="QWidget" name="widgetAlbumsImages" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1937,7 +1940,7 @@ when their source is no longer present</string>
              <number>0</number>
             </property>
             <item>
-             <widget class="QSplitter" name="splitter">
+             <widget class="QSplitter" name="editWSplitter">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1971,6 +1974,12 @@ when their source is no longer present</string>
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>324</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="font">
                      <font>
                       <family>Arial</family>
@@ -1985,6 +1994,12 @@ when their source is no longer present</string>
                   </item>
                   <item>
                    <widget class="AlbumTreeView" name="trvAlbums">
+                    <property name="minimumSize">
+                     <size>
+                      <width>324</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="editTriggers">
                      <set>QAbstractItemView::NoEditTriggers</set>
                     </property>
@@ -1998,6 +2013,12 @@ when their source is no longer present</string>
                   </item>
                   <item>
                    <widget class="QLabel" name="lblTotalCount">
+                    <property name="minimumSize">
+                     <size>
+                      <width>324</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>...</string>
                     </property>
@@ -2129,7 +2150,7 @@ when their source is no longer present</string>
                         </sizepolicy>
                        </property>
                        <property name="text">
-                        <string>Size of thumbnails:</string>
+                        <string>Thumbnail size:</string>
                        </property>
                       </widget>
                      </item>
@@ -2178,14 +2199,14 @@ when their source is no longer present</string>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="widget_7" native="true">
+          <widget class="QWidget" name="widgetTexts" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_18">
+           <layout class="QVBoxLayout" name="verticalLayout_18" stretch="1,10">
             <property name="leftMargin">
              <number>9</number>
             </property>
@@ -2206,13 +2227,72 @@ when their source is no longer present</string>
                  <number>6</number>
                 </property>
                 <item>
-                 <widget class="QComboBox" name="cbBaseLanguage">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <widget class="QWidget" name="pnlBaseLangSelect" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>24</height>
+                   </size>
                   </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_27">
+                   <property name="spacing">
+                    <number>1</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QToolButton" name="btnPrevBaseLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select previous language</string>
+                     </property>
+                     <property name="text">
+                      <string>◄</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QToolButton" name="btnNextBaseLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select Next Language</string>
+                     </property>
+                     <property name="text">
+                      <string>►</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="cbBaseLanguage">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
@@ -2256,13 +2336,93 @@ when their source is no longer present</string>
                  <number>1</number>
                 </property>
                 <item>
-                 <widget class="QComboBox" name="cbLanguage">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <widget class="QWidget" name="pnlLanguageSelect" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>24</height>
+                   </size>
                   </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_26">
+                   <property name="spacing">
+                    <number>1</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>1</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QToolButton" name="btnPrevLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select previous language</string>
+                     </property>
+                     <property name="text">
+                      <string>◄</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QToolButton" name="btnNextLanguage">
+                     <property name="maximumSize">
+                      <size>
+                       <width>15</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Select Next Language</string>
+                     </property>
+                     <property name="text">
+                      <string>►</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="cbLanguage">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QWidget" name="widget_9" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_4">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>1</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>1</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>1</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>1</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
@@ -2277,7 +2437,7 @@ when their source is no longer present</string>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Title - Selected language:</string>
+                     <string>Title (Selected language)</string>
                     </property>
                    </widget>
                   </item>
@@ -2728,8 +2888,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3121,7 +3281,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>426</width>
+                         <width>419</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -6195,8 +6355,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7051,7 +7211,7 @@ the last CSS save.</string>
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine schemes 'Default' and 'System colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine 'Default'  scheme colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -7941,10 +8101,8 @@ the last CSS save.</string>
   <tabstop>tnvImages</tabstop>
   <tabstop>btnCloseAllViewers</tabstop>
   <tabstop>sldIconSize</tabstop>
-  <tabstop>cbBaseLanguage</tabstop>
   <tabstop>edtBaseTitle</tabstop>
   <tabstop>edtBaseDescription</tabstop>
-  <tabstop>cbLanguage</tabstop>
   <tabstop>btnSaveChangedTitle</tabstop>
   <tabstop>chkChangeTitleEverywhere</tabstop>
   <tabstop>edtTitleText</tabstop>

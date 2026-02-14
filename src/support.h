@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QModelIndex>
 #include <QApplication>
 #include <QString>
@@ -28,13 +28,26 @@ const QString versionStr = "# falconG Gallery Structure file ";
 //           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
 //			 1.3 - source image paths have an ID and the file contains this ID instead of the path for the images and videos
 //			 1.5 - album lines may contain a base album ID defining an alias to an existing album inside {}, before theclosing')'
+//			 2.0 - can't read versions before 1.3 anymore use separate conversion program to update versions before 1.3
 
-constexpr int majorStructVersion = 1,		// V 1.5.0 version string
-			  minorStructVersion = 5,
-			  subStructVersion   = 0;	
-enum DecodeTextTo {dtPlain, dtHtml, dtJavaScript };	// encoding and decoding text
+constexpr int majorProgramVersion = 2,		// V 2.0.0 version string
+			  minorProgramVersion = 0,
+			  subProgramVersion   = 0;
 
-enum FileType {ftUnknown, ftImage, ftVideo, ftFolder };
+	// encoding and decoding text
+enum DecodeTextTo { dtPlain, 			// from html or javascript to plain text (&amp;, &quot; &apos; &lg; &gt; <br>)
+					dtDescription,		// similar to dtHTML, used in header for the description and title texts
+					dtHtml,				// for ',",\n,\\n, <,>
+					dtJavaScript 		// like HTML, but replaces with codes 2-5
+				};
+
+enum FileType : char {	ftUnknown = 0, 
+							ftImage = 'I',
+							ftVideo = 'V',
+							ftFolder= 'F',
+							ftUnprocessedImage='i',
+							ftnporocessedVideo = 'v' };
+const char itemIsUnprocessedFlag = 0x20; // bit added to file type char to convert 'I' to 'i' and 'V' to 'v'
 
 //******************** text file reader ************
 // file header line(s)
@@ -221,75 +234,90 @@ struct ImageReader : public QImageReader
 // read an image from disk or resource, rotate it on read if needed, 
 //  resize it to w and h keeping aspect ratio
 //  add a square icon overlay at given postion from the right
-struct MarkedIcon
+class MarkedIcon
 {
-	QString name;			// full path name of image for which we want an icon
-	QPixmap pxmp;			// square pixmap contains image with a 'margin' wide border
-	IconFlags flags;		// flags: fiFolder, fiThumb, fiAlias, fiDontResize, fiVideo, fiImage
-	bool exists = false;	
+	QString _name;			// full path name of image for which we want an icon
+	QPixmap _pxmp;			// square pixmap contains image with a 'margin' wide border
+	bool _exists = false;	
 		// these ar used for each thumbnail
 		// QPixmaps can only be initialized after the GUI initialize (QT quirk)
 		// so we need pointers here
-	static QPixmap *folderThumbMark;	// if folder thumbnail mark with this	
-	static QPixmap *aliasMark;		// if folder is an alias
-	static QPixmap *noImageMark;	// image does not exist
-	static QPixmap *noresizeMark;	// do not resize image
-	static int thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
-	static int borderWidth;		
-	static bool initted;
-
+	static QPixmap *_folderThumbMark;	// if folder thumbnail mark with this	
+	static QPixmap *_aliasMark;		// if folder is an alias
+	static QPixmap *_noImageMark;	// image does not exist
+	static QPixmap *_noResizeMark;	// do not resize image
+	static int  _thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
+	static int  _borderWidth;		
+	static bool _initted;
+public:
+	IconFlags flags;		// flags: fiFolder, fiThumb, fiAlias, fiDontResize, fiVideo, fiImage
 	MarkedIcon()
 	{
-		if (!initted)
+		if (!_initted)
 			Init();
 	}
 
 	MarkedIcon(const MarkedIcon& other)
 	{
+		(void) operator=(other);
+	}
+
+	MarkedIcon& operator=(const MarkedIcon& other)
+	{
 		flags = other.flags;
-		exists = other.exists;
-		name = other.name;
-		pxmp = other.pxmp;
+		_exists = other._exists;
+		_name = other._name;
+		_pxmp = other._pxmp;
+		return *this;
 	}
 
-	~MarkedIcon()
-	{
+	~MarkedIcon()	{	}
 
-	}
-	void SetAsFolderThumb(bool setth)
-	{
-		flags.setFlag(fiThumb);
-	}
-	void SetAsAlias(bool setta)
-	{
-		flags |= fiAlias;	// set alias flag
-		if(!setta)
-			flags ^= fiAlias;  // no clearFlag operation in flags
-	}
-	void SetNoResize(bool noresize) 
-	{ 
-		flags.setFlag(fiDontResize);  
-		if(!noresize)
-			flags ^= fiDontResize;  // no clearFlag operation in flags
-	}
 	static void Init()
 	{
-		if (initted)
+		if (_initted)
 			return;
 
-		folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
-		aliasMark		= new QPixmap(":/icons/Resources/aliasIcon.png");
-		noImageMark		= new QPixmap(":/icons/Resources/noImageMark.png");
-		noresizeMark	= new QPixmap(":/icons/Resources/noresizeMark.png");
-		initted = true;
+		_folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
+		_aliasMark		 = new QPixmap(":/icons/Resources/aliasIcon.png");
+		_noImageMark	 = new QPixmap(":/icons/Resources/noImageMark.png");
+		_noResizeMark	 = new QPixmap(":/icons/Resources/noResizeMark.png");
+		_initted		 = true;
 	}
 	static void SetMaximumSizes(int size, int margin)
 	{
-		thumbSize = size; 
-		borderWidth = margin;
+		_thumbSize = size; 
+		_borderWidth = margin;
 	}
 
-	bool Read(QString name, IconFlags flag);	// to pxmp, transforms rotated image on read, sets 'exists'
+	inline bool ToggleFolderThumbFlag()
+	{
+		if(flags.testFlag(fiThumb))
+		{	flags ^= fiThumb;  // no clearFlag operation in flags
+			return false;
+		}
+		else
+		{
+			flags.setFlag(fiThumb);
+			return true;
+		}
+	}
+	void ToggleAliasFlag()
+	{
+		if(flags.testFlag(fiAlias))
+			flags ^= fiAlias;  // no clearFlag operation in flags
+		else // if(!setta)
+			flags |= fiAlias;	// set alias flag
+	}
+	void ToggleNoResizeFlag() 
+	{ 
+		if(flags.testFlag(fiDontResize))
+			flags ^= fiDontResize;  // no clearFlag operation in flags
+		else // if(!noresize)
+			flags.setFlag(fiDontResize);  
+	}
+
+	bool Read(QString name, IconFlags flag);	// to _pxmp, transforms rotated image on read, sets 'exists'
 	QIcon ToIcon() const;
 };
 //QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);

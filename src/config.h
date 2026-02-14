@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma once
 
 #include <QtCore>
@@ -932,8 +932,12 @@ struct PROGRAM_CONFIG
 	static QString homePath;	// local home directory
 	static QString samplePath;	// sample directory
 	// design page
-	static int splitterLeft;
-	static int splitterRight;
+	static int designSplitterLeft;
+	static int designSplitterRight;
+	static int editSplitterTop;	// splits the thumbnails and descriptions
+	static int editSplitterBottom;
+	static int editWSplitterLeft;
+	static int editWSplitterRight;
 	static int copyrightYear;
 	// Options page
 	static int lang;
@@ -965,9 +969,9 @@ class CONFIG
 public:
 	CONFIG();
 
-	int majorStructVersion = 1, 		// version read from config file 1.2.
-		minorStructVersion = 2,			// C.f. support.h constexpr with same names
-		subStructVersion = 9;			// 	the value in falconG.ui is overwritten on run
+	int majorStructVersion = 2, 		// version read from '.struct' file. May differ from the program version
+		minorStructVersion = 0,			// in support.h  (similar names w.o. 'Struct' in them)
+		subStructVersion   = 0;			// the value displayed in falconG.ui is overwritten on run
 	bool dontRegenerateAnyImage = false;
 	StyleHandler styleHandler;	// for the main window with all of its elements
 

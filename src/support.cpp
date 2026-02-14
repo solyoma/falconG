@@ -270,7 +270,10 @@ QString EncodeText(const QString s)
 *							"\\n" => '\n', "&amp;" => '&',
 *							"&lt;"=> '<', "&gt;"=> '>',
 *					  dtHtml: HTML ->'\n', 
+*							"\n" => "<br>\n" 
 *							"\\n" => "<br>\n" 
+*							"\"" => "&quot;" 
+*							"'"  => "&apos;" 
 *					  dtJS: JS -> '<br>'
 *							"\\n" => "<br>" 
 *							"&lt;"=> '<', "&gt;"=> '>',
@@ -284,28 +287,39 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 		return s;
 
 	QString res = s;
+	bool inQuote = false;
+
 	switch (purpose)
 	{
 		case dtPlain:
 			res.replace("\\n", "\n");
+			res.replace("<br>", "\n");
+			res.replace("<br/>", "\n");
 			res.replace("&amp;", "&");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
 			break;
+		case dtDescription:
+			inQuote = true;
+			//[[fallthrough]]
 		case dtHtml:
-			res.replace("\\n", "<br>\n");
+			res.replace("\\n","<br/>");
+			res.replace("\n", "<br/>");
+			if(inQuote)
+			{
+				res.replace("\"", "&quot;"); // but only inside quotes or apostrophes
+				res.replace("\'", "&apos;"); // - " - 
+			}
 			break;
 		case dtJavaScript:
-			if (res.indexOf('\n')>=0)
-				res.replace("\n", "<br>");
-			else if (res.indexOf("\\n") >= 0)
-				res.replace("\\n", "<br>");
+			res.replace("\n", "<br>");
+			res.replace("\\n", "<br>");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
-			res.replace('\'', 0x02);
-			res.replace('\'', 0x03);
-			res.replace('"' , 0x04);
-			res.replace('\\', 0x05);
+			res.replace('\'', 0x02);  // STX
+			res.replace('\'', 0x03);  // ETX
+			res.replace('"' , 0x04);  // EOT
+			res.replace('\\', 0x05);  // ENQ
 			break;
 	}
 	return res;
@@ -1112,8 +1126,8 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 //				newSize.setHeight(maxSize.x() / aspect);
 //			}
 //			// thumbs always resized even when it means enlargement
-//			thumbSize.setWidth(maxSize.width());
-//			thumbSize.setHeight(maxSize.width() / aspect);
+//			_thumbSize.setWidth(maxSize.width());
+//			_thumbSize.setHeight(maxSize.width() / aspect);
 //		}
 //		if (aspect <= 1)
 //		{
@@ -1123,11 +1137,11 @@ QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 //				newSize.setWidth(aspect * maxSize.y());
 //			}
 //			// thumbs always resized even when it means enlargement
-//			thumbSize.setHeight(maxSize.height());
-//			thumbSize.setWidth(aspect * maxSize.height());
+//			_thumbSize.setHeight(maxSize.height());
+//			_thumbSize.setWidth(aspect * maxSize.height());
 //		}
 //	}
-//	imgReader.setScaledSize(newSize);	// newSize used in read, thumbSize used in write
+//	imgReader.setScaledSize(newSize);	// newSize used in read, _thumbSize used in write
 //	return aspect;
 //}
 
@@ -1160,7 +1174,7 @@ int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb,
 	QSize newSize = imgReader.imgSize;	// if 'trans' then it may already transposed sizes (from camera, not from PS/LR)
 	if (trans & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
 		newSize.transpose();
-	imgReader.setScaledSize(newSize);	// rescale to newSize when read, thumbSize used in write
+	imgReader.setScaledSize(newSize);	// rescale to newSize when read, _thumbSize used in write
 
 	if (!imgReader.isReady)			// not read yet
 	{								
@@ -1672,29 +1686,30 @@ WaterMark& WaterMark::operator=(const WaterMark&& other)
 }
 
 // =================================================================
-QPixmap *MarkedIcon::folderThumbMark = nullptr;
-QPixmap *MarkedIcon::aliasMark = nullptr;
-QPixmap *MarkedIcon::noImageMark = nullptr;
-QPixmap *MarkedIcon::noresizeMark = nullptr;
-int MarkedIcon::thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
-int MarkedIcon::borderWidth = thumbSize / THUMBNAIL_BORDER_FACTOR;				// in pixels portrait image: right and left, landscape image top and bottom
-bool MarkedIcon::initted = false;				// images for icons read?
+QPixmap *MarkedIcon::_folderThumbMark = nullptr;
+QPixmap *MarkedIcon::_aliasMark = nullptr;
+QPixmap *MarkedIcon::_noImageMark = nullptr;
+QPixmap *MarkedIcon::_noResizeMark = nullptr;
+int  MarkedIcon::_thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
+int  MarkedIcon::_borderWidth = _thumbSize / THUMBNAIL_BORDER_FACTOR;				// in pixels portrait image: right and left, landscape image top and bottom
+bool MarkedIcon::_initted = false;				// images for icons read?
 
 
 /*=============================================================
- * TASK:	reads an image into 'pxmp' member from file and
- *			shows it on a square pixmap with 'thumbSize' side
+ * TASK:	reads an image into '_pxmp' member from file and
+ *			shows it on a square pixmap with '_thumbSize' side
  *			on a background whose color depends on the type of
  *			the image (folder thumbnail or image thumbnail)
  * PARAMS:	name: file name to read image from
- *			is_folder: if this will be for a folder
+ *			iflags: icon flags may contain other flags than 
+ *					image type
  * GLOBALS:	static members are set
  * RETURNS:	if file read was successful
  * REMARKS: if read is unsuccessfull the pixmap still valid
  *------------------------------------------------------------*/
 bool MarkedIcon::Read(QString fname, IconFlags iflags)
 {
-	name = fname;
+	_name = fname;
 	flags = iflags;
 
 	QString colorname = (flags & fiFolder ? config.albumMatteColor : config.imageMatteColor).Name(true);
@@ -1702,8 +1717,8 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 	if (!cbck.isValid())
 		return false;
 
-	pxmp = QPixmap(thumbSize, thumbSize);
-	pxmp.fill(cbck);
+	_pxmp = QPixmap(_thumbSize, _thumbSize);
+	_pxmp.fill(cbck);
 
 	QSize dsize;		// thumbnail size
 	static QImage img;	// thumbnail image (for video: get from video file)
@@ -1712,13 +1727,13 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 		{
 			if (osize.width() >= osize.height())	// portrait
 			{
-				dsize.setWidth(thumbSize - 2 * borderWidth);
-				dsize.setHeight((double)(thumbSize - 2 * borderWidth) / (double)(osize.width()) * osize.height());
+				dsize.setWidth(_thumbSize - 2 * _borderWidth);
+				dsize.setHeight((double)(_thumbSize - 2 * _borderWidth) / (double)(osize.width()) * osize.height());
 			}
 			else
 			{
-				dsize.setHeight(thumbSize - 2 * borderWidth);
-				dsize.setWidth((double)(thumbSize - 2 * borderWidth) / (double)(osize.height()) * osize.width());
+				dsize.setHeight(_thumbSize - 2 * _borderWidth);
+				dsize.setWidth((double)(_thumbSize - 2 * _borderWidth) / (double)(osize.height()) * osize.width());
 			}							  
 		};
 
@@ -1728,7 +1743,7 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 		if (!pvid)
 			return false;	// no video found
 
-		if (!pvid->GetThumbnail(img, dsize, thumbSize))
+		if (!pvid->GetThumbnail(img, dsize, _thumbSize))
 		{
 			QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), 
 				QMainWindow::tr("Can't get thumbnail for video file '%1'").arg(fname));
@@ -1737,11 +1752,11 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 	}
 	else   // image (may be a) folder thumbnail
 	{
-		QImageReader reader(name);
+		QImageReader reader(_name);
 		reader.setBackgroundColor(cbck);
 		reader.setAutoTransform(true);
 
-		exists = false;
+		_exists = false;
 
 		QSize osize = reader.size();
 		if (!osize.isValid())
@@ -1753,47 +1768,47 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 		if (!reader.read(&img))		// maybe error display?
 			return false;
 
-		exists = true;
+		_exists = true;
 	}
-	QPainter painter(&pxmp);	// leave the border outside
-	int xm =(pxmp.width() - dsize.width()) / 2, ym = (pxmp.height() - dsize.height()) / 2;
+	QPainter painter(&_pxmp);	// leave the border outside
+	int xm =(_pxmp.width() - dsize.width()) / 2, ym = (_pxmp.height() - dsize.height()) / 2;
 	painter.drawImage(xm, ym, img);
 
 	return true;
 }
 
 /*=============================================================
- * TASK:	from pxmp returns an icon with markers on it
+ * TASK:	from _pxmp returns an icon with markers on it
  * PARAMS:
- * EXPECTS: pxmp contains the already rendered background 
+ * EXPECTS: _pxmp contains the already rendered background 
  *			(folders and others) and the image
  * GLOBALS:
  * RETURNS: an icon for image read. 
  * REMARKS: - If no markers are to be set on this item returns just 
- *			the pixmap 'pxmp'
+ *			the pixmap '_pxmp'
  *			- thumbnail & alias markers are at top left, 
  *				fon't resize and missing flag at top right
  *------------------------------------------------------------*/
 QIcon MarkedIcon::ToIcon() const
 {
 	static IconFlags __flags = { fiFolder, fiThumb, fiDontResize, fiAlias };
-	if (exists && (flags & __flags) ==0)	// no markers on image
-		return QIcon(pxmp);
+	if (_exists && (flags & __flags) ==0)	// no markers on images
+		return QIcon(_pxmp);
 
-	QPixmap tmppxmp(thumbSize, thumbSize);
-	QPainter painter(&tmppxmp);
-	painter.drawPixmap(0,0, pxmp);		// image with border
+	QPixmap tmp_pxmp(_thumbSize, _thumbSize);
+	QPainter painter(&tmp_pxmp);
+	painter.drawPixmap(0,0, _pxmp);		// image with border
 	if (flags & fiThumb)	   // at top left position
-			painter.drawPixmap(borderWidth, borderWidth, *folderThumbMark);	 
+			painter.drawPixmap(_borderWidth, _borderWidth, *_folderThumbMark);	 
 	if (flags & fiAlias)
-		painter.drawPixmap(borderWidth + (flags & fiThumb ? aliasMark->width() : 0), borderWidth, *aliasMark);
+		painter.drawPixmap(_borderWidth + (flags & fiThumb ? _aliasMark->width() : 0), _borderWidth, *_aliasMark);
 
-	if (dontResize)		  // at top right
-		painter.drawPixmap(thumbSize - folderThumbMark->width() - borderWidth, borderWidth, *noresizeMark);
-	if(!exists)
-		painter.drawPixmap(thumbSize - 2*noImageMark->width() - borderWidth, borderWidth, *noImageMark);
+	if (flags & dontResize)		  // at top right
+		painter.drawPixmap(_thumbSize - _folderThumbMark->width() - _borderWidth, _borderWidth, *_noResizeMark);
+	if(!_exists)
+		painter.drawPixmap(_thumbSize - 2*_noImageMark->width() - _borderWidth, _borderWidth, *_noImageMark);
 
-	return QIcon(tmppxmp);
+	return QIcon(tmp_pxmp);
 }
 
 char* StringToCString(QString string)

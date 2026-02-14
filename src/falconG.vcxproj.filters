@@ -81,6 +81,9 @@
     <ClCompile Include="videoplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CsvExportDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -116,6 +119,9 @@
     <QtMoc Include="videoplayer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="CsvExportDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="falcong.ui">
@@ -134,6 +140,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="selectStruct.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="exportCSV.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -167,5 +176,10 @@
     <ClInclude Include="schemes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="falconG.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

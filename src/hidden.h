@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef _HIDDEN_H
 #define _HIDDEN_H
@@ -389,7 +389,7 @@ private:
 			}
 		}
 		else
-			QMessageBox::warning(this, tr("FalconG - Warning"), tr("Root directory \n'%1'\n doesn't exist or unreadable").arg(s.c_str()) );
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Root directory \n'%1'\n doesn't exist or unreadable").arg(s.c_str()) );
 		return cnt;
 	}
 	bool _SaveList()
@@ -402,9 +402,9 @@ private:
 		f.open(QIODevice::WriteOnly);
 		fm.open(QIODevice::WriteOnly);
 		QTextStream ofs(&f), ofsm(&fm);
-		ofs << "FalconG - List of files in gallery source whose originals were found in "
+		ofs << "falconG - List of files in gallery source whose originals were found in "
 			<< ui.edtRootFolder->text() << "\n\n";
-		ofsm << "FalconG - List of files in gallery source whose originals were NOT found in "
+		ofsm << "falconG - List of files in gallery source whose originals were NOT found in "
 			<< ui.edtRootFolder->text() << "\n\n";
 		int cnt1 = 0, cnt2 = 0, cnt3 = 0;
 		for (auto& specs : _specs)
@@ -435,7 +435,7 @@ private:
 private slots:
 	void on_btnSelectSourceFolder_clicked()
 	{
-		QString sDir = QFileDialog::getExistingDirectory(this, tr("FalconG - Open Folder"));
+		QString sDir = QFileDialog::getExistingDirectory(this, tr("falconG - Open Folder"));
 		if (!sDir.isEmpty())
 		{
 			ui.edtRootFolder->setText(sDir);

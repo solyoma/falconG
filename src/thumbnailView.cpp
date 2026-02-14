@@ -59,38 +59,33 @@ inline bool FileIcons::HasIconFor(int pos)
     return pos < _iconList.size();
 }
 
-void FileIcons::SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail)
+void FileIcons::ToggleThumbnailMarkFor(int pos)
 {
+    if (pos < 0)
+        return;
+
     // pos-th item MUST exist
-
     MarkedIcon& micon = _iconList[ _iconOrder[pos] ];
-
-    bool b = micon.flags.testFlag(fiThumb);
-    if(posFolderIcon == pos && bIsFolderThumbnail == b)
-		return;    // already set
-
-	if (posFolderIcon >= 0 && b)   // erase original folder icon
-		micon.flags ^= fiThumb;    // remove fiThumb flag
-
-    if (bIsFolderThumbnail)
-    {
-		micon.flags |= fiThumb;    // set fiThumb flag
+    if(micon.ToggleFolderThumbFlag())
         posFolderIcon = pos;
-    }
 }
 
-QIcon FileIcons::IconForPosition(int pos, QString imageName)
+QIcon FileIcons::IconForPosition(int pos, IconFlags flags, QString imageName)
 {
 	if (pos < 0)
 		return QIcon();
 
-	if (pos >= _iconList.size())    // _iconList may contain more items than _iconOrder
-        Insert(-1, imageName);    // -1: push back
+	if (pos >= _iconList.size())        // _iconList may contain more items than _iconOrder
+        Insert(-1, imageName, flags);   // -1: push back
 
     // pos-th item MUST exist
     Q_ASSERT(pos < _iconOrder.size());
 
     MarkedIcon& micon = _iconList[_iconOrder[pos]];
+    // DEBUG
+  //  if(micon.flags.testFlag(fiDontResize))
+		//qDebug((QString("IconForPosition: pos:%1, name:'%2', flags: %3").arg(pos).arg(imageName).arg((int)flags)).toStdString().c_str());
+    // /DEBUG
 
 	return micon.ToIcon();
 }
@@ -103,12 +98,12 @@ void FileIcons::SetIconOrder(const QVector<int>& order)
 {
     _iconOrder = order;
 }
-MarkedIcon * FileIcons::Insert(int pos, QString imageName)
+MarkedIcon * FileIcons::Insert(int pos, QString imageName, IconFlags flags)
 {
 	MarkedIcon icon;
-    IconFlags flags;
     FileType type = FileTypeFromName(imageName);
-    flags.setFlag(type == ftImage ? fiImage : type==ftVideo ? fiVideo : type == ftFolder ? fiFolder : fiNone);
+    if(flags == IconFlag::fiNone)
+        flags.setFlag(type == ftImage ? fiImage : type==ftVideo ? fiVideo : type == ftFolder ? fiFolder : fiNone);
 	icon.Read(imageName, flags); // for videos: get thumb frame
 
 	if (pos < 0)
@@ -178,7 +173,6 @@ QIcon ThumbnailItem::IconForFile() const
     QString imageName;
     if (ISALBUM() )
     {
-        flags.setFlag(fiFolder);
         Album& aitem = albumgen.Albums()[itemId];
         imgId = aitem.thumbnailId;
 
@@ -196,7 +190,7 @@ QIcon ThumbnailItem::IconForFile() const
         if (!QFile::exists(imageName))
             imageName = QString(":/Preview/Resources/NoImage.jpg");
     }
-    else        // image
+    else        // for image or album: imgId is set, videos: TODO
     {
         img = albumgen.Images()[imgId];
         if (!img.name.isEmpty())
@@ -215,7 +209,7 @@ QIcon ThumbnailItem::IconForFile() const
     // qDebug((QString("icon for file:'%1' of ID:%2, name:'%3'").arg(imageName).arg(itemId).arg(img.FullSourceName())).toStdString().c_str());
     // /DEBUG
 
-    return fileIcons.IconForPosition(itemPos, imageName);
+    return fileIcons.IconForPosition(itemPos, flags, imageName);
 }
 
 
@@ -487,7 +481,7 @@ ThumbnailView::ThumbnailView(QWidget *parent) : QListView(parent)
   * GLOBALS:
   * REMARKS:
  *--------------------------------------------------------------------------*/
-void ThumbnailView::selectCurrentIndex()
+void ThumbnailView::SelectCurrentIndex()
 {
     if (_currentIndex.isValid() && _thumbnailViewModel->rowCount() > 0) 
 	{
@@ -634,7 +628,7 @@ bool ThumbnailView::SetCurrentIndexByName(QString &fileName)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-bool ThumbnailView::setCurrentIndexByItem(int row)
+bool ThumbnailView::SetCurrentIndexByItem(int row)
 {
 	QModelIndex idx = _thumbnailViewModel->indexFromItem(_thumbnailViewModel->item(row));
 	if (idx.isValid()) 
@@ -842,21 +836,6 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
 
     if (_IsAllowedTypeToDrop(event) )
 	{
-// DEBUG
-#if 1
-// DEBUG
-  //      if (pDragDropLabel)
-		//{
-		//	delete pDragDropLabel;
-  //          pDragDropLabel = nullptr;
-		//}
-// /DEBUG
-// DEBUG
-//        QString qs = __DebugPrintDragAndDrop(event);
-  //      pDragDropLabel = new QLabel(qs, this, Qt::ToolTip);
-		//pDragDropLabel->setVisible(true);
-// /DEBUG
-#endif
 		event->acceptProposedAction();
 	}
 }
@@ -870,21 +849,18 @@ void ThumbnailView::dragEnterEvent(QDragEnterEvent * event)
  *------------------------------------------------------------*/
 void ThumbnailView::dragLeaveEvent(QDragLeaveEvent * event)
 {
-// DEBUG
-    //if (pDragDropLabel)
-    //{
-    //    delete pDragDropLabel;
-    //    pDragDropLabel = nullptr;
-    //}
-// /DEBUG
-    //	dynamic_cast<ThumbnailViewModel *>(model())->SetDummyPos(-1);
-//	QListView::dragLeaveEvent(event);
+    if (_movetimer)
+    {
+        disconnect(_movetimer, nullptr, this, nullptr);
+        delete _movetimer;
+        _movetimer = nullptr;
+    }
 }
 
 
 
 /*=============================================================
- * TASK:
+ * TASK:   handles dragged object move
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -905,13 +881,30 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
 
     if (pose < 30)
     {
-        QThread::msleep(200);
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+        if (!_movetimer)
+        {
+            _movetimer = new QTimer(this);
+            QThread::msleep(200);
+            connect(_movetimer, &QTimer::timeout, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub); });
+            _movetimer->start(200);
+        }
+
     }
     else if (pose > height() - 30)
     {
-        QThread::msleep(200);
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+        if (!_movetimer)
+        {
+            _movetimer = new QTimer(this);
+            QThread::msleep(200);               // works with both 4 parameters with 'this' or with 3 paramas without it as above
+            connect(_movetimer, &QTimer::timeout, this, [&]() { verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd); });
+            _movetimer->start(200);
+        }
+    }
+    else if (_movetimer)
+    {
+		disconnect(_movetimer, nullptr, this, nullptr);
+        delete _movetimer;
+        _movetimer = nullptr;
     }
 }
 
@@ -958,13 +951,12 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
             qslF << s;
     }
     emit SignalAlbumStructWillChange();
-    _AddImagesAndVideosFromList(qsl, row);
+    _AddImagesAndVideosFromList(qsl, row, true);        // just new images, not duplicate ones
     // row += qsl.size();  // position for folders
     bool b = _AddFoldersFromList(qslF, row);
     emit SignalAlbumStructChanged(b);
     if(b)
         Reload();
-    // ??? why was this here too? _AddImagesAndVideosFromList(qsl, row);
 }
 
 /*=============================================================
@@ -974,7 +966,14 @@ void ThumbnailView::_DropFromExternalSource(const ThumbMimeData* mimeData, int r
  *              a list of indexes in actual albums items' list
  * GLOBALS: 
  * RETURNS:
- * REMARKS: - on move images
+ * REMARKS: - when dropped from external source mime data is a
+ *              list of file paths
+ *          - when dropped from moving items around mime data
+ *              is a list of item indices in current album
+ *          - when dropped to an album during movement
+ *              we must check whether the album we drop it into is
+ *              among the selected
+ *          - on move images
  *              order in thumbList depends on selection order
  *              images can be put to the same position they 
  *              were before
@@ -1026,164 +1025,85 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 
         if (moveItemsIntoFolder) // then possibly move items into album with id items[row]
         {                        // or relocate them or cancel operation                     
-            QMessageBox mb(this);
-            mb.setWindowTitle(tr("falconG - Question"));
-            mb.setText(tr("Move into this folder or just reposition before it?"));
-            mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
-            // buttons added after the existing buttons
-            QPushButton *pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::NoRole);
-            QPushButton *pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::YesRole);
-
-#ifdef DEBUG
-            QPushButton *pCancelBtn = 
-#endif
-            mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
-            mb.setDefaultButton(pBeforeFolderBtn);
-
-            mb.exec();
-            QAbstractButton* pResBtn = mb.clickedButton();
-
-            if (pResBtn == pIntoFolderBtn)
+            // check if the destination album is also in the list
+            if (thl.indexOf(row) >= 0)      // then list contains the folder to drop into
             {
-                Album* pDestAlbum = &albumgen.Albums()[items[row]];
-                IdList itemsDest = pDestAlbum->items;
-#ifdef DEBUG
-                int destItemSize = itemsDest.size();
-#endif
-                // -- check if any of the items to move is a folder and if it is then
-                //    whether it or any of its siblings are is already in the destination album
-                for (int i = 0; i < thl.size(); ++i)
-                {
-                    ID_t itemID = items[thl[i]];
-                    if (itemID.IsAlbum())
-                    {
-                        Album* pab = albumgen.AlbumForID(itemID);
-                        Q_ASSERT(pab);
-
-                        if(albumgen.IsCircular(pab, pAlbum) ) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
-                        {
-                            QMessageBox::warning(this, tr("falconG - Warning"), tr("Ivalid move!\n"
-                                "Album \n'%1'\n is either an alias for album\n'%2'\n"
-                                "or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pAlbum->name) );
-                            return;
-                        }
-
-                                // now the album to be moved is not an alias of the album to move to.
-                        IDVal_t isThere = NO_ID;
-                        IDValList idvl = pab->BaseAlbum()->aliasesList; // list of albums linked to this album
-                        if (idvl.isEmpty())     // no linked albums for this one
-                            isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
-                        else
-                            for (auto& v : idvl)
-                            {
-                                ID_t idv(ALBUM_ID_FLAG, v);
-                                if (pDestAlbum->items.indexOf(idv) >= 0)
-                                {
-                                    isThere = v;
-                                    break;  // found at least one linked album in destination album
-                                }
-                            }
-
-                        if (isThere != NO_ID)    // album is already in destination album
-                        {
-                            QString qs = tr("The album '%1' to be moved is already in the destination album '%2'.\n").arg(pab->name).arg(pDestAlbum->name);
-                            if (isThere != itemID.Val())             // another alias for the same album
-                                qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
-                            qs += tr("Please remove it from the selection!");
-                            QMessageBox::warning(this, tr("falconG - Warning"), qs);
-                            return;
-                        }
-                    }
-                }
-
-                // ------------- housekeeping -----------
-                // add moved items to destination album  (which doesn't have icons yet )
-                for (int si = 0; si < thl.size(); ++si)
-                {
-                    ID_t itemID = items[thl[si]];
-                    if (itemID.IsAlbum())
-                    {
-                        Album* pab = albumgen.AlbumForID(itemID);
-                        Q_ASSERT(pab);
-                        pab->parentId = pDestAlbum->ID.Val();      // reparent album
-                        albumgen.SetAlbumModified(itemID);   // so that it gets written 
-                    }
-                    itemsDest.push_back(itemID);
-                }
-
-                // remove indexes of moved items from source gallery and icon indices
-                const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
-                QVector<int> newIconOrder;                       // new icon order indexes
-                IdList newItems;                                 // w.o. moved items
-
-                for (int si = 0; si < itemSize; ++si)            // origIconOrder has the same number of items as items itself
-                {
-                    int o = origIconOrder[si];
-                    if (thl.indexOf(o) < 0)
-                    {
-                        newItems.push_back(items[o]);
-                        newIconOrder.push_back(o);
-                    }
-                }
-                // discard moved icons
-                //for (int si = itemSize - 1; si << itemSize >= 0; --si)   // origIconOrder has the same number of items as items itself
-                //    if (thl.indexOf(origIconOrder[si]) >= 0)
-                //        fileIcons.Remove(origIconOrder[si]);
-                items = newItems;
-                fileIcons.SetIconOrder(newIconOrder);
-                _InitThumbs();
-                // ----- never  move items physically to virtual destination folder --------
+                doWriteStructFile = false;                   // default: true
+                QString msg = thl.size() == 1 ? tr("An album cannot be dropped into itself!") : tr("List of items to drop contains the album to drop into!");
+                QMessageBox::warning(this, tr("falconG - Warning"), msg);
             }
-            else if (pResBtn == pBeforeFolderBtn)
-                moveItemsIntoFolder = false;
-            else        // else cancel is pressed
-                doWriteStructFile = false;
+            else
+            {
+                QMessageBox mb(this);
+                mb.setWindowTitle(tr("falconG - Question"));
+                mb.setText(tr("Reposition selection before this folder or Move into it?"));
+                mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
+                // buttons added after the existing buttons
+                QPushButton* pBeforeFolderBtn = mb.addButton(tr("Re&position"), QMessageBox::YesRole); // YesRole comes first, no after and cancel after that
+                QPushButton* pIntoFolderBtn = mb.addButton(tr("&Move into"), QMessageBox::NoRole);
 
+#ifdef DEBUG
+                QPushButton* pCancelBtn =
+#endif
+                    mb.addButton(tr("Cancel"), QMessageBox::RejectRole);
+                mb.setDefaultButton(pBeforeFolderBtn);
+
+                mb.exec();
+                QAbstractButton* pResBtn = mb.clickedButton();
+
+                if (pResBtn == pIntoFolderBtn)
+                    _MoveItemsIntoAlbum(thl, items[row], false); // mimeData->hasUrls() == true : drop from External source, already handled
+                else if (pResBtn == pBeforeFolderBtn)
+                    moveItemsIntoFolder = false;                 // default: true
+                else        // else cancel is pressed
+                    doWriteStructFile = false;                   // default: true
+            }
         }
 
-        if(doWriteStructFile && !moveItemsIntoFolder)    // = just relocate, move before selected item (or after the last one)
-        {
-            itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
-
-            int si = 0,     // original index
-                di = 0;     // index in idl
-
-            // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
-            if (row < 0)
-                row = itemSize;
-
-            for (; si < itemSize && si < row; ++si)
-                if (thl.indexOf(si) < 0)
-                    itemOrder[di++] = si;
-
-            for (int i = 0; i < thl.size(); ++i)
-                itemOrder[di++] = thl[i];
-
-            for (si = row; si < itemSize; ++si)
-                if (thl.indexOf(si) < 0)
-                    itemOrder[di++] = si;
-
-            // new order in 'itemOrder' set
-            IdList idl;                         // new ordered items
-            idl.resize(itemSize);
-
-            for (int i = 0; i < itemOrder.size(); ++i)
-                idl[i] = items[itemOrder[i]];
-
-            // modify original stored itemOrder
-            const QVector<int> &origIconOrder = fileIcons.IconOrder();  // original order might have been changed
-            // so we must rearrange that according to 'itemOrder'
-            QVector<int> iconOrder;                          // new icon order indexes
-            iconOrder.resize(itemSize);
-            for (int i = 0; i < itemOrder.size(); ++i)
-                iconOrder[i] = origIconOrder[itemOrder[i]];
-
-            fileIcons.SetIconOrder(iconOrder);
-            items = idl;
-        }
         if (doWriteStructFile)
         {
-            albumgen.SetAlbumModified(*pAlbum);
+            if (!moveItemsIntoFolder)    // = just relocate, move before selected item (or after the last one)
+            {
+                itemOrder.resize(itemSize);     // and original indexes are 0,1,2...
+
+                int si = 0,     // original index
+                    di = 0;     // index in idl
+
+                // here row is: when >= 0 -> row to insert items before, when < 0 -> move to the end
+                if (row < 0)
+                    row = itemSize;
+
+                for (; si < itemSize && si < row; ++si)
+                    if (thl.indexOf(si) < 0)
+                        itemOrder[di++] = si;
+
+                for (int i = 0; i < thl.size(); ++i)
+                    itemOrder[di++] = thl[i];
+
+                for (si = row; si < itemSize; ++si)
+                    if (thl.indexOf(si) < 0)
+                        itemOrder[di++] = si;
+
+                // new order in 'itemOrder' set
+                IdList idl;                         // new ordered items
+                idl.resize(itemSize);
+
+                for (int i = 0; i < itemOrder.size(); ++i)
+                    idl[i] = items[itemOrder[i]];
+
+                // modify original stored itemOrder
+                const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order might have been changed
+                // so we must rearrange that according to 'itemOrder'
+                QVector<int> iconOrder;                          // new icon order indexes
+                iconOrder.resize(itemSize);
+                for (int i = 0; i < itemOrder.size(); ++i)
+                    iconOrder[i] = origIconOrder[itemOrder[i]];
+
+                fileIcons.SetIconOrder(iconOrder);
+                items = idl;
+            }
+            // coomon for relocate and move
+            albumgen.AddToModifiedList(*pAlbum);
 
             albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
         }
@@ -1198,7 +1118,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::abort()
+void ThumbnailView::Abort()
 {
     _doAbortThumbsLoading = true;
 }
@@ -1377,6 +1297,107 @@ void ThumbnailView::RemoveViewer(ImageViewer* pv)
     emit SignalImageViewerAdded(!_lstActiveViewers.isEmpty());
 }
 
+bool ThumbnailView::_MoveItemsIntoAlbum(const IntList& thl, ID_t destAlbumId, bool fromExternalDrop)
+{
+    Album* pActAlbum  = &albumgen.Albums()[_albumId];
+    Album* pDestAlbum = &albumgen.Albums()[destAlbumId];
+	Album* pAlbumForCheck = fromExternalDrop ? pActAlbum : pDestAlbum;
+    IdList itemsDest  = pDestAlbum->items;
+#ifdef DEBUG
+    int destItemSize = itemsDest.size();
+#endif
+
+    // -- check if any of the items to move is a folder and if it is then
+    //    whether it or any of its siblings are already in the destination album
+    for (int i = 0; i < thl.size(); ++i)
+    {
+        ID_t itemID = pActAlbum->items[thl[i]];
+        if (itemID.IsAlbum())
+        {
+            Album* pab = albumgen.AlbumForID(itemID);
+            Q_ASSERT(pab);
+
+            if (albumgen.IsCircular(pab, pAlbumForCheck)) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
+            {
+                QMessageBox::warning(this, tr("falconG - Warning"), tr("Ivalid move!\n"
+                    "Album \n'%1'\n is either an alias for album\n'%2'\n"
+                    "or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pActAlbum->name));
+                return false;
+            }
+
+            // now the album to be moved is not an alias of the album to move to.
+            IDVal_t isThere = NO_ID;
+            IDValList idvl = pab->BaseAlbum()->aliasesList; // list of albums linked to this album
+            if (idvl.isEmpty())     // no linked albums for this one
+                isThere = pDestAlbum->items.indexOf(itemID) >= 0 ? itemID.Val() : NO_ID; // check if album is already in destination album
+            else
+                for (auto& v : idvl)
+                {
+                    ID_t idv(ALBUM_ID_FLAG, v);
+                    if (pDestAlbum->items.indexOf(idv) >= 0)
+                    {
+                        isThere = v;
+                        break;  // found at least one linked album in destination album
+                    }
+                }
+
+            if (isThere != NO_ID)    // album is already in destination album
+            {
+                QString qs = tr("The album '%1' to be moved is already in the destination album '%2'.\n").arg(pab->name).arg(pDestAlbum->name);
+                if (isThere != itemID.Val())             // another alias for the same album
+                    qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
+                qs += tr("Please remove it from the selection!");
+                QMessageBox::warning(this, tr("falconG - Warning"), qs);
+                return false;
+            }
+        }
+    }
+
+    // ------------- housekeeping -----------
+    // add moved items to destination album  (which doesn't have icons yet )
+    IdList& items = pActAlbum->items;   // original ordered items
+    for (int si = 0; si < thl.size(); ++si)
+    {
+        ID_t itemID = items[thl[si]];
+        if (itemID.IsAlbum())
+        {
+            Album* pab = albumgen.AlbumForID(itemID);
+            Q_ASSERT(pab);
+            pab->parentId = pDestAlbum->ID.Val();      // reparent album
+            albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
+        }
+        if (!itemsDest.contains(itemID))
+            itemsDest.push_back(itemID);
+    }
+    pDestAlbum->items = itemsDest;
+
+    // remove indexes of moved items from source gallery and icon indices
+    const QVector<int>& origIconOrder = fileIcons.IconOrder();  // original order of icons for actual album
+    QVector<int> newIconOrder;                       // new icon order indexes
+    IdList newItems;                                 // w.o. moved items
+    int itemSize = items.size();
+    for (int si = 0; si < itemSize; ++si)            // origIconOrder has the same number of items as items itself
+    {
+        int o = origIconOrder[si];
+        if (thl.indexOf(o) < 0)
+        {
+            newItems.push_back(items[o]);
+            newIconOrder.push_back(o);
+        }
+    }
+    // discard moved icons
+    //for (int si = itemSize - 1; si << itemSize >= 0; --si)   // origIconOrder has the same number of items as items itself
+    //    if (thl.indexOf(origIconOrder[si]) >= 0)
+    //        fileIcons.Remove(origIconOrder[si]);
+    items = newItems;
+    fileIcons.SetIconOrder(newIconOrder);
+    _InitThumbs();
+    // ----- never  move items physically to virtual destination folder --------
+    albumgen.AddToModifiedList(*pActAlbum);
+    albumgen.AddToModifiedList(*pDestAlbum);
+    return true;
+}
+
 void ThumbnailView::_RemoveAllViewers()
 {
     _dontRemoveImageViewerFromList = true;
@@ -1435,11 +1456,11 @@ void ThumbnailView::_InitThumbs()
     }
     else
     	if (model()->rowCount() && selectionModel()->selectedIndexes().size() == 0)
-	    	selectThumbByItem(0);   // in thumbnailView
+	    	SelectThumbByItem(0);   // in thumbnailView
 }
 
 /*=============================================================
- * TASK:	emit a signal tha image count changed
+ * TASK:	emit a signal that image count changed
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
@@ -1493,29 +1514,45 @@ bool ThumbnailView::_IsAllowedTypeToDrop(const QDropEvent *event)
  *          plus into _thumbnailViewModel
  * PARAMS:  qslFileNames - file names to add
  *          row - add before this row
+ *          onlyNew - do not add duplicates to the same album
  * GLOBALS:
  * RETURNS:
- * REMARKS: no thumbnail flag is set for any of the icons
+ * REMARKS: - no thumbnail flag is set for any of the icons
+ *          - the same image may appear in any number of albums,
+ *             but not twice in the same album
  *------------------------------------------------------------*/
-void ThumbnailView::_AddImagesAndVideosFromList(QStringList qslFileNames,int row)
+void ThumbnailView::_AddImagesAndVideosFromList(QStringList qslFileNames,int row, bool onlyNew)
 {
-    bool res = true;
+	AlbumGenerator::AddedStatus ares = AlbumGenerator::AddedStatus::asAdded;
+    int notAddedCnt = 0, errcnt = 0;
+	int i;
+	Album& thisAlbum = albumgen.Albums()[_albumId];
+	Album& album = *thisAlbum.BaseAlbum();  // same as thisAlbum for non alias albums
 
-    int i;
-    Album& thisAlbum = albumgen.Albums()[_albumId];
-    Album& album = *thisAlbum.BaseAlbum();  // same as thisAlbum for non alias albums
-
-    for (i = 0; i < qslFileNames.size(); ++i)
-    {
-        res &= albumgen.AddImageOrVideoFromString(qslFileNames[i], album, row);
-        if (!res)     // then already used somewehere // TODO: virtual albums
+	for (i = 0; i < qslFileNames.size(); ++i)
+	{
+		ares = albumgen.AddImageOrVideoFromString(qslFileNames[i], album, onlyNew, row);
+        if (ares == AlbumGenerator::AddedStatus::asFailed)     // then already used somewehere // TODO: virtual albums
         {
             QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding new image / video failed!"));
+            ++errcnt;
             continue;
         }
+        else if (ares == AlbumGenerator::AddedStatus::asAdded)       // do not add duplicates
+            (void)fileIcons.Insert(row, qslFileNames[i]);
         else
-            (void)fileIcons.Insert(row, qslFileNames[i]);  
+            ++notAddedCnt;
+	}
+    if (notAddedCnt)
+    {
+        QString msg = tr("Added %1 items, not added %2 duplicates.").arg(i-errcnt-notAddedCnt).arg(notAddedCnt);
+        if (errcnt)
+            msg += tr("\nFailed to add %1 items").arg(errcnt);
+        QMessageBox::information(this, tr("falconG - Information"), msg);
+
     }
+    else if(errcnt)
+            QMessageBox::warning(this, tr("falconG - Warning"), tr("Adding %1 new image%2 / video%2 failed!").arg(errcnt).arg(errcnt > 1 ? "s" : ""));
 }
 
 /*=============================================================
@@ -1541,10 +1578,10 @@ bool ThumbnailView::_AddFoldersFromList(QStringList qslFolders, int row)
  * RETURNS:
  * REMARKS:
  *------------------------------------------------------------*/
-void ThumbnailView::selectThumbByItem(int row)
+void ThumbnailView::SelectThumbByItem(int row)
 {
-    setCurrentIndexByItem(row);          // in thumbnailView
-    selectCurrentIndex();                // in thumbnailView
+    SetCurrentIndexByItem(row);          // in thumbnailView
+    SelectCurrentIndex();                // in thumbnailView
 }
 
 /*=============================================================
@@ -1660,7 +1697,7 @@ void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
         currThumbSize.setWidth(BAD_IMAGE_SIZE);
     }
 
-    albumgen.SetAlbumModified(_albumId);
+    albumgen.AddToModifiedList(_albumId,true);
     _thumbnailViewModel->appendRow(thumbItem);
 }
 
@@ -1687,8 +1724,12 @@ void ThumbnailView::SetInsertPos(int here)
 void ThumbnailView::keyReleaseEvent(QKeyEvent* event)
 {
     Album& album = albumgen.Albums()[_albumId];
+    int row = currentIndex().row();
+
     if (album.baseAlbumId == NO_ID && currentIndex().isValid() && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
         DeleteSelected();
+    else if (currentIndex().isValid() && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return))
+        _ItemDoubleClicked(currentIndex().row());
     else
         QListView::keyReleaseEvent(event);
 }
@@ -1757,37 +1798,21 @@ void ThumbnailView::mouseMoveEvent(QMouseEvent * event)
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - no modification of the content of alias albums
+ * REMARKS: - items can't be added to nor deleted from or moved
+ *            outside of an alias album
+ *          - title and description however can be modified even
+ *            in an alias album
+ *          - menus depend on how many and what kind of items 
+ *            are selected
  *------------------------------------------------------------*/
 void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 {
 	QMenu menu(this);
 	QAction *pact;
+	bool isAliasAlbum = (_ActAlbum()->baseAlbumId != NO_ID);
     int nSelSize = selectionModel()->selectedIndexes().size();
 
-    if (nSelSize == 0)
-    {       // 2 albums always added to AlbumMap: root and latest
-        if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
-        {
-            pact = new QAction(tr("Select As Album Thumbnail..."), this);  // any image
-			connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);         // for this album, even when it is an alias
-            menu.addAction(pact);
-
-            menu.addSeparator();
-
-// even when no image or video recursive listing is possible            if (_ActAlbum()->ImageCount(true) + _ActAlbum()->VideoCount(true))
-            {
-                pact = new QAction(tr("E&xport CSV..."), this);
-                pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
-                connect(pact, &QAction::triggered, this, &ThumbnailView::ExportAsCSV);
-                menu.addAction(pact);
-
-                menu.addSeparator();
-            }
-
-        }
-    }
-    else // album(s) or image(s) or videos are selected
+    if(nSelSize) // album(s) or image(s) or videos are selected
     {
         Album& album = *albumgen.Albums()[_albumId].BaseAlbum();
 
@@ -1823,7 +1848,7 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
 				}
                 menu.addSeparator();
             }
-            else
+            else if(!isAliasAlbum)
             {
                 pact = new QAction(tr("Find missing item"), this);
                 connect(pact, &QAction::triggered, this, &ThumbnailView::FindMissingImageOrVideo);
@@ -1831,12 +1856,11 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             }
         }
 
-        if (nSelSize)
+        QModelIndexList list = selectionModel()->selectedIndexes();
+        if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
         {
-            
-            QModelIndexList list = selectionModel()->selectedIndexes();
             ID_t id;
-            for (auto &i : list) // if at least a single image then this is valid
+            for (auto& i : list) // if at least a single image then this is valid
             {
                 id = album.items[i.row()];
 
@@ -1849,21 +1873,29 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
                 }
             }
             menu.addSeparator();
-
-            pact = new QAction(tr("Copy &Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
-            menu.addAction(pact);
-
-            pact = new QAction(tr("Copy &Original Name(s)"), this);
-            connect(pact, &QAction::triggered, this, &ThumbnailView::CopyOriginalNamesToClipboard);
-            menu.addAction(pact);
-
-            menu.addSeparator();
         }
+
+        pact = new QAction(tr("Copy &Name(s)"), this);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::CopyNamesToClipboard);
+        menu.addAction(pact);
+
+        pact = new QAction(tr("Copy &Original Name(s)"), this);
+        connect(pact, &QAction::triggered, this, &ThumbnailView::CopyOriginalNamesToClipboard);
+        menu.addAction(pact);
+
+        menu.addSeparator();
     }
+         // nSelSize may be 0 here
     if (!_ActAlbum()->baseAlbumId)    // can't add any items to an alias album
     {
-        pact = new QAction(tr("&New Album or Alias..."), this);  // create new folder, or folder alias inside actual folder
+        if (nSelSize && _ActAlbum()->parentId > 0)
+        {
+            pact = new QAction(tr("Move selected items to parent album"), this);
+            connect(pact, &QAction::triggered, this, &ThumbnailView::MoveToParentFolder);
+            menu.addAction(pact);
+        }
+
+        pact = new QAction(tr("&New Album or new Alias..."), this);  // create new folder, or folder alias inside actual folder
         connect(pact, &QAction::triggered, this, &ThumbnailView::NewVirtualFolder);
         menu.addAction(pact);
 
@@ -1890,12 +1922,32 @@ void ThumbnailView::contextMenuEvent(QContextMenuEvent * pevent)
             menu.addAction(pact);
         }
 
-
         if (nSelSize)
         {
             menu.addSeparator();
             pact = new QAction(tr("&Remove/Delete"), this);
             connect(pact, &QAction::triggered, this, &ThumbnailView::DeleteSelected);
+            menu.addAction(pact);
+        }
+    }
+    if (nSelSize == 0)
+    {
+        menu.addSeparator();   
+        // 2 albums always added to AlbumMap: root and latest
+        if (albumgen.Albums().size() > 2 && !_ActAlbum()->items.isEmpty())
+        {
+            pact = new QAction(tr("Thumbnail for Parent..."), this);  // any image
+            connect(pact, &QAction::triggered, this, &ThumbnailView::SelectAsAlbumThumbnail);         // for this album, even when it is an alias
+            menu.addAction(pact);
+
+            menu.addSeparator();
+        }
+
+        // even when no image or video recursive listing is possible
+        {
+            pact = new QAction(tr("E&xport list to CSV..."), this);
+            pact->setToolTip(tr("Export original and generated file names from this album to a CSV file"));
+            connect(pact, &QAction::triggered, this, &ThumbnailView::ExportAsCSV);
             menu.addAction(pact);
         }
     }
@@ -2037,7 +2089,7 @@ void ThumbnailView::SynchronizeTexts()
     else    // clear save the state when the answer is no
         config.doNotShowTheseDialogs.v = config.doNotShowTheseDialogs.v & (~(1 << DialogBitsOrder::dboAskSynchronize));
 
-    albumgen.SetAlbumModified(*pAlbum);
+    albumgen.AddToModifiedList(*pAlbum);
 }
 
 /*=============================================================
@@ -2069,7 +2121,7 @@ void ThumbnailView::AddImages()
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
 
     emit SignalInProcessing(true);
-    _AddImagesAndVideosFromList(qslFileNames, pos);
+    _AddImagesAndVideosFromList(qslFileNames, pos, true);
     // now add last used path
 	int siz = qslFileNames.size();
     QString s;
@@ -2106,7 +2158,7 @@ bool ThumbnailView::_AddFolder(QString folderName)
     {   
         atLeastOneFolderWasAdded = true;
         pParentAlbum = albumgen.Albums()[_albumId].BaseAlbum();     // album position may have changed when new album was added to map
-        albumgen.SetAlbumModified(*pParentAlbum);
+        albumgen.AddToModifiedList(*pParentAlbum);
         Album &album = *albumgen.AlbumForID(id);
         album.parentId = _albumId.Val();
         albumgen.AddDirsRecursively(id);
@@ -2151,17 +2203,18 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName, IDVal_t baseAlbumID)
     bool addedToMap = false,
          res = false;
 
+    emit SignalInProcessing(true);
+    emit SignalAlbumStructWillChange();
+
     Album& thisAlbum = albumgen.Albums()[_albumId]; // either this is the parent of the new album
     Album& parentAlbum = *thisAlbum.BaseAlbum();    // or its base album is
 
 	IDVal_t idPVal = parentAlbum.ID.Val();
     ID_t id = albumgen.Albums().Add(idPVal, folderName, addedToMap, baseAlbumID);
 
-    emit SignalInProcessing(true);
-    emit SignalAlbumStructWillChange();
     if (addedToMap)
     {
-        albumgen.SetAlbumModified(parentAlbum);                 // either this album or its base album
+        albumgen.AddToModifiedList(parentAlbum);                 // either this album or its base album
 
         albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
         res = true;
@@ -2214,16 +2267,32 @@ void ThumbnailView::NewVirtualFolder()
 
     if (aDlg.exec() == QDialog::Accepted)
     {
-		baseIdVal = aDlg.GetBaseAlbumId(); // may be NO_ID for new album
+        baseIdVal = aDlg.GetBaseAlbumId(); // may be NO_ID for new album
         QString folderName = aDlg.GetAlbumName(),
-                baseAlbumName = aDlg.GetBaseAlbumName(baseIdVal);
+            baseAlbumName = aDlg.GetBaseAlbumName(baseIdVal);
 
-        if (_NewVirtualFolder(folderName, baseIdVal))
-        {
-            AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
-			ptrv->update();
-        }
+        if (_NewVirtualFolder(folderName, baseIdVal)) // refreshes treeview's model too
+            frmMain->GetTreeViewPointer()->update();
     }
+}
+
+void ThumbnailView::MoveToParentFolder()
+{
+    QModelIndexList indexesList = selectionModel()->selectedIndexes();
+    if (indexesList.isEmpty())  // should never happen
+        return;
+
+    if( QuestionDialog(tr("falconG - Question"), tr("Move selected items into parent album?"), 
+                             dboAskIfToMoveIntoParentFolder, this, tr(""), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    {
+        IntList ids;
+        for (auto& f : indexesList)
+            ids << f.row();
+
+		_MoveItemsIntoAlbum(ids, albumgen.Albums()[_albumId].ParentAlbum()->ID, false);
+        albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+        Reload();
+	}
 }
 
 /*=============================================================
@@ -2251,7 +2320,7 @@ void ThumbnailView::RenameVirtualFolder()
 	if (text.isEmpty())
 		return;
 	pItem->name = text;
-	albumgen.SetAlbumModified(*pItem);
+	albumgen.AddToModifiedList(*pItem);
     AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
     ptrv->update(ptrv->currentIndex());
     Reload();
@@ -2370,14 +2439,17 @@ void ThumbnailView::SetAsAlbumThumbnail()
 
     ID_t th = album.items[pos];                                  
 
-    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID);
-    albumgen.SetAlbumModified(_albumId);    // this one is modified, not the base album
+    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID); 
+    fileIcons.ToggleThumbnailMarkFor(cthix);
+    fileIcons.ToggleThumbnailMarkFor(pos);
+    
+    albumgen.AddToModifiedList(_albumId, true);    // this one is modified, not the base album
 
     UpdateTreeView(false);
     if (album.parentId)
     {
         UpdateTreeView(true);
-        albumgen.SetAlbumModified(ID_t(ALBUM_ID_FLAG, album.parentId) );  // the parent of this album always changes
+        albumgen.AddToModifiedList(ID_t(ALBUM_ID_FLAG, album.parentId), true);  // the parent of this album always changes
     }
     emit SignalAlbumChanged();
 }
@@ -2440,13 +2512,13 @@ void ThumbnailView::SelectAsAlbumThumbnail()
     albumgen.AddItemToAlbum(_albumId, thname, IS_THUMBNAIL, !SIGNAL_ELAPSED_TIME, !ADD_TO_ALBUM_ITEMS);
 
     Album& album = *_ActAlbum();
-    albumgen.SetAlbumModified(album);
+    albumgen.AddToModifiedList(album);
 
     if (album.parentId)
     {
         Album* parent = albumgen.AlbumForIDVal(album.parentId);
 
-        albumgen.SetAlbumModified(*parent);     // only for the parent of this album and not all parents!
+        albumgen.AddToModifiedList(*parent);     // only for the parent of this album and not all parents!
     }
     emit SignalAlbumChanged();
 }
@@ -2525,11 +2597,8 @@ void ThumbnailView::ExportAsCSV()
 	file.close();
 }
 
-
-void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
+void ThumbnailView::_ItemDoubleClicked(int row)
 {
-//    _currentIndex = mix;
-    int row = mix.row();
     ID_t id = _ActAlbum(true)->items[row];
     if (id.IsAlbum())
     {
@@ -2556,6 +2625,13 @@ void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
             delete pViewer;
         }
     }
+}
+
+void ThumbnailView::ItemDoubleClicked(const QModelIndex& mix)
+{
+//    _currentIndex = mix;
+    int row = mix.row();
+    _ItemDoubleClicked(row);
 }
 
 void ThumbnailView::SlotThumbnailSizeChanged(int newSize)
@@ -2631,7 +2707,7 @@ void ThumbnailView::FindMissingImageOrVideo()
 
         pItem->ID.SetFlag(EXISTING_FLAG, QFile::exists(pItem->FullSourceName()) );  // must always be exExists because of dialog settings
         pItem->changed = true;
-        albumgen.SetAlbumModified(album);
+        albumgen.AddToModifiedList(album);
 
         // check all missing files against all search paths collected so far
         for (auto &id1 : album.items)
@@ -2663,12 +2739,18 @@ void ThumbnailView::SlotGetSelectionCount(ID_t &id, int &count)
     count = selectionModel()->selectedIndexes().size();
 }
 
+void ThumbnailView::SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop)
+{
+
+	qDebug("ThumbnailView::SlotItemsDroppedOnTreeView: destAlbumId=%ul, ids count=%d, fromDrop=%d",destAlbumId.Val(),ids.size(),fromDrop);
+}
+
 //void ThumbnailView::SlotToClearIconList()
 //{
 //    fileIcons.Clear();
 //}
 
-void ThumbnailView::setNeedToScroll(bool needToScroll) 
+void ThumbnailView::SetNeedToScroll(bool needToScroll) 
 {
     this->_isNeedToScroll = needToScroll;
 }
@@ -2704,9 +2786,11 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
 	QVBoxLayout* wLayout = new QVBoxLayout(w);
     _treeView = new AlbumTreeView(w);          // selection of an album to be used as alias
     _treeView->header()->hide();
+    _treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _treeView->setModel(frmMain->GetTreeViewPointer()->model()); // use the album tree model
     _treeView->setRootIsDecorated(false);
-    _treeView->expandAll();
+    _treeView->setExpanded(_treeView->model()->index(0,0), true);
+    //_treeView->expandAll();
     _treeView->setMinimumWidth(300);
     // DEBUG
     //int n = _treeView->model()->rowCount(),

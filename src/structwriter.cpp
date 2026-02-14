@@ -73,7 +73,7 @@ void AlbumStructWriter::run()
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
-	_ofs << versionStr << majorStructVersion << "." << minorStructVersion << "." << subStructVersion
+	_ofs << versionStr << majorProgramVersion << "." << minorProgramVersion << "." << subProgramVersion
 		<< "\n#  © - András Sólyom (2018-)" << QString().setNum(PROGRAM_CONFIG::copyrightYear)  // default values may differ from 'config'
 		<< "\n\n#Created at " << QDateTime::currentDateTime().toString(Qt::ISODate)
 		<< "\n\n#Source=" << config.dsSrc.ToString()
@@ -134,7 +134,7 @@ void AlbumStructWriter::_WriteStructImage(Album& album, ID_t id, QString indent)
 
 	pImg = &_imageMap[id];
 	if (pImg->changed)
-		albumgen.SetAlbumModified(album);
+		albumgen.AddToModifiedList(album);
 
 	_WriteImageRecord(pImg, indent);
 
@@ -152,7 +152,7 @@ void AlbumStructWriter::_WriteVideo(Album& album, ID_t id, QString indent)
 	pVid = &_videoMap[id];
 	if (pVid->changed)
 	{
-		albumgen.SetAlbumModified(album);
+		albumgen.AddToModifiedList(album);
 	}
 	if (pVid->Exists())
 	{

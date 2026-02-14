@@ -47,12 +47,12 @@ public:
 	int Size() const;	// only the displayed size, not necessarily the count of icons
 	void SetMaximumSizes(int thumbsize = THUMBNAIL_SIZE, int borderwidth = 10);
 	bool HasIconFor(int pos);	// i.e. pos < list length?
-	void SetFolderThumbnailPosition(int pos, bool bIsFolderThumbnail = false);
+	void ToggleThumbnailMarkFor(int pos);
 
-	QIcon IconForPosition(int pos, QString imageName = QString());
+	QIcon IconForPosition(int pos, IconFlags flags = IconFlag::fiNone, QString imageName = QString());
 	const DataType &IconOrder() const;
 	void SetIconOrder(const QVector<int>& order);
-	MarkedIcon* Insert(int pos, QString imageName = QString());
+	MarkedIcon* Insert(int pos, QString imageName = QString(), IconFlags flags=IconFlag::fiNone);
 	void Remove(int pos);    // remove items _iconOrder[pos];
 private:
 	QVector<MarkedIcon> _iconList;   // all icons for actual album,  
@@ -232,19 +232,19 @@ public:
     void LoadFileList();
 	void UpdateTreeView(bool forParentOfCurrentIndex);
     bool SetCurrentIndexByName(QString &fileName);
-    bool setCurrentIndexByItem(int itemIndex);	   
+    bool SetCurrentIndexByItem(int itemIndex);	   
     void SetCurrentItem(int itemIndex);
 	void SetTitle();
-    void setNeedToScroll(bool needToScroll);
-    void selectCurrentIndex();
+    void SetNeedToScroll(bool needToScroll);
+    void SelectCurrentIndex();
     void AddThumb(int itemIndex, ThumbnailItem::Type type);		// names are in string lists
 	void SetInsertPos(int here);		// into the model
-    void abort();		 // abort loading of thumbs
+    void Abort();		 // abort loading of thumbs
 	bool IsFinished()const 
 	{ 
 		return !_isProcessing; 
 	}
-    void selectThumbByItem(int itemIndex);
+    void SelectThumbByItem(int itemIndex);
     int GetNextItem() const;	
     int GetPrevItem() const;
     int GetLastItem() const ;
@@ -276,6 +276,8 @@ private:
 	IdList *_pIds = nullptr;				// images in this album
 
     QImage _insertPosImage;	// shows insert position
+
+	QTimer* _movetimer = nullptr;
 
 	bool _dontRemoveImageViewerFromList = false; // used when all viewers are removed by user
 	QList<ImageViewer*> _lstActiveViewers;		// visible image viewers
@@ -322,7 +324,7 @@ private:
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
 	bool _IsAllowedTypeToDrop(const QDropEvent *event);
-	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row);
+	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row, bool onlyNew);
 	bool _AddFolder(QString folderName);	// returns if folder was added
 	bool _NewVirtualFolder(QString folderName, IDVal_t baseFolderID=NO_ID);	// returns if folder was created, false if did  already existed
 	bool _AddFoldersFromList(QStringList qslFolders, int row);
@@ -331,6 +333,8 @@ private:
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
+	void _ItemDoubleClicked(int row);
+	bool _MoveItemsIntoAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
 
 	void _RemoveAllViewers();
 
@@ -342,8 +346,8 @@ signals:
 	void SignalMultipleSelection(IdList, ID_t insideThis);		// all selected items
 	void SignalFolderChanged(int row);			// move to next level in tree list inside actual folder
 	void SignalAlbumStructWillChange();			// emitted befor new folder(s) added
-	void SignalAlbumStructChanged(bool success);			// after the new folder is added
-	void SignalMayLoadNewItems();					// when there was a new album selected in tree view
+	void SignalAlbumStructChanged(bool success);// after the new folder is added
+	void SignalMayLoadNewItems();				// when there was a new album selected in tree view
 	void SignalAlbumChanged();					// add the new album to tree view as well
 	void SignalImageViewerAdded(bool enableclosebutton);
 	void SignalBackToParentAlbum();
@@ -375,6 +379,7 @@ public slots:
 	void AddImages();
 	void AddFolder();
 	void NewVirtualFolder();
+	void MoveToParentFolder();
 	void RenameVirtualFolder();
 	void CopyNamesToClipboard();
 	void CopyOriginalNamesToClipboard();
@@ -388,6 +393,7 @@ public slots:
 	void FindMissingImageOrVideo();		// maybe it was moved from its position
 	void SlotToCloseAllViewers();
 	void SlotGetSelectionCount(ID_t &id, int &count );
+	void SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop);
 //	void SlotToClearIconList();
 
 private slots:
@@ -404,7 +410,6 @@ private slots:
  * REMARKS:
  *------------------------------------------------------------*/
 
- // ---dialog box to enter a new album name andenable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
 
 class AlbumFilterModel : public QSortFilterProxyModel
 {
@@ -429,6 +434,7 @@ private:
 
 
 //-------------------------GetNewAlbumNameDialog----------------------------------------
+// ---dialog box to enter a new album name and enable to select an album this new album will be an a combo box to select one of the albums in AlbumMap ---
 
 class GetNewAlbumNameDialog : public QDialog
 {
