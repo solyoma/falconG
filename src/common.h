@@ -16,7 +16,8 @@ namespace Common
 		dboSaveConfig,
 		dboAskCreateDir,
 		dboAskSynchronize,
-		dboNeverMoveIntoFolder,		// when drag & drop
+		dboAskToMoveIntoBaseAlbum,		// when drag & drop
+		dboAskToMoveFromOrIntoBaseAlbum,
 		dboShowVideoThumbnailProblem,
 		dboAskIfToMoveIntoParentFolder,
 		dboMax

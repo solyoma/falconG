@@ -12,6 +12,7 @@
 #include <QTreeView>
 
 #include "support.h"
+#include "dragdrop.h"
 #include "config.h"
 #include "albums.h"
 #include "treeView.h"
@@ -289,8 +290,11 @@ AlbumTreeView::AlbumTreeView(QWidget* parent) : QTreeView(parent)
 	setDragEnabled(true);
 	setAcceptDrops(true);
 	setDropIndicatorShown(true);
-
+	_moveTimer.setSingleShot(true);
+	connect(&_moveTimer, &QTimer::timeout, this, &AlbumTreeView::_OnExpandTimerTimeout);
+	_pendingExpandIndex = QModelIndex();
 }
+
 /*=============================================================
  * TASK:	tooltips for folder names
  * PARAMS:	event: any types of event
@@ -325,6 +329,7 @@ void AlbumTreeView::mousePressEvent(QMouseEvent* event)
 		return;
 	return QTreeView::mousePressEvent(event);
 }
+
 
 //void AlbumTreeView::mouseReleaseEvent(QMouseEvent* event)
 //{
@@ -461,11 +466,11 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 		}
 		pact = new QAction(tr("Add &Images..."), this);  // any number of images from a directory
 		pact->setEnabled(true);
-		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::AddImages);
+		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::SlotAddImages);
 		menu.addAction(pact);
 
 		pact = new QAction(tr("Add &Folder..."), this);  // one folder added to the folder tree inside this album
-		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::AddFolder);
+		connect(pact, &QAction::triggered, _ptnv, &ThumbnailView::SlotAddFolder);
 		menu.addAction(pact);
 
 		menu.addSeparator();
@@ -484,39 +489,122 @@ void AlbumTreeView::currentChanged(const QModelIndex& current, const QModelIndex
 	QTreeView::currentChanged(current, previous);
 }
 /*=============================================================
- * TASK:	 sent when dragging is in progress
- * EXPECTS: either a list of file names or a mime data of type
- *			x-thumbs
+ * TASK:	sent when dragging is in progress
+ * EXPECTS: dragged items include: 
+ *				a list of file path			 : from outside source
+ *				a mime data of type	x-thumbs : fromThumbnailView
  * GLOBALS:
  * RETURNS:	none
- * REMARKS: follewd immediately by a dragMoveEvent()
+ * REMARKS: - followed immediately by a dragMoveEvent()
+ *			- 
  *------------------------------------------------------------*/
 void AlbumTreeView::dragEnterEvent(QDragEnterEvent* event)
 {
 	//if (_isBusy)
 	//	return;
-
-	if (IsAllowedTypeToDrop(event))
+	
+	if (DropHandler::IsAllowedTypeToDrop(event))
 	{
 		event->acceptProposedAction();
 	}
 }
 void AlbumTreeView::dragLeaveEvent(QDragLeaveEvent* event)
 {
-
+	// stop any pending expand action when pointer leaves tree
+	if (_moveTimer.isActive())
+		_moveTimer.stop();
+	_pendingExpandIndex = QModelIndex();
 }
+
 void AlbumTreeView::dragMoveEvent(QDragMoveEvent* event)
 {
-	if (!IsAllowedTypeToDrop(event))
+	if (!DropHandler::IsAllowedTypeToDrop(event))
 		return;
 
 	QModelIndex index = indexAt(event->pos());
 
 	event->accept();
-	int pose = event->pos().y();
+	// int pose = event->pos().y();
+ // chatGPT code:
+	// select the hovered branch so drops target the selected branch
+	if (index.isValid())
+	{
+		// set current index to make it the selected target
+		setCurrentIndex(index);
 
+		// if hovered over a different index, (re)start the expand timer
+		if (index != _pendingExpandIndex)
+		{
+			_pendingExpandIndex = index;
+			_moveTimer.start(300);		// msec
+		}
+	}
+	else
+	{
+		// not over a valid index, cancel pending expand
+		if (_moveTimer.isActive())
+			_moveTimer.stop();
+		_pendingExpandIndex = QModelIndex();
+	}
 }
 
+/*=============================================================
+ * TASK:	drop items onto tree view (from thumbnail view)
+ * EXPECTS: mime data of type ThumbMimeData or urls
+ * REMARKS: - emits SignalItemsDropped with destination album id and item list
+ *			- not yet handles moving branches in the tree, only items from thumbnail view (TODO)
+ *------------------------------------------------------------*/
+
+void AlbumTreeView::dropEvent(QDropEvent* event)
+{
+	QModelIndex index = indexAt(event->pos());
+	ID_t destAlbum = index.isValid() ? ID_t(ALBUM_ID_FLAG, (IDVal_t)index.internalPointer()) : TOPMOST_ALBUM_ID;
+	ID_t activeAlbumID = _ptnv->AlbumID();
+
+	bool isAllowed = DropHandler::IsAllowedTypeToDrop(event) && 		 
+					 ( !event->mimeData()->hasUrls() ||			   // i.e. either not from thumbnailView (external source)
+					   destAlbum != activeAlbumID);				   //      or internal but not from the active view
+
+	if (!isAllowed)
+	{
+		event->ignore();
+		return;
+	}
+
+	if (event->mimeData()->hasUrls())	// accept external URLs (files/folders) so user can drop files onto albums
+	{
+		// let the receiver handle external url drops if connected
+		// emit the same signal but encode file urls as IntList not applicable here - leave it for ThumbnailView to handle if needed
+		event->acceptProposedAction();
+		dropHandler.Setup(event, NO_ID, destAlbum.Val(), -1);   // append to items at destination
+		dropHandler.DropItems(true);
+		return;
+	}
+	else					// then internal source
+	{
+		const ThumbMimeData* tmd = reinterpret_cast<const ThumbMimeData*>(event->mimeData());
+
+		if (tmd && !tmd->thumbList.isEmpty())
+		{
+			IntList ids = tmd->thumbList;
+			// bool move = (event->proposedAction() & Qt::MoveAction) == Qt::MoveAction;
+			event->acceptProposedAction();
+			dropHandler.Setup(event, activeAlbumID.Val(), destAlbum.Val(), -1);   // event contains the actual album
+			dropHandler.DropItems(true);
+		}
+		return;
+	}
+}
+void AlbumTreeView::_OnExpandTimerTimeout()
+{
+	if (_pendingExpandIndex.isValid())
+	{
+		expand(_pendingExpandIndex);
+		// ensure it becomes current/selected
+		setCurrentIndex(_pendingExpandIndex);
+	}
+	_pendingExpandIndex = QModelIndex();
+}
 
 BreadcrumbVector AlbumTreeView::GetBreadcrumbPath(QModelIndex index)	const
 {

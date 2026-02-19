@@ -23,6 +23,7 @@
 
 #include "common.h"
 #include "support.h"
+#include "filereader.h"
 #include "config.h"
 #include "crc32.h"
 #include "stylehandler.h"
@@ -442,23 +443,20 @@ class AlbumMap : public QMap<ID_t, Album>
 public:
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
-	Album* AlbumForIDVal(IDVal_t id)
+	Album* AlbumForIDVal(IDVal_t id) const
 	{
-		return AlbumForID(ID_t(ALBUM_ID_FLAG, id));
+		return Find(id);
 	}
-	Album *AlbumForID(ID_t id) 
+	Album *AlbumForID(ID_t id) const
 	{ 
 		//id.SetFlag(EXISTING_FLAG, false);
-		Album* pAlbum = nullptr;
-		if (contains(id))
-			pAlbum = &(*this)[id];
-		return pAlbum;
+		return  Find(id);
 	}
-	Album *Find(IDVal_t idv);	// 'Find' functions return nullptr if album is not found
-	Album *Find(ID_t id);	// 'Find' functions return nullptr if album is not found
-	Album *Find(QString albumFullPath);
-	Album *Find(IDPath_t pathID, QString albumName);
-	Album *Find(IDPath_t pathID, ID_t albumId);
+	Album *Find(IDVal_t idv) const;	// 'Find' functions return nullptr if album is not found
+	Album *Find(ID_t id) const;	// 'Find' functions return nullptr if album is not found
+	Album *Find(QString albumFullPath) const;
+	Album *Find(IDPath_t pathID, QString albumName) const;
+	Album *Find(IDPath_t pathID, ID_t albumId) const;
 	AlbumList GetAliases(IDVal_t id);	// returns all albums that have this album as their baseAlbumId
 	bool Exists(QString albumPath);
 	ID_t Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t baseFolderID = NO_ID);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
@@ -525,7 +523,7 @@ public:
 	{
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
-	bool IsCircular(Album* pAlias, Album* pInHere); // if 'pAlias' is an alias, chack if it is already in the album hierarchy of 'pInHere'
+	bool IsCircular(const Album* pAlias, const Album* pInHere) const; // if 'pAlias' is an alias, check if it is already in the album hierarchy of 'pInHere'
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
@@ -535,7 +533,11 @@ public:
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };
 
-	void AddToModifiedList(Album& album, bool itemNotProcessedYet = false)
+	void AddImagesAndVideosFromList(IDVal_t albumId, QStringList qslFileNames, bool onlyNew, int row);
+	int AddFoldersFromList(IDVal_t albumId, QStringList qslFolders);	// return cnt added
+	bool AddFolder(IDVal_t albumId, QString folderName);	// returns if folder was added
+
+	void AddToModifiedList(const Album& album, bool itemNotProcessedYet = false)
 	{
 		AddToModifiedList(album.ID, itemNotProcessedYet);
 	}

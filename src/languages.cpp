@@ -3,6 +3,7 @@
 using namespace Common;
 
 #include "support.h"
+#include "filereader.h"
 #include "crc32.h"
 #include "config.h"
 #include "languages.h"

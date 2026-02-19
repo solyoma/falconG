@@ -88,6 +88,7 @@ public:
 	void Stop() { --_running; }
 
 	AlbumTreeView* GetTreeViewPointer() const;
+	constexpr ID_t ActualDisplayedAlbum() const { return ui.tnvImages->AlbumID(); }
 
 signals:
 	void SignalCancelRun();
@@ -99,8 +100,8 @@ signals:
 private:
 
 	Ui::falconGClass ui;
-
 	WebEnginePage _page;
+
 	// style (skin) selection
 	bool _bSchemeChanged = false;	// any of the colors changed
 	FalconGScheme _tmpScheme;	// used for editing
@@ -444,5 +445,5 @@ private slots:
 	void on_toolBox_currentChanged(int newIndex);
 };
 
-extern FalconG *frmMain;
+extern QWidget *frmMain;
 

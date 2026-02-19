@@ -13,6 +13,7 @@
 #include <string>
 
 #include "support.h"
+#include "dragdrop.h"
 #include "config.h"
 #include "stylehandler.h"
 #include "albums.h"
@@ -45,7 +46,7 @@
 }
 
 
-FalconG *frmMain = nullptr;
+QWidget* frmMain = nullptr;		// can't be FalconG, because I want to use this in other c++ files without including falcong.h, e.g. in dragdrop.cpp for message boxes
 
 // ************************ helper **********************
 /*------------------------------------- macros ------------------------------------*/
@@ -290,6 +291,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	languages.Read();
 
+	dropHandler.Init(ui.trvAlbums, ui.tnvImages);
+
 							// on design page
 	int wspl = PROGRAM_CONFIG::designSplitterLeft,	 // left
 		wspr = PROGRAM_CONFIG::designSplitterRight;	 // right
@@ -327,10 +330,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.breadcrumbLayout->setSpacing(4);
 	ui.breadcrumbLayout->setContentsMargins(0, 0, 0, 0);
 
-
+	_ReadLastAlbumStructure();
 	ui.edtAboutText->Setup();
 
-	_ReadLastAlbumStructure();
 
 	ui.trvAlbums->expandToDepth(1);
 

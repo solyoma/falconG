@@ -90,16 +90,21 @@ public:
 	}
 };
 
-class ThumbnailView;					  // in thumbnailView.h for connecting there
-
-struct Breadcrumb;							// in albums.h
+class ThumbnailView;	// in thumbnailView.h for connecting there
+class DropHandler;		// in support.h for connecting there
+struct Breadcrumb;		// in albums.h
 class BreadcrumbVector;
-
+/****************************************************************************/
+/*============================================================================
+ * TASK:		tree view of albums
+ * REMARKS:	- uses AlbumTreeModel as model
+ * --------------------------------------------------------------------------*/
 class AlbumTreeView : public QTreeView
 {
 	Q_OBJECT
 
-		ThumbnailView* _ptnv = nullptr;
+	ThumbnailView* _ptnv = nullptr;
+	friend class DropHandler;	// for drag & drop
 public:
 	AlbumTreeView(QWidget* parent = nullptr);
 	void SetViewer(ThumbnailView* p) { _ptnv = p; }
@@ -135,6 +140,7 @@ protected:
 	void dragEnterEvent(QDragEnterEvent* event);	// when a drag enters this widget
 	void dragLeaveEvent(QDragLeaveEvent* event);
 	void dragMoveEvent(QDragMoveEvent* event);
+	void dropEvent(QDropEvent* event);
 
 	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
 private:
@@ -142,7 +148,11 @@ private:
 
 	ItemIdVector _idvExpandedIds;
 
+	QTimer _moveTimer;	// for drag & drop: opens branch
+	QModelIndex _pendingExpandIndex;
+
 	ItemIdVector __GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
+	void AlbumTreeView::_OnExpandTimerTimeout();
 	void _GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
 	void _RestoreExpandedAlbums(const QModelIndex& parent = QModelIndex());
 };

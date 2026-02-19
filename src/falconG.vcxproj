@@ -219,10 +219,11 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="crc32.cpp" />
     <ClCompile Include="csscreator.cpp" />
-    <ClCompile Include="CsvExportDialog.cpp" />
     <ClCompile Include="falcong.cpp" />
+    <ClCompile Include="filereader.cpp" />
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
+    <ClCompile Include="dragdrop.cpp" />
     <ClCompile Include="schemes.cpp" />
     <ClCompile Include="structwriter.cpp" />
     <ClCompile Include="treeView.cpp" />
@@ -284,9 +285,10 @@
     <QtMoc Include="hidden.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </QtMoc>
-    <QtMoc Include="CsvExportDialog.h" />
+    <ClInclude Include="filereader.h" />
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h" />
+    <QtMoc Include="dragdrop.h" />
     <ClInclude Include="schemes.h" />
     <QtMoc Include="selectStruct.h" />
     <ClInclude Include="stylehandler.h" />

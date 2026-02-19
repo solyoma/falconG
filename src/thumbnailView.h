@@ -32,7 +32,8 @@ const int WINDOW_ICON_SIZE = 48;
 const int THUMBNAIL_SIZE = 600;	// maximum size
 const int THUMBNAIL_BORDER_FACTOR = 30;	// border width = thumbnail size /this factor
 
-class ImageViewer;
+class ImageViewer;		// imageviewer.h
+class DropHandler;		// in support.h
 
 class FileIcons
 {
@@ -139,21 +140,6 @@ private:
 	QString _VideoFullSourceName() const;
 	QString _FolderFullSourceName() const;
 };
- 
-/*=============================================================
- * my Mime Type for Drag & Drop
- *------------------------------------------------------------*/
-class ThumbMimeData : public QMimeData
-{
-	Q_OBJECT
-public:
-		// IDs must be are added to this list with the << operator
-	IntList thumbList;  // indices in actual album's 'items' for all selected items
-	ThumbMimeData() {
-		QMimeData::setData("application/x-thumb", "thumb"); // my type
-	}
-};
-
 #if 1
 /*=============================================================
  * My thumbnail model
@@ -216,10 +202,13 @@ using ThumbnailViewModel = QStandardItemModel;
  *	_albumId		- ID of the album to show thumbs from
  *------------------------------------------------------------*/
 
+class FalconG;		// falcong.h
+
 class ThumbnailView : public QListView 
 {
 	Q_OBJECT
 
+	friend class DropHandler;		// in support.h
 public:
     ThumbnailView(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
 
@@ -250,7 +239,7 @@ public:
     int GetLastItem() const ;
     int GetRandomItem() const;
     int GetCurrentItem() const;
-	ID_t AlbumID() const { return _albumId; }
+	constexpr ID_t AlbumID() const { return _albumId; }
 
     QStringList GetSelectedThumbsList();
 
@@ -267,10 +256,10 @@ signals:
 	void SignalRestoreTreeViewExpandedState();
 
 private:
-// SA
+	FalconG* _pFrmMain = nullptr;	// for accessing tree view and other main window controls
 	ID_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album
 											// or the base album of this album
-	bool _isBaseAlbum = true;               // for aliases this is set to falso so the
+	bool _isBaseAlbum = true;               // for aliases this is set to false so the
 											// context menu can reflect this: all changes will
 											// be applied to the base album
 	IdList *_pIds = nullptr;				// images in this album
@@ -304,6 +293,8 @@ private:
 	int _rowSelectedWithRightButton = -1;
 	int _rowSelectedWithLeftButton = -1;
 
+	IDVal_t _idvDragStart = NO_ID;		// for drag started from here, the ID value of the dragged item (image or album)
+
 	QStringList _slSearchPaths;		// paths to search missing images against
 
 private:
@@ -323,17 +314,13 @@ private:
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();
     void _UpdateThumbsCount();
-	void _AddImagesAndVideosFromList(QStringList qslFileNames, int row, bool onlyNew);
-	bool _AddFolder(QString folderName);	// returns if folder was added
 	bool _NewVirtualFolder(QString folderName, IDVal_t baseFolderID=NO_ID);	// returns if folder was created, false if did  already existed
-	bool _AddFoldersFromList(QStringList qslFolders, int row);
 	void _ExportCSVFromAlbum(const Album& album, QTextStream& ofs, bool recursive = false);
 	inline ThumbnailItem::Type _TypeFor(ID_t id) const
 	{
 		return (id.IsImage() ? ThumbnailItem::image : (id.IsVideo() ? ThumbnailItem::video : ThumbnailItem::folder));
 	}
 	void _ItemDoubleClicked(int row);
-	bool _MoveItemsIntoAlbum(const IntList& ids, ID_t destAlbumId, bool fromDrop);
 
 	void _RemoveAllViewers();
 
@@ -356,8 +343,6 @@ protected:
 	void dragEnterEvent(QDragEnterEvent *event);	// when a drag enters this widget
 	void dragLeaveEvent(QDragLeaveEvent *event);
 	void dragMoveEvent(QDragMoveEvent *event);
-
-	void _DropFromExternalSource(const ThumbMimeData *mimeData, int row);
 	void dropEvent(QDropEvent *event);			// when item is dropped
 
 	void keyReleaseEvent(QKeyEvent* event);
@@ -368,35 +353,34 @@ protected:
 	void contextMenuEvent(QContextMenuEvent *pevent);
 
 public slots:
-    void loadVisibleThumbs(int scrollBarValue = 0);
-    void onSelectionChanged(const QItemSelection &selection);
-    void invertSelection();
+    void SlotLoadVisibleThumbs(int scrollBarValue = 0);
+    void SlotOnSelectionChanged(const QItemSelection &selection);
+    void SlotInvertSelection();
 	void SlotDeleteSelectedList(ID_t albumId, IntList &list, bool iconsForThisAlbum);
-	void DeleteSelected();
-	void SynchronizeTexts();
-	void UndoDelete();
-	void AddImages();
-	void AddFolder();
-	void NewVirtualFolder();
-	void MoveToParentFolder();
-	void RenameVirtualFolder();
-	void CopyNamesToClipboard();
-	void CopyOriginalNamesToClipboard();
-	void AskAndGetThumbnail();			// any image for an album thumbnal
-	void SetAsAlbumThumbnail();			// from existing image/album image
-	void ToggleDontResizeFlag();
-	void SelectAsAlbumThumbnail();
-	void ExportAsCSV();
-	void ItemDoubleClicked(const QModelIndex &);
+	void SlotDeleteSelected();
+	void SlotSynchronizeTexts();
+	void SlotUndoDelete();
+	void SlotAddImages();
+	void SlotAddFolder();
+	void SlotNewVirtualFolder();
+	void SlotMoveToParentFolder();
+	void SlotRenameVirtualFolder();
+	void SlotCopyNamesToClipboard();
+	void SlotCopyOriginalNamesToClipboard();
+	void SlotAskAndGetThumbnail();			// any image for an album thumbnal
+	void SlotSetAsAlbumThumbnail();			// from existing image/album image
+	void SlotToggleDontResizeFlag();
+	void SlotSelectAsAlbumThumbnail();
+	void SlotExportAsCSV();
+	void SlotItemDoubleClicked(const QModelIndex &);
 	void SlotThumbnailSizeChanged(int thumbSize);
-	void FindMissingImageOrVideo();		// maybe it was moved from its position
+	void SlotFindMissingImageOrVideo();		// maybe it was moved from its position
 	void SlotToCloseAllViewers();
 	void SlotGetSelectionCount(ID_t &id, int &count );
 	void SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop);
 //	void SlotToClearIconList();
-
 private slots:
-    void loadThumbsRange();
+    void SlotLoadThumbsRange();
 };
 
 /*=============================================================

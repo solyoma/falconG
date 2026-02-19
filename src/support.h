@@ -49,47 +49,6 @@ enum FileType : char {	ftUnknown = 0,
 							ftnporocessedVideo = 'v' };
 const char itemIsUnprocessedFlag = 0x20; // bit added to file type char to convert 'I' to 'i' and 'V' to 'v'
 
-//******************** text file reader ************
-// file header line(s)
-//   reads lines and drops comments and empty lines
-class FileReader
-{
-public:		//	       0		     1				2			         4            8		      16              24=16+8 	        32					   64
-	QFlags<FrfFlags> flags;
-private:
-	QFile _f;
-	bool _ok;
-	QString _line;
-	int _flags = 0;
-	int _readLineCount = 0;
-							// for binary read (default)
-	const qint64 _BUFFER_SIZE = 4096;
-	char *_bytes = nullptr;		// array to read binary data into
-	qint64 _fileSize = 0, _bytesRead = 0;
-	int _bsize = 0,			// size of binary data read (at most _BUFFER_SIZE;)
-		_bpos = 0;			// buffer position
-
-	void _TrimLeft();
-	void _TrimRight();
-	void _Trim();
-	void _readBinaryLine(); // and convert it to UTF8
-	void _readLine();		// reads next line using _flags until EOF on the stream
-	void _DiscardComment();	// part of line starting at a '#' character 
-							// and the white spaces before that are discarded
-public:
-	explicit FileReader(const QString s, QFlags<FrfFlags> flags);
-	FileReader(const QString s, int flags = frfTrim) : FileReader(s, QFlags<FrfFlags>(flags)) {}
-	~FileReader() { delete[] _bytes; }
-	void SetFlags(int flg) { _flags = flg; }
-	bool Ok() const { return _ok; }
-	QString ReadLine(int flags = frfNormal);	// normal: use internal flags, other use this
-	QStringList ReadAndSplitLine(QChar sep);
-	QString NextLine(bool doNotDiscardComment=false);	// reads and returns even empty or comment lines!
-
-	inline QString l() const { return _line; }	 // last read line
-	int ReadCount() const { return _readLineCount; }
-};
-
 //*****************************************																			//---------------------
 class UsageCount
 {
@@ -104,6 +63,34 @@ public:
 	UsageCount &operator=(const UsageCount u) { if (&u != this) _cnt = u._cnt;  return *this; }
 	UsageCount &operator=(int cnt) { if (cnt < 0) cnt = 0;  _cnt = cnt; return *this; }
 	operator int() const { return _cnt; }
+};
+
+//*****************************************
+struct Album; // in albums.h
+
+struct AlbumPointers
+{
+	IDVal_t srcAlbumId,		// source album id, == NOID if from external source, may be an alias
+		    destAlbumId,	// destination album id, may be an alias IDs are stored as pointers may become
+			srcBaseAlbumId,	// base album ID for source. May be equal to srcAlbumId
+			destBaseAlbumId;// same for destination
+	// invalid when albums are moved, so they must be re - fetched from the album map when needed	
+	Album* pDest,			// actual destination album. May be an alias album
+		* pDestAlbum,	// either base album for destination album or pDest if it is not an alias
+		* pSrc,			// actual source album, may be null for external source and may be an alias album for internal source
+		* pSrcAlbum;		// real source album, which may be the base album for pSrc if it is an alias 
+
+	AlbumPointers() { Clear(); }
+	AlbumPointers(IDVal_t srcAlbumId, IDVal_t destAlbumId) : srcAlbumId(srcAlbumId), destAlbumId(destAlbumId) { SetupPointers(); }
+	AlbumPointers(const AlbumPointers& other) { *this = other; }
+	void Clear() { srcAlbumId = destAlbumId = NO_ID; pDest = pDestAlbum = pSrc = pSrcAlbum = nullptr; }
+	void SetupPointers();
+	void Setup(IDVal_t srcId, IDVal_t destId)
+	{
+		srcAlbumId = srcId;
+		destAlbumId = destId;
+		SetupPointers();
+	}
 };
 
 //*****************************************
@@ -409,5 +396,3 @@ bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
 
 char* StringToCString(QString string);
 QString MakeRandomStringOfLength(int length);
-// D&D
-bool IsAllowedTypeToDrop(const QDropEvent* event);

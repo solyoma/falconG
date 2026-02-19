@@ -1,15 +1,12 @@
 ﻿#include <QApplication>
 #include <QApplication>
 #include <QtCore>
-#include <QString>
 #include <QTextCodec>
 
 #include <time.h>
 #include <atomic>
 #include <chrono>
 
-#include "common.h"
-#include "support.h"
 #include "albums.h"
 #include "falcong.h"
 #include "csscreator.h"
@@ -609,7 +606,7 @@ void LanguageTexts::SetTextForLanguageNoID(const QString str, int lang)
 //			s += operator[](lang);
 //	textsForAllLanguages = s;
 //	lenghts[lang] = len;
-//	return CalcID(albumgen.Texts());
+//	return CalcID(Texts());
 //}
 
 /**************************** ImageMap *****************************/
@@ -1379,13 +1376,13 @@ bool AlbumMap::RemoveRecursively(ID_t id)
 * RETURNS: pointer to found record or nullotr
 * REMARKS:
 *--------------------------------------------------------------------------*/
-Album *AlbumMap::Find(QString albumPath)
+Album *AlbumMap::Find(QString albumPath) const 
 {
 	QString n,p;
 	albumPath = CutSourceRootFrom(albumPath);
 	SeparateFileNamePath(albumPath, p, n);
 
-	auto samePath = [&](Album &a) ->bool
+	auto samePath = [&](const Album &a) ->bool
 		{
 			if (!pathMap.Contains(a.pathId))
 				return false;
@@ -1394,17 +1391,17 @@ Album *AlbumMap::Find(QString albumPath)
 
 	for (auto i = begin(); i != end(); ++i)
 		if (i.value().name==n && samePath(i.value()))
-			return &i.value();
+			return &const_cast<Album&>(i.value());
 	return nullptr;
 }
 
-Album* AlbumMap::Find(IDPath_t pathID, QString albumName)
+Album* AlbumMap::Find(IDPath_t pathID, QString albumName) const 
 {
 	QString fullPath = pathMap.AbsPath(pathID) + albumName;
 	return Find(fullPath);
 }
 
-Album* AlbumMap::Find(IDPath_t pathID, ID_t albumId)
+Album* AlbumMap::Find(IDPath_t pathID, ID_t albumId) const
 {
 	QString fullPath = pathMap.AbsPath(pathID) + AlbumForID(albumId)->name;
 	return Find(fullPath);
@@ -1456,7 +1453,7 @@ bool AlbumMap::Exists(QString albumPath)
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-Album *AlbumMap::Find(ID_t id)
+Album *AlbumMap::Find(ID_t id) const
 {
 	// Delete!
 	//ID_t idt(ALBUM_ID_FLAG, id);
@@ -1464,12 +1461,12 @@ Album *AlbumMap::Find(ID_t id)
 	//ab.searchBy = Album::byID;
 	//ab.ID = idt;
 
-	return contains(id) ? &(*this)[id] : nullptr;
+	return contains(id) ? &const_cast<Album&>((*this)[id]) : nullptr;
 }
 
-Album* AlbumMap::Find(IDVal_t idv)
+Album* AlbumMap::Find(IDVal_t idv) const
 {
-	return Find(ID_t(ALBUM_ID_FLAG, idv));
+	return idv ? Find(ID_t(ALBUM_ID_FLAG, idv)) : nullptr;
 }
 
 /************************** Albumgenerator *************************/
@@ -2011,7 +2008,7 @@ void AlbumGenerator::AddDirsRecursively(ID_t albumId)
 	_processing = false;
 
 	AddToModifiedList(albumId, true);	// sets the changed flag and updates album only when not _processing
-	AlbumTreeView* ptrv = frmMain->GetTreeViewPointer();
+	AlbumTreeView* ptrv = dynamic_cast<FalconG*>(frmMain)->GetTreeViewPointer();
 	ptrv->update();
 
 	_signalProgress = true;
@@ -5263,7 +5260,7 @@ int AlbumGenerator::_DoHtAccess()
  *			false : no circular reference
  * REMARKS:
  *------------------------------------------------------------*/
-bool AlbumGenerator::IsCircular(Album* pAlbum, Album* pInHere)
+bool AlbumGenerator::IsCircular(const Album* pAlbum, const Album* pInHere) const
 {
 	if (!pAlbum || !pInHere)
 		return false;
@@ -5273,14 +5270,15 @@ bool AlbumGenerator::IsCircular(Album* pAlbum, Album* pInHere)
 	if (pAlbum->baseAlbumId != NO_ID)
 	{
 		// first check all parent of pInHere
-		if (pInHere->parentId && IsCircular(pAlbum, _albumMap.AlbumForIDVal(pInHere->parentId)))
+		IDVal_t pid = pInHere->ID.Val();
+		if (pInHere->parentId && IsCircular(pAlbum, _albumMap.AlbumForIDVal(pid)))
 			return true;
 		// then check all childeren of pInHere
 		for(auto &ab: pInHere->items)
 		{
 			if (ab.IsAlbum()) // when pAlbum is inside pInHere we can't be here
 			{
-				Album* pSub = _albumMap.AlbumForIDVal(ab.Val());
+				const Album* pSub = _albumMap.AlbumForIDVal(ab.Val());
 				if (pSub && IsCircular(pAlbum, pSub))	// recursive call
 					return true;
 			}
@@ -5621,6 +5619,112 @@ void AlbumGenerator::RemoveItems(ID_t albumID, IntList ilx, bool fromDisk, bool 
 	albumgen.WriteDirStruct(BackupMode::bmKeepBackupFile, WriteMode::wmAlways);	// keep .struct~ file and create a new backup from the original
 						
 	emit SignalAlbumStructChanged(false);								// album structure changed and saved
+}
+
+/*=============================================================
+ * TASK:   add files to
+ *			_imageMap or _videoMap,
+ *			_pDestAlbum->items
+ *
+ * PARAMS:  qslFileNames - file names to add
+ *          onlyNew - do not add duplicates to the same album
+ * GLOBALS:	_pDestAlbum	- destination album, not an alias
+ *          _row - add before this row
+ * RETURNS:
+ * REMARKS: - no thumbnail flag is set for any of the icons
+ *          - the same image may appear in any number of albums,
+ *             but not twice in the same album
+ *------------------------------------------------------------*/
+void AlbumGenerator::AddImagesAndVideosFromList(IDVal_t albumId, QStringList qslFileNames, bool onlyNew, int row)
+{
+	Album* pDestAlbum = albumgen.AlbumForIDVal(albumId)->BaseAlbum();
+	
+	AlbumGenerator::AddedStatus ares = AlbumGenerator::AddedStatus::asAdded;
+	int notAddedCnt = 0, errcnt = 0;
+	int i;
+
+	for (i = 0; i < qslFileNames.size(); ++i)
+	{
+		ares = albumgen.AddImageOrVideoFromString(qslFileNames[i], *pDestAlbum, onlyNew, row);
+		if (ares == AlbumGenerator::AddedStatus::asFailed)     // then already used somewehere // TODO: virtual albums
+		{
+			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Adding new image / video failed!"));
+			++errcnt;
+			continue;
+		}
+		else if (ares == AlbumGenerator::AddedStatus::asAdded)       // do not add duplicates
+			(void)fileIcons.Insert(row, qslFileNames[i]);
+		else
+			++notAddedCnt;
+	}
+	if (notAddedCnt)
+	{
+		QString msg = tr("Added %1 items, not added %2 duplicates.").arg(i - errcnt - notAddedCnt).arg(notAddedCnt);
+		if (errcnt)
+			msg += tr("\nFailed to add %1 items").arg(errcnt);
+		QMessageBox::information(frmMain, tr("falconG - Information"), msg);
+
+	}
+	else if (errcnt)
+		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Adding %1 new image%2 / video%2 failed!").arg(errcnt).arg(errcnt > 1 ? "s" : ""));
+}
+
+/*=============================================================
+ * TASK:   add folders to destination album from list of folder names
+ * PARAMS:	albumId - destination album id
+ *			qslFolders - list of folder names to add
+ *			row - if >=0 add before this row, if -1: add after existing rows
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:
+ *------------------------------------------------------------*/
+int AlbumGenerator::AddFoldersFromList(IDVal_t albumId, QStringList qslFolders)
+{
+	int cnt = 0;
+	for (auto& folderName : qslFolders)
+		cnt = AddFolder(albumId, folderName) ? 1 : 0;
+
+	return cnt;
+}
+/*=============================================================
+ * TASK:    internal function that adds a folder recursively
+ *
+ * PARAMS:  folderName - full path name of folder to add
+ * GLOBALS: _pDestAlbum - destination album. Never an alias album,
+ *			_row - if >=0 add before this row, if -1: add after existing rows
+ *				should be set using 'selectionModel()->hasSelection() ? currentIndex().row() : -1'
+ *				in ThumbNaliView::dropEvent() into DropHandler before calling this function
+ * RETURNS: if folder was added
+ * REMARKS:
+ *------------------------------------------------------------*/
+bool AlbumGenerator::AddFolder(IDVal_t albumId, QString folderName)
+{
+	Album* pDestAlbum = albumgen.AlbumForIDVal(albumId)->BaseAlbum();
+
+	bool added, atLeastOneFolderWasAdded = false;
+	IDVal_t idVal = pDestAlbum->ID.Val();
+	ID_t id = Albums().Add(idVal, folderName, added);     // set new dirIndex too
+	if (added)
+	{
+		atLeastOneFolderWasAdded = true;
+		pDestAlbum = Albums().Find(idVal)->BaseAlbum();     // album position may have changed when new album was added to map
+		AddToModifiedList(*pDestAlbum);
+		Album& album = *AlbumForID(id);
+		album.parentId = pDestAlbum->ID.Val();
+		AddDirsRecursively(id);
+
+		// already added _pDestAlbum->AddItem(id);
+
+		ID_t idth = album.ThumbID();
+		if (idth.Val())
+			folderName.clear();
+		else
+			folderName = Images()[idth].FullSourceName();
+
+		WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
+	}
+
+	return atLeastOneFolderWasAdded;
 }
 
 void AlbumGenerator::AddToModifiedList(ID_t albumId, bool itemNotProcessedYet)		// albumId must be valid
