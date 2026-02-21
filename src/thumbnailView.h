@@ -103,7 +103,7 @@ public:
 	void SetOwnerId(IDVal_t id)
 	{ 
 		if (id == NO_ID) 
-			id = TOPMOST_ALBUM_ID.Val();
+			id = TOPMOST_ALBUM_ID;
 		_ownerIdVal = id; 
 	}
 
@@ -212,7 +212,7 @@ class ThumbnailView : public QListView
 public:
     ThumbnailView(QWidget *parent/*, int thumbsize = THUMBNAIL_SIZE*/);
 
-	void Setup(ID_t aid);
+	void Setup(IDVal_t aid);
 	void Clear();
 	void RemoveViewer(ImageViewer* pv);
 
@@ -239,7 +239,7 @@ public:
     int GetLastItem() const ;
     int GetRandomItem() const;
     int GetCurrentItem() const;
-	constexpr ID_t AlbumID() const { return _albumId; }
+	constexpr IDVal_t AlbumID() const { return _albumId; }
 
     QStringList GetSelectedThumbsList();
 
@@ -257,7 +257,7 @@ signals:
 
 private:
 	FalconG* _pFrmMain = nullptr;	// for accessing tree view and other main window controls
-	ID_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album
+	IDVal_t   _albumId = TOPMOST_ALBUM_ID;		// show thumbs from this album
 											// or the base album of this album
 	bool _isBaseAlbum = true;               // for aliases this is set to false so the
 											// context menu can reflect this: all changes will
@@ -300,16 +300,16 @@ private:
 private:
 	Album	*_ActAlbum(bool getBase=false) const 		// may be an alias album!
 	{ 
-		if (_albumId.Val())
+		if (_albumId)
 		{
-			Album* album = albumgen.AlbumForID(_albumId);
+			Album* album = albumgen.AlbumForIDVal(_albumId);
 			if (getBase)
 				album = album->BaseAlbum();
 			return album;
 		}
 		return nullptr;
 	}
-	constexpr ID_t _ActAlbumId() const { return (_ActAlbum() ? _ActAlbum()->ID : TOPMOST_ALBUM_ID); }
+	constexpr IDVal_t _ActAlbumId() const { return (_ActAlbum() ? _ActAlbum()->ID.Val() : TOPMOST_ALBUM_ID); }
     void _InitThumbs();
     int _GetFirstVisibleThumb();
     int _GetLastVisibleThumb();
@@ -356,7 +356,7 @@ public slots:
     void SlotLoadVisibleThumbs(int scrollBarValue = 0);
     void SlotOnSelectionChanged(const QItemSelection &selection);
     void SlotInvertSelection();
-	void SlotDeleteSelectedList(ID_t albumId, IntList &list, bool iconsForThisAlbum);
+	void SlotDeleteSelectedList(IDVal_t albumId, IntList &list, bool iconsForThisAlbum);
 	void SlotDeleteSelected();
 	void SlotSynchronizeTexts();
 	void SlotUndoDelete();
@@ -376,8 +376,8 @@ public slots:
 	void SlotThumbnailSizeChanged(int thumbSize);
 	void SlotFindMissingImageOrVideo();		// maybe it was moved from its position
 	void SlotToCloseAllViewers();
-	void SlotGetSelectionCount(ID_t &id, int &count );
-	void SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop);
+	void SlotGetSelectionCount(IDVal_t &id, int &count );
+	void SlotItemsDroppedOnTreeView(IDVal_t destAlbumId, const IntList& ids, bool fromDrop);
 //	void SlotToClearIconList();
 private slots:
     void SlotLoadThumbsRange();

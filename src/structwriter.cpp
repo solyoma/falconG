@@ -132,7 +132,7 @@ void AlbumStructWriter::_WriteStructImage(Album& album, ID_t id, QString indent)
 	Image* pImg;
 	QString s;
 
-	pImg = &_imageMap[id];
+	pImg = &_imageMap[id.Val()];
 	if (pImg->changed)
 		albumgen.AddToModifiedList(album);
 
@@ -149,7 +149,7 @@ void AlbumStructWriter::_WriteVideo(Album& album, ID_t id, QString indent)
 		ddelim = QStringLiteral("||");
 	Video* pVid;
 
-	pVid = &_videoMap[id];
+	pVid = &_videoMap[id.Val()];
 	if (pVid->changed)
 	{
 		albumgen.AddToModifiedList(album);
@@ -206,7 +206,7 @@ void AlbumStructWriter::_WriteImagesThenSubAlbums(Album& album, QString indent)
 	{
 		for (ID_t id : album.items)
 			if (!id.IsExcluded() && id.IsAlbum())		// not excluded
-				_WriteAlbums(_albumMap[id], indent);
+				_WriteAlbums(_albumMap[id.Val()], indent);
 	}
 }
 
@@ -264,7 +264,7 @@ void AlbumStructWriter::_WriteOrphanThumbnails()
 		   Image* pImg;
 		   QString s;
 
-		   pImg = &_imageMap[img.ID];
+		   pImg = &_imageMap[img.ID.Val()];
 		   _WriteImageRecord(pImg, 0);
 	   }
    _ofs << "]\n\n";

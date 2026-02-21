@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <QMainWindow>
 #include <QString>
@@ -108,7 +108,7 @@ struct LanguageTexts				// both Album and Image uses this
 
 
 //------------------------------------------
-class TextMap : public QMap<int64_t, LanguageTexts>
+class TextMap : public QMap<IDVal_t, LanguageTexts>
 {
 	static LanguageTexts invalid;
 public:

@@ -88,7 +88,7 @@ public:
 	void Stop() { --_running; }
 
 	AlbumTreeView* GetTreeViewPointer() const;
-	constexpr ID_t ActualDisplayedAlbum() const { return ui.tnvImages->AlbumID(); }
+	constexpr IDVal_t ActualDisplayedAlbum() const { return ui.tnvImages->AlbumID(); }
 
 signals:
 	void SignalCancelRun();

@@ -112,7 +112,7 @@ bool DropHandler::_AddFolder(QString folderName)
 		if (idth.Val())
 			folderName.clear();
 		else
-			folderName = albumgen.Images()[idth].FullSourceName();
+			folderName = albumgen.Images()[idth.Val()].FullSourceName();
 		(void)fileIcons.Insert(_row, folderName);
 
 		albumgen.WriteDirStruct(AlbumGenerator::BackupMode::bmKeepBackupFile, AlbumGenerator::WriteMode::wmOnlyIfChanged);
@@ -174,7 +174,7 @@ void DropHandler::_FromExternalSource()
 			qslF << s;
 	}
 
-	ID_t idOfDisplayedAlbum = _pThumbnailView->AlbumID();	// although we are friends, but this is constexpr so why not
+	IDVal_t idOfDisplayedAlbum = _pThumbnailView->AlbumID();	// although we are friends and could use _albumId of thumbView, but this is constexpr so why not
 	Q_ASSERT(_albumPointers.pDestAlbum);
 
 	if (_albumPointers.pDest != _albumPointers.pDestAlbum) // then it is an alias for another album
@@ -421,7 +421,7 @@ bool DropHandler::MoveItems(Album* pSrc, Album* pDest, const IntList& thl) const
 			Album* pab = albumgen.AlbumForID(itemID);
 			Q_ASSERT(pab);
 			pab->parentId = pDest->ID.Val();      // reparent album
-			albumgen.AddToModifiedList(itemID, true);   // so that it gets written 
+			albumgen.AddToModifiedList(itemID.Val(), true);   // so that it gets written 
 		}
 		if (!itemsDest.contains(itemID))
 			itemsDest.push_back(itemID);

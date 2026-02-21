@@ -360,9 +360,9 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	ID_t SetThumbnail(ID_t id); // sets album thumbnail and increase the usage count of it
 	QSize ThumbSize() const override;
 
-	ID_t IdOfItemOfType(uint8_t type, int index);
+	ID_t IdOfItemOfType(uint8_t type, int nthMatch); // the nth item that matches the type in _items
 
-	static QString HtmlNameFromID(ID_t id, int language, IDVal_t rootAliasId, bool withAlbumPath);			// <basename><id><lang>.html
+	static QString HtmlNameFromID(IDVal_t id, int language, IDVal_t rootAliasId, bool withAlbumPath);			// <basename><id><lang>.html
 	QString HtmlNameFromID(int language, IDVal_t rootAliasId);
 	QString LinkName(int language, IDVal_t aliasRootId, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
@@ -393,7 +393,7 @@ private:
 };
 
 //------------------------------------------
-class ImageMap : public QMap<ID_t, Image>
+class ImageMap : public QMap<IDVal_t, Image>
 {
 	//friend class ALbumGenerator; miert nem volt eleg
 	//ahhoz, hogy ezt lassa:	static Image invalid;
@@ -407,13 +407,13 @@ public:
 												// if 'useBase' finds the first one with the same base ID
 	Image *Find(QString FullSourceName);		// returns nullptr if not found
 	ID_t Add(QString image, bool &added, bool isThumbnail=false);	// returns ID and if added
-	void Remove(ID_t id, bool isThumbnail);
+	void Remove(IDVal_t id, bool isThumbnail);
 	Image &Item(int index);
 };
 
 //------------------------------------------
 // key contains VIDEO_ID_FLAG
-class VideoMap : public QMap<ID_t, Video>
+class VideoMap : public QMap<IDVal_t, Video>
 {
 	//friend class ALbumGenerator; miert nem volt eleg
 	//ahhoz, hogy ezt lassa:	static Image invalid;
@@ -434,7 +434,7 @@ public:
 // key contains ALBUM_ID_FLAG
 // all albums (even when they correspond to real folders on disk)
 // are virtual.
-class AlbumMap : public QMap<ID_t, Album>
+class AlbumMap : public QMap<IDVal_t, Album>
 {
 	static Album invalid;
 	bool _changed = false;	// at least one album changed since last write
@@ -443,26 +443,26 @@ class AlbumMap : public QMap<ID_t, Album>
 public:
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
-	Album* AlbumForIDVal(IDVal_t id) const
+	Album* AlbumForIDVal(IDVal_t id)
 	{
 		return Find(id);
 	}
-	Album *AlbumForID(ID_t id) const
+	Album *AlbumForID(ID_t id)
 	{ 
 		//id.SetFlag(EXISTING_FLAG, false);
 		return  Find(id);
 	}
-	Album *Find(IDVal_t idv) const;	// 'Find' functions return nullptr if album is not found
-	Album *Find(ID_t id) const;	// 'Find' functions return nullptr if album is not found
-	Album *Find(QString albumFullPath) const;
-	Album *Find(IDPath_t pathID, QString albumName) const;
-	Album *Find(IDPath_t pathID, ID_t albumId) const;
+	Album *Find(IDVal_t idv);	// 'Find' functions return nullptr if album is not found
+	Album *Find(ID_t id);		// 'Find' functions return nullptr if album is not found
+	Album *Find(QString albumFullPath);
+	Album *Find(IDPath_t pathID, QString albumName);
+	Album *Find(IDPath_t pathID, ID_t albumId);
 	AlbumList GetAliases(IDVal_t id);	// returns all albums that have this album as their baseAlbumId
 	bool Exists(QString albumPath);
 	ID_t Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t baseFolderID = NO_ID);	// add from 'relativeAlbumPath which can be an absolute path returns ID and if it was added
 	Album &Item(int index);
 	bool RemoveRecursively(ID_t id);		// album and its all sub-albums
-	void SetChanged(ID_t albumId, bool changed = true)
+	void SetChanged(IDVal_t albumId, bool changed = true)
 	{
 		if (contains(albumId))
 			(*this)[albumId].changed = changed;
@@ -517,13 +517,13 @@ public:
 	void AddDirsRecursively(ID_t albumId);	// for existing album when structure modified
 	bool Read(bool bMustReRead);	 // reads .struct or creates structure from folder hierarchy
 
-	void RemoveItems(ID_t albumID, IntList ilx, bool fromdisk, bool iconsForThisAlbum = true);
+	void RemoveItems(IDVal_t albumID, IntList ilx, bool fromdisk, bool iconsForThisAlbum = true);
 
-	void AddThumbnailBeforeImageRead(ID_t id)
+	void AddThumbnailBeforeImageRead(IDVal_t id)
 	{
 		_addedThumbnailIDsForImagesNotYetRead.push_back(id);	// same id can be added any number of times
 	}
-	bool IsCircular(const Album* pAlias, const Album* pInHere) const; // if 'pAlias' is an alias, check if it is already in the album hierarchy of 'pInHere'
+	bool IsCircular(const Album* pAlias, const Album* pInHere); // if 'pAlias' is an alias, check if it is already in the album hierarchy of 'pInHere'
 
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
@@ -539,9 +539,9 @@ public:
 
 	void AddToModifiedList(const Album& album, bool itemNotProcessedYet = false)
 	{
-		AddToModifiedList(album.ID, itemNotProcessedYet);
+		AddToModifiedList(album.ID.Val(), itemNotProcessedYet);
 	}
-	void AddToModifiedList(ID_t albumId, bool itemNotProcessedYet = false);		// albumId must be valid
+	void AddToModifiedList(IDVal_t albumId, bool itemNotProcessedYet = false);		// albumId must be valid
 
 	static QString RootNameFromBase(QString base, int language, bool toServerPath = false);
 	int ActLanguage() const { return _actLanguage; }
@@ -557,9 +557,9 @@ public:
 	ImageMap &Images() { return _imageMap; }
 	bool Contains(ID_t id)	// inside albumgen
 	{	
-		return ( (id.IsAlbum()) && _albumMap.contains(id)  ||
-				 (id.IsImage()) && _imageMap.contains(id)  ||
-				 (id.IsVideo()) && _videoMap.contains(id) ) ;
+		return ( (id.IsAlbum()) && _albumMap.contains(id.Val())  ||
+				 (id.IsImage()) && _imageMap.contains(id.Val())  ||
+				 (id.IsVideo()) && _videoMap.contains(id.Val()) ) ;
 	}
 	inline Album* AlbumForIDVal(const IDVal_t idv)
 	{
@@ -571,12 +571,12 @@ public:
 	}
 	inline Image* ImageAt(const ID_t id) 
 	{ 
-		return &_imageMap[id]; 
+		return &_imageMap[id.Val()];
 	}
 	VideoMap& Videos() { return _videoMap; }
-	Video* VideoAt(ID_t id) { return &_videoMap[id]; }
+	Video* VideoAt(ID_t id) { return &_videoMap[id.Val()]; }
 	TextMap &Texts()   { return _textMap;  }
-	LanguageTexts *TextsAt(int64_t id) { return &_textMap[id]; }
+	LanguageTexts *TextsAt(IDVal_t id) { return &_textMap[id]; }
 	AlbumMap &Albums() { return _albumMap; }
 
 	IABase* IdToItem(ID_t id)
@@ -593,7 +593,7 @@ public:
 	}
 	QString SiteLink(int language);
 
-	ID_t AddItemToAlbum(ID_t albumId, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList);
+	ID_t AddItemToAlbum(IDVal_t albumId, QString path, bool isThumbnail, bool doSignalElapsedTime, bool doNotAddToAlbumItemList);
 
 	enum class AddedStatus { asFailed, asAdded, asDuplicate};
 	AddedStatus AddImageOrVideoFromString(QString fullFilePath, Album& toThisAlbum, bool onlyNew, int beforeThisPos = -1);
@@ -642,7 +642,7 @@ private:
 							// append this to the path of the sub albums when determining the 
 							// name of the corresponding HTML file
 
-	IdList	_addedThumbnailIDsForImagesNotYetRead;
+	IDValList	_addedThumbnailIDsForImagesNotYetRead;
 	AliasList _unresolvedAliases;
 	// ID of top level album (first in '_albumMap', TOPMOST_ALBUM_ID)
 		// --------- latest images collection
@@ -704,7 +704,7 @@ private:
 	void _CleanupAlbums();	// exclude empty albums and albums with only albums in them each empty
 	
 					// write gallery files
-	void _WriteFacebookLink(QString linkName, ID_t ID);
+	void _WriteFacebookLink(QString linkName, IDVal_t ID);
 	QString _IncludeFacebookLibrary() const;
 	void _LightboxCodeIntoHtml(int cntItems);
 	void _OutputNavForAboutPage(int lang);
@@ -736,7 +736,7 @@ private:
 				// read 'gallery.struct
 	bool _LanguageFromStruct(FileReader &reader);
 	ID_t _ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
-	ID_t _ReadAlbumFromStruct(FileReader &reader, ID_t parentId, int level);
+	IDVal_t _ReadAlbumFromStruct(FileReader &reader, IDVal_t parentId, int level);
 	void _AddAlbumThumbnail(Album &album, ID_t id);
 	void _GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFromStruct &ids, int level);
 	bool _ReadPathTable(FileReader& reader);
@@ -749,8 +749,8 @@ private:
 private:
 	void _SlotForStructWriterFinished(QString s, QString sStructPath, QString sStructTmp);		// slot !
 	void _RemoveItem(Album &album, int which, bool fromdisk); // which: index in album's items
-	void _RemoveItems(ID_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
-	void _RemoveAllItemsFrom(ID_t albumID, bool fromdisk);
+	void _RemoveItems(IDVal_t albumID, bool iconsForThisAlbum, IntList ilx, bool fromdisk);
+	void _RemoveAllItemsFrom(IDVal_t albumID, bool fromdisk);
 };
 
 // ******* bread crumb ********

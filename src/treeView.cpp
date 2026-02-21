@@ -37,11 +37,11 @@ int AlbumTreeModel::rowCount(const QModelIndex & parent) const
 	if (!parent.isValid())		   // root element: it has 2 items, only one matters
 		return	1; 
 	
-	ID_t id = ID_t(ALBUM_ID_FLAG, (IDVal_t)(parent.internalPointer()) );
+	IDVal_t idv = (IDVal_t)(parent.internalPointer());
 	// DEBUG
-	if (!map.contains(id))
+	if (!map.contains(idv))
 		return 0;
-	return map[id].SubAlbumCount();
+	return map[idv].SubAlbumCount();
 }
 
 /*============================================================================
@@ -60,10 +60,10 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
 	AlbumMap &map = albumgen.Albums();
 
 	if (!parent.isValid())				// only the root item has invalid parent
-		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? TOPMOST_ALBUM_ID.Val() : 0)));
-	ID_t idParent = ID_t(ALBUM_ID_FLAG, (IDVal_t)parent.internalPointer());
+		return row ? QModelIndex() : createIndex(row, column, quintptr( (map.size() ? TOPMOST_ALBUM_ID : 0)));
+	IDVal_t idvParent = (IDVal_t)parent.internalPointer();
 
-	IDVal_t idVal = map[idParent].IdOfItemOfType(ALBUM_ID_FLAG,row).Val();
+	IDVal_t idVal = map[idvParent].IdOfItemOfType(ALBUM_ID_FLAG,row).Val();
 	return createIndex(row, column, quintptr(idVal)  );
 }
 
@@ -77,13 +77,13 @@ QModelIndex AlbumTreeModel::index(int row, int column, const QModelIndex & paren
  *------------------------------------------------------------*/
 const QString AlbumTreeModel::TextForIndex(const QModelIndex& mix, bool aliasTextToo) const
 {
-	ID_t id = ID_t(ALBUM_ID_FLAG, (IDVal_t)mix.internalId());
-	Album& ab = albumgen.Albums()[id];
+	IDVal_t idv = (IDVal_t)mix.internalId();
+	Album& ab = albumgen.Albums()[idv];
 	QString sChangedFlag = ab.changed ? "*" : "";
 	QString s = ab.name;
 	if (ab.changed)
 		s += "*";
-	if (id == TOPMOST_ALBUM_ID)
+	if (idv == TOPMOST_ALBUM_ID)
 		return "/ ( " + s + " )";
 	s += " ( " + ab.BareName() + " )";  // no language or extension
 	if (aliasTextToo && ab.baseAlbumId != NO_ID)
@@ -146,11 +146,11 @@ QVariant AlbumTreeModel::data(const QModelIndex &index, int role) const
 *--------------------------------------------------------------------------*/
 QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 {
-	if (!ind.isValid() || (IDVal_t)ind.internalPointer() == TOPMOST_ALBUM_ID.Val())
+	if (!ind.isValid() || (IDVal_t)ind.internalPointer() == TOPMOST_ALBUM_ID)
 		return QModelIndex();
 
 	AlbumMap &map = albumgen.Albums();
-	ID_t actualId = ID_t(ALBUM_ID_FLAG, (IDVal_t)ind.internalPointer());
+	IDVal_t actualId = (IDVal_t)ind.internalPointer();
 	if (!map.contains(actualId))	// it should!
 		return QModelIndex();
 	Album &thisAlbum = map[actualId];
@@ -158,13 +158,13 @@ QModelIndex AlbumTreeModel::parent(const QModelIndex & ind) const
 	if (aParentID == NO_ID)					   // no parent: topmost element
 		return QModelIndex(); // invalid index(0, ind.column());		   // it is the first and only such
 
-	Album &abp = map[ID_t(ALBUM_ID_FLAG, aParentID)];				// parent album
+	Album &abp = map[aParentID];				// parent album
 	// parent album is found, but we need its row index in its parent's list
 	IDVal_t bParentID = abp.parentId;				// parent's parent
 	if (bParentID == NO_ID)			// parent is the topmost element
-		return createIndex(ind.row(), 0, quintptr(TOPMOST_ALBUM_ID.Val()));
+		return createIndex(ind.row(), 0, quintptr(TOPMOST_ALBUM_ID));
 
-	IdList parentsSiblings = map[ID_t(ALBUM_ID_FLAG, bParentID)].items;		// go through parent's parent's
+	IdList parentsSiblings = map[bParentID].items;		// go through parent's parent's
 	int size = parentsSiblings.size();					// list, i.e. parent's siblings
 	// and as the tree does not contain images we need to use only the albums
 	int row = 0;
@@ -358,15 +358,15 @@ void AlbumTreeView::mousePressEvent(QMouseEvent* event)
 void AlbumTreeView::SlotDeleteSelectedAlbum()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
-	ID_t albumId = ID_t(ALBUM_ID_FLAG, (IDVal_t)list[0].internalPointer());
+	IDVal_t albumId = (IDVal_t)list[0].internalPointer();
 	IDVal_t parentID = albumgen.Albums()[albumId].parentId;
-	Album album = albumgen.Albums()[ID_t(ALBUM_ID_FLAG, parentID)];
+	Album &album = albumgen.Albums()[parentID];
 	IntList ilx;
 	IdList& idList = album.items;
 	for (int i = 0; i < idList.size(); ++i)
-		if (idList[i] == albumId)
+		if (idList[i].Val() == albumId)
 			ilx.push_back(i);
-	emit SignalDeleteSelectedList(ID_t(ALBUM_ID_FLAG, parentID), ilx, false);
+	emit SignalDeleteSelectedList(parentID, ilx, false);
 }
 
 /*=============================================================
@@ -439,8 +439,8 @@ void AlbumTreeView::contextMenuEvent(QContextMenuEvent* pevent)
 	QMenu menu(this);
 	QAction* pact;
 	int nSelSize = selectionModel()->selectedIndexes().size();
-	ID_t selId = { ALBUM_ID_FLAG, nSelSize ? (IDVal_t)selectionModel()->selectedIndexes()[0].internalPointer() : 0 },
-		 id = selId;
+	IDVal_t selId = nSelSize ? (IDVal_t)selectionModel()->selectedIndexes()[0].internalPointer() : 0,
+			id = selId;
 	int cnt = 0;
 	emit SignalGetSelectionCount(id, cnt);
 
@@ -558,8 +558,8 @@ void AlbumTreeView::dragMoveEvent(QDragMoveEvent* event)
 void AlbumTreeView::dropEvent(QDropEvent* event)
 {
 	QModelIndex index = indexAt(event->pos());
-	ID_t destAlbum = index.isValid() ? ID_t(ALBUM_ID_FLAG, (IDVal_t)index.internalPointer()) : TOPMOST_ALBUM_ID;
-	ID_t activeAlbumID = _ptnv->AlbumID();
+	IDVal_t destAlbum = index.isValid() ? (IDVal_t)index.internalPointer() : TOPMOST_ALBUM_ID;
+	IDVal_t activeAlbumID = _ptnv->AlbumID();
 
 	bool isAllowed = DropHandler::IsAllowedTypeToDrop(event) && 		 
 					 ( !event->mimeData()->hasUrls() ||			   // i.e. either not from thumbnailView (external source)
@@ -576,7 +576,7 @@ void AlbumTreeView::dropEvent(QDropEvent* event)
 		// let the receiver handle external url drops if connected
 		// emit the same signal but encode file urls as IntList not applicable here - leave it for ThumbnailView to handle if needed
 		event->acceptProposedAction();
-		dropHandler.Setup(event, NO_ID, destAlbum.Val(), -1);   // append to items at destination
+		dropHandler.Setup(event, NO_ID, destAlbum, -1);   // append to items at destination
 		dropHandler.DropItems(true);
 		return;
 	}
@@ -589,7 +589,7 @@ void AlbumTreeView::dropEvent(QDropEvent* event)
 			IntList ids = tmd->thumbList;
 			// bool move = (event->proposedAction() & Qt::MoveAction) == Qt::MoveAction;
 			event->acceptProposedAction();
-			dropHandler.Setup(event, activeAlbumID.Val(), destAlbum.Val(), -1);   // event contains the actual album
+			dropHandler.Setup(event, activeAlbumID, destAlbum, -1);   // event contains the actual album
 			dropHandler.DropItems(true);
 		}
 		return;

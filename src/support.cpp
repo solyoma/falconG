@@ -72,8 +72,9 @@ QString MakeRandomStringOfLength(int length)
 	int idx = 0;
 	for (int i = 0; i < length; ++i)
 	{
-		idx = QRandomGenerator::global()->bounded(array_size);
+		idx = QRandomGenerator::global()->bounded(array_size-1);
 		QChar ch = array_str[idx];
+		Q_ASSERT(ch.unicode());
 		result.append(ch);
 	}
 

@@ -113,8 +113,8 @@ public:
 	//void mouseReleaseEvent(QMouseEvent* event);
 
 signals:
-	void SignalDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum);
-	void SignalGetSelectionCount(ID_t& remoteId, int& count);
+	void SignalDeleteSelectedList(IDVal_t albumId, IntList& list, bool iconsForThisAlbum);
+	void SignalGetSelectionCount(IDVal_t& remoteId, int& count);
 	void SignalTreePathChanged(const BreadcrumbVector &bcv);
 	void SignalItemsDropped(const ID_t& targetAlbumId, const IntList& itemIds, bool move);
 

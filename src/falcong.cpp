@@ -515,7 +515,7 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 
 			_ReadLastAlbumStructure();
 
-			Album* root = albumgen.AlbumForID( TOPMOST_ALBUM_ID);
+			Album* root = albumgen.AlbumForIDVal( TOPMOST_ALBUM_ID);
 			Q_ASSERT(root);
 			QString path;
 			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
@@ -1484,7 +1484,7 @@ void FalconG::_ReadLastAlbumStructure()
 		QString qs = PROGRAM_CONFIG::NameForConfig(false, ".struct");
 		if (QFile::exists(qs) && albumgen.Read(true))
 		{
-			Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+			Album* root = albumgen.AlbumForIDVal(TOPMOST_ALBUM_ID);
 			Q_ASSERT(root);
 			QString path;
 			SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
@@ -3382,7 +3382,7 @@ void FalconG::on_edtSourceGallery_textChanged()
 			config.SetChanged(true);	// allow user to save config into this directory
 			_EnableButtons();
 		}
-		Album* root = albumgen.AlbumForID(TOPMOST_ALBUM_ID);
+		Album* root = albumgen.AlbumForIDVal(TOPMOST_ALBUM_ID);
 		Q_ASSERT(root);
 		QString path;
 		SeparateFileNamePath(config.dsSrc.ToString(), path, root->name);
@@ -4758,7 +4758,7 @@ void FalconG::_SlotLoadItemsToListView()
 		_currentTreeViewIndex = _currentSelection.indexes()[0];
 		ID_t id = { ALBUM_ID_FLAG, IDVal_t(_currentTreeViewIndex.internalPointer()) };	// store ID of last selected album
 
-		ui.tnvImages->Setup(id);
+		ui.tnvImages->Setup(id.Val());
 		_selection.selectedAlbum = id;	// only single selection is used
 									// before the image list is read
 	}
@@ -5094,7 +5094,7 @@ void FalconG::_SaveChangedTexts()
 	int64_t otid = _selection.title.ID,
 		 odid = _selection.description.ID;
 	
-	Album& actAlbum = albumgen.Albums()[_selection.actAlbum];
+	Album& actAlbum = albumgen.Albums()[_selection.actAlbum.Val()];
 	actAlbum.changed = true;
 
 	if (_selection.changed & fsTitle)
@@ -5109,15 +5109,15 @@ void FalconG::_SaveChangedTexts()
 					// only need to modify album or image when ID is changed
 	if (_selection.selectedImage.Val())
 	{
-		albumgen.Images()[_selection.selectedImage].titleID = _selection.title.ID;
-		albumgen.Images()[_selection.selectedImage].descID  = _selection.description.ID;
+		albumgen.Images()[_selection.selectedImage.Val()].titleID = _selection.title.ID;
+		albumgen.Images()[_selection.selectedImage.Val()].descID  = _selection.description.ID;
 //		actAlbum.changed = true;
 	}
 	else if(_selection.selectedAlbum.Val())
 	{
-		albumgen.Albums()[_selection.selectedAlbum].titleID = _selection.title.ID;
-		albumgen.Albums()[_selection.selectedAlbum].descID = _selection.description.ID;
-		albumgen.Albums()[_selection.selectedAlbum].changed = true;
+		albumgen.Albums()[_selection.selectedAlbum.Val()].titleID = _selection.title.ID;
+		albumgen.Albums()[_selection.selectedAlbum.Val()].descID = _selection.description.ID;
+		albumgen.Albums()[_selection.selectedAlbum.Val()].changed = true;
 	}
 	else // nothing selected: change for actual album
 	{

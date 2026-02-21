@@ -174,7 +174,7 @@ QIcon ThumbnailItem::IconForFile() const
     QString imageName;
     if (ISALBUM() )
     {
-        Album& aitem = albumgen.Albums()[itemId];
+        Album& aitem = albumgen.Albums()[itemId.Val()];
         imgId = aitem.thumbnailId;
 
         if (aitem.baseAlbumId)
@@ -193,7 +193,7 @@ QIcon ThumbnailItem::IconForFile() const
     }
     else        // for image or album: imgId is set, videos: TODO
     {
-        img = albumgen.Images()[imgId];
+        img = albumgen.Images()[imgId.Val()];
         if (!img.name.isEmpty())
         {
             if ((exists = QFile::exists(img.FullLinkName())))
@@ -311,7 +311,7 @@ QString ThumbnailItem::_VideoFileName() const
 
 QString ThumbnailItem::_FolderFileName() const
 {
-   Album  owner = albumgen.Albums()[ID_t(ALBUM_ID_FLAG, _ownerIdVal)];
+   Album  owner = albumgen.Albums()[_ownerIdVal];
    return owner.LinkName(-1, NO_ID); // no language and extension no base ID ?
 }
 
@@ -655,11 +655,11 @@ void ThumbnailView::SlotOnSelectionChanged(const QItemSelection &)
     QModelIndexList indexesList = selectionModel()->selectedIndexes();
     int selectedCount = indexesList.size();
 	if(!selectedCount)
-		emit SignalSingleSelection(_ActAlbum()->ID, _ActAlbumId());
+		emit SignalSingleSelection(_ActAlbum()->ID, _ActAlbum()->ID);
     else if (selectedCount == 1)
 	{
         SetCurrentItem(indexesList.first().row());
-		emit SignalSingleSelection(_ActAlbum(true)->items[_currentItem], _ActAlbumId());
+		emit SignalSingleSelection(_ActAlbum(true)->items[_currentItem], _ActAlbum()->ID);
 	}
     else
     {
@@ -671,7 +671,7 @@ void ThumbnailView::SlotOnSelectionChanged(const QItemSelection &)
             if (idList.indexOf(id) < 0)
                 idList << items[e.row()];
 
-            emit SignalMultipleSelection(idList, _ActAlbumId());
+            emit SignalMultipleSelection(idList, _ActAlbum()->ID);
         }
     }
 
@@ -738,11 +738,11 @@ void ThumbnailView::startDrag(Qt::DropActions)
 
     QDrag *drag = new QDrag(this);
     ThumbMimeData *mimeData = new ThumbMimeData;
-	_idvDragStart = _albumId.Val();
+	_idvDragStart = _albumId;
     QList<QUrl> urls;	// create pixmap from this list of names
 	for (auto &f : indexesList)
 	{
-	    ThumbnailItem thumbRec(f.row(), _albumId.Val(), (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type());
+	    ThumbnailItem thumbRec(f.row(), _albumId, (ThumbnailItem::Type)_thumbnailViewModel->item(f.row())->type());
 		urls << QUrl(thumbRec.FileName());
 		thumbRec.itemPos = f.row();
 		mimeData->thumbList << f.row();
@@ -943,7 +943,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
     int row = index.row();      // -1: drop after the last item
 
 	//                          active                                source          destination  where to drop
-    dropHandler.Setup(event, _idvDragStart, _albumId.Val(), row);   // event contains the actual album
+    dropHandler.Setup(event, _idvDragStart, _albumId, row);   // event contains the actual album
     dropHandler.DropItems(true);
 	_idvDragStart = NO_ID;
 	_InitThumbs();          // redisplay thumbnails in new order and update fileIcons
@@ -1112,7 +1112,7 @@ void ThumbnailView::Reload()
     _isBusy = false;
 }
 
-void ThumbnailView::Setup(ID_t aid)
+void ThumbnailView::Setup(IDVal_t aid)
 {
     _albumId = aid;
 //    _InitThumbs();
@@ -1315,7 +1315,7 @@ void ThumbnailView::SlotLoadThumbsRange()
  *------------------------------------------------------------*/
 void ThumbnailView::AddThumb(int which, ThumbnailItem::Type type)
 {
-    ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId.Val(), type);
+    ThumbnailItem *thumbItem = new ThumbnailItem(which, _albumId, type);
     QImageReader thumbReader;
     QSize currThumbSize;
 
@@ -1620,7 +1620,7 @@ void ThumbnailView::SlotInvertSelection()
  *          - Can't delete items from an alias album
  *          - Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
-void ThumbnailView::SlotDeleteSelectedList(ID_t albumId, IntList& list, bool iconsForThisAlbum)
+void ThumbnailView::SlotDeleteSelectedList(IDVal_t albumId, IntList& list, bool iconsForThisAlbum)
 {
     QString s;
 
@@ -1690,7 +1690,7 @@ void ThumbnailView::SlotSynchronizeTexts()
         return pItem;
     };
 
-    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _ActAlbumId());
+    emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _ActAlbum()->ID);
 
     if (QuestionDialog(tr("falconG - Question"),
         tr("This will set the texts to all of selected items\n"
@@ -1764,7 +1764,7 @@ void ThumbnailView::SlotAddImages()
     int pos = selectionModel()->hasSelection() ? currentIndex().row() : -1;
 
     emit SignalInProcessing(true);
-    albumgen.AddImagesAndVideosFromList(_albumId.Val(), qslFileNames, true, pos);
+    albumgen.AddImagesAndVideosFromList(_albumId, qslFileNames, true, pos);
     // now add last used path
 	int siz = qslFileNames.size();
     QString s;
@@ -1840,7 +1840,7 @@ void ThumbnailView::SlotAddFolder()
     if (qs.isEmpty())
         return;
     bool b = false;
-    if ((b=albumgen.AddFolder(_albumId.Val(), qs)))
+    if ((b=albumgen.AddFolder(_albumId, qs)))
         Reload();
 }
 
@@ -1991,7 +1991,7 @@ void ThumbnailView::SlotAskAndGetThumbnail()
     int pos = currentIndex().row();     // new thumbnail index for actual item
     Album* pParent =  albumgen.Albums()[_albumId].BaseAlbum(); // real album which has the items
     // get actual selected album inside parent
-    Album *album = pParent ? &albumgen.Albums()[ pParent->items[pos]] : &albumgen.Albums()[_albumId];
+    Album *album = pParent ? &albumgen.Albums()[ pParent->items[pos].Val()] : &albumgen.Albums()[_albumId];
     QString s = album->FullSourceName();
 
     QString filter = tr("Image files (*.bmp *.gif *.jpg *.png)");
@@ -2035,7 +2035,7 @@ void ThumbnailView::SlotSetAsAlbumThumbnail()
 
     ID_t th = album.items[pos];                                  
 
-    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th].thumbnailId : albumgen.ImageAt(th)->ID); 
+    thisAlbum.SetThumbnail(th.IsAlbum() ? albumgen.Albums()[th.Val()].thumbnailId : albumgen.ImageAt(th)->ID);
     fileIcons.ToggleThumbnailMarkFor(cthix);
     fileIcons.ToggleThumbnailMarkFor(pos);
     
@@ -2045,7 +2045,7 @@ void ThumbnailView::SlotSetAsAlbumThumbnail()
     if (album.parentId)
     {
         UpdateTreeView(true);
-        albumgen.AddToModifiedList(ID_t(ALBUM_ID_FLAG, album.parentId), true);  // the parent of this album always changes
+        albumgen.AddToModifiedList(album.parentId, true);  // the parent of this album always changes
     }
     emit SignalAlbumChanged();
 }
@@ -2329,16 +2329,16 @@ void ThumbnailView::SlotToCloseAllViewers()
     _RemoveAllViewers();
 }
 
-void ThumbnailView::SlotGetSelectionCount(ID_t &id, int &count)
+void ThumbnailView::SlotGetSelectionCount(IDVal_t &id, int &count)
 {
     id = _albumId;
     count = selectionModel()->selectedIndexes().size();
 }
 
-void ThumbnailView::SlotItemsDroppedOnTreeView(ID_t destAlbumId, const IntList& ids, bool fromDrop)
+void ThumbnailView::SlotItemsDroppedOnTreeView(IDVal_t destAlbumId, const IntList& ids, bool fromDrop)
 {
 
-	qDebug("ThumbnailView::SlotItemsDroppedOnTreeView: destAlbumId=%ul, ids count=%d, fromDrop=%d",destAlbumId.Val(),ids.size(),fromDrop);
+	qDebug("ThumbnailView::SlotItemsDroppedOnTreeView: destAlbumId=%ul, ids count=%d, fromDrop=%d",destAlbumId,ids.size(),fromDrop);
 }
 
 //void ThumbnailView::SlotToClearIconList()

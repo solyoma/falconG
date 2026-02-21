@@ -158,18 +158,19 @@ const IDVal_t ID_MASK = 0x00FFFFFFFFFFFFFFull;	// so that we can combine _flags 
 typedef uint8_t IDFlags;	// 8 bits for flags
 
 const IDFlags INVALID_ID_FLAG = 0x00;
-
+			// type flags
 constexpr IDFlags IMAGE_ID_FLAG = 0x01;	// when set ID is for a image
 constexpr IDFlags VIDEO_ID_FLAG = 0x02;	// when set ID is for a video
 constexpr IDFlags ALBUM_ID_FLAG = 0x04;	// when set ID is for an album (used for albums as folder thumbnails)
 constexpr IDFlags ALBUM_LINK_FLAG = 0x08;	// when set ID is for an album already in the database
+constexpr IDFlags TYPE_FLAGS	= 0x0F;
 // removed: thumbnailCount is used instead   const IDFlags THUMBNAIL_FLAG= 0x10;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
+			// other flags
 constexpr IDFlags EXCLUDED_FLAG = 0x10;
 constexpr IDFlags ORPHAN_FLAG	= 0x20;	// for images: this image is an album thumbnail, if other bits are unset: not in any album
 constexpr IDFlags EXISTING_FLAG = 0x40;	// on albums this signals a real folder on disk Otherwise it is a logical album
 constexpr IDFlags DELETE_IT_FLAG = 0x80;	// on albums this signals a real folder on disk Otherwise it is a logical album
 
-constexpr IDFlags TYPE_FLAGS	= 0x0F;
 
 // other
 constexpr uint NOT_SET = uint(-1);
@@ -231,8 +232,8 @@ constexpr uint NOT_SET = uint(-1);
 class ID_t
 {
 	IDVal_t _uval = 0;			// bits 56-63 is not used so _flags may be put there, 
-	IDFlags _flags=0;			// types and other _flags 
-	uint _dirIndex = NOT_SET;	// index of the directory this item is inside
+	IDFlags _flags=0;			// types and other flags 
+	uint _dirIndex = NOT_SET;	// index of the directory this item will be stored is inside
 public:
 	constexpr ID_t() {}
 	constexpr ID_t(const ID_t& o) : _uval(o._uval), _flags(o._flags),_dirIndex(o._dirIndex) {}
@@ -251,7 +252,8 @@ public:
 			_uval = idString.toULongLong();
 	}
 
-	constexpr IDVal_t Val() const { return _uval; }
+	constexpr IDVal_t Val()		 const { return _uval; }
+	//constexpr operator IDVal_t() const { return _uval; }
 	QString ValToString() const 
 	{ 
 		if (_dirIndex && _dirIndex != NOT_SET) 
@@ -261,7 +263,7 @@ public:
 	}
 	constexpr uint DirIndex() const { return _dirIndex; }
 	constexpr uint8_t Flags() const { return _flags; }
-	inline static const ID_t Invalid(IDVal_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
+	static constexpr const ID_t Invalid(IDVal_t defarg = NO_ID) { return ID_t(INVALID_ID_FLAG, defarg); }
 	constexpr inline bool IsInvalid() const { return !_uval || !_flags; }
 
 	constexpr void SetValue(IDVal_t val)
@@ -317,10 +319,14 @@ public:
 	constexpr inline bool ShouldDelete() const	{ return _flags & DELETE_IT_FLAG; }
 };
 
-const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
-const ID_t TOPMOST_ALBUM_ID = { ALBUM_ID_FLAG, 0x01};
-const ID_t RECENT_ALBUM_ID	= { ALBUM_ID_FLAG, 0x02 };
-const ID_t NOIMAGE_ID		= { IMAGE_ID_FLAG, 0 };
+const IDVal_t INVALID_ALBUM_ID  = 0;
+const IDVal_t TOPMOST_ALBUM_ID  = 0x01;
+const IDVal_t RECENT_ALBUM_ID	= 0x02;
+const IDVal_t NOIMAGE_ID		= 0;
+//const ID_t INVALID_ALBUM_ID = { ALBUM_ID_FLAG, 0 };
+//const ID_t TOPMOST_ALBUM_ID = { ALBUM_ID_FLAG, 0x01};
+//const ID_t RECENT_ALBUM_ID	= { ALBUM_ID_FLAG, 0x02 };
+//const ID_t NOIMAGE_ID		= { IMAGE_ID_FLAG, 0 };
 
 
 using IntList = QVector<int>;
