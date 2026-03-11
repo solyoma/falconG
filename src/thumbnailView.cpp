@@ -31,7 +31,7 @@
 #include "thumbnailView.h"
 #include "imageviewer.h"
 #include "treeView.h"
-#include "falconG.h"
+#include "falcong.h"
 
 #include "videoplayer.h"
 

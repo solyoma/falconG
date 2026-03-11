@@ -3,18 +3,21 @@
 #include <QtCore>
 #include <QtWidgets/QMainWindow>
 #include <QTextStream>
-#include <QtWebEngineWidgets/QWebEngineProfile>
-#include <QtWebEngineWidgets/QWebEngineView>
 
 #include "common.h"
 using namespace Common;
 
 #include "support.h"
 #include "config.h"
+#include "fontutils.h"
 #include "stylehandler.h"
 #include "albums.h"
 #include "thumbnailView.h"
 #include "schemes.h"
+
+#include "slidewidget.h"
+#include "designpage.h"
+
 #include "ui_falcong.h"
 
 #include <memory>
@@ -48,27 +51,6 @@ struct FalconGEditTabSelection
 };
 
 //--------------------------------------------------------
-class WebEnginePage : public QWebEnginePage
-{
-	Q_OBJECT
-
-public:
-	WebEnginePage(QWidget* parent = nullptr) : QWebEnginePage(parent) { }
-
-	bool acceptNavigationRequest(const QUrl& url, NavigationType navType, bool isMainFrame) override
-	{
-		QString qs = url.scheme(),
-			qsq = url.fileName();
-		if (navType != QWebEnginePage::NavigationTypeRedirect)
-			return true;
-
-		emit LinkClickedSignal(url.fileName());
-
-		return false;
-	}
-signals:
-	void LinkClickedSignal(QString);
-};
 // external
 class AlbumTreeView;
 
@@ -100,7 +82,6 @@ signals:
 private:
 
 	Ui::falconGClass ui;
-	WebEnginePage _page;
 
 	// style (skin) selection
 	bool _bSchemeChanged = false;	// any of the colors changed
@@ -111,6 +92,9 @@ private:
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
 	DesignProperty _whatChanged = dpNone;
+
+	// fonts
+	FontUtils _fontUtils;
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
@@ -125,21 +109,20 @@ private:
 	double _aspect=1.0;		// image_width/image_height
 			   // these fields are used when editing image/album texts
 	FalconGEditTabSelection _selection;	// selection in tree view
-	QColor _lastUsedMenuForegroundColor = Qt::white;
 
-	QTextStream ifs, ofs;
+	QTextStream _ifs, _ofs;
+	QStringList _slFontLoadErrors;
+
+private:
+	void _AddGoogleFontsToFontDataBase();
 
 	QString _GradientStyleQt(_CElem &elem, bool invert = false);	// Creates QT stylesheet gradinet string
 	void  _SetGradientLabelColors(_CElem *pElem, bool invert = false);	// Creates QT stylesheet gradinet string
-	_CElem* _PtrToElement(AlbumElement ae = aeUndefined);
+	_CElem* _PtrToElement(AlbumElement ae = aeUndefined) const;
 
 #if defined(_DEBUG)
 	void keyPressEvent(QKeyEvent* event) override;
 #endif
-
-
-	void _SetIconColor(QIcon &icon, _CElem &elem) const;
-	QIcon _SetUplinkIcon(QString iconName = QString());
 
 	enum _SelectResult {srOk, srNoDir=1, srNoStruct=2, srDirCreated = 4, srDirCreateError=8};
 
@@ -152,38 +135,17 @@ private:
 	void _EnableButtons();
 	void _GlobalsToUi();
 	void _ActualSampleParamsToUi();		// using _aeActiveElement
-	void _DesignToUi();					// part of config used on design page
-	void _OtherToUi();					// all others
-	void _ConfigToUI(); 
+	void _DesignToUi();	// part of config used on design page
+	void _OtherToUi ();	// all others
+	void _ConfigToUI();
+
 	bool _CreateAlbumDirs();
 //	void _SetOpacityToConfig(_CElem & elem, int which = 3); // 1: text, 2: background, 3 both
 
-			 // set CSS for sample 
-	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
-	void _SetCssProperty(_CElem *pElem, QString value,  QString subSelector = QString());
-	void _RemoveCssProperty(_CElem *pElem, QString value, QString subSelector = QString());
-	void _ColorToSample(_CElem *pElem);
-	void _BackgroundToSample(_CElem* pElem);		// css 'background' color + url no other properties
-	void _ShadowToSample(_CElem* pElem,int what);	// what: 0 block-shadow, 1:text-shadow
-	void _BorderToSample(_CElem* pElem);			// width, style, color or none
-	void _SetLinearGradient(_CElem* pElem);
-	void _FontToSample(_CElem* pElem);			// all parameters for font
-	void _SpaceAfterToSample(_CElem* pElem);
-	void _DecorationToSample(_CElem* pElem);
-	void _TextAlignToSample(_CElem *pElem);
-	void _PageColorToSample();
-	void _PageBackgroundToSample();	// possibly for all elements
-	void _SetIcon();			// re-color it for the page
-	void _WaterMarkToSample();
-	void _UpdateWatermarkMargins(int mx, int my);
-
 	void _SaveLinkIcon();
-	void _ElemToSample(AlbumElement ae, ElemSubPart esp = espAll);	
-	void _ElemToSample(ElemSubPart esp = espAll);					// with no argument uses _aeActElement
 
-	void _ConfigToSample(ElemSubPart esp=espAll);	// for all elements
-
-	void _SetConfigChanged(bool on);
+	void _SetConfigChanged(bool value);
+	void _EnableAndSignalConfigChange();	// only signal when not _busy
 	
 	void _OpacityChanged(int val, int which, bool used);	// which = 0 -> color, 1: background
 
@@ -204,6 +166,18 @@ private:
 	void _AddSchemeButtons();
 	void _ResetScheme();			 //	use _tmpScheme
 	void _EnableColorSchemeButtons();
+	void _RunJavaScript(QString classMName, QString propertyStrings);	// propertyStrings may contain more than one separated by ';'
+	void _SetCssProperty(_CElem *pElem, QString value,  QString subSelector = QString());
+	void _RemoveCssProperty(_CElem *pElem, QString value, QString subSelector = QString());
+			 // set CSS for sample 
+	void _UpdateWatermarkMargins(int mx, int my);
+
+	void _PropagatePageColor();	// to all items	  // *TODO
+	void _TextAlignToConfig(Align align, bool on);
+	void _TextDecorationToConfig(Decoration dec, bool on);
+
+signals:
+	void _SignalItemStyleChanged(int comboBoxIndex); // index in cbActualItem
 
 private slots:
 	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed
@@ -211,9 +185,8 @@ private slots:
 	void _SlotAlbumStructSelectionChanged(const QItemSelection &current, const QItemSelection &previous);
 	void _SlotAlbumStructWillChange();
 	void _SlotAskForApply();	// when color scheme changed and not yet applied
-	void _SlotBackgroundImageToSamplePage(BackgroundImageSizing sizing);
 	void _SlotFolderChanged(int row);	// inside actual folder in ui.trvAlbums
-	void _SlotCreateUplinkIcon(QString destPath, QString destName);
+	void _SlotCreateUplinkIcon(QString destPath, QString destName);					// *TODO
 	bool _SlotDoOverWriteColorScheme(int i);
 	void _SlotEnableEditTab(bool on);
 	void _SlotForContextMenu(const QPoint& pt);
@@ -221,20 +194,17 @@ private slots:
 	void _SlotForSchemeButtonClick(int which);
 	void _SlotForSchemeChange(int which);
 	bool _SlotLanguagesWarning();
-	void _SlotLinkClicked(QString s);		// from sample page
+	void _SlotLinkClicked(int id);		// from sample page	  // *TODO
 	void _SlotLoadItemsToListView();	// uses _currentTreeViewIndex set in _SlotAlbumStructChanged
-	void _SlotPropagatePageColor();	// to all items
 	void _SlotRestartRequired();	// for language change
 	void _SlotSaveChangedTitleDescription();
 	void _SlotSetDirectoryCountTo(int cnt) { _directoryCount = cnt; }
 	void _SlotSetProgressBar(int min, int max, int pos, int phase);
 	void _SlotSetProgressBarPos(int cnt1, int cnt2);
-	void _SlotSetupActualBorder(BorderSide side);
+	void _SlotSetupActualBorder(BorderSide side);			// *TODO
 	void _SlotSetupLanguagesToUI();
-	void _SlotShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow
+	void _SlotShadowForElementToUI(_CElem* pElem, int which);	// which 0: text-shadow, 1: box-shadow	  // *TODO
 	void _SlotShowRemainingTime(time_t actual, time_t total, int count, bool speed);
-	void _SlotTextAlignToConfig(Align align, bool on);
-	void _SlotTextDecorationToConfig(Decoration dec, bool on);
 	void _SlotThumbNailViewerIsLoading(bool yes);
 	void _SlotTnvCountChanged();
 	void _SlotTnvMultipleSelection(IdList, ID_t);	// list of ID of selected items for multiple items
@@ -247,6 +217,7 @@ private slots:
 private slots:
 	void on_btnAddAndGenerateColorScheme_clicked();					// generate color scheme
 	void on_btnAlbumMatteColor_clicked();
+	void on_btnApplyBorderStyle_clicked();
 	void on_btnApplyColorScheme_clicked();
 	void on_btnBackground_clicked();
 	void on_btnBorderColor_clicked();
@@ -263,6 +234,7 @@ private slots:
 	void on_btnGradStartColor_clicked();
 	void on_btnGradStopColor_clicked();
 	void on_btnImageBorderColor_clicked();
+	void on_btnAlbumBorderColor_clicked();
 	void on_btnImageMatteColor_clicked();
 	void on_btnLink_clicked();
 	void on_btnMoveSchemeDown_clicked();
@@ -291,6 +263,7 @@ private slots:
 	
 	void on_cbActualItem_currentIndexChanged(int newIndex);
 	void on_cbBaseLanguage_currentIndexChanged(int index);
+
 	void on_cbBorderStyle_currentIndexChanged(int newIndex);		// none, solid, dashed, etc
 	void on_cbDefineLanguge_currentIndexChanged(int index);
 	void on_cbFontSizeInPoints_currentTextChanged(const QString& txt);
@@ -334,7 +307,7 @@ private slots:
 	void on_chkRegenAllImages_toggled(bool);
 	void on_chkRightClickProtected_toggled(bool);
 	void on_chkSeparateFoldersForLanguages_toggled(bool);
-	void on_chkSetAll_toggled(bool);			// background colors
+	void on_chkSameBackground_toggled(bool);			// background colors
 	void on_chkSetLatest_toggled(bool);			// generate 'Latest upload'
 	void on_chkShadowOn_toggled(bool on);
 	void on_chkSourceRelativeForwardSlash_toggled(bool);
@@ -404,9 +377,6 @@ private slots:
 	void on_rbTileBckImage_toggled(bool);
 	void on_rbTopBorder_toggled(bool);
 
-	void on_sbAlbumMatteRadius_valueChanged(int val);
-	void on_sbAlbumMatteWidth_valueChanged(int val);
-	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbBorderRadius_valueChanged(int val);
 	void on_sbBorderWidth_valueChanged(int val);
 	void on_sbGradMiddlePos_valueChanged(int val);
@@ -419,6 +389,12 @@ private slots:
 	void on_sbImageMatteRadius_valueChanged(int w);		// border radius on image inside the matte
 	void on_sbImageMatteWidth_valueChanged(int val);
 	void on_sbImageWidth_valueChanged(int w);			// image width
+	void on_sbAlbumBorderRadius_valueChanged(int h);	// border radius on both matte's outside border
+	void on_sbAlbumBorderWidth_valueChanged(int val);
+	void on_sbAlbumMargin_valueChanged(int h);			// image margin
+	void on_sbAlbumMatteRadius_valueChanged(int val);
+	void on_sbAlbumMatteWidth_valueChanged(int val);
+	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbLatestCount_valueChanged(int val);
 	void on_sbMaxItemCountPerDir_valueChanged(int n);
 	void on_sbNewDays_valueChanged(int val);

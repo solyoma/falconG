@@ -1,4 +1,4 @@
-#include "csscreator.h"
+﻿#include "csscreator.h"
 
 
 bool CssCreator::_Open(QString name)
@@ -13,7 +13,7 @@ bool CssCreator::_Open(QString name)
 
 void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 {
-	QString qs = elem.ForStyleSheet(true);
+	QString qs = elem.ForStyleSheet(addSemicolon);
 	if (!qs.isEmpty())
 	{
 		if (elem.spaceAfter > 0)
@@ -74,17 +74,17 @@ html, main {
 
 	_ofs << "body {\n";
 
-	s = config.Web.color.ForStyleSheet(true, false);
+	s = config.Web.color.ForStyleSheet(addSemicolon, notForBackground);
 	_ofs << s;
 
 	if (config.backgroundImage.v != (int)hNotUsed)
 	{
-		s = config.backgroundImage.ForStyleSheet(!_forSamplePage);
+		s = config.backgroundImage.ForStyleSheet(!_forSamplePage,forBackground, false);
 		if (!s.isEmpty() && s.at(s.indexOf(':') + 1) != ';')		// no image
 			_ofs << s;
 	}
 
-	s = config.Web.background.ForStyleSheet(true, true, false);
+	s = config.Web.background.ForStyleSheet(addSemicolon, forBackground, false);
 	_ofs << s;
 	_ofs << "}\n\n";
 
@@ -148,12 +148,12 @@ nav {
 	margin: 2px 3px 2px 2px;
 	padding: 4px 10px 3px;
 )";
-	QString qs = config.Menu.ForStyleSheet(true);
+	QString qs = config.Menu.ForStyleSheet(addSemicolon);
 	if(!qs.isEmpty())
 		_ofs << qs << "}\n"	// for menus no different first-line accepted
 			<< "\n.menu-item:hover {\n"
-			<< config.Menu.background.ForStyleSheet(true, true)
-			<< config.Menu.color.ForStyleSheet(true, false) << "}\n";
+			<< config.Menu.background.ForStyleSheet(forWebUse, forBackground)
+			<< config.Menu.color.ForStyleSheet(forWebUse, notForBackground) << "}\n";
 	_ofs << R"(/* up icon */
 .menu-item#uplink {
 	background-image: url("../res/up-icon.png");
@@ -256,7 +256,7 @@ img {
 	if (config.imageMatteWidth.v)	// width not 0
 		_ofs << "\tbackground-color:" << config.imageMatteColor.Name() << ";\n"
 			 << "\tpadding:" << config.imageMatteWidth.v << "px;\n";
-	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);	// image border on matte
+	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(addSemicolon);	// image border on matte
 
 	if (config.imageBorder.Radius() > 0)							// also on matte
 		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
@@ -269,9 +269,9 @@ img {
 	if (config.albumMatteWidth.v)	// width not 0 ?
 		_ofs << "\tbackground-color:" << config.albumMatteColor.Name() << ";\n"
 			 << "\tpadding:" << config.albumMatteWidth.v << "px;\n";
-	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(true);
-	if (config.imageBorder.Radius() > 0)
-		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
+	_ofs << "\t" << config.albumBorder.ForStyleSheetShort(addSemicolon);
+	if (config.albumBorder.Radius() > 0)
+		_ofs << "\tborder-radius:" << config.albumBorder.Radius() << "px;\n";
 	_ofs << "}\n\n";
 
 	// --------- img.thumb, img.athumb ----------------

@@ -1,34 +1,33 @@
 <RCC>
-  <qresource prefix="/icons">
-    <file>Resources/aliasIcon.png</file>
-    <file>Resources/falconG-splash.png</file>
-    <file>Resources/noresizeMark.png</file>
-    <file>Resources/folderIcon.png</file>
-    <file>Resources/falconG-icon.png</file>
-    <file>Resources/delete.png</file>
-    <file>Resources/blue-unchecked.png</file>
-    <file>Resources/blue-checked.png</file>
-    <file>Resources/movedown-icon.png</file>
-    <file>Resources/moveup-icon.png</file>
-    <file>Resources/open-folder-with-document.png</file>
-    <file>Resources/left-icon.png</file>
-    <file>Resources/content-icon.png</file>
-    <file>Resources/nav-icon.png</file>
-    <file>Resources/up-icon.png</file>
-    <file>Resources/broken-link.png</file>
-    <file>Resources/link.png</file>
-  </qresource>
-  <qresource prefix="translations">
-    <file>../translations/en_US.qm</file>
-    <file>../translations/hu_HU.qm</file>
-  </qresource>
-  <qresource prefix="Preview">
-    <file>Resources/index_en.html</file>
-    <file>Resources/index_hu.html</file>
-    <file>Resources/falconGGen.js</file>
-    <file>Resources/falconG.js</file>
-    <file>Resources/placeholder.jpg</file>
-    <file>Resources/placeholder2.jpg</file>
-    <file>Resources/NoImage.jpg</file>
-  </qresource>
+    <qresource prefix="/icons">
+        <file>Resources/aliasIcon.png</file>
+        <file>Resources/falconG-splash.png</file>
+        <file>Resources/noresizeMark.png</file>
+        <file>Resources/folderIcon.png</file>
+        <file>Resources/falconG-icon.png</file>
+        <file>Resources/delete.png</file>
+        <file>Resources/blue-unchecked.png</file>
+        <file>Resources/blue-checked.png</file>
+        <file>Resources/movedown-icon.png</file>
+        <file>Resources/moveup-icon.png</file>
+        <file>Resources/open-folder-with-document.png</file>
+        <file>Resources/left-icon.png</file>
+        <file>Resources/content-icon.png</file>
+        <file>Resources/nav-icon.png</file>
+        <file>Resources/up-icon.png</file>
+        <file>Resources/broken-link.png</file>
+        <file>Resources/link.png</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file>../translations/en_US.qm</file>
+        <file>../translations/hu_HU.qm</file>
+    </qresource>
+    <qresource prefix="/Preview">
+        <file>Resources/index_en.html</file>
+        <file>Resources/index_hu.html</file>
+        <file>Resources/falconG.js</file>
+        <file>Resources/placeholder.jpg</file>
+        <file>Resources/placeholder2.jpg</file>
+        <file>Resources/NoImage.jpg</file>
+    </qresource>
 </RCC>

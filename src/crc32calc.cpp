@@ -1,4 +1,4 @@
-#include "crc32.h"
+﻿#include "crc32calc.h"
 
 uint32_t CRC32::_crc32_table[256];
 bool CRC32::_initted = false;

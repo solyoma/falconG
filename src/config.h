@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QtCore>
+#include <QBitmap>
 #include "common.h"
 using namespace Common;
 
@@ -261,62 +262,15 @@ struct _CIntArray : _CFG_ITEM<int>	// v: how many elements in array
 	_CIntArray(int vd, QString namestr = "cintA") : _CFG_ITEM(vd, namestr) { _Setup();  }
 	_CIntArray() : _CFG_ITEM(0, "cintA") {}
 
-	int &operator[](int i)
-	{
-		if (i < 0) 
-			return _arr[9999];	// may throw!
-		while (i >= _arr.size())
-			_arr.push_back(0), ++v;
-		return _arr[i];
-	}
+	int& operator[](int i);
 
-	QString ToString()
-	{
-		QString qs;
-		if (_arr.size())
-		{
-			qs = QString().setNum(_arr[0]);
-			for (int i = 1; i < _arr.size(); ++i)
-				qs += QString("|%1").arg(_arr[i]);
-		}
-		return qs;
-	}
-	void Set(QString qs)
-	{
-		_arr.clear();
-		QStringList sl = qs.split('|');
-		for (int i = 0; i < sl.size(); ++i)
-			_arr.push_back(sl[i].toInt());
-		v = _arr.size();
-	}
-	void Read(QSettings& s, QString group = QString()) override 
-	{ 
-		if (!group.isEmpty())
-			s.beginGroup(group);
-
-		QString qs = s.value("cintA", QString()).toString();
-		Set(qs);	// may modify 'v'
-		v0 = v;
-
-		if (!group.isEmpty())
-			s.endGroup();
-	}
-	void Write(QSettings& s, QString group = QString()) override
-	{
-		if (!group.isEmpty())
-			s.beginGroup(group);
-		QString qs = ToString();
-		s.setValue("cintA", qs);
-		if (!group.isEmpty())
-			s.endGroup();
-	}
+	QString ToString();
+	void Set(QString qs);
+	void Read(QSettings& s, QString group = QString()) override;
+	void Write(QSettings& s, QString group = QString()) override;
 private:
 	QVector<int> _arr;
-	void _Setup() 
-	{ 
-		if (vd && _arr.size() < vd)
-			_arr.resize(vd);
-	};
+	void _Setup();
 };
 
 //--------------------------------------------------------------------------------------------
@@ -367,7 +321,7 @@ public:
 
 	QString ARGB() const;	// may or may not have an opacity or color set 
 	QString ToRgbaStringForCss() const;		// return either rgb(RR GG BB)  or rgba(RR,GG,BB,AA/256.0) 
-	QString ForStyleSheet(bool addSemiColon, bool isBackground, bool shorthand = false) const;
+	QString ForStyleSheet(bool addSemi, bool isBackground, bool addItemName = true) const;
 
 	QString operator=(QString s);			// also sets 'v'
 	_CColor& operator=(const _CColor c);
@@ -375,59 +329,9 @@ public:
 	bool operator!=(const _CColor& o);		// - " -
 
 private:
-	void _NormalizeName()
-	{
-		if (_colorName.isEmpty())
-			return;
-		//if (_colorName.at(0) == '#') 
-		//	_colorName = _colorName.mid(1);
-		if (_colorName.length() == 3)		// RGB ? => RRGGBB
-			_colorName = QString("%1%1%2%2%3%3").arg(_colorName.at(0)).arg(_colorName.at(1)).arg(_colorName.at(2));
-	}
-
-	void _Setup()			// from 'v' read from settings
-	{
-		if (!_ColorStringValid(v))	// adds # at front of 'v' if it is not there
-			return;
-		_colorName = v.mid(1);		// but we cut the '#' here
-
-		int len = _colorName.length(),			// can be 2, 3, 6, 8, or 9 (AA, AA-, RGB, RRGGBB, AARRGGBB, AARRGGBB- )  
-			len1 = _colorName.at(len-1) == '-' ? len-1 : len; // without the '-' at the end, any other cases opacity is 100% (255) and not used
-
-		if (len == 2 || len1 == 8 || len1 == len-1)		// _colorName == AA, AA-, AARRGGBB, AARRGGBB-
-		{
-			_opacity = (_colorName.mid(0, 2)).toInt(nullptr, 16);
-			_colorName = _colorName.mid(2,len1-2);		// cut opacity part
-		}
-		else	// _colorname == RGB || RRGGBB
-			_opacity = 255;		// it will not be used
-
-		if ((len1 == len - 1))
-			_opacity = -_opacity;
-
-		_NormalizeName();		// set to AARRGGBB
-		_Prepare();
-	}
-	void _Prepare() override		// v from internal (changed) variables
-	{								// if not empty v starts with '#' and has 6 or 8 characters
-		// name w.o. opacity in _colorName: RRGGBB or AARRGGBB  (no # at the start!)
-		QString qs = _colorName;
-		if (qs.isEmpty())
-		{
-			v.clear();
-			return;
-		}
-		//if (qs.at(0) == QChar('#'))	never have # at front
-		//	qs.remove(QChar('#'));
-		int op = qAbs(_opacity);
-		if (op != 0xFF)
-			v = QString("#%1").arg(op, 2, 16, QChar('0')) + _colorName;	// name with opacity
-		else
-			v = "#" + qs;
-
-		if (!v.isEmpty() && op != 0xFF && _opacity < 0)		// name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
-			v = v + '-';
-	}
+	void _NormalizeName();
+	void _Setup();			// from 'v' read from settings
+	void _Prepare() override;
 
 	bool _ColorStringValid(QString &s); // accepted formats (x: hexdecimal digit): xxx, #xxx, xxxxxx,#xxxxxx
 };
@@ -454,41 +358,9 @@ struct _CTextDecoration : _CFG_ITEM<int>
 	bool IsOverline() const { return v & tdOverline; }
 	bool IsLineThrough() const { return v & tdLinethrough; }
 
-	QString TextDecorationLineStr() const
-	{
-		if( (v & (int)(tdUnderline | tdOverline | tdLinethrough)) == 0)
-			return "none";
-
-		return DecorationStr(tdUnderline) + 
-			   DecorationStr(tdLinethrough) + 
-			   DecorationStr(tdOverline)
-			;
-	}
-	QString DecorationStr(Decoration deco) const
-	{
-	   if(v & (int)deco)
-		   switch (deco)
-		   {
-			   case tdNone:					return "none ";
-			   case tdUnderline:			return "underline ";
-			   case tdLinethrough:			return "line-through ";
-			   case tdOverline:				return "overline ";
-			   case tdSolid:				return "solid ";
-			   case tdDotted:				return "dotted ";
-			   case tdDashed:				return "dashed ";
-			   case tdDouble:				return "double ";
-			   case tdWavy:					return "wavy ";
-			   default: break;
-		   }
-	   return QString();
-	}
-	QString TextDecorationStyleStr() const
-	{
-		if (!v)
-			return QString();
-
-		return DecorationStr(tdSolid) + DecorationStr(tdDotted) + DecorationStr(tdDouble) + DecorationStr(tdWavy) + DecorationStr(tdDashed);	// only one of these must be set!
-	}
+	QString TextDecorationLineStr() const;
+	QString DecorationStr(Decoration deco) const;
+	QString TextDecorationStyleStr() const;
 	QString UnderlineStr() const { return v & tdUnderline ? "underline" : ""; }
 	QString OverlineStr() const { return v & tdOverline ? "overline" : ""; }
 	QString LineThroughStr() const { return v & tdLinethrough ? "line-through":""; }
@@ -523,28 +395,28 @@ struct _CFont : _CFG_ITEM<QString>
 	_CFont(QString vd, QString namestr = "cfont") : _CFG_ITEM(vd, namestr) { _Setup();  }
 	_CFont() : _CFG_ITEM("\"Tms Rmn\",Times, Helvetica|10|0", "cfont") { _Setup(); }
 
-	QString Family() const { return _details[fFam]; }
-	int Features() const { return _details[fFeat].toInt(); }
-	int Size() const { return _details[fSiz].toInt(); };
+	QString Family() const { return _details[fontFamily]; }
+	int Features() const { return _details[fontStyle].toInt(); }
+	int Size() const { return _details[fontSize].toInt(); };
 
 	QString ForStyleSheet(bool addSemiColon) const;
 
-	QString FirstLineClassStr(const QString what)
+	QString FirstLineClassStr(const QString what) const
 	{
 		if(IsFirstLineDifferent() )
 			return what + "::first-line {\n	font-size:" + FirstLineFontSizeStr() + ";\n}\n\n";
 		return QString();
 	}
 
-	bool Bold() const { return _details[fFeat].toInt() & fBold; }
-	bool Italic() const { return _details[fFeat].toInt() & fItalic; }
+	bool Bold() const { return _details[fontStyle].toInt() & fBold; }
+	bool Italic() const { return _details[fontStyle].toInt() & fItalic; }
 
-	QString LineHeightStr() const { return _details[fLineH]; }
-	QString SizeStr() const { return _details[fSiz]; }
+	QString LineHeightStr() const { return _details[fontLineHeight]; }
+	QString SizeStr() const { return _details[fontSize]; }
 	QString ItalicStr() const { return Italic() ? "italic" : ""; }
 	QString WeightStr() const { return Bold() ? "900" : "normal"; }
-	QString FirstLineFontSizeStr() const { return _details[fFirstS]; }
-	bool IsFirstLineDifferent() const { return _details[fDiffF] == "1"; }
+	QString FirstLineFontSizeStr() const { return _details[fontFirstLineSize]; }
+	bool IsFirstLineDifferent() const { return _details[fontDifferentFirstLine] == "1"; }
 
 	void Set(QString fam, QString siz, QString slh, int feat, QString sFsSize = QString());
 	void SetFamily(QString fam);
@@ -562,7 +434,7 @@ protected:
 								// index:     0			   1		  2				 3			   4             5
 	void _Prepare() override;	// from _details to 'v'
 private:
-	enum _what {fFam, fSiz,fLineH,fFeat, fDiffF, fFirstS};
+	enum _what {fontFamily, fontSize,fontLineHeight,fontStyle, fontDifferentFirstLine, fontFirstLineSize};
 	QStringList _details; 		// see format above
 };
 
@@ -595,7 +467,7 @@ public:
 	int Spread() const { return _details[4].toInt(); }
 	QString Color() const { return _details[5] == "#000" ?  QString() : _details[5]; }	// optional color
 
-	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const;		// line: 0 or 1 prepend "text-shadow:" and "box-shadow:"
+	QString ForStyleSheet(bool addSemiColon, bool first_line, int which) const;		// line: 0 "text-shadow:" else "box-shadow:"
 };
 
 //--------------------------------------------------------------------------------------------
@@ -666,129 +538,37 @@ struct _CBorder : public _CFG_ITEM<QString>
 
 	BorderSide actSide = sdAll;
 
-	int Width(BorderSide sd) const
+	constexpr int Width(BorderSide sd) const
 	{
-		if (sd == sdAll)
-			return _widths[0];
-		return _widths[(int)sd];
+		return _widths[_sd2i(sd)];
 	}
 
 	QString ColorStr(BorderSide sd) const
 	{
-		if (sd == sdAll)
-			sd = sdTop;
-		return _colorNames[(int)sd];
+		return _colorNames[_sd2i(sd)];
 	}
 
-	int StyleIndex(BorderSide sd) const
+	constexpr BorderStyle StyleIndex(BorderSide sd) const  // returns
 	{
-		if (sd == sdAll)
-			return _styleIndex[0];
-		return _styleIndex[(int)sd];
+		return _styleIndex[_sd2i(sd)];
 	}
 
-	QString StyleStr(BorderSide sd)	 const
-	{
-		if (sd == sdAll)
-			sd = sdTop;
-		switch (_styleIndex[(int)sd])
-		{
-			default:
-			case 0:	return "none";
-			case 1: return "solid";
-			case 2:	return "dotted";
-			case 3:	return "dashed";
-			case 4:	return "double";
-			case 5:	return "groove";
-			case 6:	return "ridge";
-			case 7:	return "inset";
-			case 8:	return "outset";
-			
-		}
-	}
+	QString StyleStr(BorderSide sd)	 const;
 
-	int Radius() const 
+	constexpr int Radius() const
 	{ 
 		return  _radius;
 	}
 
-	int BorderCnt() const { return _sizeWidths; }
-	int UsedSides() const { return _used; }
-	void SetUsed(BorderSide side, bool on) 
-	{ 
+	constexpr int BorderCnt() const { return _sizeWidths; }
+	constexpr int UsedSides() const { return _used; }
+	void SetUsed(BorderSide side, bool on);
+	void SetWidth(BorderSide sd, int width);
+	void SetColor(BorderSide sd, QString color);		// starts with '#'
+	void SetBorderStyle(BorderSide sd, BorderStyle ix);	// set none, solid, dashed, dotted, double, groove, ridge, inset, outset to side sd
+	void SetRadius(int radius);
 
-		if (side == sdAll)
-			_used = on ? 15 : 0;
-		else
-		{
-			int mask, bit;
-			switch (side)
-			{
-				case sdTop:		mask = 14; bit = 1; break;
-				case sdRight:	mask = 13; bit = 2; break;
-				case sdBottom:	mask = 11; bit = 4; break;
-				default:
-				case sdLeft:	mask =  7; bit = 8; break;
-			}
-			_used &= mask;
-			if(on)
-				_used |= bit;
-		}
-		_Prepare(); 
-	}
-	void SetWidth(BorderSide sd, int width) 
-	{ 
-		switch(sd)
-		{
-			case sdAll:		_widths[0] = _widths[1] = _widths[2] = _widths[3] = width; break;
-			case sdTop:		_widths[0] = width; break;
-			case sdRight:	_widths[1] = width; break;
-			case sdBottom:	_widths[2] = width; break;
-			case sdLeft:	_widths[3] = width; break;
-			default:;
-		}
-		_CountWidths();
-	}
-	void SetColor(BorderSide sd, QString color)		// starts with '#'
-	{
-		if (color.at(0) != '#')
-			color = "#" + color;
-		switch (sd)
-		{
-			case sdAll:		_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = color; break;
-			case sdTop:		_colorNames[0] = color; break;
-			case sdRight:	_colorNames[1] = color; break;
-			case sdBottom:	_colorNames[2] = color; break;
-			case sdLeft:	_colorNames[3] = color; break;
-			default:;
-		}
-		_CountWidths();
-		_Prepare();
-	}
-	void SetStyleIndex(BorderSide sd, int ix)	//ix==0 -> no border
-	{
-		if(sd == sdAll)
-		   _styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix; 
-		else
-			_styleIndex[(int)sd] = ix;
-		_CountWidths();
-		_Prepare();
-	}
-	void SetRadius(int radius)
-	{
-		_radius = radius;
-		_Prepare();
-	}
-
-	void SetUsedSide(BorderSide sd, bool on)
-	{
-		if (sd == sdAll)
-			_used = on ? 15 : 0;	// 15 = 1 + 2 + 4 +8 
-		else if (on)
-			_used |= (1 << (int)sd);
-		else
-			_used &= ~(1 << (int)sd);
-	}
+	void SetUsedSide(BorderSide sd, bool on);
 
 	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
 	QString ForStyleSheetShort(bool semicolonAtLineEnds) const;	// if  kind is sdAll simplified, else the same as the normal one
@@ -796,22 +576,13 @@ private:
 	int _used = 0;		// bits 1 to 4 correspond to: top, right,bottom,left
 	int _sizeWidths;	// how many different sides are there 1,2,4 - 4: all sizes are equal, 
 	int _widths[4];		// width of a given side
-	int _styleIndex[4];	// style of a given side
+	BorderStyle _styleIndex[4];	// style of a given side
 	QString _colorNames[4]; // color -"-
 	int _radius;		// in px
 
-	int _IndexOfColor(QStringList& _details)	const	// use on unprocessed stringlist
-	{
-		switch (_details.size())
-		{
-			case 4:	return 3;
-			case 5: 
-			case 6: return _details[4].at(0) == '#' ? 4 : 3;
-			case 7:
-			case 8: return 6;
-			default: return 0;
-		}
-	}
+private:
+	constexpr int _sd2i(BorderSide sd) const;
+	int _IndexOfColor(QStringList& _details)	const;	// use on unprocessed stringlist
 	void _Setup() override;		// from 'v' to _details
 	void _Prepare() override;	// from _details to 'v'
 	void _CountWidths();		// set _sizeWidths
@@ -828,19 +599,22 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 	_CInt spaceAfter = { 0, "after"};
 	_CTextDecoration decoration = { 0, "decoration" };
 	_CTextAlign alignment = { 0, "alignment" };
-	_CShadow shadow1[2] = { {"0|0|0|0|#000000","text-shadow1"},	// index 0: text shadow, 1: box-shadow
+	_CShadow shadow1[2] = { {"0|0|0|0|#000000","text-shadow1"},	// 1st shadow index 0: text shadow (every character), 1: box-shadow (for text)
 							{"0|0|0|0|#000000","box-shadow1"} },
-		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},
+		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},	// 2nd shadow   - " -
 							{"0|0|0|0|#000000","box-shadow2"} };
 	_CGradient gradient = { "0|0|#A90329|40|#890222|100|#6d0019"};
 	_CBorder border = {"0|2|0|#890222","border"};
+	_CInt padding = { 0, "padding" };
 
+	// -- functions ---
 	_CElem* parent = nullptr;
+
+	_CElem() : 
+		_CFG_ITEM(false, "celem"), kind(aeUndefined), _bMayShadow(false), _bMayGradient(false) { }
 
 	_CElem(AlbumElement kind, QString className, bool vd, QString namestr="celem", bool bShadow=false, bool bGradient=false) : 
 		_CFG_ITEM(vd, namestr), kind(kind), _bMayShadow(bShadow), _bMayGradient(bGradient), _className(className) { }
-	_CElem() : 
-		_CFG_ITEM(false, "celem"), kind(aeUndefined), _bMayShadow(false), _bMayGradient(false) { }
 
 	void SetParent(_CElem* p)
 	{
@@ -849,7 +623,7 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 
 	QString ClassName() const { return _className; }	// HTML class name for this element
 	QString ColorsForStyleSheet(bool addSemicolon) const;
-	QString ForStyleSheet(bool addSemicolon) const;		// internals of class for this element, excluding "first-line", ca't be const
+	virtual QString ForStyleSheet(bool addSemicolon) const;		// internals of class for this element, excluding "first-line", can't be const
 	bool Changed() const override;
 	void ClearChanged() override;
 
@@ -878,6 +652,86 @@ private:
 	QString _className;
 };
 
+struct _CMenuElem : public _CElem
+{
+	_CMenuElem() :
+		_CElem() { }
+	_CMenuElem(AlbumElement kind, QString className, bool vd, QString namestr = "menuelem", bool bShadow = false, bool bGradient = false) :
+		_CElem(kind, className, vd, namestr, bShadow, bGradient) {	}
+
+	QString ForStyleSheet(bool addSemicolon) const override;		// internals of class for this element, excluding "first-line", can't be const
+};
+
+//--------------------------------------------------------------------------------------------
+struct _CTextElem : public _CElem
+{
+	bool differentFirstLine = false;
+	int firstLineFontSize=0; // 'first_line' is a pseudo class in css but only the font size is used from the possible values!
+							 // set after the object for this class is created
+	_CTextElem() :
+		_CElem(), differentFirstLine(false) { }
+	_CTextElem(AlbumElement kind, QString className, bool vd, QString namestr = "textelem", bool firstLineDiffer=false, bool bShadow = false, bool bGradient = false) :
+		_CElem(kind, className, vd, namestr, bShadow, bGradient), differentFirstLine(firstLineDiffer) {	}
+
+	virtual void Write(QSettings& s, QString group = QString()) override
+	{ 
+		_CElem::Write(s, group);
+		if (differentFirstLine)
+		{
+			if (!group.isEmpty())
+				s.beginGroup(group);
+			s.beginGroup(itemName + "::first-line");
+				s.setValue("font-size", firstLineFontSize);
+			s.endGroup();
+			if (!group.isEmpty())
+				s.endGroup();
+		}
+	}
+	virtual void Read(QSettings& s, QString group = QString()) override
+	{ 
+		_CElem::Read(s, group);	  // all except first line
+
+		if (!group.isEmpty())
+			s.beginGroup(group);
+		s.beginGroup(itemName + "::first-line");
+		int i = s.value("font-size", -1).toInt();
+		s.endGroup();
+		if (!group.isEmpty())
+			s.endGroup();
+		if(i<0)
+			differentFirstLine = false;
+		else
+		{
+			differentFirstLine = true;
+			firstLineFontSize = i;
+		}
+	}
+
+	_CTextElem& operator=(const _CTextElem& other)
+	{
+		_CElem::operator=(other);
+		differentFirstLine = other.differentFirstLine;
+		return *this;
+	}
+
+	bool operator==(const _CElem& other) 
+	{
+		bool b = _CElem::operator==(other);
+		if(differentFirstLine)
+			b = b && firstLineFontSize == ((const _CTextElem&)other).firstLineFontSize;
+		return b;
+	}
+	QString ForStyleSheet(bool for_First_Line, bool add_Semicolon) const
+	{
+		if (for_First_Line)					  // need separate write for first line because 
+			if (differentFirstLine)			  // class name is added by caller and not here
+				return QString("font-size:%1px").arg(firstLineFontSize) + (add_Semicolon ? ";\n" : "\n");
+			else
+				return QString();
+		// not first line
+		return _CElem::ForStyleSheet(add_Semicolon);
+	}
+};
 //--------------------------------------------------------------------------------------------
 
 
@@ -907,11 +761,11 @@ struct _CBackgroundImage : _CFG_ITEM<int>	// int: see enum 'BackgroundImageSizin
 	_CBackgroundImage(BackgroundImageSizing how, QString  nameStr="backgroundImage") : _CFG_ITEM((int)how, nameStr) {}
 	void SetNames(QString name);
 
-	QString Url(bool shorthand, bool forWebPage) const;
+	QString Url(bool forWebPage) const;
 	QString Position() const; // these are parts of 'background:'
 	QString Repeat() const;
 	QString Size() const;
-	QString ForStyleSheet(bool forWebPage) const;
+	QString ForStyleSheet(bool forWebPage, bool addSemicolon, bool addPropertyName) const;
 	virtual void Write(QSettings& s, QString group = QString()) override;	// into settings, but only if changed
 	virtual void Read(QSettings& s, QString group = QString()) override;
 };
@@ -930,7 +784,8 @@ struct PROGRAM_CONFIG
 {
 	static CONFIG *parent;		// struct Config 
 	static QString homePath;	// local home directory
-	static QString samplePath;	// sample directory
+	static QString samplePath;	// sample directory	- is set up in GetHomePath()
+	static QString fontDirPath;	// downloaded google fonts - is set up in GetHomePath()
 	// design page
 	static int designSplitterLeft;
 	static int designSplitterRight;
@@ -954,7 +809,7 @@ struct PROGRAM_CONFIG
 	static void GetHomePath();		// in users's home directory
 	static void GetTranslations();	// from resources
 	static QString LangNameListWDelim();	// e.g. en_US:hu_HU (always the default, en_US comes first)
-	static void MakeValidLastConfig();	// using config.dsSrc
+	static void MakeValidLastConfig();	// using dsSrc
 	static QString NameForConfig(bool forSave, QString sExt);	// returns either last part of lastConfigs[indexOfLastUsed] + sExt or other
 };
 
@@ -965,6 +820,9 @@ class CONFIG
 	bool _changed = false;
 	double  _thumbAspect = 0;
 	bool _aspectsDiffer = false;	// _imageAspect and _thumAspect
+	QString _lastUsedMenuForegroundColor;
+	QIcon _uplinkIcon;
+
 	void _WriteIni(QString name);
 public:
 	CONFIG();
@@ -981,12 +839,15 @@ public:
 	long AlbumVersion() const { return (majorStructVersion << 16) + (minorStructVersion << 8) + subStructVersion; }
 
 	uint GetDirIndexFor(uint &dirIndex, int size, uint &lastN) const;	// depends on 'bUseMaxItemCountPerDir' and 'nMaxItemsInDirs'
-	bool Changed() const		
+
+	const QIcon &UplinkIcon() const { return _uplinkIcon; }
+
+	constexpr bool Changed() const		
 	{ 
 		return _changed; 
 	}
 
-	bool SetChanged(bool chg) 
+	constexpr bool SetChanged(bool chg) 
 	{ 
 		_changed |= chg; 
 		return _changed; 
@@ -1003,7 +864,7 @@ public:
 	void FromDesign(const CONFIG &cfg);	// set designer part of cfg 
 	void FromOther(const CONFIG &cfg);	// set other part from cfg
 
-	void SaveDesign();		// into configSave in config.cpp
+	void SaveDesign();		// into configSave in cpp
 	void SaveOther();
 
 	void RestoreDesign();	// from configSave
@@ -1028,6 +889,49 @@ public:
 		ThumbAspect(reset);
 		return _aspectsDiffer;
 	}
+
+	void SetIconColor(QIcon& icon, _CElem& elem) const
+	{
+		QPixmap pm;
+		pm = icon.pixmap(64, 64);
+		QBitmap mask = pm.createMaskFromColor(Qt::white, Qt::MaskOutColor);
+		pm.fill(elem.color.Name());
+		pm.setMask(mask);
+		icon = QIcon(pm);
+	}
+
+	/*========================================================
+	 * TASK:	sets the uplink icon from resource or file
+	 *			colors it as set in config for the uplink menu
+	 *			button and returns the rec-colored icon
+	 *			to be saved
+	 * PARAMS:	iconName - path name of icon or empty
+	 *				when empty uses icon from resources
+	 * GLOBALS:	config
+	 * RETURNS: none, icon is set in btnUplink
+	 * REMARKS: - if no name given does not load any icon: uses
+	 *			  the one already set in the form file, just
+	 *			  changes its color
+	 *			- otherwise load file from the 'res' sub directory
+	 *			- icon file must be flat 32 bit png file with
+	 *				transparent and white pixels. The color of
+	 *				the white pixels will be changed to
+	 *				Menu
+	 *-------------------------------------------------------*/
+	QIcon SetUplinkIcon(QString iconName)
+	{
+		static char defIconName[] = ":/icons/Resources/up-icon.png";
+		if (iconName.isEmpty())
+			iconName = defIconName;
+		if(_lastUsedMenuForegroundColor != Menu.color.Name())
+		{
+			_lastUsedMenuForegroundColor = Menu.color.Name();
+			_uplinkIcon = QIcon(iconName);
+			SetIconColor(_uplinkIcon, Menu);
+		}
+		return _uplinkIcon;
+	}
+
 			// these are on the local machine
 	_CDirStr GalleryRoot() const				{ return _CDirStr(dsGallery) + dsGRoot.ToString(); }
 	_CDirStr LocalImageDirectory() const		{ return GalleryRoot() + dsImageDir; }
@@ -1085,10 +989,10 @@ public:
 								// (default index.html or index-en_US.html, index-hu_HU.html,...)
 								// this is put into dsGRoot and not in the albums subdirectory, unless a path is given
 								// The Home menu will link here (Example: index_en_US.html - home link: /<dsGRoot>/index.html)
-	_CString sDescription = {"","sDescription"};		// page description: appears in we bsearch results
+	_CString sDescription = {"","sDescription"};	// page description: appears in web search results
 	_CString sKeywords = {"","sKeywords"};			// comma separated list of keywords
 
-	_CBool bCanDownload = {false,"bCanDownload"};		// images from the server (.htaccess)
+	_CBool bCanDownload = {false,"bCanDownload"};	// images from the server (.htaccess)
 	_CBool bForceSSL = { true,"bForceSSL"};			// using .htaccess
 	_CBool bRightClickProtected = {false,"bRightClickProtected"}; // right click protection on
 	_CBool bMenuToContact = {false,"bMenuToContact"};		// show menu button for 'Contact' page
@@ -1134,7 +1038,7 @@ public:
 #define _NGRD_ false			// may not have gradient
 	_CElem Web = {aeWebPage, "body", _DFLT_,"Web", _NOSH_, _NGRD_};		// page
 	_CElem Header = {aeHeader, "header", _DFLT_,"Header", _NOSH_, _NGRD_ };		// header
-	_CElem Menu = {aeMenuButtons,"menu-item", _DFLT_,"Menu", _SHDW_, _GRAD_};		// menu buttons
+	_CMenuElem Menu = {aeMenuButtons,"menu-item", _DFLT_,"Menu", _SHDW_, _GRAD_};		// menu buttons
 	_CElem Lang = {aeLangButton,"langs",  _DFLT_,"Lang", _NOSH_, _NGRD_};		// language link button
 	// special handling : include shadows
 	_CElem SmallGalleryTitle = {aeSmallTitle, "falconG", _DFLT_,"SmallGalleryTitle", _SHDW_, _NGRD_};	// "andreas falco photography"
@@ -1142,7 +1046,7 @@ public:
 	_CElem GalleryDesc = {aeGalleryDesc,"gallery-desc", _DFLT_,"GalleryDesc", _SHDW_, _NGRD_};			
 	_CElem Section = {aeSection,"fgsection", _DFLT_,"Section", _SHDW_, _NGRD_};							// "Images" or "Albums"
 	_CElem Thumb = { aeThumb, "thumb", _DFLT_, "Thumb", _NOSH_, _NGRD_ };								// thumb: only a placeholder not saved into ini
-	_CElem ImageTitle = {aeImageTitle, "title",_DFLT_, "AlbumOrImageTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
+	_CTextElem ImageTitle = {aeImageTitle, "title",_DFLT_, "AlbumOrImageTitle", false, _SHDW_, _NGRD_};			// not the image itself, just the texts!
 	_CElem ImageDesc = {aeImageDesc, "desc", _DFLT_, "AlbumOrImageDesc", _SHDW_, _NGRD_};
 	_CElem LightboxTitle = {aeLightboxTitle, "lightbox-caption",_DFLT_, "LightboxTitle", _SHDW_, _NGRD_};			// not the image itself, just the texts!
 	_CElem LightboxDesc = {aeLightboxDescription, "lightbox-desc", _DFLT_, "LightboxDesc", _SHDW_, _NGRD_};
@@ -1171,6 +1075,8 @@ public:
 	_CInt imageMatteWidth = { 0, "imageMatteWidth" };					  // width
 	_CInt imageMatteRadius = { 0, "imgMRad" };
 	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
+	_CBorder albumBorder = {"0|2|0|#EAA41E", "albumBorder"};
+	_CInt  albumMargin = { 2, "albumMargin" };			// on img-container
 	_CInt albumMatteWidth = { 0, "albumMatteWidth" };					  // width
 	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
 	_CInt albumMatteRadius = { 0, "abMRad" };

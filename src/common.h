@@ -33,7 +33,8 @@ namespace Common
 	enum FeatureOp { foClearAll, foSet, foUnset, foClearOthersAndSet };
 	enum ShadowPart { spUse, spHoriz, spVert, spBlurR, spSpread, spColorName };  // _CShadow
 	enum GradStop { gsStart, gsMiddle, gsStop };   // 0, 1, 2
-	enum BorderSide { sdAll=-1, sdTop, sdRight, sdBottom, sdLeft };  // index	-1, 0		1	   2		 3
+	enum BorderSide { sdTop=1, sdRight=2, sdBottom=4, sdLeft=8, sdAll=15 };  
+	enum BorderStyle { bsNone, bsSolid, bsDotted, bsDashed, bsDouble, bsGroove, bsRidge, bsInset, bsOutset };
 	enum BackgroundImageSizing {
 		hNotUsed,
 		hAuto, 			//	background-size: auto, background-style	 original size
@@ -125,7 +126,92 @@ namespace Common
 		fiFolder = 1, fiThumb = 2, fiAlias = 4, fiDontResize = 8,	// 1..8: what markers to draw on icon image
 		fiVideo = 16, fiImage = 32, fiNone = 0x00
 	};						// 16..32: what type of icon to draw
+
+	// for style sheets to make it more legible
+	constexpr const	bool forWebUse = true;
+	constexpr const bool forInternalUse = false;
+	constexpr const bool forBackground = true;
+	constexpr const bool notForBackground = false;
+	constexpr const bool addSemicolon = true;
+	constexpr const bool noSemicolon = false;
+	constexpr const bool onlyStyle = true;
+	constexpr const bool itemNameToo = true;
+	constexpr const bool noItemName = false;
+	constexpr const bool firstOne = true;
+	constexpr const bool notFirstOne = false;
+
+	constexpr const bool configChanged = true;
+	constexpr const bool configNotChanged = false;
+
 	using IconFlags = QFlags<IconFlag>;
+
+	constexpr const int nGlobal					 =  0 ;
+	// menu
+	constexpr const int nBtnDnUp				 =  1 ;
+	constexpr const int nBtnDnAbout				 =  2 ;
+	constexpr const int nBtnDnContact			 =  3 ;
+	constexpr const int nBtnDnCaptDesc			 =  4 ;
+	constexpr const int nBtnDnDescription		 =  5 ;
+	constexpr const int nBtnDnToAlbums			 =  6 ;
+	// other
+	constexpr const int nLblDnName				 =  7 ;	   // small title
+	constexpr const int nLblDnLang				 =  8 ;	   // language
+
+	constexpr const int nLblDnGallery			 =  9 ;	   // gallery title
+	constexpr const int nLblDnGalleryDescription = 10 ;
+	constexpr const int nLblDnPictureSectionLabel= 11 ;	   // 'Pictures'
+	constexpr const int nLblDnImageP			 = 12 ;	   // picture thumbnail image
+	constexpr const int nLblDnDescriptionP		 = 13 ;	   // image description
+	constexpr const int nLblDnTitleP		 	 = 14 ;	   // picture title
+	constexpr const int nLblDnTitlePO			 = 15 ;	   // picture title 2nd line
+	constexpr const int nLblDnAlbumSectionLabel	 = 16 ;	   // 'Albums'
+	constexpr const int nLblDnImageA			 = 17 ;	   // album thumbnail image
+	constexpr const int nLblDnDescriptionA		 = 18 ;    // album description
+	constexpr const int nLblDnTitleA		 	 = 19 ;	   // album title
+	constexpr const int nLblDnTitleAO	 		 = 20 ;	   // album title 2nd line
+	constexpr const int nLblDnSummary			 = 21 ;	   // 'this gallery contains...'
+	constexpr const int nLblDnCopyright	 		 = 22 ;
+	constexpr const int nLblDnHeader			 = 23 ;	   // doesn't exist as button?
+	constexpr const int nLblLightbox			 = 24 ;	   // doesn't exist as button?
+	constexpr const int nLblLightboxTitle		 = 25 ;	   // doesn't exist as button?
+													   
+	//							n: index of item 	index in combo box
+	// 							on design page		 on the edit page
+	// global							0				 0
+	// Menu	(incl. up icon button)		1..6			 2
+	// Small Title						7				 3
+	// Language							8				 4
+	// Gallery Title					9				 5
+	// Gallery description			   10				 6
+	// Pictures Section Title		   11				 7
+	// Thumbnail image				   12				 8
+	// Image description			   13				 9
+	// Image title 1st line			   14				10
+	// Image title 2nd line			   15				10
+	// Albums Section Title			   16				 7
+	// Album image					   17				 8
+	// Album description			   18				 9
+	// Album title 1st line			   19				10
+	// Album title 2nd line			   20				10
+	// Footer summary				   21				11
+	// Footer copyright				   22				12
+	// header						   23				 1
+	// lightbox title				   24				13
+	// Lightbox Description			   25				14
+	//								n =   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+	constexpr const int cboxIndices[] = { 0, 2, 2, 2, 2, 2, 2, 4, 3, 5, 6, 7, 8, 9,10,10, 7, 8, 9,10,10,11,12, 1,13,14 };
+	constexpr const int cboxSize = sizeof(cboxIndices) / sizeof(cboxIndices[0]);
+	constexpr const int actualItemsSize = 14;	// see ui.cbActualItem in 'falconG.ui'
+	constexpr inline int DesignToCB(int n) 	{ return cboxIndices[n]; 	}
+	constexpr int CBToDesign(int n, int *ix, int cnt) // cnt is size of the ix[] array
+	{ 
+		int i = 0;
+		int k = 0;
+		for ( /**/; i < cboxSize && k < cnt; ++i)
+			if (cboxIndices[i] == n)
+				ix[k++] = i;
+		return k; 
+	}
 
 	//--------------------------------------------------
 	// data for video

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1014</width>
-    <height>1010</height>
+    <height>1028</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2783,12 +2783,12 @@ p, li { white-space: pre-wrap; }
                      </item>
                      <item>
                       <property name="text">
-                       <string>Languages</string>
+                       <string>Small Title</string>
                       </property>
                      </item>
                      <item>
                       <property name="text">
-                       <string>Small Title</string>
+                       <string>Languages</string>
                       </property>
                      </item>
                      <item>
@@ -2819,6 +2819,16 @@ p, li { white-space: pre-wrap; }
                      <item>
                       <property name="text">
                        <string>Album / Image Description</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Summary label</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Copyright label</string>
                       </property>
                      </item>
                      <item>
@@ -2881,15 +2891,15 @@ p, li { white-space: pre-wrap; }
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>2</number>
+                       <number>0</number>
                       </property>
                       <widget class="QWidget" name="pgGlobal">
                        <property name="geometry">
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>431</width>
+                         <height>715</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3006,7 +3016,7 @@ p, li { white-space: pre-wrap; }
                           </widget>
                          </item>
                          <item row="1" column="3">
-                          <widget class="QCheckBox" name="chkSetAll">
+                          <widget class="QCheckBox" name="chkSameBackground">
                            <property name="font">
                             <font>
                              <family>Arial</family>
@@ -3281,8 +3291,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>419</width>
-                         <height>654</height>
+                         <width>431</width>
+                         <height>715</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -3852,7 +3862,7 @@ Default: &quot;/res/&quot;</string>
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>110</height>
+                               <height>125</height>
                               </size>
                              </property>
                              <property name="font">
@@ -3924,6 +3934,9 @@ Default: &quot;/res/&quot;</string>
                                   </property>
                                   <property name="toolTip">
                                    <string>Horizontal displacement</string>
+                                  </property>
+                                  <property name="statusTip">
+                                   <string/>
                                   </property>
                                   <property name="suffix">
                                    <string>px</string>
@@ -4333,520 +4346,6 @@ Default: &quot;/res/&quot;</string>
                           </layout>
                          </widget>
                         </item>
-                        <item row="1" column="0" colspan="2">
-                         <widget class="QGroupBox" name="gbFont">
-                          <property name="minimumSize">
-                           <size>
-                            <width>270</width>
-                            <height>130</height>
-                           </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <family>Arial</family>
-                            <pointsize>10</pointsize>
-                            <weight>75</weight>
-                            <bold>true</bold>
-                           </font>
-                          </property>
-                          <property name="title">
-                           <string>Font</string>
-                          </property>
-                          <layout class="QGridLayout" name="gridLayout_9">
-                           <item row="0" column="0">
-                            <widget class="QLabel" name="label_27">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Family</string>
-                             </property>
-                             <property name="buddy">
-                              <cstring>edtFontFamily</cstring>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1" colspan="3">
-                            <widget class="QLineEdit" name="edtFontFamily">
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="placeholderText">
-                              <string>Example: &quot;Tms Rmn&quot;,Arial</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="4" colspan="2">
-                            <widget class="QComboBox" name="cbFonts">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="toolTip">
-                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                             </property>
-                             <property name="placeholderText">
-                              <string>Select specified font</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label_28">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Si&amp;ze:</string>
-                             </property>
-                             <property name="buddy">
-                              <cstring>cbFontSizeInPoints</cstring>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1">
-                            <widget class="QComboBox" name="cbFontSizeInPoints">
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="editable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="currentIndex">
-                              <number>6</number>
-                             </property>
-                             <property name="insertPolicy">
-                              <enum>QComboBox::InsertAtTop</enum>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>8pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>9pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>10pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>11pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>12pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>14pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>16pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>18pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>20pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>22pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>24pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>26pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>28pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>36pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>48pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>72pt</string>
-                              </property>
-                             </item>
-                            </widget>
-                           </item>
-                           <item row="1" column="2">
-                            <widget class="QLabel" name="label_32">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Line height:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="3">
-                            <widget class="QComboBox" name="cbLineHeight">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="editable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="currentIndex">
-                              <number>12</number>
-                             </property>
-                             <property name="insertPolicy">
-                              <enum>QComboBox::InsertAtTop</enum>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>8pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>9pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>10pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>11pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>12pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>14pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>16pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>18pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>20pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>22pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>24pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>26pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>28pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>36pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>48pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>72pt</string>
-                              </property>
-                             </item>
-                            </widget>
-                           </item>
-                           <item row="1" column="4">
-                            <widget class="QLabel" name="label_6">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Space below</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="5">
-                            <widget class="QSpinBox" name="sbSpaceAfter">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="0">
-                            <spacer name="horizontalSpacer_13">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>53</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item row="2" column="1" colspan="2">
-                            <widget class="QCheckBox" name="chkDifferentFirstLine">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>&amp;Different 1st line:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="3">
-                            <widget class="QComboBox" name="cbPointSizeFirstLine">
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="editable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="currentIndex">
-                              <number>6</number>
-                             </property>
-                             <property name="insertPolicy">
-                              <enum>QComboBox::InsertAtTop</enum>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>8pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>9pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>10pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>11pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>12pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>14pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>16pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>18pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>20pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>22pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>24pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>26pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>28pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>36pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>48pt</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>72pt</string>
-                              </property>
-                             </item>
-                            </widget>
-                           </item>
-                           <item row="2" column="4">
-                            <widget class="QCheckBox" name="chkBold">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Bold</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="5">
-                            <widget class="QCheckBox" name="chkItalic">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Italic</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                        </item>
                         <item row="0" column="0" colspan="2">
                          <widget class="QWidget" name="gbColors" native="true">
                           <property name="sizePolicy">
@@ -4858,7 +4357,7 @@ Default: &quot;/res/&quot;</string>
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>40</height>
+                            <height>70</height>
                            </size>
                           </property>
                           <property name="maximumSize">
@@ -4876,7 +4375,7 @@ Default: &quot;/res/&quot;</string>
                            </font>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_7">
-                           <item row="1" column="1">
+                           <item row="0" column="1">
                             <widget class="QToolButton" name="btnForeground">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4900,7 +4399,7 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="0">
+                           <item row="1" column="0">
                             <widget class="QLabel" name="label_33">
                              <property name="font">
                               <font>
@@ -4915,81 +4414,7 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="6">
-                            <spacer name="horizontalSpacer_9">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>33</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label_26">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Text</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="1">
-                            <widget class="QToolButton" name="btnBackground">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#a03020;}</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
                            <item row="1" column="5">
-                            <widget class="QSpinBox" name="sbTextOpacity">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>%</string>
-                             </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>100</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="5">
                             <widget class="QSpinBox" name="sbBackgroundOpacity">
                              <property name="enabled">
                               <bool>false</bool>
@@ -5019,8 +4444,8 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="3">
-                            <widget class="QCheckBox" name="chkTextOpacity">
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="label_26">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5029,15 +4454,25 @@ Default: &quot;/res/&quot;</string>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="toolTip">
-                              <string>Turn opacity on or off</string>
-                             </property>
                              <property name="text">
-                              <string>use opacity:</string>
+                              <string>Text</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="3">
+                           <item row="0" column="6">
+                            <spacer name="horizontalSpacer_9">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>33</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="1" column="3">
                             <widget class="QCheckBox" name="chkBackgroundOpacity">
                              <property name="font">
                               <font>
@@ -5056,7 +4491,10 @@ Default: &quot;/res/&quot;</string>
                             </widget>
                            </item>
                            <item row="0" column="5">
-                            <widget class="QLabel" name="label_80">
+                            <widget class="QSpinBox" name="sbTextOpacity">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5065,8 +4503,54 @@ Default: &quot;/res/&quot;</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="suffix">
+                              <string>%</string>
+                             </property>
+                             <property name="minimum">
+                              <number>0</number>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>100</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="1">
+                            <widget class="QToolButton" name="btnBackground">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#a03020;}</string>
+                             </property>
                              <property name="text">
-                              <string>Opacity</string>
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="3">
+                            <widget class="QCheckBox" name="chkTextOpacity">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Turn opacity on or off</string>
+                             </property>
+                             <property name="text">
+                              <string>use opacity:</string>
                              </property>
                             </widget>
                            </item>
@@ -5078,12 +4562,18 @@ Default: &quot;/res/&quot;</string>
                           <property name="enabled">
                            <bool>false</bool>
                           </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>0</height>
+                           </size>
+                          </property>
                           <property name="title">
                            <string>Border</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_6">
-                           <item row="2" column="0">
-                            <widget class="QLabel" name="label_57">
+                           <item row="0" column="3" colspan="2">
+                            <widget class="QRadioButton" name="rbRightBorder">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5093,7 +4583,7 @@ Default: &quot;/res/&quot;</string>
                               </font>
                              </property>
                              <property name="text">
-                              <string>Style</string>
+                              <string>Right</string>
                              </property>
                             </widget>
                            </item>
@@ -5211,58 +4701,6 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="0" colspan="5">
-                            <widget class="Line" name="line">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="0" colspan="2">
-                            <widget class="QLabel" name="label_70">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Border radius</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="2" colspan="2">
-                            <widget class="QSpinBox" name="sbBorderRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="3" colspan="2">
-                            <widget class="QRadioButton" name="rbLeftBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Left</string>
-                             </property>
-                            </widget>
-                           </item>
                            <item row="1" column="1" colspan="2">
                             <widget class="QRadioButton" name="rbBottomBorder">
                              <property name="font">
@@ -5275,36 +4713,6 @@ Default: &quot;/res/&quot;</string>
                              </property>
                              <property name="text">
                               <string>Bottom</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="3" colspan="2">
-                            <widget class="QRadioButton" name="rbRightBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Right</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1" colspan="2">
-                            <widget class="QRadioButton" name="rbTopBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Top</string>
                              </property>
                             </widget>
                            </item>
@@ -5323,6 +4731,633 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
+                           <item row="5" column="0" colspan="2">
+                            <widget class="QLabel" name="label_70">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Border radius</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="0" colspan="5">
+                            <widget class="Line" name="line">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="3" colspan="2">
+                            <widget class="QRadioButton" name="rbLeftBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Left</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="0">
+                            <widget class="QLabel" name="label_57">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Style</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="1" colspan="2">
+                            <widget class="QRadioButton" name="rbTopBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Top</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="2" colspan="2">
+                            <widget class="QSpinBox" name="sbBorderRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="6" column="2">
+                            <spacer name="verticalSpacer_5">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="3" column="4">
+                            <widget class="QToolButton" name="btnApplyBorderStyle">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>12</pointsize>
+                               <weight>75</weight>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Apply! </string>
+                             </property>
+                             <property name="text">
+                              <string>►</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </item>
+                        <item row="1" column="0" colspan="2">
+                         <widget class="QGroupBox" name="gbFont">
+                          <property name="minimumSize">
+                           <size>
+                            <width>270</width>
+                            <height>130</height>
+                           </size>
+                          </property>
+                          <property name="font">
+                           <font>
+                            <family>Arial</family>
+                            <pointsize>10</pointsize>
+                            <weight>75</weight>
+                            <bold>true</bold>
+                           </font>
+                          </property>
+                          <property name="title">
+                           <string>Font</string>
+                          </property>
+                          <layout class="QGridLayout" name="gridLayout_9">
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="label_27">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Family</string>
+                             </property>
+                             <property name="buddy">
+                              <cstring>edtFontFamily</cstring>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="1" colspan="5">
+                            <widget class="QLineEdit" name="edtFontFamily">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="placeholderText">
+                              <string>Example: &quot;Tms Rmn&quot;,Arial</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0">
+                            <widget class="QLabel" name="label_28">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Si&amp;ze:</string>
+                             </property>
+                             <property name="buddy">
+                              <cstring>cbFontSizeInPoints</cstring>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="1" colspan="2">
+                            <widget class="QComboBox" name="cbFontSizeInPoints">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="editable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="currentIndex">
+                              <number>6</number>
+                             </property>
+                             <property name="insertPolicy">
+                              <enum>QComboBox::InsertAtTop</enum>
+                             </property>
+                             <item>
+                              <property name="text">
+                               <string>8pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>9pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>10pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>11pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>12pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>14pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>16pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>18pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>20pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>22pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>24pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>26pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>28pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>36pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>48pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>72pt</string>
+                              </property>
+                             </item>
+                            </widget>
+                           </item>
+                           <item row="1" column="3" colspan="2">
+                            <widget class="QCheckBox" name="chkBold">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Bold</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="5" colspan="2">
+                            <widget class="QCheckBox" name="chkItalic">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Italic</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="7">
+                            <widget class="QLabel" name="label_32">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Line height:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="8">
+                            <widget class="QComboBox" name="cbLineHeight">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="editable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="currentIndex">
+                              <number>12</number>
+                             </property>
+                             <property name="insertPolicy">
+                              <enum>QComboBox::InsertAtTop</enum>
+                             </property>
+                             <item>
+                              <property name="text">
+                               <string>8pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>9pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>10pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>11pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>12pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>14pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>16pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>18pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>20pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>22pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>24pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>26pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>28pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>36pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>48pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>72pt</string>
+                              </property>
+                             </item>
+                            </widget>
+                           </item>
+                           <item row="2" column="0" colspan="2">
+                            <widget class="QLabel" name="label_6">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Space below</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="2" colspan="2">
+                            <widget class="QSpinBox" name="sbSpaceAfter">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="4" colspan="2">
+                            <spacer name="horizontalSpacer_13">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>53</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="2" column="6" colspan="2">
+                            <widget class="QCheckBox" name="chkDifferentFirstLine">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>&amp;Different 1st line:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="8">
+                            <widget class="QComboBox" name="cbPointSizeFirstLine">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="editable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="currentIndex">
+                              <number>6</number>
+                             </property>
+                             <property name="insertPolicy">
+                              <enum>QComboBox::InsertAtTop</enum>
+                             </property>
+                             <item>
+                              <property name="text">
+                               <string>8pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>9pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>10pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>11pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>12pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>14pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>16pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>18pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>20pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>22pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>24pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>26pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>28pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>36pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>48pt</string>
+                              </property>
+                             </item>
+                             <item>
+                              <property name="text">
+                               <string>72pt</string>
+                              </property>
+                             </item>
+                            </widget>
+                           </item>
+                           <item row="0" column="6" colspan="3">
+                            <widget class="QComboBox" name="cbFonts">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
+                             <property name="placeholderText">
+                              <string>Select specified font</string>
+                             </property>
+                            </widget>
+                           </item>
                           </layout>
                          </widget>
                         </item>
@@ -5333,8 +5368,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>455</width>
-                         <height>697</height>
+                         <width>429</width>
+                         <height>571</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5858,118 +5893,38 @@ so when one changes the other changes too.
                          </widget>
                         </item>
                         <item>
-                         <widget class="QGroupBox" name="gbImageDecoration">
+                         <widget class="QGroupBox" name="gbImage">
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>70</height>
+                            <height>0</height>
                            </size>
                           </property>
-                          <property name="font">
-                           <font>
-                            <family>Arial</family>
-                            <pointsize>10</pointsize>
-                            <weight>75</weight>
-                            <bold>true</bold>
-                           </font>
-                          </property>
                           <property name="title">
-                           <string>Image Frame</string>
+                           <string>Image</string>
                           </property>
-                          <layout class="QHBoxLayout" name="horizontalLayout_15">
+                          <layout class="QVBoxLayout" name="verticalLayout_23">
+                           <property name="spacing">
+                            <number>1</number>
+                           </property>
+                           <property name="leftMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>1</number>
+                           </property>
                            <item>
-                            <widget class="QLabel" name="label_74">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Frame style</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QComboBox" name="cbImageBorderStyle">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <item>
-                              <property name="text">
-                               <string>no frame</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>solid</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>dotted</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>dashed</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>double</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>groove</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>ridge</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>inset</string>
-                              </property>
-                             </item>
-                             <item>
-                              <property name="text">
-                               <string>outset</string>
-                              </property>
-                             </item>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QLabel" name="label_14">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbImageBorderWidth">
+                            <widget class="QGroupBox" name="gbImageFrame">
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>24</height>
+                               <height>70</height>
                               </size>
                              </property>
                              <property name="font">
@@ -5977,108 +5932,427 @@ so when one changes the other changes too.
                                <family>Arial</family>
                                <pointsize>10</pointsize>
                                <weight>50</weight>
+                               <italic>true</italic>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="suffix">
-                              <string>px</string>
+                             <property name="title">
+                              <string>Image Frame</string>
                              </property>
-                             <property name="minimum">
-                              <number>1</number>
-                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_15">
+                              <property name="leftMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>1</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="label_74">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Style</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QComboBox" name="cbImageBorderStyle">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <item>
+                                 <property name="text">
+                                  <string>no frame</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>solid</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>dotted</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>dashed</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>double</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>groove</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>ridge</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>inset</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>outset</string>
+                                 </property>
+                                </item>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_14">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Width:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbImageBorderWidth">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>1</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_75">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Radius:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbImageBorderRadius">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_80">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>38</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Color:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QToolButton" name="btnImageBorderColor">
+                                <property name="font">
+                                 <font>
+                                  <family>MS Shell Dlg 2</family>
+                                  <pointsize>8</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QToolButton { background-color:#ffff00;}
+                         </string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_75">
+                            <widget class="QGroupBox" name="gbImageMatte">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>70</height>
+                              </size>
+                             </property>
                              <property name="font">
                               <font>
                                <family>Arial</family>
                                <pointsize>10</pointsize>
                                <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Radius:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbImageBorderRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
+                               <italic>true</italic>
                                <bold>false</bold>
                               </font>
                              </property>
                              <property name="toolTip">
-                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                              <string>&quot;Matte&quot; is the area around an image in the frame</string>
                              </property>
-                             <property name="suffix">
-                              <string>px</string>
+                             <property name="title">
+                              <string>Image Matte</string>
                              </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QToolButton" name="btnImageBorderColor">
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>8</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton { background-color:#ffff00;}
+                             <layout class="QHBoxLayout" name="horizontalLayout_17">
+                              <property name="leftMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>1</number>
+                              </property>
+                              <item>
+                               <spacer name="horizontalSpacer_11">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                 <size>
+                                  <width>120</width>
+                                  <height>20</height>
+                                 </size>
+                                </property>
+                               </spacer>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_25">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Width:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbImageMatteWidth">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_96">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Radius:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbImageMatteRadius">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_76">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>38</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Color:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QToolButton" name="btnImageMatteColor">
+                                <property name="font">
+                                 <font>
+                                  <family>MS Shell Dlg 2</family>
+                                  <pointsize>8</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QToolButton { background-color:#ddd;}
                          </string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
                             </widget>
                            </item>
                           </layout>
                          </widget>
                         </item>
                         <item>
-                         <widget class="QGroupBox" name="gbImageMatte">
+                         <widget class="QGroupBox" name="gbAlbum">
                           <property name="minimumSize">
                            <size>
                             <width>0</width>
-                            <height>70</height>
+                            <height>0</height>
                            </size>
                           </property>
-                          <property name="toolTip">
-                           <string>&quot;Matte&quot; is the area around an image in the frame</string>
-                          </property>
                           <property name="title">
-                           <string>Image Matte</string>
+                           <string>Album</string>
                           </property>
-                          <layout class="QHBoxLayout" name="horizontalLayout_17">
+                          <layout class="QVBoxLayout" name="verticalLayout_24">
+                           <property name="leftMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>1</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>1</number>
+                           </property>
                            <item>
-                            <widget class="QLabel" name="label_25">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbImageMatteWidth">
+                            <widget class="QGroupBox" name="gbAlbumFrame">
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>24</height>
+                               <height>70</height>
                               </size>
                              </property>
                              <property name="font">
@@ -6086,26 +6360,227 @@ so when one changes the other changes too.
                                <family>Arial</family>
                                <pointsize>10</pointsize>
                                <weight>50</weight>
+                               <italic>true</italic>
                                <bold>false</bold>
                               </font>
                              </property>
-                             <property name="suffix">
-                              <string>px</string>
+                             <property name="title">
+                              <string>Album Frame</string>
                              </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="value">
-                              <number>0</number>
-                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_28">
+                              <property name="leftMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>1</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="label_89">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Style</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QComboBox" name="cbAlbumBorderStyle">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <item>
+                                 <property name="text">
+                                  <string>no frame</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>solid</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>dotted</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>dashed</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>double</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>groove</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>ridge</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>inset</string>
+                                 </property>
+                                </item>
+                                <item>
+                                 <property name="text">
+                                  <string>outset</string>
+                                 </property>
+                                </item>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_90">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Width:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbAlbumBorderWidth">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>1</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_91">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Radius:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbAlbumBorderRadius">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_92">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>38</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Color:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QToolButton" name="btnAlbumBorderColor">
+                                <property name="font">
+                                 <font>
+                                  <family>MS Shell Dlg 2</family>
+                                  <pointsize>8</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QToolButton { background-color:#ffff00;}
+                         </string>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
                             </widget>
                            </item>
                            <item>
-                            <widget class="QLabel" name="label_76">
+                            <widget class="QGroupBox" name="gbAlbumMatte">
                              <property name="minimumSize">
                               <size>
-                               <width>38</width>
-                               <height>0</height>
+                               <width>0</width>
+                               <height>70</height>
                               </size>
                              </property>
                              <property name="font">
@@ -6113,224 +6588,165 @@ so when one changes the other changes too.
                                <family>Arial</family>
                                <pointsize>10</pointsize>
                                <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Color:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QToolButton" name="btnImageMatteColor">
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>8</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton { background-color:#ddd;}
-                         </string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QLabel" name="label_96">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Radius:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbImageMatteRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
+                               <italic>true</italic>
                                <bold>false</bold>
                               </font>
                              </property>
                              <property name="toolTip">
-                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                              <string>&quot;Matte&quot; is the area around an image in the frame</string>
                              </property>
-                             <property name="suffix">
-                              <string>px</string>
+                             <property name="title">
+                              <string>Album Matte</string>
                              </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_11">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>120</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                          </layout>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QGroupBox" name="gbAlbumMatte">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>70</height>
-                           </size>
-                          </property>
-                          <property name="toolTip">
-                           <string>&quot;Matte&quot; is the area around an image in the frame</string>
-                          </property>
-                          <property name="title">
-                           <string>Album Matte</string>
-                          </property>
-                          <layout class="QHBoxLayout" name="horizontalLayout_24">
-                           <item>
-                            <widget class="QLabel" name="label_77">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbAlbumMatteWidth">
-                             <property name="minimumSize">
-                              <size>
-                               <width>0</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="minimum">
-                              <number>0</number>
-                             </property>
-                             <property name="value">
-                              <number>0</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QLabel" name="label_78">
-                             <property name="minimumSize">
-                              <size>
-                               <width>38</width>
-                               <height>0</height>
-                              </size>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Color:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QToolButton" name="btnAlbumMatteColor">
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>8</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton { background-color:#ddd;}
+                             <layout class="QHBoxLayout" name="horizontalLayout_24">
+                              <property name="leftMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>1</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>1</number>
+                              </property>
+                              <item>
+                               <spacer name="horizontalSpacer_19">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                 <size>
+                                  <width>120</width>
+                                  <height>20</height>
+                                 </size>
+                                </property>
+                               </spacer>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_77">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Width:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbAlbumMatteWidth">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_97">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Radius:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QSpinBox" name="sbAlbumMatteRadius">
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
+                                </property>
+                                <property name="suffix">
+                                 <string>px</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_78">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>38</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Arial</family>
+                                  <pointsize>10</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Color:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QToolButton" name="btnAlbumMatteColor">
+                                <property name="font">
+                                 <font>
+                                  <family>MS Shell Dlg 2</family>
+                                  <pointsize>8</pointsize>
+                                  <weight>50</weight>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QToolButton { background-color:#ddd;}
                          </string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
+                                </property>
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
                             </widget>
-                           </item>
-                           <item>
-                            <widget class="QLabel" name="label_97">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Radius:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QSpinBox" name="sbAlbumMatteRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Corner radius for a rounded rectangle. 0 means not rounded.</string>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_19">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>120</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
                            </item>
                           </layout>
                          </widget>
@@ -6355,8 +6771,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7169,30 +7585,21 @@ the last CSS save.</string>
               <property name="title">
                <string>Sample</string>
               </property>
-              <layout class="QVBoxLayout" name="gbSampleLayout" stretch="0">
-               <property name="spacing">
-                <number>0</number>
-               </property>
+              <layout class="QVBoxLayout" name="verticalLayout_22">
                <property name="leftMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="topMargin">
                 <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="bottomMargin">
                 <number>0</number>
                </property>
                <item>
-                <widget class="QWebEngineView" name="sample">
-                 <property name="url">
-                  <url>
-                   <string>qrc:/Preview/Resources/index_en.html</string>
-                  </url>
-                 </property>
-                </widget>
+                <widget class="DesignPage" name="pageDesigner" native="true"/>
                </item>
               </layout>
              </widget>
@@ -7916,11 +8323,6 @@ the last CSS save.</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-  </customwidget>
-  <customwidget>
    <class>ThumbnailView</class>
    <extends>QListView</extends>
    <header location="global">ThumbnailView.h</header>
@@ -7934,6 +8336,12 @@ the last CSS save.</string>
    <class>AlbumTreeView</class>
    <extends>QTreeView</extends>
    <header location="global">treeView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DesignPage</class>
+   <extends>QWidget</extends>
+   <header>designpage.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -7993,7 +8401,7 @@ the last CSS save.</string>
   <tabstop>btnPageColor</tabstop>
   <tabstop>chkSameForeground</tabstop>
   <tabstop>btnPageBackground</tabstop>
-  <tabstop>chkSetAll</tabstop>
+  <tabstop>chkSameBackground</tabstop>
   <tabstop>btnSelectUplinkIcon</tabstop>
   <tabstop>chkIconTop</tabstop>
   <tabstop>chkIconText</tabstop>
@@ -8012,13 +8420,8 @@ the last CSS save.</string>
   <tabstop>sbBackgroundOpacity</tabstop>
   <tabstop>edtFontFamily</tabstop>
   <tabstop>cbFonts</tabstop>
-  <tabstop>cbFontSizeInPoints</tabstop>
   <tabstop>cbLineHeight</tabstop>
   <tabstop>sbSpaceAfter</tabstop>
-  <tabstop>chkDifferentFirstLine</tabstop>
-  <tabstop>cbPointSizeFirstLine</tabstop>
-  <tabstop>chkBold</tabstop>
-  <tabstop>chkItalic</tabstop>
   <tabstop>rbTextAlignNone</tabstop>
   <tabstop>rbTextLeft</tabstop>
   <tabstop>rbTextCenter</tabstop>
@@ -8077,10 +8480,8 @@ the last CSS save.</string>
   <tabstop>sbImageBorderRadius</tabstop>
   <tabstop>btnImageBorderColor</tabstop>
   <tabstop>sbImageMatteWidth</tabstop>
-  <tabstop>btnImageMatteColor</tabstop>
   <tabstop>sbImageMatteRadius</tabstop>
   <tabstop>sbAlbumMatteWidth</tabstop>
-  <tabstop>btnAlbumMatteColor</tabstop>
   <tabstop>sbAlbumMatteRadius</tabstop>
   <tabstop>chkUseWM</tabstop>
   <tabstop>chkRegenAllWithWatermark</tabstop>

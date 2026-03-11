@@ -1,0 +1,67 @@
+*** Begin Patch *** Update File: src/slidewidget.h @@ class SlideWidget : public QWidget { Q_OBJECT
+•	  Q_PROPERTY(QImage image READ Image WRITE SetImage)
+•	  Q_PROPERTY(QString imagePath READ ImagePath WRITE SetImagePath)
+•	  Q_PROPERTY(QImage image READ Image WRITE SetImage)
+   Q_PROPERTY(int borderWidth READ BorderWidth WRITE SetBorderWidth)
+   Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor)
+•	   Q_PROPERTY(qreal borderRadius READ BorderRadius WRITE SetBorderRadius)
+•	   Q_PROPERTY(qreal borderRadius READ BorderRadius WRITE SetBorderRadius)
+•	   Q_PROPERTY(RadiusUnit borderRadiusUnit READ BorderRadiusUnit WRITE SetBorderRadiusUnit)
+   Q_PROPERTY(int matteWidth READ MatteWidth WRITE SetMatteWidth)
+   Q_PROPERTY(QColor matteColor READ MatteColor WRITE SetMatteColor)
+•	   Q_PROPERTY(qreal matteRadius READ MatteRadius WRITE SetMatteRadius)
+•	   Q_PROPERTY(qreal matteRadius READ MatteRadius WRITE SetMatteRadius)
+•	   Q_PROPERTY(RadiusUnit matteRadiusUnit READ MatteRadiusUnit WRITE SetMatteRadiusUnit)
+
+
+  Q_PROPERTY(QString watermarkText READ WatermarkText WRITE SetWatermarkText)
+  Q_PROPERTY(QImage watermarkImage READ WatermarkImage WRITE SetWatermarkImage)
+  Q_PROPERTY(QFont watermarkFont READ WatermarkFont WRITE SetWatermarkFont)
+  Q_PROPERTY(QColor watermarkColor READ WatermarkColor WRITE SetWatermarkColor)
+  Q_PROPERTY(qreal watermarkOpacity READ WatermarkOpacity WRITE SetWatermarkOpacity)
+•	  Q_PROPERTY(HAlign watermarkHAlignment READ WatermarkHAlignment WRITE SetWatermarkHAlignment)
+•	  Q_PROPERTY(VAlign watermarkVAlignment READ WatermarkVAlignment WRITE SetWatermarkVAlignment)
+•	  Q_PROPERTY(HAlign watermarkHAlignment READ WatermarkHAlignment WRITE SetWatermarkHAlignment)
+•	  Q_PROPERTY(VAlign watermarkVAlignment READ WatermarkVAlignment WRITE SetWatermarkVAlignment)
+•	  Q_PROPERTY(QString watermarkImagePath READ WatermarkImagePath WRITE SetWatermarkImagePath)
+•	   Q_PROPERTY(bool keepAspectRatio READ KeepAspectRatio WRITE SetKeepAspectRatio)
+•	   Q_PROPERTY(VAlign imageAlignment READ ImageAlignment WRITE SetImageAlignment)
+public: enum class SlideArea { Border, Matte, Image, Watermark };
+ enum class RadiusUnit {
+     Pixels,
+     Percent
+ };
+
+ enum class HAlign { None, Left, Center, Right };
+ enum class VAlign { None, Top, Center, Bottom };
+•	Q_ENUM(SlideArea)
+•	Q_ENUM(RadiusUnit)
+•	Q_ENUM(HAlign)
+•	Q_ENUM(VAlign)
+explicit SlideWidget(QWidget* parent = nullptr);
+// Image QImage Image() const { return _image; } void SetImage(const QImage& img); void SetImage(const QPixmap& pix);
+•	QString ImagePath() const { return _imagePath; }
+•	void SetImagePath(const QString& path);
+•	VAlign ImageAlignment() const { return _imageAlignment; }
+void SetImageAlignment(VAlign imageAlignment) { _imageAlignment = imageAlignment; }
+// Border void SetBorderWidth(int w); int BorderWidth() const { return _borderWidth; }
+void SetBorderColor(const QColor& c); QColor BorderColor() const { return _borderColor; }
+•	void SetBorderRadius(qreal value, RadiusUnit unit = RadiusUnit::Pixels);
+•	int BorderRadius() const { return _borderRadiusValue; }
+•	void SetBorderRadius(qreal value, RadiusUnit unit = RadiusUnit::Pixels);
+•	qreal BorderRadius() const { return _borderRadiusValue; }
+•	RadiusUnit BorderRadiusUnit() const { return _borderRadiusUnit; }
+•	void SetBorderRadiusUnit(RadiusUnit unit) { _borderRadiusUnit = unit; update(); }
+// Matte void SetMatteWidth(int w); int MatteWidth() const { return _matteWidth; } void SetMatteRadius(qreal value, RadiusUnit unit = RadiusUnit::Pixels);
+•	int MatteRadius() const { return _matteRadiusValue; }
+•	qreal MatteRadius() const { return _matteRadiusValue; }
+•	RadiusUnit MatteRadiusUnit() const { return _matteRadiusUnit; }
+•	void SetMatteRadiusUnit(RadiusUnit unit) { _matteRadiusUnit = unit; update(); }
+void SetMatteColor(const QColor& c); QColor MatteColor() const { return _matteColor; }
+// Watermark QString WatermarkText() const { return _watermarkText; } void SetWatermarkText(const QString& text); QImage WatermarkImage() const { return _watermarkImage; } void SetWatermarkImage(const QImage& img);
+•	QString WatermarkImagePath() const { return _watermarkImagePath; }
+•	void SetWatermarkImagePath(const QString& path); void ClearWatermark();
+QFont WatermarkFont() const { return _watermarkFont; } void SetWatermarkFont(const QFont& font); QColor WatermarkColor() const { return _watermarkColor; } void SetWatermarkColor(const QColor& color); qreal WatermarkOpacity() const { return _watermarkOpacity; } void SetWatermarkOpacity(qreal opacity); void SetWatermarkAlignment(HAlign h, VAlign v); HAlign WatermarkHAlignment()const { return _hAlign; } void SetWatermarkHAlignment(HAlign h) { _hAlign = h; } VAlign WatermarkVAlignment() const { return _vAlign; } void SetWatermarkVAlignment(VAlign v) { _vAlign = v; }
+•	bool KeepAspectRatio() const { return _keepAspectRatio; }
+•	void SetKeepAspectRatio(bool keep) { _keepAspectRatio = keep; update(); }
+// Event callbacks using MouseCallback = std::function<void(SlideArea, QMouseEvent*)>; *** End Patch

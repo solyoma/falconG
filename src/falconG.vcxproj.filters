@@ -28,6 +28,12 @@
       <Extensions>moc;h;cpp</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="quazip">
+      <UniqueIdentifier>{ba8db5b8-913a-4189-b85a-37f5b246a0d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zlib">
+      <UniqueIdentifier>{2f1d61eb-707e-4c87-a400-e2038baf0ead}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="falcong.cpp">
@@ -39,7 +45,7 @@
     <ClCompile Include="albums.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crc32.cpp">
+    <ClCompile Include="crc32calc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stylehandler.cpp">
@@ -87,6 +93,87 @@
     <ClCompile Include="dragdrop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="designpage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClickableLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="slidewidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fontutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\unzip.c">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\JlCompress.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\qioapi.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quaadler32.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quachecksum32.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quacrc32.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quaziodevice.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quazip.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quazipdir.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quazipfile.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quazipfileinfo.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\quazipnewinfo.cpp">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\adler32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\crc32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\infback.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\inffast.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\inflate.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\inftrees.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\uncompr.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\zutil.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\deflate.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="quazip\zip.c">
+      <Filter>quazip</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.3.2\trees.c">
+      <Filter>quazip</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -125,6 +212,27 @@
     <QtMoc Include="dragdrop.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="designpage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ClickableLabel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="slidewidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="fontutils.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="quazip\quaziodevice.h">
+      <Filter>quazip</Filter>
+    </QtMoc>
+    <QtMoc Include="quazip\quazipfile.h">
+      <Filter>quazip</Filter>
+    </QtMoc>
+    <QtMoc Include="quazip\quagzipfile.h">
+      <Filter>quazip</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="falcong.ui">
@@ -148,6 +256,9 @@
     <QtUic Include="exportCSV.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="designpage.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="falcong.qrc">
@@ -158,7 +269,7 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="crc32.h">
+    <ClInclude Include="crc32calc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stylehandler.h">
@@ -181,6 +292,78 @@
     </ClInclude>
     <ClInclude Include="support.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\ioapi.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\JlCompress.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\minizip_crypt.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quaadler32.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quachecksum32.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quacrc32.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazip.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazip_global.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazip_qt_compat.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazipdir.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazipfileinfo.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\quazipnewinfo.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\unzip.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\crc32.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\inffast.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\inffixed.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\inflate.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\inftrees.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\zconf.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\zlib.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\zutil.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\deflate.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="quazip\zip.h">
+      <Filter>quazip</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.3.2\trees.h">
+      <Filter>quazip</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

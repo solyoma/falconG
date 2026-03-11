@@ -1,4 +1,5 @@
-﻿#include <QObject>
+﻿#include <QDir>
+#include <QObject>
 #include <QtWidgets>
 #include <QtDebug>
 #include <QImageReader>
@@ -7,7 +8,7 @@
 #include <QTextStream>
 #include "support.h"
 #include "config.h"
-#include "falconG.h"
+#include "falcong.h"
 #include "albums.h"
 
 /* --------------------------------- helper functions -----------------------*/
@@ -948,24 +949,12 @@ bool CreateDir(QString sdir, bool ask, int dirIndex) // only create if needed
 
 	if (ask && __CancelCreate(sdir))
 		return false;
-	QStringList qsl = sdir.split('/');
-	QString spath;
-	bool res = true;
-	for (auto &s : qsl)
+	QDir dir(sdir);
+	if(!dir.mkpath("."))  // create all path recursively if it doesn't exist
 	{
-		spath += s;
-		if (!s.isEmpty() && spath != "/")
-		{
-			if (!folder.exists(spath))
-				res = folder.mkdir(spath);
-			if (!res)
-			{
-				s = QMainWindow::tr("Can't create folder") + QString("'%1'").arg(spath);
-				QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), s);
-				return false;
-			}
-			spath += "/";
-		}
+		QString s = QMainWindow::tr("Can't create folder") + QString("'%1'").arg(sdir);
+		QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), s);
+		return false;
 	}
 	return true;
 }

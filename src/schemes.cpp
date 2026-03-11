@@ -111,6 +111,8 @@ void FSchemeVector::ReadAndSetupSchemes()
 			fgst.sBoldTitleColor = s.value("BoldTitleColor", "").toString();
 			fgst.sSelectionColor = s.value     ("SelectionColor", "").toString();
 			fgst.sSelectionBackground = s.value("SelectionBackground", "").toString();
+			fgst.sSliderGroove = s.value("SliderGroove", "").toString();
+			fgst.sSliderHandle = s.value("SliderHandle", "").toString();
 
 			fgst.sSpacerColor = s.value("SpacerColor", "").toString();
 			s.endGroup();

@@ -49,7 +49,7 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>5.15.2_msvc2019_64</QtInstall>
-    <QtModules>core;gui;multimedia;widgets;concurrent;multimediawidgets;webengine;webenginewidgets</QtModules>
+    <QtModules>core;network;gui;multimedia;widgets;concurrent;multimediawidgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
@@ -57,7 +57,7 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>5.15.2_msvc2019_64</QtInstall>
-    <QtModules>core;gui;multimedia;widgets;concurrent;multimediawidgets;webengine;webenginewidgets</QtModules>
+    <QtModules>core;network;gui;multimedia;widgets;concurrent;multimediawidgets</QtModules>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
@@ -66,7 +66,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;QT_NO_DEBUG;NDEBUG;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NOCRYPT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
@@ -180,8 +180,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;DEBUG;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;DEBUG;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NOCRYPT;NOUNCRYPT;QUAZIP_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);.\zlib-1.3.2;.\quazip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -190,6 +190,7 @@
       <DisableSpecificWarnings>4100;4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -216,15 +217,32 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="albums.cpp" />
+    <ClCompile Include="ClickableLabel.cpp" />
     <ClCompile Include="config.cpp" />
-    <ClCompile Include="crc32.cpp" />
+    <ClCompile Include="crc32calc.cpp" />
     <ClCompile Include="csscreator.cpp" />
+    <ClCompile Include="designpage.cpp" />
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="filereader.cpp" />
+    <ClCompile Include="fontutils.cpp" />
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="dragdrop.cpp" />
+    <ClCompile Include="quazip\JlCompress.cpp" />
+    <ClCompile Include="quazip\qioapi.cpp" />
+    <ClCompile Include="quazip\quaadler32.cpp" />
+    <ClCompile Include="quazip\quachecksum32.cpp" />
+    <ClCompile Include="quazip\quacrc32.cpp" />
+    <ClCompile Include="quazip\quaziodevice.cpp" />
+    <ClCompile Include="quazip\quazip.cpp" />
+    <ClCompile Include="quazip\quazipdir.cpp" />
+    <ClCompile Include="quazip\quazipfile.cpp" />
+    <ClCompile Include="quazip\quazipfileinfo.cpp" />
+    <ClCompile Include="quazip\quazipnewinfo.cpp" />
+    <ClCompile Include="quazip\unzip.c" />
+    <ClCompile Include="quazip\zip.c" />
     <ClCompile Include="schemes.cpp" />
+    <ClCompile Include="slidewidget.cpp" />
     <ClCompile Include="structwriter.cpp" />
     <ClCompile Include="treeView.cpp" />
     <ClCompile Include="main.cpp">
@@ -252,11 +270,22 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="videoplayer.cpp" />
+    <ClCompile Include="zlib-1.3.2\adler32.c" />
+    <ClCompile Include="zlib-1.3.2\crc32.c" />
+    <ClCompile Include="zlib-1.3.2\deflate.c" />
+    <ClCompile Include="zlib-1.3.2\infback.c" />
+    <ClCompile Include="zlib-1.3.2\inffast.c" />
+    <ClCompile Include="zlib-1.3.2\inflate.c" />
+    <ClCompile Include="zlib-1.3.2\inftrees.c" />
+    <ClCompile Include="zlib-1.3.2\trees.c" />
+    <ClCompile Include="zlib-1.3.2\uncompr.c" />
+    <ClCompile Include="zlib-1.3.2\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="designpage.ui" />
     <QtUic Include="exportCSV.ui" />
     <QtUic Include="falcong.ui">
       <SubType>Designer</SubType>
@@ -271,13 +300,26 @@
     <QtRcc Include="falcong.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="quazip\quagzipfile.h" />
+    <ClInclude Include="quazip\zip.h" />
+    <ClInclude Include="zlib-1.3.2\crc32.h" />
+    <ClInclude Include="zlib-1.3.2\deflate.h" />
+    <ClInclude Include="zlib-1.3.2\inffast.h" />
+    <ClInclude Include="zlib-1.3.2\inffixed.h" />
+    <ClInclude Include="zlib-1.3.2\inflate.h" />
+    <ClInclude Include="zlib-1.3.2\inftrees.h" />
+    <ClInclude Include="zlib-1.3.2\trees.h" />
+    <ClInclude Include="zlib-1.3.2\zconf.h" />
+    <ClInclude Include="zlib-1.3.2\zlib.h" />
+    <ClInclude Include="zlib-1.3.2\zutil.h" />
+    <QtMoc Include="ClickableLabel.h" />
     <ClInclude Include="csscreator.h" />
     <QtMoc Include="videoplayer.h" />
     <QtMoc Include="textEditor.h" />
     <QtMoc Include="thumbnailView.h" />
     <QtMoc Include="albums.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="crc32.h" />
+    <ClInclude Include="crc32calc.h" />
     <QtMoc Include="treeView.h" />
     <QtMoc Include="sourcehistory.h" />
     <ClInclude Include="common.h" />
@@ -285,12 +327,30 @@
     <QtMoc Include="hidden.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </QtMoc>
+    <QtMoc Include="designpage.h" />
     <ClInclude Include="filereader.h" />
+    <QtMoc Include="fontutils.h" />
     <ClInclude Include="languages.h" />
     <QtMoc Include="structwriter.h" />
     <QtMoc Include="dragdrop.h" />
+    <ClInclude Include="quazip\ioapi.h" />
+    <ClInclude Include="quazip\JlCompress.h" />
+    <ClInclude Include="quazip\minizip_crypt.h" />
+    <ClInclude Include="quazip\quaadler32.h" />
+    <ClInclude Include="quazip\quachecksum32.h" />
+    <ClInclude Include="quazip\quacrc32.h" />
+    <QtMoc Include="quazip\quaziodevice.h" />
+    <ClInclude Include="quazip\quazip.h" />
+    <ClInclude Include="quazip\quazipdir.h" />
+    <QtMoc Include="quazip\quazipfile.h" />
+    <ClInclude Include="quazip\quazipfileinfo.h" />
+    <ClInclude Include="quazip\quazipnewinfo.h" />
+    <ClInclude Include="quazip\quazip_global.h" />
+    <ClInclude Include="quazip\quazip_qt_compat.h" />
+    <ClInclude Include="quazip\unzip.h" />
     <ClInclude Include="schemes.h" />
     <QtMoc Include="selectStruct.h" />
+    <QtMoc Include="slidewidget.h" />
     <ClInclude Include="stylehandler.h" />
     <ClInclude Include="support.h" />
   </ItemGroup>

@@ -1,13 +1,14 @@
-﻿#include "config.h"
+﻿#include "common.h"
+#include "config.h"
 
 // helper adds a semicolon and LF after the string
 // if s has more than one property (each should be in separate lines
 // semicolons must already be present for intermediate properties
-void __AddSemi(QString& s, bool addSemicolon)
+void __AddSemi(QString& s, bool addSemi)
 {
-	if (!s.isEmpty())
+	if (!s.isEmpty() && addSemi)
 	{
-		if (addSemicolon && s.length() && s[s.length()-1] != QChar('\n'))
+		if ( s.length() && s[s.length()-1] != QChar('\n'))
 			s = " " + s + ";";
 		if (s.length() && s[s.length() - 1] != QChar('\n'))
 			s += "\n";
@@ -17,6 +18,7 @@ void __AddSemi(QString& s, bool addSemicolon)
 
 QString PROGRAM_CONFIG::homePath;
 QString PROGRAM_CONFIG::samplePath;
+QString PROGRAM_CONFIG::fontDirPath;
 
 int PROGRAM_CONFIG::maxSavedConfigs;		// last 10 configuration directory is stored
 QStringList PROGRAM_CONFIG::lastConfigs;
@@ -46,6 +48,66 @@ static bool __bClearChangedFlag = false;	// set to true to clear the changed fla
 					// global variables for configuration 
 CONFIG config,		// must be here because _Changed uses it
 	   configSave;
+
+// ----- _CInTArray -------------
+int& _CIntArray::operator[](int i)
+{
+	if (i < 0)
+		return _arr[9999];	// may throw!
+	while (i >= _arr.size())
+		_arr.push_back(0), ++v;
+	return _arr[i];
+}
+
+QString _CIntArray::ToString()
+{
+	QString qs;
+	if (_arr.size())
+	{
+		qs = QString().setNum(_arr[0]);
+		for (int i = 1; i < _arr.size(); ++i)
+			qs += QString("|%1").arg(_arr[i]);
+	}
+	return qs;
+}
+void _CIntArray::Set(QString qs)
+{
+	_arr.clear();
+	QStringList sl = qs.split('|');
+	for (int i = 0; i < sl.size(); ++i)
+		_arr.push_back(sl[i].toInt());
+	v = _arr.size();
+}
+void _CIntArray::Read(QSettings& s, QString group)
+{
+	if (!group.isEmpty())
+		s.beginGroup(group);
+
+	QString qs = s.value("cintA", QString()).toString();
+	Set(qs);	// may modify 'v'
+	v0 = v;
+
+	if (!group.isEmpty())
+		s.endGroup();
+}
+void _CIntArray::Write(QSettings& s, QString group)
+{
+	if (!group.isEmpty())
+		s.beginGroup(group);
+	QString qs = ToString();
+	s.setValue("cintA", qs);
+	if (!group.isEmpty())
+		s.endGroup();
+}
+void _CIntArray::_Setup()
+{
+	if (vd && _arr.size() < vd)
+		_arr.resize(vd);
+};
+
+
+// ----- _CColor -------------
+
 
 /*========================== CONFIG_USED ====================*/
 void PROGRAM_CONFIG::Read()
@@ -139,7 +201,8 @@ void PROGRAM_CONFIG::GetHomePath()
 #endif
 	if (!QDir(homePath).exists())
 		QDir(homePath).mkdir(homePath);
-			samplePath = homePath+"sample/";
+	samplePath = homePath+"sample/";
+	fontDirPath = homePath + "gfonts/";
 }
 
 /*========================================================
@@ -328,6 +391,60 @@ QString _CDirStr::AddDirId(uint dirid)
 // ***********************************************************************************
 // --------------------------- _CColor ------------------------------
 // ***********************************************************************************
+void _CColor::_NormalizeName()
+{
+	if (_colorName.isEmpty())
+		return;
+	//if (_colorName.at(0) == '#') 
+	//	_colorName = _CColor::_colorName.mid(1);
+	if (_colorName.length() == 3)		// RGB ? => RRGGBB
+		_colorName = QString("%1%1%2%2%3%3").arg(_colorName.at(0)).arg(_colorName.at(1)).arg(_colorName.at(2));
+}
+
+void _CColor::_Setup()			// from 'v' read from settings
+{
+	if (!_ColorStringValid(v))	// adds # at front of 'v' if it is not there
+		return;
+	_colorName = v.mid(1);		// but we cut the '#' here
+
+	int len = _CColor::_colorName.length(),			// can be 2, 3, 6, 8, or 9 (AA, AA-, RGB, RRGGBB, AARRGGBB, AARRGGBB- )  
+		len1 = _CColor::_colorName.at(len - 1) == '-' ? len - 1 : len; // without the '-' at the end, any other cases opacity is 100% (255) and not used
+
+	if (len == 2 || len1 == 8 || len1 == len - 1)		// _CColor::_colorName == AA, AA-, AARRGGBB, AARRGGBB-
+	{
+		_opacity = (_colorName.mid(0, 2)).toInt(nullptr, 16);
+		_colorName = _CColor::_colorName.mid(2, len1 - 2);		// cut opacity part
+	}
+	else	// _CColor::_colorname == RGB || RRGGBB
+		_opacity = 255;		// it will not be used
+
+	if ((len1 == len - 1))
+		_opacity = -_opacity;
+
+	_NormalizeName();		// set to AARRGGBB
+	_Prepare();
+}
+void _CColor::_Prepare()		// v from internal (changed) variables
+{								// if not empty v starts with '#' and has 6 or 8 characters
+	// name w.o. opacity in _CColor::_colorName: RRGGBB or AARRGGBB  (no # at the start!)
+	QString qs = _CColor::_colorName;
+	if (qs.isEmpty())
+	{
+		v.clear();
+		return;
+	}
+	//if (qs.at(0) == QChar('#'))	never have # at front
+	//	qs.remove(QChar('#'));
+	int op = qAbs(_opacity);
+	if (op != 0xFF)
+		v = QString("#%1").arg(op, 2, 16, QChar('0')) + _CColor::_colorName;	// name with opacity
+	else
+		v = "#" + qs;
+
+	if (!v.isEmpty() && op != 0xFF && _CColor::_opacity < 0)		// name with opacity: #AARRGGBB but AA ==0xFF => opacity = 100%
+		v = v + '-';
+}
+
 
 /*===========================================================================
  * TASK: assign a QString to a _CColor and modify opacity
@@ -411,14 +528,14 @@ QString _CColor::ToRgbaStringForCss() const
 	return qs;
 }
 
-QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorthand) const
+QString _CColor::ForStyleSheet(bool addSemi, bool isBackground, bool withItemName) const
 {
 	QString qs;
 	if (!_colorName.isEmpty())
 	{
 		if (isBackground)
 		{
-			if (!shorthand)
+			if (withItemName)
 				qs = "\tbackground-color:";
 		}
 		else
@@ -430,7 +547,7 @@ QString _CColor::ForStyleSheet(bool addSemiColon, bool isBackground, bool shorth
 
 		//if (shorthand)
 		//	qs += " ";
-		__AddSemi(qs, addSemiColon);
+		__AddSemi(qs, addSemi);
 	}
 	return qs;
 }
@@ -512,6 +629,41 @@ bool _CColor::_ColorStringValid(QString &s)
 // ***********************************************************************************
 // --------------------------- _CTextDecoration ------------------------------
 // ***********************************************************************************
+QString _CTextDecoration::TextDecorationLineStr() const
+{
+	if ((v & (int)(tdUnderline | tdOverline | tdLinethrough)) == 0)
+		return "none";
+
+	return DecorationStr(tdUnderline) +
+		DecorationStr(tdLinethrough) +
+		DecorationStr(tdOverline)
+		;
+}
+QString _CTextDecoration::DecorationStr(Decoration deco) const
+{
+	if (v & (int)deco)
+		switch (deco)
+		{
+			case tdNone:					return "none ";
+			case tdUnderline:			return "underline ";
+			case tdLinethrough:			return "line-through ";
+			case tdOverline:				return "overline ";
+			case tdSolid:				return "solid ";
+			case tdDotted:				return "dotted ";
+			case tdDashed:				return "dashed ";
+			case tdDouble:				return "double ";
+			case tdWavy:					return "wavy ";
+			default: break;
+		}
+	return QString();
+}
+QString _CTextDecoration::TextDecorationStyleStr() const
+{
+	if (!v)
+		return QString();
+
+	return DecorationStr(tdSolid) + DecorationStr(tdDotted) + DecorationStr(tdDouble) + DecorationStr(tdWavy) + DecorationStr(tdDashed);	// only one of these must be set!
+}
 
 QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 {
@@ -525,9 +677,9 @@ QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 			qs += qsTmp;
 		}
 	};
-	addProp("text-decoration-line", TextDecorationLineStr());
+	addProp("\ttext-decoration-line", TextDecorationLineStr());
 	if(v != tdNone)
-		addProp("text-decoration-style", TextDecorationStyleStr());
+		addProp("\ttext-decoration-style", TextDecorationStyleStr());
 	return QString();
 }
 
@@ -547,13 +699,13 @@ QString _CFont::ForStyleSheet(bool addSemiColon) const
 			qs += qsTmp;
 		}
 	};
-	addProp("font-family", Family());
-	addProp("font-size", SizeStr());
-	addProp("line-height", LineHeightStr());
+	addProp("\tfont-family", Family());
+	addProp("\tfont-size", SizeStr());
+	addProp("\tline-height", LineHeightStr());
 	if (Bold())
-		addProp("font-weight", WeightStr());
+		addProp("\tfont-weight", WeightStr());
 	if (Italic())
-		addProp("font-style", "italic");
+		addProp("\tfont-style", "italic");
 
 	return qs;
 }
@@ -576,24 +728,24 @@ void _CFont::Set(QString fam, QString siz, QString slh, int feat, QString sFsSiz
 	_details.push_back(slh);
 	_details.push_back(QString().setNum(feat) );
 	_details.push_back("0");			// default: no different first line
-	_details.push_back(_details[fSiz]);	// first line same as others
+	_details.push_back(_details[fontSize]);	// first line same as others
 	if(!sFsSize.isEmpty())	
 	{
-		_details[fDiffF] = "1";	// different first line
-		_details[fFirstS] = sFsSize;
+		_details[fontDifferentFirstLine] = "1";	// different first line
+		_details[fontFirstLineSize] = sFsSize;
 	}
 
 	_Prepare();
 }
 void _CFont::SetFamily(QString fam)
 {
-	_details[fFam] = fam;
+	_details[fontFamily] = fam;
 	_Prepare();
 }
 
 void _CFont::SetFeature(Style feat, FeatureOp op)
 {
-	int fs = _details[fFeat].toInt(),
+	int fs = _details[fontStyle].toInt(),
 		f = (int) feat;
 
 	if (op == foClearAll || op == foClearOthersAndSet)
@@ -603,7 +755,7 @@ void _CFont::SetFeature(Style feat, FeatureOp op)
 	if (op == foSet)
 		fs |= f;
 
-	_details[fFeat] = QString().setNum(fs);
+	_details[fontStyle] = QString().setNum(fs);
 	_Prepare();
 }
 void _CFont::SetFeature(Style feat, bool on)
@@ -618,13 +770,13 @@ void _CFont::SetSize(int pt)
 
 void _CFont::SetSize(QString s)
 {
-	_details[fSiz] = s;
+	_details[fontSize] = s;
 	_Prepare();
 }
 
 void _CFont::SetLineHeight(QString qslh)
 {
-	_details[fLineH] = qslh;
+	_details[fontLineHeight] = qslh;
 	_Prepare();
 }
 
@@ -632,13 +784,13 @@ void _CFont::SetDifferentFirstLine(bool set, QString size)
 {
 	_details[4] = set ? "1" : "0";
 	if (!size.isEmpty())
-		_details[fFirstS] = size;
+		_details[fontFirstLineSize] = size;
 }
 
 void _CFont::_Prepare()
 {				  // only add first line size if used or different from font size
-	int n = _details[fDiffF] == "1" && _details[fSiz] != _details[fFirstS] ? 6 : 4;
-	v = _details[fFam];
+	int n = _details[fontDifferentFirstLine] == "1" && _details[fontSize] != _details[fontFirstLineSize] ? 6 : 4;
+	v = _details[fontFamily];
 	for (int i = 1; i < n; ++i)
 		v += "|" + _details[i];
 }
@@ -763,29 +915,27 @@ void _CShadow::Set(int horiz, int vert, int blur, int spread, QString clr, bool 
 
 QString _CShadow::ForStyleSheet(bool addSemiColon, bool first_line, int which) const
 {
+	if (!IsSet() || !Used())
+		return QString();
+
+	QString res;
+	if (first_line)
+		res = which ? "\ttext-shadow:" : "\tbox-shadow:";
+	else
+		res = ", ";
+	res += _details[1] + "px " + _details[2] + "px";
+	if (which)			// box shadow has optional 'spread', text shadow doesn't
 	{
-		if (!IsSet() || !Used())
-			return QString();
-
-		QString res;
-		if (first_line)
-			res = which ? "text-shadow:" : "box-shadow:";
-		else
-			res = ", ";
-		res += _details[1] + "px " + _details[2] + "px";
-		if (which)			// box shadow has optional 'spread', text shadow doesn't
-		{
-			if (_details.at(4) != '0')
-				res += " " + _details[3] + "px" + " " + _details[4] + "px";
-		}
-		else if(_details.at(3) != '0')
-				res += " " + _details[3] + "px" + " " + _details[4] + "px";
-			// always add color as 'Safari' on PC will not display the shadow otherwise (2020.11.16.)
-		res += " " + _details[5];
-		__AddSemi(res, addSemiColon);
-
-		return res;
+		if (_details.at(4) != '0')
+			res += " " + _details[3] + "px" + " " + _details[4] + "px";
 	}
+	else if(_details.at(3) != '0')
+			res += " " + _details[3] + "px" + " " + _details[4] + "px";
+		// always add color as 'Safari' on PC will not display the shadow otherwise (2020.11.16.)
+	res += " " + _details[5];
+	__AddSemi(res, addSemiColon);
+
+	return res;
 }
 
 /*===========================================================================
@@ -844,9 +994,9 @@ QString _CGradient::ForStyleSheet(bool semi) const
 {
 	QString qs;
 	if (!used) 
-		qs = QString("background-image:none");
+		qs = QString("\tbackground-image:none");
 	else
-		qs = QString("background-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
+		qs = QString("\tbackground-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
 								.arg(gs[0].color).arg(gs[0].percent)
 								.arg(gs[1].color).arg(gs[1].percent)
 								.arg(gs[2].color).arg(gs[2].percent);
@@ -902,46 +1052,173 @@ void _CGradient::_Prepare()		// to store in settings
 
 // ------------------------------------- _CBorder ------------------------------------------------
 
+QString _CBorder::StyleStr(BorderSide sd)	 const
+{
+	int ix = _sd2i(sd);
+	switch (_styleIndex[ix])
+	{
+		default:
+		case bsNone  :	return "none";
+		case bsSolid :  return "solid";
+		case bsDotted:	return "dotted";
+		case bsDashed:	return "dashed";
+		case bsDouble:	return "double";
+		case bsGroove:	return "groove";
+		case bsRidge :	return "ridge";
+		case bsInset :	return "inset";
+		case bsOutset:	return "outset";
 
+	}
+}
 
+void _CBorder::SetUsed(BorderSide side, bool on)
+{
+
+	if ((int)side == (int)sdAll)
+		_used = on ? 15 : 0;
+	else
+	{
+		_used &= ~(int)side;
+		if (on)
+			_used |= (int)side;
+	}
+	_Prepare();
+}
+
+void _CBorder::SetWidth(BorderSide sd, int width)
+{
+	switch (sd)
+	{
+		case sdAll:		_widths[0] = _widths[1] = _widths[2] = _widths[3] = width; break;
+		case sdTop:		_widths[0] = width; break;
+		case sdRight:	_widths[1] = width; break;
+		case sdBottom:	_widths[2] = width; break;
+		case sdLeft:	_widths[3] = width; break;
+		default:;
+	}
+	_CountWidths();
+}
+void _CBorder::SetColor(BorderSide sd, QString color)		// starts with '#'
+{
+	if (color.at(0) != '#')
+		color = "#" + color;
+	switch (sd)
+	{
+		case sdAll:		_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = color; break;
+		case sdTop:		_colorNames[0] = color; break;
+		case sdRight:	_colorNames[1] = color; break;
+		case sdBottom:	_colorNames[2] = color; break;
+		case sdLeft:	_colorNames[3] = color; break;
+		default:;
+	}
+	_CountWidths();
+	_Prepare();
+}
+void _CBorder::SetBorderStyle(BorderSide sd, BorderStyle ix)	//ix==0 -> no border
+{
+	if (sd == sdAll)
+		_styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix;
+	else
+		_styleIndex[_sd2i(sd)] = ix;
+	_CountWidths();
+	_Prepare();
+}
+void _CBorder::SetRadius(int radius)
+{
+	_radius = radius;
+	_Prepare();
+}
+
+void _CBorder::SetUsedSide(BorderSide sd, bool on)
+{
+	if (sd == sdAll)
+		_used = on ? 15 : 0;	// 15 = 1 + 2 + 4 +8 
+	else if (on)
+		_used |= (int)sd;
+	else
+		_used &= ~(int)sd;
+}
+constexpr int _CBorder::_sd2i(BorderSide sd) const
+{
+	switch (sd)
+	{
+		case sdTop: return 0;
+		case sdRight: return 1;
+		case sdBottom: return 2;
+		case sdLeft: return 3;
+		case sdAll:
+		default: return 0;
+	}
+}
+int _CBorder::_IndexOfColor(QStringList& _details)	const	// use on unprocessed stringlist
+{
+	switch (_details.size())
+	{
+		case 4:	return 3;
+		case 5:
+		case 6: return _details[4].at(0) == '#' ? 4 : 3;
+		case 7:
+		case 8: return 6;
+		default: return 0;
+	}
+}
 /*========================================================
  * TASK:	Sets border styles
  * PARAMS:	semi: if set prepends a TAB and appends a semicolon
  *				after each line
  * GLOBALS:
  * RETURNS:
- * REMARKS: - returns border-top:, border-right, border-bottom
- *				border-left and border-radius
- *			- can't use different colors for 
- *				each side
- *			- may not use the shorthand as it only works if no
+ * REMARKS: - returns either a single line for all borders or
+ *				4 lines for the 4 sides:top/right/bottom/left
+ *			- can't use different widths or colors on the sides
+ *			- may not use the shorthand which only works if no
  *			  radius is given
  *-------------------------------------------------------*/
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
 	if (!UsedSides())
 	{
-		QString qs = "border:none";
+		QString qs = "\tborder:none";
 		__AddSemi(qs,semi);
 		return qs;
 	}
 
-	QString res,res2,res3,res4;
-	res = QString("border-top:%1px %2 %3").arg(_widths[sdTop]).arg(StyleStr(sdTop)).arg(ColorStr(sdTop));
-	res2 = QString("border-right:%1px %2 %3").arg(_widths[sdRight]).arg(StyleStr(sdRight)).arg(ColorStr(sdRight));
-	res3 = QString("border-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(StyleStr(sdBottom)).arg(ColorStr(sdBottom));
-	res4 = QString("border-left:%1px %2 %3").arg(_widths[sdLeft]).arg(StyleStr(sdLeft)).arg(ColorStr(sdLeft));
-	__AddSemi(res , semi);
-	__AddSemi(res2, semi);
-	__AddSemi(res3, semi);
-	__AddSemi(res4, semi);
-	res += res2 + res3 + res4;
+	QString res;
+	if (UsedSides() == (int)sdAll)	// all sides
+	{
+		res = QString("\tborder:%1px %2 %3").arg(_widths[sdTop]).arg(StyleStr(sdTop)).arg(ColorStr(sdTop));
+		__AddSemi(res,semi);
+	}
+	else
+	{
+		QString res1, res2, res3, res4;
+		if (UsedSides() & (int)sdTop)
+		{
+			res1 = QString("\tborder-top:%1px %2 %3").arg(_widths[sdTop]).arg(StyleStr(sdTop)).arg(ColorStr(sdTop));
+			__AddSemi(res1, semi);
+		}
+		if (UsedSides() & (int)sdRight)
+		{
+			res2 = QString("\tborder-right:%1px %2 %3").arg(_widths[sdRight]).arg(StyleStr(sdRight)).arg(ColorStr(sdRight));
+			__AddSemi(res2, semi);
+		}
+		if (UsedSides() & (int)sdBottom)
+		{
+			res3 = QString("\tborder-bottom:%1px %2 %3").arg(_widths[sdBottom]).arg(StyleStr(sdBottom)).arg(ColorStr(sdBottom));
+			__AddSemi(res3, semi);
+		}
+		if (UsedSides() & (int)sdLeft)
+		{
+			res4 = QString("\tborder-left:%1px %2 %3").arg(_widths[sdLeft]).arg(StyleStr(sdLeft)).arg(ColorStr(sdLeft));
+			__AddSemi(res4, semi);
+		}
+		res = res1 + res2 + res3 + res4;
+	}
 		
 	if (_radius)
 	{
-		res2 = QString("border-radius:%1px").arg(config.Menu.border.Radius());
-		__AddSemi(res2, semi);
-		res += res2;
+		res += QString("\tborder-radius:%1px;\n").arg(config.Menu.border.Radius());
+		__AddSemi(res, semi);
 	}
 
 	return res;
@@ -951,12 +1228,12 @@ QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
 {
 	QString res;
 	if (!UsedSides())
-		res = "border:none";
+		res = "\tborder:none";
 	else
 	{
 		if (_sizeWidths > 1)
 			return ForStyleSheet(semicolonAtLineEnds);
-		res = QString("border:%1px %2 %3").arg(_widths[0]).arg(StyleStr(sdAll)).arg(_colorNames[0]);
+		res = QString("\tborder:%1px %2 %3").arg(_widths[0]).arg(StyleStr(sdAll)).arg(_colorNames[0]);
 	}
 	__AddSemi(res, semicolonAtLineEnds);
 	return res;
@@ -1009,14 +1286,14 @@ void _CBorder::_Setup()
 			_radius = qsl[4].toInt();
 		case 4:
 			_widths[0] = _widths[1] = _widths[2] = _widths[3] = qsl[1].toInt();
-			_styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = qsl[2].toInt();
+			_styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = (BorderStyle)qsl[2].toInt();
 			_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = qsl[3];
 			break;
 		case 8:
 			_radius = qsl[7].toInt();
 		case 7:
 			_widths[0] = _widths[2] = qsl[1].toInt(); _widths[1] = _widths[3] = qsl[2].toInt();
-			_styleIndex[0] = _styleIndex[2] = qsl[3].toInt(); _styleIndex[1] = _styleIndex[3] = qsl[4].toInt();
+			_styleIndex[0] = _styleIndex[2] = (BorderStyle)qsl[3].toInt(); _styleIndex[1] = _styleIndex[3] = (BorderStyle)qsl[4].toInt();
 			_colorNames[0] = _colorNames[2] = qsl[5];  _colorNames[1] = _colorNames[3] = qsl[6];
 			break;
 		case 14:
@@ -1026,10 +1303,10 @@ void _CBorder::_Setup()
 			_widths[1] = qsl[2].toInt();
 			_widths[2] = qsl[3].toInt();
 			_widths[3] = qsl[4].toInt();
-			_styleIndex[0] = qsl[5].toInt();
-			_styleIndex[1] = qsl[6].toInt();
-			_styleIndex[2] = qsl[7].toInt();
-			_styleIndex[3] = qsl[8].toInt();
+			_styleIndex[0] = (BorderStyle)qsl[5].toInt();
+			_styleIndex[1] = (BorderStyle)qsl[6].toInt();
+			_styleIndex[2] = (BorderStyle)qsl[7].toInt();
+			_styleIndex[3] = (BorderStyle)qsl[8].toInt();
 			_colorNames[0]= qsl[9];
 			_colorNames[1]= qsl[10];
 			_colorNames[2]= qsl[11];
@@ -1071,27 +1348,32 @@ void _CBorder::_Prepare()
 
 // -------------------------------------------------------------------------------------
 
-QString _CElem::ColorsForStyleSheet(bool addSemicolon) const
+QString _CElem::ColorsForStyleSheet(bool addSemi) const
 {
-	return color.ForStyleSheet(addSemicolon, false) + 
-			background.ForStyleSheet(addSemicolon, true);
+	return color.ForStyleSheet(addSemi, notForBackground) + 
+			background.ForStyleSheet(addSemi, forBackground);
 }
 
 QString _CElem::ForStyleSheet(bool semi) const	// w.o. different first line for font with possibly semicolon
 {											// because that must go to a different css class
-	QString qs = color.ForStyleSheet(semi, false);
+	QString qs = color.ForStyleSheet(semi, notForBackground);
 	if (ClassName() != "WEB" && !background.Name().isEmpty() && background.v != config.Web.background.v)
-		qs += background.ForStyleSheet(semi, true);
+		qs += background.ForStyleSheet(semi, forBackground);
 
 	qs += gradient.ForStyleSheet(semi)
 		 + font.ForStyleSheet(semi)
 		 + decoration.ForStyleSheet(semi)
 		 + alignment.ForStyleSheet(semi)
-		 + shadow1[0].ForStyleSheet(semi, true,0)	// first shadow for text (right + down) 
-		 + shadow2[0].ForStyleSheet(semi, true,1)	// 2nd shadow for text
-		 + shadow1[1].ForStyleSheet(semi, false,0)	// 2nd shadow (left + up) 
-		 + shadow2[1].ForStyleSheet(semi, false,1)
 		 + border.ForStyleSheet(semi);
+	if(shadow1[0].Used())
+		 qs +=  shadow1[0].ForStyleSheet(semi, firstOne,0) +	// first shadow for text (right + down) 
+				shadow2[0].ForStyleSheet(semi, firstOne,1);	// 2nd shadow for text
+	if(shadow2[0].Used())
+		 qs +=  shadow1[1].ForStyleSheet(semi, notFirstOne,0) +	// 2nd shadow (left + up) 
+				shadow2[1].ForStyleSheet(semi, notFirstOne,1);
+
+	if (padding.v)
+		qs += QString("padding:%1px").arg(padding.v);
 
 	return qs;
 }
@@ -1209,6 +1491,13 @@ _CElem& _CElem::operator=(const _CElem& o)
 	return *this;
 }
 
+QString _CMenuElem::ForStyleSheet(bool semi) const	// w.o. different first line for font with possibly semicolon
+{											// because that must go to a different css class
+	QString qs = _CElem::ForStyleSheet(semi);
+	qs += QString("\tpadding:4px 10px 3px;");
+
+	return qs;
+}
 /*===========================================================================
 * TASK:  operator= for _CWaterMark
 * EXPECTS:	cwm - the other _CWaterMark
@@ -1310,16 +1599,21 @@ void _CBackgroundImage::SetNames(QString name)
 		// when _RunJavaScript is called in falconG.cpp
 }
 // ********************************* Background Image ********************
-QString _CBackgroundImage::Url(bool shorthand, bool forWebPage) const
+QString _CBackgroundImage::Url(bool for_web_page) const
 {
 
 	if (v == (int)hNotUsed || fileName.isEmpty() )
 		return QString();
+	QString f = fileName;
 	QString qsN; 
-	if (forWebPage) //shorthand || addSemicolon)	// then for WEb page
+	if (for_web_page) //shorthand || addSemicolon)	// then for WEb page
 		qsN = QString("url(\"%1\")").arg(webName);
 	else				// for sample
-		qsN = QString("url(\"file:///%1\")").arg(fileName);
+	{
+		if (f.indexOf(':') == -1)
+			qsN = ":";
+		qsN = QString("url(\"%1%2\")").arg(qsN).arg(f);
+	}
 	return qsN;
 }
 
@@ -1380,16 +1674,17 @@ QString _CBackgroundImage::Repeat() const
 	return qs;
 }
 
-QString _CBackgroundImage::ForStyleSheet(bool forWebPage) const
+QString _CBackgroundImage::ForStyleSheet(bool forWebPage, bool addSemi, bool plusPropName) const
 {	// don't add semnicolon for shorthand
-	QString url = Url(false, forWebPage);
+	QString url = Url(forWebPage);
 	if (url.isEmpty())
 		return url;
-	QString qs = "\tbackground:" + url;
-	qs += Repeat();
+	QString qs;
+	if (plusPropName) qs = "\tbackground:";
+	qs += url + Repeat();
 	qs += Position();
 	qs += Size();
-	__AddSemi(qs, true);
+	__AddSemi(qs, addSemi);
 	return  qs;
 }
 
@@ -1491,6 +1786,9 @@ void CONFIG::ClearChanged()
 	imageMatteWidth.ClearChanged();
 	imageMatteRadius.ClearChanged();
 	imageMatteColor.ClearChanged();
+
+	albumMargin.ClearChanged();
+	albumBorder.ClearChanged();
 	albumMatteWidth.ClearChanged();
 	albumMatteRadius.ClearChanged();
 	albumMatteColor.ClearChanged();
@@ -1718,6 +2016,8 @@ void CONFIG::FromDesign(const CONFIG &cfg)		// synchronize with Read!
 	imageMatteColor = cfg.imageMatteColor;
 	imageMatteRadius = cfg.imageMatteRadius;
 
+	// albumMargin = cfg.albumMargin; albums and images have the same margin
+	albumBorder = cfg.albumBorder;
 	albumMatteWidth = cfg.albumMatteWidth;
 	albumMatteColor = cfg.albumMatteColor;
 	albumMatteRadius = cfg.albumMatteRadius;
@@ -1840,6 +2140,8 @@ void CONFIG::Read()		// synchronize with Write!
 	imageMatteColor.Read(s);
 	imageMatteRadius.Read(s);
 	// album decoration
+	albumMargin.Read(s);
+	albumBorder.Read(s);
 	albumMatteWidth.Read(s);
 	imageMatteRadius.Read(s);
 	albumMatteColor.Read(s);
@@ -1984,6 +2286,8 @@ void CONFIG::_WriteIni(QString sIniName)
 	imageMatteWidth.Write(s);
 	imageMatteColor.Write(s);
 	// album decoration
+	albumMargin.Write(s);
+	albumBorder.Write(s);
 	albumMatteWidth.Write(s);
 	imageMatteRadius.Write(s);
 	albumMatteColor.Write(s);
@@ -2084,9 +2388,9 @@ uint CONFIG::GetDirIndexFor(uint& dirIndex, int size, uint& lastN) const
 	return dirIndex;
 }
 
-QString _CTextAlign::ForStyleSheet(bool addSemiColon) const
+QString _CTextAlign::ForStyleSheet(bool addSemi) const
 {
-	QString qs = v == alNone ? QString() : "text-align:" + ActAlignStr();
-	__AddSemi(qs, addSemiColon);
+	QString qs = v == alNone ? QString() : "\ttext-align:" + ActAlignStr();
+	__AddSemi(qs, addSemi);
 	return qs;
 }

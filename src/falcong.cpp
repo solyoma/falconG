@@ -12,11 +12,13 @@
 
 #include <string>
 
+#include "common.h"
 #include "support.h"
 #include "dragdrop.h"
 #include "config.h"
 #include "stylehandler.h"
 #include "albums.h"
+#include "designpage.h"
 #include "falcong.h"
 #include "treeView.h"
 #include "sourcehistory.h"
@@ -52,7 +54,7 @@ QWidget* frmMain = nullptr;		// can't be FalconG, because I want to use this in 
 /*------------------------------------- macros ------------------------------------*/
 
 // DEBUG
-void ShowStyleOf(QWidget *pq) 
+static void ShowStyleOf(QWidget *pq) 
 {
 	QMessageBox msgb; msgb.setText(pq->styleSheet()); 
 	msgb.setInformativeText("\nStyle for " + pq->objectName());
@@ -165,13 +167,14 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	CreateDir(PROGRAM_CONFIG::samplePath+"css");
 	CreateDir(PROGRAM_CONFIG::samplePath+"js");
 	CreateDir(PROGRAM_CONFIG::samplePath+"res");
+
+	CreateDir(PROGRAM_CONFIG::fontDirPath);	// downloaded and extracted google fonts come here
 	config.doNotShowTheseDialogs = ask;
 
 	QString resPPath = QStringLiteral(":/Preview/Resources/"),
 			resIPath = QStringLiteral(":/icons/Resources/");
 	_CopyResourceFileToSampleDir(resPPath, "index_hu.html");
 	_CopyResourceFileToSampleDir(resPPath, "index_en.html");
-	_CopyResourceFileToSampleDir(resPPath, "falconGGen.js");
 	_CopyResourceFileToSampleDir(resPPath, "falconG.js");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder.jpg");
 	_CopyResourceFileToSampleDir(resPPath, "placeholder2.jpg");
@@ -207,16 +210,15 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.btnSaveStruct->setVisible(false);
 #endif
 
-	connect(&_page, &WebEnginePage::LinkClickedSignal, this, &FalconG::_SlotLinkClicked);
-	connect(&_page, &WebEnginePage::loadFinished, this, &FalconG::_SlotWebPageLoaded);
-
 	ui.edtWmHorizMargin->setValidator(new QIntValidator(0, 100, ui.edtWmHorizMargin));
 	ui.edtWmVertMargin->setValidator(new QIntValidator(0, 100, ui.edtWmVertMargin));
 
-	ui.sample->setPage(&_page);
+	// design page
+	connect(ui.pageDesigner, &DesignPage::SignalClicked, this, &FalconG::_SlotLinkClicked);
+	connect(this, &FalconG::_SignalItemStyleChanged, ui.pageDesigner, &DesignPage::SlotItemStyleChanged);
 
 	QString index_html = PROGRAM_CONFIG::samplePath + (PROGRAM_CONFIG::lang <= 0 ? "index_en.html" : "index_hu.html");
-	_page.load(QUrl::fromLocalFile(index_html));
+	// ??? _page.load(QUrl::fromLocalFile(index_html));
 
 	ui.trvAlbums->setHeaderHidden(true);
 	ui.trvAlbums->setModel(new AlbumTreeModel());
@@ -288,6 +290,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	restoreState(s.value("wstate").toByteArray());
 
 	config.Read();				
+	_AddGoogleFontsToFontDataBase();
 
 	languages.Read();
 
@@ -316,15 +319,17 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	// now that everything is ready
 	_SetProgramScheme();
 	_AddSchemeButtons();
-	++_busy;
-	on_lwColorScheme_currentRowChanged(0);
-	--_busy;
-
 	_ModifyGoogleFontImport();
 
-	_ConfigToUI();
+	++_busy;
+	on_lwColorScheme_currentRowChanged(0);
 
+
+	_ConfigToUI();
 	config.ClearChanged();
+
+	emit _SignalItemStyleChanged(-1);	// show all chenges on sample
+	--_busy;
 
 	// bread crumbs
 	ui.breadcrumbLayout->setSpacing(4);
@@ -501,8 +506,12 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 		{
 			PROGRAM_CONFIG::indexOfLastUsed = SourceHistory::Selected();
 			config.Read();
+			_AddGoogleFontsToFontDataBase();
 
+			++_busy;
 			_ConfigToUI();	// edit values from config
+			emit _SignalItemStyleChanged(-1);	// show all chenges on sample
+			--_busy;
 
 			QString s = ui.edtSourceGallery->text().trimmed();
 			if (ui.edtSourceGallery->text().isEmpty())
@@ -511,7 +520,7 @@ void FalconG::on_btnSelectSourceGallery_clicked()
 				ui.edtSourceGallery->setText(PROGRAM_CONFIG::lastConfigs.at(PROGRAM_CONFIG::indexOfLastUsed));
 				--_busy;
 			}
-			_ConfigToSample();
+			emit _SignalItemStyleChanged(-1);
 
 			_ReadLastAlbumStructure();
 
@@ -684,7 +693,7 @@ void FalconG::_EnableButtons()
 	ui.btnSaveConfig->setEnabled(config.Changed());
 }
 
-_CElem* FalconG::_PtrToElement(AlbumElement ae)
+_CElem* FalconG::_PtrToElement(AlbumElement ae) const
 {
 	if (ae == aeUndefined)
 		ae = _aeActiveElement;
@@ -734,71 +743,9 @@ void FalconG::_SaveLinkIcon()
 {
 		QString qs = "res/up-link.png";		// existing icon
 		QFile::remove(qs);					// delete
-		QIcon icon = _SetUplinkIcon();		// from original file w. new color (see around line# 2596)
+		QIcon icon = config.UplinkIcon();	// from original file w. new color (see around line# 2596)
 		icon.pixmap(64,64).save(qs);		// and save back
 //		qs = "background-image: " + qs;
-}
-
-/*========================================================
- * TASK:	sets all characteristics of sample element
- *			from the actual given _CElem in config
- * PARAMS:	ae - element index or aeUndefined when
- *				it uses _aeActiveElement
- * GLOBALS: config
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::_ElemToSample(AlbumElement ae, ElemSubPart esp)
-{
-	if (ae == aeUndefined)
-		ae = _aeActiveElement;
-
-	_CElem* pElem = _PtrToElement(ae);
-
-	if (ae == aeWebPage)
-	{
-		if(esp == espAll || esp == espColor)
-			_PageColorToSample();
-		if(esp == espAll || esp == espBackground)
-			_PageBackgroundToSample();
-	}
-	else
-	{
-		if(esp == espAll || esp == espColor)
-			_ColorToSample(pElem);
-		if(esp == espAll || esp == espBackground)
-			_BackgroundToSample(pElem);
-	}
-	if(esp == espAll || esp == espFont)
-		_FontToSample(pElem);
-	if(esp == espAll || esp == espSpaceAfter)
-		_SpaceAfterToSample(pElem);
-	if(esp == espAll || esp == espTextDecor)
-		_DecorationToSample(pElem);
-	if(esp == espAll || esp == espShadow1 || esp == espShadow)
-		_ShadowToSample(pElem, 0);	// text
-	if(esp == espAll || esp == espShadow2 || esp == espShadow1)
-		_ShadowToSample(pElem, 1);	// box
-	if(esp == espAll || esp == espGradient)
-		_SetLinearGradient(pElem);
-	if(esp == espAll || esp == espBorder)
-		_BorderToSample(pElem);
-	if(esp == espAll || esp == espTextAlign)
-		_TextAlignToSample(pElem);
-
-	// menus: set uplink icon
-	if (ae == aeMenuButtons)
-	{	
-		if(esp == espAll || esp == espLinkIcon)
-			_SaveLinkIcon();
-		if(esp == espAll || esp == espBackgroundImage)
-			_SetCssProperty(&config.Menu, "background-image:url(\"res/up-link.png\")", "#uplink");
-	}
-}
-
-void FalconG::_ElemToSample(ElemSubPart esp)
-{
-	_ElemToSample(_aeActiveElement, esp);
 }
 
 // helper
@@ -823,14 +770,12 @@ void FalconG::_GlobalsToUi()
 	}
 	ui.hsImageSizeToShow->setValue(config.backgroundImage.size);
 	_LoadBckImage(config.backgroundImage.fileName);
-	if (config.backgroundImage.v != (int)hNotUsed)
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// for sample page
 
 	--_busy;
 }
 
 /*=============================================================
- * TASK:	fill in interface lements from stored value
+ * TASK:	fill in interface elements from stored values
  * PARAMS:
  * GLOBALS:
  * RETURNS:
@@ -840,7 +785,7 @@ void FalconG::_ActualSampleParamsToUi()
 {
 	_CElem* pElem = _PtrToElement();
 
-	if (pElem->kind == aeThumb)		// set in _ConfigToUI and no need to update it
+	if (!pElem || pElem->kind == aeThumb)		// set in _ConfigToUI and no need to update it
 		return;
 
 	++_busy;
@@ -934,44 +879,19 @@ void FalconG::_ActualSampleParamsToUi()
 }
 
 
-/*============================================================================
-* TASK:		set all characteristics of the sample gallery from 'config'
-* EXPECTS: 'config' is set up
-* GLOBALS:  'config'
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void FalconG::_ConfigToSample(ElemSubPart esp)
+void FalconG::_SetConfigChanged(bool yes)	// doesn't disable save if it was enabled before
 {
-	++_busy;		// prevent page changes until last settings
-
-	_ElemToSample(aeWebPage, esp);
-	_ElemToSample(aeHeader, esp);
-	_ElemToSample(aeMenuButtons, esp);
-	_ElemToSample(aeLangButton, esp);
-	_ElemToSample(aeSmallTitle, esp);
-	_ElemToSample(aeGalleryTitle, esp);
-	_ElemToSample(aeGalleryDesc, esp);
-	_ElemToSample(aeSection, esp);
-	_ElemToSample(aeImageTitle, esp);
-	_ElemToSample(aeImageDesc, esp);
-	_ElemToSample(aeLightboxTitle, esp);
-	_ElemToSample(aeLightboxDescription, esp);
-	_ElemToSample(aeFooter, esp);
-
-	_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
-
-	QString qs = QString("QToolButton {background-color:%1;color:%2;}").arg(config.imageBorder.ColorStr(sdAll)).arg(config.Web.background.Name());
-	ui.btnImageBorderColor->setStyleSheet(qs);
-	qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("imatte", qs);
-	_RunJavaScript("amatte", qs);
-
-	--_busy;
+	config.SetChanged(yes);
+	if(!ui.btnSaveConfig->isEnabled())
+		ui.btnSaveConfig->setEnabled(yes);
 }
-
-void FalconG::_SetConfigChanged(bool on)
+void FalconG::_EnableAndSignalConfigChange()
 {
-	ui.btnSaveConfig->setEnabled(config.SetChanged(on));
+	_SetConfigChanged(configChanged);
+	if (_busy)
+		return;
+
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 /*========================================================
@@ -982,7 +902,7 @@ void FalconG::_SetConfigChanged(bool on)
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_SlotTextDecorationToConfig(Decoration decoration, bool on)
+void FalconG::_TextDecorationToConfig(Decoration decoration, bool on)
 {
 	if (_busy)
 		return;
@@ -999,11 +919,10 @@ void FalconG::_SlotTextDecorationToConfig(Decoration decoration, bool on)
 		ui.rbTdWavy->setEnabled(on);
 	}
 
-	_DecorationToSample(pElem);	// clear decorations if neither checkbox is checked
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
-void FalconG::_SlotTextAlignToConfig(Align align, bool on)
+void FalconG::_TextAlignToConfig(Align align, bool on)
 {
 	if (_busy)
 		return;
@@ -1011,8 +930,7 @@ void FalconG::_SlotTextAlignToConfig(Align align, bool on)
 	if (on)
 	{
 		pElem->alignment.v = align;
-		_SetConfigChanged(true);
-		_TextAlignToSample(pElem);	// clear decorations if neither checkbox is checked
+		_EnableAndSignalConfigChange();
 	}
 }
 
@@ -1044,7 +962,7 @@ void FalconG::_SlotForSchemeChange(int which)
 	PROGRAM_CONFIG::schemeIndex = (which >= 0 && which < schemes.size()) ? which : 0;
 	QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	_SetProgramScheme();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	QGuiApplication::restoreOverrideCursor();
 }
 
@@ -1148,7 +1066,7 @@ void FalconG::_DesignToUi()
 	ui.sbSpaceAfter->setValue(0);
 
 				// WaterMark
-	handler.Set(ui.btnWmColor->styleSheet());
+	handler.FromCss(ui.btnWmColor->styleSheet());
 	handler.SetItem("QToolButton", "background-color", QColor(config.waterMark.Color()).name());
 	handler.SetItem("QToolButton", "border", QString("1px solid %1").arg(config.waterMark.BorderColor().name()) );
 	ui.btnWmColor->setStyleSheet(handler.StyleSheet());
@@ -1287,7 +1205,7 @@ void FalconG::_OtherToUi()
 *--------------------------------------------------------------------------*/
 void FalconG::_ConfigToUI()
 {
-	_OtherToUi();
+	_OtherToUi ();
 	_DesignToUi();
 }
 
@@ -1317,42 +1235,36 @@ void FalconG::_UpdateWatermarkMargins(int mx, int my)
 	if (my >= 0)
 		wm.SetMarginY(my);
 	config.waterMark.SetupMark();
-	_WaterMarkToSample();
-	if (config.waterMark.used)
-	{
-		double ratio = (double)config.thumbWidth / (double)config.imageWidth;
-
-		_RunJavaScript("thumb::after", wm.PositionToStyle(config.imageWidth, config.imageHeight, ratio, (WaterMark::POS)wm.Origin()));	// 2 images
-		_RunJavaScript("athumb::after", wm.PositionToStyle(config.imageHeight, config.imageHeight, ratio, (WaterMark::POS)wm.Origin())); // album  square format image
-	}
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange(); // uses 	_EnableAndSignalConfigChange();
 }
-void FalconG::_SlotSetupActualBorder(BorderSide side)
+void FalconG::_SlotSetupActualBorder(BorderSide side) // no signal to page display from here
 {
 	_CElem* pElem = _PtrToElement();
 	_CBorder &border = pElem->border;
 	BorderSide oldSide = border.actSide;
-	if ((border.actSide = side) == sdAll)	// then use last set values to all sides
+	BorderStyle brdrStyle = border.StyleIndex(oldSide);
+	if (border.actSide != side)		 // otherwise nothing changed (that should be impossible)...
 	{
-		border.SetStyleIndex(sdAll, border.StyleIndex(oldSide));
-		border.SetWidth(sdAll, border.Width(oldSide));
-		border.SetColor(sdAll, border.ColorStr(oldSide));
-	}
-	else	// change to data for actual side
-	{
+		if( (border.actSide = side) == sdAll)	// then copy the last set values to all sides
+		{
+			border.SetBorderStyle(sdAll, brdrStyle);
+			border.SetWidth(sdAll, border.Width(oldSide));
+			border.SetColor(sdAll, border.ColorStr(oldSide));
+		}
+
 		++_busy;
 		ui.cbBorderStyle->setCurrentIndex(border.StyleIndex(side));
 		ui.sbBorderWidth->setValue(border.Width(side));
 		ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(border.ColorStr(side)).arg(pElem->background.Name()));
 		--_busy;
-	}
 
-	QString qs = pElem->border.ForStyleSheet(false);
-	_SetCssProperty(pElem, qs);
-	_EnableButtons();
+		QString qs = pElem->border.ForStyleSheet(noSemicolon);
+		_SetCssProperty(pElem, qs);
+		_EnableButtons();
+	}
 }
 
-void FalconG::_SlotPropagatePageColor()
+void FalconG::_PropagatePageColor()
 {
 	config.Header.color = config.Web.color.Name();
 	config.Menu.color = config.Web.color.Name(); 
@@ -1368,7 +1280,7 @@ void FalconG::_SlotPropagatePageColor()
 	config.LightboxDesc.color = config.Web.color.Name();
 	config.Footer.color = config.Web.color.Name();
  
-	_ConfigToSample(espColor);
+	emit _SignalItemStyleChanged(-1);
 }
 
 void FalconG::_SlotForEnableCloseAllViewers(bool enable)
@@ -1397,34 +1309,6 @@ bool FalconG::_SlotLanguagesWarning()
 	return QMessageBox::question(this, tr("falconG - Question"),
 		tr("No/not enough ':' in new name. The same name will be used for\n"
 			"all program languages. Is this what you want?")) == QMessageBox::Yes;
-}
-
-/*========================================================
- * TASK:	sets the uplink icon from resource
- *			colors it as set inconfig	for the uplink
- *			menu web button and returns the rec-colored icon
- *			to be saved
- * PARAMS:	iconName - path name of icon or empty
- *				when empty uses icon from resources
- * GLOBALS:	config
- * RETURNS: none, icon is set in btnUplink
- * REMARKS: - if no name given does not load any icon: uses
- *			  the one already set in the form file, just
- *			  changes its color
- *			- otherwise load file from the 'res' sub directory
- *			- icon file must be flat 32 bit png file with
- *				transparent and white pixels. The color of
- *				the white pixels will be changed to
- *				config.Menu
- *-------------------------------------------------------*/
-QIcon FalconG::_SetUplinkIcon(QString iconName)
-{
-	if (iconName.isEmpty())
-		iconName = ":/icons/Resources/up-icon.png";
-	QIcon icon(iconName);
-	_lastUsedMenuForegroundColor = Qt::white;
-	_SetIconColor(icon, config.Menu);
-	return icon;
 }
 
 bool FalconG::_CreateNewAlbum(QString& dirName)
@@ -1566,25 +1450,6 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 	}
 }
 
-void FalconG::on_btnAlbumMatteColor_clicked()
-{
-	StyleHandler handler(ui.btnAlbumMatteColor->styleSheet());
-
-	QColor qc(handler.GetItem("QToolButton", "background-color")),
-		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
-	if (qcNew.isValid() && qc != qcNew)
-	{
-		handler.SetItem("QToolButton", "background-color", qcNew.name());
-		handler.SetItem("QToolButton", "color", config.Web.background.Name(true));
-		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
-		config.albumMatteColor = qcNew.name().mid(1);
-		_RunJavaScript("amatte", QString("background-color:") + config.albumMatteColor.Name(true));
-		_SetConfigChanged(true);
-///		emit SignalToClearIconList();
-
-	}
-}
-
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -1600,11 +1465,11 @@ void FalconG::on_btnBorderColor_clicked()
 	if (qcNew == qc || !qcNew.isValid())
 		return;
 
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	pElem->border.SetColor(pElem->border.actSide, qcNew.name());
 	ui.btnBorderColor->setStyleSheet(QString("QToolButton {background-color:%1;color:%2;}").arg(qcNew.name()).arg(config.Web.background.Name()));
 
-	QString qs = pElem->border.ForStyleSheet(false);
+	QString qs = pElem->border.ForStyleSheet(noSemicolon);
 	_SetCssProperty(pElem, qs);
 	_EnableButtons();
 }
@@ -1641,7 +1506,7 @@ void FalconG::on_btnBrowseForBackgroundImage()
 		ui.edtBckImageName->setText(filename);
 		QPixmap pm(filename);
 		ui.lblbckImage->setPixmap(pm);
-		_SetConfigChanged(true);
+		_EnableAndSignalConfigChange();
 	}
 	config.backgroundImage.SetNames(filename);
 }
@@ -1708,7 +1573,7 @@ void FalconG::on_btnDeleteColorScheme_clicked()
 void FalconG::on_btnReload_clicked()
 {
 	config.RestoreDesign();
-	_page.triggerAction(QWebEnginePage::Reload);
+			// ??? _page.triggerAction(QWebEnginePage::Reload);
 	_ConfigToUI();
 }
 
@@ -1747,7 +1612,7 @@ void FalconG::on_btnSaveConfig_clicked()
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-void FalconG::on_btnForeground_clicked()
+void FalconG::on_btnForeground_clicked()  // on selected item page
 {
 	if (_busy)
 		return;
@@ -1763,8 +1628,8 @@ void FalconG::on_btnForeground_clicked()
 	pElem->color.SetColor(qcNew.name());
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
 
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -1788,8 +1653,8 @@ void FalconG::on_btnBackground_clicked()
 
 	pElem->background.SetColor(qcNew.name());
 	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 	_SlotAlbumChanged();
 }
 
@@ -1811,8 +1676,7 @@ void FalconG::on_btnGradMiddleColor_clicked()
 	pElem->gradient.Set(gsMiddle, ui.sbGradMiddlePos->value(), qcNew.name());
 	_SetGradientLabelColors(pElem);
 
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -1833,8 +1697,7 @@ void FalconG::on_btnGradStartColor_clicked()
 	pElem->gradient.Set(gsStart, ui.sbGradStartPos->value(), qcNew.name());
 	_SetGradientLabelColors(pElem);
 
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -1855,8 +1718,7 @@ void FalconG::on_btnGradStopColor_clicked()
 	pElem->gradient.Set(gsStop, ui.sbGradStopPos->value(), qcNew.name());
 	_SetGradientLabelColors(pElem);
 
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -1878,8 +1740,7 @@ void FalconG::on_btnPageBackground_clicked()
 		config.Web.background.SetColor(qcNew.name());
 		config.Web.background.SetOpacity(255, true, false);	// always 100% opacity
 		ui.btnPageBackground->setStyleSheet(QString("background-color:%1;").arg(config.Web.background.Name(true)));
-		_SetConfigChanged(true);
-		_PageBackgroundToSample();
+		_EnableAndSignalConfigChange();
 	}
 }
 
@@ -1896,18 +1757,19 @@ void FalconG::on_btnPageColor_clicked()
 
 	if (qcNew.isValid())
 	{
+		if (ui.chkSameForeground->isChecked())
+		{
+			_PropagatePageColor();		// to all elements			
+			ui.chkSameForeground->setChecked(false);
+		}
+
 		if (qc != qcNew)
 		{
 			config.Web.color.SetColor(qcNew.name());
 			ui.btnPageColor->setStyleSheet(QString("background-color:%1;").arg(config.Web.color.Name()));
-			_SetConfigChanged(true);
+			_EnableAndSignalConfigChange();
 		}
-		_PageColorToSample();
-	}
-	if (ui.chkSameForeground->isChecked())
-	{
-		_SlotPropagatePageColor();		// to all elements			
-		ui.chkSameForeground->setChecked(false);
+		emit _SignalItemStyleChanged(0);	// use global settings
 	}
 	// DEBUG
 	//	ShowStyleOf(ui.btnPageColor);
@@ -1933,10 +1795,8 @@ void FalconG::on_btnSelectUplinkIcon_clicked()
 	QString file = QFileDialog::getOpenFileName(this, "falconG - Select icon", dir, "*.png");
 	if (!file.isEmpty())
 	{
-		QIcon icon(file);
-		_lastUsedMenuForegroundColor = Qt::white;
-		_SetIconColor(icon, config.Menu);
-		// ??? TODO
+		config.SetUplinkIcon(file);
+		_EnableAndSignalConfigChange();
 	}
 }
 
@@ -1960,11 +1820,10 @@ void FalconG::on_btnImageBorderColor_clicked()
 		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
 		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.imageBorder.SetColor(side, qcNew.name());
-		on_sbImageBorderWidth_valueChanged(ui.sbImageBorderWidth->value());
-		_SetConfigChanged(true);
+		_EnableAndSignalConfigChange();
+		emit _SignalItemStyleChanged(8);	// for album/image pages
 	}
 }
-
 void FalconG::on_btnImageMatteColor_clicked()
 {
 	StyleHandler handler(ui.btnImageMatteColor->styleSheet());
@@ -1976,20 +1835,62 @@ void FalconG::on_btnImageMatteColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageMatteColor->setStyleSheet(handler.StyleSheet());
-		// DEBUG
-		qDebug() << "color name:" << qcNew.name();
-		// /DEBUG
 		config.imageMatteColor = qcNew.name();
-		_RunJavaScript("imatte", QString("background-color:") + config.imageMatteColor.Name(false));
-		_SetConfigChanged(true);
-//		emit SignalToClearIconList();
+		_EnableAndSignalConfigChange();
+		emit _SignalItemStyleChanged(8);	// for album/image pages
 	}
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_btnAlbumBorderColor_clicked()
+{
+	StyleHandler handler(ui.btnImageBorderColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
+		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
+		config.albumBorder.SetColor(side, qcNew.name());
+		_EnableAndSignalConfigChange();
+		emit _SignalItemStyleChanged(8);	// for album/image pages
+	}
+}
+void FalconG::on_btnAlbumMatteColor_clicked()
+{
+	StyleHandler handler(ui.btnAlbumMatteColor->styleSheet());
+
+	QColor qc(handler.GetItem("QToolButton", "background-color")),
+		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
+	if (qcNew.isValid() && qc != qcNew)
+	{
+		handler.SetItem("QToolButton", "background-color", qcNew.name());
+		handler.SetItem("QToolButton", "color", config.Web.background.Name());
+		ui.btnAlbumMatteColor->setStyleSheet(handler.StyleSheet());
+		config.albumMatteColor = qcNew.name();
+		emit _SignalItemStyleChanged(8);	// for album/image pages
+		_EnableAndSignalConfigChange();
+	}
+}
+
+void FalconG::on_btnApplyBorderStyle_clicked()
+{
+
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 void FalconG::on_btnLink_clicked()
 {
 	config.imageSizesLinked = ui.btnLink->isChecked();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2010,9 +1911,9 @@ void FalconG::on_btnShadowColor_clicked()
 	if (qc != qcNew)
 	{
 		ui.btnShadowColor->setStyleSheet("QToolButton {\nbackground-color:" + qc.name() + ";\n}\n");
-		_SetConfigChanged(true);
+		emit _SignalItemStyleChanged(8);	// use 
+		_EnableAndSignalConfigChange();
 	}
-	_ElemToSample();
 }
 
 /*============================================================================
@@ -2028,7 +1929,7 @@ void FalconG::on_btnResetDesign_clicked()
 
 	_aeActiveElement = aeWebPage;
 	ui.cbActualItem->setCurrentIndex(0);		// global page
-	_ConfigToSample();
+	emit _SignalItemStyleChanged(-1);
 }
 
 /*============================================================================
@@ -2072,8 +1973,8 @@ void FalconG::on_cbFontSizeInPoints_currentTextChanged(const QString& txt)
 		ui.cbPointSizeFirstLine->setCurrentText(txt);
 		pElem->font.SetDifferentFirstLine(true, txt);
 	}
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 /*============================================================================
@@ -2088,7 +1989,7 @@ void FalconG::on_cbLineHeight_currentTextChanged(const QString& txt)
 		return;
 	_CElem* pElem = _PtrToElement(_aeActiveElement);
 	pElem->font.SetLineHeight(txt);
-	_FontToSample(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
@@ -2100,8 +2001,7 @@ void FalconG::on_cbPointSizeFirstLine_currentTextChanged(const QString& txt)
 	QString qsClass;
 	pElem = _PtrToElement();
 	pElem->font.SetDifferentFirstLine(pElem->font.IsFirstLineDifferent(), txt);	// do not change first line font size
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2120,7 +2020,7 @@ void FalconG::on_cbWmHPosition_currentIndexChanged(int index)
 	config.waterMark.SetPositioning(o);
 	config.waterMark.SetupMark();
 	ui.edtWmHorizMargin->setEnabled(index != 1);
-	_WaterMarkToSample();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2139,7 +2039,7 @@ void FalconG::on_cbWmVPosition_currentIndexChanged(int index)
 	config.waterMark.SetPositioning(o);
 	config.waterMark.SetupMark();
 	ui.edtWmVertMargin->setEnabled(index != 1);
-	_WaterMarkToSample();
+	_EnableAndSignalConfigChange();
 }
 
 /*=============================================================
@@ -2463,7 +2363,7 @@ void FalconG::on_chkAddDescToAll_toggled(bool on)
 	if (_busy)
 		return;
 	config.bAddDescriptionsToAll = on;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2495,8 +2395,7 @@ void FalconG::on_chkBackgroundOpacity_toggled(bool on)
 	_CElem* pElem = _PtrToElement();
 	int val = ui.sbBackgroundOpacity->value();
 	pElem->background.SetOpacity(val, on, true);	// in percent
-	_SetConfigChanged(true);
-	_ElemToSample(espBackground);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2511,8 +2410,7 @@ void FalconG::on_chkBold_toggled(bool on)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->font.SetFeature(fBold, on);
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_chkCleanupGallery_toggled(bool on)
@@ -2529,11 +2427,11 @@ void FalconG::on_cbBorderStyle_currentIndexChanged(int newIndex)
 
 	_CElem* pElem = _PtrToElement();
 	_CBorder& border = pElem->border;
-	border.SetStyleIndex(pElem->border.actSide, newIndex);
+	border.SetBorderStyle(pElem->border.actSide, (BorderStyle)newIndex);
 	border.SetUsed(border.actSide, newIndex);
 
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+	_EnableAndSignalConfigChange();
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(noSemicolon));
 }
 
 /*============================================================================
@@ -2571,7 +2469,7 @@ void FalconG::on_chkCanDownload_toggled(bool b)
 	if (_busy)
 		return;
 	config.bCanDownload = b;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2587,7 +2485,7 @@ void FalconG::on_chkCropThumbnails_toggled(bool b)
 	ui.chkDistortThumbnails->setChecked(config.bDistrortThumbnails);
 	ui.sbThumbnailWidth->setEnabled(config.bDistrortThumbnails || b);
 	--_busy;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_chkDebugging_toggled(bool b)
@@ -2600,8 +2498,8 @@ void FalconG::on_chkDifferentFirstLine_toggled(bool b)
 	if (_busy)
 		return;
 	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
-	_SetConfigChanged(true);
-	_ElemToSample(espFont);
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 void FalconG::on_chkDistortThumbnails_toggled(bool b)
@@ -2615,7 +2513,7 @@ void FalconG::on_chkDistortThumbnails_toggled(bool b)
 	ui.chkCropThumbnails->setChecked(config.bCropThumbnails);
 	ui.sbThumbnailWidth->setEnabled(b || config.bCropThumbnails);
 	--_busy;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2629,7 +2527,7 @@ void FalconG::on_chkDoNotEnlarge_toggled(bool on)
 	if (_busy)
 		return;
 	config.doNotEnlarge = on;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2667,7 +2565,7 @@ void FalconG::on_chkFixedLatestThumbnail_toggled(bool b)
 		return;
 
 	config.bFixedLatestThumbnail = b;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	_EnableButtons();
 }
 
@@ -2682,7 +2580,7 @@ void FalconG::on_chkForceSSL_toggled(bool b)
 	if (_busy)
 		return;
 	config.bForceSSL = b;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2697,8 +2595,8 @@ void FalconG::on_chkIconText_toggled(bool)
 {
 	if (_busy)
 		return;
-	_SetConfigChanged(true);
-	_ElemToSample(espLinkIcon);
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -2711,8 +2609,8 @@ void FalconG::on_chkIconTop_toggled(bool)
 {
 	if (_busy)
 		return;
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
@@ -2720,9 +2618,9 @@ void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
 	if (!_busy)
 	{
 		config.imageBorder.SetUsed(sdAll, newIndex);
-		config.imageBorder.SetStyleIndex(sdAll, newIndex);
-		_SetConfigChanged(true);
-		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(false));
+		config.imageBorder.SetBorderStyle(sdAll, (BorderStyle)newIndex);
+		_EnableAndSignalConfigChange();
+		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(noSemicolon));
 	}
 }
 
@@ -2738,14 +2636,13 @@ void FalconG::on_chkItalic_toggled(bool on)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->font.SetFeature(fItalic, on);
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_chkKeepDuplicates_toggled(bool yes)
 {
 	config.bKeepDuplicates = yes;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2778,7 +2675,7 @@ void FalconG::on_chkMenuToAbout_toggled(bool on)
 		return;
 	config.bMenuToAbout = on;
 	_RunJavaScript("menu-item#about", QString("display") + (on ? "inline-block" : "none"));
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2793,7 +2690,7 @@ void FalconG::on_chkMenuToContact_toggled(bool on)
 		return;
 	config.bMenuToContact = on;
 	_RunJavaScript("menu-item#contact", QString("display:") + (on ? "inline-block" : "none"));
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2808,7 +2705,7 @@ void FalconG::on_chkMenuToDescriptions_toggled(bool on)
 		return;
 	config.bMenuToDescriptions = on;
 	_RunJavaScript("menu-item#desc", QString("display") + (on ? "inline-block" : "none"));
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2823,7 +2720,7 @@ void FalconG::on_chkMenuToToggleCaptions_toggled(bool on)
 		return;
 	config.bMenuToToggleCaptions = on;
 	_RunJavaScript("menu-item#captions", QString("display") + (on ? "inline-block" : "none"));
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2837,7 +2734,7 @@ void FalconG::on_chkOvrImages_toggled(bool on)
 	if (_busy)
 		return;
 	config.bOvrImages = on;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2854,7 +2751,7 @@ void FalconG::on_chkReadFromGallery_toggled(bool on)
 	if (_busy)
 		return;
 	config.bReadFromGallery = on;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2870,7 +2767,7 @@ void FalconG::on_chkRightClickProtected_toggled(bool b)
 	if (_busy)
 		return;
 	config.bRightClickProtected = b;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2880,9 +2777,9 @@ void FalconG::on_chkSeparateFoldersForLanguages_toggled(bool)
 	config.bSeparateFoldersForLanguages = ui.chkSeparateFoldersForLanguages->isChecked();
 }
 
-void FalconG::on_chkSetAll_toggled(bool)
+void FalconG::on_chkSameBackground_toggled(bool)
 {
-	_PageBackgroundToSample();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2899,7 +2796,7 @@ void FalconG::on_chkShadowOn_toggled(bool on)
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spUse, on);	// used flag
 	_PtrToElement()->shadow2[which].Set(spUse, on);	// used flag
-	_ElemToSample(espShadow);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2913,8 +2810,8 @@ void FalconG::on_chkSourceRelativeForwardSlash_toggled(bool on)
 	if (_busy)
 		return;
 	config.bSourceRelativeForwardSlash = on;
-	_SetConfigChanged(true);
 	_EnableButtons();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2931,8 +2828,7 @@ void FalconG::on_chkTextOpacity_toggled(bool on)
 	_CElem* pElem = _PtrToElement();
 	int val = ui.sbTextOpacity->value();
 	pElem->color.SetOpacity(val, on, true);	// in percent
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2947,13 +2843,13 @@ void FalconG::on_chkSetLatest_toggled(bool on)
 	if (_busy)
 		return;
 	config.bGenerateLatestUploads = on;
-	_SetConfigChanged(true);
 	_EnableButtons();
+	_EnableAndSignalConfigChange();
 }
 
-void FalconG::on_chkTdLinethrough_toggled(bool on) { _SlotTextDecorationToConfig(tdLinethrough, on); }
-void FalconG::on_chkTdUnderline_toggled(bool on) { _SlotTextDecorationToConfig(tdUnderline, on); }
-void FalconG::on_chkTdOverline_toggled(bool on) { _SlotTextDecorationToConfig(tdOverline, on); }
+void FalconG::on_chkTdLinethrough_toggled(bool on) { _TextDecorationToConfig(tdLinethrough, on); }
+void FalconG::on_chkTdUnderline_toggled(bool on) { _TextDecorationToConfig(tdUnderline, on); }
+void FalconG::on_chkTdOverline_toggled(bool on) { _TextDecorationToConfig(tdOverline, on); }
 
 /*============================================================================
   * TASK:
@@ -2966,7 +2862,7 @@ void FalconG::on_chkUseGoogleAnalytics_toggled(bool b)
 	if (_busy)
 		return;
 	config.googleAnalyticsOn = b; // ui.chkUseGoogleAnalytics->isChecked();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -2983,8 +2879,8 @@ void FalconG::on_chkUseGradient_toggled(bool on)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->gradient.used = on;
-
-	_SetLinearGradient(pElem);
+		
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -2998,8 +2894,7 @@ void FalconG::on_chkUseWM_toggled(bool on)
 	if (_busy)
 		return;
 	config.waterMark.used = on;
-	_WaterMarkToSample();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -3016,8 +2911,7 @@ void FalconG::on_chkUseWMShadow_toggled(bool on)
 		return;
 	config.waterMark.SetShadowOn(on);
 	config.waterMark.SetupMark();
-	_WaterMarkToSample();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 
 	_EnableButtons();
 }
@@ -3036,7 +2930,7 @@ void FalconG::on_edtAbout_textChanged()
 		return;
 
 	config.sAbout = ui.edtAbout->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3051,7 +2945,7 @@ void FalconG::on_edtAlbumDir_textChanged()
 		return;
 	++_busy;
 	config.dsAlbumDir = ui.edtAlbumDir->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	--_busy;
 }
 
@@ -3061,7 +2955,7 @@ void FalconG::on_edtBaseName_textChanged()
 		return;
 
 	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*========================================================
@@ -3085,12 +2979,9 @@ void FalconG::on_edtBckImageName_textChanged()
 			_LoadBckImage(name);
 			config.backgroundImage.fileName = name;	// full path name for generator 
 		}
-		_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));	// show image
 	}
-	else
-		_RunJavaScript("body", QString("background-image:"));	// show image
 
-	_SetConfigChanged(true);				// file is copied to /res
+	_EnableAndSignalConfigChange();				// file is copied to /res
 }
 
 void FalconG::on_edtBckPathOnServer_textChanged()
@@ -3107,7 +2998,7 @@ void FalconG::on_edtDefaultFonts_textChanged()
 	if (_busy)
 		return;
 	config.sDefFonts = ui.edtDefaultFonts->text().trimmed();
-	_SetConfigChanged(true);
+	// ??? need it? _EnableAndSignalConfigChange();
 }
 
 /*=============================================================
@@ -3135,7 +3026,7 @@ void FalconG::on_edtSiteDescription_textChanged()
 	if (_busy)
 		return;
 	config.sDescription = ui.edtSiteDescription->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3150,8 +3041,8 @@ void FalconG::on_edtDestGallery_textChanged()
 		return;
 
 	config.dsGallery = ui.edtDestGallery->text().trimmed();
-	_SetConfigChanged(config.dsGallery.Changed());
 	_EnableButtons();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3166,7 +3057,7 @@ void FalconG::on_edtEmailTo_textChanged()
 		return;
 
 	config.sMailTo = ui.edtEmailTo->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_edtFontDir_textChanged()
@@ -3191,8 +3082,7 @@ void FalconG::on_edtFontFamily_textChanged()
 	_CElem* pElem;
 	pElem = _PtrToElement();
 	pElem->font.SetFamily(ui.edtFontFamily->text());
-	_SetConfigChanged(true);
-	_FontToSample(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3205,7 +3095,7 @@ void FalconG::on_edtFontFamily_textChanged()
 void FalconG::on_edtGalleryLanguages_textChanged()
 {
 	config.sGalleryLanguages = ui.edtGalleryLanguages->text().trimmed();
-	_SetConfigChanged(config.sGalleryLanguages.Changed());
+	_EnableAndSignalConfigChange();
 }
 
 /*=============================================================
@@ -3219,7 +3109,7 @@ void FalconG::on_edtGalleryLanguages_textChanged()
 void FalconG::on_edtGalleryRoot_textChanged()
 {
 	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
-	_SetConfigChanged(config.dsGRoot.Changed());
+	_EnableAndSignalConfigChange();
 	_EnableButtons();
 }
 
@@ -3253,7 +3143,7 @@ void FalconG::on_edtGalleryTitle_textChanged()
 		return;
 
 	config.sGalleryTitle = ui.edtGalleryTitle->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_edtGoogleFonts_editingFinished()
@@ -3263,7 +3153,7 @@ void FalconG::on_edtGoogleFonts_editingFinished()
 	QString s = ui.edtGoogleFonts->text().trimmed();
 // replace all spaces and commas NOT inside quotes
 		//	https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
-		// regualr expression for this with lookahead feature:
+		// regular expression for this with look ahead feature:
 		//			[ ,]+(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)
 		// simpler and much faster one (not working, why?):
 		//			\\"|"(?:\\"|[^"])*"|([ ,]+)
@@ -3280,7 +3170,7 @@ void FalconG::on_edtGoogleFonts_editingFinished()
 	if (config.sGoogleFonts != s)
 	{
 		config.sGoogleFonts = s;
-		_SetConfigChanged(true);
+		_EnableAndSignalConfigChange();
 		_ModifyGoogleFontImport();
 		_ConfigToUI();
 	}
@@ -3298,7 +3188,7 @@ void FalconG::on_edtImg_textChanged()
 		return;
 
 	config.dsImageDir = ui. edtImg->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*========================================================
@@ -3313,7 +3203,7 @@ void FalconG::on_edtKeywords_textChanged()
 	if (_busy)
 		return;
 	config.sKeywords = ui.edtKeywords->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3328,7 +3218,7 @@ void FalconG::on_edtMainPage_textChanged()
 		return;
 
 	config.sMainPage = ui.edtMainPage->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3344,7 +3234,7 @@ void FalconG::on_edtServerAddress_textChanged()
 		return;
 
 	config.sServerAddress = ui. edtServerAddress->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3373,9 +3263,12 @@ void FalconG::on_edtSourceGallery_textChanged()
 		QFile f(src + falconG_ini);
 		if (f.exists())
 		{
+			++_busy;
 			config.Read();
+			_AddGoogleFontsToFontDataBase();
 			_ConfigToUI();	// edit values from config
-
+			emit _SignalItemStyleChanged(-1);	// show all chenges on sample
+			--_busy;
 		}
 		else if(QFile::exists(src) )	// directory exists but no ini file inside yet
 		{
@@ -3403,7 +3296,7 @@ void FalconG::on_edtThumb_textChanged()
 	++_busy;
 	config.dsThumbDir = ui.edtThumb->text().trimmed();
 	--_busy;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*=============================================================
@@ -3438,7 +3331,7 @@ void FalconG::on_edtTrackingCode_textChanged()
 		return;
 
 	config.googleAnalTrackingCode = ui.edtTrackingCode->text().trimmed();
-	 _SetConfigChanged(config.googleAnalTrackingCode.Changed());
+	 _EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3453,7 +3346,7 @@ void FalconG::on_edtUplink_textChanged()
 		return;
 
 	config.sUplink = ui. edtUplink->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_edtVid_textChanged()
@@ -3462,7 +3355,7 @@ void FalconG::on_edtVid_textChanged()
 		return;
 
 	config.dsVideoDir = ui.edtImg->text().trimmed();
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3481,9 +3374,7 @@ void FalconG::on_edtWatermark_textChanged()
 		ui.lblWmSample->setText("Watermark Sample text");
 	else
 		ui.lblWmSample->setText(config.waterMark.Text());
-	_WaterMarkToSample();
-	
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_edtWmHorizMargin_textChanged()
@@ -3509,10 +3400,11 @@ void FalconG::on_edtWmVertMargin_textChanged()
 // ========================  ???
 void FalconG::on_hsImageSizeToShow_valueChanged(int val)
 {
-	if (_busy)
+	if (_busy || config.backgroundImage.size == val)
 		return;
 	config.backgroundImage.size = val;
-	_RunJavaScript("body", config.backgroundImage.ForStyleSheet(false));
+	config.SetChanged(true);
+	ui.btnSaveConfig->setEnabled(true);
 }
 
 // ======================== Radio buttons
@@ -3539,44 +3431,33 @@ void FalconG::on_rbBottomBorder_toggled(bool on)
 	_SlotSetupActualBorder(sdBottom);
 }
 
-// -- background image -----------
-void FalconG::_SlotBackgroundImageToSamplePage(BackgroundImageSizing sizing)
-{
-	if (!_busy)
-	{
-		config.backgroundImage.v = sizing;
-		_SetConfigChanged(true);
-		QString qs = config.backgroundImage.ForStyleSheet(false);
-		if(qs.isEmpty())
-			_RemoveCssProperty(&config.Web, "background:");
-		else
-			_RunJavaScript("body", qs);
-	}
-}
-
 void FalconG::on_rbNoBackgroundImage_toggled(bool b)
 {
-	if(b)
-		_SlotBackgroundImageToSamplePage(hNotUsed);
+	if (b)
+		config.backgroundImage.v = hNotUsed;
+	_EnableAndSignalConfigChange();
 }
 
 
 void FalconG::on_rbCenterBckImage_toggled(bool b)
 {
 	if(b)
-		_SlotBackgroundImageToSamplePage(hAuto);
+		config.backgroundImage.v = hAuto;
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_rbCoverBckImage_toggled(bool b)
 {
 	if(b)
-		_SlotBackgroundImageToSamplePage(hCover);
+		config.backgroundImage.v = hCover;
+	_EnableAndSignalConfigChange();
 }
 
 void FalconG::on_rbTileBckImage_toggled(bool b)
 {
 	if(b)
-		_SlotBackgroundImageToSamplePage(hTile);
+		config.backgroundImage.v = hTile;
+	_EnableAndSignalConfigChange();
 }
 
 
@@ -3608,15 +3489,15 @@ void FalconG::on_rbRightBorder_toggled(bool on)
 	_SlotSetupActualBorder(sdRight);
 }
 
-void FalconG::on_rbTdDashed_toggled(bool on) { _SlotTextDecorationToConfig(tdDashed, on); }
-void FalconG::on_rbTdDotted_toggled(bool on) { _SlotTextDecorationToConfig(tdDotted, on); }
-void FalconG::on_rbTdDouble_toggled(bool on) { _SlotTextDecorationToConfig(tdDouble, on); }
-void FalconG::on_rbTdSolid_toggled(bool on) { _SlotTextDecorationToConfig(tdSolid, on); }
-void FalconG::on_rbTdWavy_toggled(bool on) { _SlotTextDecorationToConfig(tdWavy, on); }
-void FalconG::on_rbTextAlignNone_toggled(bool on) { _SlotTextAlignToConfig(alNone, on); }
-void FalconG::on_rbTextCenter_toggled(bool on) { _SlotTextAlignToConfig(alCenter, on); }
-void FalconG::on_rbTextLeft_toggled(bool on) { _SlotTextAlignToConfig(alLeft, on); }
-void FalconG::on_rbTextRight_toggled(bool on) { _SlotTextAlignToConfig(alRight, on); }
+void FalconG::on_rbTdDashed_toggled(bool on) { _TextDecorationToConfig(tdDashed, on); }
+void FalconG::on_rbTdDotted_toggled(bool on) { _TextDecorationToConfig(tdDotted, on); }
+void FalconG::on_rbTdDouble_toggled(bool on) { _TextDecorationToConfig(tdDouble, on); }
+void FalconG::on_rbTdSolid_toggled(bool on) { _TextDecorationToConfig(tdSolid, on); }
+void FalconG::on_rbTdWavy_toggled(bool on) { _TextDecorationToConfig(tdWavy, on); }
+void FalconG::on_rbTextAlignNone_toggled(bool on) { _TextAlignToConfig(alNone, on); }
+void FalconG::on_rbTextCenter_toggled(bool on) { _TextAlignToConfig(alCenter, on); }
+void FalconG::on_rbTextLeft_toggled(bool on) { _TextAlignToConfig(alLeft, on); }
+void FalconG::on_rbTextRight_toggled(bool on) { _TextAlignToConfig(alRight, on); }
 
 void FalconG::on_rbTextShadow_toggled(bool b)
 {
@@ -3647,8 +3528,7 @@ void FalconG::on_sbAlbumMatteRadius_valueChanged(int w)
 	if (_busy)
 		return;
 	config.albumMatteRadius = w;
-	_SetConfigChanged(true);
-	_RunJavaScript("athumb", QString("border-radius:%1px").arg(w) );
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3662,12 +3542,7 @@ void FalconG::on_sbAlbumMatteWidth_valueChanged(int val)
 	if (_busy)
 		return;
 	config.albumMatteWidth = val;
-	_RunJavaScript("amatte", "background-color:" + config.albumMatteColor.Name());
-	if(!val)
-		_RunJavaScript("amatte", QString("padding:"));
-	else
-		_RunJavaScript("amatte", QString("padding: %1px").arg(val));
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3689,8 +3564,8 @@ void FalconG::on_sbBorderRadius_valueChanged(int val)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetRadius(ui.sbBorderRadius->value());
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+	_EnableAndSignalConfigChange();
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(noSemicolon));
 }
 
 void FalconG::on_sbBorderWidth_valueChanged(int val)
@@ -3699,8 +3574,8 @@ void FalconG::on_sbBorderWidth_valueChanged(int val)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->border.SetWidth(pElem->border.actSide, val);
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, pElem->border.ForStyleSheet(false));
+	_EnableAndSignalConfigChange();
+	_SetCssProperty(pElem, pElem->border.ForStyleSheet(noSemicolon));
 }
 
 /*============================================================================
@@ -3715,8 +3590,7 @@ void FalconG::on_sbGradMiddlePos_valueChanged(int val)
 
 	pElem->gradient.Set(gsMiddle, val, pElem->gradient.Color(gsMiddle));
 	_SetGradientLabelColors(pElem);
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3731,8 +3605,7 @@ void FalconG::on_sbGradStartPos_valueChanged(int val)
 
 	pElem->gradient.Set(gsStart, val, pElem->gradient.Color(gsStart));
 	_SetGradientLabelColors(pElem);
-	_SetConfigChanged(true);
-	_SetLinearGradient(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3747,29 +3620,27 @@ void FalconG::on_sbGradStopPos_valueChanged(int val)
 	
 	pElem->gradient.Set(gsStop, val, pElem->gradient.Color(gsStop));
 	_SetGradientLabelColors(pElem);
-	_SetConfigChanged(true);
-	_ElemToSample(espGradient);
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*=============================================================
- * TASK:	changes the border radius on the image and album matte!
+ * TASK:	changes the border radius on the image matte!
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS:	border is set on mattem not in image
+ * REMARKS:	border is set on matte not in image
  *------------------------------------------------------------*/
 void FalconG::on_sbImageBorderRadius_valueChanged(int r)
 {
 	if (_busy)
 		return;
 	config.imageBorder.SetRadius(r);
-	_SetConfigChanged(true);
-	_RunJavaScript("imatte", QString("border-radius:%1px").arg(r));
-	_RunJavaScript("amatte", QString("border-radius:%1px").arg(r));
+	_EnableAndSignalConfigChange();		// and send signal to update sample
 }
 
 /*============================================================================
-* TASK:
+* TASK:		 changes the width of the image border
 * EXPECTS:
 * GLOBALS:
 * REMARKS:
@@ -3780,10 +3651,68 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 		return;
 
 	config.imageBorder.SetWidth(sdAll, val);
-	QString qs = config.imageBorder.ForStyleSheetShort(false);
-	_RunJavaScript("imatte", qs);
-	_RunJavaScript("amatte", qs);
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();	// and send signal to update sample
+}
+
+void FalconG::on_sbImageMargin_valueChanged(int m)
+{
+	if (_busy)
+		return;
+	config.imageMargin = m;
+	_EnableAndSignalConfigChange();
+	_RunJavaScript("img-container", QString(m ? "margin: 0 %1;" : "margin:0;").arg(m));
+}
+/*========================================================
+ * TASK:
+ * PARAMS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: -
+ *-------------------------------------------------------*/
+void FalconG::on_sbImageMatteWidth_valueChanged(int val)
+{
+	if (_busy || config.imageMatteWidth == val )
+		return;
+
+	config.imageMatteWidth = val;
+	_EnableAndSignalConfigChange();	// and send signal to update sample
+}
+/*=============================================================
+ * TASK:	changes the border radius on the album matte!
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	border is set on mattem not in image
+ *------------------------------------------------------------*/
+void FalconG::on_sbAlbumBorderRadius_valueChanged(int r)
+{
+	if (_busy)
+		return;
+	config.albumBorder.SetRadius(r);
+	_EnableAndSignalConfigChange();	// and send signal to update sample
+}
+
+/*============================================================================
+* TASK:
+* EXPECTS:
+* GLOBALS:
+* REMARKS:
+*--------------------------------------------------------------------------*/
+void FalconG::on_sbAlbumBorderWidth_valueChanged(int val)
+{
+	if (_busy)
+		return;
+
+	config.albumBorder.SetWidth(sdAll, val);
+	_EnableAndSignalConfigChange();	// and send signal to update sample
+}
+
+void FalconG::on_sbAlbumMargin_valueChanged(int m)
+{
+	if (_busy)
+		return;
+	config.albumMargin = m;
+	_EnableAndSignalConfigChange();	// and send signal to update sample
 }
 
 /*============================================================================
@@ -3814,24 +3743,15 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 	config.waterMark.GetMarkDimensions();
 	config.waterMark.SetupMark();
 	if (config.waterMark.v)
-		_page.triggerAction(QWebEnginePage::Reload);
+		; // ???	_page.triggerAction(QWebEnginePage::Reload);
 
 	if (w && val)
 		_aspect = (double)w / (double)val;
 
 	--_busy;
-	_SetConfigChanged(true);
-	// ????	_ChangesToSample();
+	_EnableAndSignalConfigChange();
 }
 
-void FalconG::on_sbImageMargin_valueChanged(int m)
-{
-	if (_busy)
-		return;
-	config.imageMargin = m;
-	_SetConfigChanged(true);
-	_RunJavaScript("img-container", QString(m ? "margin: 0 %1;" : "margin:0;").arg(m));
-}
 
 /*=============================================================
  * TASK:	changes radius of image border inside matte
@@ -3845,30 +3765,8 @@ void FalconG::on_sbImageMatteRadius_valueChanged(int w)
 	if (_busy)
 		return;
 	config.imageMatteRadius = w;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	_RunJavaScript("thumb", QString("border-radius:%1px").arg(w) );
-}
-
-/*========================================================
- * TASK:
- * PARAMS:
- * GLOBALS:
- * RETURNS:
- * REMARKS: -
- *-------------------------------------------------------*/
-void FalconG::on_sbImageMatteWidth_valueChanged(int val)
-{
-	if (_busy || config.imageMatteWidth == val )
-		return;
-
-	config.imageMatteWidth = val;
-	_RunJavaScript("imatte", "background-color:" + config.imageMatteColor.Name());
-	if (!val)
-		_RunJavaScript("imatte",QString("padding:"));
-	else	
-		_RunJavaScript("imatte",QString("padding: %1px").arg(val));
-
-	_SetConfigChanged(true);
 }
 
 /*============================================================================
@@ -3899,13 +3797,12 @@ void FalconG::on_sbImageWidth_valueChanged(int val)
 	config.waterMark.GetMarkDimensions();
 	config.waterMark.SetupMark();
 	if (config.waterMark.v)
-		_page.triggerAction(QWebEnginePage::Reload);
+		;	// ??? _page.triggerAction(QWebEnginePage::Reload);
 	
 	if(h)	// else no change
 		_aspect = (double)val / (double)h;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	--_busy;
-// ????	_ChangesToSample(dp);
 }
 
 void FalconG::on_sbMaxItemCountPerDir_valueChanged(int n)
@@ -3929,7 +3826,7 @@ void FalconG::on_sbLatestCount_valueChanged(int val)
 	if (_busy)
 		return;
 	config.nLatestCount = val;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3943,7 +3840,7 @@ void FalconG::on_sbNewDays_valueChanged(int val)
 	if (_busy)
 		return;
 	config.newUploadInterval = val;
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -3954,9 +3851,11 @@ void FalconG::on_sbNewDays_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowBlur1_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spBlurR, val);
-	_ElemToSample(espShadow1);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -3967,9 +3866,11 @@ void FalconG::on_sbShadowBlur1_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowBlur2_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spBlurR, val);
-	_ElemToSample(espShadow2);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -3980,10 +3881,12 @@ void FalconG::on_sbShadowBlur2_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowHoriz1_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 
 	_PtrToElement()->shadow1[which].Set(spHoriz, val);
-	_ElemToSample(espShadow1);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 /*============================================================================
   * TASK:
@@ -3993,10 +3896,12 @@ void FalconG::on_sbShadowHoriz1_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowHoriz2_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 
 	_PtrToElement()->shadow2[which].Set(spHoriz, val);
-	_ElemToSample(espShadow2);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -4007,9 +3912,11 @@ void FalconG::on_sbShadowHoriz2_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowVert1_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spVert, val);
-	_ElemToSample(espShadow1);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -4020,9 +3927,11 @@ void FalconG::on_sbShadowVert1_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowVert2_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spVert, val);
-	_ElemToSample(espShadow2);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -4033,9 +3942,11 @@ void FalconG::on_sbShadowVert2_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowSpread1_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow1[which].Set(spSpread, val);
-	_ElemToSample(espShadow1);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 /*============================================================================
 * TASK:
@@ -4045,9 +3956,11 @@ void FalconG::on_sbShadowSpread1_valueChanged(int val)
 *--------------------------------------------------------------------------*/
 void FalconG::on_sbShadowSpread2_valueChanged(int val)
 {
+	if (_busy)
+		return;
 	int which = ui.rbTextShadow->isChecked() ? 0 : 1;
 	_PtrToElement()->shadow2[which].Set(spSpread, val);
-	_ElemToSample(espShadow1);
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 void FalconG::on_sbSpaceAfter_valueChanged(int val)
@@ -4056,8 +3969,7 @@ void FalconG::on_sbSpaceAfter_valueChanged(int val)
 		return;
 	_CElem* pElem = _PtrToElement();
 	pElem->spaceAfter = val;
-	_SetConfigChanged(true);
-	_SpaceAfterToSample(pElem);
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -4132,9 +4044,7 @@ void FalconG::on_sbWmOpacity_valueChanged(int val)
 		return;
 	config.waterMark.SetOpacity(val, true);
 	config.waterMark.SetupMark();
-	_SetConfigChanged(true);
-	_RunJavaScript("thumb::after","color"+ config.waterMark.ColorToCss());
-	_WaterMarkToSample();
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -4147,8 +4057,8 @@ void FalconG::on_sbWmShadowHoriz_valueChanged(int val)
 {
 	config.waterMark.SetShadowColor(val);
 	config.waterMark.SetupMark();
-	_SetConfigChanged(true);
-	_ElemToSample(espGradient);
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -4161,8 +4071,8 @@ void FalconG::on_sbWmShadowVert_valueChanged(int val)
 {
 	config.waterMark.SetShadowColor(val);
 	config.waterMark.SetupMark();
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 void FalconG::on_sldIconSize_valueChanged(int newSize)
@@ -4180,8 +4090,8 @@ void FalconG::on_sbWmShadowBlur_valueChanged(int val)
 {
 	config.waterMark.SetShadowBlur(val);
 	config.waterMark.SetupMark();
-	_SetConfigChanged(true);
-	_ElemToSample();
+	_EnableAndSignalConfigChange();
+	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 }
 
 /*========================================================
@@ -4237,7 +4147,7 @@ void FalconG::_ModifyGoogleFontImport()
 	BackupAndRename(name, tmpName);
 #endif
 	// reload page
-	_page.triggerAction(QWebEnginePage::Reload);
+	// ??? _page.triggerAction(QWebEnginePage::Reload);
 	ui.cbActualItem->setCurrentIndex(0);
 }
 
@@ -4315,7 +4225,7 @@ void FalconG::_SaveEditedTextsIntoSelection()
 }
 
 /*=============================================================
- * TASK:	saves language texts in data base or just changes the
+{ * TASK:	saves language texts in data base or just changes the
  *			text ID
  * PARAMS:	texts: text to store, with an ID which need not be 
  *					the actual calculated id of the text
@@ -4630,14 +4540,9 @@ void FalconG::_AddSchemeButtons()
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-void FalconG::_SlotLinkClicked(QString s)
+void FalconG::_SlotLinkClicked(int n)
 {
-	if (!s.at(0).isDigit())
-		return;
-
-	QUrl url(s);
-	int a = url.toString(QUrl::DecodeReserved).toInt();
-	ui.cbActualItem->setCurrentIndex(a);
+	ui.cbActualItem->setCurrentIndex(Common::DesignToCB(n)); // get combo box index for th designe element w. id 'n'
 }
 
 
@@ -4658,7 +4563,7 @@ void FalconG::_SlotWebPageLoaded(bool ready)
 	_isWebPageLoaded = true;
 
 	_ActualSampleParamsToUi();
-	_ConfigToSample(); // to sample "WEB page"
+	emit _SignalItemStyleChanged(-1); // to sample "WEB page"
 }
 
 void FalconG::_SlotTreePathChanged(const BreadcrumbVector& breadcrumbPath)
@@ -4789,6 +4694,34 @@ void FalconG::_SlotAskForApply()
 }
 
 
+/*=============================================================
+ * TASK   :	download required fonts from google fonts when needed
+ * PARAMS : none
+ * EXPECTS: config.sGoogleFonts is set
+ * GLOBALS: config
+ * RETURNS: none
+ * REMARKS:
+ *------------------------------------------------------------*/
+void FalconG::_AddGoogleFontsToFontDataBase()
+{
+	_slFontLoadErrors.clear();
+	QStringList sl = config.sGoogleFonts.v.split(QChar('|') ,Qt::SkipEmptyParts);
+	for (auto& s : sl)
+	{
+		_fontUtils.EnsureFontAvailable(s, PROGRAM_CONFIG::fontDirPath, 
+			std::function<void (bool, QStringList)> ([this](bool res, QStringList slFontNames)->void 
+				{this->_slFontLoadErrors << slFontNames.join(':'); }));
+	}
+	if (!_slFontLoadErrors.isEmpty())
+	{
+		QMessageBox::warning(this, tr("falconG - Warning"),
+			tr("Error loading %1 fonts.\n%2").arg(_slFontLoadErrors.size()).arg(_slFontLoadErrors.join('\n')));
+
+		_slFontLoadErrors.clear();
+	}
+
+}
+
 /*============================================================================
 * TASK:		Creates QT stylesheet gradinet string
 * EXPECTS:	elem - config element  (e.g. config.Menu)
@@ -4874,194 +4807,6 @@ void FalconG::_EnableGradient(bool ena)
 
 //-------------------------------------------------------------------------------
 
-/*========================================================
- * TASK: functions below set styles of sample from config
- * PARAMS:	parent: to check against. If nullptr use config.Web
- * GLOBALS:	config
- * RETURNS: nothing
- * REMARKS: - if any value is the same as for the parent
- *				it will not be set
- *-------------------------------------------------------*/
-
-void FalconG::_ColorToSample(_CElem* pElem)
-{
-	QString qs;
-//	bool b = (pElem == &config.Web || (pElem->parent && pElem->color != pElem->parent->color)); // else clear color
-//	_SetCssProperty(pElem,b ? pElem->color.ForStyleSheet(false, false) : QString("color:") );
-	_SetCssProperty(pElem, pElem->color.ForStyleSheet(false, false));
-}
-
-/*========================================================
- * TASK:	The 9 functions below prepare the property
- *			 and value into sPropty amd sValue
- * PARAMS:	sPropty, sValue: string references
- * GLOBALS:	config
- * RETURNS:
- * REMARKS: - the changed parameters must already saved to config
- *			- to clear a parameter set sValue to empty string
- *-------------------------------------------------------*/
-void FalconG::_BackgroundToSample(_CElem* pElem)
-{	
-	QString qs;
-	qs = pElem->background.ForStyleSheet(false, true,false);
-	_SetCssProperty(pElem, qs);
-}
-
-void FalconG::_ShadowToSample(_CElem* pElem,int what)
-{
-	QString sPropty, sValue;
-	if (ui.chkShadowOn->isChecked())
-		sValue = pElem->shadow1[what].ForStyleSheet(false, false, what) + pElem->shadow2[what].ForStyleSheet(false, true, what);
-	_SetCssProperty(pElem, sPropty + sValue);
-}
-
-void FalconG::_BorderToSample(_CElem* pElem)
-{
-	QString qs;
-	if(pElem == &config.Web || !pElem->parent || pElem->parent->border != pElem->border)
-		 qs = pElem->border.ForStyleSheet(false);
-	_SetCssProperty(pElem, qs);
-}
-
-void FalconG::_SetLinearGradient(_CElem* pElem)
-{
-	QString qs;
-	if( pElem != &config.Web && (!pElem->parent || pElem->parent == &config.Web) )
-		 qs = pElem->gradient.ForStyleSheet(false);
-	_SetCssProperty(pElem, qs);
-}
-
-void FalconG::_FontToSample(_CElem* pElem)
-{
-	QString qs;
-	if (pElem == &config.Web || !pElem->parent || pElem->parent->font != pElem->font)
-	{
-		_SetCssProperty(pElem,  "font-family:" + pElem->font.Family() + "\n" +
-								"font-size:"   + pElem->font.SizeStr() + "\n" +
-								"font-weight:" + pElem->font.WeightStr() + "\n" +
-								"font-style:"  + pElem->font.ItalicStr() + "\n" + 
-								"line-height:" + pElem->font.LineHeightStr());
-//		 qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
-//		_SetCssProperty(pElem, "font-size:" + qs, "::first-line");	// parent = Web and ::first-line
-	}
-	else
-	{
-		_SetCssProperty(pElem,	"font-family:inherit\n"
-								"font-size:	inherith\n"
-								"font-weight:inherit\n"
-								"font-style:inherith\n"
-								"line-height:inherit");
-//		qs = pElem->font.IsFirstLineDifferent() ? pElem->font.FirstLineFontSizeStr() : pElem->font.SizeStr();
-//		_SetCssProperty(pElem, "font-size", qs, "::first-line");	// parent = Web and ::first-line
-	}
-}
-
-void FalconG::_SpaceAfterToSample(_CElem* pElem)
-{
-	int spcAfter = pElem->spaceAfter;
-	if (spcAfter)
-	{
-		QString qs = "margin-bottom:" + QString("%1px").arg(spcAfter);
-		_SetCssProperty(pElem, qs);
-	}
-}
-
-void FalconG::_DecorationToSample(_CElem* pElem)
-{
-	QString qs;
-	if (!pElem->decoration.IsTextDecorationLine())
-		_SetCssProperty(pElem, "text-decoration-line:");
-	else if (pElem == &config.Web || !pElem->parent || pElem->parent == &config.Web || pElem->parent->decoration != pElem->decoration)
-	{
-		_SetCssProperty(pElem,	"text-decoration-line:"		+  pElem->decoration.TextDecorationLineStr() + "\n" + 
-								"text-decoration-style:"	+  pElem->decoration.TextDecorationStyleStr() + "");
-	}
-	else
-	{
-		_SetCssProperty(pElem,	"text-decoration-line:inherit\n"
-								"text-decoration-style:inherit");
-	}
-
-}
-
-void FalconG::_TextAlignToSample(_CElem* pElem)
-{
-	QString qs;
-	if (pElem == &config.Web || !pElem->parent || pElem->parent->alignment != pElem->alignment)
-		qs = pElem->alignment.ActAlignStr();
-	_SetCssProperty(pElem,"text-align:"+ qs);
-}
-
-void FalconG::_PageColorToSample()
-{
-	_SetCssProperty(&config.Web,"color:" + config.Web.color.Name());
-}
-
-void FalconG::_PageBackgroundToSample()
-{
-	QString wbc = config.Web.background.Name();
-
-	auto setSameBackground = [&](AlbumElement what)
-	{		   // opacity does not change
-		_CElem* pe = _PtrToElement(what);
-		//pe->background.Set(wbc, -1);
-		//_SetCssProperty(pe, pe->background.ForStyleSheet(false,true) );
-		// clear background from css
-		_RemoveCssProperty(pe,"background:");
-		_RemoveCssProperty(pe,"background-color:");
-		_RemoveCssProperty(pe,"color:");
-	};
-
-	if (ui.chkSetAll->isChecked())		// then remove all other background colors
-	{
-		setSameBackground(aeHeader);
-		setSameBackground(aeMenuButtons);
-		setSameBackground(aeLangButton);
-		setSameBackground(aeSmallTitle);
-		setSameBackground(aeGalleryTitle);
-		setSameBackground(aeGalleryDesc);
-		setSameBackground(aeSection);
-		setSameBackground(aeImageTitle);
-		setSameBackground(aeImageDesc);
-		setSameBackground(aeLightboxTitle);
-		setSameBackground(aeLightboxDescription);
-		setSameBackground(aeFooter);
-	}
-	QString qs = config.Web.background.ForStyleSheet(false, true);
-	_RunJavaScript("body", qs);
-}
-
-void FalconG::_SetIcon()		// only for 'menu-item#uplink' and the icon always has the same name
-{								// but its color will change. Will it be visible without setting it again? And this way? TODO Check???
-	_RunJavaScript("menu-item#uplink",QString("background-image:")+"url('file:///res/up-icon-sample.png')");
-}
-
-
-/*========================================================
- * TASK:	set watermark to sample page or remove it from there
- * PARAMS:
- * GLOBALS:	config.waterMark image is created
- * RETURNS:
- * REMARKS: - only used for falconG and not in production
- *-------------------------------------------------------*/
-void FalconG::_WaterMarkToSample()
-{
-			// set text
-	_CWaterMark &wm = config.waterMark;
-	if (wm.used)
-	{
-		_RunJavaScript("athumb::after", "display:"); // remove "none"
-		_RunJavaScript("athumb::after", "display:"); // remove "none"
-	}
-	else
-	{
-		_RunJavaScript("athumb::after", "display:none"); // remove "none"
-		_RunJavaScript("athumb::after", "display:none"); // remove "none"
-	}
-	_page.triggerAction(QWebEnginePage::Reload);
-}
-
-
 /*============================================================================
   * TASK:	store changed opacity for text or background
   * EXPECTS: val - value of new opacity in percent
@@ -5076,8 +4821,7 @@ void FalconG::_OpacityChanged(int val, int which, bool used)
 		pElem->color.SetOpacity(val, used, true);
 	else
 		pElem->background.SetOpacity(val, used, true);
-	_SetConfigChanged(true);
-	_SetCssProperty(pElem, which == 1 ? pElem->color.ForStyleSheet(false,false) : pElem->background.ForStyleSheet(false, true));
+	_EnableAndSignalConfigChange();
 }
 
 /*============================================================================
@@ -5185,7 +4929,8 @@ void FalconG::_SetLayoutMargins(int which)
 	modifyLayout(ui.gbTextShadow);
 	modifyLayout(ui.gbGradient);
 
-	modifyLayout(ui.gbImageDecoration);
+	modifyLayout(ui.gbImageFrame);
+	modifyLayout(ui.gbAlbumFrame);
 	modifyLayout(ui.gbResizing);
 
 	modifyLayout(ui.gbWatermark);
@@ -5420,6 +5165,13 @@ QProgressBar::chunk{
 	background-color:%15;	   /* %15 progressbar chunk */
 }
 
+QSlider::groove{
+	color :	#008;
+}
+QSlider::handle{
+	color :	#008;
+}
+
 /* ------------------ borders ----------------------*/   
 QTabWidget:pane,     
 QTabBar::tab, 
@@ -5481,26 +5233,6 @@ QCheckBox::indicator:unchecked {
 }
 
 /*============================================================================
-  * TASK:		changes the color of an icon to the one set in 'elem'
-  * EXPECTS: icon - existing icon with only transparent and white pixels
-  *			 elem - _CElem with the 'color' set
-  * RETURNS: modified icon
-  * GLOBALS: 
-  * REMARKS: 
- *--------------------------------------------------------------------------*/
-void FalconG::_SetIconColor(QIcon &icon, _CElem & elem) const
-{
-	QPixmap pm;
-	pm = icon.pixmap(64, 64);
-	QBitmap mask = pm.createMaskFromColor(_lastUsedMenuForegroundColor, Qt::MaskOutColor);
-	// save previous menu button color
-	// do not change this _lastUsedMenuForegroundColor = elem.color.Name();
-	pm.fill(elem.color.Name());
-	pm.setMask(mask);
-	icon = QIcon(pm);
-}
-
-/*============================================================================
   * TASK:		saves the style sheet into both the gallery and the sample page
   * EXPECTS:
   * GLOBALS:
@@ -5512,7 +5244,7 @@ void FalconG::on_btnSaveStyleSheet_clicked()
 	cssCreator.Create(PROGRAM_CONFIG::samplePath + "css/falconG.css", true);	// program library
 	config.SaveDesign();
 
-	_SetConfigChanged(true);
+	_EnableAndSignalConfigChange();
 	if (albumgen.SaveStyleSheets() != 0 || (config.doNotShowTheseDialogs & (int)dboShowAfterSavingCss) )
 	{	
 		QString s = (config.dsGallery + config.dsGRoot + config.dsCssDir).ToString();
@@ -5571,7 +5303,7 @@ void FalconG::on_btnWmColor_clicked()
 		ui.btnWmColor->setStyleSheet(handler.StyleSheet());
 		s = s.mid(1);	 // skip '#'
 		config.waterMark.SetColorWithOpacity(s);
-		_SetConfigChanged(config.waterMark.v = true);
+		_EnableAndSignalConfigChange();
 		_RunJavaScript("thumb::after", "color: " + config.waterMark.ColorToCss());
 	}
 }
@@ -5731,7 +5463,7 @@ void FalconG::_SlotShowRemainingTime(time_t actual, time_t total, int count, boo
 
 /*============================================================================
   * TASK:
-  * EXPECTS:  re-create icon file
+  * EXPECTS:  re-create icon file for the WEB page
   * RETURNS:
   * GLOBALS:
   * REMARKS:
@@ -5745,9 +5477,8 @@ void FalconG::_SlotCreateUplinkIcon(QString destPath, QString destName)
 		QMessageBox::warning(this, tr("falconG"), QString(tr("Warning\nCan't read icon\n'%1'")).arg(src));
 		return;
 	}
-	QFile::remove(destPath + destName);
 	QIcon icon(pm);
-	_SetIconColor(icon, config.Menu);
+	config.SetIconColor(icon, config.Menu);
 	pm = icon.pixmap(64,64);
 	pm.save(destPath + destName);
 }
@@ -5890,9 +5621,9 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 			return;
 		qs = QString("SetPropertyForSelector('" + className + "','" + s.left(pos) + "','" + s.mid(pos+1) + "')");
 #ifdef DEBUG
-		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << "Answer from callback:" << (v.isValid() ? v.toString() : QString("'' (empty)")); });
+		// ??? _page.runJavaScript(qs, [](const QVariant& v) { qDebug() << "Answer from callback:" << (v.isValid() ? v.toString() : QString("'' (empty)")); });
 #else
-		_page.runJavaScript(qs);
+		// ???? _page.runJavaScript(qs);
 #endif
 //		DEBUG_LOG(qs)
 	};
@@ -5964,9 +5695,9 @@ void FalconG::_RemoveCssProperty(_CElem* pElem, QString styles, QString subSelec
 	{
 		QString qs = QString(className + ".style.removeProperty('" + selector + "')");
 #ifdef DEBUG
-		_page.runJavaScript(qs, [](const QVariant& v) { qDebug() << (v.isValid() ? v.toString() : QString("invalid")); });
+		// ??? _page.runJavaScript(qs, [](const QVariant& v) { qDebug() << (v.isValid() ? v.toString() : QString("invalid")); });
 #else
-		_page.runJavaScript(qs);
+		// ??? _page.runJavaScript(qs);
 #endif
 	};
 	QString selector;

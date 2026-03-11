@@ -1,14 +1,18 @@
-#include "stylehandler.h"
-#include "config.h"
-#include "albums.h"
-#include "falcong.h"
-#include <QtWidgets>
+﻿#include <QtWidgets>
 #include <QtWidgets/QApplication>
 
 #include <QMutex>
 #include <QThread>
 #include <QSplashScreen>
 
+// debug:
+#include <QSslSocket>
+#include <QDebug>
+
+#include "stylehandler.h"
+#include "config.h"
+#include "albums.h"
+#include "falcong.h"
 int main(int argc, char *argv[])
 {
 	// This makes all widgets scale with dpi scaling, but the whole
@@ -19,6 +23,13 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
 	QApplication a(argc, argv);
+	a.setStyle("fusion");
+// DEBUG
+qDebug("QSsl supported: %d", QSslSocket::supportsSsl());
+qDebug("SSL build: %s", qPrintable(QSslSocket::sslLibraryBuildVersionString()));
+qDebug("SSL runtime: %s", qPrintable(QSslSocket::sslLibraryVersionString()));
+// /DEBUG
+
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
 	PROGRAM_CONFIG::GetHomePath();
 

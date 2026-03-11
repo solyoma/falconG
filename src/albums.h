@@ -25,7 +25,7 @@
 #include "support.h"
 #include "filereader.h"
 #include "config.h"
-#include "crc32.h"
+#include "crc32calc.h"
 #include "stylehandler.h"
 #include "languages.h"
 

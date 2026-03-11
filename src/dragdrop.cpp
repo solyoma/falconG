@@ -327,7 +327,7 @@ void DropHandler::_FromInternalSource(bool fromThumbView)
 			fileIcons.SetIconOrder(iconOrder);
 			items = idl;
 		}
-		// coomon for relocate and move
+		// common for relocate and move
 		albumgen.AddToModifiedList(*_albumPointers.pDest);			// may  be an alias
 		if(_albumPointers.pDest != _albumPointers.pDestAlbum)
 			albumgen.AddToModifiedList(*_albumPointers.pDestAlbum);	// also add the base album when destination is an alias

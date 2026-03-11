@@ -1,4 +1,4 @@
-#include <QFile>
+﻿#include <QFile>
 #include <QTextStream>
 #include "stylehandler.h"
 //#include <QKeyValueIterator>
@@ -52,7 +52,7 @@ QString StyleHandler::_GetGroup()
 		;
 	if (ch == '{')
 	{
-		sg = _ssr.mid(lookBack, _pos - lookBack-2).trimmed();
+		sg = _ssr.mid(lookBack, _pos - lookBack-1).trimmed();
 		// _pos points after the '{'
 		_rules.clear();
 	}
@@ -83,7 +83,7 @@ QString StyleHandler::_GetGroup()
  *---------------------------------------------------------------------------*/
 StyleHandler::StyleHandler(const QString & ss)
 {
-	Set(ss);
+	FromCss(ss);
 }
 
 /*========================================================
@@ -176,12 +176,12 @@ void StyleHandler::ReadFromSettings(QSettings & settings)
 	settings.beginGroup("CSS");
 	QStringList selectors = settings.childGroups(),
 				keys;
-	for (auto s : selectors)
+	for (auto &s : selectors)
 	{
 		ssr += s + "{\n";
 		settings.beginGroup(s);
 		keys = settings.childKeys();
-		for (auto k : keys)
+		for (auto &k : keys)
 		{
 			ssr += settings.value(k, "").toString();
 		}
@@ -189,7 +189,7 @@ void StyleHandler::ReadFromSettings(QSettings & settings)
 	}
 	settings.endGroup();
 	if (!ssr.isEmpty())
-		Set(ssr);
+		FromCss(ssr);
 }
 
 /*============================================================================
@@ -198,9 +198,9 @@ void StyleHandler::ReadFromSettings(QSettings & settings)
 * REMARKS: style sheet group: a name followed by a '{' followed by
 *				a list of StyleRules and closed by a closing brace
 *			style element is a name followed by a colon then a value QString
-*				ending with semicolon.;
+*				ending with semicolon.
 *---------------------------------------------------------------------------*/
-void StyleHandler::Set(const QString & ss)
+void StyleHandler::FromCss(const QString & ss)
 {
 	QString qs;
 
@@ -214,15 +214,19 @@ void StyleHandler::Set(const QString & ss)
 		_groups[qs] = _rules;
 }
 
-QString StyleHandler::StyleSheet()
+QString StyleHandler::StyleSheet(bool bare)
 {
 	_ssr.clear();
 	if (_groups.size())
 	{
+		QString qs;
 		for (auto it = _groups.constBegin(); it != _groups.constEnd(); ++it)
 		{
-			_ssr += it.key() + " {\n";
-			auto el = it.value();
+			qs = it.key();
+			if(bare)
+				qs.replace(QRegExp("^[^:{* ]*"), "@");
+			_ssr += qs + " {\n";
+			auto &el = it.value();
 			for (auto ite = el.constBegin(); ite != el.constEnd(); ++ite)
 			{
 				_ssr += "  " + ite.key() + ":" + ite.value() + ";\n";
@@ -238,6 +242,14 @@ QString StyleHandler::StyleSheet()
 		}
 	}
 	return _ssr;
+}
+
+QStringList StyleHandler::GetListOfGroups() const
+{
+	QStringList qsl;
+	for (auto& g : _groups.keys())
+		qsl << g;
+	return qsl;
 }
 
 
@@ -285,9 +297,9 @@ QString StyleHandler::GetItem(QString group, const QString key) const
 	return QString();
 }
 
-QString StyleHandler::GetItem(const QString baseSelector, const QString objectName, const QString nameOfRule)
+QString StyleHandler::GetItem(const QString baseSelector, const QString objectName, const QString nameOfRule) const
 {
-	return GetItem(baseSelector+"#"+objectName, nameOfRule);
+	return GetItem(baseSelector+objectName, nameOfRule);
 }
 
 void StyleHandler::SetItem(const QString group, const QString key, QString newValue)
@@ -325,7 +337,8 @@ void StyleHandler::RemoveItem(const QString group, const QString key)
 {
 	if (!group.isEmpty())
 		_groups[group].remove(key);
-	_rules.remove(key);
+	if(!_rules.isEmpty())
+		_rules.remove(key);
 
 }
 
@@ -345,4 +358,38 @@ void StyleHandler::RemoveGroup(const QString group)
 void StyleHandler::RemoveGroup(const QString baseSelector, const QString objectName)
 {
 	RemoveGroup(baseSelector + "#" + objectName);
+}
+
+QString StyleHandler::ColorToStr(QString& color)
+{
+	if (color.length() == 0 || color[0] == QChar('#'))
+		return color;
+	if (color.mid(0, 3) == "rgb")
+	{
+		int cma = color.indexOf('('), 
+			cma1 = color.indexOf(',');
+		auto c2i = [&]() -> QString
+			{
+				if (cma1 < 0)
+					return "FF";
+				QString s = color.mid(cma+1, cma1 - cma-1);
+				if (s.isEmpty())
+					return color;
+				if (s.length() > 1 && s[1] == 'x')	  // hexadecimal string
+						s = s.mid(2);
+				else
+						s = QString("%1").arg(s.toInt(), 2, 16, QChar('0'));
+
+				cma = cma1;
+				cma1 = color.indexOf(',', cma + 1);
+				return s;
+			};
+
+		QString qs = '#' + c2i(); // can't do this by adding c2i()'s - order would be reversed
+		qs += c2i();
+		qs += c2i();
+		qs += c2i();
+		return qs;
+	}
+	return color;
 }

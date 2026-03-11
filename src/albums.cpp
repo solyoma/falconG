@@ -453,7 +453,7 @@ double Image::ThumbAspect() const
 
 void Image::SetResizeType()
 {
-	if (name.length() > 2 && name[0] == '!' && name[1] == '!')
+	if (name.length() > 2 && name.at(0) == '!' && name.at(1) == '!')
 	{
 		name = name.mid(2);
 		dontResize = true;
@@ -1587,7 +1587,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool sign
 	ID_t id = ID_t::Invalid();
 
 	QString s = fi.filePath();
-	if (fi.fileName()[0] == '.')			// hidden/directory file?
+	if (fi.fileName().at(0) == '.')			// hidden/directory file?
 		return id;
 
 	bool added = false;
@@ -2155,7 +2155,7 @@ bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 {
 	QString line = reader.ReadLine(); // [Language count: X:
 // 'n' is temporary
-	int n = line[0] == '[' ? 1 : 0;
+	int n = line.at(0) == '[' ? 1 : 0;
 	if (line.mid(n, 15) != "Language count:")
 //	if (line.left(15) != "Language count:")
 		throw BadStruct(reader.ReadCount(), "Language Count");
@@ -2275,9 +2275,9 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 				lang = 0;
 		}
 
-		if (reader.l()[level + 1] == sThumbTag[0])
+		if (reader.l().at(level + 1) == sThumbTag[0])
 			newTag = IdsFromStruct::thumbnail;
-		else if (reader.l()[level + 1] == sTitleTag[0])
+		else if (reader.l().at(level + 1) == sTitleTag.at(0))
 			newTag = IdsFromStruct::title;
 		else
 			newTag = IdsFromStruct::description;
@@ -2316,7 +2316,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 			// see if this is a processed line or an image path string
 			// image path strings starting with a character other than a decimal digit may follow after a space or a colon
 			// but image names in the source directory that start with a decimal digit must be written after a colon!
-			bool b = reader.l()[level + sThumbTag.length() + 1] == ':';
+			bool b = reader.l().at(level + sThumbTag.length() + 1) == ':';
 			QString s = reader.l().mid(level + sThumbTag.length() + 2, len);  // ID or path name
 			if (b && s[0].isDigit())
 				ids.thumbnailIDVal = s.toULongLong();
@@ -2352,7 +2352,7 @@ void AlbumGenerator::_GetTextAndThumbnailIDsFromStruct(FileReader &reader, IdsFr
 		}
 		ids.what = newTag;
 				// reads next line aand repeat loop
-	} while (!reader.NextLine().isEmpty() && reader.l()[level] == '[');
+	} while (!reader.NextLine().isEmpty() && reader.l().at(level) == '[');
 
 	if ( !texts.IsEmpty())
 	{
@@ -2398,11 +2398,11 @@ bool AlbumGenerator::_ReadPathTable(FileReader& reader)
 		// rline format: <full, or source relative path name of thumbnail>[:<id>]
 
 		QStringList sl = rline.split('|');
-		sl[1] = CutSourceRootFrom(sl[1]);
 		int n = sl.size();
-
 		if (n != 2 || !__isID(sl[0]))
 			throw BadStruct(reader.ReadCount(), tr("Bad Path line"));
+
+		sl[1] = CutSourceRootFrom(sl[1]);
 
 		pathMap.Insert(sl[0], sl[1]);
 		ok = reader.Ok();
@@ -3092,9 +3092,9 @@ IDVal_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, IDVal_t parent,
 			}
 			while(reader.Ok() && reader.l().isEmpty())	// drop all consecutive empty lines
 				reader.NextLine();					// next album definition line
-			if (reader.Ok() && reader.l()[level] == ' ')		// new sub album
+			if (reader.Ok() && reader.l().at(level) == ' ')		// new sub album
 			{
-				while (reader.Ok() && reader.l()[level] == ' ')
+				while (reader.Ok() && reader.l().at(level) == ' ')
 				{													// process it
 					IDVal_t aid = _ReadAlbumFromStruct(reader, id, level + 1); // returns when same level sub album is found
 					album.items.push_back({ALBUM_ID_FLAG, aid });
@@ -3120,7 +3120,7 @@ IDVal_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, IDVal_t parent,
 		}
 		else
 		{				// strings in lText must be empty
-			if (reader.l()[level] == '[') // then title, description or thumbnail line
+			if (reader.l().at(level) == '[') // then title, description or thumbnail line
 			{
 				_GetTextAndThumbnailIDsFromStruct(reader, ids, level);
 				if (changeCountBefore != _structFileChangeCount)
@@ -3353,7 +3353,7 @@ bool AlbumGenerator::_ReadFromGallery()
 }
 
 /*============================================================================
-* TASK:	copies directory 'js' to gallery, except 'falconGGen.js'
+* TASK:	copies directory 'js' to gallery
 * EXPECTS:	config fields are set
 * GLOBALS:	'config'
 * RETURNS: 0: OK, 1: error writing some file
@@ -3368,9 +3368,7 @@ int AlbumGenerator::_DoCopyJs()
 	int res = 0;
 	QString dname;
 	for (QFileInfo& fi : list)
-		if(fi.fileName() != "falconGGen.js")
 		res |= CopyOneFile(src + fi.fileName(), dest + fi.fileName()) ? 0: 1;
-//		res |= CopyOneFile(fi.absoluteFilePath(), dest + fi.fileName()) ? 0: 1;
 
 	return res;
 }

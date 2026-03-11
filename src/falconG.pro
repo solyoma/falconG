@@ -50,7 +50,11 @@ RESOURCES += falcong.qrc
 
 QMAKE_CXXFLAGS += -std=c++17 -Wno-unused-parameter
 #QT += widgets webenginewidgets
-QT += widgets
+QT += core gui network widgets
+CONFIG += c++17
+
+INCLUDEPATH += /path/to/quazip/include
+LIBS += -L/path/to/quazip/lib -lquazip
 CONFIG += lrelease embed_translations
 TRANSLATIONS = ../translations/en_US.ts \
                ../translations/hu_HU.ts
