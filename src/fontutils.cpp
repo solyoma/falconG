@@ -7,136 +7,11 @@
 #include <QNetworkReply>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QRegularExpression>
+#include <QRawFont>
+#include <QDebug>
 
-// QuaZip
-#include <quazip.h>
-#include <quazipfile.h>
-
-QStringList FontUtils::_ExtractAllTtf(const QString& zipPath, const QString& targetDir)
-{
-    QuaZip zip(zipPath);
-    if (!zip.open(QuaZip::mdUnzip))
-        return {};
-
-    QuaZipFile file(&zip);
-    QStringList extracted;
-
-    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
-        QString name = zip.getCurrentFileName();
-
-        // Prefer Regular.ttf
-        if (!name.endsWith(".ttf") && !name.endsWith(".otf"))
-            continue;
-
-        file.open(QIODevice::ReadOnly);
-        QByteArray data = file.readAll();
-        file.close();
-
-        QDir dir(targetDir);
-        dir.mkpath(".");
-        QString extractedPath = dir.filePath(QFileInfo(name).fileName());
-
-        QFile out(extractedPath);
-        out.open(QIODevice::WriteOnly);
-        out.write(data);
-        out.close();
-
-        extracted << extractedPath;
-    }
-
-    zip.close();
-    return extracted;
-}
-
-void FontUtils::DownloadAndLoadFont(const QString& fontName,
-        const QString& targetFolder,
-        std::function<void(bool, QString)> callback)
-{
-    QDir dir(targetFolder+"/downloadedfonts");
-    dir.mkpath(".");
-
-    if (!QueryFontVariants(fontName).isEmpty())  // already loaded?
-    {
-        callback(true, fontName);
-        return;
-    }
-
-    QString zipPath = dir.filePath(fontName + ".zip");
-
-    // Already downloaded?
-    if (QFile::exists(zipPath))
-    {
-        QStringList ttfs = _ExtractAllTtf(zipPath, targetFolder + "/fonts");
-        QString family;
-        for (const QString& ttf : ttfs) {
-            int id = QFontDatabase::addApplicationFont(ttf);
-            if (family.isEmpty())
-                family = QFontDatabase::applicationFontFamilies(id).value(0);
-        }
-        callback(true, family);
-        return;
-    }
-
-    // Download ZIP
-    QString urlStr = QString("https://fonts.google.com/download?family=%1")
-        .arg(QString(QUrl::toPercentEncoding(fontName)));
-    QNetworkReply* reply = manager.get(QNetworkRequest(QUrl(urlStr)));
-
-    // quick trace to ensure request was started
-    qDebug("Font download requested: %s  reply=%p", qPrintable(urlStr), reply);
-
-    // Use QPointer to avoid dereferencing deleted reply inside lambda
-    QPointer<QNetworkReply> replyPtr(reply);
-
-    connect(reply, &QNetworkReply::finished, this, [=]() {
-        QNetworkReply* r = replyPtr.data();
-        if (!r) {
-            qDebug("Download finished handler: reply pointer is null (already deleted)");
-            callback(false, {});
-            return;
-        }
-
-        // Check for network errors here (works on all Qt5 variations)
-        if (r->error() != QNetworkReply::NoError) {
-            qDebug("Error: %s", r->errorString().toStdString().c_str());
-            r->deleteLater();
-            callback(false, {});
-            return;
-        }
-
-        QByteArray data = r->readAll();
-        r->deleteLater();
-
-        if (data.isEmpty()) {
-            qDebug("Downloaded data empty");
-            callback(false, {});
-            return;
-        }
-
-        QFile f(zipPath);
-        if (!f.open(QIODevice::WriteOnly)) {
-            qDebug("Failed to open %s for write", qPrintable(zipPath));
-            callback(false, {});
-            return;
-        }
-        f.write(data);
-        f.close();
-
-        QStringList ttfs = _ExtractAllTtf(zipPath, targetFolder + "/unpacked");
-        QString family;
-        for (const QString &ttf: ttfs) {
-            int id = QFontDatabase::addApplicationFont(ttf);
-            if (family.isEmpty())
-                family = QFontDatabase::applicationFontFamilies(id).value(0);
-        }
-        if (ttfs.isEmpty()) {
-            callback(false, {});
-            return;
-        }
-
-        callback(true, family);
-    });
-}
+#include "logger.h"
 
 //QStringList FontUtils::ScanInstalledFontsInFolder(const QString& targetFolder)
 //{
@@ -170,73 +45,115 @@ QStringList FontUtils::ScanInstalledFontsInFolder(const QString & targetFolder)
         QDir::Files,
         QDirIterator::Subdirectories);
 
+    // Clear previous aliases for a fresh scan
+    _slFontErrors.clear();
+    QString qsPrevPath = "///";
+    int plen = 5;
+
     while (it.hasNext()) {
         QString path = it.next();
+        if (path.left(plen) != qsPrevPath)
+        {
+            plen = path.lastIndexOf('/') + 1;
+            qsPrevPath = path.left(plen);
+            logger.Log(tr("Scanning folder %1 for fonts").arg(qsPrevPath));
+        }
+
+        QString msg;
         QFileInfo fi(path);
 
-        if (!fi.exists()) {
-            qDebug("Font scan: file disappeared: %s", qPrintable(path));
+        if (!fi.exists()) 
+        {
+            msg = tr("Font scan: file disappeared: %1").arg(path.mid(plen));
+            _slFontErrors << msg;
+			logger.Log(msg);
             continue;
         }
         if (fi.size() == 0) {
-            qDebug("Font scan: zero-size file skipped: %s", qPrintable(path));
+            msg = tr("Font scan: zero-size file skipped: %1").arg(path.mid(plen));
+            _slFontErrors << msg;
+			logger.Log(msg);
             continue;
         }
 
-        // Read file header to sanity-check format
+        // Quick signature check
         QFile fh(path);
-        if (!fh.open(QIODevice::ReadOnly)) {
-            qDebug("Font scan: cannot open file: %s", qPrintable(path));
+        if (!fh.open(QIODevice::ReadOnly)) 
+        {
+            msg = tr("Font scan: cannot open file: %1").arg(path.mid(plen));
+            _slFontErrors << msg;
+			logger.Log(msg);
             continue;
         }
         QByteArray head = fh.read(8);
         fh.close();
 
-        bool looksLikeFont = false;
-        // TrueType: 0x00 0x01 0x00 0x00, OpenType(CFF): "OTTO", TTC: "ttcf"
-        if (head.startsWith("\0\1\0\0") || head.startsWith("OTTO") || head.startsWith("ttcf"))
-            looksLikeFont = true;
-
-        if (!looksLikeFont) {
-            qDebug("Font scan: file does not look like TTF/OTF/TTC (sig=%s): %s",
-                qPrintable(QString::fromLatin1(head.left(4).toHex())), qPrintable(path));
-            // still try to load — sometimes signatures vary — but note it.
+        if (!(head.startsWith("\0\1\0\0") || head.startsWith("OTTO") || head.startsWith("ttcf"))) 
+        {
+            msg = tr("Font scan: file does not look like TTF/OTF/TTC (sig=%1):%2")
+                        .arg( QString::fromLatin1(head.left(4).toHex())).arg(path.mid(plen));
+            _slFontErrors << msg;
+			logger.Log(msg );
+            continue;
         }
 
+        logger.Log(tr("Adding font %1").arg(path.mid(plen)));
         int id = QFontDatabase::addApplicationFont(path);
         if (id < 0) {
-            qDebug("Font scan: QFontDatabase::addApplicationFont failed for %s", qPrintable(path));
-            // Optionally copy the bad file aside for manual inspection:
-            // QFile::copy(path, targetFolder + "/badfonts/" + QFileInfo(path).fileName());
+            msg = tr("Font scan: QFontDatabase::addApplicationFont failed for %1").arg(path.mid(plen));
+            _slFontErrors << msg;
+			logger.Log(msg );
             continue;
         }
 
+        logger.Log(tr("Checking families"));
         QStringList fams = QFontDatabase::applicationFontFamilies(id);
-        if (fams.isEmpty()) {
-            qDebug("Font scan: loaded id=%d but no families reported for %s", id, qPrintable(path));
+        if (fams.isEmpty()) 
+        {
+            msg = tr("Font scan: loaded id=%1 but no families reported for %2").arg(id).arg(qPrintable(path.mid(plen)));
+            _slFontErrors << msg;
+			logger.Log(msg );
             continue;
         }
 
-        for (const QString& f : fams) {
-            // sanitize family name for logging (remove control chars)
+        // Log and register each family
+        logger.Log(tr("Log and register each family"));
+        for (const QString& f : fams) 
+        {
             QString name = f;
-            name.remove(QRegExp("[\\x00-\\x1F]")); // strip control chars
+            // Remove control chars and surrounding/trailing quotes
+            name.remove(QRegExp("[\\x00-\\x1F]"));
             name = name.trimmed();
-            qDebug("Font scan: loaded family '%s' from %s (id=%d)", qPrintable(name), qPrintable(path), id);
+
+             msg = tr("Font scan: loaded family '%1' from '%3' (id=%4)")
+                   .arg(qPrintable(name)).arg(qPrintable(path.mid(plen))).arg(id);
+
+			logger.Log(msg );
+
             loadedFamilies << name;
         }
     }
 
     return loadedFamilies;
 }
+
 QStringList FontUtils::QueryFontVariants(const QString& familyName) const
 {
     QFontDatabase db;
 
-    if (!db.families().contains(familyName))
-        return {};  // font not present
+    QStringList families = db.families();
+    // Try exact match first
+    if (families.contains(familyName))
+        return db.styles(familyName);
 
-    return db.styles(familyName);
+    // final fallback: try case-insensitive search over families
+    for (const QString& fam : db.families()) 
+    {
+        if (QString::compare(fam, familyName, Qt::CaseInsensitive) == 0)
+            return db.styles(fam);
+    }
+
+    return {};  // font not present
 }
 
 void FontUtils::EnsureFontAvailable(const QString& fontName,
@@ -253,20 +170,9 @@ void FontUtils::EnsureFontAvailable(const QString& fontName,
 
     // Step 2: Scan folder for previously downloaded fonts
     QStringList loaded = ScanInstalledFontsInFolder(targetFolder);
-    if (loaded.contains(fontName)) {
+    if (loaded.contains(fontName)) 
+    {
         callback(true, QueryFontVariants(fontName));
         return;
     }
-
-    // Step 3: Download ZIP, extract, load, return variants
-    DownloadAndLoadFont(fontName, targetFolder,
-        [=](bool ok, QString family) {
-            if (!ok) {
-                callback(false, {});
-                return;
-            }
-
-            QStringList variants = QueryFontVariants(family);
-            callback(true, variants);
-        });
 }

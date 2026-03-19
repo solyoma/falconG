@@ -1692,7 +1692,7 @@ void ThumbnailView::SlotSynchronizeTexts()
 
     emit SignalSingleSelection(Item(_rowSelectedWithRightButton)->ID, _ActAlbum()->ID);
 
-    if (QuestionDialog(tr("falconG - Question"),
+    if (QuestionDialog(tr(FG_QUESTION),
         tr("This will set the texts to all of selected items\n"
             "to be the same as the item under the cursor when\n"
             "you choose this menu option\n\n"
@@ -1791,7 +1791,7 @@ bool ThumbnailView::_NewVirtualFolder(QString folderName, IDVal_t baseAlbumID)
 {
     auto errMsg = [&](QString text)
         {
-            QMessageBox::warning(this, tr("falconG - Warning"), tr( "Adding new album failed!\n\n%1\n"
+            QMessageBox::warning(this, tr(FG_WARNING), tr( "Adding new album failed!\n\n%1\n"
                                                                     "Please use a different name!\n\n"
                                                                     "Album names must be unique.").arg(text));
         };
@@ -1878,7 +1878,7 @@ void ThumbnailView::SlotMoveToParentFolder()
     if (indexesList.isEmpty())  // should never happen
         return;
 
-    if( QuestionDialog(tr("falconG - Question"), tr("Move selected items into parent album?"), 
+    if( QuestionDialog(tr(FG_QUESTION), tr("Move selected items into parent album?"), 
                              dboAskIfToMoveIntoParentFolder, this, tr(""), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
         IntList ids;
@@ -2181,7 +2181,7 @@ void ThumbnailView::SlotExportAsCSV()
     QFile file(csvname);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        QMessageBox::warning(this, tr("falconG - Warning"), tr("Cannot open file for writing: %1").arg(file.fileName()));
+        QMessageBox::warning(this, tr(FG_WARNING), tr("Cannot open file for writing: %1").arg(file.fileName()));
         return;
     }
     QTextStream out(&file);
@@ -2294,7 +2294,7 @@ void ThumbnailView::SlotFindMissingImageOrVideo()
         QString n, p;
         if(!__namesMatch(foundName, p, n))
         {
-            if (QMessageBox::question(this, tr("falconG - Warning"), tr("File names do not match.\nDo you accept the new name?")) == QMessageBox::No)
+            if (QMessageBox::question(this, tr(FG_WARNING), tr("File names do not match.\nDo you accept the new name?")) == QMessageBox::No)
                 return;
             pItem->name = n;    // new name accepted
         }

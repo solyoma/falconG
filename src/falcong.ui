@@ -1203,66 +1203,13 @@ every time you refresh the album page.</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="edtGoogleFonts">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) use quotes around it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>Comma separated font names on Google</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
+               <item row="0" column="4">
                 <widget class="QToolButton" name="btnGoToGoogleFontsPage">
                  <property name="toolTip">
                   <string>Opens the Google fonts WEB page</string>
                  </property>
                  <property name="text">
                   <string>F</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_44">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Fonts Directory</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>edtFontDir</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1" colspan="2">
-                <widget class="QLineEdit" name="edtFontDir">
-                 <property name="font">
-                  <font>
-                   <family>Arial</family>
-                   <weight>50</weight>
-                   <bold>false</bold>
-                  </font>
-                 </property>
-                 <property name="toolTip">
-                  <string>Directory/directories for all special fonts. 
-Can be a WEB address too. 
-Will be put in stylesa.css</string>
-                 </property>
-                 <property name="placeholderText">
-                  <string>fonts</string>
                  </property>
                 </widget>
                </item>
@@ -1283,7 +1230,7 @@ Will be put in stylesa.css</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1" colspan="2">
+               <item row="2" column="1" colspan="4">
                 <widget class="QLineEdit" name="edtDefaultFonts">
                  <property name="font">
                   <font>
@@ -1293,14 +1240,71 @@ Will be put in stylesa.css</string>
                   </font>
                  </property>
                  <property name="toolTip">
-                  <string>Font name separated by commas. If a name contains
-spaces, put it into double quotes. No need to quote
-other names.
-Defaults:
-Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Georgia,serif</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names. If a name contains&lt;/p&gt;&lt;p&gt;spaces, put it into double quotes. No need to quote&lt;/p&gt;&lt;p&gt;other names.&lt;/p&gt;&lt;p&gt;Defaults:&lt;/p&gt;&lt;p&gt;Constantia,Palatino,&amp;quot;Palatino Linotype&amp;quot;,&amp;quot;Palatino LT STD&amp;quot;,Georgia,serif&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="placeholderText">
-                  <string>Names separated by commas</string>
+                  <string>Comma separated font names</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="edtGoogleFonts">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comma separated font names (possibly with ':wght@&amp;lt;font weight&amp;gt;') &lt;br/&gt;without the Google URL.&lt;/p&gt;&lt;p&gt;If the name contains space(es) use quotes around it.&lt;/p&gt;&lt;p&gt;If you want to see how the page would look like during the design phase you need &lt;br/&gt;to download the Google fonts used manually into the &lt;span style=&quot; font-style:italic;&quot;&gt;falconG/gfonts&lt;/span&gt;.folder.&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Comma separated font names on Google</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_44">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Fonts Directory</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>edtFontDir</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="edtFontDir">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Folderfor all (non Google) special fonts. &lt;/p&gt;&lt;p&gt;For design it is inside the falconG folder in the home folder.&lt;/p&gt;&lt;p&gt;For the web page inside the root gallery folder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="placeholderText">
+                  <string>fonts</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4">
+                <widget class="QToolButton" name="btnToShowFolderInfo">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>?</string>
                  </property>
                 </widget>
                </item>
@@ -4851,7 +4855,7 @@ Default: &quot;/res/&quot;</string>
                          <widget class="QGroupBox" name="gbFont">
                           <property name="minimumSize">
                            <size>
-                            <width>270</width>
+                            <width>290</width>
                             <height>130</height>
                            </size>
                           </property>
@@ -5348,13 +5352,13 @@ Default: &quot;/res/&quot;</string>
                            <item row="0" column="6" colspan="3">
                             <widget class="QComboBox" name="cbFonts">
                              <property name="enabled">
-                              <bool>false</bool>
+                              <bool>true</bool>
                              </property>
                              <property name="toolTip">
                               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                              </property>
                              <property name="placeholderText">
-                              <string>Select specified font</string>
+                              <string>Select font</string>
                              </property>
                             </widget>
                            </item>
@@ -6771,8 +6775,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7747,7 +7751,7 @@ the last CSS save.</string>
              <property name="title">
               <string>Color Scheme Editor</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_16" stretch="10">
+             <layout class="QVBoxLayout" name="verticalLayout_16" stretch="10,0">
               <property name="spacing">
                <number>2</number>
               </property>
@@ -7835,6 +7839,28 @@ the last CSS save.</string>
                     <string>Color Scheme</string>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_22">
+                    <item row="7" column="1">
+                     <widget class="QPushButton" name="btnMoveSchemeDown">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Move Down</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="falcong.qrc">
+                        <normaloff>:/icons/Resources/movedown-icon.png</normaloff>:/icons/Resources/movedown-icon.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="1">
                      <spacer name="verticalSpacer_7">
                       <property name="orientation">
@@ -7847,6 +7873,42 @@ the last CSS save.</string>
                        </size>
                       </property>
                      </spacer>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QPushButton" name="btnAddAndGenerateColorScheme">
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Add </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="3">
+                     <widget class="QPushButton" name="btnResetColorScheme">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>Arial</family>
+                        <pointsize>8</pointsize>
+                        <weight>75</weight>
+                        <bold>true</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Reset</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0" rowspan="7">
+                     <widget class="QListWidget" name="lwColorScheme"/>
                     </item>
                     <item row="2" column="3">
                      <widget class="QToolButton" name="btnDeleteColorScheme">
@@ -7879,24 +7941,6 @@ the last CSS save.</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0" rowspan="7">
-                     <widget class="QListWidget" name="lwColorScheme"/>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QPushButton" name="btnAddAndGenerateColorScheme">
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>8</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Add </string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="3" column="1">
                      <widget class="QPushButton" name="btnApplyColorScheme">
                       <property name="enabled">
@@ -7912,24 +7956,6 @@ the last CSS save.</string>
                       </property>
                       <property name="text">
                        <string>Apply</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="3">
-                     <widget class="QPushButton" name="btnResetColorScheme">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>8</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Reset</string>
                       </property>
                      </widget>
                     </item>
@@ -7955,29 +7981,140 @@ the last CSS save.</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="7" column="1">
-                     <widget class="QPushButton" name="btnMoveSchemeDown">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>Arial</family>
-                        <pointsize>8</pointsize>
-                        <weight>75</weight>
-                        <bold>true</bold>
-                       </font>
-                      </property>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="grbLogging">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>60</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>8</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="title">
+                 <string>Logging</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_30">
+                 <item>
+                  <widget class="QFrame" name="frame_3">
+                   <property name="frameShape">
+                    <enum>QFrame::Box</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Sunken</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_29">
+                    <property name="spacing">
+                     <number>1</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>1</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>1</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>1</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>1</number>
+                    </property>
+                    <item>
+                     <widget class="QCheckBox" name="chkLogToggle">
                       <property name="text">
-                       <string>Move Down</string>
+                       <string>Logging is on</string>
                       </property>
-                      <property name="icon">
-                       <iconset resource="falcong.qrc">
-                        <normaloff>:/icons/Resources/movedown-icon.png</normaloff>:/icons/Resources/movedown-icon.png</iconset>
+                      <property name="checked">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
                    </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_93">
+                   <property name="text">
+                    <string>Log file size:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="sbLogSize">
+                   <property name="suffix">
+                    <string> MiB</string>
+                   </property>
+                   <property name="minimum">
+                    <number>10</number>
+                   </property>
+                   <property name="maximum">
+                    <number>100</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_94">
+                   <property name="text">
+                    <string>Select log:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cbLogSelection">
+                   <item>
+                    <property name="text">
+                     <string>Actual log (started at 2026-03-22)</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_15">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>202</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnShowLog">
+                   <property name="toolTip">
+                    <string>Show selected log file</string>
+                   </property>
+                   <property name="text">
+                    <string>Sho&amp;w log</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btnClearAllLogs">
+                   <property name="toolTip">
+                    <string>Remove all log files. Not undoable.</string>
+                   </property>
+                   <property name="text">
+                    <string>Clear log</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="falcong.qrc">
+                     <normaloff>:/icons/Resources/delete.png</normaloff>:/icons/Resources/delete.png</iconset>
+                   </property>
                   </widget>
                  </item>
                 </layout>

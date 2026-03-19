@@ -7,6 +7,7 @@
 #include "common.h"
 using namespace Common;
 
+#include "logger.h"
 #include "support.h"
 #include "config.h"
 #include "fontutils.h"
@@ -21,7 +22,6 @@ using namespace Common;
 #include "ui_falcong.h"
 
 #include <memory>
-
 
 class ImageViewer;	// in imageviewer.h
 
@@ -91,10 +91,11 @@ private:
 	QSignalMapper* _pSchemeMapper = nullptr;	// each button uses this
 	//std::unique_ptr<QSignalMapper> _popupMapper;
 	// ---
+
 	DesignProperty _whatChanged = dpNone;
 
 	// fonts
-	FontUtils _fontUtils;
+	FontUtils *_fontUtils = nullptr;
 
 	Semaphore	_busy,		// prevent recursive parameter changes
 				_running;	// operation (e.g. web page generation) is running: do not close the program yet
@@ -115,6 +116,7 @@ private:
 
 private:
 	void _AddGoogleFontsToFontDataBase();
+	void _PrepareFontsToolTip();
 
 	QString _GradientStyleQt(_CElem &elem, bool invert = false);	// Creates QT stylesheet gradinet string
 	void  _SetGradientLabelColors(_CElem *pElem, bool invert = false);	// Creates QT stylesheet gradinet string
@@ -225,6 +227,7 @@ private slots:
 	void on_btnBrowseForBackgroundImage();
 	void on_btnBrowseSource_clicked();
 	void on_btnCloseAllViewers_clicked();
+	void on_btnClearAllLogs_clicked();
 	void on_btnDeleteColorScheme_clicked();
 	void on_btnDisplayHint_clicked();
 	void on_btnForeground_clicked();
@@ -258,6 +261,7 @@ private slots:
 	void on_btnSelectUplinkIcon_clicked();
 	void on_btnSelectWmFont_clicked();
 	void on_btnShadowColor_clicked();
+	void on_btnShowLog_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
 	
@@ -296,6 +300,7 @@ private slots:
 	void on_chkIconTop_toggled(bool);
 	void on_chkItalic_toggled(bool);
 	void on_chkKeepDuplicates_toggled(bool);
+	void on_chkLogToggle_toggled(bool);
 	void on_chkLowerCaseImageExtensions_toggled(bool);
 	void on_chkMenuToAbout_toggled(bool);
 	void on_chkMenuToContact_toggled(bool);
@@ -396,6 +401,7 @@ private slots:
 	void on_sbAlbumMatteWidth_valueChanged(int val);
 	void on_sbBackgroundOpacity_valueChanged(int val);
 	void on_sbLatestCount_valueChanged(int val);
+	void on_sbLogSize_valueChanged(int val);
 	void on_sbMaxItemCountPerDir_valueChanged(int n);
 	void on_sbNewDays_valueChanged(int val);
 	void on_sbShadowBlur1_valueChanged(int val);

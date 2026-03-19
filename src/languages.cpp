@@ -161,7 +161,7 @@ int Languages::Read()
 	if (!list.size())	// still no files: set single default language: English
 	{
 		if (QMessageBox(QMessageBox::Warning,
-			QMainWindow::tr("falconG - Warning"),
+			QMainWindow::tr(FG_WARNING),
 						//            1			2		  3			4		  5			6		  7			8
 						//	 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
 			QMainWindow::tr("No language (*.lang) files are found.\n"

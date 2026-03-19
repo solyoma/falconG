@@ -12,6 +12,7 @@
 
 #include <string>
 
+#include "logger.h"
 #include "common.h"
 #include "support.h"
 #include "dragdrop.h"
@@ -47,8 +48,9 @@
 	ofsdbg << qs << "\n";			 \
 }
 
-
 QWidget* frmMain = nullptr;		// can't be FalconG, because I want to use this in other c++ files without including falcong.h, e.g. in dragdrop.cpp for message boxes
+// logging
+Logger logger;	// see logger.h
 
 // ************************ helper **********************
 /*------------------------------------- macros ------------------------------------*/
@@ -169,6 +171,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	CreateDir(PROGRAM_CONFIG::samplePath+"res");
 
 	CreateDir(PROGRAM_CONFIG::fontDirPath);	// downloaded and extracted google fonts come here
+
 	config.doNotShowTheseDialogs = ask;
 
 	QString resPPath = QStringLiteral(":/Preview/Resources/"),
@@ -200,6 +203,12 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	ui.setupUi(this);
 	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
+
+	logger.Setup("falconG log", PROGRAM_CONFIG::homePath + "falconG.log", true);
+	logger.Open();
+	logger.Log(tr("*** falconG started ***"));
+	// DEBUG 1 line
+	// Logger::LogFileList lflst = logger.GetLogFileList();
 
 #if defined Q_OS_WINDOWS
 	ui.chkSourceRelativeForwardSlash->setChecked(true);
@@ -290,7 +299,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	restoreState(s.value("wstate").toByteArray());
 
 	config.Read();				
-	_AddGoogleFontsToFontDataBase();
 
 	languages.Read();
 
@@ -338,8 +346,14 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_ReadLastAlbumStructure();
 	ui.edtAboutText->Setup();
 
-
 	ui.trvAlbums->expandToDepth(1);
+
+	_fontUtils = new FontUtils(this);
+	_fontUtils->ScanInstalledFontsInFolder(PROGRAM_CONFIG::fontDirPath);
+
+	_AddGoogleFontsToFontDataBase();
+
+	_PrepareFontsToolTip();
 
 	_EnableButtons();
 	ui.tabFalconG->setFocus();
@@ -354,6 +368,7 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 FalconG::~FalconG()
 {
 	on_btnCloseAllViewers_clicked();
+	delete _fontUtils;
 }
 
 /*============================================================================
@@ -388,7 +403,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 			if (fTmp.rename(qsConfigName))
 				QFile::remove(qsSafetyCopyName);
 			else
-				QMessageBox::warning(this, tr("falconG - Warning"), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
+				QMessageBox::warning(this, tr(FG_WARNING), tr("Could not save changes into\n%1\nThey are in file %2").arg(qsConfigName).arg(qsSafetyCopyName));
 		}
 	}
 	else	  // struct changed
@@ -667,6 +682,15 @@ void FalconG::on_btnCloseAllViewers_clicked()
 	emit SignalToCloseAllViewers();
 }
 
+void FalconG::on_btnClearAllLogs_clicked()
+{
+	Logger::LogFileList list = logger.GetLogFileList();
+	logger.Close();
+	QDir dir(logger.LogFilesFolder());
+	for (auto const& e : list)
+		dir.remove(e.name);
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -822,9 +846,19 @@ void FalconG::_ActualSampleParamsToUi()
 
 	ui.sbSpaceAfter->setValue(pElem->spaceAfter.v);
 
-	ui.edtFontFamily->setText(pElem->font.Family());
-	int ix = ui.cbFonts->findText(pElem->font.Family());
-	if (ix < 0) ix = 0;	// not found -> empty
+	QString qsFamilies = pElem->font.Family();
+	QStringList families = qsFamilies.split(',');
+	ui.edtFontFamily->setText(qsFamilies);
+	int ix;
+	for (QString s : families)
+	{
+		s = s.trimmed();
+		s.replace('"', QChar());
+		ix = ui.cbFonts->findText(s);
+		if (ix >= 0)
+			break;
+		//if (ix < 0) ix = 0;	// not found -> empty
+	}
 	ui.cbFonts->setCurrentIndex(ix);
 
 	ui.cbFontSizeInPoints->setCurrentText(pElem->font.SizeStr());
@@ -1292,21 +1326,21 @@ void FalconG::_SlotForEnableCloseAllViewers(bool enable)
 
 void FalconG::_SlotRestartRequired()
 {
-	QMessageBox::warning(this, tr("falconG - Warning"), QString(tr("Please restart the program to change the language!")));
+	QMessageBox::warning(this, tr(FG_WARNING), QString(tr("Please restart the program to change the language!")));
 }
 
 bool FalconG::_SlotDoOverWriteColorScheme(int i)
 {
 	QString qs = tr("There is a scheme \n'%1'\nwith a title which at least partially\nmatches the modified title.\n"
 		" Do you want to overwrite it?").arg(schemes[i].MenuTitle);
-	return QMessageBox::question(this, tr("falconG - Question"),
+	return QMessageBox::question(this, tr(FG_QUESTION),
 		qs,
 		QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
 bool FalconG::_SlotLanguagesWarning()
 {
-	return QMessageBox::question(this, tr("falconG - Question"),
+	return QMessageBox::question(this, tr(FG_QUESTION),
 		tr("No/not enough ':' in new name. The same name will be used for\n"
 			"all program languages. Is this what you want?")) == QMessageBox::Yes;
 }
@@ -1314,14 +1348,17 @@ bool FalconG::_SlotLanguagesWarning()
 bool FalconG::_CreateNewAlbum(QString& dirName)
 {
 	QDir dir(dirName);
+	QString msg;
 	if (dir.exists())	// no such directory, no change
 	{
-		QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder \n'%1'\n already exists.").arg(QDir::toNativeSeparators(dirName)));
+		msg = tr("Folder \n'%1'\n already exists.").arg(QDir::toNativeSeparators(dirName));
+		QMessageBox::warning(this, tr(FG_WARNING), msg);
 		return true;
 	}
 	if (!CreateDir(dirName, false))
 	{
-		QMessageBox::warning(this, tr("falconG - Warning"), tr("Folder \n'%1'\n can't be created").arg(QDir::toNativeSeparators(dirName)));
+		msg = tr("Folder \n'%1'\n can't be created").arg(QDir::toNativeSeparators(dirName));
+		QMessageBox::warning(this, tr(FG_WARNING), msg);
 		return false;
 	}
 	albumgen.CreateNewStruct(dirName);
@@ -1335,7 +1372,7 @@ FalconG::_SelectResult FalconG::_SelectStructFileFromDir(QString& dirName, QStri
 
 	if (!dir.exists())	// no such directory, no change
 	{
-		if (QMessageBox::question(this, tr("falconG - Question"), tr("Folder doesn't exist.\nDo you want me to create it?"))==QMessageBox::Yes)
+		if (QMessageBox::question(this, tr(FG_QUESTION), tr("Folder doesn't exist.\nDo you want me to create it?"))==QMessageBox::Yes)
 		{
 			if(!_CreateNewAlbum(dirName))
 				return srDirCreateError;	// no such directory, no change
@@ -1378,7 +1415,7 @@ void FalconG::_ReadLastAlbumStructure()
 			ui.trvAlbums->setCurrentIndex(ui.trvAlbums->model()->index(0, 0));
 		}
 		else
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Album read error on\n%1").arg(qs));
+			QMessageBox::warning(this, tr(FG_WARNING), tr("Album read error on\n%1").arg(qs));
 	}
 	albumgen.SetStructChanged(false);	// clears count of changes
 }
@@ -1405,7 +1442,7 @@ void FalconG::on_btnAddAndGenerateColorScheme_clicked()
 	if (i >= 0)
 	{
 		if (i < 2)
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+			QMessageBox::warning(this, tr(FG_WARNING), tr("Invalid new name. Please use another!"));
 		else if (_SlotDoOverWriteColorScheme(i))
 		{
 			schemes[i].MenuTitle = sNewName;
@@ -1540,7 +1577,7 @@ void FalconG::on_btnBrowseSource_clicked()
  *-------------------------------------------------------*/
 void FalconG::on_btnDeleteColorScheme_clicked()
 {
-	if (QMessageBox::warning(this, tr("falconG - Warning"),
+	if (QMessageBox::warning(this, tr(FG_WARNING),
 		tr("Do you really want to delete this color scheme?"),
 		QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
 		return;
@@ -1916,6 +1953,46 @@ void FalconG::on_btnShadowColor_clicked()
 	}
 }
 
+void FalconG::on_btnShowLog_clicked()
+{
+	Logger::LogFileList list = logger.GetLogFileList();
+	if(list.isEmpty())
+		return;
+	QString fname = PROGRAM_CONFIG::homePath + list[ui.cbLogSelection->currentIndex()].name;
+	QFile f(fname);
+	f.open(QIODevice::ReadOnly);
+	if (!f.isOpen())
+	{
+		QString msg = tr("Can't open log file %1").arg(fname);
+// ???		logger.Log(msg);
+		QMessageBox::warning(this, tr(FG_WARNING), msg);
+		return;
+	}
+	QTextStream ifs(&f);
+	QDialog  *dlgLog = new QDialog(this);
+
+	QRect r = QApplication::screens()[0]->geometry();
+	dlgLog->resize(420, 470);
+	dlgLog->setMinimumSize(420, 470);
+	QListWidget* listw = new QListWidget(dlgLog);
+	listw->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	QString line;
+	while (!ifs.atEnd())
+	{
+		line = ifs.readLine();
+		listw->addItem(line);
+	}
+
+	QString qs;
+	QHBoxLayout* phLayout = new QHBoxLayout(dlgLog);
+	phLayout->addWidget(listw);
+	QDialogButtonBox* bx = new QDialogButtonBox(QDialogButtonBox::StandardButtons(QDialogButtonBox::StandardButton::Close));
+	phLayout->addWidget(bx);
+	dlgLog->setLayout(phLayout);
+
+	dlgLog->exec();
+}
+
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -2145,7 +2222,7 @@ void FalconG::on_btnPreview_clicked()
 		AlbumGenerator::RootNameFromBase(config.homeLink, 0, false);
 	if (!QDesktopServices::openUrl(QUrl(qs)))
 	{
-		QMessageBox(QMessageBox::Warning, tr("falconG - Warning"),
+		QMessageBox(QMessageBox::Warning, tr(FG_WARNING),
 			tr("Cannot open\n'%1'").arg(qs),
 			QMessageBox::Ok, this).exec();
 	}
@@ -2172,7 +2249,7 @@ void FalconG::on_btnApplyColorScheme_clicked()
 	{
 		if (i < 2)
 		{
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Invalid new name. Please use another!"));
+			QMessageBox::warning(this, tr(FG_WARNING), tr("Invalid new name. Please use another!"));
 			return;
 		}
 		else if (schemes[i].MenuTitle == _tmpSchemeOrigName || _SlotDoOverWriteColorScheme(i))// full or partial name matched
@@ -2330,7 +2407,7 @@ void FalconG::on_btnMoveSchemeDown_clicked()
 
 void FalconG::on_btnResetDialogs_clicked()
 {
-	if (QMessageBox::question(this, tr("falconG - Warning"), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
+	if (QMessageBox::question(this, tr(FG_WARNING), tr("This will reset all dialogs.\nDo you want to proceed?")) == QMessageBox::Yes)
 		config.doNotShowTheseDialogs = 0;
 }
 
@@ -2643,6 +2720,14 @@ void FalconG::on_chkKeepDuplicates_toggled(bool yes)
 {
 	config.bKeepDuplicates = yes;
 	_EnableAndSignalConfigChange();
+}
+
+void FalconG::on_chkLogToggle_toggled(bool on)
+{
+  if(on)
+	logger.Open();
+  else
+	logger.Close();
 }
 
 /*============================================================================
@@ -3066,6 +3151,7 @@ void FalconG::on_edtFontDir_textChanged()
 		return;
 
 	config.dsFontDir = ui.edtFontDir->text().trimmed();
+	_PrepareFontsToolTip();
 	_SetConfigChanged(config.dsFontDir.Changed());
 }
 
@@ -3110,6 +3196,7 @@ void FalconG::on_edtGalleryRoot_textChanged()
 {
 	config.dsGRoot = ui.edtGalleryRoot->text().trimmed();
 	_EnableAndSignalConfigChange();
+	_PrepareFontsToolTip();
 	_EnableButtons();
 }
 
@@ -3127,8 +3214,9 @@ void FalconG::on_edtSourceGallery_editingFinished()
 	QString sf;
 	_SelectResult res = _SelectStructFileFromDir(dirName, sf);
 	if(res & srNoStruct)
-		QMessageBox::warning(this, tr("falconG - Warning"), tr("No gallery struct file was found!\n"
+		QMessageBox::warning(this, tr(FG_WARNING), tr("No gallery struct file was found!\n"
 									   "Created.") );
+	_PrepareFontsToolTip();
 }
 
 /*============================================================================
@@ -3829,6 +3917,22 @@ void FalconG::on_sbLatestCount_valueChanged(int val)
 	_EnableAndSignalConfigChange();
 }
 
+void FalconG::on_sbLogSize_valueChanged(int val)
+{
+	bool b = logger.IsOpen();
+	logger.Close();
+	logger.Resize(val*1024*1024);
+	if(b)
+		logger.Open();
+	QString rotatedDate = logger.JustRotated();
+	if (!rotatedDate.isEmpty())
+	{
+		ui.cbLogSelection->removeItem(0);
+		ui.cbLogSelection->insertItem(0, rotatedDate);
+		ui.cbLogSelection->insertItem(0, tr("Actual log (Started at %1)").arg(logger.LogCreationDateTime()));
+	}
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -4162,16 +4266,16 @@ void FalconG::_ModifyGoogleFontImport()
  *-------------------------------------------------------*/
 void FalconG::_SettingUpFontsCombo()
 {
-	QStringList qsl = config.sDefFonts.ToString().split('|') + config.sGoogleFonts.ToString().split('|');
-	qsl.sort(Qt::CaseInsensitive);
+	//QStringList qsl = config.sDefFonts.ToString().split('|') + config.sGoogleFonts.ToString().split('|');
+	//qsl.sort(Qt::CaseInsensitive);
+	QFontDatabase db;
 	ui.cbFonts->clear();
-	for (QString& s : qsl)
+	for (QString& s : db.families())
 	{
 		s.replace('+', ' ');
 		ui.cbFonts->addItem(s);
 	}
-
-	ui.cbFonts->setEnabled(qsl.size());
+	//ui.cbFonts->setEnabled(qsl.size());
 }
 
 /*=============================================================
@@ -4695,31 +4799,62 @@ void FalconG::_SlotAskForApply()
 
 
 /*=============================================================
- * TASK   :	download required fonts from google fonts when needed
+ * TASK   :	add already downloaded google font to data base
+ *			if the font wasn't added yet
  * PARAMS : none
  * EXPECTS: config.sGoogleFonts is set
+ *			fonts folder scanned for all downloaded fonts
+ *			and added to (system global) font database
  * GLOBALS: config
  * RETURNS: none
- * REMARKS:
+ * REMARKS:	can't download fonts from google w.o. a browser (yet)
  *------------------------------------------------------------*/
 void FalconG::_AddGoogleFontsToFontDataBase()
 {
+	QFontDatabase db;	// although there's only a single instance of the font database
+						// some methods of QFontDataBase are not static
+
 	_slFontLoadErrors.clear();
-	QStringList sl = config.sGoogleFonts.v.split(QChar('|') ,Qt::SkipEmptyParts);
-	for (auto& s : sl)
+	QStringList slFonts = config.sGoogleFonts.v.split(QChar('|') ,Qt::SkipEmptyParts);
+	QStringList families = db.families(); 
+	for (auto& s : slFonts)
 	{
-		_fontUtils.EnsureFontAvailable(s, PROGRAM_CONFIG::fontDirPath, 
-			std::function<void (bool, QStringList)> ([this](bool res, QStringList slFontNames)->void 
-				{this->_slFontLoadErrors << slFontNames.join(':'); }));
+		s.replace(QChar('+'), QChar(' '));	// spaces in font names were stored as '+'
+		if (!families.contains(s))
+		{
+			QString msg = tr("Missing Google font '%1'.").arg(s);
+			logger.Log(msg);
+			_slFontLoadErrors << msg;
+		}
+
 	}
 	if (!_slFontLoadErrors.isEmpty())
 	{
-		QMessageBox::warning(this, tr("falconG - Warning"),
-			tr("Error loading %1 fonts.\n%2").arg(_slFontLoadErrors.size()).arg(_slFontLoadErrors.join('\n')));
+		QMessageBox::warning(this, tr(FG_WARNING),
+			tr("Error loading the following %1 fonts:\n%2"
+			   "\nPlease download missing fonts from Google's web site!").arg(_slFontLoadErrors.size()).arg(_slFontLoadErrors.join('\n')));
 
 		_slFontLoadErrors.clear();
 	}
 
+}
+
+void FalconG::_PrepareFontsToolTip()	// for button 'btnToShowFolderInfo'
+{
+	static QString qs1 = tr("<html><head/><body><p>Local folder to download the Google fonts into<br/>"
+							"(to use them on the preview):</p>"
+							"<p><span style=\" font - weight:600; font - style:italic; \">"),
+		qs2 = tr("</span></p>"
+			"<p>Server relative name of folder for (non Google) special fonts<br/>"
+			"(you must upload the fonts there):</p>"
+			"<p><span style=\" font - weight:600; font - style:italic; \">"),
+		qs3 = tr("</span></p></body></html>");
+	QString	qsB = ui.edtSourceGallery->text().isEmpty() || ui.edtServerAddress->text().isEmpty() ?
+				"???" : ui.edtGalleryRoot->text() + "/" + (ui.edtFontDir->text().isEmpty() ? 
+										ui.edtFontDir->placeholderText() : ui.edtFontDir->text());
+	QString _qsToolTipForFontFolders =  qs1 + PROGRAM_CONFIG::fontDirPath + qs2 + qsB + qs3;
+
+	ui.btnToShowFolderInfo->setToolTip(_qsToolTipForFontFolders);
 }
 
 /*============================================================================

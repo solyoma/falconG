@@ -1,4 +1,4 @@
-﻿// SlideWidget.h
+﻿// slideWidget.h
 #pragma once
 
 #include <QWidget>

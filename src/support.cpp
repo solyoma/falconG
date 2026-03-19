@@ -6,10 +6,13 @@
 #include <QImageWriter>
 #include <QPainter>
 #include <QTextStream>
+
 #include "support.h"
 #include "config.h"
 #include "falcong.h"
 #include "albums.h"
+
+#include "logger.h"			  
 
 /* --------------------------------- helper functions -----------------------*/
 static void  WarningToFile(QString qs)
@@ -97,7 +100,7 @@ void ShowWarning(QString qs, QWidget *parent)
 	{
 		QMessageBox msgBox(parent);
 		msgBox.addButton(QMessageBox::Ok);
-		msgBox.setWindowTitle(QMainWindow::tr("falconG - Warning"));
+		msgBox.setWindowTitle(QMainWindow::tr(FG_WARNING));
 		QCheckBox *pchk = new QCheckBox(QMainWindow::tr("No more warnings for this album"));
 		msgBox.setCheckBox(pchk);
 		msgBox.setText(qs);
@@ -912,7 +915,7 @@ static bool __CancelCreate(QString s)
 		return config.defaultAnswers[dboAskCreateDir] != QMessageBox::Yes;
 			// can't use the one in falconG.cpp
 	QMessageBox question;
-	question.setText(QMainWindow::tr("falconG - Question"));
+	question.setText(QMainWindow::tr(FG_QUESTION));
 	question.setIcon(QMessageBox::Question);
 	question.setInformativeText(QMainWindow::tr("Directory '%1' does not exist.\n\nCreate?").arg(s));
 	question.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
@@ -953,7 +956,7 @@ bool CreateDir(QString sdir, bool ask, int dirIndex) // only create if needed
 	if(!dir.mkpath("."))  // create all path recursively if it doesn't exist
 	{
 		QString s = QMainWindow::tr("Can't create folder") + QString("'%1'").arg(sdir);
-		QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), s);
+		QMessageBox::warning(nullptr, QMainWindow::tr(FG_WARNING), s);
 		return false;
 	}
 	return true;
@@ -1309,7 +1312,7 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 
 		if (!pvid->GetThumbnail(img, dsize, _thumbSize))
 		{
-			QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), 
+			QMessageBox::warning(nullptr, QMainWindow::tr(FG_WARNING), 
 				QMainWindow::tr("Can't get thumbnail for video file '%1'").arg(fname));
 			return false;
 		}

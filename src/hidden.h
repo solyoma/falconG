@@ -389,7 +389,7 @@ private:
 			}
 		}
 		else
-			QMessageBox::warning(this, tr("falconG - Warning"), tr("Root directory \n'%1'\n doesn't exist or unreadable").arg(s.c_str()) );
+			QMessageBox::warning(this, tr(FG_WARNING), tr("Root directory \n'%1'\n doesn't exist or unreadable").arg(s.c_str()) );
 		return cnt;
 	}
 	bool _SaveList()

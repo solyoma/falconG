@@ -214,6 +214,12 @@ namespace Common
 	}
 
 	//--------------------------------------------------
+	constexpr const char *FG_WARNING = "falconG - Warning";
+	constexpr const char *FG_ERROR   = "falconG - Error";
+	constexpr const char *FG_QUESTION= "falconG - Question";
+	constexpr const char *FG_IMG_VIEWER= "falconG - Image Viewer";
+
+	//--------------------------------------------------
 	// data for video
 	struct VideoData
 	{

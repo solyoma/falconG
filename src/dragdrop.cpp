@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QMessageBox>
 
+#include "logger.h"
 #include "support.h"
 #include "albums.h"
 #include "thumbnailView.h"
@@ -179,7 +180,7 @@ void DropHandler::_FromExternalSource()
 
 	if (_albumPointers.pDest != _albumPointers.pDestAlbum) // then it is an alias for another album
 	{
-		int res = QuestionDialog(tr("falconG - Warning"), tr("You cannot drop items into an alias album.\n"
+		int res = QuestionDialog(tr(FG_WARNING), tr("You cannot drop items into an alias album.\n"
 			"Do you want to drop them into the base album\n'%1'\ninstead?")
 			.arg(_albumPointers.pDestAlbum->name),
 			dboAskToMoveIntoBaseAlbum,
@@ -221,7 +222,7 @@ void DropHandler::_FromInternalSource(bool fromThumbView)
 
 	if ( (_albumPointers.pSrc != _albumPointers.pSrcAlbum) || (_albumPointers.pDest != _albumPointers.pDestAlbum)) // then either pSrc or pDest or both is an alias for another album
 	{
-		int res = QuestionDialog(tr("falconG - Warning"), tr("You cannot drop items into or from an alias album.\n"
+		int res = QuestionDialog(tr(FG_WARNING), tr("You cannot drop items into or from an alias album.\n"
 			"Do you want to drop them from %1 into '%2' instead?")
 			.arg(_albumPointers.pSrcAlbum->name)
 			.arg(_albumPointers.pDestAlbum->name),
@@ -254,13 +255,14 @@ void DropHandler::_FromInternalSource(bool fromThumbView)
 			if (thl.size() > 1)         // otherwise a single album is dropped into itself, so the drop is just cancelled
 			{
 				QString msg = thl.size() == 1 ? tr("An album cannot be dropped into itself!") : tr("List of items to drop contains the album to drop into!");
-				QMessageBox::warning(frmMain, tr("falconG - Warning"), msg);
+				logger.Log(msg);
+				QMessageBox::warning(frmMain, tr(FG_WARNING), msg);
 			}
 		}
 		else
 		{
 			QMessageBox mb(frmMain);
-			mb.setWindowTitle(tr("falconG - Question"));
+			mb.setWindowTitle(tr(FG_QUESTION));
 			mb.setText(tr("Reposition selection before this folder or Move into it?"));
 			mb.setInformativeText(tr("Press 'Cancel' to discard possible position changes."));
 			// buttons added after the existing buttons
@@ -376,7 +378,7 @@ bool DropHandler::MoveItems(Album* pSrc, Album* pDest, const IntList& thl) const
 
 			if (albumgen.IsCircular(pab, pDest)) //         if (pab->BaseAlbum()->ID.Val() == pAlbum->BaseAlbum()->ID.Val())
 			{
-				QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Ivalid move!\n"
+				QMessageBox::warning(frmMain, tr(FG_WARNING), tr("Ivalid move!\n"
 					"Album \n'%1'\n is either an alias for album\n'%2'\n"
 					"or they are aliases of the same album.\nCancelling move.").arg(pab->name).arg(pSrc->name));
 				return false;
@@ -404,7 +406,8 @@ bool DropHandler::MoveItems(Album* pSrc, Album* pDest, const IntList& thl) const
 				if (isThere != itemID.Val())             // another alias for the same album
 					qs += tr("under the name '%1'\n").arg(albumgen.AlbumForIDVal(isThere)->name);
 				qs += tr("Please remove it from the selection!");
-				QMessageBox::warning(frmMain, tr("falconG - Warning"), qs);
+				logger.Log(qs);
+				QMessageBox::warning(frmMain, tr(FG_WARNING), qs);
 				return false;
 			}
 		}

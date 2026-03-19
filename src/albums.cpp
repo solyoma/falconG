@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 
+#include "logger.h"
 #include "albums.h"
 #include "falcong.h"
 #include "csscreator.h"
@@ -3314,7 +3315,7 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 	}
 	catch (BadStruct b)
 	{
-		QMessageBox(QMessageBox::Critical, FalconG::tr("falconG - Error"),
+		QMessageBox(QMessageBox::Critical, FalconG::tr(FG_ERROR),
 						FalconG::tr("Damaged structure file!\n"
 										"Message: '") +
 						b.msg +
@@ -5358,13 +5359,17 @@ void AlbumGenerator::_SlotForStructWriterFinished(QString sErrorMessage, QString
 
 	if (!sErrorMessage.isEmpty())		// then error message
 	{
+		logger.Log(sErrorMessage);
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
 		return;
 	}
 
 	sErrorMessage = BackupAndRename(sStructPath, sStructTmp, _keepPreviousBackup);	// rename '.tmp' to '.struct'
 	if (!sErrorMessage.isEmpty())
+	{
+		logger.Log(sErrorMessage);
 		QMessageBox(QMessageBox::Warning, tr("falconG - Generate"), sErrorMessage, QMessageBox::Close, frmMain).exec();
+	}
 	//else
 	//	SetChangesWritten();	// clear all 'changed' flag
 	emit SignalStructWritten();
@@ -5430,7 +5435,7 @@ void AlbumGenerator::_RemoveItem(Album& fromAlbum, int ix, bool fromDisk)
 
 		if (idSub.Val() == NO_ID)		// error: 
 		{
-			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Invalid Album ID. Can't be removed"), QMessageBox::StandardButton::Close);
+			QMessageBox::warning(frmMain, tr(FG_WARNING), tr("Invalid Album ID. Can't be removed"), QMessageBox::StandardButton::Close);
 			return;
 		}
 
@@ -5440,7 +5445,7 @@ void AlbumGenerator::_RemoveItem(Album& fromAlbum, int ix, bool fromDisk)
 			if (!__bMessageShown)
 			{
 				__bMessageShown = true;
-				QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Found an album alias. Album aliases are just removed from database\n"
+				QMessageBox::warning(frmMain, tr(FG_WARNING), tr("Found an album alias. Album aliases are just removed from database\n"
 													"but their content isn't removed.\n\nNo more warning during this operation"), QMessageBox::Close);
 			}
 		}
@@ -5554,7 +5559,7 @@ void AlbumGenerator::_RemoveItems(IDVal_t albumID, bool iconsForThisAlbum, IntLi
 	Album& album = _albumMap[albumID]; // remove/ delete items from here
 	if (album.baseAlbumId != NO_ID)
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Cannot remove items from an alias album.\nCancelling"),QMessageBox::Ok);
+		QMessageBox::warning(frmMain, tr(FG_WARNING), tr("Cannot remove items from an alias album.\nCancelling"),QMessageBox::Ok);
 		return;
 	}
 
@@ -5591,7 +5596,7 @@ void AlbumGenerator::_RemoveItems(IDVal_t albumID, bool iconsForThisAlbum, IntLi
 void AlbumGenerator::RemoveItems(IDVal_t albumID, IntList ilx, bool fromDisk, bool iconsForThisAlbum)
 {
 	//if (fromDisk)
-	//	if(QMessageBox::question(frmMain, tr("falconG - Warning"),
+	//	if(QMessageBox::question(frmMain, tr(FG_WARNING),
 	//							tr(	"If an album is removed all the files and albums inside it will be removed too,\n"
 	//								"but they remain available in linked (alias) albums\n\n"
 	//								"This cannot be undone!\n\n"
@@ -5600,7 +5605,7 @@ void AlbumGenerator::RemoveItems(IDVal_t albumID, IntList ilx, bool fromDisk, bo
 	Album& album = _albumMap[albumID];
 	if (album.baseAlbumId != NO_ID)	// base albums can't be modified through an alias album
 	{
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("This is an alias album, the real data is elsewhere.\n"
+		QMessageBox::warning(frmMain, tr(FG_WARNING), tr("This is an alias album, the real data is elsewhere.\n"
 																  "Can't delete items from a base album through an alias album!"), QMessageBox::Close);
 		return;
 	}
@@ -5634,13 +5639,16 @@ void AlbumGenerator::AddImagesAndVideosFromList(IDVal_t albumId, QStringList qsl
 	AlbumGenerator::AddedStatus ares = AlbumGenerator::AddedStatus::asAdded;
 	int notAddedCnt = 0, errcnt = 0;
 	int i;
+	QString msg;
 
 	for (i = 0; i < qslFileNames.size(); ++i)
 	{
 		ares = albumgen.AddImageOrVideoFromString(qslFileNames[i], *pDestAlbum, onlyNew, row);
 		if (ares == AlbumGenerator::AddedStatus::asFailed)     // then already used somewehere // TODO: virtual albums
 		{
-			QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Adding new image / video failed!"));
+			msg = tr("Adding new image / video failed!");
+			logger.Log(msg);
+			QMessageBox::warning(frmMain, tr(FG_WARNING), msg);
 			++errcnt;
 			continue;
 		}
@@ -5651,14 +5659,19 @@ void AlbumGenerator::AddImagesAndVideosFromList(IDVal_t albumId, QStringList qsl
 	}
 	if (notAddedCnt)
 	{
-		QString msg = tr("Added %1 items, not added %2 duplicates.").arg(i - errcnt - notAddedCnt).arg(notAddedCnt);
+		msg = tr("Added %1 items, not added %2 duplicates.").arg(i - errcnt - notAddedCnt).arg(notAddedCnt);
 		if (errcnt)
 			msg += tr("\nFailed to add %1 items").arg(errcnt);
+		logger.Log(msg);
 		QMessageBox::information(frmMain, tr("falconG - Information"), msg);
 
 	}
 	else if (errcnt)
-		QMessageBox::warning(frmMain, tr("falconG - Warning"), tr("Adding %1 new image%2 / video%2 failed!").arg(errcnt).arg(errcnt > 1 ? "s" : ""));
+	{
+		msg = tr("Adding %1 new image%2 / video%2 failed!").arg(errcnt).arg(errcnt > 1 ? "s" : "");
+		QMessageBox::warning(frmMain, tr(FG_WARNING), msg);
+		logger.Log(msg);
+	}
 }
 
 /*=============================================================
@@ -5899,7 +5912,7 @@ bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
 		if (player.Status() != VideoPlayer::vsOk)
 		{
 			InformationMessage(true, 
-								QObject::tr("falconG - Warning"), 
+								QObject::tr(FG_WARNING), 
 								QObject::tr("Can't get thumbnail for video '%1'.\n%2").arg(name, player.LastErrorString()),
 								dboShowVideoThumbnailProblem);
 			return false;

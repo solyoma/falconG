@@ -1,4 +1,4 @@
-#include <QColorSpace>
+﻿#include <QColorSpace>
 #include <QGuiApplication>
 #include <QStyle>
 #include <QMenu>
@@ -343,7 +343,7 @@ void ImageViewer::_ToggleTitleBar()
     if (_showTitleBar)
     {
         _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
-        setWindowTitle(_infoOverlayOn ? "falconG - Image Viewer" : _elidedInfoText);
+        setWindowTitle(_infoOverlayOn ? FG_IMG_VIEWER : _elidedInfoText);
         flg |= Qt::FramelessWindowHint;
     }
     else
@@ -453,7 +453,7 @@ bool ImageViewer::_SetFullScreen(bool setIt)
         setGeometry(_lastNotFullScreenRect);
         show();                
         _titleBarHeight = QApplication::style()->pixelMetric(QStyle::PM_TitleBarHeight);
-        setWindowTitle(_infoOverlayOn ? "falconG - Image Viewer" : _elidedInfoText);
+        setWindowTitle(_infoOverlayOn ? FG_IMG_VIEWER : _elidedInfoText);
 		result = true;
 	}
 	else if (setIt & !_isFullScreen)    // set window to full screen (hide top bar)
@@ -632,7 +632,7 @@ void ImageViewer::_ShowStatusInfo()
     {
         ui.statusFrame->show();
         _statusAct->setChecked(true);
-        setWindowTitle("falconG - Image Viewer");
+        setWindowTitle(FG_IMG_VIEWER);
     }
     else
     {

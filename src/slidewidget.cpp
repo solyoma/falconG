@@ -1,5 +1,5 @@
 ﻿// SlideWidget.cpp
-#include "SlideWidget.h"
+#include "slideWidget.h"
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyleOption>

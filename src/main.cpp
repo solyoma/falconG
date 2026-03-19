@@ -58,7 +58,7 @@ qDebug("SSL runtime: %s", qPrintable(QSslSocket::sslLibraryVersionString()));
 
 		if (loaded && qs != "en_US")	 // only set when not American English
 			if (!a.installTranslator(&translator))
-				QMessageBox::warning(nullptr, "falconG - Warning", "Can't load language " + qs + "using default");
+				QMessageBox::warning(nullptr, FG_WARNING, "Can't load language " + qs + "using default");
 	}
 	ShowSplashScreen(true);	 // add text
 
