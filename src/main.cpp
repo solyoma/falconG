@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	a.setStyle("fusion");
 // DEBUG
-qDebug("QSsl supported: %d", QSslSocket::supportsSsl());
-qDebug("SSL build: %s", qPrintable(QSslSocket::sslLibraryBuildVersionString()));
-qDebug("SSL runtime: %s", qPrintable(QSslSocket::sslLibraryVersionString()));
+//qDebug("QSsl supported: %d", QSslSocket::supportsSsl());
+//qDebug("SSL build: %s", qPrintable(QSslSocket::sslLibraryBuildVersionString()));
+//qDebug("SSL runtime: %s", qPrintable(QSslSocket::sslLibraryVersionString()));
 // /DEBUG
 
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));

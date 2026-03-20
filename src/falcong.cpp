@@ -49,6 +49,7 @@
 }
 
 QWidget* frmMain = nullptr;		// can't be FalconG, because I want to use this in other c++ files without including falcong.h, e.g. in dragdrop.cpp for message boxes
+
 // logging
 Logger logger;	// see logger.h
 
@@ -333,9 +334,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	on_lwColorScheme_currentRowChanged(0);
 
 
-	_ConfigToUI();
-	config.ClearChanged();
-
 	emit _SignalItemStyleChanged(-1);	// show all chenges on sample
 	--_busy;
 
@@ -354,6 +352,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_AddGoogleFontsToFontDataBase();
 
 	_PrepareFontsToolTip();
+
+	_ConfigToUI();
+	config.ClearChanged();
 
 	_EnableButtons();
 	ui.tabFalconG->setFocus();
@@ -849,7 +850,7 @@ void FalconG::_ActualSampleParamsToUi()
 	QString qsFamilies = pElem->font.Family();
 	QStringList families = qsFamilies.split(',');
 	ui.edtFontFamily->setText(qsFamilies);
-	int ix;
+	int ix = -1;
 	for (QString s : families)
 	{
 		s = s.trimmed();
@@ -1666,7 +1667,6 @@ void FalconG::on_btnForeground_clicked()  // on selected item page
 	ui.btnForeground->setStyleSheet(__ToolButtonBckStyleSheet(pElem->color.Name()));
 
 	_EnableAndSignalConfigChange();
-	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 /*============================================================================
@@ -1691,7 +1691,6 @@ void FalconG::on_btnBackground_clicked()
 	pElem->background.SetColor(qcNew.name());
 	ui.btnBackground->setStyleSheet(QString("QToolButton {background-color:%1;}").arg(pElem->background.Name()));
 	_EnableAndSignalConfigChange();
-	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex());
 	_SlotAlbumChanged();
 }
 
@@ -2984,6 +2983,37 @@ void FalconG::on_chkUseWM_toggled(bool on)
 	_EnableButtons();
 }
 
+/*=============================================================
+ * TASK   :	fills ui.chkFonts either with all fonts or just the
+ *			web and downloaded fonts
+ * PARAMS : b - true: only web fonts, false all fonts
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:	state not yet saved in config
+ *------------------------------------------------------------*/
+void FalconG::on_chkWebFonts_toggled(bool b)
+{
+	QFontDatabase db;
+	ui.cbFonts->clear();
+	if (b)
+	{
+		QString qs;
+		QStringList qsl;
+		for (auto& i : _fontUtils->IDs())
+		{
+			qsl = db.applicationFontFamilies(i);
+			if (qsl[0] != qs)		   // there are more than 1 id for fonts families
+			{
+				ui.cbFonts->addItems(qsl);
+				qs = qsl[0];
+			}
+		}
+	}
+	else
+		ui.cbFonts->addItems(db.families());
+}
+
 /*============================================================================
   * TASK:
   * EXPECTS:
@@ -4266,16 +4296,7 @@ void FalconG::_ModifyGoogleFontImport()
  *-------------------------------------------------------*/
 void FalconG::_SettingUpFontsCombo()
 {
-	//QStringList qsl = config.sDefFonts.ToString().split('|') + config.sGoogleFonts.ToString().split('|');
-	//qsl.sort(Qt::CaseInsensitive);
-	QFontDatabase db;
-	ui.cbFonts->clear();
-	for (QString& s : db.families())
-	{
-		s.replace('+', ' ');
-		ui.cbFonts->addItem(s);
-	}
-	//ui.cbFonts->setEnabled(qsl.size());
+	on_chkWebFonts_toggled(ui.chkWebFonts->isChecked());
 }
 
 /*=============================================================
@@ -4646,7 +4667,7 @@ void FalconG::_AddSchemeButtons()
  *-------------------------------------------------------*/
 void FalconG::_SlotLinkClicked(int n)
 {
-	ui.cbActualItem->setCurrentIndex(Common::DesignToCB(n)); // get combo box index for th designe element w. id 'n'
+	ui.cbActualItem->setCurrentIndex(Common::DesignToCBX(n)); // get combo box index for th designe element w. id 'n'
 }
 
 

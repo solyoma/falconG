@@ -325,6 +325,7 @@ private slots:
 	void on_chkUseMaxItemCountPerDir_toggled(bool);
 	void on_chkUseWMShadow_toggled(bool);				// watermark
 	void on_chkUseWM_toggled(bool);				// watermark
+	void on_chkWebFonts_toggled(bool);
 	
 	void on_edtAbout_textChanged();
 	void on_edtAlbumDir_textChanged();

@@ -16,7 +16,8 @@ public:
     void EnsureFontAvailable(const QString& fontName,
         const QString& targetFolder,
         std::function<void(bool, QStringList)> callback);
-
+    const QList<int> IDs() const { return _ids; }
 private:
     QStringList _slFontErrors;
+    QList<int> _ids;
 };

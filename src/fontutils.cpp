@@ -99,12 +99,15 @@ QStringList FontUtils::ScanInstalledFontsInFolder(const QString & targetFolder)
 
         logger.Log(tr("Adding font %1").arg(path.mid(plen)));
         int id = QFontDatabase::addApplicationFont(path);
-        if (id < 0) {
+        if (id < 0)
+        {
             msg = tr("Font scan: QFontDatabase::addApplicationFont failed for %1").arg(path.mid(plen));
             _slFontErrors << msg;
-			logger.Log(msg );
+            logger.Log(msg);
             continue;
         }
+        else if(_ids.indexOf(id) < 0)
+            _ids << id;
 
         logger.Log(tr("Checking families"));
         QStringList fams = QFontDatabase::applicationFontFamilies(id);

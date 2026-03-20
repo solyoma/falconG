@@ -198,19 +198,29 @@ namespace Common
 	// header						   23				 1
 	// lightbox title				   24				13
 	// Lightbox Description			   25				14
-	//								n =   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
-	constexpr const int cboxIndices[] = { 0, 2, 2, 2, 2, 2, 2, 4, 3, 5, 6, 7, 8, 9,10,10, 7, 8, 9,10,10,11,12, 1,13,14 };
-	constexpr const int cboxSize = sizeof(cboxIndices) / sizeof(cboxIndices[0]);
+	//			item index on sample page:  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+	// cboxIndices[] - combo box index on edit page for item index on sample page 
+	constexpr const int cboxIndices[]   = { 0, 2, 2, 2, 2, 2, 2, 4, 3, 5, 6, 7, 8, 9,10,10, 7, 8, 9,10,10,11,12, 1,13,14 };
+	constexpr const int cboxIndexSize = sizeof(cboxIndices)/sizeof(cboxIndices[0]);
+	// uniqueIndices[]: single item indices for a combo box index
+	constexpr const int uniqueIndices[] = { 0, 2,                4, 3, 5, 6, 7, 8, 9,10,                  11,12, 1,13,14 };
+	constexpr const int uniqueSize = sizeof(uniqueIndices) / sizeof(uniqueIndices[0]);
 	constexpr const int actualItemsSize = 14;	// see ui.cbActualItem in 'falconG.ui'
-	constexpr inline int DesignToCB(int n) 	{ return cboxIndices[n]; 	}
-	constexpr int CBToDesign(int n, int *ix, int cnt) // cnt is size of the ix[] array
+	constexpr inline int DesignToCBX(int n) 	{ return cboxIndices[n]; 	}
+	constexpr int CBXToDesign(int cboxIndex, int *ix) // uniqueSize must be the  size of the ix[] array
 	{ 
+		if (cboxIndex < 0)		// then all items must be set, but only once
+		{
+			for (int i = 0; i < uniqueSize; ++i)
+				*ix++ = uniqueIndices[i];
+			return uniqueSize;
+		}
+		// otherwise only a single item is set
 		int i = 0;
-		int k = 0;
-		for ( /**/; i < cboxSize && k < cnt; ++i)
-			if (cboxIndices[i] == n)
-				ix[k++] = i;
-		return k; 
+		for ( /**/; i < uniqueSize && cboxIndices[i] != cboxIndex; ++i)
+			/* empty */;
+		ix[0] = i;
+		return 1; 
 	}
 
 	//--------------------------------------------------

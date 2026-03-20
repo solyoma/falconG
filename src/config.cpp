@@ -680,7 +680,7 @@ QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 	addProp("\ttext-decoration-line", TextDecorationLineStr());
 	if(v != tdNone)
 		addProp("\ttext-decoration-style", TextDecorationStyleStr());
-	return QString();
+	return qs;
 }
 
 // ***********************************************************************************

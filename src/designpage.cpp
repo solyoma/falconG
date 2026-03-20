@@ -14,7 +14,7 @@ struct WidgetPointers
 	QWidget* p = nullptr;
 	void (DesignPage::*f)() = nullptr;
 };
-static WidgetPointers __wptr[cboxSize];		// current # of widgets, index 0: scrollAreaWidgetContents
+static WidgetPointers __wptr[cboxIndexSize];		// current # of widgets, index 0: scrollAreaWidgetContents
 
 DesignPage::DesignPage(QWidget* parent)
 {
@@ -85,26 +85,14 @@ void DesignPage::_MyMousePressEvent(QMouseEvent* event)
  *------------------------------------------------------------*/
 void DesignPage::SlotItemStyleChanged(int indexFrmCmbBx)
 {
-	if (indexFrmCmbBx >= cboxSize)
-		return;
-
-	auto applyStyle = [&]()
-		{
-			int ix[cboxSize] = {};
-			int cnt = CBToDesign(indexFrmCmbBx, ix, cboxSize);	// get items with same style into ix
-			for (int i = 0; i < cnt; i++)					// and set style of each of them
-				if(__wptr[ix[i]].f != nullptr)					// nullptr for nLblDnheader nLblDnLightBox and nLblDnLightboxTitle
-					(this->*(__wptr[ix[i]].f))();
-		};
-
-	if (indexFrmCmbBx < 0)		  // then apply all styles from config
+	if (indexFrmCmbBx < uniqueSize)  // -1: all items
 	{
-		for(indexFrmCmbBx = 0; indexFrmCmbBx < actualItemsSize; ++indexFrmCmbBx)	 // 'actualItemsSize' see common.h
-			applyStyle();
+		int ix[uniqueSize] = {};
+		int cnt = CBXToDesign(indexFrmCmbBx, ix);	// get items with same style into ix
+		for (int i = 0; i < cnt; i++)				// and set style of each of them
+			if (__wptr[ix[i]].f != nullptr)			// nullptr for nLblDnheader nLblDnLightBox and nLblDnLightboxTitle
+				(this->*(__wptr[ix[i]].f))();
 	}
-	else 
-		applyStyle();
-
 }
 void DesignPage::_SetGlobalStyle()		// from global page: color, background color and background image
 {
@@ -139,7 +127,7 @@ void DesignPage::_SetUplinkButtonIcon()		// UP menu button with icon
 }
 void DesignPage::_SetMenuButtonStyle()		
 {
-	static const QString buttons[] = { "#btnDnUp", "#btnDnAbout", "#btnDnContact", "#btnDnCaptDesc", "#btnDnDescription", "#btnDnToAlbums" };
+	const QString buttons[] = { "#btnDnUp", "#btnDnAbout", "#btnDnContact", "#btnDnCaptDesc", "#btnDnDescription", "#btnDnToAlbums" };
 	QString qss = config.Menu.ForStyleSheet(addSemicolon);
 
 	auto setStyle = [&](int i) -> QString
@@ -186,6 +174,8 @@ void DesignPage::_SetLblDnPictureSectionLabelStyle()
 	QString style = "#lblDnPictureSectionLabel {\n " +
 		config.Section.ForStyleSheet(addSemicolon) + "\n}\n";
 	ui.lblDnPictureSectionLabel->setStyleSheet(style);
+	// and set here for the album too
+	_SetLblDnAlbumSectionLabelStyle();
 }
 void DesignPage::_SetLblDnImagePStyle()			// image thumbnail image
 {
@@ -196,22 +186,28 @@ void DesignPage::_SetLblDnDescriptionPStyle()
 	QString style = "#lblDnDescriptionP {\n " +
 		config.ImageDesc.ForStyleSheet(addSemicolon) + "\n}\n";
 	ui.lblDnDescriptionP->setStyleSheet(style);
+	// and set here for the album too
+	_SetLblDnDescriptionAStyle();
 }
 void DesignPage::_SetLblDnTitlePStyle()			// image title first line
 {
 	ui.lblDnTitleP->setStyleSheet( "#lblDnTitleP {\n " +
 		config.ImageTitle.ForStyleSheet(config.ImageTitle.differentFirstLine, true) + "\n}\n" );
+	// and set here for the album too
+	_SetLblDnTitleAStyle();			// image title first line
 }
 void DesignPage::_SetLblDnTitlePOStyle()		// when first line differs then image title all other lines
 {
 	ui.lblDnTitleP->setStyleSheet( "#lblDnTitlePO {\n " +
 		config.ImageTitle.ForStyleSheet(notFirstOne, addSemicolon) + "\n}\n" );
+	// and set here for the album too
+	_SetLblDnTitleAOStyle();			// image title first line
 }
 void DesignPage::_SetLblDnAlbumSectionLabelStyle()	// label styles are the same for albums and pictures
 {
 	QString style = "#lblDnAlbumSectionLabel {\n " +
 		config.Section.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnPictureSectionLabel->setStyleSheet(style);
+	ui.lblDnAlbumSectionLabel->setStyleSheet(style);
 }
 void DesignPage::_SetLblDnImageAStyle()			// album thumbnail image
 {

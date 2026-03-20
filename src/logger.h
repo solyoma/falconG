@@ -37,7 +37,10 @@ public:
 	};
 	typedef QList<LogFileRecord> LogFileList ;
 
-
+	Logger() 
+	{
+		;
+	}
 	void Setup(QString logName, QString logfilePathName, int fileSize = (10 * 1024 * 1024));
 
 	QString LogCreationDateTime() const { return _creationTime; }	 // this log file opened for read already but not for use

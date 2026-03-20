@@ -2817,12 +2817,12 @@ p, li { white-space: pre-wrap; }
                      </item>
                      <item>
                       <property name="text">
-                       <string>Album / Image Title</string>
+                       <string>Album / Image Description</string>
                       </property>
                      </item>
                      <item>
                       <property name="text">
-                       <string>Album / Image Description</string>
+                       <string>Album / Image Title</string>
                       </property>
                      </item>
                      <item>
@@ -4871,6 +4871,21 @@ Default: &quot;/res/&quot;</string>
                            <string>Font</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_9">
+                           <property name="leftMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>2</number>
+                           </property>
+                           <property name="horizontalSpacing">
+                            <number>3</number>
+                           </property>
                            <item row="0" column="0">
                             <widget class="QLabel" name="label_27">
                              <property name="font">
@@ -4889,7 +4904,7 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="0" column="1" colspan="5">
+                           <item row="0" column="1" colspan="4">
                             <widget class="QLineEdit" name="edtFontFamily">
                              <property name="minimumSize">
                               <size>
@@ -4905,8 +4920,46 @@ Default: &quot;/res/&quot;</string>
                                <bold>false</bold>
                               </font>
                              </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Single font family or comma separated list &lt;/p&gt;&lt;p&gt;of font families. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;On the sample the first font from this list,&lt;/p&gt;&lt;p&gt;that exists on the system is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
                              <property name="placeholderText">
                               <string>Example: &quot;Tms Rmn&quot;,Arial</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="5" colspan="4">
+                            <widget class="QComboBox" name="cbFonts">
+                             <property name="enabled">
+                              <bool>true</bool>
+                             </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
+                             <property name="placeholderText">
+                              <string>Select font</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="9">
+                            <widget class="QCheckBox" name="chkWebFonts">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Checked: show only google and local fonts
+Unchecked: show all fonts on system</string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="checked">
+                              <bool>true</bool>
                              </property>
                             </widget>
                            </item>
@@ -5080,7 +5133,7 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="1" column="8">
+                           <item row="1" column="8" colspan="2">
                             <widget class="QComboBox" name="cbLineHeight">
                              <property name="font">
                               <font>
@@ -5242,7 +5295,7 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="8">
+                           <item row="2" column="8" colspan="2">
                             <widget class="QComboBox" name="cbPointSizeFirstLine">
                              <property name="minimumSize">
                               <size>
@@ -5347,19 +5400,6 @@ Default: &quot;/res/&quot;</string>
                                <string>72pt</string>
                               </property>
                              </item>
-                            </widget>
-                           </item>
-                           <item row="0" column="6" colspan="3">
-                            <widget class="QComboBox" name="cbFonts">
-                             <property name="enabled">
-                              <bool>true</bool>
-                             </property>
-                             <property name="toolTip">
-                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you gave any default font names or &lt;/p&gt;&lt;p&gt;Google font names you can select them &lt;/p&gt;&lt;p&gt;too using this combo box.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                             </property>
-                             <property name="placeholderText">
-                              <string>Select font</string>
-                             </property>
                             </widget>
                            </item>
                           </layout>
@@ -6775,8 +6815,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
