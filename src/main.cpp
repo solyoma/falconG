@@ -12,7 +12,7 @@
 #include "stylehandler.h"
 #include "config.h"
 #include "albums.h"
-#include "falcong.h"
+#include "falcong.h" // includes slide engine and main window
 int main(int argc, char *argv[])
 {
 	// This makes all widgets scale with dpi scaling, but the whole
@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
 	QApplication a(argc, argv);
-	a.setStyle("fusion");
+	a.setStyle(QStyleFactory::create("Fusion"));
+
+	SkinManager skinManager;
 // DEBUG
 //qDebug("QSsl supported: %d", QSslSocket::supportsSsl());
 //qDebug("SSL build: %s", qPrintable(QSslSocket::sslLibraryBuildVersionString()));
@@ -62,8 +64,9 @@ int main(int argc, char *argv[])
 	}
 	ShowSplashScreen(true);	 // add text
 
-	FalconG w;
+	FalconG w(skinManager);
 	w.show();
+//	w.SetProgramScheme();
 
 	CloseSplashScreen();
 	w.raise();

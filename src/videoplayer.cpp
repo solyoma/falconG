@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -53,7 +53,7 @@
 
 #include <QtWidgets>
 
-VideoPlayer::VideoPlayer(VPurpose purpose, Common::VideoData* videoData, QWidget* parent)
+VideoPlayer::VideoPlayer(VPurpose purpose, VideoData* videoData, QWidget* parent)
     : _purpose(purpose), _pVideoData(videoData), QWidget(parent)
 {
     _mediaPlayer = new QMediaPlayer(this, QMediaPlayer::VideoSurface); // The player is expected to be able to render to a QAbstractVideoSurface output.

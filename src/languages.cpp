@@ -1,6 +1,5 @@
 ﻿#include <QMainWindow>
 #include "common.h"
-using namespace Common;
 
 #include "support.h"
 #include "filereader.h"

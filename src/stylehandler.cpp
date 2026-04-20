@@ -1,5 +1,7 @@
 ﻿#include <QFile>
 #include <QTextStream>
+#include <QRegularExpression>
+
 #include "stylehandler.h"
 //#include <QKeyValueIterator>
 /*============================================================================
@@ -37,7 +39,7 @@ QString StyleHandler::_getRule(QString &qv, bool &finished)
 *			-elements may be filled even when no group is found
 *		   -_pos is left after the closing '}'
 *---------------------------------------------------------------------------*/
-QString StyleHandler::_GetGroup()
+QString StyleHandler::_GetSelector()
 {
 	QChar ch;
 	QString sg, se, sv;
@@ -48,6 +50,7 @@ QString StyleHandler::_GetGroup()
 //		ch = '@';
 
 	// find if this is a group
+
 	while (!(ch = _NextCh()).isNull() && ch != '{')
 		;
 	if (ch == '{')
@@ -127,9 +130,9 @@ bool StyleHandler::Read(QString fileName)
 
 	QTextStream ifs(&file);
 	ifs.setCodec("UTF-8");
-	QString s;
-	ifs >> s;
-	_ssr = s;
+	ifs >> _ssr;
+	_ssr.remove(QRegularExpression("\\s"));
+	
 	return true;
 }
 
@@ -147,7 +150,7 @@ void StyleHandler::WriteToSettings(QSettings & s)
 {
 	QString selector, name, value;
 	s.beginGroup("CSS");
-	for (auto it = _groups.begin(); it != _groups.end(); ++it)
+	for (auto it = _selectors.begin(); it != _selectors.end(); ++it)
 	{
 		selector = it.key();
 		s.beginGroup(selector);
@@ -204,23 +207,23 @@ void StyleHandler::FromCss(const QString & ss)
 {
 	QString qs;
 
-	_groups.clear();
+	_selectors.clear();
 	_rules.clear();
 
 	_ssr = ss;
 
 	_pos = 0;
-	while ((qs = _GetGroup()).isEmpty() == false)
-		_groups[qs] = _rules;
+	while ((qs = _GetSelector()).isEmpty() == false)
+		_selectors[qs] = _rules;
 }
 
 QString StyleHandler::StyleSheet(bool bare)
 {
 	_ssr.clear();
-	if (_groups.size())
+	if (_selectors.size())
 	{
 		QString qs;
-		for (auto it = _groups.constBegin(); it != _groups.constEnd(); ++it)
+		for (auto it = _selectors.constBegin(); it != _selectors.constEnd(); ++it)
 		{
 			qs = it.key();
 			if(bare)
@@ -244,12 +247,13 @@ QString StyleHandler::StyleSheet(bool bare)
 	return _ssr;
 }
 
-QStringList StyleHandler::GetListOfGroups() const
+QStringList StyleHandler::GetListOfSelectors() const
 {
-	QStringList qsl;
-	for (auto& g : _groups.keys())
-		qsl << g;
-	return qsl;
+	//QStringList qsl;
+	//for (auto& g : _selectors.keys())
+	//	qsl << g;
+	//return qsl;
+	return _selectors.keys();
 }
 
 
@@ -260,11 +264,11 @@ QStringList StyleHandler::GetListOfGroups() const
  * RETURNS:
  * REMARKS: -
  *-------------------------------------------------------*/
-bool StyleHandler::Exists(QString group, const QString key) const
+bool StyleHandler::Exists(QString selector, const QString key) const
 {
-	if (!group.isEmpty())
+	if (!selector.isEmpty())
 	{
-		return _groups[group].count(key);
+		return _selectors[selector].count(key);
 	}
 	else
 	{
@@ -279,14 +283,14 @@ bool StyleHandler::Exists(const QString baseSelector, const QString objectName, 
 	return Exists(baseSelector + "#" + objectName,nameOfRule);
 }
 
-QString StyleHandler::GetItem(QString group, const QString key) const
+QString StyleHandler::GetItem(QString selector, const QString key) const
 {
-	if (!group.isEmpty())
+	if (!selector.isEmpty())
 	{
-		if (_groups.count(group))
+		if (_selectors.count(selector))
 		{
-			if (_groups[group].count(key))
-				return _groups[group][key];
+			if (_selectors[selector].count(key))
+				return _selectors[selector][key];
 		}
 	}
 	else
@@ -302,15 +306,15 @@ QString StyleHandler::GetItem(const QString baseSelector, const QString objectNa
 	return GetItem(baseSelector+objectName, nameOfRule);
 }
 
-void StyleHandler::SetItem(const QString group, const QString key, QString newValue)
+void StyleHandler::SetItem(const QString selector, const QString key, QString newValue)
 {
 	newValue = newValue.trimmed();
 	if (newValue.isEmpty() || (newValue[0] == '#' && newValue.length() < 4))	// empty or empty color
 		return;
 
-	if (!group.isEmpty())
+	if (!selector.isEmpty())
 	{
-		_groups[group][key] = newValue;
+		_selectors[selector][key] = newValue;
 	}
 	else
 		_rules[key] = newValue;
@@ -321,10 +325,10 @@ void StyleHandler::SetItem(const QString baseSelector, const QString objectName,
 	SetItem(baseSelector + "#" + objectName, nameOfRule, newValue);
 }
 
-void StyleHandler::SetItem(const QString group, const QString key, int newValue)
+void StyleHandler::SetItem(const QString selector, const QString key, int newValue)
 {
 	QString s; s.setNum(newValue);
-	SetItem(group, key, s);
+	SetItem(selector, key, s);
 
 }
 
@@ -333,10 +337,10 @@ void StyleHandler::SetItem(const QString baseSelector, const QString objectName,
 	SetItem(baseSelector + "#" + objectName, nameOfRule, newValue);
 }
 
-void StyleHandler::RemoveItem(const QString group, const QString key)
+void StyleHandler::RemoveItem(const QString selector, const QString key)
 {
-	if (!group.isEmpty())
-		_groups[group].remove(key);
+	if (!selector.isEmpty())
+		_selectors[selector].remove(key);
 	if(!_rules.isEmpty())
 		_rules.remove(key);
 
@@ -347,12 +351,12 @@ void StyleHandler::RemoveItem(const QString baseSelector, const QString objectNa
 	RemoveItem(baseSelector + "#" + objectName, nameOfRule);
 }
 
-void StyleHandler::RemoveGroup(const QString group)
+void StyleHandler::RemoveGroup(const QString selector)
 {
-	if (group.isEmpty())
+	if (selector.isEmpty())
 		return;
-	if (_groups.contains(group))
-		_groups.remove(group);
+	if (_selectors.contains(selector))
+		_selectors.remove(selector);
 }
 
 void StyleHandler::RemoveGroup(const QString baseSelector, const QString objectName)

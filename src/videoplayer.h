@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 // AI created code from the example in the Qt sources
 // modified by A. Solyom
 
@@ -183,7 +183,7 @@ public:
 		vsOk             // player is ready to play/grab
 	};
 public:
-	VideoPlayer(VPurpose purpose, Common::VideoData *videoData, QWidget* parent = nullptr);  // creates a player or a frame grabber
+	VideoPlayer(VPurpose purpose, VideoData *videoData, QWidget* parent = nullptr);  // creates a player or a frame grabber
     ~VideoPlayer();
 
 	void SetPurpose(VPurpose purpose);  // setups the widget for the given purpose
@@ -227,7 +227,7 @@ private:
 
 	QUrl _currentUrl;                          // current video URL
 	VPStatus _status = vsNotReady;             // current status of the player
-    Common::VideoData* _pVideoData = nullptr;
+    VideoData* _pVideoData = nullptr;
 
 	// for _purpose == vpGrabber
 	FrameGrabber* _frameGrabber     = nullptr;  // this is also a VideoSurface, but it grabs frames from the video too

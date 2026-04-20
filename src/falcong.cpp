@@ -155,7 +155,7 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 * GLOBALS:
 * REMARKS:
 *--------------------------------------------------------------------------*/
-FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
+FalconG::FalconG(SkinManager &skinManager, QWidget *parent) : _skinManager(skinManager), QMainWindow(parent)
 {
 	PROGRAM_CONFIG::GetHomePath();
 
@@ -326,15 +326,13 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	frmMain = this;
 	// now that everything is ready
-	_SetProgramScheme();
+	SetProgramScheme();
 	_AddSchemeButtons();
 	_ModifyGoogleFontImport();
 
 	++_busy;
 	on_lwColorScheme_currentRowChanged(0);
 
-
-	emit _SignalItemStyleChanged(-1);	// show all chenges on sample
 	--_busy;
 
 	// bread crumbs
@@ -357,6 +355,9 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	config.ClearChanged();
 
 	_EnableButtons();
+
+	emit _SignalItemStyleChanged(-1);	// show all chenges on sample
+
 	ui.tabFalconG->setFocus();
 }
 
@@ -489,6 +490,21 @@ void FalconG::on_toolBox_currentChanged(int newIndex)
 	if (_busy)
 		return;
 	++_busy;
+	switch (newIndex)
+	{
+		case 0:	  // global				  
+		default:
+			break;
+		case 1:	  // selected item: menu 
+			newIndex = nCbIxMenu;
+			break;
+		case 2:	  // image thumbnails
+			newIndex = nCbIxImageThumbnail;
+			break;
+		case 3:
+			newIndex = nCbIxWatermark;
+			break;
+	}
 	ui.cbActualItem->setCurrentIndex(newIndex);
 	--_busy;
 }
@@ -724,21 +740,23 @@ _CElem* FalconG::_PtrToElement(AlbumElement ae) const
 		ae = _aeActiveElement;
 	switch (ae)		// same order as in the UI!
 	{
-		case aeWebPage:					 return &config.Web;
-		case aeHeader:					 return &config.Header;
-		case aeMenuButtons:				 return &config.Menu;
-		case aeLangButton:				 return &config.Lang;
-		case aeSmallTitle:				 return &config.SmallGalleryTitle;
-		case aeGalleryTitle:			 return &config.GalleryTitle;
-		case aeGalleryDesc:				 return &config.GalleryDesc;
-		case aeSection:					 return &config.Section;
-		case aeThumb:					 return &config.Thumb;
-		case aeImageTitle:				 return &config.ImageTitle;
-		case aeImageDesc:				 return &config.ImageDesc;
-		case aeLightboxTitle:			 return &config.LightboxTitle;
-		case aeLightboxDescription:		 return &config.LightboxDesc;
-		case aeFooter:					 return &config.Footer;
-		default: return  nullptr; break;
+		case aeWebPage:					return &config.Web;
+		case aeHeader:					return &config.Header;
+		case aeMenuButtons:				return &config.Menu;
+		case aeLangButton:				return &config.Lang;
+		case aeSmallTitle:				return &config.SmallGalleryTitle;
+		case aeGalleryTitle:			return &config.GalleryTitle;
+		case aeGalleryDesc:				return &config.GalleryDesc;
+		case aeSection:					return &config.Section;
+		case aeThumb:					return &config.Thumb;
+		case aeImageTitle:				return &config.ImageTitle;
+		case aeImageDesc:				return &config.ImageDesc;
+		case aeLightboxTitle:			return &config.LightboxTitle;
+		case aeLightboxDescription:		return &config.LightboxDesc;
+		case aeFooter:					return &config.Footer;
+		case aeSummary:					return &config.Footer;
+		case aeCopyright:				return &config.Footer;
+		default:						return  nullptr; break;
 	}
 }
 
@@ -885,7 +903,7 @@ void FalconG::_ActualSampleParamsToUi()
 
 		// border for actual element
 	int used = pElem->border.UsedSides();
-	BorderSide first = sdAll;
+	BorderSide first = sdAllSides;
 	if (!used)
 	{
 		++_busy;
@@ -996,7 +1014,7 @@ void FalconG::_SlotForSchemeChange(int which)
 {
 	PROGRAM_CONFIG::schemeIndex = (which >= 0 && which < schemes.size()) ? which : 0;
 	QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	_SetProgramScheme();
+	SetProgramScheme();
 	_EnableAndSignalConfigChange();
 	QGuiApplication::restoreOverrideCursor();
 }
@@ -1085,8 +1103,8 @@ void FalconG::_DesignToUi()
 	//ui.btnGradStopColor->setStyleSheet(__ToolButtonBckStyleSheet(pElem->gradient.gs[2].color));
 
 	// images
-	ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAll));
-	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAll));
+	ui.cbImageBorderStyle->setCurrentIndex(config.imageBorder.StyleIndex(sdAllSides));
+	ui.sbImageBorderWidth->setValue(config.imageBorder.Width(sdAllSides));
 	ui.sbImageBorderRadius->setValue(config.imageBorder.Radius());
 	ui.sbImageMatteWidth->setValue(config.imageMatteWidth);
 	ui.sbImageMatteRadius->setValue(config.imageMatteRadius);
@@ -1280,11 +1298,11 @@ void FalconG::_SlotSetupActualBorder(BorderSide side) // no signal to page displ
 	BorderStyle brdrStyle = border.StyleIndex(oldSide);
 	if (border.actSide != side)		 // otherwise nothing changed (that should be impossible)...
 	{
-		if( (border.actSide = side) == sdAll)	// then copy the last set values to all sides
+		if( (border.actSide = side) == sdAllSides)	// then copy the last set values to all sides
 		{
-			border.SetBorderStyle(sdAll, brdrStyle);
-			border.SetWidth(sdAll, border.Width(oldSide));
-			border.SetColor(sdAll, border.ColorStr(oldSide));
+			border.SetBorderStyle(sdAllSides, brdrStyle);
+			border.SetWidth(sdAllSides, border.Width(oldSide));
+			border.SetColor(sdAllSides, border.ColorStr(oldSide));
 		}
 
 		++_busy;
@@ -1656,6 +1674,7 @@ void FalconG::on_btnForeground_clicked()  // on selected item page
 		return;
 
 	_CElem* pElem = _PtrToElement();
+	Q_ASSERT(pElem);
 
 	QColor qc(pElem->color.Name()),
 		qcNew = QColorDialog::getColor(qc, this, tr("Select Color"));
@@ -1854,7 +1873,7 @@ void FalconG::on_btnImageBorderColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
-		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
+		BorderSide side = sdAllSides; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.imageBorder.SetColor(side, qcNew.name());
 		_EnableAndSignalConfigChange();
 		emit _SignalItemStyleChanged(8);	// for album/image pages
@@ -1894,7 +1913,7 @@ void FalconG::on_btnAlbumBorderColor_clicked()
 		handler.SetItem("QToolButton", "background-color", qcNew.name());
 		handler.SetItem("QToolButton", "color", config.Web.background.Name());
 		ui.btnImageBorderColor->setStyleSheet(handler.StyleSheet());
-		BorderSide side = sdAll; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
+		BorderSide side = sdAllSides; //  (BorderSide)(ui.cbBorder->currentIndex() - 1);
 		config.albumBorder.SetColor(side, qcNew.name());
 		_EnableAndSignalConfigChange();
 		emit _SignalItemStyleChanged(8);	// for album/image pages
@@ -2272,7 +2291,7 @@ void FalconG::on_btnApplyColorScheme_clicked()
 
 	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
-	_SetProgramScheme();
+	SetProgramScheme();
 }
 
 
@@ -2290,7 +2309,7 @@ void FalconG::on_btnResetColorScheme_clicked()
 	ui.lwColorScheme->setCurrentRow(0);
 	_bSchemeChanged = false;
 	_EnableColorSchemeButtons();
-	_SetProgramScheme();
+	SetProgramScheme();
 }
 
 
@@ -2573,9 +2592,12 @@ void FalconG::on_chkDifferentFirstLine_toggled(bool b)
 {
 	if (_busy)
 		return;
-	_PtrToElement()->font.SetDifferentFirstLine(b);	// do not change first line font size
+	_CElem* pe = _PtrToElement();
+	_CFont& font = pe->font;
+
+	font.SetDifferentFirstLine(b, font.FirstLineFontSizeStr());	// do not change first line font size
+	
 	_EnableAndSignalConfigChange();
-	emit _SignalItemStyleChanged(ui.cbActualItem->currentIndex() );
 }
 
 void FalconG::on_chkDistortThumbnails_toggled(bool b)
@@ -2693,10 +2715,10 @@ void FalconG::on_cbImageBorderStyle_currentIndexChanged(int newIndex)
 {
 	if (!_busy)
 	{
-		config.imageBorder.SetUsed(sdAll, newIndex);
-		config.imageBorder.SetBorderStyle(sdAll, (BorderStyle)newIndex);
+		config.imageBorder.SetUsed(sdAllSides, newIndex);
+		config.imageBorder.SetBorderStyle(sdAllSides, (BorderStyle)newIndex);
 		_EnableAndSignalConfigChange();
-		_RunJavaScript("imatte", config.imageBorder.ForStyleSheetShort(noSemicolon));
+		_RunJavaScript("imatte", config.imageBorder.ForStyleSheet(noSemicolon));
 	}
 }
 
@@ -3539,7 +3561,7 @@ void FalconG::on_rbAllBorders_toggled(bool on)
 {
 	if (!on || _busy)
 		return;
-	_SlotSetupActualBorder(sdAll);
+	_SlotSetupActualBorder(sdAllSides);
 }
 
 void FalconG::on_rbBottomBorder_toggled(bool on)
@@ -3768,7 +3790,7 @@ void FalconG::on_sbImageBorderWidth_valueChanged(int val)
 	if (_busy)
 		return;
 
-	config.imageBorder.SetWidth(sdAll, val);
+	config.imageBorder.SetWidth(sdAllSides, val);
 	_EnableAndSignalConfigChange();	// and send signal to update sample
 }
 
@@ -3821,7 +3843,7 @@ void FalconG::on_sbAlbumBorderWidth_valueChanged(int val)
 	if (_busy)
 		return;
 
-	config.albumBorder.SetWidth(sdAll, val);
+	config.albumBorder.SetWidth(sdAllSides, val);
 	_EnableAndSignalConfigChange();	// and send signal to update sample
 }
 
@@ -4667,7 +4689,7 @@ void FalconG::_AddSchemeButtons()
  *-------------------------------------------------------*/
 void FalconG::_SlotLinkClicked(int n)
 {
-	ui.cbActualItem->setCurrentIndex(Common::DesignToCBX(n)); // get combo box index for th designe element w. id 'n'
+	ui.cbActualItem->setCurrentIndex(scMap.SampleToCBIx(n)); // get combo box index for th designe element w. id 'n'
 }
 
 
@@ -5054,20 +5076,15 @@ void FalconG::_SaveChangedTexts()
 
 void FalconG::_SetLayoutMargins(int which)
 {
-	int layoutTop = 9;
+	int layoutTopMargin = which ? 20: 9;
 	QMargins margins;
 
 	auto modifyLayout = [&](QWidget* pw)
 	{
 		margins = pw->layout()->contentsMargins();
-		margins.setTop(layoutTop);
+		margins.setTop(layoutTopMargin);
 		pw->layout()->setContentsMargins(margins);
 	};
-
-	if(which)
-		layoutTop = 20;
-	else
-		layoutTop = 9;
 
 	modifyLayout(ui.gbLocalMachine);
 	modifyLayout(ui.gbServer);
@@ -5087,7 +5104,6 @@ void FalconG::_SetLayoutMargins(int which)
 
 	modifyLayout(ui.gbImageFrame);
 	modifyLayout(ui.gbAlbumFrame);
-	modifyLayout(ui.gbResizing);
 
 	modifyLayout(ui.gbWatermark);
 	modifyLayout(ui.gbWatermarkFont);
@@ -5098,7 +5114,7 @@ void FalconG::_SetLayoutMargins(int which)
 
 }
 
-void FalconG::_SetProgramScheme()
+void FalconG::SetProgramScheme()
 {	 
 	int which = PROGRAM_CONFIG::schemeIndex;
 	if (which >= schemes.size())
@@ -5111,242 +5127,125 @@ void FalconG::_SetProgramScheme()
 	 // theme style string used only when not the default style is used
 	static QString styles =
 R"END(
-/* ------------------- geometry ------------------*/        
-
-QTabWidget::tab-bar {
-    left: 5px;
-}
-QTabBar::tab {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-	min-width: 20ex;
-	padding: 2px;
-}        
-QTabBar::tab:!selected {
-    margin-top: 2px; 
+/* ------------------ base colors --------------------*/
+* {
+    background-color: %1;
+    color: %2;
+    selection-color: %18;
+    selection-background-color: %19;
 }
 
-QToolTip {
-    border-radius: 4px;
-}
-
-QProgressBar,
-QPushButton:flat {
-	border:0;
-}
-
-QToolButton {
-	border:0;
-	border-radius:12px;
-	height:24px;
-	width:24px;
-}
-#btnSelectUplinkIcon {
-	width:32em;
-}
-
-QTextEdit, 
-QLineEdit,
-QSpinBox {
-    height:20px;
-	padding: 0 8px;
-}
-QPushButton {
-	padding:2px 4px;
-}
-QRadioButton::indicator,   
-QCheckBox::indicator {
-	width: 13px;
-	height: 13px;
-	position: absolute;
-	top:-4px;
-}
-
-QRadioButton, QCheckBox {
-	spacing: 5px;
-}
-
-QTextEdit, 
-QLineEdit,
-QSpinBox,
-QPushButton,
-QTreeView, 
-QListView {
-    border-radius: 10px;
-}
-/* ------------------ borders ----------------------*/   
-QTabBar::tab, 
+/* ------------------ borders ----------------------*/
+QTabWidget::pane,
+QTabBar::tab,
 QToolTip,
-QTextEdit, 
+QTextEdit,
 QLineEdit,
 QGroupBox,
 QSpinBox,
 QPushButton,
-QTreeView, 
-QListView {
-    border-width: 2px;
+QTreeView,
+QListView{
+    border: 2px solid %3;
+    border-radius: 10px;
 }
 
-#btnImage {
-	border-radius:0px;
-}
-
-/* ------------------ colors --------------------*/
-* {
-	background-color:%1;       /* %1 background */
-	color:%2;                  /* %2 color */
-	selection-color: %18;		
-	Selection-background-color: %19;
-}
-        
-#btnImage {
-	border-radius:0px;
-}
-
-/* these 2 do not work */
-QTreeView::branch:open:has-children {
-	color %2;
-
-}
-QTreeView::branch:closed:has-children {
-	color:%2;
-}
-QTreeView::item:selected, 
-QTreeView::item:selected:!active {
-	background-color:%19;
-}
-        
-QGroupBox::title {
-	color:%17				/* %17 bold title color */
-}
-
-QTabBar::tab,
-QTextEdit:focus, 
-QLineEdit:focus,
-QComboBox:editable,
-QSpinBox:focus {
-    color:%4;				/* %4 focused input */
-}
-
-#menuWidget {
-	background-color:rgb(0,0,0,0);
-}
-QTabBar::tab:selected, 
-QTabBar::tab:hover,
-QPushButton:hover,
-QToolButton:hover {
-	background-color:%5;	/* %5 - hover */
-}
-QTabBar::tab:selected {
-	border-color:%6;		/* %6 - tab border */
-    border-bottom-color:%1; /* %1 - background */
-}
-
-#pnlColorScheme {
-	background-color:%1; /* %1 - background */
-}
-
-QToolButton,
-QTextEdit, 
+/* ------------------ inputs ----------------------*/
+QTextEdit,
 QLineEdit,
-QComboBox:editable,
-QSpinBox {
-	background-color:%7;	/* %7 - input background */
-}
-#btnPrevBaseLanguage,
-#btnNextBaseLanguage,
-#btnPrevLanguage,
-#btnNextLanguage {
-	background-color:%1;	/* %1 - background */
+QSpinBox,
+QComboBox:editable{
+    background-color: %7;
+    padding: 0 8px;
+    height:20px;
 }
 
-QSplitter::handle {
-	margin:0 9px 0 9px;	
-	background-color: %2;	/* %2 - color */
+QTextEdit:focus,
+QLineEdit : focus,
+QComboBox : editable,
+QSpinBox : focus{
+    color: %4;
+    border-color: %9;
 }
 
+/* ------------------ buttons ----------------------*/
+QPushButton{
+    padding:2px 4px;
+}
+
+QPushButton:hover,
+QToolButton : hover,
+QTabBar::tab : hover{
+    background-color: %5;
+}
 QTextEdit, 
 QLineEdit,
 QComboBox:editable,
 QSpinBox {
 	selection-background-color:%8;	/* %8 */
 }
-
-QTextEdit:focus, 
-QLineEdit:focus,
-QComboBox:editable,
-QSpinBox:focus {
-	border-color:%9;		/* %9 - focused border */
+#lblActualElem {
+	color:%16;			/* %16 - warning color */
 }
-
-QTextEdit:read-only, 
-QLineEdit:read-only, 
-QPushButton:disabled,
-QToolButton:disabled,
-QRadioButton:disabled,
-QCheckBox:disabled,
-QSpinBox:disabled,
-QMenu:disabled {
-	color:%10;			/* %10 - disabled foreground */
-	background:%11;		/* %11 - disabled background */
-}
-
-QLineEdit.disabled {
-	color:%10;
-	background:%11;	   /* %11 - disabled background */
-}
-
 #lblBckImage,
 #groupBox_6 {
 	background-color:%12; /* %12 -image background */
 }
 QPushButton:pressed,
-QToolButton:pressed {
-	background-color:%13; /* %13 - pressed button background */
+QToolButton : pressed{
+    background-color: %13;
 }
-
 QPusButton:default {
     background-color:%14; /* %14 - default background */
 }
-
-#lblActualElem {
-	color:%16;			/* %16 - warning color */
+QPushButton:disabled,
+QToolButton : disabled,
+QRadioButton : disabled,
+QCheckBox : disabled,
+QSpinBox : disabled,
+QMenu : disabled {
+    color: %10;
+    background: %11;
 }
-#btnDeleteColorScheme {
-	background-color:%9;	/* %9 focused border */
+
+/* ------------------ group boxes ----------------------*/
+QGroupBox::title{
+    color: %17;
+    font-weight:bold;
+    padding:2px 6px;
+    background:transparent;
 }
 
+/* ------------------ tabs ----------------------*/
+QTabBar::tab:selected{
+    background-color: %5;
+    border-color: %6;
+    border-bottom-color: %1;
+}
+
+/* ------------------ tree view ----------------------*/
+QTreeView::item:selected,
+QTreeView::item : selected : !active{
+    background-color: %19;
+}
+
+/* ------------------ progress bar ----------------------*/
 QProgressBar::chunk{
-	width: 10px;
-	background-color:%15;	   /* %15 progressbar chunk */
+    background-color: %15;
 }
 
-QSlider::groove{
-	color :	#008;
-}
-QSlider::handle{
-	color :	#008;
-}
-
-/* ------------------ borders ----------------------*/   
-QTabWidget:pane,     
-QTabBar::tab, 
-QToolTip,
-QTextEdit, 
-QLineEdit,
-QGroupBox,
-QSpinBox,
-QPushButton,
-QTreeView, 
-QListView {
-    border: 2px solid %3;	  /* %3   border color */
+/* ------------------ splitter ----------------------*/
+QSplitter::handle{
+    background-color: %2;
+    margin:0 9px;
 }
 )END";
 
+	QString ss;
 	PROGRAM_CONFIG::schemeIndex = which;
 	if (which)
 	{
-		QString ss =
+		ss =
 			QString(styles)
 			.arg(schemes[which].sBackground)		// %1 
 			.arg(schemes[which].sTextColor)			// %2 
@@ -5367,7 +5266,7 @@ QListView {
 			.arg(schemes[which].sBoldTitleColor)	// %17
 			.arg(schemes[which].sSelectionColor)	// %18
 			.arg(schemes[which].sSelectionBackground)	// %19
-//			.arg(schemes[which].sSpacerColor)		// %20										   `
+//			.arg(schemes[which].sSpacerColor)		// %20
 			;
 
 		if (which == stBlue)		// blue
@@ -5379,13 +5278,10 @@ QCheckBox::indicator:unchecked {
 	image: url(":/icons/Resources/blue-unchecked.png");
 }
 )");
-		// setStyleSheet(ss);	 // sometimes this does not cascade down to dialogs
-		// use this instead:
-		((QApplication*)(QApplication::instance()))->setStyleSheet(ss);
+		_skinManager.applySkin(ss);
 	}
 	else
-		((QApplication*)(QApplication::instance()))->setStyleSheet("");
-
+		_skinManager.applyDefaultFusion();
 }
 
 /*============================================================================

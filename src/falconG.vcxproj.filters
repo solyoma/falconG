@@ -102,6 +102,15 @@
     <ClCompile Include="logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="falconGStyleEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -150,6 +159,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="fontutils.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SkinManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -213,6 +225,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="falconGStyleEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

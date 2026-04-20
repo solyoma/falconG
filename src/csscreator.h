@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <QMap>
 #include <QString>
@@ -38,6 +38,8 @@ class CssCreator
 
 public:
 	CssCreator() {}
+	// vvv - includes border as well
+	static QString StyleSheetForSampleImageOrAlbum(bool forImage, const QString className, bool addSemicolon, bool forSample=false);
 
 	bool Create(QString cssFileName, bool forSamplePage);
 };

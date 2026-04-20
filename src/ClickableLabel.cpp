@@ -19,7 +19,7 @@ static QString __itemName,
 void ClickableLabel::mousePressEvent(QMouseEvent* event) 
 {
     __handler.FromCss(styleSheet());
-    QStringList qsl = __handler.GetListOfGroups();
+    QStringList qsl = __handler.GetListOfSelectors();
     if (qsl.size())
         __itemName = qsl[0];
     __origBackgroundColor = __handler.GetItem("", __itemName, "background-color");

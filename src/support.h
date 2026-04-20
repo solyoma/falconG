@@ -19,7 +19,6 @@
 #include <time.h>
 
 #include "common.h"
-using namespace Common;
 
 const QString versionStr = "# falconG Gallery Structure file ";
 
@@ -373,7 +372,7 @@ void CloseSplashScreen();
 void ShowWarning(QString qs, QWidget *parent = nullptr);
 void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int show = 0, QString checkboxtext = QString(), QWidget* parent = nullptr);
 // QuestionDialog returns a single bit at position 'show', which, when 1 may be QMessageBox::Yes or QMessageBox::Save only!
-int QuestionDialog(QString title, QString text, Common::DialogBitsOrder which = Common::DialogBitsOrder::dboNone, QWidget* parent = nullptr, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No);
+int QuestionDialog(QString title, QString text, DialogBitsOrder which = DialogBitsOrder::dboNone, QWidget* parent = nullptr, QString checkboxtext = QString(), QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No);
 
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent = nullptr); // returns 0: delete, 1: from disk too, 2: canceled
 

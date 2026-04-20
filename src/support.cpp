@@ -140,7 +140,7 @@ void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int
  * TASK:	A question dialog with a checkbox to hide it in the
  *			future
  * PARAMS:	title, text parent, buttons: same as for QMessageBox
- *			show: integer between 1 and Common::dboMax, ordinal of
+ *			show: integer between 1 and dboMax, ordinal of
  *				dialog. See 'DialogBitsOrder' in support.h
  *				If 0 it behaves as a simple 
  *					QMessageBox::question would
@@ -152,9 +152,9 @@ void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int
  * REMARKS: sets the flags to not show this dialog again, but
  *			never clears them
  *------------------------------------------------------------*/
-int QuestionDialog(QString title, QString text, Common::DialogBitsOrder show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
+int QuestionDialog(QString title, QString text, DialogBitsOrder show, QWidget* parent, QString checkboxtext, QMessageBox::StandardButtons buttons)
 {
-	if (show > Common::DialogBitsOrder::dboNone && config.doNotShowTheseDialogs.v & (1 << (int) show))
+	if (show > DialogBitsOrder::dboNone && config.doNotShowTheseDialogs.v & (1 << (int) show))
 		return config.defaultAnswers[show];
 
 	QMessageBox question(parent);

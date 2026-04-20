@@ -4,7 +4,6 @@
 #include <QtCore>
 #include <QBitmap>
 #include "common.h"
-using namespace Common;
 
 #include "support.h"
 #include "stylehandler.h"
@@ -517,26 +516,26 @@ private:
  * BORDERs
  *	settings format in ini file: accepts and saves
  * siz == 4    0      1		2	  3
- *			<used>|width|style|color
+ *			<sides>|width|style|color
  * siz == 5    0      1		2	  3		4
- *			<used>|width|style|color|radius
+ *			<sides>|width|style|color|radius
  * siz == 7	   0			1					 2					 3					  4			 		 5					 6
- *			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
+ *			<sides>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left
  * siz == 8	   0			1					 2					 3					  4			 		 5					 6		   7
- *			<used>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
+ *			<sides>|width top & bottom|width right and Left| style top & bottom|style right & left|color top & bottom|color right & left|radius
  * siz == 13   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12
- *			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
+ *			<sides>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|
  * siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
- *			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
+ *			<sides>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
  * no other formats acceptable
  *  internally always uses the longest of these
  *-------------------------------------------------------*/
 struct _CBorder : public _CFG_ITEM<QString>
 {
 	_CBorder(QString vd, QString namestr="cborder") : _CFG_ITEM(vd, namestr) { _Setup(); }
-	_CBorder() : _CFG_ITEM("0|0|0|0|#000000", "cborder") { _Setup(); }
+	_CBorder() : _CFG_ITEM("0|0|0|#000000|0", "cborder") { _Setup(); }
 
-	BorderSide actSide = sdAll;
+	BorderSide actSide = sdAllSides;
 
 	constexpr int Width(BorderSide sd) const
 	{
@@ -570,15 +569,14 @@ struct _CBorder : public _CFG_ITEM<QString>
 
 	void SetUsedSide(BorderSide sd, bool on);
 
-	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius
-	QString ForStyleSheetShort(bool semicolonAtLineEnds) const;	// if  kind is sdAll simplified, else the same as the normal one
+	QString ForStyleSheet(bool semicolonAtLineEnds) const;		// w. radius may be a single line all separate lines for each side
 private:
-	int _used = 0;		// bits 1 to 4 correspond to: top, right,bottom,left
-	int _sizeWidths;	// how many different sides are there 1,2,4 - 4: all sizes are equal, 
+	int _used = 0;		// bits 1 to 4 correspond to: top, right,bottom,left, bit 5: all side has the same value
+	int _sizeWidths;	// how many different sides are there 1,2,4 - 1: all sizes are equal, 
 	int _widths[4];		// width of a given side
 	BorderStyle _styleIndex[4];	// style of a given side
 	QString _colorNames[4]; // color -"-
-	int _radius;		// in px
+	int _radius;		// in px, no separate radii for the 4 corners
 
 private:
 	constexpr int _sd2i(BorderSide sd) const;
@@ -603,9 +601,9 @@ struct _CElem : public _CFG_ITEM<bool>		// v, vd, etc not used at all
 							{"0|0|0|0|#000000","box-shadow1"} },
 		     shadow2[2] = { {"0|0|0|0|#000000","text-shadow2"},	// 2nd shadow   - " -
 							{"0|0|0|0|#000000","box-shadow2"} };
-	_CGradient gradient = { "0|0|#A90329|40|#890222|100|#6d0019"};
-	_CBorder border = {"0|2|0|#890222","border"};
-	_CInt padding = { 0, "padding" };
+	_CGradient gradient = {"0|0|#A90329|40|#890222|100|#6d0019"};
+	_CBorder border		= {"0|2|0|#890222","border"};
+	_CInt padding		= { 0, "padding" };
 
 	// -- functions ---
 	_CElem* parent = nullptr;
@@ -665,23 +663,21 @@ struct _CMenuElem : public _CElem
 //--------------------------------------------------------------------------------------------
 struct _CTextElem : public _CElem
 {
-	bool differentFirstLine = false;
-	int firstLineFontSize=0; // 'first_line' is a pseudo class in css but only the font size is used from the possible values!
-							 // set after the object for this class is created
-	_CTextElem() :
-		_CElem(), differentFirstLine(false) { }
+					// 'first_line' is a pseudo class in css but only the font size is used from the possible values!
+					// set after the object for this class is created
+	_CTextElem() : _CElem() { }
 	_CTextElem(AlbumElement kind, QString className, bool vd, QString namestr = "textelem", bool firstLineDiffer=false, bool bShadow = false, bool bGradient = false) :
-		_CElem(kind, className, vd, namestr, bShadow, bGradient), differentFirstLine(firstLineDiffer) {	}
+		_CElem(kind, className, vd, namestr, bShadow, bGradient) {	font.SetDifferentFirstLine(firstLineDiffer);  }
 
 	virtual void Write(QSettings& s, QString group = QString()) override
 	{ 
 		_CElem::Write(s, group);
-		if (differentFirstLine)
+		if (font.IsFirstLineDifferent())
 		{
 			if (!group.isEmpty())
 				s.beginGroup(group);
 			s.beginGroup(itemName + "::first-line");
-				s.setValue("font-size", firstLineFontSize);
+				s.setValue("font-size", font.FirstLineFontSizeStr() );
 			s.endGroup();
 			if (!group.isEmpty())
 				s.endGroup();
@@ -694,38 +690,34 @@ struct _CTextElem : public _CElem
 		if (!group.isEmpty())
 			s.beginGroup(group);
 		s.beginGroup(itemName + "::first-line");
-		int i = s.value("font-size", -1).toInt();
+		QString size = s.value("font-size", "").toString();
 		s.endGroup();
 		if (!group.isEmpty())
 			s.endGroup();
-		if(i<0)
-			differentFirstLine = false;
+		if(size.isEmpty())
+			font.SetDifferentFirstLine(false);
 		else
-		{
-			differentFirstLine = true;
-			firstLineFontSize = i;
-		}
+			font.SetDifferentFirstLine(true, size);
 	}
 
 	_CTextElem& operator=(const _CTextElem& other)
 	{
 		_CElem::operator=(other);
-		differentFirstLine = other.differentFirstLine;
 		return *this;
 	}
 
 	bool operator==(const _CElem& other) 
 	{
 		bool b = _CElem::operator==(other);
-		if(differentFirstLine)
-			b = b && firstLineFontSize == ((const _CTextElem&)other).firstLineFontSize;
+		if(font.IsFirstLineDifferent())
+			b = b && font.FirstLineFontSizeStr()  == ((const _CTextElem&)other).font.FirstLineFontSizeStr();
 		return b;
 	}
 	QString ForStyleSheet(bool for_First_Line, bool add_Semicolon) const
 	{
 		if (for_First_Line)					  // need separate write for first line because 
-			if (differentFirstLine)			  // class name is added by caller and not here
-				return QString("font-size:%1px").arg(firstLineFontSize) + (add_Semicolon ? ";\n" : "\n");
+			if (font.IsFirstLineDifferent())			  // class name is added by caller and not here
+				return QString("font-size:%1").arg(font.FirstLineFontSizeStr()) + (add_Semicolon ? ";\n" : "\n");
 			else
 				return QString();
 		// not first line
@@ -1070,14 +1062,16 @@ public:
 				// image decoration
 	_CBool iconToTopOn = {false, "iconToTopOn"};
 	_CBool iconInfoOn = {false, "iconInfoOn"};
-	_CInt  imageMargin = { 2, "imageMargin" };			// on img-container
-	_CBorder imageBorder = {"0|2|0|#EAA41E", "imageBorder"};
-	_CInt imageMatteWidth = { 0, "imageMatteWidth" };					  // width
+
+	_CInt  imageMargin = { 2, "imageMargin" };						// on img-container
+	_CBorder imageBorder = {"0|2|0|#EAA41E|0", "imageBorder"};
+	_CInt imageMatteWidth = { 0, "imageMatteWidth" };				// width
 	_CInt imageMatteRadius = { 0, "imgMRad" };
 	_CColor imageMatteColor = { "#ccc", "imgMatteColor" };
-	_CBorder albumBorder = {"0|2|0|#EAA41E", "albumBorder"};
+
+	_CBorder albumBorder = {"0|2|0|#EAA41E|0", "albumBorder"};
 	_CInt  albumMargin = { 2, "albumMargin" };			// on img-container
-	_CInt albumMatteWidth = { 0, "albumMatteWidth" };					  // width
+	_CInt albumMatteWidth = { 0, "albumMatteWidth" };				// width
 	_CColor albumMatteColor = { "#ccc", "albumMatteColor" };
 	_CInt albumMatteRadius = { 0, "abMRad" };
 				// 	Watermarks

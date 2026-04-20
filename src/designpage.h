@@ -38,11 +38,13 @@ private:
 	void _SetLblDnDescriptionAStyle();				 // album description
 	void _SetLblDnTitleAStyle();					 // album title
 	void _SetLblDnTitleAOStyle();					 // album title 2nd line
-	void _SetLblDnSummaryStyle();					 // 'this gallery contains...'
-	void _SetLblDnCopyrightStyle();
+	void _SetLblDnFooterStyle();					 // 'this gallery contains...'
+	void _SetLblDnCopyrightStyle();					 // copyright
 	void _SetLblDnHeaderStyle();
 	void _SetLblLightboxStyle();
 	void _SetLblLightboxTitleStyle();
+
+	void _ApplyStyleToQtLabel(ClickableLabel *toLabel, const QString &fromThisStyleString); // needed to set italic and bold<
 
 public slots:
 	void SlotItemStyleChanged(int indexInCombobox); // callback from falcong.cpp, uses global 'config'
@@ -73,6 +75,6 @@ private slots:									 // 0 page				 -> global settings tab
 	void on_lblDnDescriptionA_clicked();		 // 18 lblDnDescriptionA ->  -"-
 	void on_lblDnTitleA_clicked();				 // 19 lblDnImageP		 ->  -"
 	void on_lblDnTitleAO_clicked();				 // 20 lblDnImageA		 ->  -"-
-	void on_lblDnSummary_clicked();				 // 21 lblDnSummary		 ->  -"-
+	void on_lblDnSummary_clicked();				 // 21 lblDnFooter		 ->  -"-
 	void on_lblDnCopyright_clicked();			 // 22 lblDnCopyright	 ->  -"-
 };

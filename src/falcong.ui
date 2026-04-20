@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1014</width>
-    <height>1028</height>
+    <width>1124</width>
+    <height>1010</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -50,174 +50,8 @@
      <height>1010</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout_20">
-    <item row="1" column="0">
-     <widget class="QWidget" name="pnlButtons" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>41</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QPushButton" name="btnGenerate">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Generate (F9)</string>
-         </property>
-         <property name="shortcut">
-          <string>F9</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkGenerateAllPages">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>&amp;all pages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkRegenAllImages">
-         <property name="text">
-          <string>all i&amp;mages</string>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkNoImages">
-         <property name="text">
-          <string>except images</string>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnPreview">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Preview (F11)</string>
-         </property>
-         <property name="shortcut">
-          <string>F11</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>200</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblVersion">
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="text">
-          <string>falconG - Ver. 1.2.x</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_20">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>200</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveStruct">
-         <property name="toolTip">
-          <string>Save struct file (Debug only)</string>
-         </property>
-         <property name="text">
-          <string>Save struct</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveStyleSheet">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save CSS</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveConfig">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Save con&amp;fig.</string>
-         </property>
-         <property name="shortcut">
-          <string>Ctrl+S</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkCleanUp">
-         <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="text">
-          <string>Clean up and</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnExit">
-         <property name="text">
-          <string>E&amp;xit (Alt+X)</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+X</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_25">
+    <item>
      <widget class="QTabWidget" name="tabFalconG">
       <property name="minimumSize">
        <size>
@@ -2705,11 +2539,11 @@ p, li { white-space: pre-wrap; }
              <widget class="QWidget" name="widget_16" native="true">
               <property name="minimumSize">
                <size>
-                <width>439</width>
+                <width>500</width>
                 <height>0</height>
                </size>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <layout class="QVBoxLayout" name="verticalLayout_23">
                <property name="leftMargin">
                 <number>1</number>
                </property>
@@ -2827,12 +2661,12 @@ p, li { white-space: pre-wrap; }
                      </item>
                      <item>
                       <property name="text">
-                       <string>Summary label</string>
+                       <string>Watermark</string>
                       </property>
                      </item>
                      <item>
                       <property name="text">
-                       <string>Copyright label</string>
+                       <string>Footer</string>
                       </property>
                      </item>
                      <item>
@@ -2843,11 +2677,6 @@ p, li { white-space: pre-wrap; }
                      <item>
                       <property name="text">
                        <string>Lightbox Description</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Footer</string>
                       </property>
                      </item>
                     </widget>
@@ -2902,8 +2731,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>715</height>
+                         <width>492</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3295,8 +3124,8 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>431</width>
-                         <height>715</height>
+                         <width>478</width>
+                         <height>706</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -3723,6 +3552,9 @@ Default: &quot;/res/&quot;</string>
                                   <bold>false</bold>
                                  </font>
                                 </property>
+                                <property name="toolTip">
+                                 <string>Overline can't be displayed on the sample!</string>
+                                </property>
                                 <property name="text">
                                  <string>Overline</string>
                                 </property>
@@ -3778,6 +3610,9 @@ Default: &quot;/res/&quot;</string>
                                   <bold>false</bold>
                                  </font>
                                 </property>
+                                <property name="toolTip">
+                                 <string>Can't be shown on sample</string>
+                                </property>
                                 <property name="text">
                                  <string>wavy</string>
                                 </property>
@@ -3796,6 +3631,9 @@ Default: &quot;/res/&quot;</string>
                                   <bold>false</bold>
                                  </font>
                                 </property>
+                                <property name="toolTip">
+                                 <string>Can't be shown on sample</string>
+                                </property>
                                 <property name="text">
                                  <string>double</string>
                                 </property>
@@ -3813,6 +3651,9 @@ Default: &quot;/res/&quot;</string>
                                   <weight>50</weight>
                                   <bold>false</bold>
                                  </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Can't be shown on sample</string>
                                 </property>
                                 <property name="text">
                                  <string>solid</string>
@@ -3835,6 +3676,9 @@ Default: &quot;/res/&quot;</string>
                                   <bold>false</bold>
                                  </font>
                                 </property>
+                                <property name="toolTip">
+                                 <string>Can't be shown on sample</string>
+                                </property>
                                 <property name="text">
                                  <string>dotted</string>
                                 </property>
@@ -3852,6 +3696,9 @@ Default: &quot;/res/&quot;</string>
                                   <weight>50</weight>
                                   <bold>false</bold>
                                  </font>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Can't be shown on sample</string>
                                 </property>
                                 <property name="text">
                                  <string>dashed</string>
@@ -4576,7 +4423,76 @@ Default: &quot;/res/&quot;</string>
                            <string>Border</string>
                           </property>
                           <layout class="QGridLayout" name="gridLayout_6">
-                           <item row="0" column="3" colspan="2">
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="label_57">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Style</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="4">
+                            <widget class="QToolButton" name="btnBorderColor">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>MS Shell Dlg 2</family>
+                               <pointsize>10</pointsize>
+                               <weight>75</weight>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true">QToolButton {background-color:#890222;color:#76fccc;}</string>
+                             </property>
+                             <property name="text">
+                              <string>B</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0">
+                            <widget class="QRadioButton" name="rbAllBorders">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>All</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="1" colspan="2">
+                            <widget class="QRadioButton" name="rbTopBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Top</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="3" colspan="2">
                             <widget class="QRadioButton" name="rbRightBorder">
                              <property name="font">
                               <font>
@@ -4591,7 +4507,138 @@ Default: &quot;/res/&quot;</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="1" colspan="3">
+                           <item row="2" column="1" colspan="2">
+                            <widget class="QRadioButton" name="rbBottomBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Bottom</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="3" colspan="2">
+                            <widget class="QRadioButton" name="rbLeftBorder">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Left</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="0">
+                            <widget class="QLabel" name="label_58">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Width:</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="1" colspan="2">
+                            <widget class="QSpinBox" name="sbBorderWidth">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                             <property name="maximum">
+                              <number>100</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="3" column="4">
+                            <widget class="QToolButton" name="btnApplyBorderStyle">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>12</pointsize>
+                               <weight>75</weight>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Apply! </string>
+                             </property>
+                             <property name="text">
+                              <string>►</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="0" colspan="5">
+                            <widget class="Line" name="line">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="0" colspan="2">
+                            <widget class="QLabel" name="label_70">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Border radius</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="5" column="2" colspan="2">
+                            <widget class="QSpinBox" name="sbBorderRadius">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="6" column="2">
+                            <spacer name="verticalSpacer_5">
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>20</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="0" column="1" colspan="3">
                             <widget class="QComboBox" name="cbBorderStyle">
                              <property name="font">
                               <font>
@@ -4646,206 +4693,6 @@ Default: &quot;/res/&quot;</string>
                                <string>outset</string>
                               </property>
                              </item>
-                            </widget>
-                           </item>
-                           <item row="2" column="4">
-                            <widget class="QToolButton" name="btnBorderColor">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>MS Shell Dlg 2</family>
-                               <pointsize>10</pointsize>
-                               <weight>75</weight>
-                               <bold>true</bold>
-                              </font>
-                             </property>
-                             <property name="styleSheet">
-                              <string notr="true">QToolButton {background-color:#890222;color:#76fccc;}</string>
-                             </property>
-                             <property name="text">
-                              <string>B</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="0">
-                            <widget class="QLabel" name="label_58">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="1" colspan="2">
-                            <widget class="QSpinBox" name="sbBorderWidth">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="maximum">
-                              <number>100</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1" colspan="2">
-                            <widget class="QRadioButton" name="rbBottomBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Bottom</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QRadioButton" name="rbAllBorders">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>All</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="0" colspan="2">
-                            <widget class="QLabel" name="label_70">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Border radius</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0" colspan="5">
-                            <widget class="Line" name="line">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="3" colspan="2">
-                            <widget class="QRadioButton" name="rbLeftBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Left</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="0">
-                            <widget class="QLabel" name="label_57">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Style</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1" colspan="2">
-                            <widget class="QRadioButton" name="rbTopBorder">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Top</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="2" colspan="2">
-                            <widget class="QSpinBox" name="sbBorderRadius">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="6" column="2">
-                            <spacer name="verticalSpacer_5">
-                             <property name="orientation">
-                              <enum>Qt::Vertical</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>20</width>
-                               <height>40</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item row="3" column="4">
-                            <widget class="QToolButton" name="btnApplyBorderStyle">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>12</pointsize>
-                               <weight>75</weight>
-                               <bold>true</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Apply! </string>
-                             </property>
-                             <property name="text">
-                              <string>►</string>
-                             </property>
                             </widget>
                            </item>
                           </layout>
@@ -5412,8 +5259,8 @@ Unchecked: show all fonts on system</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>429</width>
-                         <height>571</height>
+                         <width>492</width>
+                         <height>697</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -5433,238 +5280,9 @@ Unchecked: show all fonts on system</string>
                          <number>3</number>
                         </property>
                         <item>
-                         <widget class="QWidget" name="gbResizing" native="true">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>206</height>
-                           </size>
-                          </property>
-                          <property name="font">
-                           <font>
-                            <family>Arial</family>
-                            <pointsize>10</pointsize>
-                            <weight>75</weight>
-                            <bold>true</bold>
-                           </font>
-                          </property>
+                         <widget class="QFrame" name="frame_3">
                           <layout class="QGridLayout" name="gridLayout_12">
-                           <item row="1" column="6" colspan="3">
-                            <spacer name="horizontalSpacer_6">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>94</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item row="0" column="1">
-                            <widget class="QLabel" name="label_2">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Width</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="8">
-                            <widget class="QSpinBox" name="sbImageMargin">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="7">
-                            <widget class="QLabel" name="label_15">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Gap</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="0" colspan="5">
-                            <widget class="QCheckBox" name="chkDistortThumbnails">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Wide thumbnails will be squeezed into the 
-width given here. This distorsion is created
-by the browser, so it may not be what you want.
-
-
-Need only save the CSS files, no new generation
-is required.</string>
-                             </property>
-                             <property name="text">
-                              <string>Modify aspect ratio for thumbnails</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0">
-                            <widget class="QLabel" name="label_7">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Thumbnail</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="4">
-                            <widget class="QSpinBox" name="sbImageHeight">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="minimum">
-                              <number>50</number>
-                             </property>
-                             <property name="maximum">
-                              <number>8192</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>1280</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="1" colspan="2">
-                            <widget class="QSpinBox" name="sbImageWidth">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="minimum">
-                              <number>50</number>
-                             </property>
-                             <property name="maximum">
-                              <number>8192</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>1920</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="3">
-                            <widget class="QToolButton" name="btnLink">
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>Links/unlinks image width and height,
-so when one changes the other changes too.
-</string>
-                             </property>
-                             <property name="text">
-                              <string/>
-                             </property>
-                             <property name="icon">
-                              <iconset resource="falcong.qrc">
-                               <normaloff>:/icons/Resources/broken-link.png</normaloff>
-                               <normalon>:/icons/Resources/link.png</normalon>:/icons/Resources/broken-link.png</iconset>
-                             </property>
-                             <property name="iconSize">
-                              <size>
-                               <width>24</width>
-                               <height>24</height>
-                              </size>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="3" column="0" colspan="2">
+                           <item row="0" column="0">
                             <widget class="QLabel" name="label_73">
                              <property name="font">
                               <font>
@@ -5679,7 +5297,7 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="3" column="2" colspan="5">
+                           <item row="0" column="2" colspan="2">
                             <widget class="QComboBox" name="cbImageQuality">
                              <property name="font">
                               <font>
@@ -5749,8 +5367,8 @@ so when one changes the other changes too.
                              </item>
                             </widget>
                            </item>
-                           <item row="4" column="3">
-                            <widget class="QLabel" name="label_59">
+                           <item row="1" column="0">
+                            <widget class="QLabel" name="label_2">
                              <property name="font">
                               <font>
                                <family>Arial</family>
@@ -5760,14 +5378,11 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="text">
-                              <string>x</string>
-                             </property>
-                             <property name="alignment">
-                              <set>Qt::AlignCenter</set>
+                              <string>Width</string>
                              </property>
                             </widget>
                            </item>
-                           <item row="0" column="4">
+                           <item row="1" column="2">
                             <widget class="QLabel" name="label_3">
                              <property name="font">
                               <font>
@@ -5782,32 +5397,8 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="6" column="0" colspan="5">
-                            <widget class="QCheckBox" name="chkCropThumbnails">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="toolTip">
-                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                             </property>
-                             <property name="text">
-                              <string>Crop thumbnails to this size</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="4">
-                            <widget class="QSpinBox" name="sbThumbnailHeight">
+                           <item row="2" column="0">
+                            <widget class="QSpinBox" name="sbImageWidth">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                                <horstretch>0</horstretch>
@@ -5835,11 +5426,91 @@ so when one changes the other changes too.
                               <number>10</number>
                              </property>
                              <property name="value">
-                              <number>400</number>
+                              <number>1920</number>
                              </property>
                             </widget>
                            </item>
-                           <item row="2" column="0" colspan="4">
+                           <item row="2" column="1">
+                            <widget class="QToolButton" name="btnLink">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Links/unlinks image width and height,
+so when one changes the other changes too.
+</string>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                             <property name="icon">
+                              <iconset resource="falcong.qrc">
+                               <normaloff>:/icons/Resources/broken-link.png</normaloff>
+                               <normalon>:/icons/Resources/link.png</normalon>:/icons/Resources/broken-link.png</iconset>
+                             </property>
+                             <property name="iconSize">
+                              <size>
+                               <width>24</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="checkable">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="2">
+                            <widget class="QSpinBox" name="sbImageHeight">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                             <property name="minimum">
+                              <number>50</number>
+                             </property>
+                             <property name="maximum">
+                              <number>8192</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>1280</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="3">
+                            <spacer name="horizontalSpacer_6">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>261</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
+                           <item row="3" column="0" colspan="3">
                             <widget class="QCheckBox" name="chkDoNotEnlarge">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -5863,99 +5534,23 @@ so when one changes the other changes too.
                              </property>
                             </widget>
                            </item>
-                           <item row="4" column="1" colspan="2">
-                            <widget class="QSpinBox" name="sbThumbnailWidth">
-                             <property name="enabled">
-                              <bool>false</bool>
-                             </property>
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="suffix">
-                              <string>px</string>
-                             </property>
-                             <property name="minimum">
-                              <number>50</number>
-                             </property>
-                             <property name="maximum">
-                              <number>8192</number>
-                             </property>
-                             <property name="singleStep">
-                              <number>10</number>
-                             </property>
-                             <property name="value">
-                              <number>600</number>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="1" column="0">
-                            <widget class="QLabel" name="label">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="font">
-                              <font>
-                               <family>Arial</family>
-                               <pointsize>10</pointsize>
-                               <weight>50</weight>
-                               <bold>false</bold>
-                              </font>
-                             </property>
-                             <property name="text">
-                              <string>Image</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="5">
-                            <spacer name="horizontalSpacer_18">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>76</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
                           </layout>
                          </widget>
                         </item>
                         <item>
-                         <widget class="QGroupBox" name="gbImage">
-                          <property name="minimumSize">
-                           <size>
-                            <width>0</width>
-                            <height>0</height>
-                           </size>
+                         <widget class="QFrame" name="frame">
+                          <property name="frameShape">
+                           <enum>QFrame::StyledPanel</enum>
                           </property>
-                          <property name="title">
-                           <string>Image</string>
+                          <property name="frameShadow">
+                           <enum>QFrame::Raised</enum>
                           </property>
-                          <layout class="QVBoxLayout" name="verticalLayout_23">
-                           <property name="spacing">
-                            <number>1</number>
-                           </property>
+                          <layout class="QGridLayout" name="gridLayout_25">
                            <property name="leftMargin">
                             <number>1</number>
                            </property>
                            <property name="topMargin">
-                            <number>1</number>
+                            <number>6</number>
                            </property>
                            <property name="rightMargin">
                             <number>1</number>
@@ -5963,7 +5558,10 @@ so when one changes the other changes too.
                            <property name="bottomMargin">
                             <number>1</number>
                            </property>
-                           <item>
+                           <property name="horizontalSpacing">
+                            <number>1</number>
+                           </property>
+                           <item row="3" column="0" colspan="8">
                             <widget class="QGroupBox" name="gbImageFrame">
                              <property name="minimumSize">
                               <size>
@@ -5981,17 +5579,17 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="title">
-                              <string>Image Frame</string>
+                              <string> Frame</string>
                              </property>
                              <layout class="QHBoxLayout" name="horizontalLayout_15">
                               <property name="leftMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="topMargin">
                                <number>1</number>
                               </property>
                               <property name="rightMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="bottomMargin">
                                <number>1</number>
@@ -6191,7 +5789,130 @@ so when one changes the other changes too.
                              </layout>
                             </widget>
                            </item>
-                           <item>
+                           <item row="0" column="6">
+                            <widget class="QLabel" name="label_15">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Gap</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="1" column="0" colspan="5">
+                            <widget class="QCheckBox" name="chkDistortThumbnails">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>Wide thumbnails will be squeezed into the 
+width given here. This distorsion is created
+by the browser, so it may not be what you want.
+
+
+Need only save the CSS files, no new generation
+is required.</string>
+                             </property>
+                             <property name="text">
+                              <string>Modify aspect ratio for thumbnails</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="2" column="0" colspan="4">
+                            <widget class="QCheckBox" name="chkCropThumbnails">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="toolTip">
+                              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All thumbnail images will have the same height.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this button if you want thumbnails to have the&lt;/p&gt;&lt;p&gt;exact sizes given here. In this case the thumbnail&lt;/p&gt;&lt;p&gt;will be cropped from the top left corner of the&lt;/p&gt;&lt;p&gt;source image to this size. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The thumbnail still may be narrower!&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Need only save the CSS files, no new generation&lt;/p&gt;&lt;p&gt;is required.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                             </property>
+                             <property name="text">
+                              <string>Crop thumbnails to this size</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="3">
+                            <widget class="QLabel" name="label_59">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>x</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="0">
+                            <widget class="QLabel" name="label_7">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>75</weight>
+                               <bold>true</bold>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Thumbnail</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="7">
+                            <widget class="QSpinBox" name="sbImageMargin">
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="4" column="0" colspan="8">
                             <widget class="QGroupBox" name="gbImageMatte">
                              <property name="minimumSize">
                               <size>
@@ -6212,17 +5933,17 @@ so when one changes the other changes too.
                               <string>&quot;Matte&quot; is the area around an image in the frame</string>
                              </property>
                              <property name="title">
-                              <string>Image Matte</string>
+                              <string> Matte</string>
                              </property>
                              <layout class="QHBoxLayout" name="horizontalLayout_17">
                               <property name="leftMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="topMargin">
                                <number>1</number>
                               </property>
                               <property name="rightMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="bottomMargin">
                                <number>1</number>
@@ -6364,6 +6085,88 @@ so when one changes the other changes too.
                              </layout>
                             </widget>
                            </item>
+                           <item row="0" column="2">
+                            <widget class="QSpinBox" name="sbThumbnailWidth">
+                             <property name="enabled">
+                              <bool>false</bool>
+                             </property>
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                             <property name="minimum">
+                              <number>50</number>
+                             </property>
+                             <property name="maximum">
+                              <number>8192</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>600</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="4">
+                            <widget class="QSpinBox" name="sbThumbnailHeight">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <family>Arial</family>
+                               <pointsize>10</pointsize>
+                               <weight>50</weight>
+                               <bold>false</bold>
+                              </font>
+                             </property>
+                             <property name="suffix">
+                              <string>px</string>
+                             </property>
+                             <property name="minimum">
+                              <number>50</number>
+                             </property>
+                             <property name="maximum">
+                              <number>8192</number>
+                             </property>
+                             <property name="singleStep">
+                              <number>10</number>
+                             </property>
+                             <property name="value">
+                              <number>400</number>
+                             </property>
+                            </widget>
+                           </item>
+                           <item row="0" column="5">
+                            <spacer name="horizontalSpacer_18">
+                             <property name="orientation">
+                              <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="sizeHint" stdset="0">
+                              <size>
+                               <width>76</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                            </spacer>
+                           </item>
                           </layout>
                          </widget>
                         </item>
@@ -6376,7 +6179,7 @@ so when one changes the other changes too.
                            </size>
                           </property>
                           <property name="title">
-                           <string>Album</string>
+                           <string>Album Thumbnail</string>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_24">
                            <property name="leftMargin">
@@ -6409,17 +6212,17 @@ so when one changes the other changes too.
                               </font>
                              </property>
                              <property name="title">
-                              <string>Album Frame</string>
+                              <string> Frame</string>
                              </property>
                              <layout class="QHBoxLayout" name="horizontalLayout_28">
                               <property name="leftMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="topMargin">
                                <number>1</number>
                               </property>
                               <property name="rightMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="bottomMargin">
                                <number>1</number>
@@ -6640,17 +6443,17 @@ so when one changes the other changes too.
                               <string>&quot;Matte&quot; is the area around an image in the frame</string>
                              </property>
                              <property name="title">
-                              <string>Album Matte</string>
+                              <string> Matte</string>
                              </property>
                              <layout class="QHBoxLayout" name="horizontalLayout_24">
                               <property name="leftMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="topMargin">
                                <number>1</number>
                               </property>
                               <property name="rightMargin">
-                               <number>1</number>
+                               <number>6</number>
                               </property>
                               <property name="bottomMargin">
                                <number>1</number>
@@ -6803,7 +6606,7 @@ so when one changes the other changes too.
                           <property name="sizeHint" stdset="0">
                            <size>
                             <width>20</width>
-                            <height>608</height>
+                            <height>40</height>
                            </size>
                           </property>
                          </spacer>
@@ -8481,6 +8284,172 @@ the last CSS save.</string>
       </widget>
      </widget>
     </item>
+    <item>
+     <widget class="QWidget" name="pnlButtons" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>41</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QPushButton" name="btnGenerate">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Generate (F9)</string>
+         </property>
+         <property name="shortcut">
+          <string>F9</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkGenerateAllPages">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Re-generate all images and albums, regardless if they were already OK.&lt;/p&gt;&lt;p&gt;For images generated again the upload date will change to&lt;/p&gt;&lt;p&gt;today's date! This will change the list of the  latest uploads!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>&amp;all pages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkRegenAllImages">
+         <property name="text">
+          <string>all i&amp;mages</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoImages">
+         <property name="text">
+          <string>except images</string>
+         </property>
+         <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPreview">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Preview (F11)</string>
+         </property>
+         <property name="shortcut">
+          <string>F11</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>200</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblVersion">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="text">
+          <string>falconG - Ver. 1.2.x</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_20">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>200</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveStruct">
+         <property name="toolTip">
+          <string>Save struct file (Debug only)</string>
+         </property>
+         <property name="text">
+          <string>Save struct</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveStyleSheet">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save CSS</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save con&amp;fig.</string>
+         </property>
+         <property name="shortcut">
+          <string>Ctrl+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkCleanUp">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes helper files created in &lt;/p&gt;&lt;p&gt;program directory (html,css,js,...)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Clean up and</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnExit">
+         <property name="text">
+          <string>E&amp;xit (Alt+X)</string>
+         </property>
+         <property name="shortcut">
+          <string>Alt+X</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <action name="actionOpen">
@@ -8647,11 +8616,6 @@ the last CSS save.</string>
   <tabstop>sbImageHeight</tabstop>
   <tabstop>chkDoNotEnlarge</tabstop>
   <tabstop>cbImageQuality</tabstop>
-  <tabstop>sbThumbnailWidth</tabstop>
-  <tabstop>sbThumbnailHeight</tabstop>
-  <tabstop>sbImageMargin</tabstop>
-  <tabstop>chkDistortThumbnails</tabstop>
-  <tabstop>chkCropThumbnails</tabstop>
   <tabstop>cbImageBorderStyle</tabstop>
   <tabstop>sbImageBorderWidth</tabstop>
   <tabstop>sbImageBorderRadius</tabstop>

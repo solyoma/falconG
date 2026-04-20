@@ -220,6 +220,39 @@ void CssCreator::_CreateForSection()
 	_CssForElement(s, config.Section);
 }
 
+QString CssCreator::StyleSheetForSampleImageOrAlbum(bool forImage, const QString item, bool addSemi, bool forSamplePage)
+{
+	QString qs;
+	if (forImage)
+	{
+		qs = item + "{\n"
+			"\tmargin: 0 " + config.imageMargin.ToString() + ";\n"
+			"\tposition:relative;\n";
+		if (config.imageMatteWidth.v)	// width not 0
+			qs += "\tbackground-color:" + config.imageMatteColor.Name() + ";\n"
+				+ "\tpadding:" + QString().setNum(config.imageMatteWidth.v)+ "px;\n";
+		qs += config.imageBorder.ForStyleSheet(addSemi);	// image border on matte
+
+		if(forSamplePage && config.imageMatteRadius)
+			qs += "\tmatte-radius:" +  QString().setNum(config.imageMatteRadius) + "px;\n";
+	}
+	else
+	{
+		qs = item+"{\n"
+			"\tmargin: 0 " + config.albumMargin.ToString() + ";\n"
+			"\tposition:relative;\n";
+		if (config.albumMatteWidth.v)	// width not 0
+			qs += "\tbackground-color:" + config.albumMatteColor.Name() + ";\n"
+				+ "\tpadding:" + QString().setNum(config.albumMatteWidth.v)+ "px;\n";
+		qs += config.albumBorder.ForStyleSheet(addSemi);	// album border on matte
+
+		if(forSamplePage && config.albumMatteRadius)
+			qs += "\tmatte-radius:" +  QString().setNum(config.albumMatteRadius) + "px;\n";
+	}
+	qs += "}\n\n";
+	return qs;
+}
+
 /*=============================================================
  * TASK:	CSS for images both for final pages and for
  *			the designer
@@ -249,30 +282,14 @@ img {
 
 )").arg(config.imageMargin);
 			
+	bool close = (!_forSamplePage && config.imageMatteRadius.v) ? true : false;
+	_ofs << StyleSheetForSampleImageOrAlbum(true,  ".imatte", addSemicolon, close); // leave the style open for matte with radius
+	if (!close)
+		_ofs << "matte-radius:" << config.imageMatteRadius.v << ";\n}\n\n";  // no such thing in CSS, just for internal use (sample page)
 	// --------- imatte ----------------
-	_ofs << ".imatte {\n"
-			"\tmargin: 0 " << config.imageMargin << ";\n"
-			"\tposition:relative;\n";
-	if (config.imageMatteWidth.v)	// width not 0
-		_ofs << "\tbackground-color:" << config.imageMatteColor.Name() << ";\n"
-			 << "\tpadding:" << config.imageMatteWidth.v << "px;\n";
-	_ofs << "\t" << config.imageBorder.ForStyleSheetShort(addSemicolon);	// image border on matte
-
-	if (config.imageBorder.Radius() > 0)							// also on matte
-		_ofs << "\tborder-radius:" << config.imageBorder.Radius() << "px;\n";
-	_ofs << "}\n\n";
-					
-	// --------- amatte ----------------
-	_ofs << ".amatte {\n"
-			"\tmargin: 0 " << config.imageMargin << ";\n"
-			"\tposition:relative;\n";
-	if (config.albumMatteWidth.v)	// width not 0 ?
-		_ofs << "\tbackground-color:" << config.albumMatteColor.Name() << ";\n"
-			 << "\tpadding:" << config.albumMatteWidth.v << "px;\n";
-	_ofs << "\t" << config.albumBorder.ForStyleSheetShort(addSemicolon);
-	if (config.albumBorder.Radius() > 0)
-		_ofs << "\tborder-radius:" << config.albumBorder.Radius() << "px;\n";
-	_ofs << "}\n\n";
+	_ofs << StyleSheetForSampleImageOrAlbum(false, ".amatte", addSemicolon, true); // leave the style open
+	if (!close)
+		_ofs << "matte-radius:" << config.albumMatteRadius.v << ";\n}\n\n";  // no such thing in CSS, just for internal use
 
 	// --------- img.thumb, img.athumb ----------------
 	_ofs << R"(.thumb,.athumb {

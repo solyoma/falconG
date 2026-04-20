@@ -644,15 +644,15 @@ QString _CTextDecoration::DecorationStr(Decoration deco) const
 	if (v & (int)deco)
 		switch (deco)
 		{
-			case tdNone:					return "none ";
+			case tdNone:				return "none ";
 			case tdUnderline:			return "underline ";
 			case tdLinethrough:			return "line-through ";
-			case tdOverline:				return "overline ";
+			case tdOverline:			return "overline ";
 			case tdSolid:				return "solid ";
 			case tdDotted:				return "dotted ";
 			case tdDashed:				return "dashed ";
 			case tdDouble:				return "double ";
-			case tdWavy:					return "wavy ";
+			case tdWavy:				return "wavy ";
 			default: break;
 		}
 	return QString();
@@ -677,9 +677,8 @@ QString _CTextDecoration::ForStyleSheet(bool addSemiColon) const
 			qs += qsTmp;
 		}
 	};
-	addProp("\ttext-decoration-line", TextDecorationLineStr());
 	if(v != tdNone)
-		addProp("\ttext-decoration-style", TextDecorationStyleStr());
+		addProp("\ttext-decoration", TextDecorationLineStr() + TextDecorationStyleStr());
 	return qs;
 }
 
@@ -782,7 +781,7 @@ void _CFont::SetLineHeight(QString qslh)
 
 void _CFont::SetDifferentFirstLine(bool set, QString size)
 {
-	_details[4] = set ? "1" : "0";
+	_details[fontDifferentFirstLine] = set ? "1" : "0";
 	if (!size.isEmpty())
 		_details[fontFirstLineSize] = size;
 }
@@ -993,9 +992,7 @@ void _CGradient::Set(bool usd, int topStop, QString topColor, int middleStop, QS
 QString _CGradient::ForStyleSheet(bool semi) const
 {
 	QString qs;
-	if (!used) 
-		qs = QString("\tbackground-image:none");
-	else
+	if (used)  // otherwise: no background image
 		qs = QString("\tbackground-image:linear-gradient(%1 %2%,%3 %4%,%5 %6%)")
 								.arg(gs[0].color).arg(gs[0].percent)
 								.arg(gs[1].color).arg(gs[1].percent)
@@ -1074,7 +1071,7 @@ QString _CBorder::StyleStr(BorderSide sd)	 const
 void _CBorder::SetUsed(BorderSide side, bool on)
 {
 
-	if ((int)side == (int)sdAll)
+	if (side == sdAllSides)
 		_used = on ? 15 : 0;
 	else
 	{
@@ -1089,7 +1086,7 @@ void _CBorder::SetWidth(BorderSide sd, int width)
 {
 	switch (sd)
 	{
-		case sdAll:		_widths[0] = _widths[1] = _widths[2] = _widths[3] = width; break;
+		case sdAllSides:		_widths[0] = _widths[1] = _widths[2] = _widths[3] = width; break;
 		case sdTop:		_widths[0] = width; break;
 		case sdRight:	_widths[1] = width; break;
 		case sdBottom:	_widths[2] = width; break;
@@ -1104,7 +1101,7 @@ void _CBorder::SetColor(BorderSide sd, QString color)		// starts with '#'
 		color = "#" + color;
 	switch (sd)
 	{
-		case sdAll:		_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = color; break;
+		case sdAllSides:		_colorNames[0] = _colorNames[1] = _colorNames[2] = _colorNames[3] = color; break;
 		case sdTop:		_colorNames[0] = color; break;
 		case sdRight:	_colorNames[1] = color; break;
 		case sdBottom:	_colorNames[2] = color; break;
@@ -1116,7 +1113,7 @@ void _CBorder::SetColor(BorderSide sd, QString color)		// starts with '#'
 }
 void _CBorder::SetBorderStyle(BorderSide sd, BorderStyle ix)	//ix==0 -> no border
 {
-	if (sd == sdAll)
+	if (sd == sdAllSides)
 		_styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = ix;
 	else
 		_styleIndex[_sd2i(sd)] = ix;
@@ -1131,8 +1128,8 @@ void _CBorder::SetRadius(int radius)
 
 void _CBorder::SetUsedSide(BorderSide sd, bool on)
 {
-	if (sd == sdAll)
-		_used = on ? 15 : 0;	// 15 = 1 + 2 + 4 +8 
+	if (sd == sdAllSides)
+		_used = on ? (int)sdAllSides : 0;	// and no individual sides
 	else if (on)
 		_used |= (int)sd;
 	else
@@ -1146,7 +1143,7 @@ constexpr int _CBorder::_sd2i(BorderSide sd) const
 		case sdRight: return 1;
 		case sdBottom: return 2;
 		case sdLeft: return 3;
-		case sdAll:
+		case sdAllSides:
 		default: return 0;
 	}
 }
@@ -1164,15 +1161,15 @@ int _CBorder::_IndexOfColor(QStringList& _details)	const	// use on unprocessed s
 }
 /*========================================================
  * TASK:	Sets border styles
- * PARAMS:	semi: if set prepends a TAB and appends a semicolon
+ * PARAMS:	semi: if set prepends a TAB to and appends a semicolon
  *				after each line
  * GLOBALS:
  * RETURNS:
  * REMARKS: - returns either a single line for all borders or
  *				4 lines for the 4 sides:top/right/bottom/left
- *			- can't use different widths or colors on the sides
- *			- may not use the shorthand which only works if no
- *			  radius is given
+ *			- each linehas 3 values: <width><unit> <style> <color> 
+ *			- when all sides have the same values a single line
+ *				is returned
  *-------------------------------------------------------*/
 QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 {
@@ -1184,7 +1181,7 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 	}
 
 	QString res;
-	if (UsedSides() == (int)sdAll)	// all sides
+	if (UsedSides() == (int)sdAllSides)	// all sides are the same
 	{
 		res = QString("\tborder:%1px %2 %3").arg(_widths[sdTop]).arg(StyleStr(sdTop)).arg(ColorStr(sdTop));
 		__AddSemi(res,semi);
@@ -1217,25 +1214,10 @@ QString _CBorder::ForStyleSheet(bool semi) const		// w. radius
 		
 	if (_radius)
 	{
-		res += QString("\tborder-radius:%1px;\n").arg(config.Menu.border.Radius());
+		res += QString("\tborder-radius:%1px;\n").arg(_radius);
 		__AddSemi(res, semi);
 	}
 
-	return res;
-}
-
-QString _CBorder::ForStyleSheetShort(bool semicolonAtLineEnds) const
-{
-	QString res;
-	if (!UsedSides())
-		res = "\tborder:none";
-	else
-	{
-		if (_sizeWidths > 1)
-			return ForStyleSheet(semicolonAtLineEnds);
-		res = QString("\tborder:%1px %2 %3").arg(_widths[0]).arg(StyleStr(sdAll)).arg(_colorNames[0]);
-	}
-	__AddSemi(res, semicolonAtLineEnds);
 	return res;
 }
 
@@ -1259,12 +1241,13 @@ void _CBorder::_Setup()
 {
 	QStringList qsl = v.split(QChar('|'));
 	int siz = qsl.size();	// 13 or 14, 8 or 9, 4 or 5
-	if (siz != 13 && siz != 14 && siz != 7 && siz != 8 && siz != 4 && siz != 5)		// bad string: use defaults
+	if (siz != 4 && siz != 5 && siz != 7 && siz != 8 && siz != 13 && siz != 14)		// bad string: use defaults
 	{
 		qsl.clear();
-		qsl << "0" << "0" << "0" << "0" << "#000000";
+		qsl << "0" << "0" << "0" << "#000000" << "0";
 	}
 	// create for any of these: (<used> = 0..15)
+	// no different radii for the four corners !
 
 	// siz == 4    0      1     2     3
 	//			<used>|width|style|color
@@ -1279,11 +1262,12 @@ void _CBorder::_Setup()
 	// siz == 14   0		1		   2			3			4		   5		 6		     7			  8			 9		  10		  11		   12       13
 	//			<used>|width top|width right|width bottom|width Left|style top|style right|style bottom|style Left|color top|color right|color bottom|color Left|radius
 
-		_used = qsl[0].toInt();
+	_used = qsl[0].toInt();
 	switch (siz)
 	{
 		case 5:
 			_radius = qsl[4].toInt();
+			[[fallthrough]];
 		case 4:
 			_widths[0] = _widths[1] = _widths[2] = _widths[3] = qsl[1].toInt();
 			_styleIndex[0] = _styleIndex[1] = _styleIndex[2] = _styleIndex[3] = (BorderStyle)qsl[2].toInt();
@@ -1291,6 +1275,7 @@ void _CBorder::_Setup()
 			break;
 		case 8:
 			_radius = qsl[7].toInt();
+			[[fallthrough]];
 		case 7:
 			_widths[0] = _widths[2] = qsl[1].toInt(); _widths[1] = _widths[3] = qsl[2].toInt();
 			_styleIndex[0] = _styleIndex[2] = (BorderStyle)qsl[3].toInt(); _styleIndex[1] = _styleIndex[3] = (BorderStyle)qsl[4].toInt();
@@ -1298,6 +1283,7 @@ void _CBorder::_Setup()
 			break;
 		case 14:
 			_radius = qsl[13].toInt();
+			[[fallthrough]];
 		case 13:
 			_widths[0] = qsl[1].toInt();
 			_widths[1] = qsl[2].toInt();

@@ -1,9 +1,9 @@
-﻿
-#include <QString>
+﻿#include <QString>
 #include <QColor>
 
 #include "common.h"
-#include "config.h"
+#include "csscreator.h"	 // includes config.h
+//#include "config.h"
 
 #include "slidewidget.h"
 #include "stylehandler.h"
@@ -14,7 +14,7 @@ struct WidgetPointers
 	QWidget* p = nullptr;
 	void (DesignPage::*f)() = nullptr;
 };
-static WidgetPointers __wptr[cboxIndexSize];		// current # of widgets, index 0: scrollAreaWidgetContents
+static WidgetPointers __wptr[SAMPLEINDEXSIZE];		// current # of widgets, index 0: scrollAreaWidgetContents
 
 DesignPage::DesignPage(QWidget* parent)
 {
@@ -47,8 +47,10 @@ DesignPage::DesignPage(QWidget* parent)
 	__wptr[nLblDnTitleA]			= {ui.lblDnTitleA				,&DesignPage::_SetLblDnTitleAStyle	};
 	__wptr[nLblDnTitleAO]			= {ui.lblDnTitleAO		 		,&DesignPage::_SetLblDnTitleAOStyle	};
 
-	__wptr[nLblDnSummary]			= {ui.lblDnSummary				,&DesignPage::_SetLblDnSummaryStyle	};
-	__wptr[nLblDnCopyright]			= {ui.lblDnCopyright	 		,&DesignPage::_SetLblDnCopyrightStyle };
+	__wptr[nLblDnFooter]			= {ui.lblDnSummary				,&DesignPage::_SetLblDnFooterStyle	};
+	__wptr[nLblDnCopyright]			= {ui.lblDnCopyright	 		,&DesignPage::_SetLblDnFooterStyle };
+
+	__wptr[nLblDnWatermark]			= {ui.pnlDnSlideA				,&DesignPage::_SetLblDnImagePStyle };
 
 	ui.pnlDnSlideP->SetImage(QImage(":/Preview/Resources/placeholder.jpg"));
 	ui.pnlDnSlideA->SetImage(QImage(":/Preview/Resources/placeholder2.jpg"));
@@ -85,10 +87,10 @@ void DesignPage::_MyMousePressEvent(QMouseEvent* event)
  *------------------------------------------------------------*/
 void DesignPage::SlotItemStyleChanged(int indexFrmCmbBx)
 {
-	if (indexFrmCmbBx < uniqueSize)  // -1: all items
+	if (indexFrmCmbBx < UNIQUESIZE)  // -1: all items
 	{
-		int ix[uniqueSize] = {};
-		int cnt = CBXToDesign(indexFrmCmbBx, ix);	// get items with same style into ix
+		int ix[UNIQUESIZE] = {};
+		int cnt = scMap.CBIxToSample(indexFrmCmbBx, ix);	// get items with same style into ix
 		for (int i = 0; i < cnt; i++)				// and set style of each of them
 			if (__wptr[ix[i]].f != nullptr)			// nullptr for nLblDnheader nLblDnLightBox and nLblDnLightboxTitle
 				(this->*(__wptr[ix[i]].f))();
@@ -109,15 +111,6 @@ void DesignPage::_SetGlobalStyle()		// from global page: color, background color
 	styleHandler.SetItem(QString(), "background", qs1);
 	styleHandler.SetItem(QString(), "background-color", qs2);
 	ui.pnlMenu->setStyleSheet(qs);
-/*	ui.pnlAlbumSectionHeader->setStyleSheet(qs);
-	ui.pnlDnAlbum->setStyleSheet(qs);
-	ui.pnlDnGalleryDescription->setStyleSheet(qs);
-	ui.pnlDnGalleryTitle->setStyleSheet(qs);
-	ui.pnlDnPicture->setStyleSheet(qs);
-	ui.pnlDnPictureSectionHeader->setStyleSheet(qs);
-	ui.pnlDnSlideA->setStyleSheet(qs);
-	ui.pnlDnSlideP->setStyleSheet(qs);
-*/
 }
 
 void DesignPage::_SetUplinkButtonIcon()		// UP menu button with icon
@@ -147,67 +140,78 @@ void DesignPage::_SetMenuButtonStyle()
 void DesignPage::_SetSmallTitleStyle()
 {
 	// small titles: name and language
-	QString style = //"#lblDnName {\n " +
-		config.SmallGalleryTitle.ForStyleSheet(addSemicolon);// +"\n}\n";
-	ui.lblDnName->setStyleSheet(style);
+	QString style = config.SmallGalleryTitle.ForStyleSheet(addSemicolon);
+	_ApplyStyleToQtLabel(ui.lblDnName, style);
 }
 void DesignPage::_SetLangButtonStyle()
 {
 	QString style = "#lblDnLang\n{\n " +
 					config.Lang.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnLang->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnLang,style);
 }
 void DesignPage::_SetLblDnGalleryStyle()
 {
 	QString style = "#lblDnGallery {\n " +
 				config.GalleryTitle.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnGallery->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnGallery,style);
 }
 void DesignPage::_SetLblDnGalleryDescriptionStyle()
 {
 	QString style = "#lblDnGalleryDescription {\n " +
 		config.GalleryDesc.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnGalleryDescription->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnGalleryDescription,style);
 }
 void DesignPage::_SetLblDnPictureSectionLabelStyle()
 {
 	QString style = "#lblDnPictureSectionLabel {\n " +
 		config.Section.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnPictureSectionLabel->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnPictureSectionLabel,style);
 	// and set here for the album too
 	_SetLblDnAlbumSectionLabelStyle();
 }
-void DesignPage::_SetLblDnImagePStyle()			// image thumbnail image
-{
+void DesignPage::_SetLblDnImagePStyle()		// image thumbnail 
+{											// no different values of sides
+	QString style = CssCreator::StyleSheetForSampleImageOrAlbum(true, ".imatte", true);
+	// style may contain non-css rules, like 'matte-radius:'
+	StyleHandler styHandler(style);
+	ui.pnlDnSlideA->SetMatteColor(QColor(styHandler.GetItem(".imatte", "background-color")));
+	ui.pnlDnSlideA->SetMatteRadius(styHandler.GetItem(".imatte", "matte-radius"));
+	ui.pnlDnSlideA->SetAllBordersFromString(styHandler.GetItem(".imatte", "border"));  // <width> <style> <color>
+	ui.pnlDnSlideA->SetMatteRadius(styHandler.GetItem("", "border", "matte-radius"));
 
+
+	_SetLblDnImageAStyle();					// same values for albums
 }
 void DesignPage::_SetLblDnDescriptionPStyle()
 {
 	QString style = "#lblDnDescriptionP {\n " +
 		config.ImageDesc.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnDescriptionP->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnDescriptionP,style);
 	// and set here for the album too
 	_SetLblDnDescriptionAStyle();
 }
-void DesignPage::_SetLblDnTitlePStyle()			// image title first line
-{
-	ui.lblDnTitleP->setStyleSheet( "#lblDnTitleP {\n " +
-		config.ImageTitle.ForStyleSheet(config.ImageTitle.differentFirstLine, true) + "\n}\n" );
+void DesignPage::_SetLblDnTitlePStyle()			// image + album title first line
+{	
+	QString style = "#lblDnTitleP {\n " +
+		config.ImageTitle.ForStyleSheet(config.ImageTitle.font.IsFirstLineDifferent(), true) + "}\n";
+	_ApplyStyleToQtLabel(ui.lblDnTitleP, style );
 	// and set here for the album too
-	_SetLblDnTitleAStyle();			// image title first line
+	_SetLblDnTitlePOStyle();		// image + album title other lines
+	_SetLblDnTitleAStyle();			// album title first line
 }
 void DesignPage::_SetLblDnTitlePOStyle()		// when first line differs then image title all other lines
-{
-	ui.lblDnTitleP->setStyleSheet( "#lblDnTitlePO {\n " +
-		config.ImageTitle.ForStyleSheet(notFirstOne, addSemicolon) + "\n}\n" );
+{								// image title first line
+	QString style = "#lblDnTitlePO {\n " +
+		config.ImageTitle.ForStyleSheet(notFirstOne, addSemicolon) + "\n}\n";
+	_ApplyStyleToQtLabel(ui.lblDnTitlePO, style);
 	// and set here for the album too
-	_SetLblDnTitleAOStyle();			// image title first line
+	_SetLblDnTitleAOStyle();	// album title first line		
 }
 void DesignPage::_SetLblDnAlbumSectionLabelStyle()	// label styles are the same for albums and pictures
 {
 	QString style = "#lblDnAlbumSectionLabel {\n " +
 		config.Section.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnAlbumSectionLabel->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnAlbumSectionLabel,style);
 }
 void DesignPage::_SetLblDnImageAStyle()			// album thumbnail image
 {
@@ -217,26 +221,30 @@ void DesignPage::_SetLblDnDescriptionAStyle()
 {
 	QString style = "#lblDnDescriptionA {\n " +
 		config.ImageDesc.ForStyleSheet(addSemicolon) + "\n}\n";
-	ui.lblDnDescriptionP->setStyleSheet(style);
+	_ApplyStyleToQtLabel(ui.lblDnDescriptionA,style);
 }
 void DesignPage::_SetLblDnTitleAStyle()
 {
-	ui.lblDnTitleP->setStyleSheet( "#lblDnTitleA {\n " +
-		config.ImageTitle.ForStyleSheet(config.ImageTitle.differentFirstLine, true) + "\n}\n" );
+	QString style = "#lblDnTitleA {\n " +
+		config.ImageTitle.ForStyleSheet(config.ImageTitle.font.IsFirstLineDifferent(), true) + "\n}\n";
+	_ApplyStyleToQtLabel(ui.lblDnTitleA, style );
+	_SetLblDnTitleAOStyle();
 }
 void DesignPage::_SetLblDnTitleAOStyle()
 {
-	ui.lblDnTitleP->setStyleSheet("#lblDnTitleAO {\n " +
-		config.ImageTitle.ForStyleSheet(notFirstOne, addSemicolon) + "\n}\n");
+	QString style = "#lblDnTitleAO {\n " +
+		config.ImageTitle.ForStyleSheet(notFirstOne, addSemicolon) + "\n}\n";
+	_ApplyStyleToQtLabel(ui.lblDnTitleAO, style);
 }
-void DesignPage::_SetLblDnSummaryStyle()
+void DesignPage::_SetLblDnFooterStyle()
 {
-	ui.lblDnSummary->setStyleSheet("#lblDnSummary {\n " +
+	_ApplyStyleToQtLabel(ui.lblDnSummary,"#lblDnSummary {\n " +
 		config.Footer.ForStyleSheet(addSemicolon) + "\n}\n");
+	_SetLblDnCopyrightStyle();	// for now
 }
 void DesignPage::_SetLblDnCopyrightStyle()
 {
-	ui.lblDnSummary->setStyleSheet("#lblDnCopyright {\n " +
+	_ApplyStyleToQtLabel(ui.lblDnCopyright,"#lblDnCopyright {\n " +
 		config.Footer.ForStyleSheet(addSemicolon) + "\n}\n");
 }
 void DesignPage::_SetLblDnHeaderStyle()
@@ -250,6 +258,56 @@ void DesignPage::_SetLblLightboxStyle()
 void DesignPage::_SetLblLightboxTitleStyle()
 {
 	; // ???
+}
+
+static Qt::Alignment __GetAlignment(const QString& str)
+{
+	Qt::Alignment a;
+	int ix = str.indexOf("text-align:");
+	if (ix > 0)
+	{
+		QStringRef ref(& str, ix + 11, str.length() - ix - 11);
+		if (ref.left(4) == "left")
+			a.setFlag(Qt::AlignLeft);
+		else if (ref.left(6) == "center")
+			a .setFlag(Qt::AlignHCenter);
+		else if (ref.left(5) == "right")
+			a .setFlag(Qt::AlignRight);
+	}
+	return a;
+}
+static void __ChangeFont(QFont& font, const QString& str)
+{
+	StyleHandler sh(str);
+	QString qs = sh.GetItem(QString(), "font-family");
+	font.setFamily(qs);
+	qs = sh.GetItem(QString(), "font-size");
+	font.setPointSize(qs.left(qs.length()-2).toInt());
+	qs = sh.GetItem(QString(), "font-style");
+	font.setItalic(false);
+	font.setBold(false);
+	if (!qs.isEmpty())
+	{
+		font.setItalic(qs.indexOf("italic") >= 0);
+		font.setBold(qs.indexOf("bold") >= 0);
+	}
+	qs = sh.GetItem(QString(), "font-weight");	// may override 'Bold'
+	if (qs.isEmpty())
+		font.setWeight(QFont::Normal);
+	else
+		font.setWeight(QFont::Bold);		// = 75 would be 900 for CSS
+}
+
+void DesignPage::_ApplyStyleToQtLabel(ClickableLabel *toLabel, const QString &thisStyleString)
+{
+	Qt::Alignment a = __GetAlignment(thisStyleString);
+	if(a)
+		toLabel->setAlignment(a);
+	QFont font = toLabel->font();
+	__ChangeFont(font, thisStyleString);
+	toLabel->setFont(font);
+
+	toLabel->setStyleSheet(thisStyleString);
 }
 
 														 
@@ -276,5 +334,5 @@ void DesignPage::on_lblDnDescriptionA_clicked() 		  { qDebug("nLblDnDescriptionA
 void DesignPage::on_lblDnTitleA_clicked() 				  { qDebug("nLblDnTitleA");				emit SignalClicked(nLblDnTitleA		 			);}
 void DesignPage::on_lblDnTitleAO_clicked() 				  { qDebug("nLblDnTitleAO");			emit SignalClicked(nLblDnTitleAO	 			);}
 
-void DesignPage::on_lblDnSummary_clicked() 				  { qDebug("nLblDnSummary");			emit SignalClicked(nLblDnSummary				);}
-void DesignPage::on_lblDnCopyright_clicked() 			  { qDebug("nLblDnCopyright");			emit SignalClicked(nLblDnCopyright	 			);}
+void DesignPage::on_lblDnSummary_clicked() 				  { qDebug("nLblDnSummary");			emit SignalClicked(nLblDnFooter					);}
+void DesignPage::on_lblDnCopyright_clicked() 			  { qDebug("nLblDnCopyright");			emit SignalClicked(nLblDnFooter		 			);}

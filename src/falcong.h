@@ -5,7 +5,6 @@
 #include <QTextStream>
 
 #include "common.h"
-using namespace Common;
 
 #include "logger.h"
 #include "support.h"
@@ -18,6 +17,7 @@ using namespace Common;
 
 #include "slidewidget.h"
 #include "designpage.h"
+#include "SkinManager.h"
 
 #include "ui_falcong.h"
 
@@ -60,7 +60,7 @@ class FalconG : public QMainWindow
 	Q_OBJECT
 
 public:
-	FalconG(QWidget *parent = Q_NULLPTR);
+	FalconG(SkinManager &skinManager, QWidget *parent = Q_NULLPTR);
 	~FalconG();
 
 	void closeEvent(QCloseEvent *event);
@@ -68,6 +68,8 @@ public:
 	int GetProgressBarPos();
 	int IsRunning() { return _running; }
 	void Stop() { --_running; }
+
+	void SetProgramScheme();
 
 	AlbumTreeView* GetTreeViewPointer() const;
 	constexpr IDVal_t ActualDisplayedAlbum() const { return ui.tnvImages->AlbumID(); }
@@ -82,6 +84,7 @@ signals:
 private:
 
 	Ui::falconGClass ui;
+	SkinManager& _skinManager;
 
 	// style (skin) selection
 	bool _bSchemeChanged = false;	// any of the colors changed
@@ -152,7 +155,6 @@ private:
 	void _OpacityChanged(int val, int which, bool used);	// which = 0 -> color, 1: background
 
 	void _SetLayoutMargins(int which);
-	void _SetProgramScheme();
 
 	void _ModifyGoogleFontImport();		// in CSS and re-load WEB page
 	void _SettingUpFontsCombo();		// cbFonts set up from fonts in config.sGoogleFonts and config.sDefFonts

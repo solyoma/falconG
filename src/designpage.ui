@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>1214</height>
+    <height>1045</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -245,7 +245,7 @@ background-color:#666;
         <x>0</x>
         <y>0</y>
         <width>650</width>
-        <height>1364</height>
+        <height>1376</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -455,7 +455,7 @@ background-color:#666;
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gallery description:Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequuntur adipisci repudiandae corporis, possimus est dolorem, doloribus vitae nemo, omnis voluptas non modi sunt odio ipsa facere facilis velit veritatis excepturi! &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Gallery description:Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequuntur adipisci repudiandae corporis, possimus est dolorem, doloribus vitae nemo, omnis voluptas non modi sunt odio ipsa facere facilis velit veritatis excepturi! </string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -607,8 +607,8 @@ background-color:#666;
             <property name="styleSheet">
              <string notr="true">#pnlDnSlideP
 {
-	border: 1px solid red;
-	border-radius 15%;
+	border: 5px double #aaaa00;
+	border-radius 15px;
 	background:gray;
 }</string>
             </property>
@@ -637,16 +637,33 @@ background-color:#666;
             </property>
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <family>Baumans</family>
+              <pointsize>12</pointsize>
+              <italic>true</italic>
              </font>
             </property>
             <property name="styleSheet">
              <string notr="true">#lblDnDescriptionP {
- color:white;
-}</string>
+  	color:#ffffff;
+ 	background-color:rgba(0,43,0,0);
+ 	background-image:none;
+ 	font-family:Baumans;
+ 	font-size:12pt;
+ 	line-height:14pt;
+ 	text-align:center;
+ 	border:none;
+   font-style:italic;
+}
+</string>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Picture 1.Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Description: .Lorem ipsum dolor sit amet consectetur...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -663,7 +680,13 @@ background-color:#666;
 }</string>
             </property>
             <property name="text">
-             <string>Title of Image 1 - 1st line</string>
+             <string> Image Title 1st line - :Lorem ipsum, dolor sit amet consectetur adipisicing</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -680,7 +703,13 @@ background-color:#666;
 }</string>
             </property>
             <property name="text">
-             <string>other lines of title</string>
+             <string> repudiandae corporis, possimus est dolorem, doloribus vitae nemo</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -843,11 +872,26 @@ background-color:#666;
             </property>
             <property name="styleSheet">
              <string notr="true">#lblDnDescriptionA {
- color:white;
-}</string>
+  	color:#ffffff;
+ 	background-color:rgba(0,43,0,0);
+ 	background-image:none;
+ 	font-family:Baumans;
+ 	font-size:12pt;
+ 	line-height:14pt;
+ 	text-align:center;
+ 	border:none;
+    font-style:italic;
+}
+</string>
             </property>
             <property name="text">
-             <string>Description Picture 1.Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam ullam quas aspernatur..</string>
+             <string>Description: .Lorem ipsum dolor sit amet consectetur...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -859,7 +903,13 @@ background-color:#666;
 }</string>
             </property>
             <property name="text">
-             <string>Title of Image 1 - 1st line</string>
+             <string>Album Title 1st line - :Lorem ipsum, dolor sit amet consectetur adipisicing</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -871,7 +921,13 @@ background-color:#666;
 }</string>
             </property>
             <property name="text">
-             <string>other lines of title</string>
+             <string> repudiandae corporis, possimus est dolorem, doloribus vitae nemo</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
