@@ -24,18 +24,21 @@ void paintGroupBoxTitle(const QStyleOptionGroupBox* opt,
 {
     p->save();
 
-    // Title rect
+    QFont f = widget ? widget->font() : QFont();
+    p->setFont(f);
+    p->setPen(opt->palette.windowText().color());
+
+    const QFontMetrics fm(f);
+    int h = fm.height();
+
     QRect r = opt->rect;
-    int h = opt->fontMetrics.height();
     QRect titleRect(r.left() + 8, r.top() - h / 2, r.width() - 16, h);
 
-    // Title text
-    p->setFont(widget? widget->font() : QFont());
-    p->setPen(opt->palette.windowText().color());
     p->drawText(titleRect, Qt::AlignLeft | Qt::AlignVCenter, opt->text);
 
     p->restore();
 }
+
 
 // ---- GROUPBOX FRAME ----
 // Ensures consistent border thickness and avoids clipping the title.
@@ -45,9 +48,9 @@ void paintGroupBoxFrame(const QStyleOptionGroupBox* opt,
 {
     p->save();
 
-    QRect r = opt->rect.adjusted(0, 8, 0, 0); // leave space for title
-    QPen pen(opt->palette.mid().color(), 2);
-    p->setPen(pen);
+    QRect r = opt->rect.adjusted(0, 8, 0, 0);
+
+    p->setPen(QPen(opt->palette.mid().color(), 2));
     p->setBrush(Qt::NoBrush);
     p->drawRect(r);
 
@@ -72,11 +75,11 @@ void paintTab(const QStyleOptionTab* opt,
     else
         bg = opt->palette.button().color();
 
-    p->setPen(opt->palette.mid().color());
-    p->setBrush(bg);
+    p->setPen(Qt::NoPen);    // p->setPen(opt->palette.mid().color());
+    p->setBrush(Qt::NoBrush);// p->setBrush(bg);
     p->drawRoundedRect(r, 4, 4);
 
-    p->setPen(opt->palette.buttonText().color());
+    //?? p->setPen(opt->palette.buttonText().color());
     p->drawText(r, Qt::AlignCenter, opt->text);
 
     p->restore();
@@ -96,11 +99,11 @@ void paintToolBoxTab(const QStyleOptionToolBox* opt,
         ? opt->palette.highlight().color()
         : opt->palette.button().color();
 
-    p->setPen(opt->palette.mid().color());
-    p->setBrush(bg);
+    p->setPen(Qt::NoPen);    // p->setPen(opt->palette.mid().color());
+    p->setBrush(Qt::NoBrush);// p->setBrush(bg);
     p->drawRect(r);
 
-    p->setPen(opt->palette.buttonText().color());
+    //?? p->setPen(opt->palette.buttonText().color());
     p->drawText(r.adjusted(8, 0, -8, 0), Qt::AlignVCenter, opt->text);
 
     p->restore();
@@ -114,19 +117,15 @@ void paintComboArrow(const QStyleOption* opt,
 {
     p->save();
 
-    QRect r = opt->rect.adjusted(4, 4, -4, -4);
+    QRect r = opt->rect.adjusted(6, 6, -6, -6);
 
     QPolygon arrow;
     arrow << QPoint(r.left(), r.top())
         << QPoint(r.right(), r.top())
         << QPoint(r.center().x(), r.bottom());
 
-    QColor c = (opt->state & QStyle::State_Enabled)
-        ? opt->palette.buttonText().color()
-        : opt->palette.mid().color();
-
-    p->setBrush(c);
     p->setPen(Qt::NoPen);
+    p->setBrush(opt->palette.buttonText().color());
     p->drawPolygon(arrow);
 
     p->restore();
@@ -152,19 +151,16 @@ void paintSpinArrow(const QStyleOption* opt,
         << QPoint(r.right(), r.top())
         << QPoint(r.center().x(), r.bottom());
 
-    QColor c = (opt->state & QStyle::State_Enabled)
-        ? opt->palette.buttonText().color()
-        : opt->palette.mid().color();
-
-    p->setBrush(c);
     p->setPen(Qt::NoPen);
+    p->setBrush(opt->palette.buttonText().color());
     p->drawPolygon(arrow);
 
     p->restore();
 }
 
+
 // ---- SLIDER HANDLE ----
-// Stable handle size and color.
+// Stable handle size
 void paintSliderHandle(const QStyleOptionSlider* opt,
     QPainter* p,
     const QWidget* widget)
@@ -173,12 +169,8 @@ void paintSliderHandle(const QStyleOptionSlider* opt,
 
     QRect r = opt->rect.adjusted(2, 2, -2, -2);
 
-    QColor bg = (opt->state & QStyle::State_MouseOver)
-        ? opt->palette.highlight().color()
-        : opt->palette.button().color();
-
-    p->setPen(opt->palette.mid().color());
-    p->setBrush(bg);
+    p->setPen(Qt::NoPen);
+    p->setBrush(opt->palette.buttonText().color());
     p->drawEllipse(r);
 
     p->restore();
@@ -219,11 +211,11 @@ void paintToolButton(const QStyleOptionToolButton* opt,
     else
         bg = opt->palette.button().color();
 
-    p->setPen(Qt::NoPen);
-    p->setBrush(bg);
+    p->setPen(Qt::NoPen);    // p->setPen(Qt::NoPen);
+    p->setBrush(Qt::NoBrush);// p->setBrush(bg);
     p->drawRoundedRect(r, 12, 12);
 
-    p->setPen(opt->palette.buttonText().color());
+    //?? p->setPen(opt->palette.buttonText().color());
     p->drawText(r, Qt::AlignCenter, opt->text);
 
     p->restore();
@@ -244,8 +236,8 @@ void paintIndicator(const QStyleOption* opt,
         ? opt->palette.highlight().color()
         : opt->palette.base().color();
 
-    p->setPen(border);
-    p->setBrush(fill);
+    p->setPen(Qt::NoPen);    // p->setPen(border);
+    p->setBrush(Qt::NoBrush);// p->setBrush(fill);
 
     if (radio)
         p->drawEllipse(r);
@@ -275,12 +267,13 @@ void paintTreeBranch(const QStyleOption* opt,
         << QPoint(r.left(), r.bottom())
         << QPoint(r.right(), r.center().y());
 
-    p->setBrush(opt->palette.buttonText().color());
     p->setPen(Qt::NoPen);
+    p->setBrush(opt->palette.buttonText().color());
     p->drawPolygon(arrow);
 
     p->restore();
 }
+
 
 // ------------------------------------------------------------
 // 1. METRICS
@@ -291,22 +284,15 @@ int MyProxyStyle::pixelMetric(PixelMetric metric,
 {
     switch (metric)
     {
-        case PM_DefaultFrameWidth:
-            return 2;
-
+        case PM_DefaultFrameWidth: return 2;
         case PM_IndicatorWidth:
-        case PM_IndicatorHeight:
-            return 13;
-
+        case PM_IndicatorHeight: return 13;
         case PM_SliderThickness:
-        case PM_SliderLength:
-            return 16;
-
+        case PM_SliderLength: return 16;
         default:
             return QProxyStyle::pixelMetric(metric, opt, widget);
     }
 }
-
 // ------------------------------------------------------------
 // 2. SUBCONTROL GEOMETRY
 // ------------------------------------------------------------
@@ -350,6 +336,10 @@ void MyProxyStyle::drawPrimitive(PrimitiveElement pe,
             return;
         }
 
+        //case PE_IndicatorBranch:
+        //    paintTreeBranch(opt, p, opt->state & State_Open);
+        //    return;
+
         // other primitives...
         default:
             break;
@@ -368,25 +358,9 @@ void MyProxyStyle::drawControl(ControlElement element,
 {
     switch (element)
     {
-        case CE_TabBarTab:
-            paintTab(static_cast<const QStyleOptionTab*>(opt), p, widget);
-            return;
-
-        case CE_ToolBoxTab:
-            paintToolBoxTab(static_cast<const QStyleOptionToolBox*>(opt), p, widget);
-            return;
-
         case CE_ComboBoxLabel:
             QProxyStyle::drawControl(element, opt, p, widget);
             paintComboArrow(opt, p, widget);
-            return;
-
-        case CE_ProgressBarContents:
-            paintProgressChunk(static_cast<const QStyleOptionProgressBar*>(opt), p, widget);
-            return;
-
-        case CE_ToolButtonLabel:
-            paintToolButton(static_cast<const QStyleOptionToolButton*>(opt), p, widget);
             return;
 
         default:
@@ -405,9 +379,6 @@ void MyProxyStyle::drawComplexControl(ComplexControl control,
     {
         case CC_SpinBox:
         {
-            const QStyleOptionSpinBox* sb = qstyleoption_cast<const QStyleOptionSpinBox*>(opt);
-            if (!sb) break;
-
             // Let base draw frame, etc.
             QProxyStyle::drawComplexControl(control, opt, p, widget);
 

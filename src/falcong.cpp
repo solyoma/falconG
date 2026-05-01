@@ -205,11 +205,12 @@ FalconG::FalconG(SkinManager &skinManager, QWidget *parent) : _skinManager(skinM
 	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
 
-	logger.Setup("falconG log", PROGRAM_CONFIG::homePath + "falconG.log", true);
+	Logger::LogFileList logFiles = logger.Setup("falconG log", PROGRAM_CONFIG::homePath + "falconG.log", true);
+	ui.cbLogSelection->addItems(logFiles.Names(true));
+
 	logger.Open();
+
 	logger.Log(tr("*** falconG started ***"));
-	// DEBUG 1 line
-	// Logger::LogFileList lflst = logger.GetLogFileList();
 
 #if defined Q_OS_WINDOWS
 	ui.chkSourceRelativeForwardSlash->setChecked(true);
@@ -1974,8 +1975,10 @@ void FalconG::on_btnShadowColor_clicked()
 void FalconG::on_btnShowLog_clicked()
 {
 	Logger::LogFileList list = logger.GetLogFileList();
+
 	if(list.isEmpty())
 		return;
+
 	QString fname = PROGRAM_CONFIG::homePath + list[ui.cbLogSelection->currentIndex()].name;
 	QFile f(fname);
 	f.open(QIODevice::ReadOnly);
@@ -1990,8 +1993,8 @@ void FalconG::on_btnShowLog_clicked()
 	QDialog  *dlgLog = new QDialog(this);
 
 	QRect r = QApplication::screens()[0]->geometry();
-	dlgLog->resize(420, 470);
-	dlgLog->setMinimumSize(420, 470);
+	dlgLog->resize(850, 470);
+	dlgLog->setMinimumSize(850, 470);
 	QListWidget* listw = new QListWidget(dlgLog);
 	listw->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	QString line;
@@ -2004,8 +2007,16 @@ void FalconG::on_btnShowLog_clicked()
 	QString qs;
 	QHBoxLayout* phLayout = new QHBoxLayout(dlgLog);
 	phLayout->addWidget(listw);
+	QWidget* qwRight = new QWidget(dlgLog);
+	QVBoxLayout *pvLayout = new QVBoxLayout(qwRight);
 	QDialogButtonBox* bx = new QDialogButtonBox(QDialogButtonBox::StandardButtons(QDialogButtonBox::StandardButton::Close));
-	phLayout->addWidget(bx);
+	bx->
+
+	connect(bx, &QDialogButtonBox::rejected, dlgLog, &QDialog::close);
+	pvLayout->insertSpacerItem(0, new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	pvLayout->addWidget(bx);
+	phLayout->addWidget(qwRight);
+	phLayout->setStretch(0, 1);
 	dlgLog->setLayout(phLayout);
 
 	dlgLog->exec();
@@ -3973,7 +3984,7 @@ void FalconG::on_sbLogSize_valueChanged(int val)
 {
 	bool b = logger.IsOpen();
 	logger.Close();
-	logger.Resize(val*1024*1024);
+	logger.SetMaxSize(val*1024*1024);
 	if(b)
 		logger.Open();
 	QString rotatedDate = logger.JustRotated();

@@ -3124,7 +3124,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>478</width>
+                         <width>419</width>
                          <height>706</height>
                         </rect>
                        </property>
@@ -5259,8 +5259,8 @@ Unchecked: show all fonts on system</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>492</width>
-                         <height>697</height>
+                         <width>474</width>
+                         <height>568</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -6618,8 +6618,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>98</width>
-                         <height>28</height>
+                         <width>100</width>
+                         <height>30</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7851,7 +7851,7 @@ the last CSS save.</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_30">
                  <item>
-                  <widget class="QFrame" name="frame_3">
+                  <widget class="QFrame" name="frame_31">
                    <property name="frameShape">
                     <enum>QFrame::Box</enum>
                    </property>
@@ -7876,6 +7876,9 @@ the last CSS save.</string>
                     </property>
                     <item>
                      <widget class="QCheckBox" name="chkLogToggle">
+                      <property name="toolTip">
+                       <string>Check to turn on logging</string>
+                      </property>
                       <property name="text">
                        <string>Logging is on</string>
                       </property>
@@ -7896,6 +7899,10 @@ the last CSS save.</string>
                  </item>
                  <item>
                   <widget class="QSpinBox" name="sbLogSize">
+                   <property name="toolTip">
+                    <string>If the file size set is smaller than or equal to the size of the 
+actual log the actual log will be closed and a new one crated.</string>
+                   </property>
                    <property name="suffix">
                     <string> MiB</string>
                    </property>
@@ -7905,22 +7912,6 @@ the last CSS save.</string>
                    <property name="maximum">
                     <number>100</number>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_94">
-                   <property name="text">
-                    <string>Select log:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="cbLogSelection">
-                   <item>
-                    <property name="text">
-                     <string>Actual log (started at 2026-03-22)</string>
-                    </property>
-                   </item>
                   </widget>
                  </item>
                  <item>
@@ -7937,6 +7928,28 @@ the last CSS save.</string>
                   </spacer>
                  </item>
                  <item>
+                  <widget class="QLabel" name="label_94">
+                   <property name="text">
+                    <string>Select log:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="cbLogSelection">
+                   <property name="toolTip">
+                    <string>Select the log file you want to be shown!</string>
+                   </property>
+                   <property name="currentText">
+                    <string>Actual log (started at 2026-03-22)</string>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>Actual log (started at 2026-03-22)</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QPushButton" name="btnShowLog">
                    <property name="toolTip">
                     <string>Show selected log file</string>
@@ -7949,7 +7962,7 @@ the last CSS save.</string>
                  <item>
                   <widget class="QPushButton" name="btnClearAllLogs">
                    <property name="toolTip">
-                    <string>Remove all log files. Not undoable.</string>
+                    <string>Remove all log files. Not undoable!</string>
                    </property>
                    <property name="text">
                     <string>Clear log</string>

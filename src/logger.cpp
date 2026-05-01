@@ -23,9 +23,10 @@ bool Logger::_Rotate()			// rename old log files and open new one
 		lastIndex = qs.left(ix).toInt();
 		for (; n > 0; --n)
 			dir.rename(entries[n], _lname + QString("%1").arg(n + 1, 4, 10, QChar('0')) + _ext);
-		// TODO: compress just rotated file (originally named as _lname + _ext)
+		// TODO: compress rotated file (originally named as _lname + _ext) and decompress it to show it
 	}
 	dir.rename(_lname + _ext, _lname + 0001 + _ext);
+	_creationTimeOfPreviousRotated = _creationTime;
 	return Open();
 }
 
@@ -40,7 +41,7 @@ bool Logger::_Rotate()			// rename old log files and open new one
  * REMARKS: - if no otherLogName then just returns creation date 
  *			  string for actual log file, which must be open
  *------------------------------------------------------------*/
-QString Logger::_LogCreationDateTime(QString otherLogName)	 // this log file opened for read already but not for use
+QString Logger::LogCreationDateTime(QString otherLogName)	 // this log file opened for read already but not for use
 {																 // for a non empty otherLogName open and close file
 	if (otherLogName == _lname + _ext)					// same as for the actual log file
 		return _creationTime;
@@ -63,7 +64,7 @@ QString Logger::_LogCreationDateTime(QString otherLogName)	 // this log file ope
 	return QString();
 }
 
-void Logger::Setup(QString logName, QString logfilePathName, int fileSize)
+Logger::LogFileList Logger::Setup(QString logName, QString logfilePathName, int fileSize)
 {
 	_name = logName; 		   // not the file name: may be put into log file header (not yet) may be empty
 	_lname = QDir::fromNativeSeparators(logfilePathName);	// full path name of log file
@@ -71,21 +72,32 @@ void Logger::Setup(QString logName, QString logfilePathName, int fileSize)
 	_folderName = info.absolutePath() + "/";
 	_lname = info.completeBaseName();
 	_ext = QString('.') + info.suffix();
+	QDir dir(_folderName);
+	if (!dir.exists())
+		dir.mkpath(_folderName);
+	_logFileList.Clear();
+	return GetLogFileList();	// get creation time list of log files in the folder '_folderName'
 }
 
 Logger::LogFileList Logger::GetLogFileList()	// get creation time list of log files in the same folder
 {												// may be empty
-	LogFileList result;
+	if (_logFileList.count() > 0)				// already got the list
+		return _logFileList;
+
 	QDir dir(_folderName);
 	QStringList sln;
 	sln << _lname + "*" + _ext;	// like "mylog.log", "mylog001.log", etc
 	dir.setNameFilters(sln);
 	QStringList slNames = dir.entryList(QDir::Files, QDir::Name);
-
+	QString cdt;
 	for (auto& n : slNames)
-		result.append({n, _LogCreationDateTime(n) } );
-	
-	return result;
+	{
+		cdt = LogCreationDateTime(n);
+		_logFileList.append({ n, cdt });
+		if (cdt > _creationTime)
+			_creationTime = cdt;	// get the latest creation time among log files in the folder
+	}
+	return _logFileList;
 }
 
 bool Logger::Open(bool justToGetCreationTime)
@@ -98,7 +110,7 @@ bool Logger::Open(bool justToGetCreationTime)
 		bool bInitted = _f.exists();
 		if (bInitted && _f.open(QIODevice::ReadOnly))
 		{
-			_creationTime = _f.readLine();	
+			_creationTime = _f.readLine();		  // re-use variable
 			if (_creationTime != _LOG_FILE_ID)
 			{
 				_f.close();
@@ -111,13 +123,16 @@ bool Logger::Open(bool justToGetCreationTime)
 		if (justToGetCreationTime)
 			return true;
 
-		if (!_f.open(QIODevice::WriteOnly | QIODevice::Append))
+		if (!_f.open(QIODevice::ReadWrite | QIODevice::Append))
 			return false;
 
 		_ofts.setDevice(&_f);
 		_ofts.setCodec(QTextCodec::codecForName("UTF-8"));
 		if (!bInitted)
-			_ofts << _LOG_FILE_ID << _CREATED_PREFIX << (_creationTime = QDateTime::currentDateTime().toString()) << Qt::endl;
+			_ofts << _LOG_FILE_ID << _CREATED_PREFIX
+			<< (_creationTime = QDateTime::currentDateTime().toString(Qt::ISODateWithMs).replace('T', ' '))
+			<< ' '
+			<< Qt::endl;
 	}
 	return _Rotate();	  // only rotates if too large
 }
@@ -137,15 +152,51 @@ bool Logger::Log(QString message)
 {
 	if (!_f.isOpen())
 		return false;
-	_ofts << QDateTime::currentDateTime().toString() << ' ';
-	_ofts << message << Qt::endl;
+	_ofts << QDateTime::currentDateTime().toString(Qt::ISODateWithMs).replace('T', ' ') 
+		  << ' '
+		  << message 
+		  << Qt::endl;
 	return _Rotate();
 }
 
-void Logger::Resize(int maxSize)
+void Logger::SetMaxSize(int maxSize)
 {
 	if (_maxSize == maxSize)
 		return;
 	_maxSize = maxSize;
 	_Rotate();
+}
+
+int Logger::LogFileList::LatestFileIndex()
+{
+	if (_latestFileIndex < 0 && count() > 0)
+	{
+		QString timeStr;
+		int n = -1;
+		for(auto &lr : *this)
+		{
+		  if(lr.creationDate > timeStr)
+		  {
+			  timeStr = lr.creationDate;
+			  _latestFileIndex = ++n;
+		  }
+		}
+	}
+	return _latestFileIndex;
+}
+
+QStringList Logger::LogFileList::Names(bool withDates) const
+{
+	QStringList names;
+	if (withDates)
+	{
+		for (auto& lr : *this)
+			names << lr.DisplayName();
+	}
+	else
+	{
+		for (auto& lr : *this)
+			names << lr.name;
+	}
+	return names;
 }
