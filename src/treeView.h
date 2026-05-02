@@ -152,7 +152,7 @@ private:
 	QModelIndex _pendingExpandIndex;
 
 	ItemIdVector __GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
-	void AlbumTreeView::_OnExpandTimerTimeout();
+	void _OnExpandTimerTimeout();
 	void _GetExpandedAlbumIds(const QModelIndex& parent = QModelIndex());
 	void _RestoreExpandedAlbums(const QModelIndex& parent = QModelIndex());
 };

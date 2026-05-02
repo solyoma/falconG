@@ -30,7 +30,7 @@ public slots:
 	void on_btnOk_clicked() 
 	{ 
 		_exitCode = QDialog::Accepted; 
-		QListWidgetItem* plwi = ui.lwStructs->currentItem();
+		const QListWidgetItem* plwi = ui.lwStructs->currentItem();
 		_res = plwi->text();
 	}
 };

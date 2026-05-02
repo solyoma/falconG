@@ -7,7 +7,11 @@
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QFileInfo>
-#include <QTextCodec>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	#include <QStringConverter>
+#else
+	#include <QTextCodec>
+#endif
 #include <QDir>
 #include <QImage>
 #include <QPixmap>
@@ -29,8 +33,8 @@ const QString versionStr = "# falconG Gallery Structure file ";
 //			 1.5 - album lines may contain a base album ID defining an alias to an existing album inside {}, before theclosing')'
 //			 2.0 - can't read versions before 1.3 anymore use separate conversion program to update versions before 1.3
 
-constexpr int majorProgramVersion = 2,		// V 2.0.0 version string
-			  minorProgramVersion = 0,
+constexpr int majorProgramVersion = 2,		// V 2.1.0 version string
+			  minorProgramVersion = 1,
 			  subProgramVersion   = 0;
 
 	// encoding and decoding text
@@ -343,6 +347,7 @@ FileType FileTypeFromName(const QString &name, QFileInfo *fi = nullptr);
 QString ToUTF8(QString string);
 QStringList ToUTF8(QStringList &string);
 
+void SetFontWeight(QFont& font, int weight);	// weight: 0..1000, -1: default
 template<typename T> bool ValidUtf8String(const T& string, int len)
 {
 	int c, i, ix, n, j;

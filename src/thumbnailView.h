@@ -400,8 +400,15 @@ class AlbumFilterModel : public QSortFilterProxyModel
 public:
 	AlbumFilterModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
 	void setFilterPrefix(const QString& prefix) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		beginFilterChange();
+#endif
 		_prefix = prefix;
-		invalidateFilter();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		endFilterChange();
+#else	
+		invalidateFilter();	
+#endif
 	}
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override {

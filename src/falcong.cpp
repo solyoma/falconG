@@ -206,9 +206,13 @@ FalconG::FalconG(SkinManager &skinManager, QWidget *parent) : _skinManager(skinM
 	ui.pnlProgress->setVisible(false);
 
 	Logger::LogFileList logFiles = logger.Setup("falconG log", PROGRAM_CONFIG::homePath + "falconG.log", true);
-	ui.cbLogSelection->addItems(logFiles.Names(true));
 
 	logger.Open();
+
+	if (logFiles.size() == 0)  // first log file opened
+		logFiles.push_back({ logger.Name(), logger.LogCreationDateTime() });
+
+	ui.cbLogSelection->addItems(logFiles.Dates());
 
 	logger.Log(tr("*** falconG started ***"));
 
@@ -2010,8 +2014,6 @@ void FalconG::on_btnShowLog_clicked()
 	QWidget* qwRight = new QWidget(dlgLog);
 	QVBoxLayout *pvLayout = new QVBoxLayout(qwRight);
 	QDialogButtonBox* bx = new QDialogButtonBox(QDialogButtonBox::StandardButtons(QDialogButtonBox::StandardButton::Close));
-	bx->
-
 	connect(bx, &QDialogButtonBox::rejected, dlgLog, &QDialog::close);
 	pvLayout->insertSpacerItem(0, new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	pvLayout->addWidget(bx);
@@ -2221,7 +2223,7 @@ void FalconG::on_lwColorScheme_currentRowChanged(int newIndex)
 		_SlotAskForApply();
 	static const char* bckstr = "background-color:%1",
 		* bck_txt = "background-color:%1; color:%2";
-	_tmpScheme = schemes[newIndex + 2];	// default and system are not changed
+	_tmpScheme = schemes[newIndex + 1];	// default and system are not changed
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 	ui.pnlColorScheme->setStyleSheet(QString(bck_txt).arg(_tmpScheme.sBackground).arg(_tmpScheme.sTextColor));
 	for (int i = 0; i < _pSchemeButtons.size(); ++i)
@@ -3988,11 +3990,11 @@ void FalconG::on_sbLogSize_valueChanged(int val)
 	if(b)
 		logger.Open();
 	QString rotatedDate = logger.JustRotated();
-	if (!rotatedDate.isEmpty())
+	if (!rotatedDate.isEmpty())	// then the last log file was rotated
 	{
-		ui.cbLogSelection->removeItem(0);
+		ui.cbLogSelection->removeItem(0);	
 		ui.cbLogSelection->insertItem(0, rotatedDate);
-		ui.cbLogSelection->insertItem(0, tr("Actual log (Started at %1)").arg(logger.LogCreationDateTime()));
+		ui.cbLogSelection->insertItem(0, logger.LogCreationDateTime());
 	}
 }
 
@@ -4510,14 +4512,14 @@ void FalconG::_AddSchemeButtons()
 	_pSchemeMapper = new QSignalMapper(this);
 
 	// add defined schemes to combo box
-	for (int i = 2; i < schemes.size(); ++i)				// do not add default and system!
+	for (int i = 1; i < schemes.size(); ++i)				// do not add default and system!
 		ui.lwColorScheme->addItem(schemes[i].MenuTitleForLanguage(PROGRAM_CONFIG::lang));
 	// add buttons to layout
 	QFont font;
 //	font.setFamily(QString::fromUtf8("Arial"));
 	font.setPointSize(8);
 	font.setBold(false);
-	font.setWeight(50);
+	SetFontWeight(font, 50);
 
 	QLabel *plabel = new QLabel(tr("Background color"));
 	plabel->setFont(font);
@@ -5137,6 +5139,7 @@ void FalconG::SetProgramScheme()
 							//			   def. system    blue		 dark		  black		 
 	 // theme style string used only when not the default style is used
 	static QString styles =
+#if 0
 R"END(
 /* ------------------ base colors --------------------*/
 * {
@@ -5206,7 +5209,7 @@ QPushButton:pressed,
 QToolButton : pressed{
     background-color: %13;
 }
-QPusButton:default {
+QPushButton:default {
     background-color:%14; /* %14 - default background */
 }
 QPushButton:disabled,
@@ -5251,6 +5254,93 @@ QSplitter::handle{
     margin:0 9px;
 }
 )END";
+#else
+R"END(
+* {
+    background-color:%1;
+    color:%2;
+    selection-color:%18;
+    selection-background-color:%19;
+}
+
+QLineEdit,
+QTextEdit,
+QSpinBox,
+QComboBox:editable {
+    background-color:%7;
+    border:2px solid %3;
+    border-radius:10px;
+    padding:0 8px;
+	selection-background-color:%8;	/* %8 */
+}
+
+QLineEdit:focus,
+QTextEdit:focus,
+QSpinBox:focus,
+QComboBox:editable {
+    border-color:%9;
+    color:%4;
+}
+
+QPushButton {
+    background-color:%1;
+    border:2px solid %3;
+    border-radius:10px;
+    padding:2px 4px;
+}
+
+QPushButton:hover {
+    background-color:%5;
+}
+
+QPushButton:pressed {
+    background-color:%13;
+}
+
+QPushButton:default {
+    background-color:%14;
+}
+
+QPushButton:disabled {
+    color:%10;
+    background:%11;
+}
+
+QGroupBox::title {
+    color:%17;
+    font-weight:bold;
+    padding:2px 6px;
+}
+
+QTabBar::tab:selected {
+    background-color:%5;
+    border-color:%6;
+    border-bottom-color:%1;
+}
+
+QTreeView::item:selected {
+    background-color:%19;
+}
+
+QProgressBar::chunk {
+    background-color:%15;
+}
+
+QSplitter::handle {
+    background-color:%2;
+}
+
+#lblBckImage,
+#groupBox_6 {
+	background-color:%12; /* %12 -image background */
+}
+
+#lblActualElem {
+	color:%16;			/* %16 - warning color */
+}
+
+)END";
+#endif
 
 	QString ss;
 	PROGRAM_CONFIG::schemeIndex = which;
@@ -5668,7 +5758,7 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 	styles = styles.trimmed();
 
 	static QStringList __qslRunThese;
-	QRegExp rx("[\t\n]");
+	QRegularExpression rx("[\t\n]");
 	__qslRunThese = styles.split(rx);
 
 	int pos;

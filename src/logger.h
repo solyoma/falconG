@@ -2,8 +2,6 @@
 
 #include <QtCore>
 
-constexpr const char LOG_HEADER[] = "falconG Log file\n";
-
 class Logger
 {
 public:
@@ -19,7 +17,8 @@ public:
 	public:
 		int LatestFileIndex();	// return index of the latest log file in the list
 		void Clear() { QList<LogFileRecord>::clear(); _latestFileIndex = -1; }
-		QStringList Names(bool withDates = false) const;	// return list of log file names + creation times in the list
+		QStringList Names(bool withDates) const;	// return list of log file names + creation times in the list
+		QStringList Dates() const;					// return list of log file creation times in the list
 	};
 public:
 
@@ -36,9 +35,9 @@ public:
 	QString Name() const { return _name; }
 	QString LogFilesFolder() const { return _folderName; }
 	QString PathName(int n=0) const { return _folderName + _lname + (n ? QString("%1").arg( int(n), 4, (int)10, QChar('0')) : "") + _ext; }
+	QString CreationTimeString() const { return _creationTime; }
 	LogFileList GetLogFileList();	// get creation time list of log files in the folder '_folderName'
-	QStringList GetLogFileNames() { return GetLogFileList().Names(); }
-	QString ActualLogCreationDateTime() const { return _creationTime; }	 // this log file opened for read already but not for use
+	QStringList GetLogFileNames() { return GetLogFileList().Names(false); }
 
 	bool IsOpen() const { return _f.isOpen(); }
 	QString JustRotated() { QString when = _creationTimeOfPreviousRotated; _creationTimeOfPreviousRotated.clear(); return when; }	// if log file was just rotated in Open() call

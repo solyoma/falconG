@@ -3124,7 +3124,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>419</width>
+                         <width>478</width>
                          <height>706</height>
                         </rect>
                        </property>
@@ -6618,8 +6618,8 @@ is required.</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">
@@ -7461,11 +7461,11 @@ the last CSS save.</string>
        <attribute name="title">
         <string>&amp;Options</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,5">
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1">
         <item>
          <widget class="QLabel" name="lblOptionsHelp">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine 'Default'  scheme colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Right click &lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;here or on any free area on any page to select the program scheme.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;(e.g. dark)&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;You may not redefine 'Default' scheme colors'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -7940,13 +7940,8 @@ actual log the actual log will be closed and a new one crated.</string>
                     <string>Select the log file you want to be shown!</string>
                    </property>
                    <property name="currentText">
-                    <string>Actual log (started at 2026-03-22)</string>
+                    <string/>
                    </property>
-                   <item>
-                    <property name="text">
-                     <string>Actual log (started at 2026-03-22)</string>
-                    </property>
-                   </item>
                   </widget>
                  </item>
                  <item>

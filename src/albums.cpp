@@ -1,7 +1,11 @@
 ﻿#include <QApplication>
 #include <QApplication>
 #include <QtCore>
-#include <QTextCodec>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    #include <QStringConverter>
+#else
+	#include <QTextCodec>
+#endif
 
 #include <time.h>
 #include <atomic>
@@ -526,7 +530,7 @@ static void __SetBaseDirs()
 template<typename Map> ID_t GetUniqueID(Map &map, int8_t typeFlag, QString &name, bool isContent = false)
 {
 
-	ID_t id = CalcCrc(name, isContent);
+	IDVal_t id = CalcCrc(name, isContent);
 	while (map.contains(ID_t(typeFlag,id)))
 		id += ID_INCREMENT;
 
@@ -814,7 +818,8 @@ Image &ImageMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+	std::advance(it, index);
+	// it += index;
 	return *it;
 }
 
@@ -1320,7 +1325,8 @@ Album & AlbumMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+	std::advance(it, index);
+	// it += index;
 	return *it;
 }
 
@@ -2559,7 +2565,7 @@ static QStringList __imageMapStructLineToList(const QString &s)
 	else
 		pos = s.length(); // -1;
 
-	QRegExp rexp("[,|x]");
+	QRegularExpression rexp("[,|x]");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#9 for image: ID, width, height, owidth, oheight, length, date
 												// index #2..#7 for video: ID, frame width, frame height, length, date
 
@@ -4139,8 +4145,9 @@ int AlbumGenerator::_OutputAboutText(int lang)
 		return -1;
 
 	QTextStream ifs(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	ifs.setCodec("UTF-8");
-
+#endif
 	QString spara;
 	bool inPara=false;	// inside paragraph?
 	bool bp=false;	// paragraph's first line started with "<"?
@@ -4588,7 +4595,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		return 16;
 
 	_ofs.setDevice(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	_ofs.setCodec("UTF-8");
+#endif
 
 	_remDsp.Update(processedCount);
 	emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
@@ -4768,7 +4777,9 @@ int AlbumGenerator::_CreateAboutPages()
 			return -1;
 
 		_ofs.setDevice(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		_ofs.setCodec("UTF-8");
+#endif
 
 		_ofs << _PageHeadToString(_albumMap[TOPMOST_ALBUM_ID])
 			<< "<body>\n";
@@ -4833,7 +4844,9 @@ int AlbumGenerator::_CreateHomePage()
 		return -1;
 
 	_ofs.setDevice(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	_ofs.setCodec("UTF-8");
+#endif
 
 	_ofs << _PageHeadToString(_albumMap[TOPMOST_ALBUM_ID])
 		<< "<body>\n";
@@ -5082,7 +5095,9 @@ int AlbumGenerator::_DoLatestJs()
 			return 16;
 
 		QTextStream ofjs(&f);
-		ofjs.setCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	_ofs.setCodec("UTF-8");
+#endif
 
 		ofjs << "// Copyright  András Sólyom (2018-" << PROGRAM_CONFIG::copyrightYear << 
 			")\n// email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com).\n"
@@ -5157,7 +5172,9 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 		return 16;
 
 	_ofs.setDevice(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	_ofs.setCodec("UTF-8");
+#endif
 
 	_ofs << _PageHeadToString(_albumMap[RECENT_ALBUM_ID])
 		 << " <body onload = \"falconGLoad(1)\"";
@@ -5861,7 +5878,8 @@ Video& VideoMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+	std::advance(it, index);
+	//it += index;
 	return *it;
 }
 

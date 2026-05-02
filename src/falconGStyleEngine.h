@@ -34,7 +34,7 @@ public:
         QPainter* p,
         const QWidget* widget) const override;
 
-    void MyProxyStyle::drawComplexControl(ComplexControl control,
+    void drawComplexControl(ComplexControl control,
         const QStyleOptionComplex* opt,
         QPainter* p,
         const QWidget* widget) const override;

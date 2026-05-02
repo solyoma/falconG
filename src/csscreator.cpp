@@ -17,7 +17,7 @@ void CssCreator::_CssForElement(QString classStr, _CElem &elem)
 	if (!qs.isEmpty())
 	{
 		if (elem.spaceAfter > 0)
-			qs += QString("\tmargin-bottom:%1px;\n").arg(elem.spaceAfter);
+			qs += QString("\tmargin-bottom:%1px;\n").arg(elem.spaceAfter.v);
 		_ofs << classStr << qs << "}\n\n";
 	}
 	if (elem.font.IsFirstLineDifferent())
@@ -280,7 +280,7 @@ img {
 	cursor:pointer;
 }
 
-)").arg(config.imageMargin);
+)").arg(config.imageMargin.v);
 			
 	bool close = (!_forSamplePage && config.imageMatteRadius.v) ? true : false;
 	_ofs << StyleSheetForSampleImageOrAlbum(true,  ".imatte", addSemicolon, close); // leave the style open for matte with radius

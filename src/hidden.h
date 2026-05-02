@@ -178,7 +178,7 @@ private:
 
 		void SetFrom(STR list, bool caseSens, bool dropEmpty=true)
 		{
-			clear(); 
+			::clear(); 
 			for (size_t pos0=0,pos=1; pos < list.length(); ++pos)
 			{
 				if (list.at(pos) == separator)
@@ -188,12 +188,12 @@ private:
 					if (pos == pos0)
 					{
 						if (!dropEmpty)
-							push_back("");
+							push_back(STR(""));
 						pos0 = pos;
 					}
 					else
 					{
-						String s = list.substr(pos0, pos - pos0);
+						STR s = list.substr(pos0, pos - pos0);
 						trim(s);
 
 						if (!caseSens)
@@ -332,11 +332,11 @@ private:
 	{
 		int IndexOf(Spec<C,S> spec, const Params<C,S> &params)
 		{
-			std::vector<Spec<C,S>>::iterator it;
-			for (it = begin(); it != end(); ++it)
+			typename std::vector<Spec<C,S>>::iterator it;
+			for (it = std::vector<Spec<C,S>>::begin(); it != std::vector<Spec<C,S>>::end(); ++it)
 			{
 				if (spec == *it)
-					return it - begin();
+					return it - std::vector<Spec<C,S>>::begin();
 			}
 			return -1;
 		}

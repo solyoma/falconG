@@ -1,5 +1,6 @@
 ﻿// SlideWidget.cpp
 #include "slideWidget.h"
+#include "support.h"
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyleOption>
@@ -597,7 +598,7 @@ qreal SlideWidget::GetRadius(QString qsRadiusWithUnit, RadiusUnit& radius)
     if (!qsunit.isEmpty())
     {
         int n = qsRadiusWithUnit.length() - qsRadiusWithUnit.length();
-        QStringRef qs(&qsRadiusWithUnit, n, qsRadiusWithUnit.length());
+        QStringRef qs = QStringRef(&qsRadiusWithUnit, n, qsRadiusWithUnit.length() - n);
         qsRadiusWithUnit.truncate(n);
         if (qs == "px")
             radius = RadiusUnit::Pixels;
@@ -1143,12 +1144,21 @@ void SlideWidget::mouseDoubleClickEvent(QMouseEvent* e)
 void SlideWidget::mouseMoveEvent(QMouseEvent* e)
 {
     if (_hoverCb) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QHoverEvent he(QEvent::HoverMove, e->position(), e->position());
+        _hoverCb(HitTest(e->position().toPoint()), &he);
+#else
         QHoverEvent he(QEvent::HoverMove, e->pos(), e->pos());
         _hoverCb(HitTest(e->pos()), &he);
+#endif
     }
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+void SlideWidget::enterEvent(QEnterEvent*) {}
+#else
 void SlideWidget::enterEvent(QEvent*) {}
+#endif
 void SlideWidget::leaveEvent(QEvent*) {}
 void SlideWidget::resizeEvent(QResizeEvent*) {}
 

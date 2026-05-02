@@ -1,7 +1,7 @@
 ﻿#include "logger.h"
 #include <QMessageBox>
 
-bool Logger::_Rotate()			// rename old log files and open new one
+bool Logger::_Rotate()	// rename old log files and open new one
 {						// file must be open to check its size
 						// otherwise no rotation is performed
 	if (!_f.isOpen() || (_f.isOpen() && (_f.size() <= _maxSize)))
@@ -25,7 +25,7 @@ bool Logger::_Rotate()			// rename old log files and open new one
 			dir.rename(entries[n], _lname + QString("%1").arg(n + 1, 4, 10, QChar('0')) + _ext);
 		// TODO: compress rotated file (originally named as _lname + _ext) and decompress it to show it
 	}
-	dir.rename(_lname + _ext, _lname + 0001 + _ext);
+	dir.rename(_lname + _ext, _lname + "0001" + _ext);
 	_creationTimeOfPreviousRotated = _creationTime;
 	return Open();
 }
@@ -38,28 +38,42 @@ bool Logger::_Rotate()			// rename old log files and open new one
  * EXPECTS:
  * GLOBALS:
  * RETURNS:
- * REMARKS: - if no otherLogName then just returns creation date 
- *			  string for actual log file, which must be open
+ * REMARKS: - if _creationTime already set returns it
+ *			- if no otherLogName then returns creation date 
+ *			  string for actual log file
  *------------------------------------------------------------*/
 QString Logger::LogCreationDateTime(QString otherLogName)	 // this log file opened for read already but not for use
 {																 // for a non empty otherLogName open and close file
-	if (otherLogName == _lname + _ext)					// same as for the actual log file
+	bool isCreateionDateSet = !_creationTime.isEmpty();
+	if (isCreateionDateSet)	
 		return _creationTime;
 
+	bool isActualLog = otherLogName == _lname + _ext || otherLogName.isEmpty();
+
 	QString line;												 // file with otherLogname must be in the same folder
-	QFile* pf = &_f;
-
-	if (!otherLogName.isEmpty())
-		pf = new QFile(_folderName + "/" + otherLogName);
-	line = pf->readLine();
-	if (line == LOG_HEADER)
+	if (otherLogName.isEmpty())  // even for actual open log, so no need to seek at the beginning
+		otherLogName = _lname + _ext;
+	QFile *pf = new QFile(_folderName + "/" + otherLogName);
+	if (pf->open(QIODevice::ReadOnly | QIODevice::Text))
 	{
-		line = pf->readLine();
-		if (!otherLogName.isEmpty())
-			pf->close();
 
-		if (line.startsWith("Created at "))
-			return line.mid(11).trimmed();
+		line = pf->readLine();
+		if (line == _LOG_FILE_ID)
+		{
+			line = pf->readLine();
+			if (!otherLogName.isEmpty())
+				pf->close();
+
+			if (line.startsWith("Created at "))
+			{
+				if (isActualLog)
+				{
+					_creationTime = line.mid(11).trimmed();
+					return _creationTime;
+				}
+				return line.mid(11).trimmed();
+			}
+		}
 	}
 	return QString();
 }
@@ -191,7 +205,7 @@ QStringList Logger::LogFileList::Names(bool withDates) const
 	if (withDates)
 	{
 		for (auto& lr : *this)
-			names << lr.DisplayName();
+			names << lr.creationDate;
 	}
 	else
 	{
@@ -199,4 +213,12 @@ QStringList Logger::LogFileList::Names(bool withDates) const
 			names << lr.name;
 	}
 	return names;
+}
+
+QStringList Logger::LogFileList::Dates() const
+{
+	QStringList dates;
+	for(auto& lr : *this)
+		dates << lr.creationDate;
+	return dates;
 }

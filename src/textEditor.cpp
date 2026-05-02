@@ -159,7 +159,7 @@ void TextEditor::on_tbUnderline_toggled(bool b)
 void TextEditor::on_cbFontFamily_currentTextChanged(QString qs)
 {
     QTextCharFormat fmt;
-    fmt.setFontFamily(qs);
+    fmt.setFontFamilies(qs.split(","));
     _SetFormat(fmt);
 }
 

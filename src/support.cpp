@@ -348,10 +348,10 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 			res.replace("\\n", "<br>");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
-			res.replace('\'', 0x02);  // STX
-			res.replace('\'', 0x03);  // ETX
-			res.replace('"' , 0x04);  // EOT
-			res.replace('\\', 0x05);  // ENQ
+			res.replace(QChar('\''), QChar(0x02));  // STX
+			res.replace(QChar('\''), QChar(0x03));  // ETX
+			res.replace(QChar('"' ), QChar(0x04));  // EOT
+			res.replace(QChar('\\'), QChar(0x05));  // ENQ
 			break;
 	}
 	return res;
@@ -615,6 +615,23 @@ QStringList ToUTF8(QStringList & sl)
 	for (int i = 0; i < sl.size(); ++i)
 		sl[i] = ToUTF8(sl[i]);
 	return sl;
+}
+
+void SetFontWeight(QFont& font, int w)
+{
+	QFont::Weight weight = QFont::Normal;
+
+	if (w <= 150) weight = QFont::Thin;
+	else if (w <= 250) weight = QFont::ExtraLight;
+	else if (w <= 350) weight = QFont::Light;
+	else if (w <= 450) weight = QFont::Normal;
+	else if (w <= 550) weight = QFont::Medium;
+	else if (w <= 650) weight = QFont::DemiBold;
+	else if (w <= 750) weight = QFont::Bold;
+	else if (w <= 850) weight = QFont::ExtraBold;
+	else weight = QFont::Black;
+
+	font.setWeight(weight);
 }
 
 /*============================================================================

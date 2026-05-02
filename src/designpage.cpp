@@ -266,7 +266,7 @@ static Qt::Alignment __GetAlignment(const QString& str)
 	int ix = str.indexOf("text-align:");
 	if (ix > 0)
 	{
-		QStringRef ref(& str, ix + 11, str.length() - ix - 11);
+		QStringRef ref(&str, ix + 11, str.length() - ix - 11);
 		if (ref.left(4) == "left")
 			a.setFlag(Qt::AlignLeft);
 		else if (ref.left(6) == "center")

@@ -168,8 +168,8 @@ struct Image : public IABase
 
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image& i);
-	double Image::Aspect();
-	double Image::ThumbAspect() const;
+	double Aspect();
+	double ThumbAspect() const;
 
 	QTextStream & WriteInfo(QTextStream &ofs) const;
 	void SetResizeType();
@@ -528,7 +528,7 @@ public:
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
 	bool StructWritten() const { return !_structIsBeingWritten; }
-	bool IsStructChanged() const { return _structFileChangeCount ? _structFileChangeCount : _albumMap.IsChanged();  }
+	bool IsStructChanged() const { return _structFileChangeCount ? _structFileChangeCount !=0 : _albumMap.IsChanged();  }
 	void SetStructChanged(bool val) { _structFileChangeCount = (val ? ++ _structFileChangeCount : 0); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };

@@ -116,7 +116,9 @@ void PROGRAM_CONFIG::Read()
 	copyrightYear = QDate::currentDate().year();
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in user's local home directory
-	s.setIniCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	s.setIniCodec("UTF-8"); // not in Qt6, all ini files are always UTF-8
+#endif
 
 	lang = s.value("lang", -1).toInt();
 	designSplitterLeft	= s.value("sdll", 493).toInt();
@@ -171,7 +173,9 @@ void PROGRAM_CONFIG::Write()
 	}
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	s.setIniCodec("UTF-8");
+#endif
 
 	s.setValue("lang", PROGRAM_CONFIG::lang);
 	s.setValue("schemeIndex", schemeIndex);
@@ -2055,7 +2059,9 @@ void CONFIG::Read()		// synchronize with Write!
 	QString sIniName = PROGRAM_CONFIG::NameForConfig(false, ".ini"); // false: fallback to default if ini does not exist in source dir.
 
 	QSettings s(sIniName, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	s.setIniCodec("UTF-8");
+#endif
 
 	// directories
 	dsSrc.Read(s);
@@ -2205,7 +2211,9 @@ void CONFIG::Read()		// synchronize with Write!
 void CONFIG::_WriteIni(QString sIniName)
 {
 	QSettings s(sIniName, QSettings::IniFormat);
-	s.setIniCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	s.setIniCodec("UTF-8"); // not in Qt6, all ini files are always UTF-8
+#endif
 
 	// directories
 	dsSrc.Write(s);

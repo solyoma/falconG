@@ -120,12 +120,12 @@ QStringList FontUtils::ScanInstalledFontsInFolder(const QString & targetFolder)
         }
 
         // Log and register each family
-        logger.Log(tr("Log and register each family"));
+        logger.Log(tr("Log and register %1 %2").arg(fams.size() > 1 ? tr("each") : "").arg(fams.size() > 1 ? tr("family"):tr("family")));
         for (const QString& f : fams) 
         {
             QString name = f;
             // Remove control chars and surrounding/trailing quotes
-            name.remove(QRegExp("[\\x00-\\x1F]"));
+            name.remove(QRegularExpression("[\\x00-\\x1F]"));
             name = name.trimmed();
 
              msg = tr("Font scan: loaded family '%1' from '%3' (id=%4)")

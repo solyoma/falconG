@@ -35,6 +35,12 @@
 
 #include "videoplayer.h"
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+ #define EPOS()	event->position().toPoint()
+#else
+ #define EPOS() event->pos()
+#endif
+
 // ************************ FileIcons *************************
 
 FileIcons fileIcons;
@@ -815,8 +821,7 @@ static QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEv
 
         return s;
     };
-    qs += QString("\nAt position(%1,%2) with").arg(event->pos().x()).arg(event->pos().y()) + MimeDataType();
-
+    qs += QString("\nAt position(%1,%2) with").arg(EPOS().x()).arg(EPOS().y()) + MimeDataType();
     qDebug() << qs;
     return qs;
 }
@@ -875,10 +880,10 @@ void ThumbnailView::dragMoveEvent(QDragMoveEvent * event)
     if (!DropHandler::IsAllowedTypeToDrop(event))
 		return;
 
-	QModelIndex index = indexAt(event->pos());
+	QModelIndex index = indexAt(EPOS());
 
 	event->accept();
-	int pose = event->pos().y();
+	int pose = EPOS().y();
 
     if (pose < 30)
     {
@@ -938,7 +943,7 @@ void ThumbnailView::dropEvent(QDropEvent * event)
 	if (_isBusy)
 		return;
   	// get drop position
-	QModelIndex index = indexAt(event->pos());
+	QModelIndex index = indexAt(EPOS());
 
     int row = index.row();      // -1: drop after the last item
 
@@ -1122,7 +1127,7 @@ void ThumbnailView::Clear()
 {
      _pIds = nullptr; 
      _albumId = TOPMOST_ALBUM_ID;
-    _thumbnailViewModel->Clear();
+    _thumbnailViewModel->Clear();  // clearing occurs between 'beginResetModel()' and 'endResetModel()'
 }
 
 void ThumbnailView::RemoveViewer(ImageViewer* pv)
@@ -1171,8 +1176,9 @@ void ThumbnailView::_InitThumbs()
     if(pBase->pathId)
         albumgen.lastUsedAlbumPathId = pBase->pathId;
 
+    _thumbnailViewModel->Clear();  // clearing occurs between 'beginResetModel()' and 'endResetModel()'
+
     _thumbnailViewModel->BeginResetModel();
-    _thumbnailViewModel->Clear();
 	for (fileIndex = 0; !_doAbortThumbsLoading && fileIndex < pBase->items.size(); ++fileIndex)
 	{
 	    thumbItem = new ThumbnailItem(fileIndex, pBase->ID.Val(), _TypeFor(pBase->items[fileIndex]));
@@ -2403,7 +2409,7 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
 
     _lineEdit = new QLineEdit(this);
     _lineEdit->setPlaceholderText(tr("Name of the new album"));
-    QRegExpValidator validator(QRegExp("[^\\/:*?\"<>|]*"), this);
+    QRegularExpressionValidator validator(QRegularExpression("[^\\/:*?\"<>|]*"), this);
     _lineEdit->setValidator(&validator);
 
     layout->addWidget(label);
