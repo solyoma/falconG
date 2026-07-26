@@ -7,7 +7,7 @@ SkinManager::SkinManager(QObject* parent)
 {
 }
 
-void SkinManager::applySkin(const QString& styleSheet)
+void SkinManager::ApplySkin(const QString& styleSheet)
 {
     m_customActive = true;
 
@@ -21,10 +21,10 @@ void SkinManager::applySkin(const QString& styleSheet)
     qApp->setStyleSheet(styleSheet);
 
     // Force full polish/unpolish cycle
-    repolishAllWidgets();
+    RepolishAllWidgets();
 }
 
-void SkinManager::applyDefaultFusion()
+void SkinManager::ApplyDefaultFusion()
 {
     m_customActive = false;
 
@@ -38,10 +38,10 @@ void SkinManager::applyDefaultFusion()
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     // Force full polish/unpolish cycle
-    repolishAllWidgets();
+    RepolishAllWidgets();
 }
 
-void SkinManager::repolishAllWidgets()
+void SkinManager::RepolishAllWidgets()
 {
     for (QWidget* w : qApp->allWidgets())
     {

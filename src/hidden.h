@@ -399,8 +399,14 @@ private:
 		QString sFiles = PROGRAM_CONFIG::NameForConfig(true, ".files.txt"),
 			    sNoFiles = PROGRAM_CONFIG::NameForConfig(true, ".orphans.txt");
 		QFile f(sFiles), fm(sNoFiles);
-		f.open(QIODevice::WriteOnly);
-		fm.open(QIODevice::WriteOnly);
+		bool b = f.open(QIODevice::WriteOnly);
+		if(b)
+			b = fm.open(QIODevice::WriteOnly);
+		if (!b)
+		{
+			QMessageBox::warning(this, tr("FalconG - Warning"), tr("Can't open '*files.txt' or '.orphans.txt'"));
+			return false;
+		}
 		QTextStream ofs(&f), ofsm(&fm);
 		ofs << "falconG - List of files in gallery source whose originals were found in "
 			<< ui.edtRootFolder->text() << "\n\n";

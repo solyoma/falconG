@@ -141,7 +141,9 @@ bool Logger::Open(bool justToGetCreationTime)
 			return false;
 
 		_ofts.setDevice(&_f);
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
 		_ofts.setCodec(QTextCodec::codecForName("UTF-8"));
+#endif
 		if (!bInitted)
 			_ofts << _LOG_FILE_ID << _CREATED_PREFIX
 			<< (_creationTime = QDateTime::currentDateTime().toString(Qt::ISODateWithMs).replace('T', ' '))

@@ -1302,7 +1302,7 @@ void SlideWidget::_SetCssFont(QString fontdef)         // font:[style] [variant]
             else if (sl[0] == "bold")
                 f.setBold(true);
             else if (sl[0][0].isDigit())// weight in number like 700
-                f.setWeight(sl[0].toInt());
+                f.setWeight(QFont::Weight(sl[0].toInt()));
             else
                 f.setItalic(false), f.setBold(false);   // yes, comma
             _SetCssFontSize(sl[0]);
@@ -1313,7 +1313,7 @@ void SlideWidget::_SetCssFont(QString fontdef)         // font:[style] [variant]
             if (sl[1] == "bold")
                 f.setBold(true);
             else if (sl[1][0].isDigit())// weight in number like 700
-                f.setWeight(sl[1].toInt());
+                f.setWeight(QFont::Weight(sl[1].toInt()));
             else
                 f.setBold(false);
             _SetCssFontSize(sl[0]);
@@ -1380,7 +1380,7 @@ void SlideWidget::_SetCssFontWeight(QString s)
     if (s == "bold")
         pf->setBold(true);
     else if (s[0].isDigit())// weight in number like 700
-        pf->setWeight(s.toInt());
+        pf->setWeight(QFont::Weight(s.toInt()));
     else
         pf->setBold(false);
 

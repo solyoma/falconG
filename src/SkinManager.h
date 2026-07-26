@@ -12,16 +12,16 @@ public:
     explicit SkinManager(QObject* parent = nullptr);
 
     // Apply your custom skin (with your generated stylesheet)
-    void applySkin(const QString& styleSheet);
+    void ApplySkin(const QString& styleSheet);
 
     // Revert to default Fusion style (no proxy style, no stylesheet)
-    void applyDefaultFusion();
+    void ApplyDefaultFusion();
 
     // Returns true if custom skin is active
-    bool isCustomSkinActive() const { return m_customActive; }
+    bool IsCustomSkinActive() const { return m_customActive; }
 
 private:
-    void repolishAllWidgets();
+    void RepolishAllWidgets();
 
 private:
     bool m_customActive = false;
@@ -34,9 +34,9 @@ private:
 *	SkinManager skinManager;
 * Apply your custom skin (with your generated stylesheet):
 *   QString ss = buildStyleSheetFromScheme(index);
-*   skinMgr->applySkin(ss);
+*   skinMgr->ApplySkin(ss);
 * To revert to default Fusion style (no proxy style, no stylesheet):
-*  skinMgr->applyDefaultFusion();
+*  skinMgr->ApplyDefaultFusion();
 * Check if custom skin is active:
-*  if (skinMgr->isCustomSkinActive()) { ... }
+*  if (skinMgr->IsCustomSkinActive()) { ... }
   */

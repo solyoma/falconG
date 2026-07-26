@@ -324,7 +324,7 @@ private:
     // Mouse state
     QPoint _lastPressPos;
 private:
-    QStringList SlideWidget::_GetCssWidthStyleColor(const QString& str, 
+    QStringList _GetCssWidthStyleColor(const QString& str, 
                                                     QString& size, 
                                                     SWBorderStyle& penStyle, 
                                                     QColor& color);

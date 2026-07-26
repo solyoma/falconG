@@ -111,6 +111,9 @@
     <ClCompile Include="SkinManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="videoplayerWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SkinManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="videoplayerWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

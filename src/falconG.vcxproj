@@ -261,6 +261,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="videoplayer.cpp" />
+    <ClCompile Include="videoplayerWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
@@ -283,6 +284,7 @@
   <ItemGroup>
     <ClInclude Include="falconGStyleEngine.h" />
     <ClInclude Include="logger.h" />
+    <QtMoc Include="videoplayerWidget.h" />
     <QtMoc Include="ClickableLabel.h" />
     <ClInclude Include="csscreator.h" />
     <QtMoc Include="videoplayer.h" />

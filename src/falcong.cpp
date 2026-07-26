@@ -201,6 +201,7 @@ FalconG::FalconG(SkinManager &skinManager, QWidget *parent) : _skinManager(skinM
 
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
+	frmMain = this;
 	ui.setupUi(this);
 	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
@@ -329,7 +330,7 @@ FalconG::FalconG(SkinManager &skinManager, QWidget *parent) : _skinManager(skinM
 	_tmpScheme = schemes[PROGRAM_CONFIG::schemeIndex];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 
-	frmMain = this;
+//	frmMain = this;
 	// now that everything is ready
 	SetProgramScheme();
 	_AddSchemeButtons();
@@ -1985,8 +1986,8 @@ void FalconG::on_btnShowLog_clicked()
 
 	QString fname = PROGRAM_CONFIG::homePath + list[ui.cbLogSelection->currentIndex()].name;
 	QFile f(fname);
-	f.open(QIODevice::ReadOnly);
-	if (!f.isOpen())
+
+	if (!f.open(QIODevice::ReadOnly))
 	{
 		QString msg = tr("Can't open log file %1").arg(fname);
 // ???		logger.Log(msg);
@@ -3896,7 +3897,11 @@ void FalconG::on_sbImageHeight_valueChanged(int val)
 	config.waterMark.GetMarkDimensions();
 	config.waterMark.SetupMark();
 	if (config.waterMark.v)
-		; // ???	_page.triggerAction(QWebEnginePage::Reload);
+	{
+		// previously: _page.triggerAction(QWebEnginePage::Reload);
+		// intentionally left as a no-op to preserve prior behavior while avoiding an empty-statement warning
+		;
+	}
 
 	if (w && val)
 		_aspect = (double)w / (double)val;
@@ -5370,19 +5375,19 @@ QSplitter::handle {
 //			.arg(schemes[which].sSpacerColor)		// %20
 			;
 
-		if (which == stBlue)		// blue
-				ss += QString( R"(QCheckBox::indicator:checked {
-		image: url(":/icons/Resources/blue-checked.png");
-	}
+		//if (which == stBlue)		// blue
+		//		ss += QString( R"(QCheckBox::indicator:checked {
+		//image: url(":/icons/Resources/blue-checked.png");
+		//	}
 
-QCheckBox::indicator:unchecked {
-	image: url(":/icons/Resources/blue-unchecked.png");
-}
-)");
-		_skinManager.applySkin(ss);
+//QCheckBox::indicator:unchecked {
+//	image: url(":/icons/Resources/blue-unchecked.png");
+//}
+//)");
+		_skinManager.ApplySkin(ss);
 	}
 	else
-		_skinManager.applyDefaultFusion();
+		_skinManager.ApplyDefaultFusion();
 }
 
 /*============================================================================

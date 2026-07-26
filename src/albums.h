@@ -48,6 +48,7 @@ class PathMap
 {
 	typedef QMap<IDVal_t, QString> base_type1;
 	typedef QMap<QString, IDVal_t> base_type2;
+	typedef QMap<IDVal_t, int> usage_count;
 
 	typedef base_type1::iterator iterator1;
 	typedef base_type2::iterator iterator2;
@@ -56,6 +57,7 @@ class PathMap
 	base_type2 _pathToId;
 	iterator1 _it1;
 	iterator2 _it2;
+	usage_count _ucount;			// filled in during structure read
 
 	IDVal_t _CalcId(const QString & path);
 	friend QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -88,7 +90,7 @@ public:
 	void Remove(IDVal_t id);	// removes both path and id
 	IDVal_t FirstId();	// returns the first id from _idToPath
 	IDVal_t NextId();	// returns the next id from _idToPath
-	void Clear() { _idToPath.clear(); _pathToId.clear(); _it1 = _idToPath.end(); _it2 = _pathToId.end(); }
+	void Clear() { _idToPath.clear(); _pathToId.clear(); _it1 = _idToPath.end(); _it2 = _pathToId.end(); _ucount.clear(); }
 };
 
 QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
@@ -121,7 +123,7 @@ struct IABase
 	int64_t descID = NO_ID;	// default text ID of image description
 	QString name;			// without path but with extension and no ending '/' even for albums
 	
-	IDPath_t pathId = NO_ID;// index in albumgen's IdToPathFrom() function
+	IDPath_t pathId = NO_ID;// ID of the path this item is in
 
 	IABase& operator=(const IABase& a);
 
@@ -298,12 +300,12 @@ struct Video : IABase			// format: MP4 only (common for Windows, Linux and Macs 
 
 struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 {
-	IDVal_t parentId = 0;				// just a single parent is allowed Needed to re-generate
-											// parent's HTML files too when this album changes. 
-											// Link albums have their own parent
-											// Must be modified when this album is moved into another one(**TODO**)
-	IDVal_t baseAlbumId = NO_ID;	// if set it is the ID of the original album, for which
-											// this album is just a link to.
+	IDVal_t parentId = 0;		// just a single parent is allowed Needed to re-generate
+								// parent's HTML files too when this album changes. 
+								// Link albums have their own parent
+								// Must be modified when this album is moved into another one(**TODO**)
+	IDVal_t baseAlbumId = NO_ID;// if set it is the ID of the original album, for which
+								// this album is just a link to.
 	IDValList aliasesList;		// list of album ID values that this album is linked to
 								// (i.e. the ones that have this album as their 'baseAlbumId')
 								// used to update these albums when this one changes/ deleted
@@ -363,7 +365,7 @@ struct Album : IABase			// ID == TOPMOST_ALBUM_ID root  (0: invalid)
 	ID_t IdOfItemOfType(uint8_t type, int nthMatch); // the nth item that matches the type in _items
 
 	static QString HtmlNameFromID(IDVal_t id, int language, IDVal_t rootAliasId, bool withAlbumPath);			// <basename><id><lang>.html
-	QString HtmlNameFromID(int language, IDVal_t rootAliasId);
+	QString HtmlNameFromID(int language, IDVal_t rootAliasId) const;
 	QString LinkName(int language, IDVal_t aliasRootId, bool addHttpOrHttpsPrefix = false) const;	// like https://<server URL>/<base name><ID><lang>.html
 	QString BareName();			// '<base name>ID'
 

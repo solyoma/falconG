@@ -56,14 +56,17 @@
 
 #include <QWidget>
 #include <QtMultimedia/QMediaPlayer>
-#include <QtMultimedia/QMediaMetaData>
-#include <QtMultimedia/QVideoSurfaceFormat>
-#include <QtMultimedia/QAbstractVideoSurface>
-#include <QImage>
-#include <QPixmap>
-#include <QPainter>
-#include <QMutex>
-#include "common.h"
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    #include "videoplayerWidget.h"
+#else
+// for QT 5.1.5.2#include <QtMultimedia/QMediaMetaData>
+    #include <QtMultimedia/QVideoSurfaceFormat>
+    #include <QtMultimedia/QAbstractVideoSurface>
+    #include <QImage>
+    #include <QPixmap>
+    #include <QPainter>
+    #include <QMutex>
+    #include "common.h"
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
@@ -245,5 +248,6 @@ private:
 	void _SetupAsGrabber();
     void _Setup();
 };
+#endif
 
 #endif

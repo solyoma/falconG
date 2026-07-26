@@ -18,8 +18,8 @@
 static void  WarningToFile(QString qs)
 {
 	QFile f(PROGRAM_CONFIG::homePath + "falconG.warnings");
-	f.open(QIODevice::WriteOnly | QIODevice::Append);
-	if (f.isOpen())
+
+	if (f.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
 		QTextStream ofs(&f);
 		ofs << QDateTime::currentDateTime().toString() << " - " << qs << "\n";
@@ -556,8 +556,10 @@ int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString
 	return res;
 }
 
-QString PrependSourcePathTo(const QString s)
+QString PrependSourcePathTo(QString s)
 {
+	if (!s.endsWith(QChar('/')))
+		s += '/';
 	if (QDir::isAbsolutePath(s))
 		return s;
 	return config.dsSrc.ToString() + s;
@@ -569,6 +571,8 @@ QString CutSourceRootFrom(QString path)
 	int sl = qs.length();
 	if (sl <= path.length() && path.left(sl) == qs)
 		path = path.mid(sl);
+	if (!path.endsWith(QChar('/')))
+		path += '/';
 	return path;
 }
 /*============================================================================
@@ -1327,16 +1331,20 @@ bool MarkedIcon::Read(QString fname, IconFlags iflags)
 		if (!pvid)
 			return false;	// no video found
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+		fname.replace(fname.lastIndexOf('.'), 10, ".png");
+#else
 		if (!pvid->GetThumbnail(img, dsize, _thumbSize))
 		{
 			QMessageBox::warning(nullptr, QMainWindow::tr(FG_WARNING), 
 				QMainWindow::tr("Can't get thumbnail for video file '%1'").arg(fname));
 			return false;
 		}
+#endif
 	}
 	else   // image (may be a) folder thumbnail
 	{
-		QImageReader reader(_name);
+		QImageReader reader(fname);
 		reader.setBackgroundColor(cbck);
 		reader.setAutoTransform(true);
 

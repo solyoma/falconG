@@ -1544,7 +1544,7 @@ void _CWaterMark::Read(QSettings& s, QString group)
 		QFont font;		// must set font first to get text dimensions
 		font.setFamily(s.value("family", "").toString());
 		font.setPointSize(s.value("size", 16).toInt());
-		font.setWeight(s.value("weight", QFont::Bold).toInt());
+		font.setWeight(QFont::Weight(s.value("weight", QFont::Bold).toInt()));
 		font.setItalic(s.value("italic", false).toBool());
 		SetFont(font);
 

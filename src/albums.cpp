@@ -482,9 +482,9 @@ struct BadStruct
 Image ImageMap::invalid;
 Video VideoMap::invalid;
 Album AlbumMap::invalid;
-IDVal_t ImageMap::lastUsedPathId;		// first check if next pathless image
-IDVal_t VideoMap::lastUsedPathId;		// or video is here
-IDVal_t AlbumGenerator::lastUsedAlbumPathId;		// or album is here
+IDVal_t ImageMap::lastUsedPathId;				// first check if next pathless image is here
+IDVal_t VideoMap::lastUsedPathId;				//         -"-                  video is here
+IDVal_t AlbumGenerator::lastUsedAlbumPathId;	//         -"-                  album is here
 
 // used directories put here and not into class 'AlbumGenerator'
 // because of include order
@@ -1219,7 +1219,7 @@ QString Album::HtmlNameFromID(IDVal_t id, int language, IDVal_t rootAliasId, boo
 * GLOBALS: config
 * REMARKS:
 *--------------------------------------------------------------------------*/
-QString Album::HtmlNameFromID(int language, IDVal_t rootAliasId)
+QString Album::HtmlNameFromID(int language, IDVal_t rootAliasId) const
 {
 	return HtmlNameFromID(ID.Val(), language, rootAliasId, false);
 }
@@ -1267,7 +1267,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t b
 		ab.baseAlbumId = baseAlbumID;
 		QString vpath = MakeRandomStringOfLength(10) + "/" + ab.name;
 		ab.ID = { ALBUM_ID_FLAG, GetUniqueAlbumID(*this, vpath, false) };   // using full path name only and not file content
-		ab.pathId = 0;
+		ab.pathId = parentId ? albumgen.AlbumForIDVal(parentId)->pathId : NO_ID;			// ID of dir this album is in
 
 		if (pBase)	// add this to base's aliases and copy thumbnail and texts from base album
 		{
@@ -1288,7 +1288,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t b
 			return found->ID;	// same base ID, same name then same album
 		}
 		ab.ID = { ALBUM_ID_FLAG, GetUniqueAlbumID(*this, relativeParentPath, false) };   // using full path name only and not file content
-		ab.pathId = pathMap.Add(path);
+		ab.pathId = pathMap.Add(relativeParentPath);
 	}
 
 	if ((ab.parentId = parentId))			// for aliases, different from base album's parent
@@ -1303,7 +1303,7 @@ ID_t AlbumMap::Add(IDVal_t parentId, const QString &name, bool &added, IDVal_t b
 	else
 		ab.ID.SetFlag(EXISTING_FLAG, QFile::exists((config.dsSrc + relativeParentPath).ToString()));
 
-	if (ab.Exists())
+	if (ab.Exists(true))	   // check and not csak return the actual value of the flag
 		AlbumGenerator::lastUsedAlbumPathId = pathMap.Add(path + ab.name + "/");
 	added = true;		// always add, even when it does not exist on disk
 	if(albumgen.bSetDirIndexToo)
@@ -1602,7 +1602,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool sign
 	if (fi.isDir())
 	{
 		QString ds = fi.fileName();
-		if (ds == "res" || ds == "cache" || ds == "thumbs")
+		if (ds == "res" || ds == "cache" || ds == "thumbs")	  // names 'jalbum' uses
 			return { ALBUM_ID_FLAG,0 };
 		id = _albumMap.Add(parentID, s, added);	// add new album to global album list
 		ab = AlbumForIDVal(parentID);	// might have change item in memory
@@ -2968,11 +2968,11 @@ static QStringList __albumMapStructLineToList(QString s, bool &changed)
 *				followed by the sub-albums. Therefore if the order  of albums
 *				and other items was changed in the editor these changes are
 *				lost (TODO ?)
-*			- 'structFileChangCount' only  differs from zero after read 
+*			- 'structFileChangeCount' only  differs from zero after read 
 *				* if any album was marked as 'C' (changed) instead of 'A'
 *				* if any album, image or video is specified with its path
-*					(relative to source dir, or absolute if anywhere els)
-*					insted of a processed way
+*					(relative to source dir, or absolute if anywhere else)
+*					instead of a processed way
 *			-if an album id line is in reader then the id inside it must be new
 *			 otherwise the file is damaged
 *			- when a new album added, then its parent also changed
@@ -3004,9 +3004,9 @@ IDVal_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, IDVal_t parent,
 	IDVal_t id;
 
 	Album *aParent = parent ? &_albumMap[parent] : nullptr;
-	IDPath_t parentPathId = aParent ? aParent->pathId : NO_ID;
+	IDPath_t parentPathId = aParent ? aParent->pathId : NO_ID;	 // ID of the path that contains the parent
 
-	if (n == 1)		// either root album without a name and path, or full unprocessed path name 
+	if (n == 1)		// either root album without a name, an album (folder) name w.o. path, or full unprocessed path name
 	{
 		id = TOPMOST_ALBUM_ID;
 
@@ -3018,22 +3018,22 @@ IDVal_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, IDVal_t parent,
 			QString path;
 			SeparateFileNamePath(sl[0], path, album.name);
 
-			IDPath_t uid = pathMap.Add(path);	// handles empty paths, absolute paths, source relative paths and existing paths
-			if (uid == NO_ID)	// no path was set in sl[0]
-				album.pathId = aParent ? parentPathId : lastUsedAlbumPathId;
-			else
-				album.pathId = uid;
+			if (path.isEmpty())
+				path = aParent->ShortSourcePathName();
+
+			album.pathId = pathMap.Add(path);	// path that contains this album is added to or retrieved from pathMap
 
 			path = PrependSourcePathTo(CutSourceRootFrom(path));
 
+			lastUsedAlbumPathId = NO_ID;
 			if (QFile::exists(path))		// then not virtual directory => images are inside this folder
 			{
-				lastUsedAlbumPathId = uid;
+				lastUsedAlbumPathId = album.pathId;
 				album.ID.SetFlag(EXISTING_FLAG, true);
 			}
 
 			bool added = false;
-			id = _albumMap.Add(parent, sl[0], added).Val();	// add new album to global album list
+			id = _albumMap.Add(parent, path + '/' + album.name, added).Val();	// add new album to global album list
 			// may invalidate aParent
 			album = _albumMap[id];	// and also album is changed
 			++_structFileChangeCount;		// then we will write down the processed line into the new file
@@ -3045,7 +3045,7 @@ IDVal_t AlbumGenerator::_ReadAlbumFromStruct(FileReader &reader, IDVal_t parent,
 		id = sl[1].toLongLong();
 		if(n > 2)	// path is present
 		{
-			album.pathId = sl[2].toULongLong();		// images are inside this album
+			album.pathId = sl[2].toULongLong();		// same as the ID of the parent album
 			lastUsedAlbumPathId = album.pathId;
 			if (n == 4)
 			{
@@ -4288,7 +4288,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 			_ofs << "     <p class=\"gallery-desc\">"   << DecodeTextFor(_textMap[album.descID][_actLanguage], dtHtml) << "</p>\n";
 	}
 
-	int nLightboxable = (album.ID.Val() == RECENT_ALBUM_ID) ?  config.nLatestCount : album.ImageCount() + album.VideoCount();
+	int nLightboxable = (album.ID.Val() == RECENT_ALBUM_ID) ?  config.nLatestCount.v : album.ImageCount() + album.VideoCount();
 	if (nLightboxable)
 		_LightboxCodeIntoHtml(nLightboxable);
 	_ofs << "</div>\n";	 //  header
@@ -5922,6 +5922,7 @@ QString Video::AsString(int width, int height)
 	}
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
 bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
 {
 	thumbnail = QImage();
@@ -5945,6 +5946,7 @@ bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
 	
 	return w();
 }
+#endif
 
 QSize Video::ThumbSize() const
 {

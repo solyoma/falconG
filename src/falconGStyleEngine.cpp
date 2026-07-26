@@ -18,7 +18,7 @@
 
  // ---- GROUPBOX TITLE ----
  // Fixes disappearing titles, clipping, wrong background, wrong alignment.
-void paintGroupBoxTitle(const QStyleOptionGroupBox* opt,
+void PaintGroupBoxTitle(const QStyleOptionGroupBox* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -42,7 +42,7 @@ void paintGroupBoxTitle(const QStyleOptionGroupBox* opt,
 
 // ---- GROUPBOX FRAME ----
 // Ensures consistent border thickness and avoids clipping the title.
-void paintGroupBoxFrame(const QStyleOptionGroupBox* opt,
+void PaintGroupBoxFrame(const QStyleOptionGroupBox* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -59,7 +59,7 @@ void paintGroupBoxFrame(const QStyleOptionGroupBox* opt,
 
 // ---- TABBAR TAB ----
 // Stable tab shape, hover, selected, pressed.
-void paintTab(const QStyleOptionTab* opt,
+void PaintTab(const QStyleOptionTab* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -87,7 +87,7 @@ void paintTab(const QStyleOptionTab* opt,
 
 // ---- TOOLBOX TAB ----
 // Same logic as QTabBar, but vertical layout.
-void paintToolBoxTab(const QStyleOptionToolBox* opt,
+void PaintToolBoxTab(const QStyleOptionToolBox* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -111,7 +111,7 @@ void paintToolBoxTab(const QStyleOptionToolBox* opt,
 
 // ---- COMBOBOX ARROW ----
 // Matches your skin colors and avoids Qt’s inconsistent arrow rendering.
-void paintComboArrow(const QStyleOption* opt,
+void PaintComboArrow(const QStyleOption* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -133,7 +133,7 @@ void paintComboArrow(const QStyleOption* opt,
 
 // ---- SPINBOX ARROWS ----
 // Up/down arrows with consistent geometry.
-void paintSpinArrow(const QStyleOption* opt,
+void PaintSpinArrow(const QStyleOption* opt,
     QPainter* p,
     bool up)
 {
@@ -161,7 +161,7 @@ void paintSpinArrow(const QStyleOption* opt,
 
 // ---- SLIDER HANDLE ----
 // Stable handle size
-void paintSliderHandle(const QStyleOptionSlider* opt,
+void PaintSliderHandle(const QStyleOptionSlider* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -178,7 +178,7 @@ void paintSliderHandle(const QStyleOptionSlider* opt,
 
 // ---- PROGRESSBAR CHUNK ----
 // Matches your %15 color and avoids Qt’s inconsistent chunk spacing.
-void paintProgressChunk(const QStyleOptionProgressBar* opt,
+void PaintProgressChunk(const QStyleOptionProgressBar* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -195,7 +195,7 @@ void paintProgressChunk(const QStyleOptionProgressBar* opt,
 
 // ---- TOOLBUTTON ----
 // Stable hover/pressed states without relying on stylesheet engine.
-void paintToolButton(const QStyleOptionToolButton* opt,
+void PaintToolButton(const QStyleOptionToolButton* opt,
     QPainter* p,
     const QWidget* widget)
 {
@@ -223,7 +223,7 @@ void paintToolButton(const QStyleOptionToolButton* opt,
 
 // ---- CHECKBOX / RADIO INDICATOR ----
 // Consistent indicator size and color.
-void paintIndicator(const QStyleOption* opt,
+void PaintIndicator(const QStyleOption* opt,
     QPainter* p,
     bool radio)
 {
@@ -249,7 +249,7 @@ void paintIndicator(const QStyleOption* opt,
 
 // ---- TREEVIEW BRANCH ----
 // Fixes the two rules you said “do not work”.
-void paintTreeBranch(const QStyleOption* opt,
+void PaintTreeBranch(const QStyleOption* opt,
     QPainter* p,
     bool open)
 {
@@ -329,10 +329,10 @@ void MyProxyStyle::drawPrimitive(PrimitiveElement pe,
                 break;
 
             // Paint frame
-            paintGroupBoxFrame(gb, p, widget);
+            PaintGroupBoxFrame(gb, p, widget);
 
             // Paint title
-            paintGroupBoxTitle(gb, p, widget);
+            PaintGroupBoxTitle(gb, p, widget);
             return;
         }
 
@@ -358,10 +358,10 @@ void MyProxyStyle::drawControl(ControlElement element,
 {
     switch (element)
     {
-        case CE_ComboBoxLabel:
-            QProxyStyle::drawControl(element, opt, p, widget);
-            paintComboArrow(opt, p, widget);
-            return;
+        //case CE_ComboBoxLabel:
+        //    QProxyStyle::drawControl(element, opt, p, widget);
+        //    paintComboArrow(opt, p, widget);
+        //    return;
 
         default:
             break;
@@ -387,7 +387,7 @@ void MyProxyStyle::drawComplexControl(ComplexControl control,
             {
                 QStyleOption upOpt = *opt;
                 upOpt.rect = subControlRect(control, opt, SC_SpinBoxUp, widget);
-                paintSpinArrow(&upOpt, p, true);
+                PaintSpinArrow(&upOpt, p, true);
             }
 
             // Down arrow
@@ -395,7 +395,7 @@ void MyProxyStyle::drawComplexControl(ComplexControl control,
             {
                 QStyleOption downOpt = *opt;
                 downOpt.rect = subControlRect(control, opt, SC_SpinBoxDown, widget);
-                paintSpinArrow(&downOpt, p, false);
+                PaintSpinArrow(&downOpt, p, false);
             }
             return;
         }
@@ -412,7 +412,7 @@ void MyProxyStyle::drawComplexControl(ComplexControl control,
             {
                 QStyleOptionSlider handleOpt(*sl);
                 handleOpt.rect = subControlRect(control, opt, SC_SliderHandle, widget);
-                paintSliderHandle(&handleOpt, p, widget);
+                PaintSliderHandle(&handleOpt, p, widget);
             }
             return;
         }

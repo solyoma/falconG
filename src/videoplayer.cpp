@@ -1,4 +1,5 @@
-﻿/****************************************************************************
+﻿
+/****************************************************************************
 **
 ** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -51,7 +52,10 @@
 // code modified by ChatGPT 4.1 and A. Solyom
 #include "videoplayer.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+
 #include <QtWidgets>
+#include <QMediaMetaData>
 
 VideoPlayer::VideoPlayer(VPurpose purpose, VideoData* videoData, QWidget* parent)
     : _purpose(purpose), _pVideoData(videoData), QWidget(parent)
@@ -366,3 +370,4 @@ void VideoPlayer::_Setup()
     else
         _SetupAsPlayer();
 }
+#endif
