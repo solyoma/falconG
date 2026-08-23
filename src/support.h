@@ -28,11 +28,11 @@ const QString versionStr = "# falconG Gallery Structure file ";
 //           1.2 - full text ID is saved after and '*' Calculated if missing # set for src and dest, 'C' for albumms !! for images
 //			 1.3 - source image paths have an ID and the file contains this ID instead of the path for the images and videos
 //			 1.5 - album lines may contain a base album ID defining an alias to an existing album inside {}, before theclosing')'
-//			 2.0 - can't read versions before 1.3 anymore use separate conversion program to update versions before 1.3
+//			 2.0 - can't read versions before 1.3 anymore use separate conversion program to update versions older than than 1.3
 
-constexpr int majorProgramVersion = 2,		// V 2.0.0 version string
+constexpr int majorProgramVersion = 2,		// V 2.0.1 version string
 			  minorProgramVersion = 0,
-			  subProgramVersion   = 0;
+			  subProgramVersion   = 1;
 
 	// encoding and decoding text
 enum DecodeTextTo { dtPlain, 			// from html or javascript to plain text (&amp;, &quot; &apos; &lg; &gt; <br>)

@@ -38,7 +38,7 @@ int PROGRAM_CONFIG::editWSplitterLeft  = 704;
 int PROGRAM_CONFIG::editWSplitterRight = 543;
 int PROGRAM_CONFIG::editSplitterTop	   = 532;
 int PROGRAM_CONFIG::editSplitterBottom = 220;
-int PROGRAM_CONFIG::copyrightYear = 2025;
+int PROGRAM_CONFIG::copyrightYear = 2026;
 int PROGRAM_CONFIG::schemeIndex = 0;
 
 static bool __bClearChangedFlag = false;	// set to true to clear the changed flag after writing the configuration
