@@ -757,12 +757,19 @@ void SlideWidget::SetMatteRadius(QString qsRadiusString)
 void SlideWidget::SetAllBordersFromString(const QString qsBorder)
 {
     QStringList qsl = qsBorder.split(' ');
+    if (qsl[0] == 'none')
+        return;
+
     qreal radius;
     RadiusUnit runit;
     radius = GetRadius(qsl[0], runit);
     SetBorderRadius(radius, runit);
-    SetBorderStyle(qsl[1]);
-    SetBorderColor(qsl[2]);
+    if (qsl.size() > 1)
+    {
+        SetBorderStyle(qsl[1]);
+        if (qsl.size() > 2)
+            SetBorderColor(qsl[2]);
+    }
 }
 
 void SlideWidget::SetBorderRadiusUnit(RadiusUnit unit)

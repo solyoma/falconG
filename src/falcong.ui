@@ -915,6 +915,9 @@ every time you refresh the album page.</string>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of days before and including the date of the last generated photo&lt;br/&gt;that will be selected for the latest upload page.&lt;/p&gt;&lt;p&gt;A maximum of 100 photos will be selected as a sample of latest uploads&lt;br/&gt;but only &lt;span style=&quot; font-style:italic;&quot;&gt;Max # of images&lt;/span&gt;  images will be shown at the one time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
+                 <property name="maximum">
+                  <number>999</number>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="1">
@@ -2737,8 +2740,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>492</width>
-                         <height>707</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3130,7 +3133,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>478</width>
+                         <width>426</width>
                          <height>706</height>
                         </rect>
                        </property>
