@@ -254,6 +254,7 @@ private slots:
 	void on_btnBrowseForBackgroundImage();
 	void on_btnBrowseSource_clicked();
 	void on_btnCloseAllViewers_clicked();
+	void on_btnDownloadAll_clicked();
 	void on_btnDeleteColorScheme_clicked();
 	void on_btnDisplayHint_clicked();
 	void on_btnForeground_clicked();
@@ -286,6 +287,7 @@ private slots:
 	void on_btnSelectUplinkIcon_clicked();
 	void on_btnSelectWmFont_clicked();
 	void on_btnShadowColor_clicked();
+	void on_btnUpload_clicked();
 	void on_btnWmColor_clicked();
 	void on_btnWmShadowColor_clicked();
 	

@@ -28,7 +28,7 @@
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>16777215</height>
+    <height>1010</height>
    </size>
   </property>
   <property name="font">
@@ -37,7 +37,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Falcon's Gallery Generator</string>
+   <string>Falco's Gallery Generator</string>
   </property>
   <property name="windowIcon">
    <iconset resource="falcong.qrc">
@@ -239,22 +239,7 @@
        <attribute name="title">
         <string>&amp;Gallery</string>
        </attribute>
-       <layout class="QVBoxLayout" name="tabGalleryLayout">
-        <property name="spacing">
-         <number>2</number>
-        </property>
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_15">
         <item>
          <widget class="QGroupBox" name="gbLocalMachine">
           <property name="sizePolicy">
@@ -467,10 +452,10 @@
               </font>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually 'public_html' in your home directory. This will be the directory of the top level Web page(s).  All of falconG's other files and directories will be inside this directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually &lt;span style=&quot; font-weight:600;&quot;&gt;'public_htm&lt;/span&gt;l' in your home folder. This will be the directory (folder) of the top level&lt;span style=&quot; font-weight:600;&quot;&gt; index*.html&lt;/span&gt; Web page(s). All of &lt;span style=&quot; font-style:italic;&quot;&gt;falconG&lt;/span&gt;'s other files and folders will be inside this directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
-              <string>Path of gallery root on your site. Default: leave this field empty</string>
+              <string>Path of gallery root on your site. When empty &quot;public_html&quot; is used.</string>
              </property>
             </widget>
            </item>
@@ -602,7 +587,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <layout class="QHBoxLayout" name="hLayoutForGallery">
           <item>
            <widget class="QGroupBox" name="gbGallery">
             <property name="sizePolicy">
@@ -946,7 +931,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,1,1,0">
+           <layout class="QVBoxLayout" name="vLayoutForLastUploadePageBoz" stretch="1,1,1,0">
             <item>
              <widget class="QGroupBox" name="gbLatest">
               <property name="font">
@@ -1582,29 +1567,7 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
          </layout>
         </item>
         <item>
-         <layout class="QGridLayout" name="gridLayout_16" columnstretch="1,1,1,1,0">
-          <property name="leftMargin">
-           <number>9</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>9</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="chkLowerCaseImageExtensions">
-            <property name="text">
-             <string>Lower case extensions (e.g. &quot;.jpg&quot;)</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
+         <layout class="QGridLayout" name="gridLayout_16">
           <item row="0" column="0">
            <widget class="QCheckBox" name="chkReadFromGallery">
             <property name="enabled">
@@ -1615,19 +1578,6 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
             <property name="text">
              <string>Create structure from existing HTML gallery</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="chkAddTitlesToAll">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add title fields for images in 'gallery struct', which dosn't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Create title fields for all</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -1645,6 +1595,66 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QCheckBox" name="chkKeepDuplicates">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;As a default image IDs are determined from the image name only. &lt;/p&gt;&lt;p&gt;Therefore if you have two or more images with the same name, they will have the same ID and will only be put into the gallery once, &lt;span style=&quot; font-weight:600;&quot;&gt;unless &lt;/span&gt;this check box is checked. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this box if you have different images with the same name in different folders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Keep duplicates</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="chkAddTitlesToAll">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add title fields for images in 'gallery struct', which dosn't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Create title fields for all</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="chkLowerCaseImageExtensions">
+            <property name="text">
+             <string>Lower case extensions (e.g. &quot;.jpg&quot;)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QCheckBox" name="chkCleanupGallery">
+            <property name="toolTip">
+             <string>Remove albums, images and videos from gallery
+when their source is no longer present</string>
+            </property>
+            <property name="text">
+             <string>Clean up destination gallery</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="chkAddDescToAll">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add description fields for images in 'gallery struct', which don't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Create description fields for all</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -1667,79 +1677,166 @@ Constantia,Palatino,&quot;Palatino Linotype&quot;,&quot;Palatino LT STD&quot;,Ge
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QCheckBox" name="chkAddDescToAll">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add description fields for images in 'gallery struct', which don't have one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="btnUpload">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
             <property name="text">
-             <string>Create description fields for all</string>
+             <string>&amp;Upload to server</string>
             </property>
-            <property name="checked">
+            <property name="flat">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="chkKeepDuplicates">
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="chkExceptExistingImages">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;As a default image IDs are determined from the image name only. &lt;/p&gt;&lt;p&gt;Therefore if you have two or more images with the same name, they will have the same ID and will only be put into the gallery once, &lt;span style=&quot; font-weight:600;&quot;&gt;unless &lt;/span&gt;this check box is checked. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Check this box if you have different images with the same name in different folders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>If a local image/video file is newer than the one on the server
+it is also uploaded, unless this option is selected, in which case
+only new files will be uploaded.</string>
             </property>
             <property name="text">
-             <string>Keep duplicates</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
+             <string>except images already there</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QCheckBox" name="chkCleanupGallery">
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="chkUploadStruct">
             <property name="toolTip">
-             <string>Remove albums, images and videos from gallery
-when their source is no longer present</string>
+             <string>All image/video information is stored in a local file with the 
+extension '.struct'. If this option is selected that file is
+uploaded as well.</string>
             </property>
             <property name="text">
-             <string>Clean up destination gallery</string>
+             <string>Also upload structure</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QCheckBox" name="chkCleanupServer">
+            <property name="toolTip">
+             <string>Remove WEB pages and images/videos files not present on local machine any more</string>
+            </property>
+            <property name="text">
+             <string>and clean up server side data</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QPushButton" name="btnDownloadAll">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Download  gallery</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QWidget" name="progressPanelWidget" native="true">
+         <widget class="QWidget" name="pnlProgress" native="true">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
+          <property name="maximumSize">
            <size>
-            <width>0</width>
-            <height>144</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_21">
-           <property name="spacing">
-            <number>1</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>1</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QWidget" name="pnlProgress" native="true">
+          <layout class="QGridLayout" name="gridLayout_18">
+           <item row="3" column="2">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>379</width>
+               <height>13</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="4">
+            <widget class="QLabel" name="lblImagesPerSec">
+             <property name="text">
+              <string>999</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="lblRemainingTimeTitle">
+             <property name="text">
+              <string>Elapsed / remaining time:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="lblProgressTitle">
+             <property name="text">
+              <string>Reading albums and images</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLabel" name="lblProgress">
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>0/0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="lblRemainingTime">
+             <property name="text">
+              <string>99:99 / 99:99</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QLabel" name="lblImagesPerSecDesc">
+             <property name="text">
+              <string>Images/sec:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3" colspan="2">
+            <widget class="QLabel" name="lblProgressDesc">
+             <property name="text">
+              <string>images/albums</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="3">
+            <widget class="QProgressBar" name="progressBar">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1747,125 +1844,18 @@ when their source is no longer present</string>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>16777215</height>
+               <height>5</height>
               </size>
              </property>
-             <layout class="QGridLayout" name="gridLayout_18">
-              <item row="2" column="0" colspan="3">
-               <widget class="QProgressBar" name="progressBar">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>5</height>
-                 </size>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-                <property name="textVisible">
-                 <bool>false</bool>
-                </property>
-                <property name="format">
-                 <string>%p%</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3" colspan="2">
-               <widget class="QLabel" name="lblProgressDesc">
-                <property name="text">
-                 <string>images/albums</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="lblRemainingTimeTitle">
-                <property name="text">
-                 <string>Elapsed / remaining time:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" colspan="2">
-               <widget class="QLabel" name="lblProgressTitle">
-                <property name="text">
-                 <string>Reading albums and images</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="4">
-               <widget class="QLabel" name="lblImagesPerSec">
-                <property name="text">
-                 <string>999</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3">
-               <widget class="QLabel" name="lblProgress">
-                <property name="minimumSize">
-                 <size>
-                  <width>60</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>0/0</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLabel" name="lblRemainingTime">
-                <property name="text">
-                 <string>99:99 / 99:99</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>379</width>
-                  <height>13</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="3" column="3">
-               <widget class="QLabel" name="lblImagesPerSecDesc">
-                <property name="text">
-                 <string>Images/sec:</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <property name="value">
+              <number>0</number>
+             </property>
+             <property name="textVisible">
+              <bool>false</bool>
+             </property>
+             <property name="format">
+              <string>%p%</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -2888,8 +2878,8 @@ p, li { white-space: pre-wrap; }
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <property name="sizePolicy">
@@ -3281,7 +3271,7 @@ Default: &quot;/res/&quot;</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>419</width>
+                         <width>426</width>
                          <height>654</height>
                         </rect>
                        </property>
@@ -6355,8 +6345,8 @@ so when one changes the other changes too.
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>100</width>
-                         <height>30</height>
+                         <width>98</width>
+                         <height>28</height>
                         </rect>
                        </property>
                        <attribute name="label">

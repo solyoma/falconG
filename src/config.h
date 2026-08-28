@@ -49,6 +49,15 @@ template <class T> struct _CFG_ITEM
 		v0 = v;
 	}
 
+	virtual void Remove(QSettings& s, QString group = QString())
+	{
+		if(!group.isEmpty())
+			s.beginGroup(group);
+		s.remove(itemName);		// from current group!
+		if (!group.isEmpty())
+			s.endGroup();
+	}
+
 	virtual void Write(QSettings& s, QString group = QString() )	// into settings, always
 	{
 		if(!group.isEmpty())
@@ -1050,7 +1059,14 @@ public:
 	_CDirStr dsSrc = { "","dsSrc"};				// source directory. It contains the actual falconG,ini and the .struct file
 	_CDirStr dsGallery = { "" ,"dsGallery"};	// destination directory on local machine (corresponds to 'public_html' on server)
 
-					// remote directories
+					// remote data
+	_CString sServerAddress = {"","sServerAddress"};	// server address:
+	_CBool bRememberUser = { false, "bRememberUser" };	// remember user name between sessions? Password is never remembered;
+	_CString sServerUser = { "","sServerUser" };		// server user name
+	_CString sServerPassword = { "", "sServerPassword" };// only valid when the program is running TODO: clear after a time period
+	_CInt nServerProtocol = { 0, "sServerProtocol" };	// protocol: Auto, sftp, ftps+TLS, ftps, ftp
+	_CInt nServerPort = { 22,"nServerPort" };			// port number		22,		21,		990,  20
+
 	_CDirStr dsGRoot = { "" ,"dsgRoot"};			// name of root directory on server (in public_html or in dsGallery)
 	_CDirStr dsAlbumDir = {"albums/","dsAlbumDir"};		// (path) name of album directory (usually inside dsGRoot)
 	_CDirStr dsBckImageDir = { "", "dsBckImageDir" };	// path of background image on server /res/ is used when not set
@@ -1095,8 +1111,6 @@ public:
 	_CBool bMenuToAbout = {false,"bMenuToAbout"};		// show menu button for 'About' page?
 	_CBool bMenuToDescriptions = {true,"bMenuToDescriptions"};   // toggles image/album description visibility. If bMenuToToggleCaptions is false it also turns on/off captions and the icons
 	_CBool bMenuToToggleCaptions = {false,"bMenuToToggleCaptions"}; // show captions at all? (see above)
-
-	_CString sServerAddress = {"","sServerAddress"};	// server address:
 	// special
 
 	_CString sGoogleFonts = { "","sGoogleFonts"};		// default font names "https://fonts.googleapis.com/css?family="+these names separated with a pipe character

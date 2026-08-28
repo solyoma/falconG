@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/icons">
+    <file>Resources/small-eye.png</file>
     <file>Resources/aliasIcon.png</file>
     <file>Resources/falconG-splash.png</file>
     <file>Resources/noresizeMark.png</file>

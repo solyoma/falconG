@@ -24,6 +24,8 @@
 #include "imageviewer.h"
 #include "selectStruct.h"
 #include "videoplayer.h"
+#include "UpDownloadDialog.h"
+#include "updownload.h"
 
 #ifdef _DEBUG
 	#include "hidden.h"
@@ -397,7 +399,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 								tr("Yes and don't ask again (use Options to re-enable)"),
 								resB
 							   );
-		if (res == QMessageBox::Yes)
+		if (res == QMessageBox::Save)
 		{
 			// must have an event loop here to wait the thread to complete, otherwise the SignalResultIsReady signal never arrives to the destination
 			QEventLoop loop;
@@ -555,6 +557,7 @@ void FalconG::on_btnGenerate_clicked()
 	}
 	else
 	{
+		ui.btnUpload->setEnabled(false);
 		_SaveChangedTexts();
 
 		if (config.Changed())
@@ -643,6 +646,7 @@ void FalconG::on_btnGenerate_clicked()
 		albumgen.SetRecrateAllAlbumsFlag(config.bGenerateAllPages);	// not until relevant changes
 	}
 
+	ui.btnUpload->setEnabled(!_running);
 	ui.btnSaveStyleSheet->setEnabled(!_running);
 }
 
@@ -656,6 +660,19 @@ void FalconG::on_btnGenerate_clicked()
 void FalconG::on_btnCloseAllViewers_clicked()
 {
 	emit SignalToCloseAllViewers();
+}
+
+/*=============================================================
+ * TASK   : Download image gallery from server
+ * PARAMS :
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS: TODO
+ *------------------------------------------------------------*/
+void FalconG::on_btnDownloadAll_clicked()
+{
+
 }
 
 /*============================================================================
@@ -2013,6 +2030,43 @@ void FalconG::on_btnShadowColor_clicked()
 		_SetConfigChanged(true);
 	}
 	_ElemToSample();
+}
+
+/*=============================================================
+ * TASK   : Upload all or selected items to server
+ * PARAMS :
+ * EXPECTS:
+ * GLOBALS:
+ * RETURNS:
+ * REMARKS:		  TODO
+ *------------------------------------------------------------*/
+void FalconG::on_btnUpload_clicked()
+{
+	UpDownloadDialog::Data udData;
+	udData.qsServer = config.sServerAddress.ToString();
+	udData.qsRootFolder = config.dsGRoot.ToString();
+	udData.qsUser = config.sServerUser.ToString();
+	udData.qsPassword = config.sServerPassword.ToString();
+	udData.port = config.nServerPort;
+	switch (config.nServerProtocol)
+	{
+		case 0: udData.protocol = UpDownloadDialog::Protocol::Auto; break;
+		case 2: udData.protocol = UpDownloadDialog::Protocol::Sftp; break;
+		case 1: udData.protocol = UpDownloadDialog::Protocol::SftpTls; break;
+		case 3: udData.protocol = UpDownloadDialog::Protocol::FtpS; break;
+		case 4: udData.protocol = UpDownloadDialog::Protocol::Ftp; break;
+	}
+
+	UpDownloadDialog udDialog(udData, this);
+
+	if (udDialog.exec())
+	{
+		config.sServerUser = udData.qsUser;
+		config.sServerPassword = udData.qsPassword;
+		config.nServerPort = udData.port;
+		config.nServerProtocol = (int)udData.protocol;
+		_SetConfigChanged(true);
+	}
 }
 
 /*============================================================================

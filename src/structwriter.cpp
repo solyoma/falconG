@@ -56,7 +56,7 @@ AlbumStructWriter::AlbumStructWriter(AlbumGenerator& generator, bool recordChang
 void AlbumStructWriter::run()
 {
 	QMutexLocker locker(&_albumMapStructIsBeingWritten);
-			// mutex is locked and will bw unlocked when function returns
+			// mutex is locked and will be unlocked when function returns
 
 	QString p, n;
 	SeparateFileNamePath(config.dsSrc.ToString(), p, n);
@@ -79,7 +79,12 @@ void AlbumStructWriter::run()
 		<< "\n\n#Source=" << config.dsSrc.ToString()
 		<< "\n#Destination=" << config.dsGallery.ToString()
 		<< "\n\n#Image rectangle: " << config.imageWidth << "x" << config.imageHeight
-		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight << "\n\n";
+		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight
+		<< "\n\n#Server URL: " << config.sServerAddress.ToString()
+		<< "\n#User: " << config.sServerUser.ToString()
+		<< "\n#Protocol: " << config.nServerProtocol
+		<< "\nPort: " << config.nServerPort.ToString()
+		<< "\n\n";
 	_WriteLanguageTable();
 	_WritePathsTable();
 	_WriteOrphanThumbnails();

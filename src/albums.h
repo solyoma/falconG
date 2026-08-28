@@ -46,7 +46,7 @@ const QString PATH_TABLE = "[Path table";
 /* =============== Id To Path and Path to Id Mapping ==================*/
 class PathMap 
 {
-	typedef QMap<IDVal_t, QString> base_type1;
+	typedef QMap<IDPath_t, QString> base_type1;
 	typedef QMap<QString, IDVal_t> base_type2;
 
 	typedef base_type1::iterator iterator1;
@@ -57,13 +57,13 @@ class PathMap
 	iterator1 _it1;
 	iterator2 _it2;
 
-	IDVal_t _CalcId(const QString & path);
+	IDPath_t _CalcId(const QString & path);
 	friend QTextStream& operator<<(QTextStream &ofs, const PathMap &map);
 
 public:
 	PathMap() {}
 
-	IDVal_t Add(const QString &path);		// handles empty paths - returns NO_ID,
+	IDPath_t Add(const QString &path);		// handles empty paths - returns NO_ID,
 											// existing paths - return existing id
 											// first cuts source folder path from path
 											// path may end in a '/' which will be dropped ?
@@ -406,6 +406,7 @@ public:
 	Image* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
 												// if 'useBase' finds the first one with the same base ID
 	Image *Find(QString FullSourceName);		// returns nullptr if not found
+	Image* Find(Image& im);	// when both name and path ID is already set
 	ID_t Add(QString image, bool &added, bool isThumbnail=false);	// returns ID and if added
 	void Remove(IDVal_t id, bool isThumbnail);
 	Image &Item(int index);

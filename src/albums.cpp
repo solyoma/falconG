@@ -82,7 +82,7 @@ IDVal_t PathMap::_CalcId(const QString& path)
 	return id;
 }
 
-IDVal_t PathMap::Add(const QString &path) // only new paths added
+IDPath_t PathMap::Add(const QString &path) // only new paths added
 {
 	IDVal_t id;
 
@@ -642,14 +642,14 @@ Image *ImageMap::Find(QString FullSourceName)
 	SeparateFileNamePath(FullSourceName, path, img.name);
 	img.pathId = pathMap.Id(path);
 	Image::searchBy = Image::byFullSourceName;
+	return Find(img);
+}
 
-	for (auto &i:*this)
+Image* ImageMap::Find(Image& img)
+{
+	for (auto& i : *this)
 		if (i.pathId == img.pathId && i.name == img.name)
 			return &i;
-	//for (auto i = begin(); i != end(); ++i)
-	//	if (i.value() == img)
-	//		return &i.value();
-
 	return nullptr;
 }
 
@@ -689,13 +689,11 @@ ID_t ImageMap::Add(QString pathName, bool &added, bool forThumbNail)	// path nam
 	img.SetResizeType();	// using img.name, handles '!!'
 
 	if (imgPath.isEmpty())
-	{
-		imgPath = pathMap.AbsPath(lastUsedPathId);
-		pathName = imgPath + pathName;
-	}
-	pImg = Find(pathName);
+		img.pathId = lastUsedPathId;
+	else
+		img.pathId = pathMap.Add(imgPath);	// only adds if it is not already there
 
-	img.pathId = pathMap.Add(imgPath);	// only adds if it is not already there
+	pImg = Find(img);
 
 	added = false;
 	if (pImg)
@@ -2700,15 +2698,17 @@ ID_t AlbumGenerator::_ReadImageOrVideoFromStruct(FileReader &reader, int level, 
 	FileType type = n >= 2 ? FileType(sl[1][0].unicode() & ~itemIsUnprocessedFlag) : ftUnknown;	
 	bool isNewFile = sl[1][0].unicode() & itemIsUnprocessedFlag;					// but mark here
 	if (n < 9 && n != 5 && n != 6)		   // maybe new image/video added and not yet processed
-	{
-		// it should be at least 2: a config.dsSrc relative, or a last used path relative name,
-		// or a full path name including extension plus the <file type> (image or video or unknown)
+	{									   // or file was missing before
+		// it should be at exactly 2, the first item is a config.dsSrc relative, or a last used path relative name,
+		//							  or a full path name including extension plus the <file type> (image or video or unknown)
+		// the second one is just a type flag ('i' for images, 'v' for videos
 		if (n != 2)	
 			throw BadStruct(reader.ReadCount(),
 							QString(FalconG::tr("Wrong image parameter count:")) + QString().setNum(n)); // or just the image name (from the same folder as the previous one)
 
-		// expects: original/image/directory/inside/source/name.ext and 'type'
-		//			OR name.ext + 'type'
+		// expects: sl[0] = original/image/directory/inside/source/name.ext, 
+		//		or	sl[0] = name.ext
+		//		and sl[1] = 'type'
 		bool added;
 		if(type == ftImage)
 			id = _AddImageFromPathInStruct(sl[0],added);	 

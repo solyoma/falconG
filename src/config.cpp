@@ -1432,6 +1432,10 @@ void CONFIG::ClearChanged()
 	dsBckImageDir.ClearChanged();
 
 	sServerAddress.ClearChanged();
+	sServerUser.ClearChanged();
+	nServerProtocol.ClearChanged();
+	nServerPort.ClearChanged();
+
 	sBaseName.ClearChanged();
 	sMailTo.ClearChanged();
 	sAbout.ClearChanged();
@@ -1636,6 +1640,10 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	bOvrImages = cfg.bOvrImages;
 
 	sServerAddress = cfg.sServerAddress;
+	sServerUser = cfg.sServerUser;
+	nServerProtocol = cfg.nServerProtocol;
+	nServerPort = cfg.nServerPort;
+
 	sDefFonts = cfg.sDefFonts;
 	sBaseName = cfg.sBaseName;
 	sMailTo = cfg.sMailTo;
@@ -1856,6 +1864,9 @@ void CONFIG::Read()		// synchronize with Write!
 	nLatestCount.Read(s);
 
 	sServerAddress.Read(s);
+	sServerUser.Read(s);
+	nServerProtocol.Read(s);
+	nServerPort.Read(s);
 
 	Web.Read(s);		// sets common colors and fonts, which may be modified later
 						// on read
@@ -2000,6 +2011,12 @@ void CONFIG::_WriteIni(QString sIniName)
 	nLatestCount.Write(s);
 	
 	sServerAddress.Write(s);
+	nServerProtocol.Write(s);
+	nServerPort.Write(s);
+	if (bRememberUser)
+		sServerUser.Write(s);	// but never the password
+	else
+		sServerUser.Remove(s);
 
 	backgroundImage.Write(s);
 

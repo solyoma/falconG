@@ -87,6 +87,12 @@
     <ClCompile Include="dragdrop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="updownload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpDownloadDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h">
@@ -125,6 +131,9 @@
     <QtMoc Include="dragdrop.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="UpDownloadDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="falcong.ui">
@@ -146,6 +155,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="exportCSV.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="UpDownloadDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -180,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="support.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="updownload.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
