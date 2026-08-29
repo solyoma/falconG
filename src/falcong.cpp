@@ -361,9 +361,9 @@ FalconG::~FalconG()
 *--------------------------------------------------------------------------*/
 void FalconG::closeEvent(QCloseEvent * event)
 {
-	if (_running)		// operation in progress
+	if (_running)		// operation in progressCb
 	{
-		ShowWarning( tr("An operation is in progress.\n Please stop it before exiting."), this);
+		ShowWarning( tr("An operation is in progressCb.\n Please stop it before exiting."), this);
 		event->ignore();
 		return;
 	}

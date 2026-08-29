@@ -825,7 +825,7 @@ static QString __DebugPrintDragAndDrop(QDragMoveEvent *event)    // QDragEnterEv
 #endif
 
 /*=============================================================
- * TASK:	 sent when dragging is in progress
+ * TASK:	 sent when dragging is in progressCb
  * EXPECTS: either a list of file names or a mime data of type 
  *			x-thumbs
  * GLOBALS:
@@ -1425,7 +1425,7 @@ void ThumbnailView::mousePressEvent(QMouseEvent *event)
 
 /*=============================================================
  * TASK:	event to scroll view when a drag and drop is in 
- *			progress and the cursor is at the top of the view area
+ *			progressCb and the cursor is at the top of the view area
  * EXPECTS:
  * GLOBALS:
  * RETURNS:

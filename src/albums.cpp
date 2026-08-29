@@ -1576,7 +1576,7 @@ ID_t AlbumGenerator::_AddVideoFromPathInStruct(QString videoPath, bool& added)
 *			- 'exists' flag on ID for not excluded old or new images and sub-albums
 *				are set to true when 'fromDisk' is true
 *			- adds new images/videos and id's to the corresponding id list of 'ab'
-*			- shows progress using frmMain's progress bar
+*			- shows progressCb using frmMain's progressCb bar
 *--------------------------------------------------------------------------*/
 ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool signalElapsedTime, bool doNotAddToAlbumItemList)
 {
@@ -1610,7 +1610,7 @@ ID_t AlbumGenerator::_AddItemToAlbum(IDVal_t parentID, QFileInfo & fi, bool sign
 	doNotAddToAlbumItemList |= !(id.Val()) || (id.IsExcluded()) || (ab->items.indexOf(id) >= 0);
 	if (!doNotAddToAlbumItemList)
 		ab->items.push_back(id);		// add to ordered item list for this album except if you must not or excluded
-	// progress bar
+	// progressCb bar
 	if (signalElapsedTime)
 	{
 		emit SignalProgressPos(_albumMap.size(), _ItemSize());	  // both changes
@@ -3745,7 +3745,7 @@ int AlbumGenerator::_ProcessImages()
 	if (!_processing || config.dontRegenerateAnyImage)
 		return 0;
 
-	// progress bar
+	// progressCb bar
 	emit SignalToSetProgressParams(0, _imageMap.size()+_videoMap.size(), 0, 1); // phase = 1
 	std::atomic_int cnt = 0;	// count of images copied
 
@@ -3778,7 +3778,7 @@ int AlbumGenerator::_ProcessImages()
 		}
 
 		_ProcessOneImage(im, converter, cnt);
-		emit SignalProgressPos(cnt, _ItemSize()); // progress bar
+		emit SignalProgressPos(cnt, _ItemSize()); // progressCb bar
 	}
 	config.bRegenerateAllImages = bSaveregenAll;
 //	emit SignalToEnableEditTab(true);
@@ -3800,7 +3800,7 @@ int AlbumGenerator::_ProcessVideos()
 	if (!_processing)
 		return 0;
 
-	// progress bar
+	// progressCb bar
 	emit SignalToSetProgressParams(0, _ItemSize(), 0, 1); // phase = 1
 	std::atomic_int cnt = TotalCount();	// count of images and videos copied so far
 
@@ -3827,7 +3827,7 @@ int AlbumGenerator::_ProcessVideos()
 			_remDsp.Update(cnt);
 			emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, cnt, true);
 		}
-		emit SignalProgressPos(++cnt, _ItemSize()); // progress bar
+		emit SignalProgressPos(++cnt, _ItemSize()); // progressCb bar
 	}
 	emit SignalToEnableEditTab(true);
 	return 0;

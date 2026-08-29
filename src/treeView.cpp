@@ -489,7 +489,7 @@ void AlbumTreeView::currentChanged(const QModelIndex& current, const QModelIndex
 	QTreeView::currentChanged(current, previous);
 }
 /*=============================================================
- * TASK:	sent when dragging is in progress
+ * TASK:	sent when dragging is in progressCb
  * EXPECTS: dragged items include: 
  *				a list of file path			 : from outside source
  *				a mime data of type	x-thumbs : fromThumbnailView
