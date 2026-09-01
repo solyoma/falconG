@@ -36,9 +36,6 @@ static void WriteStructLanguageTexts(QTextStream& ofs, TextMap& texts, QString w
 	}
 }
 
-
-
-
 //***************************** class AlbumStructWriter ****************
 AlbumStructWriter::AlbumStructWriter(AlbumGenerator& generator, bool recordChanges, QObject* parent) :
 	_textMap(generator.Texts()), _albumMap(generator.Albums()), _imageMap(generator.Images()), 
@@ -70,6 +67,7 @@ void AlbumStructWriter::run()
 		emit SignalResultIsReady("Can't write file", sStructPath, sStructTmp);
 		return;
 	}
+	QStringList slPorts = config.sServerPorts.v.split(',');
 	_ofs.setDevice(&f);
 	_ofs.setCodec("UTF-8");
 
@@ -80,10 +78,10 @@ void AlbumStructWriter::run()
 		<< "\n#Destination=" << config.dsGallery.ToString()
 		<< "\n\n#Image rectangle: " << config.imageWidth << "x" << config.imageHeight
 		<< "\n#Thumb rectangle: " << config.thumbWidth << "x" << config.thumbHeight
-		<< "\n\n#Server URL: " << config.sServerAddress.ToString()
-		<< "\n#User: " << config.sServerUser.ToString()
-		<< "\n#Protocol: " << config.nServerProtocol
-		<< "\nPort: " << config.nServerPort.ToString()
+		<< "\n\nServer URL: " << config.sServerAddress.ToString()
+		<< "\nUser: " << config.sServerUser.ToString()
+		<< "\nProtocol: " << config.nServerProtocol
+		<< "\nPort: " << (config.nServerProtocol ? slPorts[config.nServerProtocol] : "0")
 		<< "\n\n";
 	_WriteLanguageTable();
 	_WritePathsTable();

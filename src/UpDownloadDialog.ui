@@ -28,109 +28,95 @@
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QWidget" name="widget" native="true">
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Upload to server:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="3">
-       <widget class="QLabel" name="lblUrl">
-        <property name="text">
-         <string>server.url.on</string>
-        </property>
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lblUpDownload">
+           <property name="text">
+            <string>Upload to server:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="lblUrl">
+           <property name="text">
+            <string>server.url.on</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lblToFromDir">
+           <property name="text">
+            <string>Into folder:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="lblPublicHtml">
+           <property name="text">
+            <string>public_html</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>User (account) name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Password:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QLineEdit" name="edtPassword">
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+           <property name="placeholderText">
+            <string>Will not be saved on disk</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QToolButton" name="tbtnShowPassword">
+           <property name="toolTip">
+            <string>Show password</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="falcong.qrc">
+             <normaloff>:/icons/Resources/small-eye.png</normaloff>:/icons/Resources/small-eye.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="3">
+          <widget class="QLineEdit" name="edtUser"/>
+         </item>
+        </layout>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Into folder:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="lblPublicHtml">
-        <property name="text">
-         <string>public_html</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="chkUnsecure">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;falconG&lt;/span&gt; will use the highest level security protocol (SFTP, FTPS) available on the server automatically.&lt;/p&gt;&lt;p&gt;If no secure protocol is available the upload will fail, unless you explicitely allow the&lt;/p&gt;&lt;p&gt;use of insecure protocols like FTP.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Allow unsecure connections</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>User (account) name:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="edtUser"/>
-      </item>
-      <item row="3" column="2" colspan="2">
-       <widget class="QCheckBox" name="chkStoreUser">
-        <property name="toolTip">
-         <string>When checked user name is stored encrypted on disk</string>
-        </property>
-        <property name="text">
-         <string>Remember me</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Password:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QLineEdit" name="edtPassword">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-        <property name="placeholderText">
-         <string>will not be readable or stored on disk</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QToolButton" name="tbtnShowPassword">
-        <property name="toolTip">
-         <string>Show password</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="falcong.qrc">
-          <normaloff>:/icons/Resources/small-eye.png</normaloff>:/icons/Resources/small-eye.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
          <string>Select protocol</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
+         <item row="0" column="0" colspan="2">
           <widget class="QRadioButton" name="rbProtAuto">
            <property name="toolTip">
             <string>Automatically find the safest encrypted upload method</string>
            </property>
            <property name="text">
-            <string>Auto (recommended)</string>
+            <string>&amp;Auto (recommended)</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -143,18 +129,18 @@
             <string>Most secure. Will save server fingerprint for later use.</string>
            </property>
            <property name="text">
-            <string>SFTP</string>
+            <string>&amp;SFTP</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="1" column="2">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Port:</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="1" column="3">
           <widget class="QSpinBox" name="sbPortSftp">
            <property name="minimumSize">
             <size>
@@ -176,18 +162,18 @@
             <string>Secure. Requires TLS</string>
            </property>
            <property name="text">
-            <string>FTPS w. TLS</string>
+            <string>FTPS w. T&amp;LS</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="2" column="2">
           <widget class="QLabel" name="label_4">
            <property name="text">
             <string>Port:</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
+         <item row="2" column="3">
           <widget class="QSpinBox" name="sbPortFtpsTls">
            <property name="maximum">
             <number>65535</number>
@@ -203,34 +189,66 @@
             <string>Less secure without TLS</string>
            </property>
            <property name="text">
-            <string>FTPS</string>
+            <string>FT&amp;PS</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="3" column="2">
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>Port:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="3" column="3">
           <widget class="QSpinBox" name="sbPortFtps">
            <property name="maximum">
             <number>65535</number>
            </property>
            <property name="value">
-            <number>65535</number>
+            <number>990</number>
            </property>
           </widget>
          </item>
          <item row="4" column="0">
+          <widget class="QCheckBox" name="chkUnsecure">
+           <property name="toolTip">
+            <string>falconG will automatically use the highest level security protocol (SFTP, FTPS) available on the server.
+If no secure protocol is available the upload will fail, unless you explicitely
+ allow the use of insecure FTP.</string>
+           </property>
+           <property name="text">
+            <string>Allo&amp;w unsafe FTP</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
           <widget class="QRadioButton" name="rbProtFtp">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="toolTip">
             <string>Exposes user name and password. Not recommended</string>
            </property>
            <property name="text">
-            <string>Unsafe (FTP)</string>
+            <string>Unsafe (&amp;FTP)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Port:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QSpinBox" name="sbPortFtp">
+           <property name="maximum">
+            <number>65535</number>
+           </property>
+           <property name="value">
+            <number>21</number>
            </property>
           </widget>
          </item>

@@ -15,6 +15,8 @@ using namespace Common;
 #include "albums.h"
 #include "thumbnailView.h"
 #include "schemes.h"
+#include "updownload.h"
+#include "UpDownloadDialog.h"
 #include "ui_falcong.h"
 
 #include <memory>
@@ -87,6 +89,7 @@ public:
 	int IsRunning() { return _running; }
 	void Stop() { --_running; }
 
+	int ShowTransferProgress(TransferDirection tdr, void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow);
 	AlbumTreeView* GetTreeViewPointer() const;
 	constexpr IDVal_t ActualDisplayedAlbum() const { return ui.tnvImages->AlbumID(); }
 
@@ -204,6 +207,8 @@ private:
 	void _AddSchemeButtons();
 	void _ResetScheme();			 //	use _tmpScheme
 	void _EnableColorSchemeButtons();
+
+	bool _GetUpDownloadData(bool download);
 
 private slots:
 	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed

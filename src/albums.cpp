@@ -2140,9 +2140,43 @@ bool AlbumGenerator::_CreateBaseDirectories()
 	return true;
 }
 
+bool AlbumGenerator::_ServerDataFromStruct(FileReader& reader)
+{
+	QString line = reader.l();
+	if (line.left(11) != "Server URL:")
+		return false;
+	config.sServerAddress = line.mid(12).trimmed();
+	line = reader.ReadLine();
+	if (line.left(5) == "User:")
+	{
+		config.sServerUser = line.mid(5).trimmed();
+		line = reader.ReadLine();
+		if (line.left(9) == "Protocol:")
+		{
+			config.nServerProtocol = line.mid(9).trimmed().toInt();
+			line = reader.ReadLine();
+			if (line.left(5) == "Port:")	// may overwrite default ports saved in config file
+			{
+				QStringList slPorts = config.sServerPorts.vd.split(',');
+				if (slPorts.size() == 4)
+				{
+					if(config.nServerProtocol)
+						slPorts[config.nServerProtocol-1] = line.mid(5);
+					config.sServerPorts = slPorts.join(',');
+					reader.ReadLine();	// first line for language
+					return true;
+				}
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
 /*==========================================================================
 * TASK:		reads language texts from structure
-* EXPECTS: reader - opened, flags set: needUtf8
+* EXPECTS: reader - opened, line already read flags set: needUtf8
+*							line is  [Language count: X
 * RETURNS: success code
 * REMARKS: throws on error
 *			if at the first run of the program no .lang files were present then
@@ -2151,7 +2185,7 @@ bool AlbumGenerator::_CreateBaseDirectories()
 *--------------------------------------------------------------------------*/
 bool AlbumGenerator::_LanguageFromStruct(FileReader & reader)
 {
-	QString line = reader.ReadLine(); // [Language count: X:
+	QString line = reader.l(); 
 // 'n' is temporary
 	int n = line[0] == '[' ? 1 : 0;
 	if (line.mid(n, 15) != "Language count:")
@@ -3234,7 +3268,10 @@ bool AlbumGenerator::_ReadStruct(QString fromFile)
 			config.majorStructVersion = line.left(pos).toInt();
 			config.minorStructVersion = line.mid(pos+1, pos1 - pos - 1).toInt(); // if no sub version: all after pos
 
-			_LanguageFromStruct(reader);  // throws when error
+			line = reader.ReadLine();
+			_ServerDataFromStruct(reader);
+
+			_LanguageFromStruct(reader);  // expects line already readthrows when error
 			emit SignalSetupLanguagesToUI();
 
 			QString rline = reader.ReadLine();		// discard empty and comments

@@ -14,8 +14,8 @@
 
 #include "curl/curl.h"
 
-enum class UpDownloadProtocol{ none, Sftp, FtpsExplicitTls, FtpsImplicitTls, Ftp };
-enum class TransferDirection {upload, download, bidirect, only_check_existence};
+enum class UpDownloadProtocol{ any, Sftp, FtpsExplicitTls, FtpsImplicitTls, Ftp };
+enum class TransferDirection {upload, download, bidirect, only_check_existence, dir_listing};
 
 /*struct ProgressData
 {
@@ -38,30 +38,29 @@ enum class TransferDirection {upload, download, bidirect, only_check_existence};
 // Arguments: clientp - not used by curl, just transferred to the callback function
 //						can point to anything, even to the callback function itself
 //						or any data structure
-//			  dltotal - expect this many bytes to download, upload only then = 0
-//			  dlnow   - bytes downloaded so far, when upload only then = 0
-//			  ultotal - expect this many bytes to upload, when download only then = 0
-//			  ulnow   - bytes uploaded so far, when download only then = 0
+//			  dltotal - expect this many bytes to download, 0 when upload only
+//			  dlnow   - bytes downloaded so far, 0 when upload only
+//			  ultotal - expect this many bytes to upload, 0 when download only
+//			  ulnow   - bytes uploaded so far, 0 when download only
+// Should return: 0 to continue, 1 to abort transfer
+//				  or CURL_PROGRESSFUNC_CONTINUE so the transfer continues 
+//				  executing the default progress function.
 using ProgressCallback = std::function<int(void* clientp, curl_off_t dltotal,
 				curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)>;
 
-// A function of type ProgressCallback is not called by curl directly!
-// curl calls a function (set with CURLOPT_XFERINFOFUNCTION) with
-// the five parameters in 'ProgressData'. That function (can be a lambda) should call
-// 'ProgressCallback'
-// using ProgressCallback = std::function<void(TransferDirection dir, ProgressData &)>;
-
 struct UpDownloadParams
 {
-	QUrl url;
-	QString filePath;
-	QString userName;
-	UpDownloadProtocol protocol=UpDownloadProtocol::none;
+	QUrl url;			// the url to download from or upload to, must be set before calling any transfer function
+	QString filePath;	// source or destination
+	QString userName;	// on server
+	UpDownloadProtocol protocol=UpDownloadProtocol::any;  // any:try all. Otherwise port from config is used
 	ProgressCallback progressCb;	// ProgressCallback();
 								//   clientp set by CURLOPT_XFERINFODATA, not used, just passed along to the callback 'progressCb'
 								//   dltotal - 
 								//	 dlnow - 
 								//	 ultotal,ulnow smilar but for upload
+
+
 	UpDownloadParams() {}
 	UpDownloadParams(const UpDownloadParams &params) 
 	{
@@ -69,7 +68,7 @@ struct UpDownloadParams
 	}
 
 	UpDownloadParams(const QUrl &url, const QString &file, const QString userName, 
-					/* !const */ QString pwd = "*", const UpDownloadProtocol prot = UpDownloadProtocol::none, 
+					/* !const */ QString pwd = "*", const UpDownloadProtocol prot = UpDownloadProtocol::any, 
 					ProgressCallback callback=nullptr)
 	{
 		Setup(url, file, userName, pwd, prot, callback);
@@ -91,6 +90,10 @@ struct UpDownloadParams
 	{
 		_EncodePasswordFrom(pwd);
 	}
+	constexpr void SetDirection(TransferDirection dir)
+	{
+		_direction = dir;
+	}
 
 	const QString DecodedPassword()	const
 	{
@@ -106,7 +109,7 @@ struct UpDownloadParams
 		userName.clear(); 
 		_password.clear(); 
 		progressCb = nullptr;
-		protocol = UpDownloadProtocol::none;
+		protocol = UpDownloadProtocol::any;
 	}
 private:
 	QString _password;
@@ -124,8 +127,11 @@ public:
 public:
 	struct RemoteFileInfo
 	{
-		bool exists = false;
-		std::optional<QDateTime> modifiedUtc;
+		bool exists = false;	// unly use for single file test
+		bool isDirectory = false;  // only used for folder listing
+		QString name;			// only used for folder listing
+		std::optional<QDateTime> modifiedUtc;  // to check if set: if(modifiedUtc) ...
+
 	};
 public:
 	bool InitCurl() //call once before doing anything
@@ -149,11 +155,12 @@ public:
 	}
 	constexpr bool StatusOk() const {return _curl_status == CURLE_OK;}
 
-	int SetupTransfer(const UpDownloadParams& params);	// before any transfer
+	int SetupTransfer(UpDownloadParams& params);	// before any transfer
 	bool OpenLocalFileForTransfer(UpDownloadParams& params);
 	int DownloadFile(UpDownloadParams &params);	// set url scheme and callback function into 'params' before calling this
 	int UploadFile(UpDownloadParams& params);		// -"-
 	RemoteFileInfo GetRemoteFileInfo(UpDownloadParams& params);
+	int GetFolderListings(UpDownloadParams& params);
 
 	void SetUrlScheme(QUrl &url, UpDownloadProtocol uproto);  // url is modified
 	QStringList DownloadCatalog(const QUrl& fromUrl);		 // of files on server in folder given by url
@@ -165,6 +172,10 @@ private:
 	CURL* _pCurl = nullptr;
 	QFile *_file = nullptr;
 	std::optional<QDateTime> _modifiedUtc;
+	QByteArray _dirList;			// only used for directory listing
+	QList<RemoteFileInfo> _entries;	// only used for directory listing
+
+	int _GetFolderListingForSftp(UpDownloadParams& params);
 
 	void _CloseLocalFile() 
 	{ 

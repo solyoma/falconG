@@ -144,38 +144,41 @@ void PROGRAM_CONFIG::GetHomePath()
 
 /*========================================================
  * TASK: Determines file name of configuration for ini
- *		 or struct files
+ *		 and struct files booth
  *		 	
  * PARAMS:	forSaveOrRead - name required for save or read
- *				for read: if file in source directory
- *							does not exist return default name
+ *				for read: if file does not exist in source 
+ *							directory return default name
  *				for save: always returns a name in the source
  *							directory
- *			sExt - extension (.ini or .struct)
+ *			sExt - extension (.ini, .struct or other)
  *					defaults: 'falconG.ini' and 'gallery.struct'
  * GLOBALS: lastConfigs, indexOfLastUsed
  * RETURNS:	full path name of config file even if it doesn't exist
  * REMARKS: - call only when 'lastConfigs' and 'indexOfLastConfig'
  *				are correct
  *			- Config file name is the directory name
- *				followed by the extension sExt inside
- *				the original directory
+ *				followed by the extension 'sExt' inside
+ *				the same directory
  *				Example: directory name: '/in/this/dir/'
  *				File name '/in/this/dir/dir.ini'
+ *				Therefore if you move the files into a different
+ *				folder than the original it will use the default
  *-------------------------------------------------------*/
 QString PROGRAM_CONFIG::NameForConfig(bool forSaveOrRead, QString sExt)
 {
-	QString sDefault = homePath;	// set before calling at program start: path of user directory
+	QString sDefault = homePath;	// set before calling at program start: path of user's home directory
 	if (sExt == ".ini")
 		sDefault += falconG_ini;
 	else
 		sDefault += "gallery.struct";
 
-	QString sIniName, p, n, s;				  // if there was a last used directory read from it
+	QString sIniName, p, n, s;		// if there was a last used gallery (.struct) directory use that
 
 	if (lastConfigs.isEmpty() || indexOfLastUsed < 0)
-		return sDefault;
+		return sDefault;			// no last config. Use file in user's home directory
 
+	// ---- read all parameters from the gallery folder ---
 	s = lastConfigs[indexOfLastUsed];
 
 	SeparateFileNamePath(s, p, n);	// cuts '/' from name
@@ -1434,7 +1437,7 @@ void CONFIG::ClearChanged()
 	sServerAddress.ClearChanged();
 	sServerUser.ClearChanged();
 	nServerProtocol.ClearChanged();
-	nServerPort.ClearChanged();
+	sServerPorts.ClearChanged();
 
 	sBaseName.ClearChanged();
 	sMailTo.ClearChanged();
@@ -1642,7 +1645,7 @@ void CONFIG::FromOther(const CONFIG &cfg)
 	sServerAddress = cfg.sServerAddress;
 	sServerUser = cfg.sServerUser;
 	nServerProtocol = cfg.nServerProtocol;
-	nServerPort = cfg.nServerPort;
+	sServerPorts = cfg.sServerPorts;
 
 	sDefFonts = cfg.sDefFonts;
 	sBaseName = cfg.sBaseName;
@@ -1866,7 +1869,7 @@ void CONFIG::Read()		// synchronize with Write!
 	sServerAddress.Read(s);
 	sServerUser.Read(s);
 	nServerProtocol.Read(s);
-	nServerPort.Read(s);
+	sServerPorts.Read(s);
 
 	Web.Read(s);		// sets common colors and fonts, which may be modified later
 						// on read
@@ -2012,7 +2015,7 @@ void CONFIG::_WriteIni(QString sIniName)
 	
 	sServerAddress.Write(s);
 	nServerProtocol.Write(s);
-	nServerPort.Write(s);
+	sServerPorts.Write(s);
 	if (bRememberUser)
 		sServerUser.Write(s);	// but never the password
 	else

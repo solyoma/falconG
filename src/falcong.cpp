@@ -145,6 +145,11 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 	return true;	// copied or already there
 }
 // ============================================================================================================
+
+int __UpDownloadCallback(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+	return ((FalconG*)frmMain)->ShowTransferProgress(TransferDirection::download, clientp, dltotal, dlnow, ultotal, ulnow);  // continue execution
+}
 /*============================================================================
 * TASK:		construct a FalconG object, read its parameters, set up controls
 *			and sample web page
@@ -440,7 +445,7 @@ void FalconG::closeEvent(QCloseEvent * event)
 		{
 			QMessageBox::StandardButtons btns = QMessageBox::Yes | QMessageBox::No;
 			int res = QuestionDialog( tr("falconG"),
-							 tr("Do you really want to exit?"),
+							 tr("Do you really want to exit and save changed configuration?"),
 							 dboAskBeforeClosing,
 							 frmMain,
 							 tr("Don't ask again (use Options to re-enable))"),
@@ -672,9 +677,13 @@ void FalconG::on_btnCloseAllViewers_clicked()
  *------------------------------------------------------------*/
 void FalconG::on_btnDownloadAll_clicked()
 {
+	if (_GetUpDownloadData(true))	// download
+	{
+		// do full download from server
+		// TODO
 
+	}
 }
-
 /*============================================================================
 * TASK:
 * EXPECTS:
@@ -698,6 +707,7 @@ void FalconG::_EnableButtons()
 
 	ui.btnGenerate->setEnabled(bEnable1 && bEnable2);
 	ui.btnSaveStyleSheet->setEnabled(bEnable2);
+	ui.btnDownloadAll->setEnabled(bEnable1 && bEnable2);
 	ui.btnSaveConfig->setEnabled(config.Changed());
 }
 
@@ -1095,6 +1105,44 @@ void FalconG::_EnableColorSchemeButtons()
 	int i = ui.lwColorScheme->currentRow(); // is 2 less than  the real index in the schemes array
 	ui.btnMoveSchemeUp->setEnabled(i > 0);
 	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size() - 2 - 1);
+}
+
+bool FalconG::_GetUpDownloadData(bool download)
+{
+	UpDownloadDialog::Data udData;
+
+	udData.isDownload = download;
+	udData.qsServer = config.sServerAddress.ToString();
+	udData.qsRootFolder = config.dsGRoot.ToString();
+	if (udData.qsRootFolder.isEmpty())
+		udData.qsRootFolder = QString("public_html");
+
+	udData.qsUser = config.sServerUser.ToString();
+	udData.qsPassword = config.sServerPassword.ToString();
+	udData.SetPortsFromString(config.sServerPorts);
+
+	switch (config.nServerProtocol)
+	{
+		default:
+		case 0: udData.protocol = UpDownloadDialog::Protocol::Auto; break;
+		case 1: udData.protocol = UpDownloadDialog::Protocol::Sftp; break;
+		case 2: udData.protocol = UpDownloadDialog::Protocol::FtpsTls; break;
+		case 3: udData.protocol = UpDownloadDialog::Protocol::Ftps; break;
+		case 4: udData.protocol = UpDownloadDialog::Protocol::Ftp; break;
+	}
+
+	UpDownloadDialog udDialog(udData, this);
+
+	if (udDialog.exec())
+	{
+		config.sServerUser = udData.qsUser;
+		config.sServerPassword = udData.qsPassword;
+		config.sServerPorts = udData.PortsAsString();
+		config.nServerProtocol = (int)udData.protocol;
+		_SetConfigChanged(true);
+		return true;
+	}
+	return false;
 }
 
 void FalconG::_SlotForSchemeButtonClick(int which)
@@ -2042,30 +2090,16 @@ void FalconG::on_btnShadowColor_clicked()
  *------------------------------------------------------------*/
 void FalconG::on_btnUpload_clicked()
 {
-	UpDownloadDialog::Data udData;
-	udData.qsServer = config.sServerAddress.ToString();
-	udData.qsRootFolder = config.dsGRoot.ToString();
-	udData.qsUser = config.sServerUser.ToString();
-	udData.qsPassword = config.sServerPassword.ToString();
-	udData.port = config.nServerPort;
-	switch (config.nServerProtocol)
+	if(_GetUpDownloadData(false))	// upload
 	{
-		case 0: udData.protocol = UpDownloadDialog::Protocol::Auto; break;
-		case 2: udData.protocol = UpDownloadDialog::Protocol::Sftp; break;
-		case 1: udData.protocol = UpDownloadDialog::Protocol::SftpTls; break;
-		case 3: udData.protocol = UpDownloadDialog::Protocol::FtpS; break;
-		case 4: udData.protocol = UpDownloadDialog::Protocol::Ftp; break;
-	}
+		// now upload and maybe remove leftovers from server
+		// TODO
+		QString qsServerRoot = config.dsGRoot.ToString() + config.dsGallery.ToString();
 
-	UpDownloadDialog udDialog(udData, this);
-
-	if (udDialog.exec())
-	{
-		config.sServerUser = udData.qsUser;
-		config.sServerPassword = udData.qsPassword;
-		config.nServerPort = udData.port;
-		config.nServerProtocol = (int)udData.protocol;
-		_SetConfigChanged(true);
+		UpDownloadParams params(config.sServerAddress.ToString(), qsServerRoot, 
+								config.sServerUser.ToString(), config.sServerPassword.ToString(), 
+								(UpDownloadProtocol)config.nServerProtocol.v,
+								__UpDownloadCallback);
 	}
 }
 
@@ -5742,6 +5776,21 @@ void FalconG::_SlotSetProgressBar(int minimum, int maximum, int pos, int phase)
 int FalconG::GetProgressBarPos()
 {
 	return ui.progressBar->value();
+}
+int FalconG::ShowTransferProgress(TransferDirection tdr, void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+	if (tdr == TransferDirection::upload)
+	{
+		ui.progressBar->setMaximum(ultotal);
+		ui.progressBar->setValue(ulnow);
+	}
+	else
+	{
+		ui.progressBar->setMaximum(dltotal);
+		ui.progressBar->setValue(dlnow);
+	}
+
+	return 0;
 }
 AlbumTreeView* FalconG::GetTreeViewPointer() const
 {

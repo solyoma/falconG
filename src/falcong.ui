@@ -393,55 +393,7 @@
           <property name="title">
            <string>Gallery on Server</string>
           </property>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_19">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Ser&amp;ver address</string>
-             </property>
-             <property name="buddy">
-              <cstring>edtServerAddress</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="edtServerAddress">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="placeholderText">
-              <string>your.site.com (Setting the http:// or https://  prefix here overrides  'Force secure (HTTPS) access' below)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_20">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Root gallery folder</string>
-             </property>
-             <property name="buddy">
-              <cstring>edtGalleryRoot</cstring>
-             </property>
-            </widget>
-           </item>
+          <layout class="QGridLayout" name="gridLayout_25">
            <item row="1" column="1">
             <widget class="QLineEdit" name="edtGalleryRoot">
              <property name="font">
@@ -452,15 +404,15 @@
               </font>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually &lt;span style=&quot; font-weight:600;&quot;&gt;'public_htm&lt;/span&gt;l' in your home folder. This will be the directory (folder) of the top level&lt;span style=&quot; font-weight:600;&quot;&gt; index*.html&lt;/span&gt; Web page(s). All of &lt;span style=&quot; font-style:italic;&quot;&gt;falconG&lt;/span&gt;'s other files and folders will be inside this directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Any path entered into this field will be relative to the web root of the server, which on linux (or Unix) servers is usually &lt;span style=&quot; font-weight:600;&quot;&gt;'public_htm&lt;/span&gt;l' in your home folder. This will be the directory (folder) of the top level&lt;span style=&quot; font-weight:600;&quot;&gt; index*.html&lt;/span&gt; web page(s). All of &lt;span style=&quot; font-style:italic;&quot;&gt;falconG&lt;/span&gt;' generated files and folders reside inside this directory, unless checkbox '&lt;span style=&quot; font-style:italic;&quot;&gt;no public_html&lt;/span&gt;' at the right is checked.&lt;/p&gt;&lt;p&gt;To access your gallery only the name given here, if any, is needed. The name &lt;span style=&quot; font-style:italic;&quot;&gt;public_html &lt;/span&gt;is neither required, nor allowed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="placeholderText">
               <string>Path of gallery root on your site. When empty &quot;public_html&quot; is used.</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_5">
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_61">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -469,24 +421,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Embed into page:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="edtUplink">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All sub-galleries of the main gallery has an uplink button (&lt;span style=&quot; font-weight:600;&quot;&gt;up arrow&lt;/span&gt;) and a &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button. The &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button takes the user to the home page on the site. This field either contains the link to the home page or it is left empty. &lt;/p&gt;&lt;p&gt;If left empty then the top level &lt;span style=&quot; font-style:italic;&quot;&gt;Main gallery page &lt;/span&gt;is used. That defaults to &lt;span style=&quot; font-weight:600;&quot;&gt;index.html&lt;/span&gt;. (see the hint for that field for details.)&lt;/p&gt;&lt;p&gt;If you want to embed your gallery into another WEB page then set this as the address of that page.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="placeholderText">
-              <string>Empty (default) or the page to use when the Home menu is clicked.</string>
+              <string>Keywords</string>
              </property>
             </widget>
            </item>
@@ -507,7 +442,120 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Embed into page:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_36">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Site Description</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_19">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Ser&amp;ver address</string>
+             </property>
+             <property name="buddy">
+              <cstring>edtServerAddress</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_20">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Root gallery folder</string>
+             </property>
+             <property name="buddy">
+              <cstring>edtGalleryRoot</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="chkNoPublicHtml">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked&lt;span style=&quot; font-style:italic;&quot;&gt; and&lt;/span&gt; a name of the root gallery folder is given then that folder is in&lt;br/&gt;the root of the server.&lt;br/&gt;If unchecked then your gallery (including the root gallery folder used)&lt;br/&gt;is inside &lt;span style=&quot; font-weight:600;&quot;&gt;public_html&lt;/span&gt; .&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>no 'public_html'</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2">
+            <widget class="QLineEdit" name="edtServerAddress">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="placeholderText">
+              <string>your.site.com (Setting the http:// or https://  prefix here overrides  'Force secure (HTTPS) access' below)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="edtUplink">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;All sub-galleries of the main gallery has an uplink button (&lt;span style=&quot; font-weight:600;&quot;&gt;up arrow&lt;/span&gt;) and a &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button. The &lt;span style=&quot; font-weight:600;&quot;&gt;Home&lt;/span&gt; button takes the user to the home page on the site. This field either contains the link to the home page or it is left empty. &lt;/p&gt;&lt;p&gt;If left empty then the top level &lt;span style=&quot; font-style:italic;&quot;&gt;Main gallery page &lt;/span&gt;is used. That defaults to &lt;span style=&quot; font-weight:600;&quot;&gt;index.html&lt;/span&gt;. (see the hint for that field for details.)&lt;/p&gt;&lt;p&gt;If you want to embed your gallery into another WEB page then set this as the address of that page.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="placeholderText">
+              <string>Empty (default) or the page to use when the Home menu is clicked.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" colspan="2">
             <widget class="QLineEdit" name="edtMainPage">
              <property name="font">
               <font>
@@ -527,21 +575,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_36">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Site Description</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
+           <item row="4" column="1" colspan="2">
             <widget class="QLineEdit" name="edtSiteDescription">
              <property name="font">
               <font>
@@ -555,21 +589,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_61">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Keywords</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
+           <item row="5" column="1" colspan="2">
             <widget class="QLineEdit" name="edtKeywords">
              <property name="font">
               <font>

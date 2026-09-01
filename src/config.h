@@ -1064,8 +1064,8 @@ public:
 	_CBool bRememberUser = { false, "bRememberUser" };	// remember user name between sessions? Password is never remembered;
 	_CString sServerUser = { "","sServerUser" };		// server user name
 	_CString sServerPassword = { "", "sServerPassword" };// only valid when the program is running TODO: clear after a time period
-	_CInt nServerProtocol = { 0, "sServerProtocol" };	// protocol: Auto, sftp, ftps+TLS, ftps, ftp
-	_CInt nServerPort = { 22,"nServerPort" };			// port number		22,		21,		990,  20
+	_CInt nServerProtocol = { 0, "sServerProtocol" };	// index of protocol: 0:Auto, 1:sftp, 2:ftps+TLS, 3:ftps, 4:ftp
+	_CString sServerPorts = { "22,21,990,21","nServerPort" };	// port number for	SFTP, FTPS+TLS,FTPS, FTP, Auto (port 0) can't be changed
 
 	_CDirStr dsGRoot = { "" ,"dsgRoot"};			// name of root directory on server (in public_html or in dsGallery)
 	_CDirStr dsAlbumDir = {"albums/","dsAlbumDir"};		// (path) name of album directory (usually inside dsGRoot)
@@ -1075,7 +1075,7 @@ public:
 	_CDirStr dsImageDir = {"imgs/","dsImageDir"};		// images on server AND or destination
 	_CDirStr dsThumbDir = {"thumbs/","dsThumbDir"};		// thumbnail directory on server AND or destination
 	_CDirStr dsVideoDir = {"vids/","dsVideoDir"};		// videos on server AND or destination
-	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// lats new image is loaded from here
+	_CDirStr dsLastImageDir = { "","dsLastImageDir"};	// last new image is loaded from here
 
 	_CInt nMaxItemsInDirs = { 0, "nMaxItemsInDirs" };		// n = 0: any number, n < 1000 => 1000, n > 1000 => n
 

@@ -735,6 +735,7 @@ private:
 	int _DoLatest();
 	int _DoHtAccess();
 				// read 'gallery.struct
+	bool _ServerDataFromStruct(FileReader &reader);
 	bool _LanguageFromStruct(FileReader &reader);
 	ID_t _ReadImageOrVideoFromStruct(FileReader &reader, int level, Album *album, bool thumbnail);
 	IDVal_t _ReadAlbumFromStruct(FileReader &reader, IDVal_t parentId, int level);

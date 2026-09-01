@@ -321,6 +321,7 @@ void FileReader::_readBinaryLine()
 * REMARKS:	- reads line in binary mode
 *				_line read is always UTF-8 encoded
 *			- '_flags' determine what to do with line
+*				frfNormal - skip comment and empty lines and not trim it
 *				frfAllLines - keep all lines even that of only white spaces
 *				frfEmptyLines - keep empty lines (white spaces are collapsed)
 *				frfCommentLines - keep comment (starting with a '#' (in) lines
