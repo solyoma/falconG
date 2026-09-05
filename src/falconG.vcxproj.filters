@@ -90,7 +90,7 @@
     <ClCompile Include="updownload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UpDownloadDialog.cpp">
+    <ClCompile Include="TransferDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -157,7 +157,7 @@
     <QtUic Include="exportCSV.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="UpDownloadDialog.ui">
+    <QtUic Include="TransferDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

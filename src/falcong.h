@@ -16,7 +16,7 @@ using namespace Common;
 #include "thumbnailView.h"
 #include "schemes.h"
 #include "updownload.h"
-#include "UpDownloadDialog.h"
+#include "TransferDialog.h"
 #include "ui_falcong.h"
 
 #include <memory>
@@ -208,7 +208,7 @@ private:
 	void _ResetScheme();			 //	use _tmpScheme
 	void _EnableColorSchemeButtons();
 
-	bool _GetUpDownloadData(bool download);
+	bool _GetTransferData(bool download);
 
 private slots:
 	void _SlotAlbumChanged();	// e.g. image or album added to it, image name/path changed

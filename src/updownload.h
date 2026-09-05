@@ -14,7 +14,7 @@
 
 #include "curl/curl.h"
 
-enum class UpDownloadProtocol{ any, Sftp, FtpsExplicitTls, FtpsImplicitTls, Ftp };
+enum class TransferProtocol{ any, Sftp, FtpsExplicitTls, FtpsImplicitTls, Ftp };
 enum class TransferDirection {upload, download, bidirect, only_check_existence, dir_listing};
 
 /*struct ProgressData
@@ -48,12 +48,55 @@ enum class TransferDirection {upload, download, bidirect, only_check_existence, 
 using ProgressCallback = std::function<int(void* clientp, curl_off_t dltotal,
 				curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)>;
 
-struct UpDownloadParams
+struct Password
+{
+	Password() {}
+	Password(QString &pwd) { _Encode(pwd);  }
+	Password(const Password& opwd) { *this = opwd; }
+	~Password() 
+	{
+		Clear();
+	}
+	Password& operator=(const QString pwd)
+	{
+		_Encode(pwd);
+		return *this;
+	}
+	Password& operator=(const Password &pwd)
+	{
+		_encodedPwd = pwd._encodedPwd;
+		return *this;
+	}
+	const QString ToString() const
+	{
+		return _Decode();
+	}
+	void Clear()
+	{	// overwrite in-place before clearing for 'false safety'
+		for (int i = 0; i < _encodedPwd.length() && i < 256; ++i)
+			_encodedPwd[i] = (i & 1 ? '\xff' : '\x55');
+		_encodedPwd.clear();
+	}
+private:
+	QString _encodedPwd;	// first two QChars are 0x03 and 0x00
+
+	const QString _Decode() const
+	{
+		return _encodedPwd.mid(2);		// TODO: decode
+	}
+	void _Encode(const QString& pwd)
+	{	 // TODO: encode
+		_encodedPwd = QString("%1%1%3").arg(0x01).arg(0x00).arg(pwd);// mark encoded
+	}
+};
+
+struct TransferParams
 {
 	QUrl url;			// the url to download from or upload to, must be set before calling any transfer function
 	QString filePath;	// source or destination
 	QString userName;	// on server
-	UpDownloadProtocol protocol=UpDownloadProtocol::any;  // any:try all. Otherwise port from config is used
+	Password password;
+	TransferProtocol protocol=TransferProtocol::any;  // any:try all. Otherwise port from config is used
 	ProgressCallback progressCb;	// ProgressCallback();
 								//   clientp set by CURLOPT_XFERINFODATA, not used, just passed along to the callback 'progressCb'
 								//   dltotal - 
@@ -61,14 +104,14 @@ struct UpDownloadParams
 								//	 ultotal,ulnow smilar but for upload
 
 
-	UpDownloadParams() {}
-	UpDownloadParams(const UpDownloadParams &params) 
+	TransferParams() {}
+	TransferParams(const TransferParams &params) 
 	{
-		Setup(params.url, params.filePath, params.userName, params._password, params.protocol, params.progressCb);
+		Setup(params.url, params.filePath, params.userName, params.password, params.protocol, params.progressCb);
 	}
 
-	UpDownloadParams(const QUrl &url, const QString &file, const QString userName, 
-					/* !const */ QString pwd = "*", const UpDownloadProtocol prot = UpDownloadProtocol::any, 
+	TransferParams(const QUrl &url, const QString &file, const QString userName, 
+					/* !const */ Password pwd, const TransferProtocol prot = TransferProtocol::any, 
 					ProgressCallback callback=nullptr)
 	{
 		Setup(url, file, userName, pwd, prot, callback);
@@ -80,26 +123,20 @@ struct UpDownloadParams
 	}
 	constexpr TransferDirection Direction() const { return _direction; }
 
-	void Setup(const QUrl& theUrl, const QString file, const QString user, /* !const */ QString pwd, const UpDownloadProtocol prot, ProgressCallback callback)
+	void Setup(const TransferParams& params)
 	{
-		url = theUrl; filePath = file; userName = user; protocol = prot; progressCb = callback;
-		SetPassword(pwd);
+		*this = params;	// including private members
 	}
 
-	void SetPassword(QString &pwd)
+	void Setup(const QUrl& theUrl, const QString file, const QString user, /* !const */ Password pwd, 
+				const TransferProtocol prot, ProgressCallback callback)
 	{
-		_EncodePasswordFrom(pwd);
+		url = theUrl; filePath = file; userName = user; protocol = prot; progressCb = callback;
+		password = pwd;
 	}
 	constexpr void SetDirection(TransferDirection dir)
 	{
 		_direction = dir;
-	}
-
-	const QString DecodedPassword()	const
-	{
-		QString qs;
-		_DecodePasswordTo(qs);
-		return qs.toUtf8();
 	}
 
 	void Clear() 
@@ -107,23 +144,20 @@ struct UpDownloadParams
 		url.clear(); 
 		filePath.clear(); 
 		userName.clear(); 
-		_password.clear(); 
+		password.Clear();
 		progressCb = nullptr;
-		protocol = UpDownloadProtocol::any;
+		protocol = TransferProtocol::any;
+		_direction = TransferDirection::download; 
 	}
 private:
-	QString _password;
 	TransferDirection _direction = TransferDirection::download;
-
-	void _EncodePasswordFrom(const QString &pwd);
-	void _DecodePasswordTo(QString &pwd) const; 
 };
 
-class UpDownload
+class Transfer
 {
 public:
-	UpDownload();
-	~UpDownload();
+	Transfer();
+	~Transfer();
 public:
 	struct RemoteFileInfo
 	{
@@ -134,16 +168,20 @@ public:
 
 	};
 public:
-	bool InitCurl() //call once before doing anything
+	int InitCurl() //call once before doing anything
 	{
 		_pCurl = curl_easy_init();
 		if (!_pCurl)
 			return _curl_status = CURLE_FAILED_INIT;
+		return CURLE_OK;
 	}
 	void CleanupCurl() //call after all transfers are finished
 	{
-		curl_easy_cleanup(_pCurl);
-		_pCurl = nullptr;
+		if (_pCurl)
+		{
+			curl_easy_cleanup(_pCurl);
+			_pCurl = nullptr;
+		}
 	}
 	constexpr int Status(bool clear = false)
 	{
@@ -155,14 +193,14 @@ public:
 	}
 	constexpr bool StatusOk() const {return _curl_status == CURLE_OK;}
 
-	int SetupTransfer(UpDownloadParams& params);	// before any transfer
-	bool OpenLocalFileForTransfer(UpDownloadParams& params);
-	int DownloadFile(UpDownloadParams &params);	// set url scheme and callback function into 'params' before calling this
-	int UploadFile(UpDownloadParams& params);		// -"-
-	RemoteFileInfo GetRemoteFileInfo(UpDownloadParams& params);
-	int GetFolderListings(UpDownloadParams& params);
+	int SetupTransfer(TransferParams& params);	// before any transfer and after InitCurl() and SetUrlScheme()
+	bool OpenLocalFileForTransfer(TransferParams& params);
+	int DownloadFile(TransferParams &params);	// set url scheme and callback function into 'params' before calling this
+	int UploadFile(TransferParams& params);		// -"-
+	RemoteFileInfo GetRemoteFileInfo(TransferParams& params);
+	int GetFolderListings(TransferParams& params);
 
-	void SetUrlScheme(QUrl &url, UpDownloadProtocol uproto);  // url is modified
+	void SetUrlScheme(QUrl &url, TransferProtocol uproto);  // url is modified
 	QStringList DownloadCatalog(const QUrl& fromUrl);		 // of files on server in folder given by url
 	int DownloadFolder(const QUrl& fromUrl, const QString& toLocalFolder, bool recursively = false);
 	int Synchronize(const QUrl& withUrl, bool onlyUploadAndNoDeletionFromServer = true);
@@ -175,7 +213,7 @@ private:
 	QByteArray _dirList;			// only used for directory listing
 	QList<RemoteFileInfo> _entries;	// only used for directory listing
 
-	int _GetFolderListingForSftp(UpDownloadParams& params);
+	int _GetFolderListingForSftp(TransferParams& params);
 
 	void _CloseLocalFile() 
 	{ 

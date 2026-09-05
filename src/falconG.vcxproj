@@ -231,7 +231,7 @@
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="dragdrop.cpp" />
     <ClCompile Include="schemes.cpp" />
-    <ClCompile Include="UpDownloadDialog.cpp" />
+    <ClCompile Include="TransferDialog.cpp" />
     <ClCompile Include="structwriter.cpp" />
     <ClCompile Include="treeView.cpp" />
     <ClCompile Include="main.cpp">
@@ -272,7 +272,7 @@
     <QtUic Include="hidden.ui" />
     <QtUic Include="imageviewer.ui" />
     <QtUic Include="selectStruct.ui" />
-    <QtUic Include="UpDownloadDialog.ui" />
+    <QtUic Include="TransferDialog.ui" />
     <QtUic Include="sourcehistory.ui" />
     <QtUic Include="textEditor.ui" />
   </ItemGroup>
@@ -281,7 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="csscreator.h" />
-    <QtMoc Include="UpDownloadDialog.h" />
+    <QtMoc Include="TransferDialog.h" />
     <ClInclude Include="updownload.h" />
     <QtMoc Include="videoplayer.h" />
     <QtMoc Include="textEditor.h" />

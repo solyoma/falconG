@@ -1,6 +1,6 @@
-﻿#include "UpDownloadDialog.h"
+﻿#include "TransferDialog.h"
 
-UpDownloadDialog::UpDownloadDialog(UpDownloadDialog::Data &data, QWidget* parent)
+TransferDialog::TransferDialog(TransferDialog::Data &data, QWidget* parent)
                                     : QDialog(parent), _data(data)
 {
     ui.setupUi(this);
@@ -9,7 +9,7 @@ UpDownloadDialog::UpDownloadDialog(UpDownloadDialog::Data &data, QWidget* parent
 
     if (_data.isDownload)
     {
-        ui.lblUpDownload->setText(tr("Download from"));
+        ui.lblTransfer->setText(tr("Download from"));
         ui.lblToFromDir->setText(tr("From folder"));
     }
 
@@ -43,7 +43,7 @@ UpDownloadDialog::UpDownloadDialog(UpDownloadDialog::Data &data, QWidget* parent
     _busy = false;
 }
 
-UpDownloadDialog::~UpDownloadDialog()
+TransferDialog::~TransferDialog()
 {
     for (int i = 0; i < 4; ++i)
     {
@@ -52,66 +52,66 @@ UpDownloadDialog::~UpDownloadDialog()
     }
 }
 
-void UpDownloadDialog::on_tbtnShowPassword_pressed()
+void TransferDialog::on_tbtnShowPassword_pressed()
 {
     ui.edtPassword->setEchoMode(QLineEdit::Normal);
 }
 
-void UpDownloadDialog::on_tbtnShowPassword_released()
+void TransferDialog::on_tbtnShowPassword_released()
 {
     ui.edtPassword->setEchoMode(QLineEdit::Password);
 
 }
 
-void UpDownloadDialog::on_chkUnsecure_toggled(bool checked)
+void TransferDialog::on_chkUnsecure_toggled(bool checked)
 {
 	ui.rbProtFtp->setEnabled(checked);
 	if (!checked && ui.rbProtFtp->isChecked())
 		ui.rbProtAuto->setChecked(true);
 }
 
-void UpDownloadDialog::on_edtUser_textChanged(const QString& txt)
+void TransferDialog::on_edtUser_textChanged(const QString& txt)
 {
     if (_busy)
         return;
     _data.qsUser = ui.edtUser->text();
 }
-void UpDownloadDialog::on_edtPassword_textChanged(const QString& txt)
+void TransferDialog::on_edtPassword_textChanged(const QString& txt)
 {
     if (_busy)
         return;
     _data.qsPassword = ui.edtPassword->text();
 }
 // ports
-void UpDownloadDialog::on_rbProtAuto_toggled(bool on)
+void TransferDialog::on_rbProtAuto_toggled(bool on)
 {
     if (_busy)
         return;
     if (on)
         _data.protocol = Protocol::Auto;
 }
-void UpDownloadDialog::on_rbProtSftp_toggled(bool on)
+void TransferDialog::on_rbProtSftp_toggled(bool on)
 {
     if (_busy)
         return;
     if (on)
         _data.protocol = Protocol::Sftp;
 }
-void UpDownloadDialog::on_rbProtFtpsTls_toggled(bool on)
+void TransferDialog::on_rbProtFtpsTls_toggled(bool on)
 {
     if (_busy)
         return;
     if (on)
         _data.protocol = Protocol::FtpsTls;
 }
-void UpDownloadDialog::on_rbProtFtps_toggled(bool on)
+void TransferDialog::on_rbProtFtps_toggled(bool on)
 {
     if (_busy)
         return;
     if (on)
         _data.protocol = Protocol::Ftps;
 }
-void UpDownloadDialog::on_rbProtFtp_toggled(bool on)
+void TransferDialog::on_rbProtFtp_toggled(bool on)
 {
     if (_busy)
         return;
@@ -119,27 +119,27 @@ void UpDownloadDialog::on_rbProtFtp_toggled(bool on)
         _data.protocol = Protocol::Ftp;
 }
 
-void UpDownloadDialog::on_sbPortSftp_valueChanged(int value)
+void TransferDialog::on_sbPortSftp_valueChanged(int value)
 {
     if (_busy)
         return;
     _data.PortsAsString();
 }
-void UpDownloadDialog::on_sbPortFtps_valueChanged(int value)
-{
-    if (_busy)
-        return;
-    _data.PortsAsString();
-}
-
-void UpDownloadDialog::on_sbPortFtpsTls_valueChanged(int value)
+void TransferDialog::on_sbPortFtps_valueChanged(int value)
 {
     if (_busy)
         return;
     _data.PortsAsString();
 }
 
-void UpDownloadDialog::on_sbPortFtp_valueChanged(int value)
+void TransferDialog::on_sbPortFtpsTls_valueChanged(int value)
+{
+    if (_busy)
+        return;
+    _data.PortsAsString();
+}
+
+void TransferDialog::on_sbPortFtp_valueChanged(int value)
 {
     if (_busy)
         return;

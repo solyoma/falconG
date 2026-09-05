@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UpDownloadDialogClass</class>
- <widget class="QDialog" name="UpDownloadDialogClass">
+ <class>TransferDialogClass</class>
+ <widget class="QDialog" name="TransferDialogClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -33,7 +33,7 @@
        <widget class="QWidget" name="widget_2" native="true">
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
-          <widget class="QLabel" name="lblUpDownload">
+          <widget class="QLabel" name="lblTransfer">
            <property name="text">
             <string>Upload to server:</string>
            </property>
@@ -277,7 +277,7 @@ If no secure protocol is available the upload will fail, unless you explicitely
   <connection>
    <sender>btnBox</sender>
    <signal>accepted()</signal>
-   <receiver>UpDownloadDialogClass</receiver>
+   <receiver>TransferDialogClass</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -293,7 +293,7 @@ If no secure protocol is available the upload will fail, unless you explicitely
   <connection>
    <sender>btnBox</sender>
    <signal>rejected()</signal>
-   <receiver>UpDownloadDialogClass</receiver>
+   <receiver>TransferDialogClass</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -24,7 +24,7 @@
 #include "imageviewer.h"
 #include "selectStruct.h"
 #include "videoplayer.h"
-#include "UpDownloadDialog.h"
+#include "TransferDialog.h"
 #include "updownload.h"
 
 #ifdef _DEBUG
@@ -146,7 +146,7 @@ static bool _CopyResourceFileToSampleDir(QString resPath, QString name, bool ove
 }
 // ============================================================================================================
 
-int __UpDownloadCallback(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+int __TransferCallback(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
 {
 	return ((FalconG*)frmMain)->ShowTransferProgress(TransferDirection::download, clientp, dltotal, dlnow, ultotal, ulnow);  // continue execution
 }
@@ -677,7 +677,7 @@ void FalconG::on_btnCloseAllViewers_clicked()
  *------------------------------------------------------------*/
 void FalconG::on_btnDownloadAll_clicked()
 {
-	if (_GetUpDownloadData(true))	// download
+	if (_GetTransferData(true))	// download
 	{
 		// do full download from server
 		// TODO
@@ -697,7 +697,8 @@ void FalconG::_EnableButtons()
 
 	bool bEnable1 = !ui.edtSourceGallery->text().isEmpty() &&
 					!ui.edtServerAddress->text().isEmpty(),
-		 bEnable2 = !ui.edtDestGallery->text().isEmpty();
+		 bEnable2 = !ui.edtDestGallery->text().isEmpty(),
+		 bEnable3 = !ui.edtGalleryRoot->text().isEmpty();
 
 	if (bEnable1)
 	{
@@ -709,6 +710,10 @@ void FalconG::_EnableButtons()
 	ui.btnSaveStyleSheet->setEnabled(bEnable2);
 	ui.btnDownloadAll->setEnabled(bEnable1 && bEnable2);
 	ui.btnSaveConfig->setEnabled(config.Changed());
+
+	ui.chkNoPublicHtml->setEnabled(bEnable3);
+	if(!bEnable3 && ui.chkNoPublicHtml->isChecked())
+		ui.chkNoPublicHtml->setChecked(bEnable3);
 }
 
 _CElem* FalconG::_PtrToElement(AlbumElement ae)
@@ -1107,9 +1112,9 @@ void FalconG::_EnableColorSchemeButtons()
 	ui.btnMoveSchemeDown->setEnabled(i >= 0 && i < schemes.size() - 2 - 1);
 }
 
-bool FalconG::_GetUpDownloadData(bool download)
+bool FalconG::_GetTransferData(bool download)
 {
-	UpDownloadDialog::Data udData;
+	TransferDialog::Data udData;
 
 	udData.isDownload = download;
 	udData.qsServer = config.sServerAddress.ToString();
@@ -1124,14 +1129,14 @@ bool FalconG::_GetUpDownloadData(bool download)
 	switch (config.nServerProtocol)
 	{
 		default:
-		case 0: udData.protocol = UpDownloadDialog::Protocol::Auto; break;
-		case 1: udData.protocol = UpDownloadDialog::Protocol::Sftp; break;
-		case 2: udData.protocol = UpDownloadDialog::Protocol::FtpsTls; break;
-		case 3: udData.protocol = UpDownloadDialog::Protocol::Ftps; break;
-		case 4: udData.protocol = UpDownloadDialog::Protocol::Ftp; break;
+		case 0: udData.protocol = TransferDialog::Protocol::Auto; break;
+		case 1: udData.protocol = TransferDialog::Protocol::Sftp; break;
+		case 2: udData.protocol = TransferDialog::Protocol::FtpsTls; break;
+		case 3: udData.protocol = TransferDialog::Protocol::Ftps; break;
+		case 4: udData.protocol = TransferDialog::Protocol::Ftp; break;
 	}
 
-	UpDownloadDialog udDialog(udData, this);
+	TransferDialog udDialog(udData, this);
 
 	if (udDialog.exec())
 	{
@@ -2090,16 +2095,30 @@ void FalconG::on_btnShadowColor_clicked()
  *------------------------------------------------------------*/
 void FalconG::on_btnUpload_clicked()
 {
-	if(_GetUpDownloadData(false))	// upload
+	if(_GetTransferData(false))	// upload
 	{
 		// now upload and maybe remove leftovers from server
 		// TODO
 		QString qsServerRoot = config.dsGRoot.ToString() + config.dsGallery.ToString();
 
-		UpDownloadParams params(config.sServerAddress.ToString(), qsServerRoot, 
-								config.sServerUser.ToString(), config.sServerPassword.ToString(), 
-								(UpDownloadProtocol)config.nServerProtocol.v,
-								__UpDownloadCallback);
+		Password password(config.sServerPassword.v);
+
+		TransferParams params(config.sServerAddress.ToString(), qsServerRoot, 
+								config.sServerUser.ToString(), password, 
+								(TransferProtocol)config.nServerProtocol.v,
+								__TransferCallback);
+		params.SetDirection(TransferDirection::dir_listing);	
+
+		Transfer agent;
+
+		if (!agent.StatusOk() || (agent.InitCurl() != CURLE_OK) || agent.SetupTransfer(params)!= CURLE_OK)
+		{
+			agent.CleanupCurl();
+			QMessageBox::warning(this, tr("falconG - Warning"), tr("Can't initialize file transfer."), QMessageBox::Discard);
+			return;
+		}
+		
+		
 	}
 }
 

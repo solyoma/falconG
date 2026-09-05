@@ -1,49 +1,49 @@
 ﻿#include "updownload.h"
 // #include "curl/curl.h" in updownload.h
 
-void UpDownload::SetUrlScheme(QUrl& url, UpDownloadProtocol protocol)
+void Transfer::SetUrlScheme(QUrl& url, TransferProtocol protocol)
 {
 	switch (protocol)
 	{
-		case UpDownloadProtocol::Sftp:
+		case TransferProtocol::Sftp:
 			url.setScheme("sftp");
 			break;
-		case UpDownloadProtocol::FtpsImplicitTls:
+		case TransferProtocol::FtpsImplicitTls:
 			url.setScheme("ftps");  // TLS immediately on connect
 			break;
-		case UpDownloadProtocol::FtpsExplicitTls:
-		case UpDownloadProtocol::Ftp:
+		case TransferProtocol::FtpsExplicitTls:
+		case TransferProtocol::Ftp:
 			url.setScheme("ftp");
 			break;
 	}
 }
 
-UpDownload::UpDownload()
+Transfer::Transfer()
 {
 	int isSslOk = curl_global_sslset(CURLSSLBACKEND_OPENSSL, NULL, NULL);
 	int isInitOk = curl_global_init(CURL_GLOBAL_DEFAULT);
-	if (isSslOk != CURLSSLSET_OK || isInitOk != CURLE_OK)
+	if (isSslOk != CURLSSLSET_OK || isInitOk != CURLE_OK)	// then call ~Transfer() immediately
 		_curl_status = CURLE_FAILED_INIT;
 	else
 		_curl_status = CURLE_OK;
 }
 
-UpDownload::~UpDownload()
+Transfer::~Transfer()
 {
 	curl_global_cleanup();
 }
 
-QStringList  UpDownload::DownloadCatalog(const QUrl& url)
+QStringList  Transfer::DownloadCatalog(const QUrl& url)
 {
 	return QStringList();
 }
 
-int UpDownload::DownloadFolder(const QUrl& fromUrl, const QString& toLocalFolder, bool recursively)
+int Transfer::DownloadFolder(const QUrl& fromUrl, const QString& toLocalFolder, bool recursively)
 {
 	return false;
 }
 
-int UpDownload::SetupTransfer(UpDownloadParams& params)
+int Transfer::SetupTransfer(TransferParams& params)
 {
 	// InitCurl() and SetUrlScheme() must be called before calling this function
 
@@ -57,7 +57,7 @@ int UpDownload::SetupTransfer(UpDownloadParams& params)
 
 	CURLcode res = curl_easy_setopt(_pCurl, CURLOPT_URL, params.url.toEncoded().constData()); // suppose it will be the same for all subsequent calls
 	curl_easy_setopt(_pCurl, CURLOPT_USERNAME, params.userName.toUtf8().constData());
-	curl_easy_setopt(_pCurl, CURLOPT_PASSWORD, params.DecodedPassword().constData());
+	curl_easy_setopt(_pCurl, CURLOPT_PASSWORD, params.password.ToString().toUtf8().constData());
 	curl_easy_setopt(_pCurl, CURLOPT_UPLOAD, isUpload ? 1L : 0L);
 	if (isUpload)
 	{
@@ -78,7 +78,7 @@ int UpDownload::SetupTransfer(UpDownloadParams& params)
 				static_cast<QByteArray*>(out)->append(data, qsizetype(count));
 				return count;
 			});
-		if (params.protocol == UpDownloadProtocol::Sftp)	
+		if (params.protocol == TransferProtocol::Sftp)	
 			curl_easy_setopt(_pCurl, CURLOPT_DIRLISTONLY, 1L); // for sftp only the directory list is standardized, not the sizes and times
 		else
 			curl_easy_setopt(_pCurl, CURLOPT_CUSTOMREQUEST, "MLSD"); // FTP / FTPS only
@@ -90,7 +90,7 @@ int UpDownload::SetupTransfer(UpDownloadParams& params)
 		curl_easy_setopt(_pCurl, CURLOPT_WRITEDATA, _file);
 
 
-	if (res == CURLE_OK && params.protocol == UpDownloadProtocol::FtpsExplicitTls)
+	if (res == CURLE_OK && params.protocol == TransferProtocol::FtpsExplicitTls)
 		res = curl_easy_setopt(_pCurl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
 
 	curl_easy_setopt(_pCurl, CURLOPT_NOPROGRESS, justCheckFile || getDirList ? 1L:0L);        // 0: we want progressCb reports
@@ -100,7 +100,7 @@ int UpDownload::SetupTransfer(UpDownloadParams& params)
 	return _curl_status = res;
 }
 
-bool UpDownload::OpenLocalFileForTransfer(UpDownloadParams& params)
+bool Transfer::OpenLocalFileForTransfer(TransferParams& params)
 {
 	bool isUpload = params.Direction() == TransferDirection::upload;
 	_file = new QFile(params.filePath);
@@ -110,7 +110,7 @@ bool UpDownload::OpenLocalFileForTransfer(UpDownloadParams& params)
 	return true;
 }
 
-int UpDownload::DownloadFile(UpDownloadParams& params)
+int Transfer::DownloadFile(TransferParams& params)
 {
 	if(!OpenLocalFileForTransfer(params))
 		return _curl_status = CURLE_FAILED_INIT;
@@ -126,7 +126,7 @@ int UpDownload::DownloadFile(UpDownloadParams& params)
 	return _curl_status;
 }
 
-int UpDownload::UploadFile(UpDownloadParams& params)
+int Transfer::UploadFile(TransferParams& params)
 {
 	if(!OpenLocalFileForTransfer(params))
 		return _curl_status = CURLE_FAILED_INIT;
@@ -140,7 +140,7 @@ int UpDownload::UploadFile(UpDownloadParams& params)
 	return _curl_status = curl_easy_perform(_pCurl);
 }
 
-UpDownload::RemoteFileInfo UpDownload::GetRemoteFileInfo(UpDownloadParams& params)
+Transfer::RemoteFileInfo Transfer::GetRemoteFileInfo(TransferParams& params)
 {
 	if (SetupTransfer(params) != CURLE_OK)
 		return RemoteFileInfo();
@@ -157,17 +157,17 @@ UpDownload::RemoteFileInfo UpDownload::GetRemoteFileInfo(UpDownloadParams& param
 	return nfo;
 }
 
-int UpDownload::_GetFolderListingForSftp(UpDownloadParams& params)
+int Transfer::_GetFolderListingForSftp(TransferParams& params)
 {
 	return 0;
 }
 
-int UpDownload::GetFolderListings(UpDownloadParams& params)
+int Transfer::GetFolderListings(TransferParams& params)
 {
 	_entries.clear();
 
 	params.SetDirection(TransferDirection::dir_listing);
-	if (params.protocol == UpDownloadProtocol::Sftp)
+	if (params.protocol == TransferProtocol::Sftp)
 		return _GetFolderListingForSftp(params);
 
 // FTP FTPS
@@ -210,17 +210,7 @@ int UpDownload::GetFolderListings(UpDownloadParams& params)
 }
 
 
-int UpDownload::Synchronize(const QUrl& withUrl, bool onlyUploadAndNoDeletionFromServer)
+int Transfer::Synchronize(const QUrl& withUrl, bool onlyUploadAndNoDeletionFromServer)
 {
 	return false;
-}
-
-void UpDownloadParams::_EncodePasswordFrom(const QString& pwd)
-{
-	_password = pwd;
-}
-
-void UpDownloadParams::_DecodePasswordTo(QString& pwd) const
-{
-	pwd = _password;
 }
