@@ -201,6 +201,8 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 
 	schemes.ReadAndSetupSchemes();	// from user's directory
 
+	frmMain = this;		// need to be here before 'setupUi()' as thumbnailView uses it
+
 	ui.setupUi(this);
 	ui.lblVersion->setText(QString(tr("falconG - Ver. %1.%2.%3")).arg(majorProgramVersion).arg(minorProgramVersion).arg(subProgramVersion)); // in support.h
 	ui.pnlProgress->setVisible(false);
@@ -319,7 +321,6 @@ FalconG::FalconG(QWidget *parent) : QMainWindow(parent)
 	_tmpScheme = schemes[PROGRAM_CONFIG::schemeIndex];
 	_tmpSchemeOrigName = _tmpScheme.MenuTitle;
 
-	frmMain = this;
 	// now that everything is ready
 	_SetProgramScheme();
 	_AddSchemeButtons();
