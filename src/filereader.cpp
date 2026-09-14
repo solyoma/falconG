@@ -10,8 +10,6 @@
 *--------------------------------------------------------------------------*/
 FileReader::FileReader(const QString s, QFlags<FrfFlags> flags) : _flags(flags)
 {
-	//	QTextCodec *codec = QTextCodec::codecForName("ISO 8859-2");
-
 	_f.setFileName(s);
 	_ok = _f.open(QIODevice::ReadOnly);
 	if (_ok)
