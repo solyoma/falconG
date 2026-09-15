@@ -69,8 +69,8 @@ qt_add_resources(falconG "falcong"
         ${falcong_resource_files}
 )
 set(falcong1_resource_files
-    "../translations/en_US.qm"
-    "../translations/hu_HU.qm"
+    "en_US.ts"
+    "hu_HU.ts"
 )
 
 qt_add_resources(falconG "falcong1"
