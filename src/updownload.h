@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "curl\curl.h"
+#include "curl/curl.h"
 
 #include <QString>
 #include <QStringList>
@@ -10,9 +10,6 @@
 #include <QUrl>
 #include <QFile>
 #include <cstring>	// for memset
-#include <xkeycheck.h>
-
-#include "curl/curl.h"
 
 enum class TransferProtocol{ any, Sftp, FtpsExplicitTls, FtpsImplicitTls, Ftp };
 enum class TransferDirection {upload, download, bidirect, only_check_existence, dir_listing};

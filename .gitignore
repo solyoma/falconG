@@ -288,6 +288,9 @@ FalconBoard/*.json
 *temp*
 *.stash
 *~
-/src/Resources/falconG-icon-1.png
-/src/Resources/falconG-icon-ori.png
-/src/Resources/falconG-icon.psd
+*.psd
+build/
+alma*
+install/
+pip/
+src/Resources/falconG-icon*.png

@@ -265,7 +265,6 @@
     <QtMoc Include="falcong.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="exportCSV.ui" />
     <QtUic Include="falcong.ui">
       <SubType>Designer</SubType>
     </QtUic>

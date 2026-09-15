@@ -131,7 +131,7 @@
     <QtMoc Include="dragdrop.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="UpDownloadDialog.h">
+    <QtMoc Include="TransferDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -152,9 +152,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="selectStruct.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="exportCSV.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="TransferDialog.ui">

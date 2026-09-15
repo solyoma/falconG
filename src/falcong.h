@@ -3,9 +3,12 @@
 #include <QtCore>
 #include <QtWidgets/QMainWindow>
 #include <QTextStream>
-#include <QtWebEngineWidgets/QWebEngineProfile>
-#include <QtWebEngineWidgets/QWebEngineView>
-
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	#include <QtWebEngineWidgets/QtWebEngineWidgets>
+#else
+	#include <QtWebEngineWidgets/QWebEngineProfile>
+	#include <QtWebEngineWidgets/QWebEngineView>
+#endif
 #include "common.h"
 using namespace Common;
 

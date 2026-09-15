@@ -168,8 +168,8 @@ struct Image : public IABase
 
 	int operator<(const Image &i);		 // uses searchBy
 	bool operator==(const Image& i);
-	double Image::Aspect();
-	double Image::ThumbAspect() const;
+	double Aspect();
+	double ThumbAspect() const;
 
 	QTextStream & WriteInfo(QTextStream &ofs) const;
 	void SetResizeType();
