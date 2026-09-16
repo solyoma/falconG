@@ -16,7 +16,7 @@
 #include "csscreator.h"
 #include "structwriter.h"
 #include "videoplayer.h"
-#include "imageconverter.h"
+#include "ImageConverter.h"
 #include "watermark.h"
 
 #if QT_VERSION < 0x051000
