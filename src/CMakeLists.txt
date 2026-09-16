@@ -12,7 +12,7 @@ qt_add_executable(falconG
     imageviewer.cpp imageviewer.h imageviewer.ui
     languages.cpp languages.h
     main.cpp
-	MarkedIcon.cpp Markedicon.h
+	MarkedIcon.cpp MarkedIcon.h
     schemes.cpp schemes.h
 	selectStruct.h
     sourcehistory.cpp sourcehistory.h sourcehistory.ui
