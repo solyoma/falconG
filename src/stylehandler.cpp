@@ -103,7 +103,9 @@ bool StyleHandler::SaveAs(QString fileName)
 		return false;
 
 	QTextStream ofs(&file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	ofs.setCodec("UTF-8");
+#endif
 	ofs << StyleSheet();
 	return true;
 }
@@ -126,7 +128,9 @@ bool StyleHandler::Read(QString fileName)
 		return false;
 
 	QTextStream ifs(&file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	ifs.setCodec("UTF-8");
+#endif
 	QString s;
 	ifs >> s;
 	_ssr = s;

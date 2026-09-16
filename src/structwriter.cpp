@@ -69,7 +69,9 @@ void AlbumStructWriter::run()
 	}
 	QStringList slPorts = config.sServerPorts.v.split(',');
 	_ofs.setDevice(&f);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	_ofs.setCodec("UTF-8");
+#endif
 
 	_ofs << versionStr << majorProgramVersion << "." << minorProgramVersion << "." << subProgramVersion
 		<< "\n#  © - András Sólyom (2018-)" << QString().setNum(PROGRAM_CONFIG::copyrightYear)  // default values may differ from 'config'

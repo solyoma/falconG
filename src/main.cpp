@@ -15,8 +15,10 @@ int main(int argc, char *argv[])
 	// window may not be visible. If not used, however then some items 
 	// may be missing during design and texts may overflow the controls
 	// and get clipped
-	// 
+	// Unnecessary and deprecated in Qt6
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
 	QApplication a(argc, argv);
 	a.setWindowIcon(QIcon(":/icons/Resources/falconG-icon.png"));
