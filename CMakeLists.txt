@@ -12,7 +12,8 @@ find_package(Qt6 REQUIRED COMPONENTS
     Multimedia MultimediaWidgets
     WebEngineCore WebEngineWidgets
 )
-qt_standard_project_setup()
+find_package(CURL REQUIRED)
 
+qt_standard_project_setup()
 
 add_subdirectory(src)

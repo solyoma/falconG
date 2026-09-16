@@ -7,9 +7,12 @@ qt_add_executable(falconG
 	dragdrop.cpp dragdrop.h
     falcong.cpp falcong.h falcong.ui
 	filereader.cpp filereader.h
+	ImageConverter.cpp ImageConverter.h
+	ImageReader.h
     imageviewer.cpp imageviewer.h imageviewer.ui
     languages.cpp languages.h
     main.cpp
+	MarkedIcon.cpp Markedicon.h
     schemes.cpp schemes.h
 	selectStruct.h
     sourcehistory.cpp sourcehistory.h sourcehistory.ui
@@ -22,6 +25,7 @@ qt_add_executable(falconG
     treeView.cpp treeView.h
 	updownload.cpp updownload.h
 	videoplayer.cpp videoplayer.h
+	watermark.cpp watermark.h
 )
 target_link_libraries(falconG PRIVATE
     Qt::Core
@@ -32,6 +36,7 @@ target_link_libraries(falconG PRIVATE
     Qt::MultimediaWidgets
     Qt::WebEngineCore
     Qt::WebEngineWidgets
+    CURL::libcurl
 )
 
 target_compile_options(falconG PRIVATE
