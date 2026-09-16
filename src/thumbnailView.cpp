@@ -31,7 +31,7 @@
 #include "thumbnailView.h"
 #include "imageviewer.h"
 #include "treeView.h"
-#include "falconG.h"
+#include "falcong.h"
 
 #include "videoplayer.h"
 
@@ -1645,7 +1645,7 @@ void ThumbnailView::SlotDeleteSelectedList(IDVal_t albumId, IntList& list, bool 
  *          from disk!
  *          Tries use the recycle bin (windows) or the trash (mac)
  *------------------------------------------------------------*/
-    class FalconG;           // needed here for message box, so no whole falconG.h is included
+    class FalconG;           // needed here for message box, so no whole falcong.h is included
 void ThumbnailView::SlotDeleteSelected()
 {
 	QModelIndexList list = selectionModel()->selectedIndexes();
@@ -2403,7 +2403,7 @@ GetNewAlbumNameDialog::GetNewAlbumNameDialog(const AlbumMap & albumMap, QWidget 
 
     _lineEdit = new QLineEdit(this);
     _lineEdit->setPlaceholderText(tr("Name of the new album"));
-    QRegExpValidator validator(QRegExp("[^\\/:*?\"<>|]*"), this);
+    QRegularExpressionValidator validator(QRegularExpression("[^\\/:*?\"<>|]*"), this);
     _lineEdit->setValidator(&validator);
 
     layout->addWidget(label);

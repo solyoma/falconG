@@ -52,8 +52,8 @@
 #include "videoplayer.h"
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 
-// VideoPlayerWidget.cpp
-#include "VideoPlayerWidget.h"
+// videoplayer.cpp
+#include "videoplayer.h"
 
 #include <QMediaPlayer>
 #include <QVideoWidget>

@@ -344,10 +344,10 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 			res.replace("\\n", "<br>");
 			res.replace("&lt;", "<");
 			res.replace("&gt;", ">");
-			res.replace('\'', 0x02);  // STX
-			res.replace('\'', 0x03);  // ETX
-			res.replace('"' , 0x04);  // EOT
-			res.replace('\\', 0x05);  // ENQ
+            res.replace('\'', '\x02');  // STX
+            res.replace('\'', '\x03');  // ETX
+            res.replace('"' , '\x04');  // EOT
+            res.replace('\\', '\x05');  // ENQ
 			break;
 	}
 	return res;
@@ -848,7 +848,7 @@ QFont::Weight IntToFontWeight(int w) 	// uses the Qt 5 weight values but the enu
 		case 500: return QFont::Medium;
 		case 600: return QFont::DemiBold;
 		case 700: return QFont::Bold;
-		case 900: return QFont::ExtraBold;
+        case 800: return QFont::ExtraBold;
 		case 900: return QFont::Black;
 #endif
 	}

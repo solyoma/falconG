@@ -250,7 +250,7 @@ function ShowImage(img, caption) {
     document.getElementById("lightbox-caption").innerHTML = caption
     LightBoxFadeIn();
 }
-/* these must be in sync with AlbumElements in 'falconG.h' */
+/* these must be in sync with AlbumElements in 'falcong.h' */
 const ELEM = {
     AE_WEB_PAGE: 0,
     AE_HEADER: 1,
