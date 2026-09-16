@@ -32,16 +32,16 @@ signals:
 protected:
 	int heightForWidth(int w);
 
-	void keyPressEvent(QKeyEvent* event);
+	void keyPressEvent(QKeyEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void mousePressEvent(QMouseEvent* event)	override;
 	void mouseReleaseEvent(QMouseEvent* event)	override;
 	void mouseMoveEvent(QMouseEvent* event)		override;
 	void wheelEvent(QWheelEvent* event)			override;
-	void contextMenuEvent(QContextMenuEvent* pevent);
+	void contextMenuEvent(QContextMenuEvent* pevent) override;
 //	void showEvent(QShowEvent* event);
-	void resizeEvent(QResizeEvent* event);
-	void paintEvent(QPaintEvent* event);
+	void resizeEvent(QResizeEvent* event) override;
+	void paintEvent(QPaintEvent* event) override;
 private:
 
 	ThumbnailView* _owner;

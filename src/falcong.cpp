@@ -4558,7 +4558,7 @@ void FalconG::_AddSchemeButtons()
 //	font.setFamily(QString::fromUtf8("Arial"));
 	font.setPointSize(8);
 	font.setBold(false);
-	font.setWeight(50);
+	font.setWeight(QFont::Normal);
 
 	QLabel *plabel = new QLabel(tr("Background color"));
 	plabel->setFont(font);
@@ -5998,7 +5998,7 @@ void FalconG::_RunJavaScript(QString className, QString styles)
 	styles = styles.trimmed();
 
 	static QStringList __qslRunThese;
-	QRegExp rx("[\t\n]");
+	QRegularExpression rx("[\t\n]");
 	__qslRunThese = styles.split(rx);
 
 	int pos;

@@ -817,7 +817,7 @@ Image &ImageMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+	std::advance(it,index);
 	return *it;
 }
 
@@ -1323,7 +1323,7 @@ Album & AlbumMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+	std::advance(it,index);
 	return *it;
 }
 
@@ -2467,7 +2467,7 @@ void AlbumGenerator::_CleanupPathTable()
 	{
 		if (!pathIdVector.contains(pathID))
 			idsToDelete.push_back(pathID);
-	} while (pathID = pathMap.NextId());
+	} while( (pathID = pathMap.NextId()) );
 	for (auto& id : idsToDelete)
 		pathMap.Remove(id);
 }
@@ -4840,7 +4840,7 @@ int AlbumGenerator::_CreateAboutPages()
 		}
 
 		if (_OutputAboutText(i) < 0)
-			ShowWarning(QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i])), frmMain;
+			ShowWarning(QString(tr("Missing or unreadable \"about_text%1.txt\" file")).arg((*languages["abbrev"])[i]), frmMain);
 
 		_ofs << "<footer class = \"footer\"><br>\n"
 			<< (*languages["falconG"])[_actLanguage] << "<br>\n"
