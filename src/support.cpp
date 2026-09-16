@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include "support.h"
 #include "config.h"
-#include "falconG.h"
+#include "falcong.h"
 #include "albums.h"
 
 /* --------------------------------- helper functions -----------------------*/
