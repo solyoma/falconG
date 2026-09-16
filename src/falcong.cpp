@@ -13,6 +13,7 @@
 #include <string>
 
 #include "support.h"
+#include "watermark.h"
 #include "dragdrop.h"
 #include "config.h"
 #include "stylehandler.h"

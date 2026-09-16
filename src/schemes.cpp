@@ -85,7 +85,9 @@ void FSchemeVector::ReadAndSetupSchemes()
 	if (QFile::exists(PROGRAM_CONFIG::homePath + "falconG.fsty"))
 	{
 		QSettings s(PROGRAM_CONFIG::homePath + "falconG.fsty", QSettings::IniFormat);	// in program directory;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		s.setIniCodec("UTF-8");
+#endif
 		QStringList keys = s.childGroups();	// get all top level keys with subkeys
 		FalconGScheme fgst;
 		for (auto &k : keys)

@@ -26,6 +26,7 @@
 #include "albums.h"
 #include "treeView.h"
 #include "CustomLineEdit.h"
+#include "MarkedIcon.h"
 
 const int BAD_IMAGE_SIZE = 64;
 const int WINDOW_ICON_SIZE = 48;

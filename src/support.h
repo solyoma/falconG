@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <QModelIndex>
 #include <QApplication>
+#include <QFont>
 #include <QString>
 #include <QFile>
 #include <QTextStream>
@@ -15,7 +16,6 @@
 #include <QDir>
 #include <QImage>
 #include <QPixmap>
-#include <QImageReader>
 #include <QPainter>
 #include <QTreeView>
 #include <QSplashScreen>
@@ -45,7 +45,7 @@ enum DecodeTextTo { dtPlain, 			// from html or javascript to plain text (&amp;,
 					dtJavaScript 		// like HTML, but replaces with codes 2-5
 				};
 
-enum FileType : char {	ftUnknown = 0, 
+enum FileType : char {	ftUnknown = 0,
 							ftImage = 'I',
 							ftVideo = 'V',
 							ftFolder= 'F',
@@ -78,11 +78,11 @@ struct AlbumPointers
 		    destAlbumId,	// destination album id, may be an alias IDs are stored as pointers may become
 			srcBaseAlbumId,	// base album ID for source. May be equal to srcAlbumId
 			destBaseAlbumId;// same for destination
-	// invalid when albums are moved, so they must be re - fetched from the album map when needed	
+	// invalid when albums are moved, so they must be re - fetched from the album map when needed
 	Album* pDest,			// actual destination album. May be an alias album
 		* pDestAlbum,	// either base album for destination album or pDest if it is not an alias
 		* pSrc,			// actual source album, may be null for external source and may be an alias album for internal source
-		* pSrcAlbum;		// real source album, which may be the base album for pSrc if it is an alias 
+		* pSrcAlbum;		// real source album, which may be the base album for pSrc if it is an alias
 
 	AlbumPointers() { Clear(); }
 	AlbumPointers(IDVal_t srcAlbumId, IDVal_t destAlbumId) : srcAlbumId(srcAlbumId), destAlbumId(destAlbumId) { SetupPointers(); }
@@ -98,246 +98,10 @@ struct AlbumPointers
 };
 
 //*****************************************
-class WaterMark
-{
-public:
-	enum POSITION : int {
-		LEFT = 0
-		, HCENTER = 16
-		, RIGHT = 32
-		, TOP = 0
-		, VCENTER = 1
-		, BOTTOM = 2
-	};
-	using POS = int;
-
-protected:
-	bool _enabled = true;	// otherwise do not create image
-	bool _changed = false;	// any changes
-	bool _regenImagesWhenChanged = false;
-private:
-	//using POS = int;
-
-	QString _text;
-	int _origin = LEFT+TOP;	// 0,1,2		- index of vertical	position (top,center,bottom)
-						// 0,0x10,0x20	- index of horizontal position  (left, center, right)
-
-	QImage *_pmark = nullptr;				// watermark text as an image
-	int _markWidth = 0, _markHeight = 0;	// image width and height
-
-	int _marginX = 0, // >= 0, measured from nearest horizontal image edge in pixels
-		_marginY = 0; // >= 0, measured from nearest vert. image edge
-
-	unsigned _colorWOpacity = 0x00ffffff,		// AARRGGBB
-			 _background = 0;			 
-	bool	_useBackground = false;	
-
-	bool _shadowOn = false;
-	int _shadowHoriz, _shadowVert;
-	unsigned _shadowBlur;
-	unsigned _shadowColor = unsigned(-1); // color (rgb) -1: not used
-
-	QFont _font;
-public:
-
-	QImage *SetupMark();
-	WaterMark& operator=(const WaterMark& other);
-	WaterMark& operator=(const WaterMark&& other);
-	bool operator!=(const WaterMark& wm) const;
-
-	QImage* PMarkImage() const { return _pmark; }
-	QString Text() const { return _text; }
-	int Origin() const { return _origin; }
-
-	bool WChanged() const { return _changed && _regenImagesWhenChanged; }
-
-	int Width() const  { return _markWidth; }
-	int Height() const { return _markHeight; }
-	int MarginX() const { return _marginX; }
-	int MarginY() const { return _marginX; }
-	QFont Font() const { return _font; }
-	bool HasDropShadow(int* xoffset = nullptr, int* yoffset = nullptr, QColor* color = nullptr) const 
-	{ 
-		if (xoffset) *xoffset = _shadowHoriz;
-		if (xoffset) *yoffset = _shadowVert;
-		if (color) *color = _shadowColor == unsigned(-1) ? QColor(63, 63, 63, 180) : QColor(_shadowColor);
-
-		return _shadowOn;
-	}
-	void GetMarkDimensions();	// into _markWidth and _markHeight using current font
-	QString PositionToStyle(int width, int height, double ratio, POS newPosition = -1) const;
-
-	QString ColorToCss() const;
-	QColor BorderColor() const;
-	unsigned Color() const;	// with opacity
-	unsigned ShadowColor() const { return _shadowColor; };	// with opacity
-	unsigned Background() const { return _background; }
-	double Opacity(bool percent) const;		// 0..255 (!percent) or 0..100 (percent)
-
-	void ClearChanges() { _changed = false; }
-	void SetRegenerationMode(bool regen) { _regenImagesWhenChanged = regen; }
-	// setters	: each regenerates watermark image and saves it into 'res/'
-#define SET_WM_VALUE(a,b)\
-			if(a != (b))	\
-			{  \
-				_changed = true;	\
-				a = (b); \
-			}
-	void SetPositioning(int pos) { SET_WM_VALUE(_origin,pos) }
-	void SetBackground(unsigned bck) { SET_WM_VALUE(_background, bck) }
-	void SetColorWithOpacity(unsigned colorWOpacity);
-	void SetColorWithOpacity(QString sColorWOpacity);
-	void SetFont(QFont& qfont);
-	void SetMarginX(int mx) { SET_WM_VALUE(_marginX, mx) }
-	void SetMarginY(int my) { SET_WM_VALUE(_marginY, my) }
-	void SetText(QString  qs);
-	void SetOpacity(int val, bool percent); // val is in percent (0..100) or not(0..255)?
-	void SetShadowColor(unsigned color) { SET_WM_VALUE(_shadowColor,color) }
-	void SetShadowOn(bool on) { SET_WM_VALUE(_shadowOn,on) }
-	void SetShadowBlur(unsigned blur) { SET_WM_VALUE(_shadowBlur,blur) }
-#undef SET_WM_VALUE
-};
-
-//*****************************************																			
-struct ImageReader : public QImageReader
-{
-	QSize thumbSize = { 0, 0 },	// these must be set before processing thumbnails
-		  imgSize;
-	QImage img;					// read scaled image into this
-	bool isReady = false;
-	bool read() 
-	{ 
-		return isReady = QImageReader::read(&img); // && !img.isNull();
-	}
-	bool canRead() { return (isReady ? true : QImageReader::canRead()); }
-	ImageReader(QIODevice *device, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader(device, format) 
-	{
-		setAutoTransform(true);  // auto rotate, flip and mirror during read() when portrait orientation is set in EXIF
-	}
-	ImageReader(const QString &fileName, bool dontResize = false, const QByteArray &format = QByteArray()) : QImageReader()
-	{
-		setAutoTransform(true);  // auto rotate, flip and mirror during read() when portrait orientation is set in EXIF
-		setFileName(fileName);	 // creates and opens a read only QFile
-		setFormat(format);		 // e.g. "jpg" (same as "JPG"), empty: cycle through supported formats until one found
-	}
-};
 //*****************************************
-// read an image from disk or resource, rotate it on read if needed, 
-//  resize it to w and h keeping aspect ratio
-//  add a square icon overlay at given postion from the right
-class MarkedIcon
-{
-	QString _name;			// full path name of image for which we want an icon
-	QPixmap _pxmp;			// square pixmap contains image with a 'margin' wide border
-	bool _exists = false;	
-		// these ar used for each thumbnail
-		// QPixmaps can only be initialized after the GUI initialize (QT quirk)
-		// so we need pointers here
-	static QPixmap *_folderThumbMark;	// if folder thumbnail mark with this	
-	static QPixmap *_aliasMark;		// if folder is an alias
-	static QPixmap *_noImageMark;	// image does not exist
-	static QPixmap *_noResizeMark;	// do not resize image
-	static int  _thumbSize;			// named image is inside a (size x size) area this keeping aspect ratio
-	static int  _borderWidth;		
-	static bool _initted;
-public:
-	IconFlags flags;		// flags: fiFolder, fiThumb, fiAlias, fiDontResize, fiVideo, fiImage
-	MarkedIcon()
-	{
-		if (!_initted)
-			Init();
-	}
 
-	MarkedIcon(const MarkedIcon& other)
-	{
-		(void) operator=(other);
-	}
-
-	MarkedIcon& operator=(const MarkedIcon& other)
-	{
-		flags = other.flags;
-		_exists = other._exists;
-		_name = other._name;
-		_pxmp = other._pxmp;
-		return *this;
-	}
-
-	~MarkedIcon()	{	}
-
-	static void Init()
-	{
-		if (_initted)
-			return;
-
-		_folderThumbMark = new QPixmap(":/icons/Resources/folderIcon.png");
-		_aliasMark		 = new QPixmap(":/icons/Resources/aliasIcon.png");
-		_noImageMark	 = new QPixmap(":/icons/Resources/noImageMark.png");
-		_noResizeMark	 = new QPixmap(":/icons/Resources/noResizeMark.png");
-		_initted		 = true;
-	}
-	static void SetMaximumSizes(int size, int margin)
-	{
-		_thumbSize = size; 
-		_borderWidth = margin;
-	}
-
-	inline bool ToggleFolderThumbFlag()
-	{
-		if(flags.testFlag(fiThumb))
-		{	flags ^= fiThumb;  // no clearFlag operation in flags
-			return false;
-		}
-		else
-		{
-			flags.setFlag(fiThumb);
-			return true;
-		}
-	}
-	void ToggleAliasFlag()
-	{
-		if(flags.testFlag(fiAlias))
-			flags ^= fiAlias;  // no clearFlag operation in flags
-		else // if(!setta)
-			flags |= fiAlias;	// set alias flag
-	}
-	void ToggleNoResizeFlag() 
-	{ 
-		if(flags.testFlag(fiDontResize))
-			flags ^= fiDontResize;  // no clearFlag operation in flags
-		else // if(!noresize)
-			flags.setFlag(fiDontResize);  
-	}
-
-	bool Read(QString name, IconFlags flag);	// to _pxmp, transforms rotated image on read, sets 'exists'
-	QIcon ToIcon() const;
-};
-//QImage ReadAndMarkImage(QString name, int w, int h, bool exists, QString icon, int pos);
 
 //*****************************************
-struct ImageConverter
-{			  // if 'dontEnlarge' flag is set only shrinks image, but 
-			  //	thumbnails may be enlarged
-			  // dontResize may be used  for some images
-	QString name;
-	int flags;
-	// TODO: bool keepAspectRatio = true;	// otherwise CROP image
-	double aspect = 0;				// width/height: same for thumbnail unless square thumbnails required (TODO)
-									// 0: not calculated
-
-	ImageConverter(int flags = dontEnlarge) : flags(flags) { }
-
-//	double CalcSizes(ImageReader &reader);	 // set original and new sizes
-	int Process(ImageReader &reader, QString dest, QString thumb, WaterMark *pwm=nullptr);	// retuns aspect ratio (0: no src image)
-
-	QString ErrorText() const { return _qsErrorMsg; }
-private:
-	QImage *_pImg = nullptr;
-	QString _qsErrorMsg;
-
-//	double _CalcSizes(bool thumb);			// using oSize, newSize, maxSize for image, newSize, thumbSize, maxThumbSize for thumbnail _
-	void _AddWatermark(WaterMark &wm);		// to pImg using data from config
-};
-
 //*****************************************
 int SeparateFileNamePath(QString fullName, QString &path, QString& name, QString *pext = nullptr);
 QString PrependSourcePathTo(const QString s);
@@ -383,7 +147,7 @@ int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent = nullptr); 
 
 const char* StringToUtf8CString(QString qs);
 
-QString EncodeText(const QString str);	// replaces '\n' with '\\n', '&' with '&amp;', 
+QString EncodeText(const QString str);	// replaces '\n' with '\\n', '&' with '&amp;',
 QString DecodeTextFor(const QString str, DecodeTextTo to = dtPlain);		// for dtPlain -  "\\n" -> '\n', for Html "\\n" to "<br>\n"
 																			// for dtJavascript "\\n" -> "<br>" and quotos by escaped quotes \' or \"
 
@@ -400,3 +164,11 @@ bool RemoveDir(QString name, bool ask = false, bool tryToTrash=true);
 
 char* StringToCString(QString string);
 QString MakeRandomStringOfLength(int length);
+
+//------------------------------
+
+QFont::Weight IntToFontWeight(int w); 	// uses the Qt 5 weight values but the enum names are the same
+										// in Qt 6, so i keep these names
+int FontWeightToInt(QFont::Weight w);	// uses the Qt 5 weight values but the enum names are the same
+										// in Qt 6, so i keep these names
+

@@ -50,6 +50,102 @@
 
 // code modified by ChatGPT 4.1 and A. Solyom
 #include "videoplayer.h"
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+
+// VideoPlayerWidget.cpp
+#include "VideoPlayerWidget.h"
+
+#include <QMediaPlayer>
+#include <QVideoWidget>
+#include <QVideoSink>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QVideoFrame>
+
+/* ChatGPT generated code:
+ *
+ * USAGE:
+ * auto *player = new VideoPlayerWidget(this);
+ *player->setVideo(QUrl::fromLocalFile("C:/videos/example.mp4"));
+ *
+ *connect(player, &VideoPlayerWidget::frameGrabbed, this,
+ *        [](const QImage &frame) {
+ *           frame.save("C:/videos/capture.png");
+ *       });
+ * currentFrame() returns the most recently displayed decoded frame; grabbing does not pause playback.
+ */
+
+VideoPlayerWidget::VideoPlayerWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_player(new QMediaPlayer(this))
+    , m_videoWidget(new QVideoWidget(this))
+    , m_playPauseButton(new QPushButton(tr("Play"), this))
+    , m_grabButton(new QPushButton(tr("Grab frame"), this))
+{
+    m_player->setVideoOutput(m_videoWidget);
+
+    auto *controls = new QHBoxLayout;
+    controls->addWidget(m_playPauseButton);
+    controls->addWidget(m_grabButton);
+    controls->addStretch();
+
+    auto *layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_videoWidget, 1);
+    layout->addLayout(controls);
+
+    connect(m_playPauseButton, &QPushButton::clicked, this, [this] {
+        if (m_player->playbackState() == QMediaPlayer::PlayingState)
+            pause();
+        else
+            play();
+    });
+
+    connect(m_grabButton, &QPushButton::clicked,
+            this, &VideoPlayerWidget::grabFrame);
+
+    connect(m_videoWidget->videoSink(), &QVideoSink::videoFrameChanged,
+            this, &VideoPlayerWidget::onVideoFrameChanged);
+}
+
+void VideoPlayerWidget::setVideo(const QUrl &url)
+{
+    m_latestFrame = {};
+    m_player->setSource(url);
+}
+
+void VideoPlayerWidget::play()
+{
+    m_player->play();
+    m_playPauseButton->setText(tr("Pause"));
+}
+
+void VideoPlayerWidget::pause()
+{
+    m_player->pause();
+    m_playPauseButton->setText(tr("Play"));
+}
+
+QImage VideoPlayerWidget::currentFrame() const
+{
+    return m_latestFrame;
+}
+
+void VideoPlayerWidget::onVideoFrameChanged(const QVideoFrame &frame)
+{
+    if (frame.isValid())
+        m_latestFrame = frame.toImage();
+}
+
+void VideoPlayerWidget::grabFrame()
+{
+    if (!m_latestFrame.isNull())
+        emit frameGrabbed(m_latestFrame);
+}
+
+
+#else
 
 #include <QtWidgets>
 
@@ -366,3 +462,4 @@ void VideoPlayer::_Setup()
     else
         _SetupAsPlayer();
 }
+#endif

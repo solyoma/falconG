@@ -7,6 +7,7 @@ using namespace Common;
 
 #include "support.h"
 #include "stylehandler.h"
+#include "watermark.h"
 
 const QString falconG_ini = "falconG.ini";
 
@@ -321,7 +322,7 @@ struct _CIntArray : _CFG_ITEM<int>	// v: how many elements in array
 	}
 private:
 	QVector<int> _arr;
-	void _Setup() 
+    void _Setup() override
 	{ 
 		if (vd && _arr.size() < vd)
 			_arr.resize(vd);
@@ -394,7 +395,7 @@ private:
 			_colorName = QString("%1%1%2%2%3%3").arg(_colorName.at(0)).arg(_colorName.at(1)).arg(_colorName.at(2));
 	}
 
-	void _Setup()			// from 'v' read from settings
+    void _Setup() override			// from 'v' read from settings
 	{
 		if (!_ColorStringValid(v))	// adds # at front of 'v' if it is not there
 			return;
@@ -411,7 +412,7 @@ private:
 		else	// _colorname == RGB || RRGGBB
 			_opacity = 255;		// it will not be used
 
-		if ((len1 == len - 1))
+        if (len1 == len - 1)
 			_opacity = -_opacity;
 
 		_NormalizeName();		// set to AARRGGBB

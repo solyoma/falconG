@@ -94,7 +94,10 @@ namespace Common
 		wctLangCombo = 4			// language combo selection changed, must save text in selection
 	};
 	enum FrfFlags { frfNormal, frfAllLines, frfEmptyLines = 2, frfCommentLines = 4, frfLtrim = 8, frfRtrim = 8, frfTrim = 12, frfNoWhiteSpaceLines = 32, frfNeedUtf8 = 64 };
-	enum IcFlags :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
+
+	enum class IcFlag :int { prImage = 1, prThumb = 2, dontEnlarge = 4, dontResize = 8 };
+	using IcFlags = QFlags<IcFlag>;
+
 	enum UserRoles {
 		FileNameRole = Qt::UserRole + 1,		 // file name of generated image/video w.o. path, e.g. 12345.jpg 
 		FilePathRole,							 // path of generated image directory ending in '/' relative to server root

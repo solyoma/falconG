@@ -168,7 +168,7 @@ int Languages::Read()
 							"Do you want to cancel or continue with English as the single language?\n\n"
 							"To avoid this message either create language files and put them into either\n"
 							"    a) the gallery source folder\n"
-							"    b) the user folder (Windows:Appdata/Local/falconG, linux: ~/.falconG) or\n"
+                            "    b) the user folder (Windows:Appdata/Local/falconG, linux: ~/config/.falconG) or\n"
 							"    c) the program folder\n"
 							"or write the language texts into the '.struct' file\n\n"
 							"A language file is a UTF-8 encoded text file starting with the line:\n"

@@ -24,7 +24,7 @@ private:
 public slots:
 	void on_lwStructs_currentItemChanged()
 	{
-		ui.btnOk->setEnabled(ui.lwStructs->currentItem() >= 0);
+        ui.btnOk->setEnabled(ui.lwStructs->currentRow() >= 0);
 
 	}
 	void on_btnOk_clicked() 

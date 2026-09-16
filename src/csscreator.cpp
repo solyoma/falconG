@@ -1,5 +1,5 @@
+#include <watermark.h>
 #include "csscreator.h"
-
 
 bool CssCreator::_Open(QString name)
 {

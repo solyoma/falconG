@@ -28,6 +28,7 @@
 #include "crc32.h"
 #include "stylehandler.h"
 #include "languages.h"
+#include "ImageConverter.h"
 
 const QString OLD_TITLE_TAG = "Title-";	// used in 'struct' files
 const QString OLD_DESCRIPTION_TAG = "Descr-";	// e.g. [Tytle-hu:<text>]
@@ -424,7 +425,7 @@ public:
 									// an video by its name (relative to this path) only
 	uint lastDirIndex = 0;	// last used directory index, will change only when 'bUseMaxItemCountPerDir' is true
 
-	Video* Find(ID_t id, bool useBase = true);	// returns nullptr if not found, 
+    Video* Find(IDVal_t id, bool useBase = true);	// returns nullptr if not found,
 												// if 'useBase' finds the first one with the same base ID	
 	Video* Find(QString FullSourceName);		// returns nullptr if not found
 	ID_t Add(QString video, bool& added);	// returns ID and if added
@@ -529,7 +530,7 @@ public:
 	int ProcessAndWrite();	 // writes album files into directory Config::sDestDir return error code or 0
 	int WriteDirStruct(BackupMode bm=BackupMode::bmKeepBackupFile, WriteMode wm=WriteMode::wmOnlyIfChanged);		
 	bool StructWritten() const { return !_structIsBeingWritten; }
-	bool IsStructChanged() const { return _structFileChangeCount ? _structFileChangeCount : _albumMap.IsChanged();  }
+    bool IsStructChanged() const { return _structFileChangeCount ? (bool)_structFileChangeCount : _albumMap.IsChanged();  }
 	void SetStructChanged(bool val) { _structFileChangeCount = (val ? ++ _structFileChangeCount : 0); }
 	int SaveStyleSheets();
 	void SetRecrateAllAlbumsFlag(bool Yes) { _mustRecreateAllAlbums = Yes; };

@@ -27,11 +27,11 @@ public:
 // these are for reading
 	const QString TextForIndex(const QModelIndex &mix, bool aliasTextToo=false) const;
 
-	int columnCount(const QModelIndex &parent = QModelIndex()) const;	// depth of tree rel. to parent
-	int rowCount(const QModelIndex &parent = QModelIndex()) const;		//
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;	 // from Albumgen::Albums()
-	QModelIndex parent(const QModelIndex &index) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;	// depth of tree rel. to parent
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;		//
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;	 // from Albumgen::Albums()
+    QModelIndex parent(const QModelIndex &index) const override;
 
 	void BeginResetModel()
 	{
@@ -108,8 +108,8 @@ class AlbumTreeView : public QTreeView
 public:
 	AlbumTreeView(QWidget* parent = nullptr);
 	void SetViewer(ThumbnailView* p) { _ptnv = p; }
-	bool event(QEvent* event);
-	void mousePressEvent(QMouseEvent* event);
+    bool event(QEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 	//void mouseReleaseEvent(QMouseEvent* event);
 
 signals:
@@ -134,13 +134,13 @@ public slots:
 	}
 
 protected:
-	void contextMenuEvent(QContextMenuEvent* pevent);
+    void contextMenuEvent(QContextMenuEvent* pevent) override;
 	void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
 
-	void dragEnterEvent(QDragEnterEvent* event);	// when a drag enters this widget
-	void dragLeaveEvent(QDragLeaveEvent* event);
-	void dragMoveEvent(QDragMoveEvent* event);
-	void dropEvent(QDropEvent* event);
+    void dragEnterEvent(QDragEnterEvent* event) override;	// when a drag enters this widget
+    void dragLeaveEvent(QDragLeaveEvent* event) override;
+    void dragMoveEvent(QDragMoveEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 	BreadcrumbVector GetBreadcrumbPath(QModelIndex mx) const;
 private:

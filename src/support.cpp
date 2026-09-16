@@ -138,12 +138,12 @@ void InformationMessage(bool WarningAndNotInfo, QString title, QString text, int
  * PARAMS:	title, text parent, buttons: same as for QMessageBox
  *			show: integer between 1 and Common::dboMax, ordinal of
  *				dialog. See 'DialogBitsOrder' in support.h
- *				If 0 it behaves as a simple 
+ *				If 0 it behaves as a simple
  *					QMessageBox::question would
  *			checkboxtext: if 'show' is not 0 and  adds a checkbox
  *				to the dialog with this text and stores
  *				its state when any button clicked
- * GLOBALS:	
+ * GLOBALS:
  * RETURNS:	the same value as QMessageBox::exec() returns
  * REMARKS: sets the flags to not show this dialog again, but
  *			never clears them
@@ -177,7 +177,7 @@ int QuestionDialog(QString title, QString text, Common::DialogBitsOrder show, QW
 
 int DeleteOrRemoveConfirmationDialog(IntList &list, QWidget* parent)
 {
-	QString plurali = QObject::tr("images"), 
+	QString plurali = QObject::tr("images"),
 			plurala = QObject::tr("albums"),   // plural for image and album. May differ in other languages
 			plurald = QObject::tr("them");      // plural for it, them, etc.plurald
 	QString qs = QObject::tr("Do you want to delete selected %1 / %2 from disk,\n"
@@ -228,11 +228,11 @@ QString EncodeText(const QString s)
 	if (s.isEmpty() || s.indexOf('\n') < 0)
 		return s;
 
-	
+
 
 	QString res = s;
 	return res.replace("\n", "\\n");
-	
+
 	//
 	//
 	//
@@ -242,8 +242,8 @@ QString EncodeText(const QString s)
 	//{
 	//	switch (s[i].unicode())
 	//	{
-	//		case '\n': 
-	//			res += "\\n"; 
+	//		case '\n':
+	//			res += "\\n";
 	//			break;
 	//			// '<' with '&lt;', '>' with '&gt;',
 	//		//case '<': if(s.length() > i+1)
@@ -256,7 +256,7 @@ QString EncodeText(const QString s)
 	//		//		break;
 	//		//case '>': if(i)
 	//		//		  {
-	//		//			if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9') 
+	//		//			if (s[i - 1].unicode() != ' ' && s[i - 1].unicode() > '9')
 	//		//				res += "&gt;";
 	//		//			else
 	//		//				res += s[i];
@@ -264,10 +264,10 @@ QString EncodeText(const QString s)
 	//		//		break;
 	//		case '&': st = s.mid(i, 8);
 	//			n = 1;
-	//			if (st.left(5) == "&amp;") n = 5; 
-	//			else if (st.left(6) == "&lt;") n = 4; 
-	//			else if (st.left(6) == "&gt;") n = 4; 
-	//			else if (st.left(6) == "&nbsp;") n = 6; 
+	//			if (st.left(5) == "&amp;") n = 5;
+	//			else if (st.left(6) == "&lt;") n = 4;
+	//			else if (st.left(6) == "&gt;") n = 4;
+	//			else if (st.left(6) == "&nbsp;") n = 6;
 	//			else if (st.left(2) == "&#")					  // unicode constant
 	//			{
 	//				i += 2;
@@ -291,19 +291,19 @@ QString EncodeText(const QString s)
 }
 
 /*=============================================================
-* TASK:   Replaces encoded "\\n", "&amp;", "&lt;","&gt;" strings 
+* TASK:   Replaces encoded "\\n", "&amp;", "&lt;","&gt;" strings
 *			with one for the given purpose
 * EXPECTS:	s		- string which may contain any of the above
-*			purpose - dtPlain: plain text  
+*			purpose - dtPlain: plain text
 *							"\\n" => '\n', "&amp;" => '&',
 *							"&lt;"=> '<', "&gt;"=> '>',
-*					  dtHtml: HTML ->'\n', 
-*							"\n" => "<br>\n" 
-*							"\\n" => "<br>\n" 
-*							"\"" => "&quot;" 
-*							"'"  => "&apos;" 
+*					  dtHtml: HTML ->'\n',
+*							"\n" => "<br>\n"
+*							"\\n" => "<br>\n"
+*							"\"" => "&quot;"
+*							"'"  => "&apos;"
 *					  dtJS: JS -> '<br>'
-*							"\\n" => "<br>" 
+*							"\\n" => "<br>"
 *							"&lt;"=> '<', "&gt;"=> '>',
 * GLOBALS:
 * RETURNS:	string after all replacements
@@ -336,7 +336,7 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 			if(inQuote)
 			{
 				res.replace("\"", "&quot;"); // but only inside quotes or apostrophes
-				res.replace("\'", "&apos;"); // - " - 
+				res.replace("\'", "&apos;"); // - " -
 			}
 			break;
 		case dtJavaScript:
@@ -395,14 +395,14 @@ QString DecodeTextFor(const QString s, DecodeTextTo purpose)
 	//	{
 	//		if (!quote)								// starting new quote?
 	//			quote = s[pos].unicode();
-	//		else 
+	//		else
 	//		{
 	//			if (quote == s[pos].unicode())		// same type -> ending quote
 	//			{
 	//				quote = 0;
 	//				res += s[pos];
 	//			}
-	//			else								// other quote: 
+	//			else								// other quote:
 	//				res += QChar('\\');
 	//		}
 	//	}
@@ -444,27 +444,27 @@ QString __TextWithBR(QString &txt)
 * EXPECTS:	name		- name of existing file (e.g. fo.struct) to be renamed and backed up
 *			tmpName		- name of yet temporary file to be renamed to 'name'
 *							(e.g. fo.tmp)
-*			keepPreviousBackup: 
+*			keepPreviousBackup:
 *						- true: if a backup file named name~ exists, then
 *								    keep it,  else proceed as if this was false.
 *								1. delete any 'name.tmp' file
 *						        2. rename 'name' file to 'name.tmp' and then
-*								3. rename 'tmpFile' to name. 
+*								3. rename 'tmpFile' to name.
 * 							  As a result we will have 3 files named
 *							  'name', 'name~' and 'name.tmp'
 *						- false: 1. delete 'name.tmp' file if it exists
 *								 2. delete name~ file if it exists,
-* 								 3. rename 'name' file to 'name~' and then			
+* 								 3. rename 'name' file to 'name~' and then
 * 								 4. rename 'tmpFile' to name.
-* 								 
+*
 * GLOBALS:	none
-* RETURNS:  empty QString when backup and rename was successful, error message 
+* RETURNS:  empty QString when backup and rename was successful, error message
 *			on error
 * REMARKS:
 *--------------------------------------------------------------------------*/
 QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 {
-	QString qsBackup = name + QString("~"), 
+	QString qsBackup = name + QString("~"),
 			qsIntermed = name + ".tmp";
 	QString qsErr;
 
@@ -495,21 +495,21 @@ QString BackupAndRename(QString name, QString tmpName, bool keepPreviousBackup)
 }
 
 /*============================================================================
-* TASK:		 separates an absolute or relative path file or directory path 
+* TASK:		 separates an absolute or relative path file or directory path
 *			 into its components. For directories (fullName ends with '/'
 *			 sets the name to be the directory name and the path its parent
 *			 directory
-* EXPECTS:	fullName -  (IN) file or directory path 
+* EXPECTS:	fullName -  (IN) file or directory path
 *							Directory names must end with '/'
 *			path     -  (OUT) file or parent directory path,
 *							empty or ends with '/'
-*			name	 -  (OUT) if pext is null name with extension, 
+*			name	 -  (OUT) if pext is null name with extension,
 *						otherwise just the name w.o. extension
 *			pext	 -  (IN) null pointer or pointer to extension variable
 *						*pext used when not nullptr(OUT)
 * GLOBALS:
-* RETURNS: number of parts created: 
-*						1: just name, 
+* RETURNS: number of parts created:
+*						1: just name,
 *						2: path and name or name and extension
 *						3: all three parts
 * REMARKS:	- path and *pext (when pext is not nullptr) may be empty,
@@ -646,7 +646,7 @@ QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 
 	if(h != img.height())
 		return img.scaledToWidth(w, Qt::SmoothTransformation);
-	
+
 	return img;
 }
 
@@ -659,214 +659,6 @@ QImage LoadImage(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 QPixmap LoadPixmap(QString path, int maxwidth, int maxheight, bool doNotEnlarge)
 {
 	return QPixmap::fromImage(LoadImage(path, maxwidth, maxheight,doNotEnlarge));
-}
-
-/*============================================================================
-  * TASK:	If the image reader can read the image sets original and new sizes
-  * EXPECTS:	allowed maximum sizes set in constructor
-  *				imgReader - reader for file name
-  * RETURNS:	aspect ratio or 1.0 if any size is 0
-  * GLOBALS:
-  * REMARKS: - sizes will reflect the orientation: 
-  *				when EXIF rotation is used
-  *			   image height and width  is swapped 
-  *			 - sets the scaled dimensions into the reader
-  *			 - thumbnail scaling happens in writer
- *--------------------------------------------------------------------------*/
-//double ImageConverter::CalcSizes(ImageReader &imgReader)
-//{
-//	if (!imgReader.canRead())
-//		return 0;
-//
-//	newSize = oSize = imgReader.size();	// actual source image size on disk
-//
-//	QImageIOHandler::Transformations tr = imgReader.transformation();
-//	if (tr & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
-//		oSize.transpose();
-//
-//	if (!oSize.width() || !oSize.height())
-//		aspect =  1.0;
-//	else
-//	    aspect = (double)oSize.width() / (double)oSize.height(); // < 1: portrait, > 1 landscape orientation
-//
-//
-//	if ((flags & dontResize) == 0)
-//	{					// maxSize.x(),y() - new image width & height
-//						// maxSize.width(),height() - thumbnail width & height
-//		if (aspect >= 1)
-//		{
-//			if ((newSize.width() > maxSize.x()) || ((newSize.width() < maxSize.x()) && (flags & dontEnlarge) == 0))
-//			{
-//				newSize.setWidth(maxSize.x());
-//				newSize.setHeight(maxSize.x() / aspect);
-//			}
-//			// thumbs always resized even when it means enlargement
-//			_thumbSize.setWidth(maxSize.width());
-//			_thumbSize.setHeight(maxSize.width() / aspect);
-//		}
-//		if (aspect <= 1)
-//		{
-//			if ((newSize.height() > maxSize.y()) || ((newSize.height() < maxSize.y()) && (flags & dontEnlarge) == 0))
-//			{
-//				newSize.setHeight(maxSize.y());
-//				newSize.setWidth(aspect * maxSize.y());
-//			}
-//			// thumbs always resized even when it means enlargement
-//			_thumbSize.setHeight(maxSize.height());
-//			_thumbSize.setWidth(aspect * maxSize.height());
-//		}
-//	}
-//	imgReader.setScaledSize(newSize);	// newSize used in read, _thumbSize used in write
-//	return aspect;
-//}
-
-/*============================================================================
-* TASK:		resize images and add watermark
-* EXPECTS:	imgReader - reader with image data set
-*			dest - path of destination image
-*			thumb - process a thumbnail?
-*			ovr - overwrite image if it exists
-*			pwm - pointer to watermark structure
-*			parameters maxwidth, maxheight,dontEnlarge are set
-* RETURNS:	- 0: OK
-*			- load errors: -1
-*			- if destination exists and it is not allowed to overwrite it: -2
-*			- file write error: -3
-* GLOBALS: 
-* REMARKS:	- path of source image must be set into imgReader before calling
-*			- for thumbnails if the image was already loaded into imgReader
-*				then scale image during save, else save the image as it is
-*			- if there's an error sets _qsErrorMsg
-*--------------------------------------------------------------------------*/
-int ImageConverter::Process(ImageReader &imgReader, QString dest, QString thumb, WaterMark *pwm)
-{
-	if (QFile::exists(dest) && !config.bOvrImages)
-	{
-		_qsErrorMsg = QMainWindow::tr("Destination file") + QString(" ,%1' ").arg(dest) + QMainWindow::tr("exists and image override is not allowed!");
-		return -1;
-	}
-	QImageIOHandler::Transformations trans = imgReader.transformation();
-	QSize newSize = imgReader.imgSize;	// if 'trans' then it may already transposed sizes (from camera, not from PS/LR)
-	if (trans & (QImageIOHandler::TransformationRotate90 | QImageIOHandler::TransformationMirrorAndRotate90))
-		newSize.transpose();
-	imgReader.setScaledSize(newSize);	// rescale to newSize when read, _thumbSize used in write
-
-	if (!imgReader.isReady)			// not read yet
-	{								
-		if (!imgReader.read())		// scaled and possibly rotated image
-		{
-			_qsErrorMsg = imgReader.errorString() + "\n'" + imgReader.fileName() + "'\n";
-			return -2;
-		}
-
-		_pImg = &imgReader.img;		// must set here to be used in _AddWatermark
-		if (pwm)
-			_AddWatermark(*pwm);	// onto _pImg
-	}
-		
-	// write scaled image into 'dest'
-	if(flags & prImage)
-	{
-		QImageWriter imageWriter(dest);
-		int quality = imgReader.quality();
-		if (config.imageQuality > 0)
-			quality = config.imageQuality;
-
-		imageWriter.setQuality(quality);
-		imageWriter.setFormat(imgReader.format());
-
-		if (!imageWriter.write(imgReader.img))
-		{
-			_qsErrorMsg = imageWriter.errorString() + "\n'" + dest + "'\n";
-			return -3;
-		}
-	}
-	// write thumbnail image into 'thumb'
-	// thumbnail image dimensions are never transposed 
-	// and all thumbnail images have the same height
-	// which is set in 'config'
-	if(flags & prThumb)
-	{
-		if (imgReader.thumbSize.width() <= 0 || imgReader.thumbSize.height() <= 0)
-		{
-			_qsErrorMsg = QMainWindow::tr("Invalid sizes for thumbnail") + QString(" \n'"+thumb + "'\n");
-			return -aspect;
-		}
-		//	re-scale image for thumbnail
-		imgReader.img = imgReader.img.scaled(imgReader.thumbSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-		QImageWriter imageWriter(thumb);
-		imageWriter.setQuality(imgReader.quality());
-		imageWriter.setFormat(imgReader.format());
-		if (!imageWriter.write(imgReader.img))
-		{
-			_qsErrorMsg += "'" + thumb + "'\n" + imageWriter.errorString();
-			return -3;
-		}
-	}
-	return 0;
-}
-
-/*============================================================================
-* TASK:		add a watermark to the image '_pimg' points to
-* EXPECTS: 	wm is a filled in watermark structure with valid mark image
-*			_pImg points to existing image into which the watermark will
-*			be printed
-*			width, height, etc are set up
-* GLOBALS:
-* REMARKS:
-*--------------------------------------------------------------------------*/
-void ImageConverter::_AddWatermark(WaterMark & wm)
-{
-	if (!wm.PMarkImage())		// no watermark image
-		return;
-
-	int markWidth = wm.Width(),
-		markHeight = wm.Height();
-	// combine the text with the image
-
-	int x0=0, y0=0;		// origin on image for watermark
-	int imgWidth = _pImg->width(), imgHeight = _pImg->height();
-
-	switch ((wm.Origin() & 0xF0) >> 4)
-	{
-		case 0: x0 = wm.MarginX(); break;
-		case 1: x0 = (imgWidth - markWidth) / 2; break;
-		case 2: x0 = imgWidth - markWidth - wm.MarginY(); break;
-	}
-	if (x0 < 0)
-		x0 = 0;
-	switch ((wm.Origin() & 0xF))
-	{
-		case 0: y0 = wm.MarginY(); break;
-		case 1: y0 = (imgHeight - markHeight) / 2; break;
-		case 2: y0 = imgHeight - markHeight - wm.MarginY(); break;
-	}
-	if (y0 < 0)
-		y0 = 0;
-
-   // draw the watermark
-	QPainter painter(_pImg);
-	if (imgWidth < markWidth)
-	{
-		QRect	srect(0,0, markWidth, markHeight), 
-				drect(x0,y0, imgWidth, markHeight);	// source and destination
-
-		painter.drawImage(drect, *wm.PMarkImage(), srect);
-	}
-	else
-		painter.drawImage(QPoint(x0, y0), *wm.PMarkImage());
-
-	// DEBUG
-	//wm.PMarkImage()->save(PROGRAM_CONFIG::samplePath + "\\watermark.png");
-	//QBrush brush(Qt::red);
-	//painter.setPen(QPen(brush, 5));
-	//painter.drawLine(x0, y0, x0+markWidth, y0);
-	//painter.drawLine(x0+markWidth, y0,x0+markWidth, y0+markHeight);
-	//painter.drawLine(x0, y0+markHeight,x0+markWidth, y0+markHeight);
-	//painter.drawLine(x0, y0+markHeight,x0,y0);
-	//_pImg->save(PROGRAM_CONFIG::samplePath + "\\watermarkedImage.png");
-	// DEBUG
 }
 
 /*============================================================================
@@ -936,7 +728,7 @@ static bool __CancelCreate(QString s)
 * RETURNS:  1: directory exists (or created successfully)
 *			0: directory creation error
 *			-1: cancelled
-* REMARKS: 	 
+* REMARKS:
 *--------------------------------------------------------------------------*/
 bool CreateDir(QString sdir, bool ask, int dirIndex) // only create if needed
 {										// ask - if does not exist ask what to do
@@ -982,18 +774,18 @@ bool RemoveFolderRecursively(QString name, bool tryToTrash)
 	bool result = false;
 	QDir dir(name);
 
-	if (dir.exists(name)) 
+	if (dir.exists(name))
 	{
-		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) 
+		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst))
 		{
-			if (info.isDir()) 
+			if (info.isDir())
 			{
 				if (tryToTrash)
 					result = QFile::moveToTrash(info.absoluteFilePath());
 				if(!result)
 					result = RemoveFolderRecursively(info.absoluteFilePath(), tryToTrash);
 			}
-			else 
+			else
 			{
 				if (tryToTrash)
 					result = QFile::moveToTrash(info.absoluteFilePath());
@@ -1001,9 +793,9 @@ bool RemoveFolderRecursively(QString name, bool tryToTrash)
 					result = QFile::remove(info.absoluteFilePath());
 			}
 
-			if (!result) 
+			if (!result)
 				return result;
-			
+
 		}
 		if (tryToTrash)
 			result = QFile::moveToTrash(name);
@@ -1013,7 +805,6 @@ bool RemoveFolderRecursively(QString name, bool tryToTrash)
 
 	return result;
 }
-
 
 /*========================================================
  * TASK:
@@ -1033,357 +824,51 @@ bool RemoveDir(QString name, bool ask, bool tryToTrash)
 	return RemoveFolderRecursively(name, tryToTrash);
 }
 
-// ************* struct Watermark ************
-
-QString WaterMark::ColorToCss() const
-{
-	return QString("rgba(%1,%2,%3,%4)").arg((_colorWOpacity >> 16) & 0xFF).arg((_colorWOpacity >> 8) & 0xFF).arg(_colorWOpacity & 0xFF).arg(Opacity(false) / 255.0);
-}
-QColor WaterMark::BorderColor() const
-{
-	unsigned c = _colorWOpacity & 0xffffff;
-	return (QColor(QString("#%1").arg(c, 6, 16, QChar(0))).value() < 170 ? "white" : "black");
-}
-
-/*=============================================================
- * TASK:	set positioning string for ".thumb::after"
- *			for the sample
- * EXPECTS:	width,height : for encllosing thumbnail
- *			ratio: thumbnail width / image width
- *			pos:	where to put it
- * GLOBALS: _marginX, _marginY
- * RETURNS:	2 line string for top and left set
- * REMARKS: ::after element would come after the main
- *			element, so both top and left will always be negative
- *------------------------------------------------------------*/
-QString WaterMark::PositionToStyle(int width, int height, double ratio, POS pos) const// to set on .thumb::after
-{
-	if (pos < 0)
-		pos = _origin;
-	int left=-999999, top = -999999;	//impossible values
-	switch (pos &0xF0)
+QFont::Weight IntToFontWeight(int w) 	// uses the Qt 5 weight values but the enum names are the same
+{									// in Qt 6, so i keep these names
+	switch (w)
 	{
-		case LEFT:		left = -width + _marginX; break;
-		case HCENTER:	left = -(width+_markWidth)/2 + _marginX; break;
-		case RIGHT:		left = -_markWidth - _marginX; break;
-	}
-	if (left < -width)
-		left = -width;
-	switch (pos & 0xF)
-	{
-		case TOP:		top =  -height + _marginY; break;
-		case VCENTER:	top = -(height + _markHeight) / 2 + _marginY; break;
-		case BOTTOM:	top = -_markHeight - _marginY; break;
-	}
-	if (top < -height)
-		top = -height;
-
-	QString qs = QString("top:%1px;\n\tleft:%2px;\n").arg(int(top*ratio)).arg(int(left*ratio));
-	return qs;
-}
-
-unsigned WaterMark::Color() const 
-{
-	return _colorWOpacity; 
-}
-double WaterMark::Opacity(bool percent) const		// 0..255 (!percent) or 0..100 (percent)
-{
-	return ((_colorWOpacity >> 24) & 0xFF) * (percent ? 100.0 / 255.0 : 1.0);
-}
-
-	// setters
-	// setters	: each regenerates watermark image and saves it into 'res/'
-#define SET_WM_VALUE(a,b)\
-			if(a != (b))	\
-			{  \
-				_changed = true;	\
-				a = (b); \
-			}
-void WaterMark::SetFont(QFont& qfont) // use either SetText() or GetMarkDimension after font is modified
-{
-	SET_WM_VALUE(_font, qfont);
-	_font.setStyleHint(QFont::AnyStyle, QFont::PreferAntialias);
-	SetupMark();
-}
-void WaterMark::SetText(QString  qs)	// calls GetMarkDimensions
-{
-	SET_WM_VALUE(_text,qs);
-	GetMarkDimensions();
-	SetupMark();
-}
-void WaterMark::SetColorWithOpacity(unsigned c_colorWOpacity)
-{
-	SET_WM_VALUE(_colorWOpacity, c_colorWOpacity);
-	SetupMark();
-}
-void WaterMark::SetColorWithOpacity(QString s_colorWOpacity)
-{
-	SET_WM_VALUE(_colorWOpacity, s_colorWOpacity.toUInt(nullptr, 16));
-	SetupMark();
-}
-void WaterMark::SetOpacity(int val, bool percent) // val is in percent (0..100) or not(0..255)?
-{
-	if (percent)
-		val *= 2.55;
-	unsigned cwo = (((int)(val)) << 24) + (qRed(_colorWOpacity) << 16) + (qGreen(_colorWOpacity) << 8) + qBlue(_colorWOpacity);
-	SET_WM_VALUE(_colorWOpacity, cwo);
-	SetupMark();
-}
-
-bool WaterMark::operator!=(const WaterMark& wm) const
-{
-	return (_changed != wm._changed) 
-		|| (_text != wm._text)
-		|| (_origin != wm._origin)
-		|| (_marginX != wm._marginX)
-		|| (_marginY != wm._marginY)
-		|| (_colorWOpacity != wm._colorWOpacity)
-		|| (_background != wm._background)
-		|| (_shadowColor != wm._shadowColor)
-		|| (_font != wm._font);
-}
-
-void WaterMark::GetMarkDimensions()
-{
-	QFontMetrics fm(_font);
-	_markWidth = fm.horizontalAdvance(_text);
-	_markHeight = fm.height();
-	if (_shadowOn)	// leave space for the shadow
-	{
-		_markWidth += _shadowHoriz;
-		_markHeight += _shadowVert;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	case 0: return	QFont::Thin;
+	case 12: return QFont::ExtraLight;
+	case 25: return QFont::Light;
+	default:					   // Default to Normal if unknown
+	case 50: return QFont::Normal;
+	case 57: return QFont::Medium;
+	case 63: return QFont::DemiBold;
+	case 75: return QFont::Bold;
+	case 81: return QFont::ExtraBold;
+	case 87: return QFont::Black;
+#else
+		case 100: return QFont::Thin;
+		case 200: return QFont::ExtraLight;
+		case 300: return QFont::Light;
+	default:					   // Default to Normal if unknown
+		case 400: return QFont::Normal;
+		case 500: return QFont::Medium;
+		case 600: return QFont::DemiBold;
+		case 700: return QFont::Bold;
+		case 900: return QFont::ExtraBold;
+		case 900: return QFont::Black;
+#endif
 	}
 }
 
-/*=============================================================
- * TASK: generate watermark image for watermark text and 
- *			
- * EXPECTS:	font set, and correct text is also set,
- *			GetMarkDimensions() called at least once
- * GLOBALS:
- * RETURNS:
- * REMARKS:
- *------------------------------------------------------------*/
-QImage* WaterMark::SetupMark()
-{
-	if (!_enabled)
-		return nullptr;
-
-	delete _pmark;
-	_pmark = new QImage(_markWidth, _markHeight, QImage::Format_ARGB32);
-	_pmark->fill(qRgba(0, 0, 0, 0));	// transparent image
-	QPainter painter(_pmark);
-	painter.setFont(_font);
-	QColor c(qRed(_colorWOpacity), qGreen(_colorWOpacity), qBlue(_colorWOpacity), Opacity(false));
-	// Debug 
-	//QColor c(0xff,0,0,128);
-	//QString n = c.rgba();
-	QPen pen(c);
-	painter.setPen(pen);
-
-	int startX = 0, startY = 0;
-	if (_shadowOn)
-		startX = _shadowHoriz / 2, startY = _shadowVert / 2;
-	painter.drawText(startX, startY, _markWidth, _markHeight, Qt::AlignCenter, _text);
-
-	// DEBUG
-
-	/*QFile fdbg("debug-watermark.txt");
-	fdbg.open(QIODevice::WriteOnly);
-	QTextStream odbg(&fdbg);
-	odbg << "Font: " << font.family() << ", " << font.pointSize() << "pt, rgba:" << QString("#%1").arg(c.rgba(), 8, 16, QChar('0')) << ", penw:" << pen.width() << "\n";
-	*/
-	if (_shadowOn)
+int FontWeightToInt(QFont::Weight w)	// uses the Qt 5 weight values but the enum names are the same
+{								// in Qt 6, so i keep these names
+	switch (w)
 	{
-		class MyShadow : public QGraphicsDropShadowEffect
-		{
-			public: 
-				MyShadow(QObject* parent = nullptr) :QGraphicsDropShadowEffect(parent) {}
-				void draw(QPainter* painter) override { drawSource(painter);  }
-		}	shadow(nullptr);
-		shadow.setXOffset(_shadowHoriz);
-		shadow.setYOffset(_shadowVert);
-		shadow.setBlurRadius(_shadowBlur);
-		if(_shadowColor)
-			shadow.setColor(_shadowColor);
-		shadow.draw( &painter);
+	case QFont::Thin: return 0;
+	case QFont::ExtraLight: return 12;
+	case QFont::Light: return 25;
+	default:					   // Default to Normal if unknown
+	case QFont::Normal: return 50;
+	case QFont::Medium: return 57;
+	case QFont::DemiBold: return 63;
+	case QFont::Bold: return 75;
+	case QFont::ExtraBold: return 81;
+	case QFont::Black: return 87;
 	}
-
-	_pmark->save(PROGRAM_CONFIG::samplePath + "res/watermark.png");	// used on image
-	return _pmark;
-}
-
-WaterMark& WaterMark::operator=(const WaterMark& other)
-{
-	_text = other._text;
-	_origin = other._origin;
-
-	delete _pmark;
-	_pmark = nullptr;
-	if (other._pmark)
-		_pmark = new QImage(*other._pmark);
-
-	_changed = other._changed;
-	_markWidth = other._markWidth;
-	_markHeight = other._markHeight;
-	_colorWOpacity = other._colorWOpacity;
-	_background = other._background;
-	_useBackground = other._useBackground;
-	_shadowOn = other._shadowOn;
-	_shadowHoriz = other._shadowHoriz;
-	_shadowVert = other._shadowVert;
-	_shadowBlur = other._shadowBlur;
-	_shadowColor = other._shadowColor;
-	_font = other._font;
-	return *this;
-}
-
-WaterMark& WaterMark::operator=(const WaterMark&& other)
-{
-	_text = other._text;
-	_origin = other._origin;
-
-	_pmark = other._pmark;
-
-	_changed = other._changed;
-	_markWidth = other._markWidth;
-	_markHeight = other._markHeight;
-	_colorWOpacity = other._colorWOpacity;
-	_background = other._background;
-	_useBackground = other._useBackground;
-	_shadowOn = other._shadowOn;
-	_shadowHoriz = other._shadowHoriz;
-	_shadowVert = other._shadowVert;
-	_shadowBlur = other._shadowBlur;
-	_shadowColor = other._shadowColor;
-	_font = other._font;
-	return *this;
-}
-
-// =================================================================
-QPixmap *MarkedIcon::_folderThumbMark = nullptr;
-QPixmap *MarkedIcon::_aliasMark = nullptr;
-QPixmap *MarkedIcon::_noImageMark = nullptr;
-QPixmap *MarkedIcon::_noResizeMark = nullptr;
-int  MarkedIcon::_thumbSize = THUMBNAIL_SIZE;		// named image is inside a (size x size) area this keeping aspect ratio
-int  MarkedIcon::_borderWidth = _thumbSize / THUMBNAIL_BORDER_FACTOR;				// in pixels portrait image: right and left, landscape image top and bottom
-bool MarkedIcon::_initted = false;				// images for icons read?
-
-
-/*=============================================================
- * TASK:	reads an image into '_pxmp' member from file and
- *			shows it on a square pixmap with '_thumbSize' side
- *			on a background whose color depends on the type of
- *			the image (folder thumbnail or image thumbnail)
- * PARAMS:	name: file name to read image from
- *			iflags: icon flags may contain other flags than 
- *					image type
- * GLOBALS:	static members are set
- * RETURNS:	if file read was successful
- * REMARKS: if read is unsuccessfull the pixmap still valid
- *------------------------------------------------------------*/
-bool MarkedIcon::Read(QString fname, IconFlags iflags)
-{
-	_name = fname;
-	flags = iflags;
-
-	QString colorname = (flags & fiFolder ? config.albumMatteColor : config.imageMatteColor).Name(true);
-	QColor cbck = colorname;
-	if (!cbck.isValid())
-		return false;
-
-	_pxmp = QPixmap(_thumbSize, _thumbSize);
-	_pxmp.fill(cbck);
-
-	QSize dsize;		// thumbnail size
-	static QImage img;	// thumbnail image (for video: get from video file)
-
-	auto setDSize = [&](QSize osize)  // get destinaton size for thumbnail image
-		{
-			if (osize.width() >= osize.height())	// portrait
-			{
-				dsize.setWidth(_thumbSize - 2 * _borderWidth);
-				dsize.setHeight((double)(_thumbSize - 2 * _borderWidth) / (double)(osize.width()) * osize.height());
-			}
-			else
-			{
-				dsize.setHeight(_thumbSize - 2 * _borderWidth);
-				dsize.setWidth((double)(_thumbSize - 2 * _borderWidth) / (double)(osize.height()) * osize.width());
-			}							  
-		};
-
-	if (flags & fiVideo)	// then thumbnail is a frame from the video
-	{
-		Video* pvid = albumgen.Videos().Find(fname);
-		if (!pvid)
-			return false;	// no video found
-
-		if (!pvid->GetThumbnail(img, dsize, _thumbSize))
-		{
-			QMessageBox::warning(nullptr, QMainWindow::tr("falconG - Warning"), 
-				QMainWindow::tr("Can't get thumbnail for video file '%1'").arg(fname));
-			return false;
-		}
-	}
-	else   // image (may be a) folder thumbnail
-	{
-		QImageReader reader(_name);
-		reader.setBackgroundColor(cbck);
-		reader.setAutoTransform(true);
-
-		_exists = false;
-
-		QSize osize = reader.size();
-		if (!osize.isValid())
-			return false;
-		setDSize(osize);
-
-		reader.setScaledSize(dsize);
-
-		if (!reader.read(&img))		// maybe error display?
-			return false;
-
-		_exists = true;
-	}
-	QPainter painter(&_pxmp);	// leave the border outside
-	int xm =(_pxmp.width() - dsize.width()) / 2, ym = (_pxmp.height() - dsize.height()) / 2;
-	painter.drawImage(xm, ym, img);
-
-	return true;
-}
-
-/*=============================================================
- * TASK:	from _pxmp returns an icon with markers on it
- * PARAMS:
- * EXPECTS: _pxmp contains the already rendered background 
- *			(folders and others) and the image
- * GLOBALS:
- * RETURNS: an icon for image read. 
- * REMARKS: - If no markers are to be set on this item returns just 
- *			the pixmap '_pxmp'
- *			- thumbnail & alias markers are at top left, 
- *				fon't resize and missing flag at top right
- *------------------------------------------------------------*/
-QIcon MarkedIcon::ToIcon() const
-{
-	static IconFlags __flags = { fiFolder, fiThumb, fiDontResize, fiAlias };
-	if (_exists && (flags & __flags) ==0)	// no markers on images
-		return QIcon(_pxmp);
-
-	QPixmap tmp_pxmp(_thumbSize, _thumbSize);
-	QPainter painter(&tmp_pxmp);
-	painter.drawPixmap(0,0, _pxmp);		// image with border
-	if (flags & fiThumb)	   // at top left position
-			painter.drawPixmap(_borderWidth, _borderWidth, *_folderThumbMark);	 
-	if (flags & fiAlias)
-		painter.drawPixmap(_borderWidth + (flags & fiThumb ? _aliasMark->width() : 0), _borderWidth, *_aliasMark);
-
-	if (flags & dontResize)		  // at top right
-		painter.drawPixmap(_thumbSize - _folderThumbMark->width() - _borderWidth, _borderWidth, *_noResizeMark);
-	if(!_exists)
-		painter.drawPixmap(_thumbSize - 2*_noImageMark->width() - _borderWidth, _borderWidth, *_noImageMark);
-
-	return QIcon(tmp_pxmp);
 }
 
 void AlbumPointers::SetupPointers()
@@ -1395,3 +880,4 @@ void AlbumPointers::SetupPointers()
 	srcBaseAlbumId = pSrcAlbum->ID.Val();
 	destBaseAlbumId = pDestAlbum->ID.Val();
 }
+

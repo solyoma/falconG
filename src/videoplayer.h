@@ -1,7 +1,55 @@
 #pragma once
+
+#ifndef VIDEOPLAYER_H
+#define VIDEOPLAYER_H
+
+#include <QtCore>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+
+// Video Player Widget
+// ChatGPT AI generated code:
+
+#include <QWidget>
+#include <QImage>
+
+class QMediaPlayer;
+class QVideoWidget;
+class QPushButton;
+class QVideoFrame;
+
+class VideoPlayerWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit VideoPlayerWidget(QWidget *parent = nullptr);
+
+    void setVideo(const QUrl &url);
+    void play();
+    void pause();
+
+    QImage currentFrame() const;
+
+signals:
+    void frameGrabbed(const QImage &image);
+
+private slots:
+    void grabFrame();
+    void onVideoFrameChanged(const QVideoFrame &frame);
+
+private:
+    QMediaPlayer *m_player;
+    QVideoWidget *m_videoWidget;
+    QPushButton *m_playPauseButton;
+    QPushButton *m_grabButton;
+    QImage m_latestFrame;
+};
+
+
+#else       // for QT_VERSION < 6.0.0
 // AI created code from the example in the Qt sources
 // modified by A. Solyom
-
 /****************************************************************************
 **
 ** Copyright (C) 2017 The Qt Company Ltd.
@@ -51,14 +99,13 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef VIDEOPLAYER_H
-#define VIDEOPLAYER_H
 
 #include <QWidget>
 #include <QtMultimedia/QMediaPlayer>
 #include <QtMultimedia/QMediaMetaData>
 #include <QtMultimedia/QVideoSurfaceFormat>
 #include <QtMultimedia/QAbstractVideoSurface>
+
 #include <QImage>
 #include <QPixmap>
 #include <QPainter>
@@ -245,5 +292,6 @@ private:
 	void _SetupAsGrabber();
     void _Setup();
 };
+#endif
 
 #endif

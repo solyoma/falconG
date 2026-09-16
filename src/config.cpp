@@ -54,7 +54,9 @@ void PROGRAM_CONFIG::Read()
 	copyrightYear = QDate::currentDate().year();
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in user's local home directory
-	s.setIniCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    s.setIniCodec("UTF-8");
+#endif
 
 	lang = s.value("lang", -1).toInt();
 	designSplitterLeft	= s.value("sdll", 493).toInt();
@@ -109,7 +111,9 @@ void PROGRAM_CONFIG::Write()
 	}
 
 	QSettings s(homePath+falconG_ini, QSettings::IniFormat);	// in program directory
-	s.setIniCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    s.setIniCodec("UTF-8");
+#endif
 
 	s.setValue("lang", PROGRAM_CONFIG::lang);
 	s.setValue("schemeIndex", schemeIndex);
@@ -133,7 +137,7 @@ void PROGRAM_CONFIG::GetHomePath()
 {
 	homePath = QDir::homePath() +
 #if defined (Q_OS_Linux)   || defined (Q_OS_Darwin) || defined(__linux__)
-		"/.falconG/";
+        "/.config/falconG/";
 #elif defined(Q_OS_WIN)
 		"/AppData/Local/FalconG/";
 #endif
@@ -1246,7 +1250,11 @@ void _CWaterMark::Write(QSettings& s, QString group)
 
 		s.setValue("family", Font().family());
 		s.setValue("size",   Font().pointSize());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		s.setValue("weight", Font().weight());
+#else
+		s.setValue("weight", FontWeightToInt(Font().weight()));
+#endif
 		s.setValue("italic", Font().italic());
 	s.endGroup();
 
@@ -1261,14 +1269,13 @@ void _CWaterMark::Read(QSettings& s, QString group)
 	if (!group.isEmpty())
 		s.beginGroup(group);
 
-
 	s.beginGroup(itemName);
 		_enabled = false;	// do not create new watermark image
 
 		QFont font;		// must set font first to get text dimensions
 		font.setFamily(s.value("family", "").toString());
 		font.setPointSize(s.value("size", 16).toInt());
-		font.setWeight(s.value("weight", QFont::Bold).toInt());
+		font.setWeight(IntToFontWeight(s.value("weight", QFont::Bold).toInt()));
 		font.setItalic(s.value("italic", false).toBool());
 		SetFont(font);
 
@@ -1542,7 +1549,6 @@ QString CONFIG::RemoveSourceFromPath(QString s)	 const
 #if defined(_MSC_VER) || defined(WIN32) || defined(WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
 	sp = sp.toLower();
 	sd = sd.toLower();
-#elif defined()
 #endif
 	if (sp.left(sd.length()) == sd)
 		s = s.mid(sd.length());
@@ -1780,7 +1786,9 @@ void CONFIG::Read()		// synchronize with Write!
 	QString sIniName = PROGRAM_CONFIG::NameForConfig(false, ".ini"); // false: fallback to default if ini does not exist in source dir.
 
 	QSettings s(sIniName, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	s.setIniCodec("UTF-8");
+#endif
 
 	// directories
 	dsSrc.Read(s);
@@ -1931,7 +1939,9 @@ void CONFIG::Read()		// synchronize with Write!
 void CONFIG::_WriteIni(QString sIniName)
 {
 	QSettings s(sIniName, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	s.setIniCodec("UTF-8");
+#endif
 
 	// directories
 	dsSrc.Write(s);

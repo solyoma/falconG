@@ -16,6 +16,8 @@
 #include "csscreator.h"
 #include "structwriter.h"
 #include "videoplayer.h"
+#include "imageconverter.h"
+#include "watermark.h"
 
 #if QT_VERSION < 0x051000
     #define created created
@@ -529,11 +531,11 @@ static void __SetBaseDirs()
 template<typename Map> ID_t GetUniqueID(Map &map, int8_t typeFlag, QString &name, bool isContent = false)
 {
 
-	ID_t id = CalcCrc(name, isContent);
-	while (map.contains(ID_t(typeFlag,id)))
+    IDVal_t id = CalcCrc(name, isContent);
+    while (map.contains(ID_t(static_cast<uint8_t>(typeFlag),id)))
 		id += ID_INCREMENT;
 
-	return ID_t(typeFlag, id);
+    return {static_cast<uint8_t>(typeFlag), id};
 }
 
 static IDVal_t GetUniqueAlbumID(AlbumMap &map, QString& name, bool isContent = false)
@@ -2594,7 +2596,7 @@ static QStringList __imageMapStructLineToList(const QString &s)
 	else
 		pos = s.length(); // -1;
 
-	QRegExp rexp("[,|x]");
+    QRegularExpression rexp("[,|x]");
 	sl += s.mid(pos0, pos - pos0).split(rexp);	// index #2..#9 for image: ID, width, height, owidth, oheight, length, date
 												// index #2..#7 for video: ID, frame width, frame height, length, date
 
@@ -3625,7 +3627,7 @@ QString AlbumGenerator::RootNameFromBase(QString base, int language, bool toServ
  *-------------------------------------------------------*/
 void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std::atomic_int &cnt)
 {
-	int doProcess = 0;	// suppose neither image nor thumb must be (re)created
+	Common::IcFlags doProcess;	// suppose neither image nor thumb must be (re)created
 	QString src, dst, thumbName;
 
 										// resize and copy and  watermark
@@ -3707,7 +3709,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		int64_t	fiSize = fiSrc.size();
 
 		if (config.bRegenerateAllImages || (im.bDestFileChangedOrMissing || (fiSize != im.fileSize) || !destIsNewer) )
-			doProcess |= prImage;			// then do process
+			doProcess |= Common::IcFlag::prImage;			// then do process
 
 		if (destIsNewer)
 			im.uploadDate = dtDestCreated.date();
@@ -3716,7 +3718,7 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 			im.fileSize = fiSize;
 	}
 	else
-		doProcess |= prImage;
+		doProcess |= Common::IcFlag::prImage;
 
 	if (thumbExists)		// then test if this image was modified (width = 0: only added by name)
 	{
@@ -3724,10 +3726,10 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 		bool thumbIsNewer = dtThumb > dtSrc;
 
 		if (config.bRegenerateAllImages || _MustRecreateThumbBasedOnImageDimensions(thumbName, im) || !thumbIsNewer)
-			doProcess |= prThumb;			// then do process
+			doProcess |= Common::IcFlag::prThumb;			// then do process
 	}
 	else
-		doProcess |= prThumb;			// then do process
+		doProcess |= Common::IcFlag::prThumb;			// then do process
 
 	if (doProcess)
 	{
@@ -3739,8 +3741,8 @@ void AlbumGenerator::_ProcessOneImage(Image &im, ImageConverter &converter, std:
 			if (config.waterMark.used)	
 				pwm = &config.waterMark;
 		}
-		converter.flags = doProcess + (im.dontResize ? dontResize : 0) +
-							(config.doNotEnlarge ? dontEnlarge : 0);
+		converter.flags = doProcess  | (im.dontResize ? Common::IcFlag::dontResize : Common::IcFlag()) |
+									(config.doNotEnlarge ? Common::IcFlag::dontEnlarge : Common::IcFlag());
 
 		imgReader.thumbSize = im.tsize;
 		imgReader.imgSize = im.rsize;
@@ -3791,7 +3793,7 @@ int AlbumGenerator::_ProcessImages()
 	std::atomic_int cnt = 0;	// count of images copied
 
 	QRect maxSize{ config.imageWidth, config.imageHeight, config.thumbWidth, config.thumbHeight};
-	ImageConverter converter(config.doNotEnlarge);
+	ImageConverter converter(config.doNotEnlarge ? IcFlag::dontEnlarge: IcFlag());
 
 	emit SignalToEnableEditTab(false);
 
@@ -4181,8 +4183,9 @@ int AlbumGenerator::_OutputAboutText(int lang)
 		return -1;
 
 	QTextStream ifs(&f);
-	ifs.setCodec("UTF-8");
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    ifs.setCodec("UTF-8");
+#endif
 	QString spara;
 	bool inPara=false;	// inside paragraph?
 	bool bp=false;	// paragraph's first line started with "<"?
@@ -4323,7 +4326,7 @@ int AlbumGenerator::_WriteHeaderSection(Album &album)
 			_ofs << "     <p class=\"gallery-desc\">"   << DecodeTextFor(_textMap[album.descID][_actLanguage], dtHtml) << "</p>\n";
 	}
 
-	int nLightboxable = (album.ID.Val() == RECENT_ALBUM_ID) ?  config.nLatestCount : album.ImageCount() + album.VideoCount();
+    int nLightboxable = (album.ID.Val() == RECENT_ALBUM_ID) ?  config.nLatestCount.v : album.ImageCount() + album.VideoCount();
 	if (nLightboxable)
 		_LightboxCodeIntoHtml(nLightboxable);
 	_ofs << "</div>\n";	 //  header
@@ -4630,8 +4633,9 @@ int AlbumGenerator::_CreateOneHtmlAlbum(QFile &f, Album & album, int language, Q
 		return 16;
 
 	_ofs.setDevice(&f);
-	_ofs.setCodec("UTF-8");
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    _ofs.setCodec("UTF-8");
+#endif
 	_remDsp.Update(processedCount);
 	emit SignalToShowRemainingTime(_remDsp.tAct, _remDsp.tTot, _albumMap.size(), false);
 	emit SignalProgressPos(++processedCount, _albumMap.size() * languages.LanguageCount());
@@ -4810,8 +4814,9 @@ int AlbumGenerator::_CreateAboutPages()
 			return -1;
 
 		_ofs.setDevice(&f);
-		_ofs.setCodec("UTF-8");
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        _ofs.setCodec("UTF-8");
+#endif
 		_ofs << _PageHeadToString(_albumMap[TOPMOST_ALBUM_ID])
 			<< "<body>\n";
 		_ofs << "   <div class=\"header\">\n";
@@ -4875,7 +4880,9 @@ int AlbumGenerator::_CreateHomePage()
 		return -1;
 
 	_ofs.setDevice(&f);
-	_ofs.setCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    _ofs.setCodec("UTF-8");
+#endif
 
 	_ofs << _PageHeadToString(_albumMap[TOPMOST_ALBUM_ID])
 		<< "<body>\n";
@@ -5124,7 +5131,9 @@ int AlbumGenerator::_DoLatestJs()
 			return 16;
 
 		QTextStream ofjs(&f);
-		ofjs.setCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        ofjs.setCodec("UTF-8");
+#endif
 
 		ofjs << "// Copyright  András Sólyom (2018-" << PROGRAM_CONFIG::copyrightYear << 
 			")\n// email:   solyom at andreasfalco dot com, andreasfalco at gmail dot com).\n"
@@ -5199,7 +5208,9 @@ int AlbumGenerator::_DoLatestHelper(QString baseName, int lang)
 		return 16;
 
 	_ofs.setDevice(&f);
-	_ofs.setCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    _ofs.setCodec("UTF-8");
+#endif
 
 	_ofs << _PageHeadToString(_albumMap[RECENT_ALBUM_ID])
 		 << " <body onload = \"falconGLoad(1)\"";
@@ -5772,11 +5783,11 @@ void AlbumGenerator::AddToModifiedList(IDVal_t albumId, bool itemNotProcessedYet
 }
 
 //************************* VideoMap ******************************************
-Video* VideoMap::Find(ID_t id, bool useBase)
+Video* VideoMap::Find(IDVal_t vidid, bool useBase)
 {
 	IDVal_t mask = useBase ? BASE_ID_MASK : 0xFFFFFFFFFFFFFFFFul;
 	Video vid;
-	IDVal_t vidid = id.Val();
+    //IDVal_t vidid = id.Val();
 	for(auto& v: *this)
 		if ((v.ID.Val() & mask) == (vidid & mask))	// compare only base ID
 			return &v;
@@ -5833,14 +5844,14 @@ ID_t VideoMap::Add(QString path, bool& added)
 
 	QFileInfo fi(path);
 
-	Video* found = Find({ VIDEO_ID_FLAG, id64 }); // check if a file with this same base id is already in data base?
+    Video* found = Find(id64); // check if a file with this same base id is already in data base?
 												  // can't use reference as we may want to modify 'found' below
 
 	if (found)	  // then may be other videos with the same base id as this one
 	{
 		if (config.bKeepDuplicates)	   // don't check, just add
 		{
-			while (Find({ VIDEO_ID_FLAG, id64 }, false)); // full by ID
+            while (Find(id64, false)) // full by ID
 				id64 += ID_INCREMENT;
 		}
 		else
@@ -5863,7 +5874,7 @@ ID_t VideoMap::Add(QString path, bool& added)
 					else						// same ID, different name - new video
 						id64 += ID_INCREMENT;
 					// repeat until a matching name with the new ID is found or no more videos
-				} while ((found = Find({ VIDEO_ID_FLAG, id64 }, false))->Valid()); // full by ID
+                } while ((found = Find(id64, false))->Valid()); // full by ID
 			}
 		}
 	}
@@ -5891,7 +5902,7 @@ Video& VideoMap::Item(int index)
 	if (index < 0 || index > size())
 		return invalid;
 	iterator it = begin();
-	it += index;
+    std::advance(it,index); // '+=' is deprectaed...
 	return *it;
 }
 
@@ -5936,6 +5947,8 @@ QString Video::AsString(int width, int height)
 
 bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+
 	thumbnail = QImage();
 	VideoPlayer player(VideoPlayer::vpExtractFrame, &videoData);
 	auto w = [&]() -> bool{
@@ -5956,6 +5969,8 @@ bool Video::GetThumbnail(QImage& image, QSize& dsize, int thumbSize)
 		thumbnail = player.ExtractFrameAt(-1);
 	
 	return w();
+#endif
+    return false;   // TODO
 }
 
 QSize Video::ThumbSize() const

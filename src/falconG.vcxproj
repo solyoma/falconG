@@ -227,9 +227,11 @@
     <ClCompile Include="csscreator.cpp" />
     <ClCompile Include="falcong.cpp" />
     <ClCompile Include="filereader.cpp" />
+    <ClCompile Include="ImageConverter.cpp" />
     <ClCompile Include="imageviewer.cpp" />
     <ClCompile Include="languages.cpp" />
     <ClCompile Include="dragdrop.cpp" />
+    <ClCompile Include="MarkedIcon.cpp" />
     <ClCompile Include="schemes.cpp" />
     <ClCompile Include="TransferDialog.cpp" />
     <ClCompile Include="structwriter.cpp" />
@@ -260,6 +262,7 @@
     </ClCompile>
     <ClCompile Include="updownload.cpp" />
     <ClCompile Include="videoplayer.cpp" />
+    <ClCompile Include="watermark.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="falcong.h" />
@@ -280,6 +283,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="csscreator.h" />
+    <ClInclude Include="ImageConverter.h" />
+    <ClInclude Include="ImageReader.h" />
+    <ClInclude Include="MarkedIcon.h" />
+    <ClInclude Include="watermark.h" />
     <QtMoc Include="TransferDialog.h" />
     <ClInclude Include="updownload.h" />
     <QtMoc Include="videoplayer.h" />

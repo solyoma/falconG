@@ -3,7 +3,7 @@
 #include <QtCore>
 #include <QtWidgets/QWidget>
 #include <QTextStream>
-#include <QtextList>
+#include <QTextList>
 
 #include "ui_textEditor.h"
 

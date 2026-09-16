@@ -1,4 +1,4 @@
-qt_add_executable(falconG PRIVATE
+qt_add_executable(falconG
     albums.cpp albums.h
 	common.h
     config.cpp config.h
@@ -7,7 +7,6 @@ qt_add_executable(falconG PRIVATE
 	dragdrop.cpp dragdrop.h
     falcong.cpp falcong.h falcong.ui
 	filereader.cpp filereader.h
-    hidden.h hidden.ui
     imageviewer.cpp imageviewer.h imageviewer.ui
     languages.cpp languages.h
     main.cpp
@@ -69,8 +68,8 @@ qt_add_resources(falconG "falcong"
         ${falcong_resource_files}
 )
 set(falcong1_resource_files
-    "en_US.ts"
-    "hu_HU.ts"
+    "../translations/en_US.ts"
+    "../translations/hu_HU.ts"
 )
 
 qt_add_resources(falconG "falcong1"
