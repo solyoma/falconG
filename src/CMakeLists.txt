@@ -1,51 +1,104 @@
-qt_add_executable(falconG
-    albums.cpp albums.h
-	common.h
-    config.cpp config.h
-    crc32.cpp crc32.h
-    csscreator.cpp csscreator.h
-	dragdrop.cpp dragdrop.h
-    falcong.cpp falcong.h falcong.ui
-	filereader.cpp filereader.h
-	ImageConverter.cpp ImageConverter.h
-	ImageReader.h
-    imageviewer.cpp imageviewer.h imageviewer.ui
-    languages.cpp languages.h
-    main.cpp
-	MarkedIcon.cpp MarkedIcon.h
-    schemes.cpp schemes.h
-	selectStruct.h
-    sourcehistory.cpp sourcehistory.h sourcehistory.ui
-    structwriter.cpp structwriter.h
-    stylehandler.cpp stylehandler.h
-    support.cpp support.h
-    textEditor.cpp textEditor.h textEditor.ui
-    thumbnailView.cpp thumbnailView.h
-	TransferDialog.cpp TransferDialog.h TransferDialog.ui
-    treeView.cpp treeView.h
-	updownload.cpp updownload.h
-	videoplayer.cpp videoplayer.h
-	watermark.cpp watermark.h
-)
-target_link_libraries(falconG PRIVATE
-    Qt::Core
-    Qt::Gui
-    Qt::Widgets
-    Qt::Multimedia
-    Qt::Concurrent
-    Qt::MultimediaWidgets
-    Qt::WebEngineCore
-    Qt::WebEngineWidgets
-    CURL::libcurl
-)
+﻿# ---------------------------
+# Executable
+# ---------------------------
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_add_executable(falconG
+        albums.cpp albums.h
+        common.h
+        config.cpp config.h
+        crc32.cpp crc32.h
+        csscreator.cpp csscreator.h
+        dragdrop.cpp dragdrop.h
+        falcong.cpp falcong.h falcong.ui
+        filereader.cpp filereader.h
+        ImageConverter.cpp ImageConverter.h
+        ImageReader.h
+        imageviewer.cpp imageviewer.h imageviewer.ui
+        languages.cpp languages.h
+        main.cpp
+        MarkedIcon.cpp MarkedIcon.h
+        schemes.cpp schemes.h
+        selectStruct.h
+        sourcehistory.cpp sourcehistory.h sourcehistory.ui
+        structwriter.cpp structwriter.h
+        stylehandler.cpp stylehandler.h
+        support.cpp support.h
+        textEditor.cpp textEditor.h textEditor.ui
+        thumbnailView.cpp thumbnailView.h
+        TransferDialog.cpp TransferDialog.h TransferDialog.ui
+        treeView.cpp treeView.h
+        updownload.cpp updownload.h
+        videoplayer.cpp videoplayer.h
+        watermark.cpp watermark.h
+    )
+else()
+    add_executable(falconG
+        albums.cpp albums.h
+        common.h
+        config.cpp config.h
+        crc32.cpp crc32.h
+        csscreator.cpp csscreator.h
+        dragdrop.cpp dragdrop.h
+        falcong.cpp falcong.h falcong.ui
+        filereader.cpp filereader.h
+        ImageConverter.cpp ImageConverter.h
+        ImageReader.h
+        imageviewer.cpp imageviewer.h imageviewer.ui
+        languages.cpp languages.h
+        main.cpp
+        MarkedIcon.cpp MarkedIcon.h
+        schemes.cpp schemes.h
+        selectStruct.h
+        sourcehistory.cpp sourcehistory.h sourcehistory.ui
+        structwriter.cpp structwriter.h
+        stylehandler.cpp stylehandler.h
+        support.cpp support.h
+        textEditor.cpp textEditor.h textEditor.ui
+        thumbnailView.cpp thumbnailView.h
+        TransferDialog.cpp TransferDialog.h TransferDialog.ui
+        treeView.cpp treeView.h
+        updownload.cpp updownload.h
+        videoplayer.cpp videoplayer.h
+        watermark.cpp watermark.h
+    )
+endif()
 
-target_compile_options(falconG PRIVATE
-    -Wno-unused-parameter
-    -std=c++17
-)
+# ---------------------------
+# Link libraries
+# ---------------------------
+if(QT_VERSION_MAJOR EQUAL 6)
+    target_link_libraries(falconG PRIVATE
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        Qt::Multimedia
+        Qt::Concurrent
+        Qt::MultimediaWidgets
+        Qt::WebEngineCore
+        Qt::WebEngineWidgets
+        CURL::libcurl
+    )
+else()
+    target_link_libraries(falconG PRIVATE
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Multimedia
+        Qt5::Concurrent
+        Qt5::MultimediaWidgets
+        Qt5::WebEngineWidgets
+        CURL::libcurl
+    )
+endif()
 
+#target_compile_options(falconG PRIVATE
+#    -Wno-unused-parameter
+#    -std=c++17
+#)
 
-# Resources:
+# ---------------------------
+# Resources
+# ---------------------------
 set(falcong_resource_files
     "Resources/aliasIcon.png"
     "Resources/blue-checked.png"
@@ -67,22 +120,20 @@ set(falcong_resource_files
 )
 
 qt_add_resources(falconG "falcong"
-    PREFIX
-        "/icons"
-    FILES
-        ${falcong_resource_files}
+    PREFIX "/icons"
+    FILES ${falcong_resource_files}
 )
+
 set(falcong1_resource_files
     "../translations/en_US.ts"
     "../translations/hu_HU.ts"
 )
 
 qt_add_resources(falconG "falcong1"
-    PREFIX
-        "/translations"
-    FILES
-        ${falcong1_resource_files}
+    PREFIX "/translations"
+    FILES ${falcong1_resource_files}
 )
+
 set(falcong2_resource_files
     "Resources/NoImage.jpg"
     "Resources/falconG.js"
@@ -94,20 +145,26 @@ set(falcong2_resource_files
 )
 
 qt_add_resources(falconG "falcong2"
-    PREFIX
-        "/Preview"
-    FILES
-        ${falcong2_resource_files}
+    PREFIX "/Preview"
+    FILES ${falcong2_resource_files}
 )
 
+# ---------------------------
+# Install
+# ---------------------------
 install(TARGETS falconG
     BUNDLE DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-qt_generate_deploy_app_script(
-    TARGET falconG
-    FILENAME_VARIABLE deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT ${deploy_script})
+# ---------------------------
+# Deployment (Qt6 only)
+# ---------------------------
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_generate_deploy_app_script(
+        TARGET falconG
+        OUTPUT_SCRIPT deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT ${deploy_script})
+endif()
